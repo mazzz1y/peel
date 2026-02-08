@@ -32,16 +32,14 @@ jobs:
       
       - name: Setup signing keystore
         run: |
-          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > release.keystore
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > app/release.keystore
       
       - name: Create local.properties
         run: |
-          cat > local.properties <<EOF
-          KEYSTORE_FILE=release.keystore
-          ALIAS_NAME=peel
-          KEYSTORE_PASS=${{ secrets.KEYSTORE_PASS }}
-          ALIAS_PASS=${{ secrets.KEYSTORE_PASS }}
-          EOF
+          echo "KEYSTORE_FILE=release.keystore" > local.properties
+          echo "ALIAS_NAME=peel" >> local.properties
+          echo "KEYSTORE_PASS=${{ secrets.KEYSTORE_PASS }}" >> local.properties
+          echo "ALIAS_PASS=${{ secrets.KEYSTORE_PASS }}" >> local.properties
       
       - name: Get version from tag
         id: version
