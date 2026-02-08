@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="com.android.launcher.permission.INSTALL_SHORTCUT" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <meta-data android:name="android.webkit.WebView.EnableSafeBrowsing"
+        android:value="false" />
+
+    <application
+        android:name="wtf.mazy.peel.util.App"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:screenOrientation="portrait"
+        android:usesCleartextTraffic="true"
+        android:resizeableActivity="true"
+        android:fullBackupContent="true">
+
+        <activity
+            android:name=".activities.MainActivity"
+            android:launchMode="singleTask"
+            android:theme="@style/AppTheme.Launcher"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+<!-- Main WebViewActivity (no sandbox, shared process) -->
+        <activity
+            android:name=".activities.WebViewActivity"
+            android:parentActivityName=".activities.MainActivity"
+            android:windowSoftInputMode="adjustResize"
+            android:icon="@mipmap/ic_launcher"
+            android:roundIcon="@mipmap/ic_launcher_round"
+            android:theme="@style/AppTheme.WebView"
+            android:configChanges="orientation|screenSize|smallestScreenSize|density|screenLayout|uiMode|keyboard|keyboardHidden|navigation"
+            android:launchMode="singleTask"
+            android:documentLaunchMode="intoExisting"
+            android:exported="true" />
+
+        <!-- Sandbox activities (each runs in isolated process) -->
+        <activity
+            android:name=".activities.SandboxActivity0"
+            android:windowSoftInputMode="adjustResize"
+            android:icon="@mipmap/ic_launcher"
+            android:roundIcon="@mipmap/ic_launcher_round"
+            android:theme="@style/AppTheme.WebView"
+            android:configChanges="orientation|screenSize|smallestScreenSize|density|screenLayout|uiMode|keyboard|keyboardHidden|navigation"
+            android:launchMode="singleTask"
+            android:process=":sandbox_0"
+            android:taskAffinity=""
+            android:exported="true" />
+        <activity
+            android:name=".activities.SandboxActivity1"
+            android:windowSoftInputMode="adjustResize"
+            android:icon="@mipmap/ic_launcher"
+            android:roundIcon="@mipmap/ic_launcher_round"
+            android:theme="@style/AppTheme.WebView"
+            android:configChanges="orientation|screenSize|smallestScreenSize|density|screenLayout|uiMode|keyboard|keyboardHidden|navigation"
+            android:launchMode="singleTask"
+            android:process=":sandbox_1"
+            android:taskAffinity=""
+            android:exported="true" />
+        <activity
+            android:name=".activities.SandboxActivity2"
+            android:windowSoftInputMode="adjustResize"
+            android:icon="@mipmap/ic_launcher"
+            android:roundIcon="@mipmap/ic_launcher_round"
+            android:theme="@style/AppTheme.WebView"
+            android:configChanges="orientation|screenSize|smallestScreenSize|density|screenLayout|uiMode|keyboard|keyboardHidden|navigation"
+            android:launchMode="singleTask"
+            android:process=":sandbox_2"
+            android:taskAffinity=""
+            android:exported="true" />
+        <activity
+            android:name=".activities.SandboxActivity3"
+            android:windowSoftInputMode="adjustResize"
+            android:icon="@mipmap/ic_launcher"
+            android:roundIcon="@mipmap/ic_launcher_round"
+            android:theme="@style/AppTheme.WebView"
+            android:configChanges="orientation|screenSize|smallestScreenSize|density|screenLayout|uiMode|keyboard|keyboardHidden|navigation"
+            android:launchMode="singleTask"
+            android:process=":sandbox_3"
+            android:taskAffinity=""
+            android:exported="true" />
+        <activity
+            android:name=".activities.SandboxActivity4"
+            android:windowSoftInputMode="adjustResize"
+            android:icon="@mipmap/ic_launcher"
+            android:roundIcon="@mipmap/ic_launcher_round"
+            android:theme="@style/AppTheme.WebView"
+            android:configChanges="orientation|screenSize|smallestScreenSize|density|screenLayout|uiMode|keyboard|keyboardHidden|navigation"
+            android:launchMode="singleTask"
+            android:process=":sandbox_4"
+            android:taskAffinity=""
+            android:exported="true" />
+        <activity
+            android:name=".activities.SandboxActivity5"
+            android:windowSoftInputMode="adjustResize"
+            android:icon="@mipmap/ic_launcher"
+            android:roundIcon="@mipmap/ic_launcher_round"
+            android:theme="@style/AppTheme.WebView"
+            android:configChanges="orientation|screenSize|smallestScreenSize|density|screenLayout|uiMode|keyboard|keyboardHidden|navigation"
+            android:launchMode="singleTask"
+            android:process=":sandbox_5"
+            android:taskAffinity=""
+            android:exported="true" />
+        <activity
+            android:name=".activities.SandboxActivity6"
+            android:windowSoftInputMode="adjustResize"
+            android:icon="@mipmap/ic_launcher"
+            android:roundIcon="@mipmap/ic_launcher_round"
+            android:theme="@style/AppTheme.WebView"
+            android:configChanges="orientation|screenSize|smallestScreenSize|density|screenLayout|uiMode|keyboard|keyboardHidden|navigation"
+            android:launchMode="singleTask"
+            android:process=":sandbox_6"
+            android:taskAffinity=""
+            android:exported="true" />
+        <activity
+            android:name=".activities.SandboxActivity7"
+            android:windowSoftInputMode="adjustResize"
+            android:icon="@mipmap/ic_launcher"
+            android:roundIcon="@mipmap/ic_launcher_round"
+            android:theme="@style/AppTheme.WebView"
+            android:configChanges="orientation|screenSize|smallestScreenSize|density|screenLayout|uiMode|keyboard|keyboardHidden|navigation"
+            android:launchMode="singleTask"
+            android:process=":sandbox_7"
+            android:taskAffinity=""
+            android:exported="true" />
+
+        <activity
+            android:name=".activities.SettingsActivity"
+            android:parentActivityName=".activities.MainActivity"
+            android:windowSoftInputMode="adjustResize"
+            android:icon="@mipmap/ic_launcher"
+            android:roundIcon="@mipmap/ic_launcher_round"
+            android:theme="@style/AppTheme">
+        </activity>
+        <activity
+            android:name=".activities.WebAppSettingsActivity"
+            android:parentActivityName=".activities.MainActivity"
+            android:windowSoftInputMode="adjustResize"
+            android:icon="@mipmap/ic_launcher"
+            android:roundIcon="@mipmap/ic_launcher_round"
+            android:theme="@style/AppTheme">
+        </activity>
+
+        <meta-data android:name="com.samsung.android.keepalive.density" android:value="true"/>
+        <meta-data android:name="com.samsung.android.multidisplay.keep_process_alive" android:value="true"/>
+        <!--        https://developer.samsung.com/samsung-dex/modify-optimizing.html-->
+    </application>
+
+</manifest>

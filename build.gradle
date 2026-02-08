@@ -1,0 +1,7 @@
+plugins {
+    id 'com.android.application' version '9.0.0' apply false
+}
+
+tasks.register('clean', Delete) {
+    delete rootProject.layout.buildDirectory
+}

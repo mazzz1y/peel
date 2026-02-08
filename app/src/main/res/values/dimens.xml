@@ -1,0 +1,20 @@
+<resources>
+    <dimen name="fab_margin">16dp</dimen>
+    <dimen name="line_height">60dp</dimen>
+    <dimen name="margin_dialog">15dp</dimen>
+    <dimen name="margin_activity">25dp</dimen>
+    <dimen name="settings_bottom">20dp</dimen>
+    <dimen name="settings_bottom_innersection">10dp</dimen>
+    <dimen name="remove_divider">-10dp</dimen>
+    <dimen name="margin_swipe_icon">20dp</dimen>
+    <dimen name="material_button_gap_space">10dp</dimen>
+    
+    <!-- Unified settings spacing -->
+    <dimen name="settings_item_padding_vertical">8dp</dimen>
+    <dimen name="settings_item_gap">16dp</dimen>
+    <dimen name="settings_divider_margin_top">8dp</dimen>
+    <dimen name="settings_divider_margin_bottom">16dp</dimen>
+    <dimen name="divider_height">1dp</dimen>
+    <dimen name="settings_text_size">16sp</dimen>
+    <dimen name="webapp_list_item_total_height">86dp</dimen>
+</resources>

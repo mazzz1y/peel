@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/SettingsItemContainer"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:minHeight="56dp">
+
+    <TextView
+        android:id="@+id/textSettingName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="Setting Name"
+        android:textColor="?attr/colorOnSurface"
+        android:textSize="@dimen/settings_text_size" />
+
+    <ImageButton
+        android:id="@+id/btnUndo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/undo"
+        android:padding="16dp"
+        android:src="@drawable/ic_undo_24dp"
+        android:visibility="gone" />
+
+    <com.google.android.material.materialswitch.MaterialSwitch
+        android:id="@+id/switchSetting"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <ImageButton
+        android:id="@+id/btnRemoveOverride"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/remove_override"
+        android:padding="16dp"
+        android:src="@drawable/ic_close_24dp" />
+
+</LinearLayout>

@@ -1,0 +1,35 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="wtf.mazy.peel.activities.MainActivity">
+    <item
+        android:id="@+id/action_more"
+        android:icon="@drawable/ic_baseline_more_vert_24"
+        android:title="@string/more"
+        app:iconTint="?attr/colorOnSurface"
+        app:showAsAction="always">
+        <menu>
+            <item
+                android:id="@+id/action_global_settings"
+                android:title="@string/action_settings" />
+            <item
+                android:id="@+id/action_backup"
+                android:title="@string/backup">
+                <menu>
+                    <item
+                        android:id="@+id/action_import"
+                        android:title="@string/import_data" />
+                    <item
+                        android:id="@+id/action_export"
+                        android:title="@string/export_data" />
+                </menu>
+            </item>
+            <item
+                android:id="@+id/action_clear_data"
+                android:title="@string/clear_data" />
+            <item
+                android:id="@+id/action_about"
+                android:title="@string/app_info" />
+        </menu>
+    </item>
+</menu>
