@@ -62,32 +62,24 @@ object ShortcutHelper {
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
             } ?: return
 
-        val icon =
-            if (webapp.hasCustomIcon && webapp.customIconPath != null) {
-                try {
-                    val iconFile = File(webapp.customIconPath!!)
-                    if (iconFile.exists()) {
-                        val bitmap = BitmapFactory.decodeFile(iconFile.absolutePath)
-                        if (bitmap != null) {
-                            val resizedBitmap = resizeBitmapForAdaptiveIcon(bitmap)
-                            IconCompat.createWithAdaptiveBitmap(resizedBitmap)
-                        } else {
-                            val letterBitmap = LetterIconGenerator.generateForAdaptiveIcon(webapp.title, webapp.baseUrl)
-                            IconCompat.createWithAdaptiveBitmap(letterBitmap)
-                        }
-                    } else {
-                        val letterBitmap = LetterIconGenerator.generateForAdaptiveIcon(webapp.title, webapp.baseUrl)
-                        IconCompat.createWithAdaptiveBitmap(letterBitmap)
-                    }
-                } catch (e: Exception) {
-                    Log.w("ShortcutHelper", "Failed to load saved icon", e)
-                    val letterBitmap = LetterIconGenerator.generateForAdaptiveIcon(webapp.title, webapp.baseUrl)
-                    IconCompat.createWithAdaptiveBitmap(letterBitmap)
+        val icon = if (webapp.hasCustomIcon) {
+            try {
+                val bitmap = BitmapFactory.decodeFile(webapp.iconFile.absolutePath)
+                if (bitmap != null) {
+                    IconCompat.createWithAdaptiveBitmap(resizeBitmapForAdaptiveIcon(bitmap))
+                } else {
+                    IconCompat.createWithAdaptiveBitmap(
+                        LetterIconGenerator.generateForAdaptiveIcon(webapp.title, webapp.baseUrl))
                 }
-            } else {
-                val letterBitmap = LetterIconGenerator.generateForAdaptiveIcon(webapp.title, webapp.baseUrl)
-                IconCompat.createWithAdaptiveBitmap(letterBitmap)
+            } catch (e: Exception) {
+                Log.w("ShortcutHelper", "Failed to load saved icon", e)
+                IconCompat.createWithAdaptiveBitmap(
+                    LetterIconGenerator.generateForAdaptiveIcon(webapp.title, webapp.baseUrl))
             }
+        } else {
+            IconCompat.createWithAdaptiveBitmap(
+                LetterIconGenerator.generateForAdaptiveIcon(webapp.title, webapp.baseUrl))
+        }
 
         val finalTitle = webapp.title.ifEmpty { "Unknown" }
 

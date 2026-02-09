@@ -205,16 +205,13 @@ class WebAppSettingsActivity : ToolbarBaseActivity<WebappSettingsBinding>(),
     }
 
     private fun loadCurrentIcon(modifiedWebapp: WebApp) {
-        if (modifiedWebapp.hasCustomIcon && modifiedWebapp.customIconPath != null) {
+        if (modifiedWebapp.hasCustomIcon) {
             try {
-                val iconFile = File(modifiedWebapp.customIconPath!!)
-                if (iconFile.exists()) {
-                    val bitmap = BitmapFactory.decodeFile(iconFile.absolutePath)
-                    if (bitmap != null) {
-                        binding.imgWebAppIcon.setImageBitmap(bitmap)
-                        binding.imgWebAppIconPlaceholder.visibility = View.GONE
-                        customIconBitmap = bitmap
-                    }
+                val bitmap = BitmapFactory.decodeFile(modifiedWebapp.iconFile.absolutePath)
+                if (bitmap != null) {
+                    binding.imgWebAppIcon.setImageBitmap(bitmap)
+                    binding.imgWebAppIconPlaceholder.visibility = View.GONE
+                    customIconBitmap = bitmap
                 }
             } catch (e: Exception) {
                 Log.w("WebAppSettings", "Failed to load custom icon", e)
@@ -224,13 +221,11 @@ class WebAppSettingsActivity : ToolbarBaseActivity<WebappSettingsBinding>(),
 
     private fun saveIconToFile(webApp: WebApp, bitmap: Bitmap) {
         try {
-            val iconFile = File(App.appContext.filesDir, "icons/${webApp.uuid}.png")
+            val iconFile = webApp.iconFile
             iconFile.parentFile?.mkdirs()
             FileOutputStream(iconFile).use { output ->
                 bitmap.compress(Bitmap.CompressFormat.PNG, 100, output)
             }
-            webApp.customIconPath = iconFile.absolutePath
-            webApp.hasCustomIcon = true
         } catch (e: Exception) {
             Log.w("WebAppSettings", "Failed to save icon for webapp ${webApp.uuid}", e)
         }

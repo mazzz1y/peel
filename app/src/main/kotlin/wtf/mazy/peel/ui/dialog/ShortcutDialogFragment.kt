@@ -134,16 +134,11 @@ class ShortcutDialogFragment : DialogFragment() {
             uiTitle!!.setText(webapp!!.title)
         }
 
-        if (webapp?.hasCustomIcon == true && webapp?.customIconPath != null) {
+        if (webapp?.hasCustomIcon == true) {
             try {
-                val iconFile = java.io.File(webapp!!.customIconPath!!)
-                if (iconFile.exists()) {
-                    bitmap = BitmapFactory.decodeFile(iconFile.absolutePath)
-                    if (bitmap != null) {
-                        uiFavicon!!.setImageBitmap(bitmap)
-                    } else {
-                        setLetterIconFallback()
-                    }
+                bitmap = BitmapFactory.decodeFile(webapp!!.iconFile.absolutePath)
+                if (bitmap != null) {
+                    uiFavicon!!.setImageBitmap(bitmap)
                 } else {
                     setLetterIconFallback()
                 }

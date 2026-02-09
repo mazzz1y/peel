@@ -20,7 +20,6 @@ import wtf.mazy.peel.util.LetterIconGenerator
 import wtf.mazy.peel.util.ShortcutHelper
 import wtf.mazy.peel.util.WebViewLauncher.startWebView
 import com.google.android.material.snackbar.Snackbar
-import java.io.File
 import java.util.Collections
 
 class WebAppListAdapter(private val activityOfFragment: Activity) :
@@ -64,14 +63,11 @@ class WebAppListAdapter(private val activityOfFragment: Activity) :
     }
 
     private fun loadIcon(webapp: WebApp, imageView: ImageView) {
-        if (webapp.hasCustomIcon && webapp.customIconPath != null) {
-            val iconFile = File(webapp.customIconPath!!)
-            if (iconFile.exists()) {
-                val bitmap = BitmapFactory.decodeFile(iconFile.absolutePath)
-                if (bitmap != null) {
-                    imageView.setImageBitmap(bitmap)
-                    return
-                }
+        if (webapp.hasCustomIcon) {
+            val bitmap = BitmapFactory.decodeFile(webapp.iconFile.absolutePath)
+            if (bitmap != null) {
+                imageView.setImageBitmap(bitmap)
+                return
             }
         }
         val sizePx = imageView.context.resources.displayMetrics.density * 48
@@ -126,14 +122,13 @@ class WebAppListAdapter(private val activityOfFragment: Activity) :
         clonedWebApp.settings = webapp.settings.copy()
         clonedWebApp.order = webapp.order + 1
 
-        if (webapp.hasCustomIcon && webapp.customIconPath != null) {
-            val sourceFile = File(webapp.customIconPath!!)
-            if (sourceFile.exists()) {
-                val destFile = File(activityOfFragment.filesDir, "icons/${clonedWebApp.uuid}.png")
+        if (webapp.hasCustomIcon) {
+            try {
+                val destFile = clonedWebApp.iconFile
                 destFile.parentFile?.mkdirs()
-                sourceFile.copyTo(destFile, overwrite = true)
-                clonedWebApp.customIconPath = destFile.absolutePath
-                clonedWebApp.hasCustomIcon = true
+                webapp.iconFile.copyTo(destFile, overwrite = true)
+            } catch (e: Exception) {
+                android.util.Log.w("WebAppListAdapter", "Failed to clone icon", e)
             }
         }
 

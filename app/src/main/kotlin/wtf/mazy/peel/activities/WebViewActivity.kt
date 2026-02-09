@@ -1033,9 +1033,8 @@ open class WebViewActivity : AppCompatActivity() {
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
             )
 
-        val webappIcon = if (webapp.hasCustomIcon && webapp.customIconPath != null) {
-            val iconFile = java.io.File(webapp.customIconPath!!)
-            if (iconFile.exists()) android.graphics.BitmapFactory.decodeFile(iconFile.absolutePath) else null
+        val webappIcon = if (webapp.hasCustomIcon) {
+            android.graphics.BitmapFactory.decodeFile(webapp.iconFile.absolutePath)
         } else null
         val notificationIcon = webappIcon ?: wtf.mazy.peel.util.LetterIconGenerator.generate(webapp.title, webapp.baseUrl, (48 * resources.displayMetrics.density).toInt())
 

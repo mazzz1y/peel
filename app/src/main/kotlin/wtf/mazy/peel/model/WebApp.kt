@@ -1,8 +1,10 @@
 package wtf.mazy.peel.model
 
 import android.app.Activity
+import wtf.mazy.peel.util.App
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.ShortcutIconUtils
+import java.io.File
 import java.util.UUID
 
 data class WebApp(var baseUrl: String, val uuid: String = UUID.randomUUID().toString()) {
@@ -10,10 +12,14 @@ data class WebApp(var baseUrl: String, val uuid: String = UUID.randomUUID().toSt
     var isActiveEntry = true
     var isUseContainer = false
     var order = 0
-    var customIconPath: String? = null
-    var hasCustomIcon = false
 
     var settings = WebAppSettings()
+
+    val iconFile: File
+        get() = File(App.appContext.filesDir, "icons/${uuid}.png")
+
+    val hasCustomIcon: Boolean
+        get() = iconFile.exists()
 
     val effectiveSettings: WebAppSettings
         get() = settings.getEffective(DataManager.instance.defaultSettings.settings)
@@ -35,8 +41,6 @@ data class WebApp(var baseUrl: String, val uuid: String = UUID.randomUUID().toSt
     constructor(other: WebApp) : this(other.baseUrl, other.uuid) {
         title = other.title
         isUseContainer = other.isUseContainer
-        customIconPath = other.customIconPath
-        hasCustomIcon = other.hasCustomIcon
         order = other.order
         settings = other.settings.copy()
     }
@@ -52,10 +56,20 @@ data class WebApp(var baseUrl: String, val uuid: String = UUID.randomUUID().toSt
         ShortcutIconUtils.deleteShortcuts(listOf(uuid), activity)
     }
 
+    fun deleteIcon() {
+        try {
+            if (iconFile.exists()) {
+                iconFile.delete()
+            }
+        } catch (e: Exception) {
+            android.util.Log.w("WebApp", "Failed to delete custom icon for webapp $uuid", e)
+        }
+    }
+
     fun cleanupWebAppData(activity: Activity) {
         try {
             val webViewDir =
-                java.io.File(activity.applicationContext.filesDir.parent, "app_webview_$uuid")
+                File(activity.applicationContext.filesDir.parent, "app_webview_$uuid")
             if (webViewDir.exists()) {
                 webViewDir.deleteRecursively()
                 android.util.Log.d("WebApp", "Deleted WebView data directory for webapp: $uuid")
@@ -65,16 +79,6 @@ data class WebApp(var baseUrl: String, val uuid: String = UUID.randomUUID().toSt
                 "WebApp", "Failed to delete WebView data directory for webapp $uuid", e)
         }
 
-        if (hasCustomIcon && customIconPath != null) {
-            try {
-                val iconFile = java.io.File(customIconPath!!)
-                if (iconFile.exists()) {
-                    iconFile.delete()
-                    android.util.Log.d("WebApp", "Deleted custom icon for webapp: $uuid")
-                }
-            } catch (e: Exception) {
-                android.util.Log.w("WebApp", "Failed to delete custom icon for webapp $uuid", e)
-            }
-        }
+        deleteIcon()
     }
 }
