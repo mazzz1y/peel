@@ -9,8 +9,6 @@ import android.text.TextWatcher
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
-import android.webkit.CookieManager
-import android.webkit.WebStorage
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -66,8 +64,6 @@ class MainActivity : AppCompatActivity() {
                         Snackbar.LENGTH_LONG,
                     )
                 } else {
-                    WebStorage.getInstance().deleteAllData()
-                    CookieManager.getInstance().removeAllCookies(null)
                     DataManager.instance.loadAppData()
                     updateWebAppList()
                     buildImportSuccessDialog()
