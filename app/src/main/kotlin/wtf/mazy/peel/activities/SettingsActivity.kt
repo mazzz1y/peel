@@ -348,10 +348,6 @@ class SettingsActivity : ToolbarBaseActivity<GlobalSettingsBinding>() {
         btnRemove?.visibility = View.GONE
         textName.text = setting.displayName
 
-        if (webapp.settings.customHeaders == null) {
-            webapp.settings.customHeaders = mutableMapOf()
-        }
-
         fun refreshHeaders() {
             container.removeAllViews()
             webapp.settings.customHeaders?.forEach { (key, value) ->
@@ -362,6 +358,9 @@ class SettingsActivity : ToolbarBaseActivity<GlobalSettingsBinding>() {
         refreshHeaders()
 
         btnAdd.setOnClickListener {
+            if (webapp.settings.customHeaders == null) {
+                webapp.settings.customHeaders = mutableMapOf()
+            }
             webapp.settings.customHeaders?.put("", "")
             addHeaderEntryView(container, webapp, "", "")
         }

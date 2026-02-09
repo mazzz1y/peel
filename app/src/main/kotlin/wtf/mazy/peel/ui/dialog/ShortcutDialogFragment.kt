@@ -24,6 +24,7 @@ import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.core.graphics.drawable.IconCompat
 import androidx.fragment.app.DialogFragment
 import wtf.mazy.peel.R
+import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.util.App
 import wtf.mazy.peel.util.LetterIconGenerator
@@ -46,8 +47,25 @@ class ShortcutDialogFragment : DialogFragment() {
     private var faviconFetcherTask: Future<*>? = null
     private var iconPickerLauncher: ActivityResultLauncher<String?>? = null
 
+    companion object {
+        private const val ARG_WEBAPP_UUID = "webapp_uuid"
+
+        fun newInstance(webappUuid: String): ShortcutDialogFragment {
+            return ShortcutDialogFragment().apply {
+                arguments = Bundle().apply {
+                    putString(ARG_WEBAPP_UUID, webappUuid)
+                }
+            }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val uuid = arguments?.getString(ARG_WEBAPP_UUID)
+        if (uuid != null) {
+            webapp = DataManager.instance.getWebApp(uuid)
+        }
 
         executorService = Executors.newSingleThreadExecutor()
 

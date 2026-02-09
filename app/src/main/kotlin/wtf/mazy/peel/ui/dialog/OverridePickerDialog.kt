@@ -1,6 +1,7 @@
 package wtf.mazy.peel.ui.dialog
 
 import android.app.Dialog
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -10,6 +11,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.gson.Gson
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.SettingCategory
 import wtf.mazy.peel.model.SettingDefinition
@@ -29,21 +31,49 @@ class OverridePickerDialog : DialogFragment() {
     companion object {
         private const val VIEW_TYPE_HEADER = 0
         private const val VIEW_TYPE_SETTING = 1
+        private const val ARG_CURRENT_SETTINGS = "current_settings"
+        private const val ARG_GLOBAL_SETTINGS = "global_settings"
 
         fun newInstance(
             currentSettings: WebAppSettings,
             globalSettings: WebAppSettings,
             listener: OnSettingSelectedListener,
         ): OverridePickerDialog {
+            val gson = Gson()
             return OverridePickerDialog().apply {
-                this.currentSettings = currentSettings
-                this.globalSettings = globalSettings
                 this.listener = listener
+                arguments = Bundle().apply {
+                    putString(ARG_CURRENT_SETTINGS, gson.toJson(currentSettings))
+                    putString(ARG_GLOBAL_SETTINGS, gson.toJson(globalSettings))
+                }
             }
         }
     }
 
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        if (listener == null && context is OnSettingSelectedListener) {
+            listener = context
+        }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        val gson = Gson()
+        arguments?.getString(ARG_CURRENT_SETTINGS)?.let {
+            currentSettings = gson.fromJson(it, WebAppSettings::class.java)
+        }
+        arguments?.getString(ARG_GLOBAL_SETTINGS)?.let {
+            globalSettings = gson.fromJson(it, WebAppSettings::class.java)
+        }
+    }
+
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        if (currentSettings == null || listener == null) {
+            dismissAllowingStateLoss()
+            return AlertDialog.Builder(requireContext()).create()
+        }
+
         val builder = AlertDialog.Builder(requireContext())
         val view = layoutInflater.inflate(R.layout.dialog_override_picker, null)
 

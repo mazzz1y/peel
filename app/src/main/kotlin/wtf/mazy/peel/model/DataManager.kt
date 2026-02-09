@@ -119,10 +119,6 @@ class DataManager private constructor() {
         get() = websites.filter { it.isActiveEntry }.sortedBy { it.order }.toCollection(ArrayList())
 
     fun getWebApp(uuid: String): WebApp? {
-        return getWebAppIgnoringGlobalOverride(uuid, false)
-    }
-
-    fun getWebAppIgnoringGlobalOverride(uuid: String, ignoreOverride: Boolean): WebApp? {
         val webApp = websites.find { it.uuid == uuid }
         if (webApp == null) {
             Toast.makeText(
@@ -136,8 +132,6 @@ class DataManager private constructor() {
                 }
             return null
         }
-        // With nullable settings, we no longer copy global settings
-        // effectiveSettings property handles the fallback at runtime
         return webApp
     }
 

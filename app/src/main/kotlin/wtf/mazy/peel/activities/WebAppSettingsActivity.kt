@@ -38,7 +38,8 @@ import org.json.JSONException
 import org.json.JSONObject
 import org.jsoup.Jsoup
 
-class WebAppSettingsActivity : ToolbarBaseActivity<WebappSettingsBinding>() {
+class WebAppSettingsActivity : ToolbarBaseActivity<WebappSettingsBinding>(),
+    OverridePickerDialog.OnSettingSelectedListener {
     var webappUuid: String? = null
     var webapp: WebApp? = null
     private var modifiedWebapp: WebApp? = null
@@ -69,7 +70,7 @@ class WebAppSettingsActivity : ToolbarBaseActivity<WebappSettingsBinding>() {
             prepareGlobalWebAppScreen()
         } else
             webapp =
-                webappUuid?.let { DataManager.instance.getWebAppIgnoringGlobalOverride(it, true) }
+                webappUuid?.let { DataManager.instance.getWebApp(it) }
 
         if (webapp == null) {
             finish()
@@ -798,25 +799,24 @@ class WebAppSettingsActivity : ToolbarBaseActivity<WebappSettingsBinding>() {
         container.addView(entryView)
     }
 
+    override fun onSettingSelected(setting: wtf.mazy.peel.model.SettingDefinition) {
+        val webapp = modifiedWebapp ?: return
+        if (setting.type == wtf.mazy.peel.model.SettingType.STRING_MAP) {
+            webapp.settings.customHeaders = mutableMapOf()
+        } else {
+            val defaultValue =
+                DataManager.instance.defaultSettings.settings.getValue(setting.key)
+            webapp.settings.setValue(setting.key, defaultValue)
+        }
+        addOverrideView(setting, webapp)
+    }
+
     private fun showOverridePickerDialog(modifiedWebapp: WebApp) {
         val dialog =
             OverridePickerDialog.newInstance(
                 modifiedWebapp.settings,
                 DataManager.instance.defaultSettings.settings,
-                object : OverridePickerDialog.OnSettingSelectedListener {
-                    override fun onSettingSelected(
-                        setting: wtf.mazy.peel.model.SettingDefinition
-                    ) {
-                        if (setting.type == wtf.mazy.peel.model.SettingType.STRING_MAP) {
-                            modifiedWebapp.settings.customHeaders = mutableMapOf()
-                        } else {
-                            val defaultValue =
-                                DataManager.instance.defaultSettings.settings.getValue(setting.key)
-                            modifiedWebapp.settings.setValue(setting.key, defaultValue)
-                        }
-                        addOverrideView(setting, modifiedWebapp)
-                    }
-                },
+                this,
             )
         dialog.show(supportFragmentManager, "OverridePickerDialog")
     }

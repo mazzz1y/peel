@@ -81,7 +81,6 @@ import wtf.mazy.peel.util.WebViewLauncher
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.snackbar.Snackbar
 import java.util.Calendar
-import java.util.Collections
 import java.util.stream.Stream
 
 open class WebViewActivity : AppCompatActivity() {
@@ -95,7 +94,7 @@ open class WebViewActivity : AppCompatActivity() {
     private var mGeoPermissionRequestCallback: GeolocationPermissions.Callback? = null
     private var mGeoPermissionRequestOrigin: String? = null
     private var dlRequest: DownloadManager.Request? = null
-    private var customHeaders: MutableMap<String?, String?>? = null
+    private var customHeaders: Map<String, String>? = null
     private var filePathCallback: ValueCallback<Array<Uri?>?>? = null
     private var filePickerLauncher: ActivityResultLauncher<Intent?>? = null
 
@@ -109,9 +108,9 @@ open class WebViewActivity : AppCompatActivity() {
             override fun onReceive(context: Context?, intent: Intent) {
                 val action = intent.action
                 Log.d("Notification", "Received action: $action")
-                if (ACTION_RELOAD == action) {
+                if (actionReload == action) {
                     reloadPage()
-                } else if (ACTION_HOME == action) {
+                } else if (actionHome == action) {
                     goToHome()
                 }
             }
@@ -389,13 +388,16 @@ open class WebViewActivity : AppCompatActivity() {
     @SuppressLint("RequiresFeature")
     private fun setDarkModeIfNeeded() {
         val settings = webapp.effectiveSettings
+        val isInDarkModeTimespan = if (settings.isUseTimespanDarkMode == true) {
+            val begin = convertStringToCalendar(settings.timespanDarkModeBegin)
+            val end = convertStringToCalendar(settings.timespanDarkModeEnd)
+            if (begin != null && end != null) {
+                isInInterval(begin, Calendar.getInstance(), end)
+            } else false
+        } else false
+
         val needsForcedDarkMode =
-            (settings.isUseTimespanDarkMode == true &&
-                isInInterval(
-                    convertStringToCalendar(settings.timespanDarkModeBegin)!!,
-                    Calendar.getInstance(),
-                    convertStringToCalendar(settings.timespanDarkModeEnd)!!,
-                )) || (settings.isUseTimespanDarkMode != true && settings.isForceDarkMode == true)
+            isInDarkModeTimespan || (settings.isUseTimespanDarkMode != true && settings.isForceDarkMode == true)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             val isAlgorithmicDarkeningSupported =
@@ -475,8 +477,8 @@ open class WebViewActivity : AppCompatActivity() {
         if (webView != null) setDarkModeIfNeeded()
 
         val filter = IntentFilter()
-        filter.addAction(ACTION_RELOAD)
-        filter.addAction(ACTION_HOME)
+        filter.addAction(actionReload)
+        filter.addAction(actionHome)
         ContextCompat.registerReceiver(
             this,
             notificationReceiver,
@@ -523,34 +525,34 @@ open class WebViewActivity : AppCompatActivity() {
     }
 
     private fun reload() {
+        val handler = reloadHandler ?: return
         val timeAutoreload = webapp.effectiveSettings.timeAutoReload ?: 0
-        reloadHandler!!.postDelayed(
+        handler.postDelayed(
             {
                 currentlyReloading = true
-                webView!!.reload()
+                webView?.reload()
                 reload()
             },
             timeAutoreload * 1000L,
         )
     }
 
-    private fun initCustomHeaders(settings: WebAppSettings): MutableMap<String?, String?> {
-        val extraHeaders: MutableMap<String?, String?> = HashMap()
+    private fun initCustomHeaders(settings: WebAppSettings): Map<String, String> {
+        val extraHeaders: MutableMap<String, String> = HashMap()
         extraHeaders["DNT"] = "1"
         extraHeaders["X-REQUESTED-WITH"] = ""
         settings.customHeaders?.forEach { (key, value) -> extraHeaders[key] = value }
-        return Collections.unmodifiableMap<String?, String?>(extraHeaders)
+        return extraHeaders.toMap()
     }
 
     private fun loadURL(view: WebView?, url: String) {
-        webappUuid?.let { DataManager.instance.getWebApp(it) }
         var finalUrl = url
 
         if (url.startsWith("http://") && webapp.effectiveSettings.isAlwaysHttps == true) {
             finalUrl = url.replaceFirst("http://", "https://")
         }
 
-        view?.loadUrl(finalUrl, customHeaders!!)
+        view?.loadUrl(finalUrl, customHeaders ?: emptyMap())
     }
 
     private fun hideSystemBars() {
@@ -680,7 +682,11 @@ open class WebViewActivity : AppCompatActivity() {
             filePathCallback = pFilePathCallback
             try {
                 val intent = fileChooserParams.createIntent()
-                filePickerLauncher!!.launch(intent)
+                filePickerLauncher?.launch(intent) ?: run {
+                    filePathCallback?.onReceiveValue(null)
+                    filePathCallback = null
+                    return true
+                }
             } catch (e: Exception) {
                 showInfoSnackBar(
                     this@WebViewActivity,
@@ -909,10 +915,7 @@ open class WebViewActivity : AppCompatActivity() {
         override fun onLoadResource(view: WebView, url: String?) {
             super.onLoadResource(view, url)
 
-            if (webappUuid
-                ?.let { DataManager.instance.getWebApp(it) }
-                ?.settings
-                ?.isRequestDesktop == true)
+            if (webapp.effectiveSettings.isRequestDesktop == true)
                 view.evaluateJavascript(
                     """
                          var needsForcedWidth = document.documentElement.clientWidth < 1200;
@@ -1005,27 +1008,27 @@ open class WebViewActivity : AppCompatActivity() {
         val shareIntent =
             PendingIntent.getActivity(
                 this,
-                0,
+                RC_SHARE + webappIdHash,
                 shareChooser,
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
             )
 
-        val reloadIntentAction = Intent(ACTION_RELOAD)
+        val reloadIntentAction = Intent(actionReload)
         reloadIntentAction.setPackage(packageName)
         val reloadIntent =
             PendingIntent.getBroadcast(
                 this,
-                1,
+                RC_RELOAD + webappIdHash,
                 reloadIntentAction,
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
             )
 
-        val homeIntentAction = Intent(ACTION_HOME)
+        val homeIntentAction = Intent(actionHome)
         homeIntentAction.setPackage(packageName)
         val homeIntent =
             PendingIntent.getBroadcast(
                 this,
-                2,
+                RC_HOME + webappIdHash,
                 homeIntentAction,
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
             )
@@ -1051,13 +1054,13 @@ open class WebViewActivity : AppCompatActivity() {
                 .addAction(R.drawable.ic_baseline_refresh_24, "Reload", reloadIntent)
 
         val notificationManager = NotificationManagerCompat.from(this)
-        notificationManager.notify(NOTIFICATION_ID, builder.build())
+        notificationManager.notify(NOTIFICATION_BASE_ID + webappIdHash, builder.build())
         Log.d("Notification", "Notification shown")
     }
 
     private fun hideNotification() {
         val notificationManager = NotificationManagerCompat.from(this)
-        notificationManager.cancel(NOTIFICATION_ID)
+        notificationManager.cancel(NOTIFICATION_BASE_ID + webappIdHash)
     }
 
     private fun reloadPage() {
@@ -1100,11 +1103,22 @@ open class WebViewActivity : AppCompatActivity() {
         return match?.groupValues?.get(1)?.toIntOrNull()
     }
 
+    private val webappIdHash: Int
+        get() = webappUuid?.hashCode()?.and(0x7FFFFFFF) ?: 0
+
+    private val actionReload: String
+        get() = "wtf.mazy.peel.RELOAD.$webappUuid"
+
+    private val actionHome: String
+        get() = "wtf.mazy.peel.HOME.$webappUuid"
+
     companion object {
         private const val CHANNEL_ID = "webview_controls"
-        private const val NOTIFICATION_ID = 1001
-        private const val ACTION_RELOAD = "wtf.mazy.peel.RELOAD"
-        private const val ACTION_HOME = "wtf.mazy.peel.HOME"
         private const val REQUEST_NOTIFICATION_PERMISSION = 1002
+
+        private const val RC_SHARE = 1
+        private const val RC_RELOAD = 2
+        private const val RC_HOME = 3
+        private const val NOTIFICATION_BASE_ID = 1001
     }
 }
