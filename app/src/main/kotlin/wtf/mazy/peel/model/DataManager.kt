@@ -148,7 +148,7 @@ class DataManager private constructor() {
                     val data = mapOf(
                         "version" to BACKUP_VERSION,
                         "websites" to websites,
-                        "defaultSettings" to defaultSettings,
+                        "globalSettings" to defaultSettings.settings,
                     )
                     zip.putNextEntry(ZipEntry("data.json"))
                     zip.write(gson.toJson(data).toByteArray())
@@ -223,7 +223,7 @@ class DataManager private constructor() {
                     val websitesJson = data["websites"] as? List<Map<String, Any>>
 
                     @Suppress("UNCHECKED_CAST")
-                    val defaultSettingsJson = data["defaultSettings"] as? Map<String, Any>
+                    val globalSettingsJson = data["globalSettings"] as? Map<String, Any>
 
                     if (websitesJson != null) {
                         val gson = GsonBuilder()
@@ -234,12 +234,10 @@ class DataManager private constructor() {
                             .toCollection(ArrayList())
                     }
 
-                    if (defaultSettingsJson != null) {
-                        val gson = GsonBuilder()
-                            .registerTypeAdapter(WebApp::class.java, WebAppDeserializer())
-                            .create()
-                        defaultSettings =
-                            gson.fromJson(Gson().toJson(defaultSettingsJson), WebApp::class.java)
+                    if (globalSettingsJson != null) {
+                        val gson = Gson()
+                        defaultSettings.settings =
+                            gson.fromJson(gson.toJson(globalSettingsJson), WebAppSettings::class.java)
                     }
 
                     icons.forEach { (uuid, bitmap) ->
