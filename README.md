@@ -36,6 +36,32 @@ alt="Get it on Obtainium" align="center" height="54" />
 
 Hard fork of [Native Alpha](https://github.com/cylonid/NativeAlphaForAndroid) with significant changes including flow refactoring, removal of redundant options, and new features. Not compatible with the original.
 
+<details>
+<summary>Changes from Native Alpha</summary>
+
+#### Removed Features
+- Ad blocking
+- Multi-touch gestures (2-finger navigation, 3-finger app switching, 2-finger reload)
+- Custom WebView context menu pop-up
+
+#### Added Features
+- Material Design 3 dynamic color support
+- More reliable UUID-based app storage
+- Web-app reordering
+- Backups now include webapp positions in the list and images
+- Persistent notification with Home/Share/Reload actions
+- Optional pull-to-refresh
+- More reliable icon fetching
+- Letter icon generator
+- Per-webapp setting overrides via a picker dialog
+- Custom HTTP header map (replaces the dedicated user-agent setting)
+- Always-use-HTTPS upgrade setting
+- Disable screenshots setting (`FLAG_SECURE`)
+- Long-press link sharing
+- Per-webapp sandbox data clearing
+
+</details>
+
 ## License
 
 [GPL-3.0](LICENSE)
