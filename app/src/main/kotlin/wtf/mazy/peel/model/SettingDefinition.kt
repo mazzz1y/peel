@@ -203,6 +203,12 @@ object SettingRegistry {
                 SettingCategory.ADVANCED,
                 SettingType.STRING_MAP,
             ),
+            SettingDefinition(
+                "isSafeBrowsing",
+                "Safe Browsing",
+                SettingCategory.PRIVACY,
+                SettingType.BOOLEAN,
+            ),
         )
     }
 

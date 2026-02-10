@@ -42,6 +42,8 @@
     <string name="no_https_dialog_title">No HTTPS encryption</string>
     <string name="no_https_dialog_accept">Allow HTTP within this Web App</string>
     <string name="no_https_dialog_msg">This page uses an unencrypted HTTP connection. Do not enter any sensible data.</string>
+    <string name="https_only_blocked">Blocked: unencrypted connection</string>
+    <string name="ssl_error_blocked">Blocked: %1$s</string>
     <string name="allow_http">Allow HTTP</string>
     <string name="webapp_section_security">Network &amp; Security</string>
     <string name="permissions">Permissions</string>

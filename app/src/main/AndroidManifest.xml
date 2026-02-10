@@ -14,9 +14,6 @@
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
-    <meta-data android:name="android.webkit.WebView.EnableSafeBrowsing"
-        android:value="false" />
-
     <application
         android:name="wtf.mazy.peel.util.App"
         android:allowBackup="true"

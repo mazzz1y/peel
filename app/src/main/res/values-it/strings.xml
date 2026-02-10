@@ -41,6 +41,8 @@
     <string name="no_https_dialog_accept">Consenti HTTP all\'interno di questa applicazione web</string>
     <string name="no_https_dialog_msg">Questa pagina utilizza una connessione HTTP non criptata. Non inserire dati sensibili.</string>
     <string name="allow_http">Consenti HTTP</string>
+    <string name="https_only_blocked">Bloccato: connessione non crittografata</string>
+    <string name="ssl_error_blocked">Bloccato: %1$s</string>
     <string name="webapp_section_security">Sicurezza &amp; Privacy</string>
     <string name="import_failed">Backup non ripristinabile.</string>
     <string name="import_success">Il backup di %1$d Web App è stato ripristinato con successo.</string>

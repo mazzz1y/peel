@@ -41,6 +41,8 @@
     <string name="no_https_dialog_accept">Permitir HTTP en esta aplicación web</string>
     <string name="no_https_dialog_msg">Esta página utiliza una conexión HTTP no cifrada. No introduzca ningún dato sensible.</string>
     <string name="allow_http">Permitir HTTP</string>
+    <string name="https_only_blocked">Bloqueado: conexión no cifrada</string>
+    <string name="ssl_error_blocked">Bloqueado: %1$s</string>
     <string name="webapp_section_security">Seguridad &amp; Privacidad</string>
     <string name="import_failed">La copia de seguridad no se ha podido restaurar.</string>
     <string name="import_success">Copia de seguridad con %1$d aplicación(es) web ha sido restaurada con éxito.</string>

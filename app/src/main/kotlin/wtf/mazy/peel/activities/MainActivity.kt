@@ -77,7 +77,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         webAppListFragment =
             supportFragmentManager.findFragmentById(R.id.fragment_container_view)
-                as WebAppListFragment
+                    as WebAppListFragment
         entryPointReached()
 
         val fab = findViewById<FloatingActionButton>(R.id.fab)
@@ -176,7 +176,8 @@ class MainActivity : AppCompatActivity() {
         val dialogView = layoutInflater.inflate(R.layout.dialog_clear_data, null)
         val switchSandboxed =
             dialogView.findViewById<com.google.android.material.materialswitch.MaterialSwitch>(
-                R.id.switchSandboxed)
+                R.id.switchSandboxed
+            )
 
         AlertDialog.Builder(this)
             .setView(dialogView)
@@ -204,7 +205,8 @@ class MainActivity : AppCompatActivity() {
     private fun buildImportSuccessDialog() {
         AlertDialog.Builder(this)
             .setMessage(
-                getString(R.string.import_success, DataManager.instance.activeWebsitesCount))
+                getString(R.string.import_success, DataManager.instance.activeWebsitesCount)
+            )
             .setPositiveButton(R.string.ok, null)
             .create()
             .show()
@@ -249,7 +251,8 @@ class MainActivity : AppCompatActivity() {
                     start: Int,
                     count: Int,
                     after: Int
-                ) {}
+                ) {
+                }
 
                 override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             })

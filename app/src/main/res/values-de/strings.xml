@@ -41,6 +41,8 @@
     <string name="no_https_dialog_accept">HTTP in dieser Web-App zulassen</string>
     <string name="no_https_dialog_msg">Diese Seite verwendet HTTP (unverschlüsselt). Geben Sie keine sensiblen Daten ein.</string>
     <string name="allow_http">HTTP zulassen</string>
+    <string name="https_only_blocked">Blockiert: unverschlüsselte Verbindung</string>
+    <string name="ssl_error_blocked">Blockiert: %1$s</string>
     <string name="webapp_section_security">Sicherheit &amp; Privatsphäre</string>
     <string name="import_failed">Die Sicherung konnte nicht wiederhergestellt werden.</string>
     <string name="import_success">Sicherung mit %1$d Web-App(s) wurde wiederhergestellt.</string>

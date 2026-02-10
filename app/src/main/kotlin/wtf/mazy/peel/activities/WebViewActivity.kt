@@ -75,6 +75,7 @@ import wtf.mazy.peel.util.DateUtils.convertStringToCalendar
 import wtf.mazy.peel.util.DateUtils.isInInterval
 import wtf.mazy.peel.util.EntryPointUtils.entryPointReached
 import wtf.mazy.peel.util.LocaleUtils.fileEnding
+import wtf.mazy.peel.util.NotificationUtils
 import wtf.mazy.peel.util.NotificationUtils.showInfoSnackBar
 import wtf.mazy.peel.util.Utility.getFileNameFromDownload
 import wtf.mazy.peel.util.WebViewLauncher
@@ -260,7 +261,7 @@ open class WebViewActivity : AppCompatActivity() {
         webView?.apply {
             webViewClient = CustomBrowser()
             this.settings.apply {
-                safeBrowsingEnabled = false
+                safeBrowsingEnabled = settings.isSafeBrowsing == true
                 domStorageEnabled = true
                 allowFileAccess = true
                 blockNetworkLoads = false
@@ -854,15 +855,24 @@ open class WebViewActivity : AppCompatActivity() {
         ): WebResourceResponse? {
             if (urlOnFirstPageload.isEmpty()) urlOnFirstPageload = request.url.toString()
 
-            if (webapp.effectiveSettings.isBlockThirdPartyRequests == true) {
+            if (webapp.effectiveSettings.isAlwaysHttps == true) {
                 val uri = request.url
-                val webappUri = webapp.baseUrl.toUri()
-                val webappHost = webappUri.host
-                val requestHost = uri.host
+                if (uri.scheme == "http") {
+                    if (request.isForMainFrame) {
+                        view?.post {
+                            NotificationUtils.showToast(
+                                this@WebViewActivity,
+                                getString(R.string.https_only_blocked),
+                            )
+                            this@WebViewActivity.finish()
+                        }
+                    }
+                    return WebResourceResponse("text/plain", "utf-8", null)
+                }
+            }
 
-                if (requestHost != null &&
-                    webappHost != null &&
-                    !requestHost.endsWith(webappHost)) {
+            if (webapp.effectiveSettings.isBlockThirdPartyRequests == true) {
+                if (!isHostMatch(request.url, webapp.baseUrl.toUri())) {
                     return WebResourceResponse("text/plain", "utf-8", null)
                 }
             }
@@ -876,40 +886,21 @@ open class WebViewActivity : AppCompatActivity() {
                 return
             }
 
-            val builder = AlertDialog.Builder(this@WebViewActivity)
+            handler.cancel()
 
-            var message = getString(R.string.ssl_error_msg_line1) + " "
-            when (error.getPrimaryError()) {
-                SslError.SSL_UNTRUSTED ->
-                    message += getString(R.string.ssl_error_unknown_authority) + "\n"
-                SslError.SSL_EXPIRED -> message += getString(R.string.ssl_error_expired) + "\n"
-                SslError.SSL_IDMISMATCH ->
-                    message += getString(R.string.ssl_error_id_mismatch) + "\n"
-                SslError.SSL_NOTYETVALID ->
-                    message += getString(R.string.ssl_error_notyetvalid) + "\n"
+            val reason = when (error.getPrimaryError()) {
+                SslError.SSL_UNTRUSTED -> getString(R.string.ssl_error_unknown_authority)
+                SslError.SSL_EXPIRED -> getString(R.string.ssl_error_expired)
+                SslError.SSL_IDMISMATCH -> getString(R.string.ssl_error_id_mismatch)
+                SslError.SSL_NOTYETVALID -> getString(R.string.ssl_error_notyetvalid)
+                else -> getString(R.string.ssl_error_msg_line1)
             }
-            message += getString(R.string.ssl_error_msg_line2) + "\n"
 
-            builder.setTitle(getString(R.string.ssl_error_title))
-            builder.setMessage(message)
-            builder.setIcon(android.R.drawable.ic_dialog_alert)
-            builder.setPositiveButton(getString(R.string.cancel)) { _: DialogInterface?, _: Int ->
-                handler.cancel()
-            }
-            builder.setNegativeButton(getString(R.string.load_anyway)) { _: DialogInterface?, _: Int
-                ->
-                handler.proceed()
-            }
-            val dialog = builder.create()
-            dialog.show()
-            dialog
-                .getButton(AlertDialog.BUTTON_NEGATIVE)
-                .setTextColor(
-                    ContextCompat.getColor(this@WebViewActivity, android.R.color.holo_red_dark))
-            dialog
-                .getButton(AlertDialog.BUTTON_POSITIVE)
-                .setTextColor(
-                    ContextCompat.getColor(this@WebViewActivity, android.R.color.holo_green_dark))
+            NotificationUtils.showToast(
+                this@WebViewActivity,
+                getString(R.string.ssl_error_blocked, reason),
+            )
+            this@WebViewActivity.finish()
         }
 
         override fun onLoadResource(view: WebView, url: String?) {
@@ -935,7 +926,7 @@ open class WebViewActivity : AppCompatActivity() {
 
         override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
             runOnUiThread { this@WebViewActivity.setDarkModeIfNeeded() }
-            val url = request.url.toString()
+            var url = request.url.toString()
             val webapp = webappUuid?.let { DataManager.instance.getWebApp(it) }
 
             if (!url.startsWith("http://") &&
@@ -954,11 +945,20 @@ open class WebViewActivity : AppCompatActivity() {
                 return true
             }
 
-            if (webapp?.settings?.isOpenUrlExternal == true) {
-                val baseUrl = webapp.baseUrl
-                val uri = baseUrl.toUri()
-                val host = uri.host
-                if (host != null && !url.contains(host)) {
+            if (webapp?.effectiveSettings?.isAlwaysHttps == true && url.startsWith("http://")) {
+                if (request.isRedirect) {
+                    NotificationUtils.showToast(
+                        this@WebViewActivity,
+                        getString(R.string.https_only_blocked),
+                    )
+                    this@WebViewActivity.finish()
+                    return true
+                }
+                url = url.replaceFirst("http://", "https://")
+            }
+
+            if (webapp?.effectiveSettings?.isOpenUrlExternal == true) {
+                if (!isHostMatch(url.toUri(), webapp.baseUrl.toUri())) {
                     view.context.startActivity(Intent(Intent.ACTION_VIEW, url.toUri()))
                     return true
                 }
@@ -1119,5 +1119,11 @@ open class WebViewActivity : AppCompatActivity() {
         private const val RC_RELOAD = 2
         private const val RC_HOME = 3
         private const val NOTIFICATION_BASE_ID = 1001
+
+        private fun isHostMatch(requestUri: android.net.Uri, baseUri: android.net.Uri): Boolean {
+            val requestHost = requestUri.host ?: return true
+            val baseHost = baseUri.host ?: return true
+            return requestHost == baseHost || requestHost.endsWith(".$baseHost")
+        }
     }
 }

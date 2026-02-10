@@ -34,6 +34,7 @@ data class WebAppSettings(
     var isShowProgressbar: Boolean? = null,
     var isDisableScreenshots: Boolean? = null,
     var isPullToRefresh: Boolean? = null,
+    var isSafeBrowsing: Boolean? = null,
 ) {
     companion object {
         val DEFAULTS =
@@ -68,6 +69,7 @@ data class WebAppSettings(
                 "isShowProgressbar" to true,
                 "isDisableScreenshots" to false,
                 "isPullToRefresh" to false,
+                "isSafeBrowsing" to true,
             )
 
         fun createWithDefaults(): WebAppSettings {
