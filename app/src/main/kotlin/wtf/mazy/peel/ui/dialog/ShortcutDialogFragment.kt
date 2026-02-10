@@ -92,13 +92,11 @@ class ShortcutDialogFragment : DialogFragment() {
 
     override fun onDestroy() {
         super.onDestroy()
-        if (faviconFetcherTask != null && !faviconFetcherTask!!.isDone) {
-            faviconFetcherTask!!.cancel(true)
+        if (faviconFetcherTask?.isDone == false) {
+            faviconFetcherTask?.cancel(true)
             Log.d("CLEANUP", "Cancelled running favicon fetcher")
         }
-        if (executorService != null) {
-            executorService!!.shutdownNow()
-        }
+        executorService?.shutdownNow()
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -127,18 +125,18 @@ class ShortcutDialogFragment : DialogFragment() {
     }
 
     private fun loadSavedIconAndTitle() {
-        uiProgressBar!!.visibility = View.GONE
-        uiFavicon!!.visibility = View.VISIBLE
+        uiProgressBar?.visibility = View.GONE
+        uiFavicon?.visibility = View.VISIBLE
 
         if (webapp?.title?.isNotEmpty() == true) {
-            uiTitle!!.setText(webapp!!.title)
+            uiTitle?.setText(webapp?.title)
         }
 
         if (webapp?.hasCustomIcon == true) {
             try {
-                bitmap = BitmapFactory.decodeFile(webapp!!.iconFile.absolutePath)
+                bitmap = BitmapFactory.decodeFile(webapp?.iconFile?.absolutePath)
                 if (bitmap != null) {
-                    uiFavicon!!.setImageBitmap(bitmap)
+                    uiFavicon?.setImageBitmap(bitmap)
                 } else {
                     setLetterIconFallback()
                 }
@@ -155,7 +153,7 @@ class ShortcutDialogFragment : DialogFragment() {
         val app = webapp ?: return
         val density = resources.displayMetrics.density
         val sizePx = (48 * density).toInt()
-        uiFavicon!!.setImageBitmap(LetterIconGenerator.generate(app.title, app.baseUrl, sizePx))
+        uiFavicon?.setImageBitmap(LetterIconGenerator.generate(app.title, app.baseUrl, sizePx))
     }
 
     private fun addShortcutToHomeScreen(bitmap: Bitmap?) {
@@ -194,19 +192,20 @@ class ShortcutDialogFragment : DialogFragment() {
     }
 
     private fun prepareFailedUI() {
+        val app = webapp ?: return
         showFailedMessage()
-        if (!webapp!!.title.isEmpty()) {
-            uiTitle!!.setText(webapp!!.title)
+        if (app.title.isNotEmpty()) {
+            uiTitle?.setText(app.title)
         }
 
-        uiTitle!!.requestFocus()
+        uiTitle?.requestFocus()
 
-        uiProgressBar!!.visibility = View.GONE
-        uiFavicon!!.setVisibility(View.VISIBLE)
+        uiProgressBar?.visibility = View.GONE
+        uiFavicon?.visibility = View.VISIBLE
     }
 
     private fun showFailedMessage() {
-        val title = if (webapp != null) webapp!!.title else ""
+        val title = webapp?.title ?: ""
         showToast(
             requireActivity(),
             getString(R.string.icon_fetch_failed_line1, title) +
@@ -220,8 +219,8 @@ class ShortcutDialogFragment : DialogFragment() {
             prepareFailedUI()
             return
         }
-        uiFavicon!!.setImageBitmap(bitmap)
-        uiProgressBar!!.visibility = View.GONE
-        uiFavicon!!.setVisibility(View.VISIBLE)
+        uiFavicon?.setImageBitmap(bitmap)
+        uiProgressBar?.visibility = View.GONE
+        uiFavicon?.visibility = View.VISIBLE
     }
 }

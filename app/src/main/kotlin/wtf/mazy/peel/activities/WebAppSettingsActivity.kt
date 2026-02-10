@@ -76,19 +76,24 @@ class WebAppSettingsActivity : ToolbarBaseActivity<WebappSettingsBinding>(),
             finish()
             return
         }
-        modifiedWebapp = WebApp(webapp!!)
-        binding.webapp = modifiedWebapp
+        val baseWebapp = webapp
+        modifiedWebapp = WebApp(baseWebapp)
+        val editableWebapp = modifiedWebapp ?: run {
+            finish()
+            return
+        }
+        binding.webapp = editableWebapp
         binding.activity = this@WebAppSettingsActivity
 
         setupIconButton()
-        setupFetchButton(modifiedWebapp!!)
-        setupOverridePicker(modifiedWebapp!!)
-        setupSandboxSwitch(modifiedWebapp!!)
+        setupFetchButton(editableWebapp)
+        setupOverridePicker(editableWebapp)
+        setupSandboxSwitch(editableWebapp)
 
-        loadCurrentIcon(modifiedWebapp!!)
+        loadCurrentIcon(editableWebapp)
 
         if (intent.getBooleanExtra(Const.INTENT_AUTO_FETCH, false)) {
-            binding.root.post { fetchIconAndName(modifiedWebapp!!) }
+            binding.root.post { fetchIconAndName(editableWebapp) }
         }
 
         setupKeyboardListener()
@@ -334,8 +339,9 @@ class WebAppSettingsActivity : ToolbarBaseActivity<WebappSettingsBinding>(),
             val doc = response.parse()
 
             val htmlTitle = doc.select("title")
-            if (htmlTitle.isNotEmpty() && htmlTitle.first() != null) {
-                result["title"] = htmlTitle.first()!!.text()
+            val titleElement = htmlTitle.first()
+            if (titleElement != null) {
+                result["title"] = titleElement.text()
             }
 
             var manifestUrl: String? = null
@@ -371,7 +377,7 @@ class WebAppSettingsActivity : ToolbarBaseActivity<WebappSettingsBinding>(),
 
                         val manifestIcons = json.optJSONArray("icons")
                         for (i in 0 until (manifestIcons?.length() ?: 0)) {
-                            val iconObj = manifestIcons!!.getJSONObject(i)
+                            val iconObj = manifestIcons?.optJSONObject(i) ?: continue
                             val iconHref = iconObj.optString("src") ?: continue
                             if (iconHref.endsWith(".svg")) continue
                             var width = getWidthFromIcon(iconObj.optString("sizes", ""))

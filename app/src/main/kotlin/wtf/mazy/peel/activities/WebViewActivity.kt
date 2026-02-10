@@ -126,12 +126,13 @@ open class WebViewActivity : AppCompatActivity() {
             registerForActivityResult(
                 StartActivityForResult(),
                 ActivityResultCallback { result: ActivityResult? ->
-                    if (filePathCallback == null) return@ActivityResultCallback
-                    if (result!!.resultCode == RESULT_CANCELED) {
-                        filePathCallback!!.onReceiveValue(null)
-                    } else if (result.resultCode == RESULT_OK) {
-                        filePathCallback!!.onReceiveValue(
-                            FileChooserParams.parseResult(result.resultCode, result.data))
+                    val callback = filePathCallback ?: return@ActivityResultCallback
+                    if (result?.resultCode == RESULT_CANCELED) {
+                        callback.onReceiveValue(null)
+                    } else if (result?.resultCode == RESULT_OK) {
+                        callback.onReceiveValue(
+                            FileChooserParams.parseResult(result.resultCode, result.data),
+                        )
                     }
                     filePathCallback = null
                 },
@@ -139,7 +140,10 @@ open class WebViewActivity : AppCompatActivity() {
 
         webappUuid = intent.getStringExtra(Const.INTENT_WEBAPP_UUID)
         entryPointReached()
-        webapp = webappUuid?.let { DataManager.instance.getWebApp(it) }!!
+        webapp = webappUuid?.let { DataManager.instance.getWebApp(it) } ?: run {
+            finishAndRemoveTask()
+            return
+        }
         setupWebView()
 
         if (webapp.effectiveSettings.isBiometricProtection == true) {
@@ -403,20 +407,21 @@ open class WebViewActivity : AppCompatActivity() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             val isAlgorithmicDarkeningSupported =
                 WebViewFeature.isFeatureSupported(WebViewFeature.ALGORITHMIC_DARKENING)
+            val currentWebView = webView ?: return
 
             if (needsForcedDarkMode) {
-                webView!!.setBackgroundColor(Color.BLACK)
-                webView!!.isForceDarkAllowed = true
+                currentWebView.setBackgroundColor(Color.BLACK)
+                currentWebView.isForceDarkAllowed = true
                 getDelegate().localNightMode = AppCompatDelegate.MODE_NIGHT_YES
                 if (isAlgorithmicDarkeningSupported) {
                     @Suppress("DEPRECATION")
-                    WebSettingsCompat.setAlgorithmicDarkeningAllowed(webView!!.settings, true)
+                    WebSettingsCompat.setAlgorithmicDarkeningAllowed(currentWebView.settings, true)
                 }
             } else {
                 getDelegate().localNightMode = AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
                 if (isAlgorithmicDarkeningSupported) {
                     @Suppress("DEPRECATION")
-                    WebSettingsCompat.setAlgorithmicDarkeningAllowed(webView!!.settings, false)
+                    WebSettingsCompat.setAlgorithmicDarkeningAllowed(currentWebView.settings, false)
                 }
             }
         }
@@ -520,7 +525,7 @@ open class WebViewActivity : AppCompatActivity() {
         if (webapp.effectiveSettings.isClearCache == true) webView?.clearCache(true)
 
         if (reloadHandler != null) {
-            reloadHandler!!.removeCallbacksAndMessages(null)
+            reloadHandler?.removeCallbacksAndMessages(null)
             Log.d("CLEANUP", "Stopped reload handler")
         }
     }
@@ -636,10 +641,8 @@ open class WebViewActivity : AppCompatActivity() {
     }
 
     private fun handleGeoPermissionCallback(allow: Boolean) {
-        if (mGeoPermissionRequestCallback != null) {
-            mGeoPermissionRequestCallback!!.invoke(mGeoPermissionRequestOrigin, allow, false)
-            mGeoPermissionRequestCallback = null
-        }
+        mGeoPermissionRequestCallback?.invoke(mGeoPermissionRequestOrigin, allow, false)
+        mGeoPermissionRequestCallback = null
     }
 
     private fun hasPermissions(vararg permissions: String): Boolean {
@@ -712,7 +715,7 @@ open class WebViewActivity : AppCompatActivity() {
             @Suppress("DEPRECATION")
             window.decorView.systemUiVisibility = this.mOriginalSystemUiVisibility
             requestedOrientation = this.mOriginalOrientation
-            this.mCustomViewCallback!!.onCustomViewHidden()
+            this.mCustomViewCallback?.onCustomViewHidden()
             this.mCustomViewCallback = null
             showSystemBars()
         }
@@ -777,15 +780,17 @@ open class WebViewActivity : AppCompatActivity() {
 
         override fun onProgressChanged(view: WebView?, progress: Int) {
             if (webapp.effectiveSettings.isShowProgressbar == true || currentlyReloading) {
-                if (progressBar!!.isGone && progress < 100) {
-                    progressBar!!.visibility = ProgressBar.VISIBLE
-                }
+                progressBar?.let { bar ->
+                    if (bar.isGone && progress < 100) {
+                        bar.visibility = ProgressBar.VISIBLE
+                    }
 
-                progressBar!!.progress = progress
+                    bar.progress = progress
 
-                if (progress == 100) {
-                    progressBar!!.visibility = ProgressBar.GONE
-                    currentlyReloading = false
+                    if (progress == 100) {
+                        bar.visibility = ProgressBar.GONE
+                        currentlyReloading = false
+                    }
                 }
             }
         }
@@ -837,11 +842,12 @@ open class WebViewActivity : AppCompatActivity() {
         }
 
         override fun onPageFinished(view: WebView?, url: String) {
+            val currentView = view ?: webView
             if (url == "about:blank") {
                 val langExtension = fileEnding
-                webView!!.loadUrl("file:///android_asset/errorSite/error_$langExtension.html")
+                currentView?.loadUrl("file:///android_asset/errorSite/error_$langExtension.html")
             }
-            webView!!.evaluateJavascript(
+            currentView?.evaluateJavascript(
                 "document.addEventListener(\"visibilitychange\",function (event) {event.stopImmediatePropagation();},true);",
                 null,
             )
@@ -1063,14 +1069,14 @@ open class WebViewActivity : AppCompatActivity() {
     }
 
     private fun reloadPage() {
-        webView!!.reload()
+        webView?.reload()
     }
 
     private fun goToHome() {
         Log.d("Notification", "goToHome called")
         val baseUrl = webapp.baseUrl
         Log.d("Notification", "Loading baseUrl: $baseUrl")
-        webView!!.loadUrl(baseUrl)
+        loadURL(webView, baseUrl)
     }
 
     // Smart back navigation to skip SSO/external pages
