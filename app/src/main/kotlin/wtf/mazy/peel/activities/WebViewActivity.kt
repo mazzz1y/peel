@@ -2,6 +2,7 @@ package wtf.mazy.peel.activities
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.ActivityManager
 import android.app.Application
 import android.app.DownloadManager
 import android.app.NotificationChannel
@@ -74,6 +75,7 @@ import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.DateUtils.convertStringToCalendar
 import wtf.mazy.peel.util.DateUtils.isInInterval
 import wtf.mazy.peel.util.EntryPointUtils.entryPointReached
+import wtf.mazy.peel.util.LetterIconGenerator
 import wtf.mazy.peel.util.LocaleUtils.fileEnding
 import wtf.mazy.peel.util.NotificationUtils
 import wtf.mazy.peel.util.NotificationUtils.showInfoSnackBar
@@ -463,6 +465,17 @@ open class WebViewActivity : AppCompatActivity() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             setRecentsScreenshotEnabled(!shouldProtectTaskPreview)
         }
+
+        val icon = if (webapp.hasCustomIcon) {
+            android.graphics.BitmapFactory.decodeFile(webapp.iconFile.absolutePath)
+        } else {
+            LetterIconGenerator.generate(
+                webapp.title, webapp.baseUrl,
+                (48 * resources.displayMetrics.density).toInt()
+            )
+        }
+        @Suppress("DEPRECATION")
+        setTaskDescription(ActivityManager.TaskDescription(webapp.title, icon))
     }
 
     private fun showBiometricPrompt() {
