@@ -117,6 +117,10 @@ object SandboxManager {
             clearSandboxUuid(containerId)
         }
 
+        return wipeSandboxStorage(uuid)
+    }
+
+    fun wipeSandboxStorage(uuid: String): Boolean {
         val sandboxDir = getSandboxDataDir(uuid)
         val deleted =
             if (sandboxDir.exists()) {

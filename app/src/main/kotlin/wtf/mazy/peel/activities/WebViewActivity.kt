@@ -146,6 +146,9 @@ open class WebViewActivity : AppCompatActivity() {
             finishAndRemoveTask()
             return
         }
+        if (webapp.isUseContainer && webapp.isEphemeralSandbox) {
+            SandboxManager.wipeSandboxStorage(webapp.uuid)
+        }
         applyTaskSnapshotProtection()
         setupWebView()
 
@@ -554,10 +557,12 @@ open class WebViewActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
-        super.onDestroy()
         if (isFinishing && webapp.isUseContainer && webapp.isEphemeralSandbox) {
-            SandboxManager.clearSandboxData(this, webapp.uuid)
+            webView?.destroy()
+            webView = null
+            SandboxManager.wipeSandboxStorage(webapp.uuid)
         }
+        super.onDestroy()
     }
 
     private fun reload() {

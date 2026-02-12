@@ -15,6 +15,9 @@ import android.view.animation.AnimationUtils
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import org.json.JSONException
+import org.json.JSONObject
+import org.jsoup.Jsoup
 import wtf.mazy.peel.R
 import wtf.mazy.peel.databinding.WebappSettingsBinding
 import wtf.mazy.peel.model.DataManager
@@ -22,28 +25,23 @@ import wtf.mazy.peel.model.SandboxManager
 import wtf.mazy.peel.model.SettingRegistry
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.ui.dialog.OverridePickerDialog
-import wtf.mazy.peel.util.App
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.NotificationUtils.showToast
 import wtf.mazy.peel.util.ShortcutIconUtils.getWidthFromIcon
 import wtf.mazy.peel.util.Utility
-import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.net.URL
 import java.util.TreeMap
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
-import org.json.JSONException
-import org.json.JSONObject
-import org.jsoup.Jsoup
 
 class WebAppSettingsActivity : ToolbarBaseActivity<WebappSettingsBinding>(),
     OverridePickerDialog.OnSettingSelectedListener {
     var webappUuid: String? = null
-    var webapp: WebApp? = null
+    var originalWebapp: WebApp? = null
     private var modifiedWebapp: WebApp? = null
-    private var isGlobalWebApp: Boolean = false
+    private var isEditingDefaults: Boolean = false
     private var customIconBitmap: Bitmap? = null
     private lateinit var iconPickerLauncher: ActivityResultLauncher<String>
     private var executorService: ExecutorService? = null
@@ -63,20 +61,20 @@ class WebAppSettingsActivity : ToolbarBaseActivity<WebappSettingsBinding>(),
 
         webappUuid = intent.getStringExtra(Const.INTENT_WEBAPP_UUID)
         Utility.assert(webappUuid != null, "WebApp UUID could not be retrieved.")
-        isGlobalWebApp = webappUuid == DataManager.instance.defaultSettings.uuid
+        isEditingDefaults = webappUuid == DataManager.instance.defaultSettings.uuid
 
-        if (isGlobalWebApp) {
-            webapp = DataManager.instance.defaultSettings
+        if (isEditingDefaults) {
+            originalWebapp = DataManager.instance.defaultSettings
             prepareGlobalWebAppScreen()
         } else
-            webapp =
+            originalWebapp =
                 webappUuid?.let { DataManager.instance.getWebApp(it) }
 
-        if (webapp == null) {
+        if (originalWebapp == null) {
             finish()
             return
         }
-        val baseWebapp = webapp ?: run {
+        val baseWebapp = originalWebapp ?: run {
             finish()
             return
         }
@@ -91,7 +89,9 @@ class WebAppSettingsActivity : ToolbarBaseActivity<WebappSettingsBinding>(),
         setupIconButton()
         setupFetchButton(editableWebapp)
         setupOverridePicker(editableWebapp)
-        setupSandboxSwitch(editableWebapp)
+        if (!isEditingDefaults) {
+            setupSandboxSwitch(editableWebapp)
+        }
 
         loadCurrentIcon(editableWebapp)
 
@@ -123,7 +123,7 @@ class WebAppSettingsActivity : ToolbarBaseActivity<WebappSettingsBinding>(),
     override fun onPause() {
         super.onPause()
         modifiedWebapp?.let { webapp ->
-            if (isGlobalWebApp) {
+            if (isEditingDefaults) {
                 DataManager.instance.defaultSettings = webapp
             } else {
                 DataManager.instance.replaceWebApp(webapp)
@@ -154,6 +154,10 @@ class WebAppSettingsActivity : ToolbarBaseActivity<WebappSettingsBinding>(),
         updateEphemeralSandboxVisibility(modifiedWebapp.isUseContainer)
 
         binding.switchSandbox.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked == modifiedWebapp.isUseContainer) {
+                return@setOnCheckedChangeListener
+            }
+            stopWebApp(modifiedWebapp)
             if (!isChecked && modifiedWebapp.isUseContainer) {
                 SandboxManager.releaseSandbox(this, modifiedWebapp.uuid)
             }
@@ -167,6 +171,9 @@ class WebAppSettingsActivity : ToolbarBaseActivity<WebappSettingsBinding>(),
         }
 
         binding.switchEphemeralSandbox.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked == modifiedWebapp.isEphemeralSandbox) {
+                return@setOnCheckedChangeListener
+            }
             if (isChecked) {
                 val sandboxDir = SandboxManager.getSandboxDataDir(modifiedWebapp.uuid)
                 if (sandboxDir.exists()) {
@@ -181,6 +188,7 @@ class WebAppSettingsActivity : ToolbarBaseActivity<WebappSettingsBinding>(),
                         }
                         .show()
                 } else {
+                    stopWebApp(modifiedWebapp)
                     modifiedWebapp.isEphemeralSandbox = true
                     updateClearSandboxButtonVisibility(modifiedWebapp)
                 }
@@ -191,6 +199,15 @@ class WebAppSettingsActivity : ToolbarBaseActivity<WebappSettingsBinding>(),
         }
 
         binding.btnClearSandbox.setOnClickListener { showClearSandboxConfirmDialog(modifiedWebapp) }
+    }
+
+    private fun stopWebApp(webapp: WebApp) {
+        val activityManager = getSystemService(ACTIVITY_SERVICE) as android.app.ActivityManager
+        SandboxManager.finishSandboxTasks(activityManager, webapp.uuid)
+        val containerId = SandboxManager.getContainerForUuid(webapp.uuid)
+        if (containerId != null) {
+            SandboxManager.killSandboxProcess(activityManager, containerId)
+        }
     }
 
     private fun updateEphemeralSandboxVisibility(sandboxEnabled: Boolean) {
@@ -739,7 +756,7 @@ class WebAppSettingsActivity : ToolbarBaseActivity<WebappSettingsBinding>(),
         val container = view.findViewById<android.widget.LinearLayout>(R.id.containerHeaders)
 
         textName.text = setting.displayName
-        btnRemove.visibility = android.view.View.VISIBLE
+        btnRemove.visibility = View.VISIBLE
 
         if (webapp.settings.customHeaders == null) {
             webapp.settings.customHeaders = mutableMapOf()
