@@ -167,7 +167,27 @@ class WebAppSettingsActivity : ToolbarBaseActivity<WebappSettingsBinding>(),
         }
 
         binding.switchEphemeralSandbox.setOnCheckedChangeListener { _, isChecked ->
-            modifiedWebapp.isEphemeralSandbox = isChecked
+            if (isChecked) {
+                val sandboxDir = SandboxManager.getSandboxDataDir(modifiedWebapp.uuid)
+                if (sandboxDir.exists()) {
+                    androidx.appcompat.app.AlertDialog.Builder(this)
+                        .setMessage(R.string.clear_sandbox_data_confirm)
+                        .setPositiveButton(R.string.ok) { _, _ ->
+                            modifiedWebapp.isEphemeralSandbox = true
+                            clearSandboxData(modifiedWebapp)
+                        }
+                        .setNegativeButton(R.string.cancel) { _, _ ->
+                            binding.switchEphemeralSandbox.isChecked = false
+                        }
+                        .show()
+                } else {
+                    modifiedWebapp.isEphemeralSandbox = true
+                    updateClearSandboxButtonVisibility(modifiedWebapp)
+                }
+            } else {
+                modifiedWebapp.isEphemeralSandbox = false
+                updateClearSandboxButtonVisibility(modifiedWebapp)
+            }
         }
 
         binding.btnClearSandbox.setOnClickListener { showClearSandboxConfirmDialog(modifiedWebapp) }
@@ -179,7 +199,8 @@ class WebAppSettingsActivity : ToolbarBaseActivity<WebappSettingsBinding>(),
 
     private fun updateClearSandboxButtonVisibility(webapp: WebApp) {
         val sandboxDir = SandboxManager.getSandboxDataDir(webapp.uuid)
-        binding.btnClearSandbox.visibility = if (sandboxDir.exists()) View.VISIBLE else View.GONE
+        val show = sandboxDir.exists() && !webapp.isEphemeralSandbox
+        binding.btnClearSandbox.visibility = if (show) View.VISIBLE else View.GONE
     }
 
     private fun showClearSandboxConfirmDialog(webapp: WebApp) {

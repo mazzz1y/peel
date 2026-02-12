@@ -47,6 +47,7 @@
             android:theme="@style/AppTheme.WebView"
             android:configChanges="orientation|screenSize|smallestScreenSize|density|screenLayout|uiMode|keyboard|keyboardHidden|navigation"
             android:launchMode="singleTask"
+            android:taskAffinity=""
             android:documentLaunchMode="intoExisting"
             android:exported="true" />
 
