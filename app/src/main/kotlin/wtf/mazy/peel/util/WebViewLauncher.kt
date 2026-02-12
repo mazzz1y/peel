@@ -59,9 +59,6 @@ object WebViewLauncher {
             }
 
         return Intent(c, webviewClass).apply {
-            if (webapp.effectiveSettings.isBiometricProtection == true) {
-                flags = Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS
-            }
             putExtra(Const.INTENT_WEBAPP_UUID, webapp.uuid)
             data = "app://${webapp.uuid}".toUri()
             action = Intent.ACTION_VIEW

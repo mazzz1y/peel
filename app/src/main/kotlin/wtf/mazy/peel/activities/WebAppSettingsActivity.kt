@@ -76,7 +76,10 @@ class WebAppSettingsActivity : ToolbarBaseActivity<WebappSettingsBinding>(),
             finish()
             return
         }
-        val baseWebapp = webapp
+        val baseWebapp = webapp ?: run {
+            finish()
+            return
+        }
         modifiedWebapp = WebApp(baseWebapp)
         val editableWebapp = modifiedWebapp ?: run {
             finish()

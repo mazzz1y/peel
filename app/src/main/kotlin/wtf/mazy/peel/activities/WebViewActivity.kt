@@ -144,6 +144,7 @@ open class WebViewActivity : AppCompatActivity() {
             finishAndRemoveTask()
             return
         }
+        applyTaskSnapshotProtection()
         setupWebView()
 
         if (webapp.effectiveSettings.isBiometricProtection == true) {
@@ -450,8 +451,17 @@ open class WebViewActivity : AppCompatActivity() {
                 }
                 webappUuid = newUuid
                 webapp = newWebapp
+                applyTaskSnapshotProtection()
                 webView?.loadUrl(newWebapp.baseUrl)
             }
+        }
+    }
+
+    private fun applyTaskSnapshotProtection() {
+        val shouldProtectTaskPreview = webapp.effectiveSettings.isBiometricProtection == true
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            setRecentsScreenshotEnabled(!shouldProtectTaskPreview)
         }
     }
 
