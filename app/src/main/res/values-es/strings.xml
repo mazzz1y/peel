@@ -83,6 +83,7 @@
     <string name="no_sandbox">No usar la sandbox.</string>
     <string name="all_sandboxes_used">Todas las sandboxes están en uso actualmente.</string>
     <string name="enable_sandbox">Habilitar Sandbox</string>
+    <string name="ephemeral_sandbox">Almacenamiento efímero</string>
     <string name="show_fullscreen">Pantalla completa (modo inmersivo)</string>
     <string name="site_not_found">No se ha podido cargar la página.</string>
     <string name="icon_not_found">No se ha podido cargar el icono.</string>

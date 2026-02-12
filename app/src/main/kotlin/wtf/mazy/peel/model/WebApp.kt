@@ -11,6 +11,7 @@ data class WebApp(var baseUrl: String, val uuid: String = UUID.randomUUID().toSt
     var title: String
     var isActiveEntry = true
     var isUseContainer = false
+    var isEphemeralSandbox = false
     var order = 0
 
     var settings = WebAppSettings()
@@ -41,6 +42,7 @@ data class WebApp(var baseUrl: String, val uuid: String = UUID.randomUUID().toSt
     constructor(other: WebApp) : this(other.baseUrl, other.uuid) {
         title = other.title
         isUseContainer = other.isUseContainer
+        isEphemeralSandbox = other.isEphemeralSandbox
         order = other.order
         settings = other.settings.copy()
     }

@@ -151,16 +151,30 @@ class WebAppSettingsActivity : ToolbarBaseActivity<WebappSettingsBinding>(),
 
     private fun setupSandboxSwitch(modifiedWebapp: WebApp) {
         updateClearSandboxButtonVisibility(modifiedWebapp)
+        updateEphemeralSandboxVisibility(modifiedWebapp.isUseContainer)
 
         binding.switchSandbox.setOnCheckedChangeListener { _, isChecked ->
             if (!isChecked && modifiedWebapp.isUseContainer) {
                 SandboxManager.releaseSandbox(this, modifiedWebapp.uuid)
             }
             modifiedWebapp.isUseContainer = isChecked
+            if (!isChecked) {
+                modifiedWebapp.isEphemeralSandbox = false
+                binding.switchEphemeralSandbox.isChecked = false
+            }
             updateClearSandboxButtonVisibility(modifiedWebapp)
+            updateEphemeralSandboxVisibility(isChecked)
+        }
+
+        binding.switchEphemeralSandbox.setOnCheckedChangeListener { _, isChecked ->
+            modifiedWebapp.isEphemeralSandbox = isChecked
         }
 
         binding.btnClearSandbox.setOnClickListener { showClearSandboxConfirmDialog(modifiedWebapp) }
+    }
+
+    private fun updateEphemeralSandboxVisibility(sandboxEnabled: Boolean) {
+        binding.ephemeralSandboxRow.visibility = if (sandboxEnabled) View.VISIBLE else View.GONE
     }
 
     private fun updateClearSandboxButtonVisibility(webapp: WebApp) {

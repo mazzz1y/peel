@@ -91,6 +91,7 @@
     <string name="no_sandbox">Do not use sandbox.</string>
     <string name="all_sandboxes_used">All sandboxes are currently in use.</string>
     <string name="enable_sandbox">Enable Sandbox</string>
+    <string name="ephemeral_sandbox">Ephemeral storage</string>
     <string name="clear_sandbox_data">Clear sandbox data</string>
     <string name="clear_sandbox_data_confirm">Clear all sandbox data (cookies, cache, localStorage) for this Web App?</string>
     <string name="clear_data">Clear data</string>

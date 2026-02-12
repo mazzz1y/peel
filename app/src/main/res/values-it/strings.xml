@@ -82,6 +82,7 @@
     <string name="no_sandbox">Non usare la sandbox</string>
     <string name="all_sandboxes_used">Tutte le sandbox sono attualmente in uso.</string>
     <string name="enable_sandbox">Abilita Sandbox</string>
+    <string name="ephemeral_sandbox">Archiviazione effimera</string>
     <string name="show_fullscreen">Schermo intero (modalità immersiva)</string>
     <string name="site_not_found">La pagina non può essere caricata.</string>
     <string name="icon_not_found">L\'icona non può essere caricata.</string>

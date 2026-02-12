@@ -540,6 +540,13 @@ open class WebViewActivity : AppCompatActivity() {
         }
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        if (isFinishing && webapp.isUseContainer && webapp.isEphemeralSandbox) {
+            SandboxManager.clearSandboxData(this, webapp.uuid)
+        }
+    }
+
     private fun reload() {
         val handler = reloadHandler ?: return
         val timeAutoreload = webapp.effectiveSettings.timeAutoReload ?: 0

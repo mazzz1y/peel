@@ -178,7 +178,31 @@
                                 android:id="@+id/switchSandbox"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:checked="@={webapp.useContainer}" />
+                                android:checked="@{webapp.useContainer}" />
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/ephemeralSandboxRow"
+                            style="@style/SettingsItemContainer"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:minHeight="56dp"
+                            android:visibility="gone">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="@string/ephemeral_sandbox"
+                                android:textColor="?attr/colorOnSurface"
+                                android:textSize="@dimen/settings_text_size" />
+
+                            <com.google.android.material.materialswitch.MaterialSwitch
+                                android:id="@+id/switchEphemeralSandbox"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:checked="@{webapp.ephemeralSandbox}" />
 
                         </LinearLayout>
 
