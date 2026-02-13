@@ -45,7 +45,11 @@ jobs:
         id: version
         run: |
           TAG=${GITHUB_REF#refs/tags/v}
-          CODE=$(echo $TAG | tr -d '.')
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$TAG"
+          MAJOR=${MAJOR:-0}
+          MINOR=${MINOR:-0}
+          PATCH=${PATCH:-0}
+          CODE=$((MAJOR * 10000 + MINOR * 100 + PATCH))
           echo "name=$TAG" >> $GITHUB_OUTPUT
           echo "code=$CODE" >> $GITHUB_OUTPUT
       
