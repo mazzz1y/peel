@@ -1,11 +1,11 @@
 package wtf.mazy.peel.model
 
 import android.app.Activity
-import wtf.mazy.peel.util.App
-import wtf.mazy.peel.util.Const
-import wtf.mazy.peel.util.ShortcutIconUtils
 import java.io.File
 import java.util.UUID
+import wtf.mazy.peel.shortcut.ShortcutIconUtils
+import wtf.mazy.peel.util.App
+import wtf.mazy.peel.util.Const
 
 data class WebApp(var baseUrl: String, val uuid: String = UUID.randomUUID().toString()) {
     var title: String
@@ -70,8 +70,7 @@ data class WebApp(var baseUrl: String, val uuid: String = UUID.randomUUID().toSt
 
     fun cleanupWebAppData(activity: Activity) {
         try {
-            val webViewDir =
-                File(activity.applicationContext.filesDir.parent, "app_webview_$uuid")
+            val webViewDir = File(activity.applicationContext.filesDir.parent, "app_webview_$uuid")
             if (webViewDir.exists()) {
                 webViewDir.deleteRecursively()
                 android.util.Log.d("WebApp", "Deleted WebView data directory for webapp: $uuid")

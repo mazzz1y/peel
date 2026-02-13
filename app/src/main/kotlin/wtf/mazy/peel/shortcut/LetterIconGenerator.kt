@@ -1,4 +1,4 @@
-package wtf.mazy.peel.util
+package wtf.mazy.peel.shortcut
 
 import android.graphics.Bitmap
 import android.graphics.Canvas
@@ -7,25 +7,27 @@ import android.graphics.Paint
 import android.graphics.Typeface
 import androidx.core.graphics.createBitmap
 import kotlin.math.abs
+import wtf.mazy.peel.util.App
 
 object LetterIconGenerator {
 
-    private val COLORS = intArrayOf(
-        0xFFE57373.toInt(),
-        0xFFF06292.toInt(),
-        0xFFBA68C8.toInt(),
-        0xFF9575CD.toInt(),
-        0xFF7986CB.toInt(),
-        0xFF64B5F6.toInt(),
-        0xFF4FC3F7.toInt(),
-        0xFF4DD0E1.toInt(),
-        0xFF4DB6AC.toInt(),
-        0xFF81C784.toInt(),
-        0xFFAED581.toInt(),
-        0xFFFF8A65.toInt(),
-        0xFFA1887F.toInt(),
-        0xFF90A4AE.toInt(),
-    )
+    private val COLORS =
+        intArrayOf(
+            0xFFE57373.toInt(),
+            0xFFF06292.toInt(),
+            0xFFBA68C8.toInt(),
+            0xFF9575CD.toInt(),
+            0xFF7986CB.toInt(),
+            0xFF64B5F6.toInt(),
+            0xFF4FC3F7.toInt(),
+            0xFF4DD0E1.toInt(),
+            0xFF4DB6AC.toInt(),
+            0xFF81C784.toInt(),
+            0xFFAED581.toInt(),
+            0xFFFF8A65.toInt(),
+            0xFFA1887F.toInt(),
+            0xFF90A4AE.toInt(),
+        )
 
     fun generate(title: String, url: String, sizePx: Int, textRatio: Float = 0.45f): Bitmap {
         val letter = extractLetter(title, url)
@@ -34,21 +36,23 @@ object LetterIconGenerator {
         val bitmap = createBitmap(sizePx, sizePx)
         val canvas = Canvas(bitmap)
 
-        val circlePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            this.color = color
-            style = Paint.Style.FILL
-        }
+        val circlePaint =
+            Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                this.color = color
+                style = Paint.Style.FILL
+            }
         val cx = sizePx / 2f
         val cy = sizePx / 2f
         val radius = sizePx / 2f
         canvas.drawCircle(cx, cy, radius, circlePaint)
 
-        val textPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-            this.color = Color.WHITE
-            textSize = sizePx * textRatio
-            typeface = Typeface.create(Typeface.SANS_SERIF, Typeface.BOLD)
-            textAlign = Paint.Align.CENTER
-        }
+        val textPaint =
+            Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                this.color = Color.WHITE
+                textSize = sizePx * textRatio
+                typeface = Typeface.create(Typeface.SANS_SERIF, Typeface.BOLD)
+                textAlign = Paint.Align.CENTER
+            }
         val textY = cy - (textPaint.descent() + textPaint.ascent()) / 2f
         canvas.drawText(letter, cx, textY, textPaint)
 
@@ -65,10 +69,7 @@ object LetterIconGenerator {
         val titleLetter = title.trim().firstOrNull { it.isLetterOrDigit() }
         if (titleLetter != null) return titleLetter.uppercase()
 
-        val domain = url
-            .removePrefix("https://")
-            .removePrefix("http://")
-            .removePrefix("www.")
+        val domain = url.removePrefix("https://").removePrefix("http://").removePrefix("www.")
         val domainLetter = domain.firstOrNull { it.isLetterOrDigit() }
         if (domainLetter != null) return domainLetter.uppercase()
 

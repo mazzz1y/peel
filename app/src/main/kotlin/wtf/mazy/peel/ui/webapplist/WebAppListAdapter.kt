@@ -1,4 +1,4 @@
-package wtf.mazy.peel.fragments.webapplist
+package wtf.mazy.peel.ui.webapplist
 
 import android.annotation.SuppressLint
 import android.app.Activity
@@ -11,16 +11,16 @@ import android.widget.ImageView
 import android.widget.PopupMenu
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.snackbar.Snackbar
+import java.util.Collections
 import wtf.mazy.peel.R
 import wtf.mazy.peel.activities.WebAppSettingsActivity
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.WebApp
+import wtf.mazy.peel.shortcut.LetterIconGenerator
+import wtf.mazy.peel.shortcut.ShortcutHelper
 import wtf.mazy.peel.util.Const
-import wtf.mazy.peel.util.LetterIconGenerator
-import wtf.mazy.peel.util.ShortcutHelper
 import wtf.mazy.peel.util.WebViewLauncher.startWebView
-import com.google.android.material.snackbar.Snackbar
-import java.util.Collections
 
 class WebAppListAdapter(private val activityOfFragment: Activity) :
     RecyclerView.Adapter<WebAppListAdapter.ViewHolder>() {
@@ -71,7 +71,8 @@ class WebAppListAdapter(private val activityOfFragment: Activity) :
             }
         }
         val sizePx = imageView.context.resources.displayMetrics.density * 48
-        imageView.setImageBitmap(LetterIconGenerator.generate(webapp.title, webapp.baseUrl, sizePx.toInt()))
+        imageView.setImageBitmap(
+            LetterIconGenerator.generate(webapp.title, webapp.baseUrl, sizePx.toInt()))
     }
 
     private fun showPopupMenu(view: View, webapp: WebApp, position: Int) {

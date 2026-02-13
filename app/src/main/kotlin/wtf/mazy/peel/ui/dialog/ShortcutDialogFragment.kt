@@ -2,7 +2,6 @@ package wtf.mazy.peel.ui.dialog
 
 import android.app.Dialog
 import android.content.DialogInterface
-import android.content.pm.ShortcutInfo
 import android.content.pm.ShortcutManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -23,19 +22,19 @@ import androidx.core.content.pm.ShortcutInfoCompat
 import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.core.graphics.drawable.IconCompat
 import androidx.fragment.app.DialogFragment
-import wtf.mazy.peel.R
-import wtf.mazy.peel.model.DataManager
-import wtf.mazy.peel.model.WebApp
-import wtf.mazy.peel.util.App
-import wtf.mazy.peel.util.LetterIconGenerator
-import wtf.mazy.peel.util.NotificationUtils.showToast
-import wtf.mazy.peel.util.ShortcutHelper
-import wtf.mazy.peel.util.WebViewLauncher
 import com.google.android.material.progressindicator.CircularProgressIndicator
 import java.io.IOException
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.Future
+import wtf.mazy.peel.R
+import wtf.mazy.peel.model.DataManager
+import wtf.mazy.peel.model.WebApp
+import wtf.mazy.peel.shortcut.LetterIconGenerator
+import wtf.mazy.peel.shortcut.ShortcutHelper
+import wtf.mazy.peel.util.App
+import wtf.mazy.peel.util.NotificationUtils.showToast
+import wtf.mazy.peel.util.WebViewLauncher
 
 class ShortcutDialogFragment : DialogFragment() {
     private var webapp: WebApp? = null
@@ -52,9 +51,7 @@ class ShortcutDialogFragment : DialogFragment() {
 
         fun newInstance(webappUuid: String): ShortcutDialogFragment {
             return ShortcutDialogFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_WEBAPP_UUID, webappUuid)
-                }
+                arguments = Bundle().apply { putString(ARG_WEBAPP_UUID, webappUuid) }
             }
         }
     }
@@ -164,7 +161,8 @@ class ShortcutDialogFragment : DialogFragment() {
                 val resizedBitmap = ShortcutHelper.resizeBitmapForAdaptiveIcon(bitmap)
                 IconCompat.createWithAdaptiveBitmap(resizedBitmap)
             } else {
-                val letterBitmap = LetterIconGenerator.generateForAdaptiveIcon(app.title, app.baseUrl)
+                val letterBitmap =
+                    LetterIconGenerator.generateForAdaptiveIcon(app.title, app.baseUrl)
                 IconCompat.createWithAdaptiveBitmap(letterBitmap)
             }
 

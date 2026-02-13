@@ -1,7 +1,6 @@
 package wtf.mazy.peel.model
 
 import kotlin.reflect.KMutableProperty1
-import kotlin.reflect.full.memberProperties
 
 data class WebAppSettings(
     var isOpenUrlExternal: Boolean? = null,
@@ -37,40 +36,29 @@ data class WebAppSettings(
     var isSafeBrowsing: Boolean? = null,
 ) {
     companion object {
-        val DEFAULTS =
-            mapOf(
-                "isOpenUrlExternal" to false,
-                "isAllowCookies" to true,
-                "isAllowThirdPartyCookies" to false,
-                "isAllowJs" to true,
-                "isRequestDesktop" to false,
-                "isClearCache" to false,
-                "isBlockImages" to false,
-                "isAlwaysHttps" to true,
-                "isAllowLocationAccess" to false,
-                "customHeaders" to null,
-                "isAutoReload" to false,
-                "timeAutoReload" to 0,
-                "isForceDarkMode" to false,
-                "isUseTimespanDarkMode" to false,
-                "timespanDarkModeBegin" to "22:00",
-                "timespanDarkModeEnd" to "06:00",
-                "isIgnoreSslErrors" to false,
-                "isBlockThirdPartyRequests" to false,
-                "isDrmAllowed" to false,
-                "isShowFullscreen" to false,
-                "isKeepAwake" to false,
-                "isCameraPermission" to false,
-                "isMicrophonePermission" to false,
-                "isEnableZooming" to false,
-                "isBiometricProtection" to false,
-                "isAllowMediaPlaybackInBackground" to false,
-                "isLongClickShare" to true,
-                "isShowProgressbar" to true,
-                "isDisableScreenshots" to false,
-                "isPullToRefresh" to false,
-                "isSafeBrowsing" to true,
-            )
+        @Suppress("UNCHECKED_CAST")
+        private val PROPERTY_MAP: Map<String, KMutableProperty1<WebAppSettings, Any?>> by lazy {
+            val map = mutableMapOf<String, KMutableProperty1<WebAppSettings, Any?>>()
+            for (setting in SettingRegistry.getAllSettings()) {
+                for (field in setting.allFields) {
+                    map[field.key] = field.property as KMutableProperty1<WebAppSettings, Any?>
+                }
+            }
+            map
+        }
+
+        val DEFAULTS: Map<String, Any?> by lazy {
+            val map = mutableMapOf<String, Any?>()
+            for (setting in SettingRegistry.getAllSettings()) {
+                for (field in setting.allFields) {
+                    map[field.key] = field.defaultValue
+                }
+            }
+            map
+        }
+
+        val ALL_KEYS: Set<String>
+            get() = PROPERTY_MAP.keys
 
         fun createWithDefaults(): WebAppSettings {
             val settings = WebAppSettings()
@@ -79,26 +67,12 @@ data class WebAppSettings(
         }
     }
 
-    @Suppress("UNCHECKED_CAST")
     fun getValue(key: String): Any? {
-        return try {
-            val property =
-                WebAppSettings::class.memberProperties.find { it.name == key }
-                    as? KMutableProperty1<WebAppSettings, Any?>
-            property?.get(this)
-        } catch (_: Exception) {
-            null
-        }
+        return PROPERTY_MAP[key]?.get(this)
     }
 
-    @Suppress("UNCHECKED_CAST")
     fun setValue(key: String, value: Any?) {
-        try {
-            val property =
-                WebAppSettings::class.memberProperties.find { it.name == key }
-                    as? KMutableProperty1<WebAppSettings, Any?>
-            property?.set(this, value)
-        } catch (_: Exception) {}
+        PROPERTY_MAP[key]?.set(this, value)
     }
 
     fun ensureAllConcrete() {
@@ -111,7 +85,7 @@ data class WebAppSettings(
 
     fun getEffective(globalSettings: WebAppSettings): WebAppSettings {
         val effective = WebAppSettings()
-        DEFAULTS.keys.forEach { key ->
+        ALL_KEYS.forEach { key ->
             val value = this.getValue(key) ?: globalSettings.getValue(key) ?: DEFAULTS[key]
             effective.setValue(key, value)
         }
@@ -119,6 +93,6 @@ data class WebAppSettings(
     }
 
     fun getOverriddenKeys(): List<String> {
-        return DEFAULTS.keys.filter { getValue(it) != null }
+        return ALL_KEYS.filter { getValue(it) != null }
     }
 }

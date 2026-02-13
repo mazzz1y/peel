@@ -40,8 +40,4 @@ abstract class ToolbarBaseActivity<VB : ViewBinding> : AppCompatActivity() {
     fun setToolbarTitle(title: String) {
         supportActionBar?.title = title
     }
-
-    fun setNavigationClickListener(listener: () -> Unit) {
-        onNavigationClickListener = listener
-    }
 }

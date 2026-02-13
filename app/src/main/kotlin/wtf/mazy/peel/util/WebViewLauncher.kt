@@ -6,10 +6,11 @@ import android.content.Intent
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.net.toUri
+import com.google.android.material.snackbar.Snackbar
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.SandboxManager
 import wtf.mazy.peel.model.WebApp
-import com.google.android.material.snackbar.Snackbar
+import wtf.mazy.peel.ui.BiometricPromptHelper
 
 object WebViewLauncher {
     @JvmStatic

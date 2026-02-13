@@ -161,4 +161,11 @@
     <string name="add">Aggiungi</string>
     <string name="remove">Rimuovi</string>
     <string name="clone">Clona</string>
+
+    <string name="setting_long_click_share">Tocco prolungato per condividere link</string>
+    <string name="setting_pull_to_refresh">Scorri per aggiornare</string>
+    <string name="setting_disable_screenshots">Disabilita screenshot</string>
+    <string name="setting_safe_browsing">Navigazione sicura</string>
+    <string name="setting_always_https">Sempre HTTPS</string>
+    <string name="setting_custom_headers">Intestazioni personalizzate</string>
 </resources>

@@ -12,21 +12,21 @@ import android.view.MenuItem
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import wtf.mazy.peel.R
-import wtf.mazy.peel.databinding.AddWebsiteDialogueBinding
-import wtf.mazy.peel.fragments.webapplist.WebAppListFragment
-import wtf.mazy.peel.model.DataManager
-import wtf.mazy.peel.model.SandboxManager
-import wtf.mazy.peel.model.WebApp
-import wtf.mazy.peel.util.Const
-import wtf.mazy.peel.util.EntryPointUtils.entryPointReached
-import wtf.mazy.peel.util.NotificationUtils
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import wtf.mazy.peel.R
+import wtf.mazy.peel.databinding.AddWebsiteDialogueBinding
+import wtf.mazy.peel.model.DataManager
+import wtf.mazy.peel.model.SandboxManager
+import wtf.mazy.peel.model.WebApp
+import wtf.mazy.peel.ui.webapplist.WebAppListFragment
+import wtf.mazy.peel.util.Const
+import wtf.mazy.peel.util.EntryPointUtils.entryPointReached
+import wtf.mazy.peel.util.NotificationUtils
 
 class MainActivity : AppCompatActivity() {
     private lateinit var webAppListFragment: WebAppListFragment
@@ -77,7 +77,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         webAppListFragment =
             supportFragmentManager.findFragmentById(R.id.fragment_container_view)
-                    as WebAppListFragment
+                as WebAppListFragment
         entryPointReached()
 
         val fab = findViewById<FloatingActionButton>(R.id.fab)
@@ -176,8 +176,7 @@ class MainActivity : AppCompatActivity() {
         val dialogView = layoutInflater.inflate(R.layout.dialog_clear_data, null)
         val switchSandboxed =
             dialogView.findViewById<com.google.android.material.materialswitch.MaterialSwitch>(
-                R.id.switchSandboxed
-            )
+                R.id.switchSandboxed)
 
         AlertDialog.Builder(this)
             .setView(dialogView)
@@ -205,8 +204,7 @@ class MainActivity : AppCompatActivity() {
     private fun buildImportSuccessDialog() {
         AlertDialog.Builder(this)
             .setMessage(
-                getString(R.string.import_success, DataManager.instance.activeWebsitesCount)
-            )
+                getString(R.string.import_success, DataManager.instance.activeWebsitesCount))
             .setPositiveButton(R.string.ok, null)
             .create()
             .show()
@@ -251,8 +249,7 @@ class MainActivity : AppCompatActivity() {
                     start: Int,
                     count: Int,
                     after: Int
-                ) {
-                }
+                ) {}
 
                 override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             })

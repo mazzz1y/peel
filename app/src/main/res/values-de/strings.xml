@@ -162,4 +162,11 @@
     <string name="add">Hinzufügen</string>
     <string name="remove">Entfernen</string>
     <string name="clone">Klonen</string>
+
+    <string name="setting_long_click_share">Lang drücken zum Teilen von Links</string>
+    <string name="setting_pull_to_refresh">Zum Aktualisieren ziehen</string>
+    <string name="setting_disable_screenshots">Screenshots deaktivieren</string>
+    <string name="setting_safe_browsing">Sicheres Surfen</string>
+    <string name="setting_always_https">Immer HTTPS</string>
+    <string name="setting_custom_headers">Benutzerdefinierte Header</string>
 </resources>

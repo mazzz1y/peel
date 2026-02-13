@@ -1,8 +1,7 @@
-package wtf.mazy.peel.util
+package wtf.mazy.peel.shortcut
 
 import android.app.Activity
 import android.content.Intent
-import android.content.pm.ShortcutInfo
 import android.content.pm.ShortcutManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -15,12 +14,13 @@ import androidx.core.content.pm.ShortcutInfoCompat
 import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.core.graphics.createBitmap
 import androidx.core.graphics.drawable.IconCompat
+import androidx.core.graphics.scale
+import kotlin.math.min
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.WebApp
+import wtf.mazy.peel.util.App
 import wtf.mazy.peel.util.NotificationUtils.showToast
-import java.io.File
-import kotlin.math.min
-import androidx.core.graphics.scale
+import wtf.mazy.peel.util.WebViewLauncher
 
 object ShortcutHelper {
     private const val ADAPTIVE_ICON_SIZE = 108
@@ -62,24 +62,26 @@ object ShortcutHelper {
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
             } ?: return
 
-        val icon = if (webapp.hasCustomIcon) {
-            try {
-                val bitmap = BitmapFactory.decodeFile(webapp.iconFile.absolutePath)
-                if (bitmap != null) {
-                    IconCompat.createWithAdaptiveBitmap(resizeBitmapForAdaptiveIcon(bitmap))
-                } else {
+        val icon =
+            if (webapp.hasCustomIcon) {
+                try {
+                    val bitmap = BitmapFactory.decodeFile(webapp.iconFile.absolutePath)
+                    if (bitmap != null) {
+                        IconCompat.createWithAdaptiveBitmap(resizeBitmapForAdaptiveIcon(bitmap))
+                    } else {
+                        IconCompat.createWithAdaptiveBitmap(
+                            LetterIconGenerator.generateForAdaptiveIcon(
+                                webapp.title, webapp.baseUrl))
+                    }
+                } catch (e: Exception) {
+                    Log.w("ShortcutHelper", "Failed to load saved icon", e)
                     IconCompat.createWithAdaptiveBitmap(
                         LetterIconGenerator.generateForAdaptiveIcon(webapp.title, webapp.baseUrl))
                 }
-            } catch (e: Exception) {
-                Log.w("ShortcutHelper", "Failed to load saved icon", e)
+            } else {
                 IconCompat.createWithAdaptiveBitmap(
                     LetterIconGenerator.generateForAdaptiveIcon(webapp.title, webapp.baseUrl))
             }
-        } else {
-            IconCompat.createWithAdaptiveBitmap(
-                LetterIconGenerator.generateForAdaptiveIcon(webapp.title, webapp.baseUrl))
-        }
 
         val finalTitle = webapp.title.ifEmpty { "Unknown" }
 

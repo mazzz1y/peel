@@ -7,9 +7,9 @@ import android.webkit.CookieManager
 import android.webkit.WebStorage
 import android.webkit.WebViewDatabase
 import androidx.core.content.edit
+import java.io.File
 import wtf.mazy.peel.util.App
 import wtf.mazy.peel.util.Const
-import java.io.File
 
 object SandboxManager {
     private const val NUM_OF_SANDBOXES = 8

@@ -4,8 +4,8 @@ import android.app.Activity
 import android.view.Gravity
 import android.widget.TextView
 import android.widget.Toast
-import wtf.mazy.peel.R
 import com.google.android.material.snackbar.Snackbar
+import wtf.mazy.peel.R
 
 object NotificationUtils {
 
@@ -28,8 +28,7 @@ object NotificationUtils {
         snackBar.setAction(activity.getString(R.string.ok)) { snackBar.dismiss() }
 
         val tv =
-            snackBar.view
-                .findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
+            snackBar.view.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
         tv.maxLines = 10
         snackBar.show()
     }

@@ -1,4 +1,4 @@
-package wtf.mazy.peel.fragments.webapplist
+package wtf.mazy.peel.ui.webapplist
 
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator

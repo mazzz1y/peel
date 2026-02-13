@@ -9,17 +9,16 @@ import android.util.Log
 import android.view.Gravity
 import android.widget.Toast
 import androidx.core.content.edit
-import wtf.mazy.peel.R
-import wtf.mazy.peel.model.deserializer.WebAppDeserializer
-import wtf.mazy.peel.util.App
-import wtf.mazy.peel.util.Const
-import wtf.mazy.peel.util.ShortcutIconUtils
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
+import wtf.mazy.peel.R
+import wtf.mazy.peel.shortcut.ShortcutIconUtils
+import wtf.mazy.peel.util.App
+import wtf.mazy.peel.util.Const
 
 class DataManager private constructor() {
     private var websites = ArrayList<WebApp>()
@@ -64,23 +63,24 @@ class DataManager private constructor() {
 
     fun loadAppData() {
         appdata = App.appContext.getSharedPreferences(SHARED_PREF_KEY, Context.MODE_PRIVATE)
-        // Webapp data
         appdata?.let { pref ->
             if (pref.contains(SHARED_PREF_WEBAPPDATA)) {
                 val gson =
-                    GsonBuilder().registerTypeAdapter(WebApp::class.java, WebAppDeserializer())
+                    GsonBuilder()
+                        .registerTypeAdapter(WebApp::class.java, WebAppDeserializer())
                         .create()
                 val json = pref.getString(SHARED_PREF_WEBAPPDATA, "") ?: ""
-                val newWebsites = gson.fromJson<ArrayList<WebApp>>(
-                    json, object : TypeToken<ArrayList<WebApp?>?>() {}.type
-                )
+                val newWebsites =
+                    gson.fromJson<ArrayList<WebApp>>(
+                        json, object : TypeToken<ArrayList<WebApp?>?>() {}.type)
                 checkIfWebAppUuidsCollide(websites, newWebsites)
                 websites = newWebsites
             }
 
             if (pref.contains(SHARED_PREF_GLOBALSETTINGS)) {
                 val gson =
-                    GsonBuilder().registerTypeAdapter(WebApp::class.java, WebAppDeserializer())
+                    GsonBuilder()
+                        .registerTypeAdapter(WebApp::class.java, WebAppDeserializer())
                         .create()
                 val json = pref.getString(SHARED_PREF_GLOBALSETTINGS, "") ?: ""
                 defaultSettings = gson.fromJson(json, WebApp::class.java)
@@ -115,13 +115,14 @@ class DataManager private constructor() {
         val webApp = websites.find { it.uuid == uuid }
         if (webApp == null) {
             Toast.makeText(
-                App.appContext,
-                App.appContext.getString(R.string.webapp_not_found),
-                Toast.LENGTH_LONG,
-            ).apply {
-                setGravity(Gravity.TOP, 0, 100)
-                show()
-            }
+                    App.appContext,
+                    App.appContext.getString(R.string.webapp_not_found),
+                    Toast.LENGTH_LONG,
+                )
+                .apply {
+                    setGravity(Gravity.TOP, 0, 100)
+                    show()
+                }
             return null
         }
         return webApp
@@ -145,11 +146,12 @@ class DataManager private constructor() {
                 ZipOutputStream(outputStream).use { zip ->
                     val gson = GsonBuilder().setPrettyPrinting().create()
 
-                    val data = mapOf(
-                        "version" to BACKUP_VERSION,
-                        "websites" to websites,
-                        "globalSettings" to defaultSettings.settings,
-                    )
+                    val data =
+                        mapOf(
+                            "version" to BACKUP_VERSION,
+                            "websites" to websites,
+                            "globalSettings" to defaultSettings.settings,
+                        )
                     zip.putNextEntry(ZipEntry("data.json"))
                     zip.write(gson.toJson(data).toByteArray())
                     zip.closeEntry()
@@ -226,23 +228,24 @@ class DataManager private constructor() {
                     val globalSettingsJson = data["globalSettings"] as? Map<String, Any>
 
                     if (websitesJson != null) {
-                        val gson = GsonBuilder()
-                            .registerTypeAdapter(WebApp::class.java, WebAppDeserializer())
-                            .create()
-                        websites = websitesJson
-                            .map { gson.fromJson(Gson().toJson(it), WebApp::class.java) }
-                            .toCollection(ArrayList())
+                        val gson =
+                            GsonBuilder()
+                                .registerTypeAdapter(WebApp::class.java, WebAppDeserializer())
+                                .create()
+                        websites =
+                            websitesJson
+                                .map { gson.fromJson(Gson().toJson(it), WebApp::class.java) }
+                                .toCollection(ArrayList())
                     }
 
                     if (globalSettingsJson != null) {
                         val gson = Gson()
                         defaultSettings.settings =
-                            gson.fromJson(gson.toJson(globalSettingsJson), WebAppSettings::class.java)
+                            gson.fromJson(
+                                gson.toJson(globalSettingsJson), WebAppSettings::class.java)
                     }
 
-                    icons.forEach { (uuid, bitmap) ->
-                        saveIconForWebApp(uuid, bitmap)
-                    }
+                    icons.forEach { (uuid, bitmap) -> saveIconForWebApp(uuid, bitmap) }
 
                     saveWebAppData()
                     saveDefaultSettings()
@@ -286,7 +289,6 @@ class DataManager private constructor() {
         private const val SHARED_PREF_GLOBALSETTINGS = "GLOBALSETTINGS"
         private const val BACKUP_VERSION = "1"
 
-        @JvmField
-        val instance = DataManager()
+        @JvmField val instance = DataManager()
     }
 }

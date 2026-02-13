@@ -1,17 +1,63 @@
 package wtf.mazy.peel.model
 
+import androidx.annotation.StringRes
+import kotlin.reflect.KMutableProperty1
 import wtf.mazy.peel.R
 
-data class SettingDefinition(
-    val key: String,
-    val displayName: String,
-    val category: SettingCategory,
-    val type: SettingType,
-    val secondaryKey: String? = null,
-    val tertiaryKey: String? = null,
-)
+data class SettingField(
+    val property: KMutableProperty1<WebAppSettings, *>,
+    val defaultValue: Any?,
+) {
+    val key: String
+        get() = property.name
+}
 
-enum class SettingCategory(val displayNameResId: Int) {
+sealed class SettingDefinition(
+    val toggle: SettingField,
+    @param:StringRes val displayNameResId: Int,
+    val category: SettingCategory,
+) {
+    val key: String
+        get() = toggle.key
+
+    open val allFields: List<SettingField>
+        get() = listOf(toggle)
+
+    class BooleanSetting(
+        toggle: SettingField,
+        @StringRes displayNameResId: Int,
+        category: SettingCategory,
+    ) : SettingDefinition(toggle, displayNameResId, category)
+
+    class BooleanWithIntSetting(
+        toggle: SettingField,
+        @StringRes displayNameResId: Int,
+        category: SettingCategory,
+        val intField: SettingField,
+    ) : SettingDefinition(toggle, displayNameResId, category) {
+        override val allFields
+            get() = listOf(toggle, intField)
+    }
+
+    class TimeRangeSetting(
+        toggle: SettingField,
+        @StringRes displayNameResId: Int,
+        category: SettingCategory,
+        val start: SettingField,
+        val end: SettingField,
+    ) : SettingDefinition(toggle, displayNameResId, category) {
+        override val allFields
+            get() = listOf(toggle, start, end)
+    }
+
+    class StringMapSetting(
+        toggle: SettingField,
+        @StringRes displayNameResId: Int,
+        category: SettingCategory,
+    ) : SettingDefinition(toggle, displayNameResId, category)
+}
+
+enum class SettingCategory(@param:StringRes val displayNameResId: Int) {
     GENERAL(R.string.general),
     PRIVACY(R.string.webapp_section_security),
     PERMISSIONS(R.string.permissions),
@@ -19,200 +65,158 @@ enum class SettingCategory(val displayNameResId: Int) {
     APPEARANCE(R.string.appearance),
 }
 
-enum class SettingType {
-    BOOLEAN,
-    BOOLEAN_WITH_INT,
-    TIME_RANGE,
-    STRING_MAP,
-}
-
-/** Registry of all available settings that can be overridden */
 object SettingRegistry {
 
-    fun getAllSettings(): List<SettingDefinition> {
-        return listOf(
-            // General
-            SettingDefinition(
-                "isAllowJs",
-                "Allow JavaScript",
+    private val ALL_SETTINGS: List<SettingDefinition> =
+        listOf(
+            SettingDefinition.BooleanSetting(
+                SettingField(WebAppSettings::isAllowJs, true),
+                R.string.allow_javascript,
                 SettingCategory.GENERAL,
-                SettingType.BOOLEAN,
             ),
-            SettingDefinition(
-                "isRequestDesktop",
-                "Request Desktop Site",
+            SettingDefinition.BooleanSetting(
+                SettingField(WebAppSettings::isRequestDesktop, false),
+                R.string.request_website_in_desktop_version,
                 SettingCategory.GENERAL,
-                SettingType.BOOLEAN,
             ),
-            SettingDefinition(
-                "isOpenUrlExternal",
-                "Open External Links in Browser",
+            SettingDefinition.BooleanSetting(
+                SettingField(WebAppSettings::isOpenUrlExternal, false),
+                R.string.open_external_links_in_browser_app,
                 SettingCategory.GENERAL,
-                SettingType.BOOLEAN,
             ),
-            SettingDefinition(
-                "isLongClickShare",
-                "Long-click to Share Links",
+            SettingDefinition.BooleanSetting(
+                SettingField(WebAppSettings::isLongClickShare, true),
+                R.string.setting_long_click_share,
                 SettingCategory.GENERAL,
-                SettingType.BOOLEAN,
             ),
-            SettingDefinition(
-                "isAllowCookies",
-                "Allow Cookies",
+            SettingDefinition.BooleanSetting(
+                SettingField(WebAppSettings::isPullToRefresh, false),
+                R.string.setting_pull_to_refresh,
+                SettingCategory.GENERAL,
+            ),
+            SettingDefinition.BooleanSetting(
+                SettingField(WebAppSettings::isAllowCookies, true),
+                R.string.accept_cookies,
                 SettingCategory.PRIVACY,
-                SettingType.BOOLEAN,
             ),
-            SettingDefinition(
-                "isAllowThirdPartyCookies",
-                "Allow Third-Party Cookies",
+            SettingDefinition.BooleanSetting(
+                SettingField(WebAppSettings::isAllowThirdPartyCookies, false),
+                R.string.accept_third_party_cookies,
                 SettingCategory.PRIVACY,
-                SettingType.BOOLEAN,
             ),
-            SettingDefinition(
-                "isClearCache",
-                "Clear Cache on Exit",
+            SettingDefinition.BooleanSetting(
+                SettingField(WebAppSettings::isClearCache, false),
+                R.string.clear_cache_after_usage,
                 SettingCategory.PRIVACY,
-                SettingType.BOOLEAN,
             ),
-            SettingDefinition(
-                "isBlockImages",
-                "Block Images",
+            SettingDefinition.BooleanSetting(
+                SettingField(WebAppSettings::isBlockImages, false),
+                R.string.do_not_load_images,
                 SettingCategory.PRIVACY,
-                SettingType.BOOLEAN,
             ),
-            SettingDefinition(
-                "isBlockThirdPartyRequests",
-                "Block Third-Party Requests",
+            SettingDefinition.BooleanSetting(
+                SettingField(WebAppSettings::isBlockThirdPartyRequests, false),
+                R.string.block_all_third_party_requests,
                 SettingCategory.PRIVACY,
-                SettingType.BOOLEAN,
             ),
-
-            // Permissions
-            SettingDefinition(
-                "isAllowLocationAccess",
-                "Allow Location Access",
+            SettingDefinition.BooleanSetting(
+                SettingField(WebAppSettings::isDisableScreenshots, false),
+                R.string.setting_disable_screenshots,
+                SettingCategory.PRIVACY,
+            ),
+            SettingDefinition.BooleanSetting(
+                SettingField(WebAppSettings::isSafeBrowsing, true),
+                R.string.setting_safe_browsing,
+                SettingCategory.PRIVACY,
+            ),
+            SettingDefinition.BooleanSetting(
+                SettingField(WebAppSettings::isAllowLocationAccess, false),
+                R.string.allow_location_access,
                 SettingCategory.PERMISSIONS,
-                SettingType.BOOLEAN,
             ),
-            SettingDefinition(
-                "isCameraPermission",
-                "Allow Camera",
+            SettingDefinition.BooleanSetting(
+                SettingField(WebAppSettings::isCameraPermission, false),
+                R.string.allow_camera_access,
                 SettingCategory.PERMISSIONS,
-                SettingType.BOOLEAN,
             ),
-            SettingDefinition(
-                "isMicrophonePermission",
-                "Allow Microphone",
+            SettingDefinition.BooleanSetting(
+                SettingField(WebAppSettings::isMicrophonePermission, false),
+                R.string.allow_microphone_access,
                 SettingCategory.PERMISSIONS,
-                SettingType.BOOLEAN,
             ),
-            SettingDefinition(
-                "isDrmAllowed",
-                "Allow DRM Content",
+            SettingDefinition.BooleanSetting(
+                SettingField(WebAppSettings::isDrmAllowed, false),
+                R.string.allow_drm_content,
                 SettingCategory.PERMISSIONS,
-                SettingType.BOOLEAN,
             ),
-
-            // Appearance
-            SettingDefinition(
-                "isShowProgressbar",
-                "Show Progress Bar",
+            SettingDefinition.BooleanSetting(
+                SettingField(WebAppSettings::isShowProgressbar, true),
+                R.string.show_progress_bar_during_page_load,
                 SettingCategory.APPEARANCE,
-                SettingType.BOOLEAN,
             ),
-            SettingDefinition(
-                "isShowFullscreen",
-                "Fullscreen Mode",
+            SettingDefinition.BooleanSetting(
+                SettingField(WebAppSettings::isShowFullscreen, false),
+                R.string.show_fullscreen,
                 SettingCategory.APPEARANCE,
-                SettingType.BOOLEAN,
             ),
-            SettingDefinition(
-                "isForceDarkMode",
-                "Force Dark Mode",
+            SettingDefinition.BooleanSetting(
+                SettingField(WebAppSettings::isForceDarkMode, false),
+                R.string.force_dark_mode,
                 SettingCategory.APPEARANCE,
-                SettingType.BOOLEAN,
             ),
-            SettingDefinition(
-                "isUseTimespanDarkMode",
-                "Dark Mode Schedule",
+            SettingDefinition.TimeRangeSetting(
+                SettingField(WebAppSettings::isUseTimespanDarkMode, false),
+                R.string.limit_dark_mode_to_time_span,
                 SettingCategory.APPEARANCE,
-                SettingType.TIME_RANGE,
-                "timespanDarkModeBegin",
-                "timespanDarkModeEnd",
+                start = SettingField(WebAppSettings::timespanDarkModeBegin, "22:00"),
+                end = SettingField(WebAppSettings::timespanDarkModeEnd, "06:00"),
             ),
-            SettingDefinition(
-                "isEnableZooming",
-                "Enable Zooming",
+            SettingDefinition.BooleanSetting(
+                SettingField(WebAppSettings::isEnableZooming, false),
+                R.string.activate_two_finger_zoom,
                 SettingCategory.APPEARANCE,
-                SettingType.BOOLEAN,
             ),
-            SettingDefinition(
-                "isPullToRefresh",
-                "Pull to Refresh",
-                SettingCategory.GENERAL,
-                SettingType.BOOLEAN,
-            ),
-
-            // Advanced
-            SettingDefinition(
-                "isAlwaysHttps",
-                "Always HTTPS",
+            SettingDefinition.BooleanSetting(
+                SettingField(WebAppSettings::isAlwaysHttps, true),
+                R.string.setting_always_https,
                 SettingCategory.ADVANCED,
-                SettingType.BOOLEAN,
             ),
-            SettingDefinition(
-                "isIgnoreSslErrors",
-                "Ignore SSL Errors",
+            SettingDefinition.BooleanSetting(
+                SettingField(WebAppSettings::isIgnoreSslErrors, false),
+                R.string.ignore_ssl_errors,
                 SettingCategory.ADVANCED,
-                SettingType.BOOLEAN,
             ),
-            SettingDefinition(
-                "isBiometricProtection",
-                "Biometric Protection",
+            SettingDefinition.BooleanSetting(
+                SettingField(WebAppSettings::isBiometricProtection, false),
+                R.string.enable_access_restriction,
                 SettingCategory.ADVANCED,
-                SettingType.BOOLEAN,
             ),
-            SettingDefinition(
-                "isKeepAwake",
-                "Keep Screen Awake",
+            SettingDefinition.BooleanSetting(
+                SettingField(WebAppSettings::isKeepAwake, false),
+                R.string.keep_screen_awake,
                 SettingCategory.ADVANCED,
-                SettingType.BOOLEAN,
             ),
-            SettingDefinition(
-                "isAutoReload",
-                "Auto-Reload",
+            SettingDefinition.BooleanWithIntSetting(
+                SettingField(WebAppSettings::isAutoReload, false),
+                R.string.webapp_autoreload,
                 SettingCategory.ADVANCED,
-                SettingType.BOOLEAN_WITH_INT,
-                "timeAutoReload",
+                intField = SettingField(WebAppSettings::timeAutoReload, 0),
             ),
-            SettingDefinition(
-                "isAllowMediaPlaybackInBackground",
-                "Background Media Playback",
+            SettingDefinition.BooleanSetting(
+                SettingField(WebAppSettings::isAllowMediaPlaybackInBackground, false),
+                R.string.allow_media_playback_in_background,
                 SettingCategory.ADVANCED,
-                SettingType.BOOLEAN,
             ),
-            SettingDefinition(
-                "isDisableScreenshots",
-                "Disable Screenshots",
-                SettingCategory.PRIVACY,
-                SettingType.BOOLEAN,
-            ),
-            SettingDefinition(
-                "customHeaders",
-                "Custom Headers",
+            SettingDefinition.StringMapSetting(
+                SettingField(WebAppSettings::customHeaders, null),
+                R.string.setting_custom_headers,
                 SettingCategory.ADVANCED,
-                SettingType.STRING_MAP,
-            ),
-            SettingDefinition(
-                "isSafeBrowsing",
-                "Safe Browsing",
-                SettingCategory.PRIVACY,
-                SettingType.BOOLEAN,
             ),
         )
-    }
+
+    fun getAllSettings(): List<SettingDefinition> = ALL_SETTINGS
 
     fun getSettingByKey(key: String): SettingDefinition? {
-        return getAllSettings().find { it.key == key }
+        return ALL_SETTINGS.find { it.key == key }
     }
 }

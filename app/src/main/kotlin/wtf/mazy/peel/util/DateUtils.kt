@@ -17,9 +17,7 @@ object DateUtils {
         if (str.isNullOrBlank()) return null
         return try {
             val parsedDate = getHourMinFormat().parse(str)
-            parsedDate?.let { date ->
-                Calendar.getInstance().also { it.time = date }
-            }
+            parsedDate?.let { date -> Calendar.getInstance().also { it.time = date } }
         } catch (e: Exception) {
             null
         }

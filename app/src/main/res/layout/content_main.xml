@@ -10,7 +10,7 @@
             android:id="@+id/fragment_container_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:name="wtf.mazy.peel.fragments.webapplist.WebAppListFragment" />
+            android:name="wtf.mazy.peel.ui.webapplist.WebAppListFragment" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

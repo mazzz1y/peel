@@ -167,4 +167,11 @@
     <string name="header_value">Value</string>
     <string name="add">Add</string>
     <string name="remove">Remove</string>
+
+    <string name="setting_long_click_share">Long-click to share links</string>
+    <string name="setting_pull_to_refresh">Pull to refresh</string>
+    <string name="setting_disable_screenshots">Disable screenshots</string>
+    <string name="setting_safe_browsing">Safe browsing</string>
+    <string name="setting_always_https">Always HTTPS</string>
+    <string name="setting_custom_headers">Custom headers</string>
 </resources>

@@ -42,10 +42,11 @@ class OverridePickerDialog : DialogFragment() {
             val gson = Gson()
             return OverridePickerDialog().apply {
                 this.listener = listener
-                arguments = Bundle().apply {
-                    putString(ARG_CURRENT_SETTINGS, gson.toJson(currentSettings))
-                    putString(ARG_GLOBAL_SETTINGS, gson.toJson(globalSettings))
-                }
+                arguments =
+                    Bundle().apply {
+                        putString(ARG_CURRENT_SETTINGS, gson.toJson(currentSettings))
+                        putString(ARG_GLOBAL_SETTINGS, gson.toJson(globalSettings))
+                    }
             }
         }
     }
@@ -170,7 +171,7 @@ class OverridePickerDialog : DialogFragment() {
             private val textName: TextView = view.findViewById(R.id.text_setting_name)
 
             fun bind(setting: SettingDefinition) {
-                textName.text = setting.displayName
+                textName.text = itemView.context.getString(setting.displayNameResId)
 
                 itemView.setOnClickListener { onItemClick(setting) }
             }

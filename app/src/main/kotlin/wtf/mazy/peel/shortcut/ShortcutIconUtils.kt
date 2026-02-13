@@ -1,8 +1,9 @@
-package wtf.mazy.peel.util
+package wtf.mazy.peel.shortcut
 
 import android.content.Context
 import android.content.pm.ShortcutManager
 import wtf.mazy.peel.R
+import wtf.mazy.peel.util.Const
 
 object ShortcutIconUtils {
     @JvmStatic
