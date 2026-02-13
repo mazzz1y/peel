@@ -11,7 +11,8 @@ import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.gson.Gson
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.SettingCategory
 import wtf.mazy.peel.model.SettingDefinition
@@ -39,13 +40,12 @@ class OverridePickerDialog : DialogFragment() {
             globalSettings: WebAppSettings,
             listener: OnSettingSelectedListener,
         ): OverridePickerDialog {
-            val gson = Gson()
             return OverridePickerDialog().apply {
                 this.listener = listener
                 arguments =
                     Bundle().apply {
-                        putString(ARG_CURRENT_SETTINGS, gson.toJson(currentSettings))
-                        putString(ARG_GLOBAL_SETTINGS, gson.toJson(globalSettings))
+                        putString(ARG_CURRENT_SETTINGS, Json.encodeToString(currentSettings))
+                        putString(ARG_GLOBAL_SETTINGS, Json.encodeToString(globalSettings))
                     }
             }
         }
@@ -60,12 +60,11 @@ class OverridePickerDialog : DialogFragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val gson = Gson()
         arguments?.getString(ARG_CURRENT_SETTINGS)?.let {
-            currentSettings = gson.fromJson(it, WebAppSettings::class.java)
+            currentSettings = Json.decodeFromString(it)
         }
         arguments?.getString(ARG_GLOBAL_SETTINGS)?.let {
-            globalSettings = gson.fromJson(it, WebAppSettings::class.java)
+            globalSettings = Json.decodeFromString(it)
         }
     }
 

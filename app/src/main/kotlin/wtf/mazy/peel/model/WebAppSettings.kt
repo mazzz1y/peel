@@ -1,7 +1,9 @@
 package wtf.mazy.peel.model
 
 import kotlin.reflect.KMutableProperty1
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class WebAppSettings(
     var isOpenUrlExternal: Boolean? = null,
     var isAllowCookies: Boolean? = null,

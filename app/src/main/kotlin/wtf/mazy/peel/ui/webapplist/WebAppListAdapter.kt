@@ -128,15 +128,12 @@ class WebAppListAdapter(private val activityOfFragment: Activity) :
                 val destFile = clonedWebApp.iconFile
                 destFile.parentFile?.mkdirs()
                 webapp.iconFile.copyTo(destFile, overwrite = true)
-            } catch (e: Exception) {
-                android.util.Log.w("WebAppListAdapter", "Failed to clone icon", e)
-            }
+            } catch (_: Exception) {}
         }
 
+        DataManager.instance.addWebsite(clonedWebApp)
         val insertPosition = position + 1
         items.add(insertPosition, clonedWebApp)
-        DataManager.instance.getWebsites().add(clonedWebApp)
-        DataManager.instance.saveWebAppData()
         notifyItemInserted(insertPosition)
     }
 
@@ -171,8 +168,7 @@ class WebAppListAdapter(private val activityOfFragment: Activity) :
                 override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
                     if (!isUndone) {
                         webapp.cleanupWebAppData(activityOfFragment)
-                        DataManager.instance.getWebsites().remove(webapp)
-                        DataManager.instance.saveWebAppData()
+                        DataManager.instance.removeWebApp(webapp)
                     }
                 }
             })

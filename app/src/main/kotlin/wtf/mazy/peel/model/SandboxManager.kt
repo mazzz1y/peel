@@ -6,21 +6,24 @@ import android.os.Process
 import android.webkit.CookieManager
 import android.webkit.WebStorage
 import android.webkit.WebViewDatabase
-import androidx.core.content.edit
 import java.io.File
+import wtf.mazy.peel.model.db.SandboxSlotDao
+import wtf.mazy.peel.model.db.SandboxSlotEntity
 import wtf.mazy.peel.util.App
 import wtf.mazy.peel.util.Const
 
 object SandboxManager {
     private const val NUM_OF_SANDBOXES = 8
-    private const val PREFS_KEY = "WEBSITEDATA"
-    private const val KEY_NEXT_EVICT = "sandbox_next_evict"
+
+    private lateinit var dao: SandboxSlotDao
+    private var nextEvict = 0
+
+    fun initialize(dao: SandboxSlotDao) {
+        this.dao = dao
+    }
 
     fun getContainerForUuid(uuid: String): Int? {
-        for (i in 0 until NUM_OF_SANDBOXES) {
-            if (getSandboxUuid(i) == uuid) return i
-        }
-        return null
+        return dao.getSlotForUuid(uuid)
     }
 
     fun releaseSandbox(context: Context, uuid: String) {
@@ -45,36 +48,24 @@ object SandboxManager {
             }
         }
 
-        val containerId = getNextEvictContainer()
+        val containerId = nextEvict
+        nextEvict = (nextEvict + 1) % NUM_OF_SANDBOXES
         killSandboxProcess(activityManager, containerId)
         clearSandboxUuid(containerId)
         saveSandboxUuid(containerId, uuid)
         return containerId
     }
 
-    private fun getNextEvictContainer(): Int {
-        val prefs = App.appContext.getSharedPreferences(PREFS_KEY, Context.MODE_PRIVATE)
-        val next = prefs.getInt(KEY_NEXT_EVICT, 0)
-        prefs.edit { putInt(KEY_NEXT_EVICT, (next + 1) % NUM_OF_SANDBOXES) }
-        return next
-    }
-
     fun saveSandboxUuid(sandboxId: Int, uuid: String) {
-        App.appContext.getSharedPreferences(PREFS_KEY, Context.MODE_PRIVATE).edit {
-            putString("sandbox_uuid_$sandboxId", uuid)
-        }
+        dao.assign(SandboxSlotEntity(slotId = sandboxId, webappUuid = uuid))
     }
 
     fun getSandboxUuid(sandboxId: Int): String? {
-        return App.appContext
-            .getSharedPreferences(PREFS_KEY, Context.MODE_PRIVATE)
-            .getString("sandbox_uuid_$sandboxId", null)
+        return dao.getUuid(sandboxId)
     }
 
     fun clearSandboxUuid(sandboxId: Int) {
-        App.appContext.getSharedPreferences(PREFS_KEY, Context.MODE_PRIVATE).edit {
-            remove("sandbox_uuid_$sandboxId")
-        }
+        dao.clear(sandboxId)
     }
 
     fun getSandboxDataDir(uuid: String): File {
@@ -143,9 +134,7 @@ object SandboxManager {
         finishSandboxTasks(activityManager)
         killAllSandboxProcesses(activityManager)
 
-        for (i in 0 until NUM_OF_SANDBOXES) {
-            clearSandboxUuid(i)
-        }
+        dao.clearAll()
 
         val parentDir = App.appContext.filesDir.parentFile ?: return
         parentDir.listFiles()?.forEach { file ->

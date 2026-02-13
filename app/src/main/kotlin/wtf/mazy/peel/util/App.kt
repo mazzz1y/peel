@@ -3,14 +3,17 @@ package wtf.mazy.peel.util
 import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
-import android.util.Log
 import android.webkit.WebView
+import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.SandboxManager
+import wtf.mazy.peel.model.db.AppDatabase
 
 class App : Application() {
     override fun onCreate() {
         super.onCreate()
         appContext = applicationContext
+        DataManager.instance.initialize(applicationContext)
+        SandboxManager.initialize(AppDatabase.getInstance(applicationContext).sandboxSlotDao())
         initWebViewDataDirectory()
     }
 
@@ -20,9 +23,7 @@ class App : Application() {
 
         try {
             WebView.setDataDirectorySuffix(uuid)
-        } catch (e: IllegalStateException) {
-            Log.w("App", "WebView data directory suffix already set", e)
-        }
+        } catch (_: IllegalStateException) {}
     }
 
     private fun extractSandboxId(): Int? {

@@ -20,12 +20,12 @@ import java.util.Date
 import java.util.Locale
 import wtf.mazy.peel.R
 import wtf.mazy.peel.databinding.AddWebsiteDialogueBinding
+import wtf.mazy.peel.model.BackupManager
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.SandboxManager
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.ui.webapplist.WebAppListFragment
 import wtf.mazy.peel.util.Const
-import wtf.mazy.peel.util.EntryPointUtils.entryPointReached
 import wtf.mazy.peel.util.NotificationUtils
 
 class MainActivity : AppCompatActivity() {
@@ -36,7 +36,7 @@ class MainActivity : AppCompatActivity() {
             ->
             uri?.let {
                 DataManager.instance.saveDefaultSettings()
-                if (!DataManager.instance.exportToZip(it)) {
+                if (!BackupManager.exportToZip(it)) {
                     NotificationUtils.showInfoSnackBar(
                         this,
                         getString(R.string.export_failed),
@@ -55,7 +55,7 @@ class MainActivity : AppCompatActivity() {
     private val importLauncher =
         registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
             uri?.let {
-                val success = DataManager.instance.importFromZip(it)
+                val success = BackupManager.importFromZip(it)
 
                 if (!success) {
                     NotificationUtils.showInfoSnackBar(
@@ -64,7 +64,6 @@ class MainActivity : AppCompatActivity() {
                         Snackbar.LENGTH_LONG,
                     )
                 } else {
-                    DataManager.instance.loadAppData()
                     updateWebAppList()
                     buildImportSuccessDialog()
                 }
@@ -78,7 +77,7 @@ class MainActivity : AppCompatActivity() {
         webAppListFragment =
             supportFragmentManager.findFragmentById(R.id.fragment_container_view)
                 as WebAppListFragment
-        entryPointReached()
+        DataManager.instance.loadAppData()
 
         val fab = findViewById<FloatingActionButton>(R.id.fab)
         fab.setOnClickListener { buildAddWebsiteDialog(getString(R.string.add_webapp)) }

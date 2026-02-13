@@ -66,15 +66,11 @@ class WebAppSettingsActivity :
         } else originalWebapp = webappUuid?.let { DataManager.instance.getWebApp(it) }
 
         if (originalWebapp == null) {
+            showToast(this, getString(R.string.webapp_not_found), Toast.LENGTH_SHORT)
             finish()
             return
         }
-        val baseWebapp =
-            originalWebapp
-                ?: run {
-                    finish()
-                    return
-                }
+        val baseWebapp = originalWebapp ?: return
         modifiedWebapp = WebApp(baseWebapp)
         val editableWebapp =
             modifiedWebapp

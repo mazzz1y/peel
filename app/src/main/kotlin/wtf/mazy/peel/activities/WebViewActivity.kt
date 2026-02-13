@@ -53,7 +53,6 @@ import wtf.mazy.peel.ui.BiometricPromptHelper
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.DateUtils.convertStringToCalendar
 import wtf.mazy.peel.util.DateUtils.isInInterval
-import wtf.mazy.peel.util.EntryPointUtils.entryPointReached
 import wtf.mazy.peel.util.NotificationUtils
 import wtf.mazy.peel.util.NotificationUtils.showInfoSnackBar
 import wtf.mazy.peel.util.WebViewLauncher
@@ -92,10 +91,11 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         super.onCreate(savedInstanceState)
 
         webappUuid = intent.getStringExtra(Const.INTENT_WEBAPP_UUID)
-        entryPointReached()
+        DataManager.instance.loadAppData()
         webapp =
             webappUuid?.let { DataManager.instance.getWebApp(it) }
                 ?: run {
+                    NotificationUtils.showToast(this, getString(R.string.webapp_not_found))
                     finishAndRemoveTask()
                     return
                 }

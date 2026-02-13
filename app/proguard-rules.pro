@@ -15,7 +15,7 @@
 -keep class androidx.databinding.ViewDataBinding { *; }
 -keep class androidx.databinding.DataBindingUtil { *; }
 
-# Keep all model classes for Gson serialization
+# Keep model classes for Room @Embedded and kotlinx.serialization
 -keep class wtf.mazy.peel.model.** { *; }
 -keepclassmembers class wtf.mazy.peel.model.** { *; }
 
@@ -42,21 +42,6 @@
 # Jsoup optional dependencies (re2j regex engine - not included)
 -dontwarn com.google.re2j.Matcher
 -dontwarn com.google.re2j.Pattern
-
-# Gson - Keep only necessary classes
--keep class com.google.gson.Gson { *; }
--keep class com.google.gson.GsonBuilder { *; }
--keep class com.google.gson.JsonElement { *; }
--keep class com.google.gson.JsonObject { *; }
--keep class com.google.gson.JsonArray { *; }
--keep class com.google.gson.reflect.TypeToken { *; }
--keep class * implements com.google.gson.TypeAdapter
--keep class * implements com.google.gson.TypeAdapterFactory
--keep class * implements com.google.gson.JsonSerializer
--keep class * implements com.google.gson.JsonDeserializer
--keepclassmembers,allowobfuscation class * {
-  @com.google.gson.annotations.SerializedName <fields>;
-}
 
 # Keep line numbers for crash reports
 -keepattributes SourceFile,LineNumberTable

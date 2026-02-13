@@ -63,9 +63,7 @@ data class WebApp(var baseUrl: String, val uuid: String = UUID.randomUUID().toSt
             if (iconFile.exists()) {
                 iconFile.delete()
             }
-        } catch (e: Exception) {
-            android.util.Log.w("WebApp", "Failed to delete custom icon for webapp $uuid", e)
-        }
+        } catch (_: Exception) {}
     }
 
     fun cleanupWebAppData(activity: Activity) {
@@ -73,12 +71,8 @@ data class WebApp(var baseUrl: String, val uuid: String = UUID.randomUUID().toSt
             val webViewDir = File(activity.applicationContext.filesDir.parent, "app_webview_$uuid")
             if (webViewDir.exists()) {
                 webViewDir.deleteRecursively()
-                android.util.Log.d("WebApp", "Deleted WebView data directory for webapp: $uuid")
             }
-        } catch (e: Exception) {
-            android.util.Log.w(
-                "WebApp", "Failed to delete WebView data directory for webapp $uuid", e)
-        }
+        } catch (_: Exception) {}
 
         deleteIcon()
     }
