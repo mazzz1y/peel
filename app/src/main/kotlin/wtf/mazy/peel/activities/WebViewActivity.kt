@@ -480,6 +480,10 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
             return false
         }
 
+        val existingSlot = SandboxManager.getContainerForUuid(webapp.uuid)
+        if (existingSlot != null && existingSlot != sandboxId) {
+            SandboxManager.clearSandboxUuid(existingSlot)
+        }
         val currentSandboxUuid = SandboxManager.getSandboxUuid(sandboxId)
         if (currentSandboxUuid != webapp.uuid) {
             SandboxManager.saveSandboxUuid(sandboxId, webapp.uuid)
