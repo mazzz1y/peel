@@ -1,6 +1,8 @@
 package wtf.mazy.peel.shortcut
 
 import android.app.Activity
+import android.content.Context
+import android.content.Intent
 import android.content.pm.ShortcutManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -55,20 +57,13 @@ object ShortcutHelper {
     }
 
     fun createShortcut(webapp: WebApp, activity: Activity) {
-        val intent = WebViewLauncher.createShortcutIntent(webapp, activity)
+        val intent = buildShortcutIntent(webapp, activity) ?: return
         val icon = resolveIcon(webapp)
         val finalTitle = webapp.title.ifEmpty { "Unknown" }
 
         if (!ShortcutManagerCompat.isRequestPinShortcutSupported(activity)) return
 
-        val pinShortcutInfo =
-            ShortcutInfoCompat.Builder(activity, webapp.uuid)
-                .setIcon(icon)
-                .setShortLabel(finalTitle)
-                .setLongLabel(finalTitle)
-                .setIntent(intent)
-                .build()
-
+        val pinShortcutInfo = buildShortcutInfo(activity, webapp.uuid, finalTitle, icon, intent)
         val scManager: ShortcutManager =
             App.appContext.getSystemService(ShortcutManager::class.java)
 
@@ -81,6 +76,18 @@ object ShortcutHelper {
                 Toast.LENGTH_SHORT,
             )
         }
+    }
+
+    fun updatePinnedShortcut(webapp: WebApp, context: Context) {
+        val scManager = context.getSystemService(ShortcutManager::class.java)
+        if (scManager.pinnedShortcuts.none { it.id == webapp.uuid }) return
+
+        val intent = buildShortcutIntent(webapp, context) ?: return
+        val icon = resolveIcon(webapp)
+        val finalTitle = webapp.title.ifEmpty { "Unknown" }
+
+        val updated = buildShortcutInfo(context, webapp.uuid, finalTitle, icon, intent)
+        ShortcutManagerCompat.updateShortcuts(context, listOf(updated))
     }
 
     fun resolveIcon(webapp: WebApp): IconCompat {
@@ -96,4 +103,24 @@ object ShortcutHelper {
         return IconCompat.createWithAdaptiveBitmap(
             LetterIconGenerator.generateForAdaptiveIcon(webapp.title, webapp.baseUrl))
     }
+
+    private fun buildShortcutIntent(webapp: WebApp, context: Context): Intent? {
+        return WebViewLauncher.createWebViewIntent(webapp, context)?.apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        }
+    }
+
+    private fun buildShortcutInfo(
+        context: Context,
+        id: String,
+        title: String,
+        icon: IconCompat,
+        intent: Intent,
+    ): ShortcutInfoCompat =
+        ShortcutInfoCompat.Builder(context, id)
+            .setIcon(icon)
+            .setShortLabel(title)
+            .setLongLabel(title)
+            .setIntent(intent)
+            .build()
 }

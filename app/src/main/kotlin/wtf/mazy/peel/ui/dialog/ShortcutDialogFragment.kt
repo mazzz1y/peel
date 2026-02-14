@@ -2,6 +2,7 @@ package wtf.mazy.peel.ui.dialog
 
 import android.app.Dialog
 import android.content.DialogInterface
+import android.content.Intent
 import android.content.pm.ShortcutManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -156,7 +157,9 @@ class ShortcutDialogFragment : DialogFragment() {
     private fun addShortcutToHomeScreen(bitmap: Bitmap?) {
         val app = webapp ?: return
         val activity = requireActivity()
-        val intent = WebViewLauncher.createShortcutIntent(app, activity)
+        val intent = WebViewLauncher.createWebViewIntent(app, activity)?.apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        } ?: return
         val icon =
             if (bitmap != null) {
                 IconCompat.createWithAdaptiveBitmap(

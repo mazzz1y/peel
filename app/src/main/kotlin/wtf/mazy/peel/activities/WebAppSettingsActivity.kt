@@ -26,6 +26,7 @@ import wtf.mazy.peel.model.SandboxManager
 import wtf.mazy.peel.model.SettingDefinition
 import wtf.mazy.peel.model.SettingRegistry
 import wtf.mazy.peel.model.WebApp
+import wtf.mazy.peel.shortcut.ShortcutHelper
 import wtf.mazy.peel.shortcut.WebAppIconFetcher
 import wtf.mazy.peel.ui.dialog.OverridePickerDialog
 import wtf.mazy.peel.ui.settings.SettingViewFactory
@@ -122,6 +123,7 @@ class WebAppSettingsActivity :
                 DataManager.instance.defaultSettings = webapp
             } else {
                 DataManager.instance.replaceWebApp(webapp)
+                ShortcutHelper.updatePinnedShortcut(webapp, this)
             }
         }
     }

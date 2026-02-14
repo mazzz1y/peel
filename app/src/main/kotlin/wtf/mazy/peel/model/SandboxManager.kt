@@ -34,22 +34,27 @@ object SandboxManager {
         clearSandboxUuid(containerId)
     }
 
-    fun findOrAssignContainer(context: Context, uuid: String): Int {
+    fun findOrAssignContainer(context: Context, uuid: String, excludeSlot: Int = -1): Int {
         getContainerForUuid(uuid)?.let {
-            return it
+            if (it != excludeSlot) return it
+            clearSandboxUuid(it)
         }
 
         val activityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
 
         for (i in 0 until NUM_OF_SANDBOXES) {
+            if (i == excludeSlot) continue
             if (getSandboxUuid(i) == null) {
                 saveSandboxUuid(i, uuid)
                 return i
             }
         }
 
-        val containerId = nextEvict
-        nextEvict = (nextEvict + 1) % NUM_OF_SANDBOXES
+        var containerId = nextEvict
+        if (containerId == excludeSlot) {
+            containerId = (containerId + 1) % NUM_OF_SANDBOXES
+        }
+        nextEvict = (containerId + 1) % NUM_OF_SANDBOXES
         killSandboxProcess(activityManager, containerId)
         clearSandboxUuid(containerId)
         saveSandboxUuid(containerId, uuid)

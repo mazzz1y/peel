@@ -39,23 +39,17 @@ object WebViewLauncher {
         }
     }
 
-    fun createWebViewIntent(webapp: WebApp, c: Context?): Intent? {
+    fun createWebViewIntent(webapp: WebApp, c: Context?, excludeSlot: Int = -1): Intent? {
         if (c == null) return null
 
         val activityClass = if (webapp.isUseContainer) {
-            val containerId = SandboxManager.findOrAssignContainer(c, webapp.uuid)
+            val containerId = SandboxManager.findOrAssignContainer(c, webapp.uuid, excludeSlot)
             resolveSandboxClass(containerId) ?: return null
         } else {
             WebViewActivity::class.java
         }
 
         return buildIntent(c, activityClass, webapp.uuid)
-    }
-
-    fun createShortcutIntent(webapp: WebApp, c: Context): Intent {
-        return buildIntent(c, WebViewActivity::class.java, webapp.uuid).apply {
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
-        }
     }
 
     private fun buildIntent(c: Context, activityClass: Class<*>, uuid: String): Intent {

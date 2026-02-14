@@ -14,6 +14,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.webkit.WebView.setDataDirectorySuffix
 import android.view.LayoutInflater
 import android.view.View
 import android.view.WindowInsets
@@ -88,32 +89,30 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     private var geoPermissionRequestOrigin: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
         webappUuid = intent.getStringExtra(Const.INTENT_WEBAPP_UUID)
         DataManager.instance.loadAppData()
         webapp =
             webappUuid?.let { DataManager.instance.getWebApp(it) }
                 ?: run {
-                    super.onCreate(savedInstanceState)
                     NotificationUtils.showToast(this, getString(R.string.webapp_not_found))
                     finishAndRemoveTask()
                     return
                 }
 
-        if (needsSandboxRedirect()) {
-            setTheme(R.style.AppTheme_Trampoline)
-            super.onCreate(savedInstanceState)
-            performSandboxRedirect()
-            return
-        }
-
-        super.onCreate(savedInstanceState)
-
         initNotificationManager()
         initFilePickerLauncher()
         initDownloadHandler()
 
-        if (webapp.isUseContainer && webapp.isEphemeralSandbox) {
-            SandboxManager.wipeSandboxStorage(webapp.uuid)
+        if (webapp.isUseContainer) {
+            if (!initSandboxDataDirectory()) {
+                relaunchInFreshSandbox()
+                return
+            }
+            if (webapp.isEphemeralSandbox) {
+                SandboxManager.wipeSandboxStorage(webapp.uuid)
+            }
         }
 
         applyTaskSnapshotProtection()
@@ -186,17 +185,27 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         super.onNewIntent(intent)
         setIntent(intent)
 
-        val newUuid = intent.getStringExtra(Const.INTENT_WEBAPP_UUID)
-        if (newUuid != null && newUuid != webappUuid) {
+        val newUuid = intent.getStringExtra(Const.INTENT_WEBAPP_UUID) ?: return
+        if (newUuid == webappUuid) return
+
+        val isInSandboxProcess = Application.getProcessName() != packageName
+        if (isInSandboxProcess) {
+            val currentSlot = extractSandboxId() ?: -1
+            finishAndRemoveTask()
             val newWebapp = DataManager.instance.getWebApp(newUuid) ?: return
-            if (Application.getProcessName() != packageName) {
-                extractSandboxId()?.let { SandboxManager.saveSandboxUuid(it, newUuid) }
+            val relaunchIntent = WebViewLauncher.createWebViewIntent(newWebapp, applicationContext, excludeSlot = currentSlot)
+            if (relaunchIntent != null) {
+                relaunchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                startActivity(relaunchIntent)
             }
-            webappUuid = newUuid
-            webapp = newWebapp
-            applyTaskSnapshotProtection()
-            webView?.loadUrl(newWebapp.baseUrl)
+            return
         }
+
+        val newWebapp = DataManager.instance.getWebApp(newUuid) ?: return
+        webappUuid = newUuid
+        webapp = newWebapp
+        applyTaskSnapshotProtection()
+        webView?.loadUrl(newWebapp.baseUrl)
     }
 
     override val effectiveSettings: WebAppSettings
@@ -445,18 +454,23 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         return true
     }
 
-    private fun needsSandboxRedirect(): Boolean {
-        val isInSandboxProcess = Application.getProcessName() != packageName
-        return isInSandboxProcess != webapp.isUseContainer
-    }
-
-    private fun performSandboxRedirect() {
-        val intent = WebViewLauncher.createWebViewIntent(webapp, this)
+    private fun relaunchInFreshSandbox() {
+        val currentSlot = extractSandboxId() ?: -1
+        val intent = WebViewLauncher.createWebViewIntent(webapp, this, excludeSlot = currentSlot)
         if (intent != null) {
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
             startActivity(intent)
         }
         finishAndRemoveTask()
+    }
+
+    private fun initSandboxDataDirectory(): Boolean {
+        return try {
+            setDataDirectorySuffix(webapp.uuid)
+            true
+        } catch (_: IllegalStateException) {
+            false
+        }
     }
 
     private fun resolveSandboxSlotMapping(): Boolean {
@@ -465,7 +479,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
 
         val sandboxId = extractSandboxId()
         if (sandboxId == null) {
-            performSandboxRedirect()
+            finishAndRemoveTask()
             return false
         }
 

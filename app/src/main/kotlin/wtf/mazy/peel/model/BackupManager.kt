@@ -11,6 +11,7 @@ import java.util.zip.ZipOutputStream
 import kotlinx.serialization.json.Json
 import wtf.mazy.peel.model.db.toDomain
 import wtf.mazy.peel.model.db.toSurrogate
+import wtf.mazy.peel.shortcut.ShortcutHelper
 import wtf.mazy.peel.util.App
 
 object BackupManager {
@@ -105,6 +106,8 @@ object BackupManager {
         icons.forEach { (uuid, bitmap) -> saveIcon(uuid, bitmap) }
 
         dataManager.importData(importedWebApps, backupData.globalSettings)
+        val context = App.appContext
+        dataManager.getWebsites().forEach { ShortcutHelper.updatePinnedShortcut(it, context) }
         return true
     }
 
