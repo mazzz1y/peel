@@ -39,15 +39,16 @@ object WebViewLauncher {
         }
     }
 
-    fun createWebViewIntent(webapp: WebApp, c: Context?, excludeSlot: Int = -1): Intent? {
+    fun createWebViewIntent(webapp: WebApp, c: Context?): Intent? {
         if (c == null) return null
 
-        val activityClass = if (webapp.isUseContainer) {
-            val containerId = SandboxManager.findOrAssignContainer(c, webapp.uuid, excludeSlot)
-            resolveSandboxClass(containerId) ?: return null
-        } else {
-            WebViewActivity::class.java
-        }
+        val activityClass =
+            if (webapp.isUseContainer) {
+                val containerId = SandboxManager.findOrAssignContainer(c, webapp.uuid)
+                resolveSandboxClass(containerId) ?: return null
+            } else {
+                WebViewActivity::class.java
+            }
 
         return buildIntent(c, activityClass, webapp.uuid)
     }

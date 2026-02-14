@@ -15,12 +15,14 @@ import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.core.graphics.createBitmap
 import androidx.core.graphics.drawable.IconCompat
 import androidx.core.graphics.scale
+import androidx.core.net.toUri
 import kotlin.math.min
 import wtf.mazy.peel.R
+import wtf.mazy.peel.activities.TrampolineActivity
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.util.App
+import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.NotificationUtils.showToast
-import wtf.mazy.peel.util.WebViewLauncher
 
 object ShortcutHelper {
     private const val ADAPTIVE_ICON_SIZE = 108
@@ -57,7 +59,7 @@ object ShortcutHelper {
     }
 
     fun createShortcut(webapp: WebApp, activity: Activity) {
-        val intent = buildShortcutIntent(webapp, activity) ?: return
+        val intent = buildShortcutIntent(webapp, activity)
         val icon = resolveIcon(webapp)
         val finalTitle = webapp.title.ifEmpty { "Unknown" }
 
@@ -82,7 +84,7 @@ object ShortcutHelper {
         val scManager = context.getSystemService(ShortcutManager::class.java)
         if (scManager.pinnedShortcuts.none { it.id == webapp.uuid }) return
 
-        val intent = buildShortcutIntent(webapp, context) ?: return
+        val intent = buildShortcutIntent(webapp, context)
         val icon = resolveIcon(webapp)
         val finalTitle = webapp.title.ifEmpty { "Unknown" }
 
@@ -97,15 +99,17 @@ object ShortcutHelper {
                 if (bitmap != null) {
                     return IconCompat.createWithAdaptiveBitmap(resizeBitmapForAdaptiveIcon(bitmap))
                 }
-            } catch (_: Exception) {
-            }
+            } catch (_: Exception) {}
         }
         return IconCompat.createWithAdaptiveBitmap(
             LetterIconGenerator.generateForAdaptiveIcon(webapp.title, webapp.baseUrl))
     }
 
-    private fun buildShortcutIntent(webapp: WebApp, context: Context): Intent? {
-        return WebViewLauncher.createWebViewIntent(webapp, context)?.apply {
+    private fun buildShortcutIntent(webapp: WebApp, context: Context): Intent {
+        return Intent(context, TrampolineActivity::class.java).apply {
+            putExtra(Const.INTENT_WEBAPP_UUID, webapp.uuid)
+            data = "app://${webapp.uuid}".toUri()
+            action = Intent.ACTION_VIEW
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
         }
     }

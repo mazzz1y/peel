@@ -37,6 +37,12 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".activities.TrampolineActivity"
+            android:theme="@android:style/Theme.NoDisplay"
+            android:exported="true"
+            android:noHistory="true" />
+
 <!-- Main WebViewActivity (no sandbox, shared process) -->
         <activity
             android:name=".activities.WebViewActivity"
@@ -62,7 +68,7 @@
             android:launchMode="singleTask"
             android:process=":sandbox_0"
             android:taskAffinity=""
-            android:exported="true" />
+            android:exported="false" />
         <activity
             android:name=".activities.SandboxActivity1"
             android:windowSoftInputMode="adjustResize"
@@ -73,7 +79,7 @@
             android:launchMode="singleTask"
             android:process=":sandbox_1"
             android:taskAffinity=""
-            android:exported="true" />
+            android:exported="false" />
         <activity
             android:name=".activities.SandboxActivity2"
             android:windowSoftInputMode="adjustResize"
@@ -84,7 +90,7 @@
             android:launchMode="singleTask"
             android:process=":sandbox_2"
             android:taskAffinity=""
-            android:exported="true" />
+            android:exported="false" />
         <activity
             android:name=".activities.SandboxActivity3"
             android:windowSoftInputMode="adjustResize"
@@ -95,7 +101,7 @@
             android:launchMode="singleTask"
             android:process=":sandbox_3"
             android:taskAffinity=""
-            android:exported="true" />
+            android:exported="false" />
         <activity
             android:name=".activities.SandboxActivity4"
             android:windowSoftInputMode="adjustResize"
@@ -106,7 +112,7 @@
             android:launchMode="singleTask"
             android:process=":sandbox_4"
             android:taskAffinity=""
-            android:exported="true" />
+            android:exported="false" />
         <activity
             android:name=".activities.SandboxActivity5"
             android:windowSoftInputMode="adjustResize"
@@ -117,7 +123,7 @@
             android:launchMode="singleTask"
             android:process=":sandbox_5"
             android:taskAffinity=""
-            android:exported="true" />
+            android:exported="false" />
         <activity
             android:name=".activities.SandboxActivity6"
             android:windowSoftInputMode="adjustResize"
@@ -128,7 +134,7 @@
             android:launchMode="singleTask"
             android:process=":sandbox_6"
             android:taskAffinity=""
-            android:exported="true" />
+            android:exported="false" />
         <activity
             android:name=".activities.SandboxActivity7"
             android:windowSoftInputMode="adjustResize"
@@ -139,7 +145,7 @@
             android:launchMode="singleTask"
             android:process=":sandbox_7"
             android:taskAffinity=""
-            android:exported="true" />
+            android:exported="false" />
 
         <activity
             android:name=".activities.SettingsActivity"

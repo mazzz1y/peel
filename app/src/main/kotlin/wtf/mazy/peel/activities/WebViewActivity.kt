@@ -13,7 +13,6 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.webkit.WebView.setDataDirectorySuffix
 import android.view.LayoutInflater
 import android.view.View
 import android.view.WindowInsets
@@ -55,7 +54,6 @@ import wtf.mazy.peel.util.DateUtils.convertStringToCalendar
 import wtf.mazy.peel.util.DateUtils.isInInterval
 import wtf.mazy.peel.util.NotificationUtils
 import wtf.mazy.peel.util.NotificationUtils.showInfoSnackBar
-import wtf.mazy.peel.util.WebViewLauncher
 import wtf.mazy.peel.webview.ChromeClientHost
 import wtf.mazy.peel.webview.DownloadHandler
 import wtf.mazy.peel.webview.PeelWebChromeClient
@@ -105,8 +103,8 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         initDownloadHandler()
 
         if (webapp.isUseContainer) {
-            if (!initSandboxDataDirectory()) {
-                relaunchInFreshSandbox()
+            if (!SandboxManager.initDataDirectorySuffix(webapp.uuid)) {
+                finishAndRemoveTask()
                 return
             }
             if (webapp.isEphemeralSandbox) {
@@ -115,8 +113,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         }
 
         applyTaskSnapshotProtection()
-
-        if (!setupWebView()) return
+        setupWebView()
 
         if (webapp.effectiveSettings.isBiometricProtection == true) {
             showBiometricPrompt()
@@ -167,10 +164,12 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     }
 
     override fun onDestroy() {
-        if (isFinishing && webapp.isUseContainer && webapp.isEphemeralSandbox) {
+        if (isFinishing && ::webapp.isInitialized && webapp.isUseContainer) {
             webView?.destroy()
             webView = null
-            SandboxManager.wipeSandboxStorage(webapp.uuid)
+            if (webapp.isEphemeralSandbox) {
+                SandboxManager.wipeSandboxStorage(webapp.uuid)
+            }
         }
         super.onDestroy()
     }
@@ -188,14 +187,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         if (newUuid == webappUuid) return
 
         if (SandboxManager.isInSandboxProcess) {
-            val currentSlot = SandboxManager.currentSlotId ?: -1
             finishAndRemoveTask()
-            val newWebapp = DataManager.instance.getWebApp(newUuid) ?: return
-            val relaunchIntent = WebViewLauncher.createWebViewIntent(newWebapp, applicationContext, excludeSlot = currentSlot)
-            if (relaunchIntent != null) {
-                relaunchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                startActivity(relaunchIntent)
-            }
             return
         }
 
@@ -426,9 +418,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     }
 
     @SuppressLint("ClickableViewAccessibility")
-    private fun setupWebView(): Boolean {
-        if (!resolveSandboxSlotMapping()) return false
-
+    private fun setupWebView() {
         val settings = webapp.effectiveSettings
         setContentView(R.layout.full_webview)
         applyWindowFlags(settings)
@@ -448,47 +438,6 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         webView?.webChromeClient = PeelWebChromeClient(this)
         setupLongClickShare(settings)
         webView?.let { downloadHandler.install(it) }
-
-        return true
-    }
-
-    private fun relaunchInFreshSandbox() {
-        val currentSlot = SandboxManager.currentSlotId ?: -1
-        val intent = WebViewLauncher.createWebViewIntent(webapp, this, excludeSlot = currentSlot)
-        if (intent != null) {
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
-            startActivity(intent)
-        }
-        finishAndRemoveTask()
-    }
-
-    private fun initSandboxDataDirectory(): Boolean {
-        return try {
-            setDataDirectorySuffix(webapp.uuid)
-            true
-        } catch (_: IllegalStateException) {
-            false
-        }
-    }
-
-    private fun resolveSandboxSlotMapping(): Boolean {
-        if (!SandboxManager.isInSandboxProcess) return true
-
-        val sandboxId = SandboxManager.currentSlotId
-        if (sandboxId == null) {
-            finishAndRemoveTask()
-            return false
-        }
-
-        val existingSlot = SandboxManager.getContainerForUuid(webapp.uuid)
-        if (existingSlot != null && existingSlot != sandboxId) {
-            SandboxManager.clearSandboxUuid(existingSlot)
-        }
-        val currentSandboxUuid = SandboxManager.getSandboxUuid(sandboxId)
-        if (currentSandboxUuid != webapp.uuid) {
-            SandboxManager.saveSandboxUuid(sandboxId, webapp.uuid)
-        }
-        return true
     }
 
     private fun applyWindowFlags(settings: WebAppSettings) {

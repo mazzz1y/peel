@@ -10,9 +10,6 @@ interface SandboxSlotDao {
     @Query("SELECT webappUuid FROM sandbox_slots WHERE slotId = :slotId")
     fun getUuid(slotId: Int): String?
 
-    @Query("SELECT slotId FROM sandbox_slots WHERE webappUuid = :uuid LIMIT 1")
-    fun getSlotForUuid(uuid: String): Int?
-
     @Upsert fun assign(slot: SandboxSlotEntity)
 
     @Query("DELETE FROM sandbox_slots WHERE slotId = :slotId") fun clear(slotId: Int)

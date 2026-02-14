@@ -365,8 +365,7 @@ class WebAppSettingsActivity :
         overriddenKeys.forEach { key ->
             val setting = SettingRegistry.getSettingByKey(key) ?: return@forEach
             container.addView(
-                overrideViewFactory.createView(container, setting, modifiedWebapp.settings)
-            )
+                overrideViewFactory.createView(container, setting, modifiedWebapp.settings))
         }
     }
 
@@ -386,8 +385,7 @@ class WebAppSettingsActivity :
             }
         }
         binding.linearLayoutOverrides.addView(
-            overrideViewFactory.createView(binding.linearLayoutOverrides, setting, webapp.settings)
-        )
+            overrideViewFactory.createView(binding.linearLayoutOverrides, setting, webapp.settings))
     }
 
     private fun showOverridePickerDialog(modifiedWebapp: WebApp) {

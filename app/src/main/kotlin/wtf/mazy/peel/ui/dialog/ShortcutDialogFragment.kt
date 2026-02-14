@@ -29,13 +29,14 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.Future
 import wtf.mazy.peel.R
+import wtf.mazy.peel.activities.TrampolineActivity
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.shortcut.LetterIconGenerator
 import wtf.mazy.peel.shortcut.ShortcutHelper
 import wtf.mazy.peel.util.App
+import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.NotificationUtils.showToast
-import wtf.mazy.peel.util.WebViewLauncher
 
 class ShortcutDialogFragment : DialogFragment() {
     private var webapp: WebApp? = null
@@ -157,9 +158,12 @@ class ShortcutDialogFragment : DialogFragment() {
     private fun addShortcutToHomeScreen(bitmap: Bitmap?) {
         val app = webapp ?: return
         val activity = requireActivity()
-        val intent = WebViewLauncher.createWebViewIntent(app, activity)?.apply {
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
-        } ?: return
+        val intent =
+            Intent(activity, TrampolineActivity::class.java).apply {
+                putExtra(Const.INTENT_WEBAPP_UUID, app.uuid)
+                action = Intent.ACTION_VIEW
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            }
         val icon =
             if (bitmap != null) {
                 IconCompat.createWithAdaptiveBitmap(
