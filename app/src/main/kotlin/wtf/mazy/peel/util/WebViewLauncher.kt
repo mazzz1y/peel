@@ -3,17 +3,16 @@ package wtf.mazy.peel.util
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.net.toUri
 import com.google.android.material.snackbar.Snackbar
 import wtf.mazy.peel.R
+import wtf.mazy.peel.activities.WebViewActivity
 import wtf.mazy.peel.model.SandboxManager
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.ui.BiometricPromptHelper
 
 object WebViewLauncher {
-    @JvmStatic
     fun startWebView(webapp: WebApp, c: Context) {
         try {
             if (webapp.effectiveSettings.isBiometricProtection == true) {
@@ -29,8 +28,8 @@ object WebViewLauncher {
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }
             c.startActivity(intent)
-        } catch (e: Exception) {
-            showError(c, e)
+        } catch (_: Exception) {
+            showLaunchError(c)
         }
     }
 
@@ -38,35 +37,44 @@ object WebViewLauncher {
         if (c is AppCompatActivity) {
             NotificationUtils.showInfoSnackBar(c, error, Snackbar.LENGTH_LONG)
         }
-        Log.e("WebViewLauncher", "Biometric not available: $error")
     }
 
-    @JvmStatic
     fun createWebViewIntent(webapp: WebApp, c: Context?): Intent? {
         if (c == null) return null
 
-        val packageName = "wtf.mazy.peel.activities"
-        val webviewClass =
-            try {
-                if (webapp.isUseContainer) {
-                    val containerId = SandboxManager.findOrAssignContainer(c, webapp.uuid)
-                    Class.forName("$packageName.SandboxActivity$containerId")
-                } else {
-                    Class.forName("$packageName.WebViewActivity")
-                }
-            } catch (e: ClassNotFoundException) {
-                Log.e("WebViewLauncher", "WebView activity class not found", e)
-                return null
-            }
+        val activityClass = if (webapp.isUseContainer) {
+            val containerId = SandboxManager.findOrAssignContainer(c, webapp.uuid)
+            resolveSandboxClass(containerId) ?: return null
+        } else {
+            WebViewActivity::class.java
+        }
 
-        return Intent(c, webviewClass).apply {
-            putExtra(Const.INTENT_WEBAPP_UUID, webapp.uuid)
-            data = "app://${webapp.uuid}".toUri()
+        return buildIntent(c, activityClass, webapp.uuid)
+    }
+
+    fun createShortcutIntent(webapp: WebApp, c: Context): Intent {
+        return buildIntent(c, WebViewActivity::class.java, webapp.uuid).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        }
+    }
+
+    private fun buildIntent(c: Context, activityClass: Class<*>, uuid: String): Intent {
+        return Intent(c, activityClass).apply {
+            putExtra(Const.INTENT_WEBAPP_UUID, uuid)
+            data = "app://$uuid".toUri()
             action = Intent.ACTION_VIEW
         }
     }
 
-    private fun showError(c: Context, e: Exception) {
+    private fun resolveSandboxClass(containerId: Int): Class<*>? {
+        return try {
+            Class.forName("wtf.mazy.peel.activities.SandboxActivity$containerId")
+        } catch (_: ClassNotFoundException) {
+            null
+        }
+    }
+
+    private fun showLaunchError(c: Context) {
         if (c is AppCompatActivity) {
             NotificationUtils.showInfoSnackBar(
                 c,
@@ -74,6 +82,5 @@ object WebViewLauncher {
                 Snackbar.LENGTH_LONG,
             )
         }
-        Log.e("WebViewLauncher", "Failed to start WebView", e)
     }
 }

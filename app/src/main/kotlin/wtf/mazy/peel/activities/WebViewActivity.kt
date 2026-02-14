@@ -88,17 +88,25 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     private var geoPermissionRequestOrigin: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
         webappUuid = intent.getStringExtra(Const.INTENT_WEBAPP_UUID)
         DataManager.instance.loadAppData()
         webapp =
             webappUuid?.let { DataManager.instance.getWebApp(it) }
                 ?: run {
+                    super.onCreate(savedInstanceState)
                     NotificationUtils.showToast(this, getString(R.string.webapp_not_found))
                     finishAndRemoveTask()
                     return
                 }
+
+        if (needsSandboxRedirect()) {
+            setTheme(R.style.AppTheme_Trampoline)
+            super.onCreate(savedInstanceState)
+            performSandboxRedirect()
+            return
+        }
+
+        super.onCreate(savedInstanceState)
 
         initNotificationManager()
         initFilePickerLauncher()
@@ -412,7 +420,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
 
     @SuppressLint("ClickableViewAccessibility")
     private fun setupWebView(): Boolean {
-        if (!resolveSandboxRouting()) return false
+        if (!resolveSandboxSlotMapping()) return false
 
         val settings = webapp.effectiveSettings
         setContentView(R.layout.full_webview)
@@ -437,44 +445,35 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         return true
     }
 
-    private fun resolveSandboxRouting(): Boolean {
+    private fun needsSandboxRedirect(): Boolean {
         val isInSandboxProcess = Application.getProcessName() != packageName
-
-        if (!isInSandboxProcess && webapp.isUseContainer) {
-            redirectToCorrectProcess(
-                Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
-            return false
-        }
-
-        if (isInSandboxProcess && !webapp.isUseContainer) {
-            redirectToCorrectProcess(
-                Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-            return false
-        }
-
-        if (isInSandboxProcess) {
-            val sandboxId = extractSandboxId()
-            val currentSandboxUuid = sandboxId?.let { SandboxManager.getSandboxUuid(it) }
-
-            if (currentSandboxUuid != webapp.uuid) {
-                if (sandboxId != null) {
-                    SandboxManager.saveSandboxUuid(sandboxId, webapp.uuid)
-                } else {
-                    redirectToCorrectProcess(
-                        Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK,
-                    )
-                    return false
-                }
-            }
-        }
-        return true
+        return isInSandboxProcess != webapp.isUseContainer
     }
 
-    private fun redirectToCorrectProcess(flags: Int) {
+    private fun performSandboxRedirect() {
         val intent = WebViewLauncher.createWebViewIntent(webapp, this)
-        intent?.addFlags(flags)
-        startActivity(intent)
+        if (intent != null) {
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            startActivity(intent)
+        }
         finishAndRemoveTask()
+    }
+
+    private fun resolveSandboxSlotMapping(): Boolean {
+        val isInSandboxProcess = Application.getProcessName() != packageName
+        if (!isInSandboxProcess) return true
+
+        val sandboxId = extractSandboxId()
+        if (sandboxId == null) {
+            performSandboxRedirect()
+            return false
+        }
+
+        val currentSandboxUuid = SandboxManager.getSandboxUuid(sandboxId)
+        if (currentSandboxUuid != webapp.uuid) {
+            SandboxManager.saveSandboxUuid(sandboxId, webapp.uuid)
+        }
+        return true
     }
 
     private fun applyWindowFlags(settings: WebAppSettings) {

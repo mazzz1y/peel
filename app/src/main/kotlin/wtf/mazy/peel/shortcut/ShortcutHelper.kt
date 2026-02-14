@@ -1,14 +1,12 @@
 package wtf.mazy.peel.shortcut
 
 import android.app.Activity
-import android.content.Intent
 import android.content.pm.ShortcutManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
-import android.util.Log
 import android.widget.Toast
 import androidx.core.content.pm.ShortcutInfoCompat
 import androidx.core.content.pm.ShortcutManagerCompat
@@ -57,56 +55,45 @@ object ShortcutHelper {
     }
 
     fun createShortcut(webapp: WebApp, activity: Activity) {
-        val intent =
-            WebViewLauncher.createWebViewIntent(webapp, activity)?.apply {
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
-            } ?: return
-
-        val icon =
-            if (webapp.hasCustomIcon) {
-                try {
-                    val bitmap = BitmapFactory.decodeFile(webapp.iconFile.absolutePath)
-                    if (bitmap != null) {
-                        IconCompat.createWithAdaptiveBitmap(resizeBitmapForAdaptiveIcon(bitmap))
-                    } else {
-                        IconCompat.createWithAdaptiveBitmap(
-                            LetterIconGenerator.generateForAdaptiveIcon(
-                                webapp.title, webapp.baseUrl))
-                    }
-                } catch (e: Exception) {
-                    Log.w("ShortcutHelper", "Failed to load saved icon", e)
-                    IconCompat.createWithAdaptiveBitmap(
-                        LetterIconGenerator.generateForAdaptiveIcon(webapp.title, webapp.baseUrl))
-                }
-            } else {
-                IconCompat.createWithAdaptiveBitmap(
-                    LetterIconGenerator.generateForAdaptiveIcon(webapp.title, webapp.baseUrl))
-            }
-
+        val intent = WebViewLauncher.createShortcutIntent(webapp, activity)
+        val icon = resolveIcon(webapp)
         val finalTitle = webapp.title.ifEmpty { "Unknown" }
 
-        if (ShortcutManagerCompat.isRequestPinShortcutSupported(activity)) {
-            val pinShortcutInfo =
-                ShortcutInfoCompat.Builder(activity, webapp.uuid)
-                    .setIcon(icon)
-                    .setShortLabel(finalTitle)
-                    .setLongLabel(finalTitle)
-                    .setIntent(intent)
-                    .build()
+        if (!ShortcutManagerCompat.isRequestPinShortcutSupported(activity)) return
 
-            val newScId = pinShortcutInfo.id
-            val scManager: ShortcutManager =
-                App.appContext.getSystemService(ShortcutManager::class.java)
+        val pinShortcutInfo =
+            ShortcutInfoCompat.Builder(activity, webapp.uuid)
+                .setIcon(icon)
+                .setShortLabel(finalTitle)
+                .setLongLabel(finalTitle)
+                .setIntent(intent)
+                .build()
 
-            if (scManager.pinnedShortcuts.none { it.id == newScId }) {
-                ShortcutManagerCompat.requestPinShortcut(activity, pinShortcutInfo, null)
-            } else {
-                showToast(
-                    activity,
-                    activity.getString(R.string.shortcut_already_exists),
-                    Toast.LENGTH_SHORT,
-                )
+        val scManager: ShortcutManager =
+            App.appContext.getSystemService(ShortcutManager::class.java)
+
+        if (scManager.pinnedShortcuts.none { it.id == pinShortcutInfo.id }) {
+            ShortcutManagerCompat.requestPinShortcut(activity, pinShortcutInfo, null)
+        } else {
+            showToast(
+                activity,
+                activity.getString(R.string.shortcut_already_exists),
+                Toast.LENGTH_SHORT,
+            )
+        }
+    }
+
+    fun resolveIcon(webapp: WebApp): IconCompat {
+        if (webapp.hasCustomIcon) {
+            try {
+                val bitmap = BitmapFactory.decodeFile(webapp.iconFile.absolutePath)
+                if (bitmap != null) {
+                    return IconCompat.createWithAdaptiveBitmap(resizeBitmapForAdaptiveIcon(bitmap))
+                }
+            } catch (_: Exception) {
             }
         }
+        return IconCompat.createWithAdaptiveBitmap(
+            LetterIconGenerator.generateForAdaptiveIcon(webapp.title, webapp.baseUrl))
     }
 }

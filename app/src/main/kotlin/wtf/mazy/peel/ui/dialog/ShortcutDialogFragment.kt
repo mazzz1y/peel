@@ -155,37 +155,35 @@ class ShortcutDialogFragment : DialogFragment() {
 
     private fun addShortcutToHomeScreen(bitmap: Bitmap?) {
         val app = webapp ?: return
-        val intent = WebViewLauncher.createWebViewIntent(app, requireActivity()) ?: return
+        val activity = requireActivity()
+        val intent = WebViewLauncher.createShortcutIntent(app, activity)
         val icon =
             if (bitmap != null) {
-                val resizedBitmap = ShortcutHelper.resizeBitmapForAdaptiveIcon(bitmap)
-                IconCompat.createWithAdaptiveBitmap(resizedBitmap)
+                IconCompat.createWithAdaptiveBitmap(
+                    ShortcutHelper.resizeBitmapForAdaptiveIcon(bitmap))
             } else {
-                val letterBitmap =
-                    LetterIconGenerator.generateForAdaptiveIcon(app.title, app.baseUrl)
-                IconCompat.createWithAdaptiveBitmap(letterBitmap)
+                ShortcutHelper.resolveIcon(app)
             }
 
         var finalTitle = uiTitle?.text?.toString() ?: ""
         if (finalTitle.isEmpty()) finalTitle = app.title
         if (finalTitle.isEmpty()) finalTitle = "Unknown"
 
-        if (ShortcutManagerCompat.isRequestPinShortcutSupported(requireActivity())) {
-            val pinShortcutInfo =
-                ShortcutInfoCompat.Builder(requireActivity(), app.uuid)
-                    .setIcon(icon)
-                    .setShortLabel(finalTitle)
-                    .setLongLabel(finalTitle)
-                    .setIntent(intent)
-                    .build()
-            val newScId = pinShortcutInfo.id
-            val scManager: ShortcutManager =
-                App.appContext.getSystemService(ShortcutManager::class.java)
-            if (scManager.pinnedShortcuts.none { it.id == newScId }) {
-                ShortcutManagerCompat.requestPinShortcut(requireActivity(), pinShortcutInfo, null)
-            } else {
-                showToast(requireActivity(), getString(R.string.shortcut_already_exists))
-            }
+        if (!ShortcutManagerCompat.isRequestPinShortcutSupported(activity)) return
+
+        val pinShortcutInfo =
+            ShortcutInfoCompat.Builder(activity, app.uuid)
+                .setIcon(icon)
+                .setShortLabel(finalTitle)
+                .setLongLabel(finalTitle)
+                .setIntent(intent)
+                .build()
+        val scManager: ShortcutManager =
+            App.appContext.getSystemService(ShortcutManager::class.java)
+        if (scManager.pinnedShortcuts.none { it.id == pinShortcutInfo.id }) {
+            ShortcutManagerCompat.requestPinShortcut(activity, pinShortcutInfo, null)
+        } else {
+            showToast(activity, getString(R.string.shortcut_already_exists))
         }
     }
 
