@@ -31,7 +31,6 @@ object SandboxManager {
         val activityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
         finishSandboxTasks(activityManager, uuid)
         killSandboxProcess(activityManager, containerId)
-        clearSandboxUuid(containerId)
     }
 
     fun findOrAssignContainer(context: Context, uuid: String, excludeSlot: Int = -1): Int {
@@ -85,6 +84,7 @@ object SandboxManager {
             }
         }
     }
+
 
     fun killAllSandboxProcesses(activityManager: ActivityManager) {
         activityManager.runningAppProcesses?.forEach { processInfo ->

@@ -67,13 +67,7 @@ data class WebApp(var baseUrl: String, val uuid: String = UUID.randomUUID().toSt
     }
 
     fun cleanupWebAppData(activity: Activity) {
-        try {
-            val webViewDir = File(activity.applicationContext.filesDir.parent, "app_webview_$uuid")
-            if (webViewDir.exists()) {
-                webViewDir.deleteRecursively()
-            }
-        } catch (_: Exception) {}
-
+        SandboxManager.clearSandboxData(activity, uuid)
         deleteIcon()
     }
 }
