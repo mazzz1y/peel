@@ -1,6 +1,7 @@
 package wtf.mazy.peel.model
 
 import android.app.ActivityManager
+import android.app.Application
 import android.content.Context
 import android.os.Process
 import android.webkit.CookieManager
@@ -22,14 +23,22 @@ object SandboxManager {
         this.dao = dao
     }
 
+    val isInSandboxProcess: Boolean
+        get() = Application.getProcessName() != App.appContext.packageName
+
+    val currentSlotId: Int?
+        get() = Application.getProcessName()
+            .substringAfterLast(":sandbox_", "")
+            .toIntOrNull()
+
     fun getContainerForUuid(uuid: String): Int? {
         return dao.getSlotForUuid(uuid)
     }
 
     fun releaseSandbox(context: Context, uuid: String) {
-        val containerId = getContainerForUuid(uuid) ?: return
         val activityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
         finishSandboxTasks(activityManager, uuid)
+        val containerId = getContainerForUuid(uuid) ?: return
         killSandboxProcess(activityManager, containerId)
     }
 

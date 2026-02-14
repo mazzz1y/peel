@@ -154,10 +154,7 @@ class WebAppSettingsActivity :
             if (isChecked == modifiedWebapp.isUseContainer) {
                 return@setOnCheckedChangeListener
             }
-            stopWebApp(modifiedWebapp)
-            if (!isChecked && modifiedWebapp.isUseContainer) {
-                SandboxManager.releaseSandbox(this, modifiedWebapp.uuid)
-            }
+            SandboxManager.releaseSandbox(this, modifiedWebapp.uuid)
             modifiedWebapp.isUseContainer = isChecked
             if (!isChecked) {
                 modifiedWebapp.isEphemeralSandbox = false
@@ -185,7 +182,7 @@ class WebAppSettingsActivity :
                         }
                         .show()
                 } else {
-                    stopWebApp(modifiedWebapp)
+                    SandboxManager.releaseSandbox(this, modifiedWebapp.uuid)
                     modifiedWebapp.isEphemeralSandbox = true
                     updateClearSandboxButtonVisibility(modifiedWebapp)
                 }
@@ -196,15 +193,6 @@ class WebAppSettingsActivity :
         }
 
         binding.btnClearSandbox.setOnClickListener { showClearSandboxConfirmDialog(modifiedWebapp) }
-    }
-
-    private fun stopWebApp(webapp: WebApp) {
-        val activityManager = getSystemService(ACTIVITY_SERVICE) as android.app.ActivityManager
-        SandboxManager.finishSandboxTasks(activityManager, webapp.uuid)
-        val containerId = SandboxManager.getContainerForUuid(webapp.uuid)
-        if (containerId != null) {
-            SandboxManager.killSandboxProcess(activityManager, containerId)
-        }
     }
 
     private fun updateEphemeralSandboxVisibility(sandboxEnabled: Boolean) {

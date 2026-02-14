@@ -3,7 +3,6 @@ package wtf.mazy.peel.activities
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.ActivityManager
-import android.app.Application
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -188,9 +187,8 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         val newUuid = intent.getStringExtra(Const.INTENT_WEBAPP_UUID) ?: return
         if (newUuid == webappUuid) return
 
-        val isInSandboxProcess = Application.getProcessName() != packageName
-        if (isInSandboxProcess) {
-            val currentSlot = extractSandboxId() ?: -1
+        if (SandboxManager.isInSandboxProcess) {
+            val currentSlot = SandboxManager.currentSlotId ?: -1
             finishAndRemoveTask()
             val newWebapp = DataManager.instance.getWebApp(newUuid) ?: return
             val relaunchIntent = WebViewLauncher.createWebViewIntent(newWebapp, applicationContext, excludeSlot = currentSlot)
@@ -455,7 +453,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     }
 
     private fun relaunchInFreshSandbox() {
-        val currentSlot = extractSandboxId() ?: -1
+        val currentSlot = SandboxManager.currentSlotId ?: -1
         val intent = WebViewLauncher.createWebViewIntent(webapp, this, excludeSlot = currentSlot)
         if (intent != null) {
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
@@ -474,10 +472,9 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     }
 
     private fun resolveSandboxSlotMapping(): Boolean {
-        val isInSandboxProcess = Application.getProcessName() != packageName
-        if (!isInSandboxProcess) return true
+        if (!SandboxManager.isInSandboxProcess) return true
 
-        val sandboxId = extractSandboxId()
+        val sandboxId = SandboxManager.currentSlotId
         if (sandboxId == null) {
             finishAndRemoveTask()
             return false
@@ -727,11 +724,6 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
             Const.PERMISSION_AUDIO -> if (granted) webView?.reload()
             Const.PERMISSION_RC_STORAGE -> if (granted) downloadHandler.onStoragePermissionGranted()
         }
-    }
-
-    private fun extractSandboxId(): Int? {
-        val processName = Application.getProcessName()
-        return Regex(":sandbox_(\\d+)$").find(processName)?.groupValues?.get(1)?.toIntOrNull()
     }
 
     companion object {
