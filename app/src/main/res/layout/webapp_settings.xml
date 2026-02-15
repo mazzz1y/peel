@@ -171,15 +171,10 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="@string/none"
-                                android:textColor="?attr/colorOnSurface"
-                                android:textSize="@dimen/settings_text_size" />
-
-                            <ImageView
-                                android:layout_width="24dp"
-                                android:layout_height="24dp"
-                                android:layout_marginStart="4dp"
-                                android:src="@drawable/ic_expand_more_24dp"
-                                android:contentDescription="@null" />
+                                android:textColor="?attr/colorOnSurfaceVariant"
+                                android:textSize="@dimen/settings_text_size"
+                                android:drawableEnd="@drawable/ic_expand_more_24dp"
+                                android:drawablePadding="4dp" />
 
                         </LinearLayout>
 

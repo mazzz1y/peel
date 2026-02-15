@@ -178,7 +178,7 @@
     <string name="group_sandbox">Sandbox compartido</string>
     <string name="groups_empty_state">A&#250;n no hay grupos.\nToca el bot&#243;n + para crear tu primer grupo.</string>
     <string name="select_group">Seleccionar grupo</string>
-    <string name="none">Ninguno</string>
+    <string name="none">Otro</string>
     <string name="delete_group_title">Eliminar grupo</string>
     <string name="delete_group_confirm">&#191;Eliminar grupo \"%1$s\"? Contiene %2$d app(s).</string>
     <string name="ungroup_apps_on_delete">Mantener apps (mover a sin grupo)</string>

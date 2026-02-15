@@ -24,6 +24,7 @@ import java.util.Collections
 import wtf.mazy.peel.R
 import wtf.mazy.peel.databinding.AddWebsiteDialogueBinding
 import wtf.mazy.peel.model.DataManager
+import wtf.mazy.peel.shortcut.LetterIconGenerator
 import wtf.mazy.peel.model.WebAppGroup
 import wtf.mazy.peel.util.Const
 
@@ -181,6 +182,7 @@ class GroupListActivity : AppCompatActivity() {
             private set
 
         inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+            val iconView: ImageView = itemView.findViewById(R.id.groupIcon)
             val titleView: TextView = itemView.findViewById(R.id.groupTitle)
             val countView: TextView = itemView.findViewById(R.id.groupAppCount)
             val menuButton: ImageView = itemView.findViewById(R.id.btnMenu)
@@ -195,6 +197,11 @@ class GroupListActivity : AppCompatActivity() {
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             val group = items[position]
             holder.titleView.text = group.title
+
+            val sizePx = (resources.displayMetrics.density * 38).toInt()
+            holder.iconView.setImageBitmap(
+                LetterIconGenerator.generate(group.title, group.title, sizePx)
+            )
 
             val count = DataManager.instance.activeWebsitesForGroup(group.uuid).size
             holder.countView.text = resources.getQuantityString(R.plurals.group_app_count, count, count)

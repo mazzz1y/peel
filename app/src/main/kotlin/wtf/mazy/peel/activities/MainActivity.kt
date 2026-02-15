@@ -38,7 +38,7 @@ class MainActivity : AppCompatActivity() {
     private var tabLayout: TabLayout? = null
     private var viewPager: ViewPager2? = null
     private var pagerAdapter: GroupPagerAdapter? = null
-    private var lastGroupUuids: List<String> = emptyList()
+    private var lastGroupKeys: List<Pair<String, String>> = emptyList()
     private var lastShowUngrouped: Boolean = true
 
     private val exportLauncher =
@@ -124,7 +124,7 @@ class MainActivity : AppCompatActivity() {
             pagerAdapter = GroupPagerAdapter(this, emptyList(), showUngrouped = true)
             viewPager?.adapter = pagerAdapter
             viewPager?.isUserInputEnabled = false
-            lastGroupUuids = emptyList()
+            lastGroupKeys = emptyList()
             lastShowUngrouped = true
         } else {
             val hasUngrouped = DataManager.instance.activeWebsitesForGroup(null).isNotEmpty()
@@ -132,7 +132,7 @@ class MainActivity : AppCompatActivity() {
             pagerAdapter = GroupPagerAdapter(this, groups, showUngrouped = hasUngrouped)
             viewPager?.adapter = pagerAdapter
             viewPager?.isUserInputEnabled = true
-            lastGroupUuids = groups.map { it.uuid }
+            lastGroupKeys = groups.map { it.uuid to it.title }
             lastShowUngrouped = hasUngrouped
 
             TabLayoutMediator(tabLayout!!, viewPager!!) { tab, position ->
@@ -143,11 +143,11 @@ class MainActivity : AppCompatActivity() {
 
     private fun refreshCurrentPages() {
         val groups = DataManager.instance.sortedGroups
-        val newGroupUuids = groups.map { it.uuid }
+        val newGroupKeys = groups.map { it.uuid to it.title }
         val newShowUngrouped = groups.isNotEmpty() &&
             DataManager.instance.activeWebsitesForGroup(null).isNotEmpty()
 
-        if (lastGroupUuids != newGroupUuids || lastShowUngrouped != newShowUngrouped) {
+        if (lastGroupKeys != newGroupKeys || lastShowUngrouped != newShowUngrouped) {
             setupViewPager()
             return
         }

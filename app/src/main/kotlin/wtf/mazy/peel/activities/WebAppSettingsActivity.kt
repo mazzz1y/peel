@@ -29,7 +29,6 @@ import wtf.mazy.peel.model.SettingRegistry
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.shortcut.ShortcutHelper
 import wtf.mazy.peel.shortcut.WebAppIconFetcher
-import wtf.mazy.peel.ui.dialog.GroupPickerDialog
 import wtf.mazy.peel.ui.dialog.OverridePickerDialog
 import wtf.mazy.peel.ui.settings.SettingViewFactory
 import wtf.mazy.peel.util.Const
@@ -38,8 +37,7 @@ import wtf.mazy.peel.util.Utility
 
 class WebAppSettingsActivity :
     ToolbarBaseActivity<WebappSettingsBinding>(),
-    OverridePickerDialog.OnSettingSelectedListener,
-    GroupPickerDialog.OnGroupSelectedListener {
+    OverridePickerDialog.OnSettingSelectedListener {
     var webappUuid: String? = null
     var originalWebapp: WebApp? = null
     private var modifiedWebapp: WebApp? = null
@@ -145,8 +143,8 @@ class WebAppSettingsActivity :
     private fun prepareGlobalWebAppScreen() {
         binding.sectionMainSettings.visibility = View.GONE
         binding.sandboxRow.visibility = View.GONE
-        binding.groupDivider.visibility = View.GONE
         binding.groupRow.visibility = View.GONE
+        binding.groupDivider.visibility = View.GONE
         binding.sectionOverrideHeader.visibility = View.GONE
         binding.linearLayoutOverrides.visibility = View.GONE
         binding.globalSettingsInfoText.visibility = View.VISIBLE
@@ -154,18 +152,18 @@ class WebAppSettingsActivity :
     }
 
     private fun setupGroupPicker(webapp: WebApp) {
-        val groups = DataManager.instance.getGroups()
+        val groups = DataManager.instance.sortedGroups
         if (groups.isEmpty()) {
-            binding.groupDivider.visibility = View.GONE
             binding.groupRow.visibility = View.GONE
+            binding.groupDivider.visibility = View.GONE
             return
         }
 
-        binding.groupDivider.visibility = View.VISIBLE
         binding.groupRow.visibility = View.VISIBLE
+        binding.groupDivider.visibility = View.VISIBLE
         updateGroupLabel(webapp)
 
-        binding.groupRow.setOnClickListener { showGroupPickerDialog(webapp) }
+        binding.groupRow.setOnClickListener { showGroupPopup(binding.txtGroupName, webapp, groups) }
     }
 
     private fun updateGroupLabel(webapp: WebApp) {
@@ -173,15 +171,19 @@ class WebAppSettingsActivity :
         binding.txtGroupName.text = groupName ?: getString(R.string.none)
     }
 
-    private fun showGroupPickerDialog(webapp: WebApp) {
-        val dialog = GroupPickerDialog.newInstance(webapp.groupUuid, this)
-        dialog.show(supportFragmentManager, "GroupPickerDialog")
-    }
+    private fun showGroupPopup(anchor: View, webapp: WebApp, groups: List<wtf.mazy.peel.model.WebAppGroup>) {
+        val popup = android.widget.PopupMenu(this, anchor)
+        groups.forEachIndexed { index, group ->
+            popup.menu.add(0, index, index, group.title)
+        }
+        popup.menu.add(0, groups.size, groups.size, getString(R.string.none))
 
-    override fun onGroupSelected(groupUuid: String?) {
-        val webapp = modifiedWebapp ?: return
-        webapp.groupUuid = groupUuid
-        updateGroupLabel(webapp)
+        popup.setOnMenuItemClickListener { item ->
+            webapp.groupUuid = if (item.itemId < groups.size) groups[item.itemId].uuid else null
+            updateGroupLabel(webapp)
+            true
+        }
+        popup.show()
     }
 
     private fun setupSandboxSwitch(modifiedWebapp: WebApp) {

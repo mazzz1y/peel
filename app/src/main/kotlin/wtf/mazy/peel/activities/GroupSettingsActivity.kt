@@ -1,6 +1,8 @@
 package wtf.mazy.peel.activities
 
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.Toast
@@ -10,6 +12,7 @@ import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.SettingDefinition
 import wtf.mazy.peel.model.SettingRegistry
 import wtf.mazy.peel.model.WebAppGroup
+import wtf.mazy.peel.shortcut.LetterIconGenerator
 import wtf.mazy.peel.ui.dialog.OverridePickerDialog
 import wtf.mazy.peel.ui.settings.SettingViewFactory
 import wtf.mazy.peel.util.Const
@@ -37,6 +40,13 @@ class GroupSettingsActivity :
         modifiedGroup = WebAppGroup(originalGroup!!)
         binding.group = modifiedGroup
 
+        updateGroupIcon()
+        binding.txtGroupName.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) { updateGroupIcon() }
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+        })
+
         setupSandboxSwitch()
         setupOverridePicker()
         setupKeyboardListener()
@@ -44,11 +54,24 @@ class GroupSettingsActivity :
 
     override fun onPause() {
         super.onPause()
-        modifiedGroup?.let { DataManager.instance.replaceGroup(it) }
+        modifiedGroup?.let {
+            if (it.title.isBlank()) {
+                it.title = originalGroup?.title ?: ""
+            }
+            DataManager.instance.replaceGroup(it)
+        }
     }
 
     override fun inflateBinding(layoutInflater: LayoutInflater): GroupSettingsBinding {
         return GroupSettingsBinding.inflate(layoutInflater)
+    }
+
+    private fun updateGroupIcon() {
+        val group = modifiedGroup ?: return
+        val sizePx = (resources.displayMetrics.density * 96).toInt()
+        binding.imgGroupIcon.setImageBitmap(
+            LetterIconGenerator.generate(group.title, group.title, sizePx)
+        )
     }
 
     private fun setupSandboxSwitch() {

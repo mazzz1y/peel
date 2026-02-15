@@ -19,16 +19,28 @@
         android:paddingVertical="12dp"
         android:paddingHorizontal="16dp">
 
+        <ImageView
+            android:id="@+id/groupIcon"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:padding="3dp"
+            android:scaleType="fitCenter"
+            android:contentDescription="@string/app_icon"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
         <TextView
             android:id="@+id/groupTitle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
             android:layout_marginEnd="8dp"
             android:maxLines="1"
             android:ellipsize="end"
             android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
             android:textColor="?attr/colorOnSurface"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintStart_toEndOf="@id/groupIcon"
             app:layout_constraintEnd_toStartOf="@id/groupAppCount"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent" />
