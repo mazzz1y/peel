@@ -21,6 +21,8 @@ interface WebAppDao {
 
     @Upsert fun upsert(entity: WebAppEntity)
 
+    @Upsert fun upsertAll(entities: List<WebAppEntity>)
+
     @Query("DELETE FROM webapps WHERE uuid = :uuid") fun deleteByUuid(uuid: String)
 
     @Query("DELETE FROM webapps WHERE uuid != '${Const.GLOBAL_WEBAPP_UUID}'") fun deleteAllWebApps()

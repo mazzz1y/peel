@@ -9,10 +9,14 @@ import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
 import kotlinx.serialization.json.Json
-import wtf.mazy.peel.model.db.toDomain
-import wtf.mazy.peel.model.db.toSurrogate
+import wtf.mazy.peel.model.db.*
 import wtf.mazy.peel.shortcut.ShortcutHelper
 import wtf.mazy.peel.util.App
+
+enum class ImportMode {
+    REPLACE,
+    MERGE,
+}
 
 object BackupManager {
 
@@ -38,10 +42,10 @@ object BackupManager {
         }
     }
 
-    fun importFromZip(uri: Uri): Boolean {
+    fun importFromZip(uri: Uri, mode: ImportMode = ImportMode.REPLACE): Boolean {
         return try {
             App.appContext.contentResolver.openInputStream(uri)?.use { inputStream ->
-                ZipInputStream(inputStream).use { zip -> processZipImport(zip) }
+                ZipInputStream(inputStream).use { zip -> processZipImport(zip, mode) }
             } ?: false
         } catch (_: Exception) {
             false
@@ -72,7 +76,7 @@ object BackupManager {
         } catch (_: Exception) {}
     }
 
-    private fun processZipImport(zip: ZipInputStream): Boolean {
+    private fun processZipImport(zip: ZipInputStream, mode: ImportMode): Boolean {
         var jsonString: String? = null
         val icons = mutableMapOf<String, Bitmap>()
 
@@ -107,7 +111,12 @@ object BackupManager {
 
         icons.forEach { (uuid, bitmap) -> saveIcon(uuid, bitmap) }
 
-        dataManager.importData(importedWebApps, backupData.globalSettings, importedGroups)
+        when (mode) {
+            ImportMode.REPLACE ->
+                dataManager.importData(importedWebApps, backupData.globalSettings, importedGroups)
+            ImportMode.MERGE ->
+                dataManager.mergeData(importedWebApps, backupData.globalSettings, importedGroups)
+        }
         val context = App.appContext
         dataManager.getWebsites().forEach { ShortcutHelper.updatePinnedShortcut(it, context) }
         return true

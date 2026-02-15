@@ -46,6 +46,9 @@
     <string name="webapp_section_security">Sicherheit &amp; Privatsphäre</string>
     <string name="import_failed">Die Sicherung konnte nicht wiederhergestellt werden.</string>
     <string name="import_success">Sicherung mit %1$d Web-App(s) wurde wiederhergestellt.</string>
+    <string name="import_mode_title">Importmodus</string>
+    <string name="import_mode_replace">Ersetzen (alle Daten überschreiben)</string>
+    <string name="import_mode_merge">Zusammenführen (zu bestehenden Daten hinzufügen)</string>
     <string name="export_failed">Die Sicherung konnte nicht exportiert werden.</string>
     <string name="export_success">Die Sicherung wurde erfolgreich erstellt.</string>
     <string name="webapp_not_found">Diese Web-App ist nicht mehr verfügbar.</string>
@@ -137,6 +140,7 @@
     <string name="export_data">Exportieren</string>
     <string name="clear_sandbox_data">Sandbox-Daten löschen</string>
     <string name="clear_sandbox_data_confirm">Alle Sandbox-Daten (Cookies, Cache, localStorage) für diese Web-App löschen?</string>
+    <string name="clear_group_sandbox_data_confirm">Alle gemeinsamen Sandbox-Daten (Cookies, Cache, localStorage) für diese Gruppe löschen?</string>
     <string name="clear_data">Daten löschen</string>
     <string name="clear_data_confirm">Alle Daten (Cookies, Cache, localStorage) löschen?</string>
     <string name="include_sandboxed_apps">Sandbox-Apps einschließen</string>

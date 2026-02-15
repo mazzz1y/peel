@@ -51,6 +51,9 @@
     <string name="appearance">Appearance</string>
     <string name="import_failed">The backup could not restored.</string>
     <string name="import_success">Backup with %1$d Web App(s) was restored successfully.</string>
+    <string name="import_mode_title">Import mode</string>
+    <string name="import_mode_replace">Replace (overwrite all data)</string>
+    <string name="import_mode_merge">Merge (add to existing data)</string>
     <string name="export_failed">The backup could not be exported.</string>
     <string name="export_success">The backup was created successfully.</string>
     <string name="webapp_not_found">The Web App you are trying to reach is no longer available.</string>
@@ -94,6 +97,7 @@
     <string name="ephemeral_sandbox">Ephemeral storage</string>
     <string name="clear_sandbox_data">Clear sandbox data</string>
     <string name="clear_sandbox_data_confirm">Clear all sandbox data (cookies, cache, localStorage) for this Web App?</string>
+    <string name="clear_group_sandbox_data_confirm">Clear all shared sandbox data (cookies, cache, localStorage) for this group?</string>
     <string name="clear_data">Clear data</string>
     <string name="clear_data_confirm">Clear all data (cookies, cache, localStorage)?</string>
     <string name="include_sandboxed_apps">Include sandboxed apps</string>

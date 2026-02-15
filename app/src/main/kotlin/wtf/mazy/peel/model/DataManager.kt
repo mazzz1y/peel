@@ -1,12 +1,7 @@
 package wtf.mazy.peel.model
 
 import android.content.Context
-import wtf.mazy.peel.model.db.AppDatabase
-import wtf.mazy.peel.model.db.LegacySharedPrefsMigration
-import wtf.mazy.peel.model.db.WebAppDao
-import wtf.mazy.peel.model.db.WebAppGroupDao
-import wtf.mazy.peel.model.db.toDomain
-import wtf.mazy.peel.model.db.toEntity
+import wtf.mazy.peel.model.db.*
 import wtf.mazy.peel.shortcut.ShortcutIconUtils
 import wtf.mazy.peel.util.App
 import wtf.mazy.peel.util.Const
@@ -85,6 +80,18 @@ class DataManager private constructor() {
         saveWebAppData()
         saveDefaultSettings()
         saveGroupData()
+        loadAppData()
+    }
+
+    fun mergeData(
+        importedWebApps: List<WebApp>,
+        globalSettings: WebAppSettings,
+        importedGroups: List<WebAppGroup> = emptyList(),
+    ) {
+        _defaultSettings.settings = globalSettings
+        saveDefaultSettings()
+        dao.upsertAll(importedWebApps.map { it.toEntity() })
+        groupDao.upsertAll(importedGroups.map { it.toEntity() })
         loadAppData()
     }
 

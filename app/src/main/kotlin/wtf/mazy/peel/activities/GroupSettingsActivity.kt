@@ -6,6 +6,7 @@ import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import wtf.mazy.peel.R
 import wtf.mazy.peel.databinding.GroupSettingsBinding
 import wtf.mazy.peel.model.DataManager
@@ -13,6 +14,7 @@ import wtf.mazy.peel.model.SettingDefinition
 import wtf.mazy.peel.model.SettingRegistry
 import wtf.mazy.peel.model.WebAppGroup
 import wtf.mazy.peel.shortcut.LetterIconGenerator
+import wtf.mazy.peel.model.SandboxManager
 import wtf.mazy.peel.ui.dialog.OverridePickerDialog
 import wtf.mazy.peel.ui.settings.SettingViewFactory
 import wtf.mazy.peel.util.Const
@@ -77,6 +79,7 @@ class GroupSettingsActivity :
     private fun setupSandboxSwitch() {
         val group = modifiedGroup ?: return
         updateEphemeralVisibility(group.isUseContainer)
+        updateClearSandboxButtonVisibility(group)
 
         binding.switchSandbox.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked == group.isUseContainer) return@setOnCheckedChangeListener
@@ -86,16 +89,41 @@ class GroupSettingsActivity :
                 binding.switchEphemeralSandbox.isChecked = false
             }
             updateEphemeralVisibility(isChecked)
+            updateClearSandboxButtonVisibility(group)
         }
 
         binding.switchEphemeralSandbox.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked == group.isEphemeralSandbox) return@setOnCheckedChangeListener
             group.isEphemeralSandbox = isChecked
+            updateClearSandboxButtonVisibility(group)
         }
+
+        binding.btnClearSandbox.setOnClickListener { showClearSandboxConfirmDialog(group) }
     }
 
     private fun updateEphemeralVisibility(sandboxEnabled: Boolean) {
         binding.ephemeralSandboxRow.visibility = if (sandboxEnabled) View.VISIBLE else View.GONE
+    }
+
+    private fun updateClearSandboxButtonVisibility(group: WebAppGroup) {
+        val sandboxDir = SandboxManager.getSandboxDataDir(group.uuid)
+        val show = sandboxDir.exists() && group.isUseContainer && !group.isEphemeralSandbox
+        binding.btnClearSandbox.visibility = if (show) View.VISIBLE else View.GONE
+    }
+
+    private fun showClearSandboxConfirmDialog(group: WebAppGroup) {
+        AlertDialog.Builder(this)
+            .setMessage(R.string.clear_group_sandbox_data_confirm)
+            .setPositiveButton(R.string.ok) { _, _ -> clearSandboxData(group) }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
+    }
+
+    private fun clearSandboxData(group: WebAppGroup) {
+        if (SandboxManager.clearSandboxData(this, group.uuid)) {
+            showToast(this, getString(R.string.clear_sandbox_data), Toast.LENGTH_SHORT)
+        }
+        updateClearSandboxButtonVisibility(group)
     }
 
     private lateinit var overrideViewFactory: SettingViewFactory

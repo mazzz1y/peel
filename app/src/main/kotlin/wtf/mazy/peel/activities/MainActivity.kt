@@ -25,6 +25,7 @@ import java.util.Locale
 import wtf.mazy.peel.R
 import wtf.mazy.peel.databinding.AddWebsiteDialogueBinding
 import wtf.mazy.peel.model.BackupManager
+import wtf.mazy.peel.model.ImportMode
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.SandboxManager
 import wtf.mazy.peel.model.WebApp
@@ -64,20 +65,7 @@ class MainActivity : AppCompatActivity() {
 
     private val importLauncher =
         registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
-            uri?.let {
-                val success = BackupManager.importFromZip(it)
-
-                if (!success) {
-                    NotificationUtils.showInfoSnackBar(
-                        this,
-                        getString(R.string.import_failed),
-                        Snackbar.LENGTH_LONG,
-                    )
-                } else {
-                    setupViewPager()
-                    buildImportSuccessDialog()
-                }
-            }
+            uri?.let { buildImportModeDialog(it) }
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -252,6 +240,35 @@ class MainActivity : AppCompatActivity() {
             .setPositiveButton(R.string.ok, null)
             .create()
             .show()
+    }
+
+    private fun buildImportModeDialog(uri: android.net.Uri) {
+        val modes = arrayOf(getString(R.string.import_mode_replace), getString(R.string.import_mode_merge))
+        var selected = 0
+        AlertDialog.Builder(this)
+            .setTitle(getString(R.string.import_mode_title))
+            .setSingleChoiceItems(modes, selected) { _, which -> selected = which }
+            .setPositiveButton(R.string.ok) { _, _ ->
+                val mode = if (selected == 0) ImportMode.REPLACE else ImportMode.MERGE
+                performImport(uri, mode)
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .create()
+            .show()
+    }
+
+    private fun performImport(uri: android.net.Uri, mode: ImportMode) {
+        val success = BackupManager.importFromZip(uri, mode)
+        if (!success) {
+            NotificationUtils.showInfoSnackBar(
+                this,
+                getString(R.string.import_failed),
+                Snackbar.LENGTH_LONG,
+            )
+        } else {
+            setupViewPager()
+            buildImportSuccessDialog()
+        }
     }
 
     private fun buildImportSuccessDialog() {

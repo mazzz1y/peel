@@ -46,9 +46,6 @@
     <string name="webapp_section_security">Seguridad &amp; Privacidad</string>
     <string name="import_failed">La copia de seguridad no se ha podido restaurar.</string>
     <string name="import_success">Copia de seguridad con %1$d aplicación(es) web ha sido restaurada con éxito.</string>
-    <string name="import_mode_title">Modo de importación</string>
-    <string name="import_mode_replace">Reemplazar (sobrescribir todos los datos)</string>
-    <string name="import_mode_merge">Combinar (añadir a los datos existentes)</string>
     <string name="export_failed">No se ha podido exportar la copia de seguridad.</string>
     <string name="export_success">La copia de seguridad se ha creado con éxito.</string>
     <string name="webapp_not_found">La aplicación web a la que intenta acceder ya no está disponible.</string>
@@ -139,7 +136,6 @@
     <string name="export_data">Exportar</string>
     <string name="clear_sandbox_data">Borrar datos de sandbox</string>
     <string name="clear_sandbox_data_confirm">¿Borrar todos los datos de sandbox (cookies, caché, localStorage) para esta aplicación web?</string>
-    <string name="clear_group_sandbox_data_confirm">¿Borrar todos los datos compartidos de sandbox (cookies, caché, localStorage) para este grupo?</string>
     <string name="clear_data">Borrar datos</string>
     <string name="clear_data_confirm">¿Borrar todos los datos (cookies, caché, localStorage)?</string>
     <string name="include_sandboxed_apps">Incluir aplicaciones sandbox</string>

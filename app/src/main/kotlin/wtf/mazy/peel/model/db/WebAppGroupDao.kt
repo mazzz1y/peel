@@ -15,6 +15,8 @@ interface WebAppGroupDao {
 
     @Upsert fun upsert(group: WebAppGroupEntity)
 
+    @Upsert fun upsertAll(entities: List<WebAppGroupEntity>)
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(entities: List<WebAppGroupEntity>)
 

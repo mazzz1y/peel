@@ -46,6 +46,9 @@
     <string name="webapp_section_security">Sicurezza &amp; Privacy</string>
     <string name="import_failed">Backup non ripristinabile.</string>
     <string name="import_success">Il backup di %1$d Web App è stato ripristinato con successo.</string>
+    <string name="import_mode_title">Modalità di importazione</string>
+    <string name="import_mode_replace">Sostituisci (sovrascrivi tutti i dati)</string>
+    <string name="import_mode_merge">Unisci (aggiungi ai dati esistenti)</string>
     <string name="export_failed">Backup non esportabile</string>
     <string name="export_success">Backup creato correttamente.</string>
     <string name="webapp_not_found">L\'applicazione Web che si sta cercando di aprire non è più disponibile.</string>
@@ -136,6 +139,7 @@
     <string name="export_data">Esporta</string>
     <string name="clear_sandbox_data">Cancella dati sandbox</string>
     <string name="clear_sandbox_data_confirm">Cancellare tutti i dati della sandbox (cookie, cache, localStorage) per questa Web App?</string>
+    <string name="clear_group_sandbox_data_confirm">Cancellare tutti i dati condivisi della sandbox (cookie, cache, localStorage) per questo gruppo?</string>
     <string name="clear_data">Cancella dati</string>
     <string name="clear_data_confirm">Cancellare tutti i dati (cookie, cache, localStorage)?</string>
     <string name="include_sandboxed_apps">Includi app sandbox</string>
