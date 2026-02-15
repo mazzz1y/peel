@@ -41,7 +41,9 @@
             android:name=".activities.TrampolineActivity"
             android:theme="@android:style/Theme.NoDisplay"
             android:exported="true"
-            android:noHistory="true" />
+            android:noHistory="true"
+            android:taskAffinity=""
+            android:excludeFromRecents="true" />
 
 <!-- Main WebViewActivity (no sandbox, shared process) -->
         <activity
