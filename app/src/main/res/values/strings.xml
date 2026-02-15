@@ -174,4 +174,23 @@
     <string name="setting_safe_browsing">Safe browsing</string>
     <string name="setting_always_https">Always HTTPS</string>
     <string name="setting_custom_headers">Custom headers</string>
+
+    <string name="groups">Groups</string>
+    <string name="group">Group</string>
+    <string name="add_group">Add Group</string>
+    <string name="edit_group">Edit</string>
+    <string name="group_settings">Group Settings</string>
+    <string name="group_name_hint">Group name</string>
+    <string name="group_sandbox">Shared Sandbox</string>
+    <string name="groups_empty_state">No groups yet.\nTap the + button to create your first group.</string>
+    <string name="select_group">Select Group</string>
+    <string name="none">None</string>
+    <string name="delete_group_title">Delete Group</string>
+    <string name="delete_group_confirm">Delete group \"%1$s\"? It contains %2$d app(s).</string>
+    <string name="ungroup_apps_on_delete">Keep apps (move to ungrouped)</string>
+
+    <plurals name="group_app_count">
+        <item quantity="one">%d app</item>
+        <item quantity="other">%d apps</item>
+    </plurals>
 </resources>

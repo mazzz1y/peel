@@ -168,4 +168,23 @@
     <string name="setting_safe_browsing">Navegación segura</string>
     <string name="setting_always_https">Siempre HTTPS</string>
     <string name="setting_custom_headers">Encabezados personalizados</string>
+
+    <string name="groups">Grupos</string>
+    <string name="group">Grupo</string>
+    <string name="add_group">Agregar grupo</string>
+    <string name="edit_group">Editar</string>
+    <string name="group_settings">Configuraci&#243;n de grupo</string>
+    <string name="group_name_hint">Nombre del grupo</string>
+    <string name="group_sandbox">Sandbox compartido</string>
+    <string name="groups_empty_state">A&#250;n no hay grupos.\nToca el bot&#243;n + para crear tu primer grupo.</string>
+    <string name="select_group">Seleccionar grupo</string>
+    <string name="none">Ninguno</string>
+    <string name="delete_group_title">Eliminar grupo</string>
+    <string name="delete_group_confirm">&#191;Eliminar grupo \"%1$s\"? Contiene %2$d app(s).</string>
+    <string name="ungroup_apps_on_delete">Mantener apps (mover a sin grupo)</string>
+
+    <plurals name="group_app_count">
+        <item quantity="one">%d app</item>
+        <item quantity="other">%d apps</item>
+    </plurals>
 </resources>

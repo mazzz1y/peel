@@ -8,6 +8,7 @@ import androidx.core.net.toUri
 import com.google.android.material.snackbar.Snackbar
 import wtf.mazy.peel.R
 import wtf.mazy.peel.activities.WebViewActivity
+import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.SandboxManager
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.ui.BiometricPromptHelper
@@ -42,15 +43,31 @@ object WebViewLauncher {
     fun createWebViewIntent(webapp: WebApp, c: Context?): Intent? {
         if (c == null) return null
 
+        val sandboxId = resolveSandboxId(webapp)
+
         val activityClass =
-            if (webapp.isUseContainer) {
-                val containerId = SandboxManager.findOrAssignContainer(c, webapp.uuid)
+            if (sandboxId != null) {
+                val containerId = SandboxManager.findOrAssignContainer(c, sandboxId)
                 resolveSandboxClass(containerId) ?: return null
             } else {
                 WebViewActivity::class.java
             }
 
         return buildIntent(c, activityClass, webapp.uuid)
+    }
+
+    /**
+     * Determines the sandbox identity for a webapp.
+     *
+     * - If the app has its own sandbox enabled, returns the app's UUID (dedicated sandbox).
+     * - If the app's group has sandbox enabled, returns the group's UUID (shared group sandbox).
+     * - Otherwise returns null (no sandbox, runs in main process).
+     */
+    fun resolveSandboxId(webapp: WebApp): String? {
+        if (webapp.isUseContainer) return webapp.uuid
+        val group = webapp.groupUuid?.let { DataManager.instance.getGroup(it) }
+        if (group != null && group.isUseContainer) return group.uuid
+        return null
     }
 
     private fun buildIntent(c: Context, activityClass: Class<*>, uuid: String): Intent {

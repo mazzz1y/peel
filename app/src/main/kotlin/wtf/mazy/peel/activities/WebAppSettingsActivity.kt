@@ -2,6 +2,7 @@ package wtf.mazy.peel.activities
 
 import android.annotation.SuppressLint
 import android.graphics.Bitmap
+import androidx.appcompat.app.AlertDialog
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
@@ -28,6 +29,7 @@ import wtf.mazy.peel.model.SettingRegistry
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.shortcut.ShortcutHelper
 import wtf.mazy.peel.shortcut.WebAppIconFetcher
+import wtf.mazy.peel.ui.dialog.GroupPickerDialog
 import wtf.mazy.peel.ui.dialog.OverridePickerDialog
 import wtf.mazy.peel.ui.settings.SettingViewFactory
 import wtf.mazy.peel.util.Const
@@ -35,7 +37,9 @@ import wtf.mazy.peel.util.NotificationUtils.showToast
 import wtf.mazy.peel.util.Utility
 
 class WebAppSettingsActivity :
-    ToolbarBaseActivity<WebappSettingsBinding>(), OverridePickerDialog.OnSettingSelectedListener {
+    ToolbarBaseActivity<WebappSettingsBinding>(),
+    OverridePickerDialog.OnSettingSelectedListener,
+    GroupPickerDialog.OnGroupSelectedListener {
     var webappUuid: String? = null
     var originalWebapp: WebApp? = null
     private var modifiedWebapp: WebApp? = null
@@ -87,6 +91,7 @@ class WebAppSettingsActivity :
         setupOverridePicker(editableWebapp)
         if (!isEditingDefaults) {
             setupSandboxSwitch(editableWebapp)
+            setupGroupPicker(editableWebapp)
         }
 
         loadCurrentIcon(editableWebapp)
@@ -140,10 +145,43 @@ class WebAppSettingsActivity :
     private fun prepareGlobalWebAppScreen() {
         binding.sectionMainSettings.visibility = View.GONE
         binding.sandboxRow.visibility = View.GONE
+        binding.groupDivider.visibility = View.GONE
+        binding.groupRow.visibility = View.GONE
         binding.sectionOverrideHeader.visibility = View.GONE
         binding.linearLayoutOverrides.visibility = View.GONE
         binding.globalSettingsInfoText.visibility = View.VISIBLE
         setToolbarTitle(getString(R.string.global_web_app_settings))
+    }
+
+    private fun setupGroupPicker(webapp: WebApp) {
+        val groups = DataManager.instance.getGroups()
+        if (groups.isEmpty()) {
+            binding.groupDivider.visibility = View.GONE
+            binding.groupRow.visibility = View.GONE
+            return
+        }
+
+        binding.groupDivider.visibility = View.VISIBLE
+        binding.groupRow.visibility = View.VISIBLE
+        updateGroupLabel(webapp)
+
+        binding.groupRow.setOnClickListener { showGroupPickerDialog(webapp) }
+    }
+
+    private fun updateGroupLabel(webapp: WebApp) {
+        val groupName = webapp.groupUuid?.let { DataManager.instance.getGroup(it)?.title }
+        binding.txtGroupName.text = groupName ?: getString(R.string.none)
+    }
+
+    private fun showGroupPickerDialog(webapp: WebApp) {
+        val dialog = GroupPickerDialog.newInstance(webapp.groupUuid, this)
+        dialog.show(supportFragmentManager, "GroupPickerDialog")
+    }
+
+    override fun onGroupSelected(groupUuid: String?) {
+        val webapp = modifiedWebapp ?: return
+        webapp.groupUuid = groupUuid
+        updateGroupLabel(webapp)
     }
 
     private fun setupSandboxSwitch(modifiedWebapp: WebApp) {
@@ -171,7 +209,7 @@ class WebAppSettingsActivity :
             if (isChecked) {
                 val sandboxDir = SandboxManager.getSandboxDataDir(modifiedWebapp.uuid)
                 if (sandboxDir.exists()) {
-                    androidx.appcompat.app.AlertDialog.Builder(this)
+                    AlertDialog.Builder(this)
                         .setMessage(R.string.clear_sandbox_data_confirm)
                         .setPositiveButton(R.string.ok) { _, _ ->
                             modifiedWebapp.isEphemeralSandbox = true
@@ -206,7 +244,7 @@ class WebAppSettingsActivity :
     }
 
     private fun showClearSandboxConfirmDialog(webapp: WebApp) {
-        androidx.appcompat.app.AlertDialog.Builder(this)
+        AlertDialog.Builder(this)
             .setMessage(R.string.clear_sandbox_data_confirm)
             .setPositiveButton(R.string.ok) { _, _ -> clearSandboxData(webapp) }
             .setNegativeButton(R.string.cancel, null)

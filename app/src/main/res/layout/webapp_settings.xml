@@ -150,6 +150,48 @@
                         </FrameLayout>
 
                         <LinearLayout
+                            android:id="@+id/groupRow"
+                            style="@style/SettingsItemContainer"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical"
+                            android:background="?attr/selectableItemBackground"
+                            android:minHeight="56dp"
+                            android:visibility="gone">
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="@string/group"
+                                android:textColor="?attr/colorOnSurface"
+                                android:textSize="@dimen/settings_text_size" />
+
+                            <TextView
+                                android:id="@+id/txtGroupName"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="@string/none"
+                                android:textColor="?attr/colorOnSurface"
+                                android:textSize="@dimen/settings_text_size" />
+
+                            <ImageView
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:layout_marginStart="4dp"
+                                android:src="@drawable/ic_expand_more_24dp"
+                                android:contentDescription="@null" />
+
+                        </LinearLayout>
+
+                        <View
+                            android:id="@+id/groupDivider"
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:layout_marginVertical="@dimen/settings_item_padding_vertical"
+                            android:background="?android:attr/listDivider"
+                            android:visibility="gone" />
+
+                        <LinearLayout
                             android:id="@+id/sandboxRow"
                             style="@style/SettingsItemContainer"
                             android:orientation="horizontal"

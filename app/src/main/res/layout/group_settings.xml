@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <variable
+            name="group"
+            type="wtf.mazy.peel.model.WebAppGroup" />
+    </data>
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/scrollView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="@dimen/margin_activity"
+            android:layout_marginBottom="@dimen/margin_activity"
+            android:fadeScrollbars="true"
+            android:scrollbarFadeDuration="300"
+            android:scrollbarStyle="outsideOverlay"
+            android:fillViewport="true"
+            android:isScrollContainer="true">
+
+            <LinearLayout
+                android:id="@+id/contentContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_activity"
+                android:layout_marginEnd="@dimen/margin_activity"
+                android:orientation="vertical">
+
+                <EditText
+                    android:id="@+id/txtGroupName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:autofillHints=""
+                    android:background="@null"
+                    android:fontFamily="sans-serif"
+                    android:gravity="center"
+                    android:inputType="text"
+                    android:text="@={group.title}"
+                    android:hint="@string/group_name_hint"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Large"
+                    android:layout_marginBottom="16dp" />
+
+                <LinearLayout
+                    android:id="@+id/sandboxRow"
+                    style="@style/SettingsItemContainer"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:minHeight="56dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/group_sandbox"
+                        android:textColor="?attr/colorOnSurface"
+                        android:textSize="@dimen/settings_text_size" />
+
+                    <com.google.android.material.materialswitch.MaterialSwitch
+                        android:id="@+id/switchSandbox"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:checked="@{group.useContainer}" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/ephemeralSandboxRow"
+                    style="@style/SettingsItemContainer"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:minHeight="56dp"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/ephemeral_sandbox"
+                        android:textColor="?attr/colorOnSurface"
+                        android:textSize="@dimen/settings_text_size" />
+
+                    <com.google.android.material.materialswitch.MaterialSwitch
+                        android:id="@+id/switchEphemeralSandbox"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:checked="@{group.ephemeralSandbox}" />
+
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="@dimen/settings_divider_margin_top"
+                    android:layout_marginBottom="@dimen/settings_divider_margin_bottom"
+                    android:background="?android:attr/listDivider" />
+
+                <LinearLayout
+                    android:id="@+id/sectionOverrideHeader"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/overridden_settings"
+                        android:textSize="@dimen/settings_text_size"
+                        android:textColor="?attr/colorOnSurfaceVariant"
+                        android:textStyle="bold" />
+
+                    <ImageButton
+                        android:id="@+id/btnAddOverride"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="@string/add_override"
+                        android:paddingHorizontal="16dp"
+                        android:paddingVertical="8dp"
+                        android:src="@drawable/ic_add_24dp" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/linearLayoutOverrides"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingTop="8dp" />
+
+            </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+</layout>

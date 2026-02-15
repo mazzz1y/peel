@@ -54,6 +54,7 @@ object BackupManager {
                 version = BACKUP_VERSION,
                 websites = dataManager.getWebsites().map { it.toSurrogate() },
                 globalSettings = dataManager.defaultSettings.settings,
+                groups = dataManager.getGroups().map { it.toSurrogate() },
             )
         zip.putNextEntry(ZipEntry(DATA_ENTRY))
         zip.write(prettyJson.encodeToString(BackupData.serializer(), backupData).toByteArray())
@@ -102,10 +103,11 @@ object BackupManager {
 
         val dataManager = DataManager.instance
         val importedWebApps = backupData.websites.map { it.toDomain() }
+        val importedGroups = backupData.groups.map { it.toDomain() }
 
         icons.forEach { (uuid, bitmap) -> saveIcon(uuid, bitmap) }
 
-        dataManager.importData(importedWebApps, backupData.globalSettings)
+        dataManager.importData(importedWebApps, backupData.globalSettings, importedGroups)
         val context = App.appContext
         dataManager.getWebsites().forEach { ShortcutHelper.updatePinnedShortcut(it, context) }
         return true

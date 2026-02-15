@@ -20,10 +20,20 @@ class WebAppListFragment : Fragment(R.layout.fragment_web_app_list) {
 
     private val dragScale = 1.05f
 
+    /**
+     * null = show ALL apps (the "All" tab).
+     * UNGROUPED_FILTER = show only ungrouped apps.
+     * Otherwise = show apps belonging to that group UUID.
+     */
+    var groupFilter: String? = null
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        groupFilter = arguments?.getString(ARG_GROUP_FILTER)
+
         adapter = WebAppListAdapter(requiredActivity())
+        adapter.groupFilter = groupFilter
         adapter.updateWebAppList()
 
         list = view.findViewById(R.id.web_app_list)
@@ -127,5 +137,19 @@ class WebAppListFragment : Fragment(R.layout.fragment_web_app_list) {
             foundWebApp?.order = i
         }
         DataManager.instance.saveWebAppData()
+    }
+
+    companion object {
+        const val ARG_GROUP_FILTER = "group_filter"
+        /** Sentinel value meaning "show only ungrouped apps". */
+        const val UNGROUPED_FILTER = "__ungrouped__"
+
+        fun newInstance(groupFilter: String?): WebAppListFragment {
+            return WebAppListFragment().apply {
+                arguments = Bundle().apply {
+                    putString(ARG_GROUP_FILTER, groupFilter)
+                }
+            }
+        }
     }
 }

@@ -9,12 +9,16 @@ import android.text.TextWatcher
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
+import com.google.android.material.tabs.TabLayout
+import com.google.android.material.tabs.TabLayoutMediator
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -24,12 +28,18 @@ import wtf.mazy.peel.model.BackupManager
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.SandboxManager
 import wtf.mazy.peel.model.WebApp
+import wtf.mazy.peel.ui.webapplist.GroupPagerAdapter
 import wtf.mazy.peel.ui.webapplist.WebAppListFragment
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.NotificationUtils
 
 class MainActivity : AppCompatActivity() {
-    private lateinit var webAppListFragment: WebAppListFragment
+
+    private var tabLayout: TabLayout? = null
+    private var viewPager: ViewPager2? = null
+    private var pagerAdapter: GroupPagerAdapter? = null
+    private var lastGroupUuids: List<String> = emptyList()
+    private var lastShowUngrouped: Boolean = true
 
     private val exportLauncher =
         registerForActivityResult(ActivityResultContracts.CreateDocument("application/zip")) { uri
@@ -64,7 +74,7 @@ class MainActivity : AppCompatActivity() {
                         Snackbar.LENGTH_LONG,
                     )
                 } else {
-                    updateWebAppList()
+                    setupViewPager()
                     buildImportSuccessDialog()
                 }
             }
@@ -74,39 +84,78 @@ class MainActivity : AppCompatActivity() {
         setTheme(R.style.AppTheme)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        webAppListFragment =
-            supportFragmentManager.findFragmentById(R.id.fragment_container_view)
-                as WebAppListFragment
         DataManager.instance.loadAppData()
+
+        tabLayout = findViewById(R.id.tabLayout)
+        viewPager = findViewById(R.id.viewPager)
 
         val fab = findViewById<FloatingActionButton>(R.id.fab)
         fab.setOnClickListener { buildAddWebsiteDialog(getString(R.string.add_webapp)) }
         personalizeToolbar()
+
+        setupViewPager()
     }
 
     override fun onResume() {
         super.onResume()
         DataManager.instance.loadAppData()
-        updateWebAppList()
+        refreshCurrentPages()
     }
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         if (intent.getBooleanExtra(Const.INTENT_BACKUP_RESTORED, false)) {
-            updateWebAppList()
-
+            setupViewPager()
             buildImportSuccessDialog()
             intent.putExtra(Const.INTENT_BACKUP_RESTORED, false)
             intent.putExtra(Const.INTENT_REFRESH_NEW_THEME, false)
         }
         if (intent.getBooleanExtra(Const.INTENT_WEBAPP_CHANGED, false)) {
-            updateWebAppList()
+            refreshCurrentPages()
             intent.putExtra(Const.INTENT_WEBAPP_CHANGED, false)
         }
     }
 
-    private fun updateWebAppList() {
-        webAppListFragment.updateWebAppList()
+    private fun setupViewPager() {
+        val groups = DataManager.instance.sortedGroups
+
+        if (groups.isEmpty()) {
+            tabLayout?.visibility = View.GONE
+            pagerAdapter = GroupPagerAdapter(this, emptyList(), showUngrouped = true)
+            viewPager?.adapter = pagerAdapter
+            viewPager?.isUserInputEnabled = false
+            lastGroupUuids = emptyList()
+            lastShowUngrouped = true
+        } else {
+            val hasUngrouped = DataManager.instance.activeWebsitesForGroup(null).isNotEmpty()
+            tabLayout?.visibility = View.VISIBLE
+            pagerAdapter = GroupPagerAdapter(this, groups, showUngrouped = hasUngrouped)
+            viewPager?.adapter = pagerAdapter
+            viewPager?.isUserInputEnabled = true
+            lastGroupUuids = groups.map { it.uuid }
+            lastShowUngrouped = hasUngrouped
+
+            TabLayoutMediator(tabLayout!!, viewPager!!) { tab, position ->
+                tab.text = pagerAdapter?.getPageTitle(position)
+            }.attach()
+        }
+    }
+
+    private fun refreshCurrentPages() {
+        val groups = DataManager.instance.sortedGroups
+        val newGroupUuids = groups.map { it.uuid }
+        val newShowUngrouped = groups.isNotEmpty() &&
+            DataManager.instance.activeWebsitesForGroup(null).isNotEmpty()
+
+        if (lastGroupUuids != newGroupUuids || lastShowUngrouped != newShowUngrouped) {
+            setupViewPager()
+            return
+        }
+
+        for (i in 0 until (pagerAdapter?.itemCount ?: 0)) {
+            val fragment = supportFragmentManager.findFragmentByTag("f$i")
+            (fragment as? WebAppListFragment)?.updateWebAppList()
+        }
     }
 
     private fun personalizeToolbar() {
@@ -122,6 +171,11 @@ class MainActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
+            R.id.action_groups -> {
+                startActivity(Intent(this, GroupListActivity::class.java))
+                true
+            }
+
             R.id.action_global_settings -> {
                 startActivity(Intent(this, SettingsActivity::class.java))
                 true
@@ -222,9 +276,17 @@ class MainActivity : AppCompatActivity() {
                         else "https://$url"
                     val newSite = WebApp(urlWithProtocol)
                     newSite.order = DataManager.instance.incrementedOrder
+
+                    // Assign to currently selected group tab (last tab = ungrouped)
+                    val currentPage = viewPager?.currentItem ?: 0
+                    val groups = DataManager.instance.sortedGroups
+                    if (groups.isNotEmpty() && currentPage < groups.size) {
+                        newSite.groupUuid = groups[currentPage].uuid
+                    }
+
                     DataManager.instance.addWebsite(newSite)
 
-                    updateWebAppList()
+                    refreshCurrentPages()
 
                     val settingsIntent =
                         Intent(this@MainActivity, WebAppSettingsActivity::class.java)

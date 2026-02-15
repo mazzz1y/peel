@@ -165,6 +165,22 @@
             android:roundIcon="@mipmap/ic_launcher_round"
             android:theme="@style/AppTheme">
         </activity>
+        <activity
+            android:name=".activities.GroupListActivity"
+            android:parentActivityName=".activities.MainActivity"
+            android:windowSoftInputMode="adjustResize"
+            android:icon="@mipmap/ic_launcher"
+            android:roundIcon="@mipmap/ic_launcher_round"
+            android:theme="@style/AppTheme">
+        </activity>
+        <activity
+            android:name=".activities.GroupSettingsActivity"
+            android:parentActivityName=".activities.GroupListActivity"
+            android:windowSoftInputMode="adjustResize"
+            android:icon="@mipmap/ic_launcher"
+            android:roundIcon="@mipmap/ic_launcher_round"
+            android:theme="@style/AppTheme">
+        </activity>
 
         <meta-data android:name="com.samsung.android.keepalive.density" android:value="true"/>
         <meta-data android:name="com.samsung.android.multidisplay.keep_process_alive" android:value="true"/>

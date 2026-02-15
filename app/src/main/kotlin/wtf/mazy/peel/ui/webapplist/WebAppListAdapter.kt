@@ -28,6 +28,13 @@ class WebAppListAdapter(private val activityOfFragment: Activity) :
     var items: MutableList<WebApp> = mutableListOf()
         private set
 
+    /**
+     * null = show ALL apps.
+     * UNGROUPED_FILTER = show only apps with no group.
+     * Otherwise = show apps matching this group UUID.
+     */
+    var groupFilter: String? = null
+
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val appIcon: ImageView = itemView.findViewById(R.id.appIcon)
         val titleView: TextView = itemView.findViewById(R.id.btnWebAppTitle)
@@ -122,6 +129,7 @@ class WebAppListAdapter(private val activityOfFragment: Activity) :
         clonedWebApp.title = webapp.title
         clonedWebApp.settings = webapp.settings.copy()
         clonedWebApp.order = webapp.order + 1
+        clonedWebApp.groupUuid = webapp.groupUuid
 
         if (webapp.hasCustomIcon) {
             try {
@@ -178,7 +186,13 @@ class WebAppListAdapter(private val activityOfFragment: Activity) :
 
     @SuppressLint("NotifyDataSetChanged")
     fun updateWebAppList() {
-        items = DataManager.instance.activeWebsites.toMutableList()
+        items = when (groupFilter) {
+            null -> DataManager.instance.activeWebsites.toMutableList()
+            WebAppListFragment.UNGROUPED_FILTER ->
+                DataManager.instance.activeWebsitesForGroup(null).toMutableList()
+            else ->
+                DataManager.instance.activeWebsitesForGroup(groupFilter).toMutableList()
+        }
         notifyDataSetChanged()
     }
 }

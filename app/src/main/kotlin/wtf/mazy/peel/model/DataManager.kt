@@ -4,6 +4,7 @@ import android.content.Context
 import wtf.mazy.peel.model.db.AppDatabase
 import wtf.mazy.peel.model.db.LegacySharedPrefsMigration
 import wtf.mazy.peel.model.db.WebAppDao
+import wtf.mazy.peel.model.db.WebAppGroupDao
 import wtf.mazy.peel.model.db.toDomain
 import wtf.mazy.peel.model.db.toEntity
 import wtf.mazy.peel.shortcut.ShortcutIconUtils
@@ -12,7 +13,9 @@ import wtf.mazy.peel.util.Const
 
 class DataManager private constructor() {
     private var websites: MutableList<WebApp> = mutableListOf()
+    private var groups: MutableList<WebAppGroup> = mutableListOf()
     private lateinit var dao: WebAppDao
+    private lateinit var groupDao: WebAppGroupDao
 
     private var _defaultSettings: WebApp = createDefaultSettings()
 
@@ -32,6 +35,7 @@ class DataManager private constructor() {
     fun initialize(context: Context) {
         val db = AppDatabase.getInstance(context)
         dao = db.webAppDao()
+        groupDao = db.webAppGroupDao()
         @Suppress("DEPRECATION")
         LegacySharedPrefsMigration.migrate(context, dao, db.sandboxSlotDao())
         if (dao.getGlobalSettings() == null) saveDefaultSettings()
@@ -42,6 +46,8 @@ class DataManager private constructor() {
         val newWebsites = dao.getAllWebApps().mapTo(mutableListOf()) { it.toDomain() }
         removeStaleShortcuts(websites, newWebsites)
         websites = newWebsites
+
+        groups = groupDao.getAllGroups().mapTo(mutableListOf()) { it.toDomain() }
 
         val globalEntity = dao.getGlobalSettings()
         if (globalEntity != null) {
@@ -68,11 +74,17 @@ class DataManager private constructor() {
         dao.deleteByUuid(webapp.uuid)
     }
 
-    fun importData(importedWebApps: List<WebApp>, globalSettings: WebAppSettings) {
+    fun importData(
+        importedWebApps: List<WebApp>,
+        globalSettings: WebAppSettings,
+        importedGroups: List<WebAppGroup> = emptyList(),
+    ) {
         websites = importedWebApps.toMutableList()
+        groups = importedGroups.toMutableList()
         _defaultSettings.settings = globalSettings
         saveWebAppData()
         saveDefaultSettings()
+        saveGroupData()
         loadAppData()
     }
 
@@ -91,11 +103,54 @@ class DataManager private constructor() {
     val activeWebsites: List<WebApp>
         get() = websites.filter { it.isActiveEntry }.sortedBy { it.order }
 
+    fun activeWebsitesForGroup(groupUuid: String?): List<WebApp> {
+        return websites
+            .filter { it.isActiveEntry && it.groupUuid == groupUuid }
+            .sortedBy { it.order }
+    }
+
     val activeWebsitesCount: Int
         get() = websites.count { it.isActiveEntry }
 
     val incrementedOrder: Int
         get() = activeWebsitesCount + 1
+
+    // Group management
+
+    fun getGroups(): List<WebAppGroup> = groups
+
+    val sortedGroups: List<WebAppGroup>
+        get() = groups.sortedBy { it.order }
+
+    fun getGroup(uuid: String): WebAppGroup? = groups.find { it.uuid == uuid }
+
+    fun addGroup(group: WebAppGroup) {
+        groups.add(group)
+        groupDao.upsert(group.toEntity())
+    }
+
+    fun replaceGroup(group: WebAppGroup) {
+        val index = groups.indexOfFirst { it.uuid == group.uuid }
+        if (index >= 0) {
+            groups[index] = group
+            groupDao.upsert(group.toEntity())
+        }
+    }
+
+    fun removeGroup(group: WebAppGroup, ungroupApps: Boolean) {
+        if (ungroupApps) {
+            websites.filter { it.groupUuid == group.uuid }.forEach { webapp ->
+                webapp.groupUuid = null
+                dao.upsert(webapp.toEntity())
+            }
+        }
+        groups.remove(group)
+        groupDao.deleteByUuid(group.uuid)
+    }
+
+    fun saveGroupData() {
+        groupDao.replaceAll(groups.map { it.toEntity() })
+    }
 
     private fun removeStaleShortcuts(
         oldWebApps: List<WebApp>,

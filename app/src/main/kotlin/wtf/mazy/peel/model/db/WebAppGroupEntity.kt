@@ -5,15 +5,12 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import wtf.mazy.peel.model.WebAppSettings
 
-@Entity(tableName = "webapps")
-data class WebAppEntity(
+@Entity(tableName = "webapp_groups")
+data class WebAppGroupEntity(
     @PrimaryKey val uuid: String,
-    val baseUrl: String,
     val title: String,
-    val isActiveEntry: Boolean,
-    val isUseContainer: Boolean,
-    val isEphemeralSandbox: Boolean,
-    val order: Int,
-    val groupUuid: String? = null,
+    val order: Int = 0,
+    val isUseContainer: Boolean = false,
+    val isEphemeralSandbox: Boolean = false,
     @Embedded val settings: WebAppSettings = WebAppSettings(),
 )

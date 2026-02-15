@@ -3,14 +3,11 @@ package wtf.mazy.peel.model
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class WebAppSurrogate(
-    val baseUrl: String,
+data class WebAppGroupSurrogate(
     val uuid: String,
     val title: String = "",
-    val isActiveEntry: Boolean = true,
+    val order: Int = 0,
     val isUseContainer: Boolean = false,
     val isEphemeralSandbox: Boolean = false,
-    val order: Int = 0,
-    val groupUuid: String? = null,
     val settings: WebAppSettings = WebAppSettings(),
 )

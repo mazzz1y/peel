@@ -54,6 +54,7 @@ import wtf.mazy.peel.util.DateUtils.convertStringToCalendar
 import wtf.mazy.peel.util.DateUtils.isInInterval
 import wtf.mazy.peel.util.NotificationUtils
 import wtf.mazy.peel.util.NotificationUtils.showInfoSnackBar
+import wtf.mazy.peel.util.WebViewLauncher
 import wtf.mazy.peel.webview.ChromeClientHost
 import wtf.mazy.peel.webview.DownloadHandler
 import wtf.mazy.peel.webview.PeelWebChromeClient
@@ -102,13 +103,20 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         initFilePickerLauncher()
         initDownloadHandler()
 
-        if (webapp.isUseContainer) {
-            if (!SandboxManager.initDataDirectorySuffix(webapp.uuid)) {
+        val sandboxId = WebViewLauncher.resolveSandboxId(webapp)
+        if (sandboxId != null) {
+            if (!SandboxManager.initDataDirectorySuffix(sandboxId)) {
                 finishAndRemoveTask()
                 return
             }
-            if (webapp.isEphemeralSandbox) {
-                SandboxManager.wipeSandboxStorage(webapp.uuid)
+            val isEphemeral = if (webapp.isUseContainer) {
+                webapp.isEphemeralSandbox
+            } else {
+                val group = webapp.groupUuid?.let { DataManager.instance.getGroup(it) }
+                group?.isEphemeralSandbox == true
+            }
+            if (isEphemeral) {
+                SandboxManager.wipeSandboxStorage(sandboxId)
             }
         }
 
@@ -164,11 +172,20 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     }
 
     override fun onDestroy() {
-        if (isFinishing && ::webapp.isInitialized && webapp.isUseContainer) {
-            webView?.destroy()
-            webView = null
-            if (webapp.isEphemeralSandbox) {
-                SandboxManager.wipeSandboxStorage(webapp.uuid)
+        if (isFinishing && ::webapp.isInitialized) {
+            val sandboxId = WebViewLauncher.resolveSandboxId(webapp)
+            if (sandboxId != null) {
+                webView?.destroy()
+                webView = null
+                val isEphemeral = if (webapp.isUseContainer) {
+                    webapp.isEphemeralSandbox
+                } else {
+                    val group = webapp.groupUuid?.let { DataManager.instance.getGroup(it) }
+                    group?.isEphemeralSandbox == true
+                }
+                if (isEphemeral) {
+                    SandboxManager.wipeSandboxStorage(sandboxId)
+                }
             }
         }
         super.onDestroy()

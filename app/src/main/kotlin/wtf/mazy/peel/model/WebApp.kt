@@ -13,6 +13,7 @@ data class WebApp(var baseUrl: String, val uuid: String = UUID.randomUUID().toSt
     var isUseContainer = false
     var isEphemeralSandbox = false
     var order = 0
+    var groupUuid: String? = null
 
     var settings = WebAppSettings()
 
@@ -23,7 +24,17 @@ data class WebApp(var baseUrl: String, val uuid: String = UUID.randomUUID().toSt
         get() = iconFile.exists()
 
     val effectiveSettings: WebAppSettings
-        get() = settings.getEffective(DataManager.instance.defaultSettings.settings)
+        get() {
+            val globalSettings = DataManager.instance.defaultSettings.settings
+            val groupSettings = groupUuid?.let {
+                DataManager.instance.getGroup(it)?.settings
+            }
+            return if (groupSettings != null) {
+                settings.getEffective(groupSettings, globalSettings)
+            } else {
+                settings.getEffective(globalSettings)
+            }
+        }
 
     init {
         title =
@@ -44,6 +55,7 @@ data class WebApp(var baseUrl: String, val uuid: String = UUID.randomUUID().toSt
         isUseContainer = other.isUseContainer
         isEphemeralSandbox = other.isEphemeralSandbox
         order = other.order
+        groupUuid = other.groupUuid
         settings = other.settings.copy()
     }
 

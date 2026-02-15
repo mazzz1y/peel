@@ -10,6 +10,9 @@
         app:showAsAction="always">
         <menu>
             <item
+                android:id="@+id/action_groups"
+                android:title="@string/groups" />
+            <item
                 android:id="@+id/action_global_settings"
                 android:title="@string/action_settings" />
             <item
