@@ -2,14 +2,18 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/action_add_to_home"
+        android:orderInCategory="10"
         android:title="@string/create_shortcut" />
     <item
         android:id="@+id/action_clone"
+        android:orderInCategory="30"
         android:title="@string/clone" />
     <item
         android:id="@+id/action_settings"
+        android:orderInCategory="40"
         android:title="@string/settings" />
     <item
         android:id="@+id/action_delete"
+        android:orderInCategory="50"
         android:title="@string/delete" />
 </menu>

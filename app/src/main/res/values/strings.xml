@@ -191,6 +191,7 @@
     <string name="group_sandbox">Shared Sandbox</string>
     <string name="groups_empty_state">No groups yet.\nTap the + button to create your first group.</string>
     <string name="none">Other</string>
+    <string name="move_to_group">Move to group</string>
     <string name="delete_group_title">Delete Group</string>
     <string name="delete_group_confirm">Delete group \"%1$s\"? It contains %2$d app(s).</string>
     <string name="ungroup_apps_on_delete">Keep apps (move to ungrouped)</string>

@@ -186,6 +186,7 @@
     <string name="group_sandbox">Gemeinsame Sandbox</string>
     <string name="groups_empty_state">Noch keine Gruppen.\nTippen Sie auf +, um Ihre erste Gruppe zu erstellen.</string>
     <string name="none">Andere</string>
+    <string name="move_to_group">In Gruppe verschieben</string>
     <string name="delete_group_title">Gruppe löschen</string>
     <string name="delete_group_confirm">Gruppe \"%1$s\" löschen? Sie enthält %2$d App(s).</string>
     <string name="ungroup_apps_on_delete">Apps behalten (zu ungruppiert verschieben)</string>

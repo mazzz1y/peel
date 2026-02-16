@@ -8,8 +8,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import androidx.appcompat.widget.PopupMenu
 import android.widget.TextView
+import androidx.appcompat.widget.PopupMenu
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import java.util.Collections
@@ -22,8 +22,10 @@ import wtf.mazy.peel.shortcut.ShortcutHelper
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.WebViewLauncher.startWebView
 
-class WebAppListAdapter(private val activityOfFragment: Activity) :
-    RecyclerView.Adapter<WebAppListAdapter.ViewHolder>() {
+class WebAppListAdapter(
+    private val activityOfFragment: Activity,
+    private val onGroupChanged: () -> Unit = {},
+) : RecyclerView.Adapter<WebAppListAdapter.ViewHolder>() {
 
     var items: MutableList<WebApp> = mutableListOf()
         private set
@@ -86,6 +88,16 @@ class WebAppListAdapter(private val activityOfFragment: Activity) :
         val popup = PopupMenu(activityOfFragment, view)
         popup.menuInflater.inflate(R.menu.webapp_item_menu, popup.menu)
 
+        val groups = DataManager.instance.sortedGroups
+        if (groups.isNotEmpty()) {
+            val subMenu = popup.menu.addSubMenu(0, 0, 20, activityOfFragment.getString(R.string.move_to_group))
+            groups.forEachIndexed { index, group ->
+                subMenu.add(0, MENU_GROUP_BASE + index, index, group.title)
+            }
+            subMenu.add(0, MENU_GROUP_BASE + groups.size, groups.size,
+                activityOfFragment.getString(R.string.none))
+        }
+
         popup.setOnMenuItemClickListener { menuItem ->
             when (menuItem.itemId) {
                 R.id.action_settings -> {
@@ -108,10 +120,24 @@ class WebAppListAdapter(private val activityOfFragment: Activity) :
                     true
                 }
 
-                else -> false
+                else -> {
+                    val groupIndex = menuItem.itemId - MENU_GROUP_BASE
+                    if (groupIndex in 0..groups.size) {
+                        webapp.groupUuid = if (groupIndex < groups.size) groups[groupIndex].uuid else null
+                        DataManager.instance.replaceWebApp(webapp)
+                        onGroupChanged()
+                        true
+                    } else {
+                        false
+                    }
+                }
             }
         }
         popup.show()
+    }
+
+    companion object {
+        private const val MENU_GROUP_BASE = 10000
     }
 
     private fun openWebView(webapp: WebApp) {

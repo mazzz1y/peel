@@ -31,7 +31,9 @@ class WebAppListFragment : Fragment(R.layout.fragment_web_app_list) {
 
         groupFilter = arguments?.getString(ARG_GROUP_FILTER)
 
-        adapter = WebAppListAdapter(requiredActivity())
+        adapter = WebAppListAdapter(requiredActivity()) {
+            (activity as? wtf.mazy.peel.activities.MainActivity)?.refreshCurrentPages()
+        }
         adapter.groupFilter = groupFilter
         adapter.updateWebAppList()
 

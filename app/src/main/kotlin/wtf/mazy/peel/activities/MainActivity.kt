@@ -133,7 +133,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun refreshCurrentPages() {
+    fun refreshCurrentPages() {
         val groups = DataManager.instance.sortedGroups
         val newGroupKeys = groups.map { it.uuid to it.title }
         val newShowUngrouped =
