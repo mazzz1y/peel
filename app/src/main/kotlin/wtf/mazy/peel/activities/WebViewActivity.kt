@@ -193,7 +193,11 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         setIntent(intent)
 
         val newUuid = intent.getStringExtra(Const.INTENT_WEBAPP_UUID) ?: return
-        if (newUuid == webappUuid) return
+
+        if (newUuid == webappUuid) {
+            sharedUrlFromIntent()?.let { loadURL(it) }
+            return
+        }
 
         if (SandboxManager.isInSandboxProcess) {
             finishAndRemoveTask()
@@ -204,7 +208,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         webappUuid = newUuid
         webapp = newWebapp
         applyTaskSnapshotProtection()
-        webView?.loadUrl(newWebapp.baseUrl)
+        loadURL(sharedUrlFromIntent() ?: newWebapp.baseUrl)
     }
 
     override val effectiveSettings: WebAppSettings
@@ -304,6 +308,9 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         }
         webView?.loadUrl(finalUrl, customHeaders ?: emptyMap())
     }
+
+    private fun sharedUrlFromIntent(): String? =
+        intent.data?.takeIf { it.scheme == "http" || it.scheme == "https" }?.toString()
 
     override fun finishActivity() = finish()
 
@@ -467,8 +474,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         configureZoom(settings)
 
         customHeaders = buildCustomHeaders(settings)
-        val startUrl = intent.data?.toString() ?: webapp.baseUrl
-        loadURL(startUrl)
+        loadURL(sharedUrlFromIntent() ?: webapp.baseUrl)
 
         webView?.webChromeClient = PeelWebChromeClient(this)
         setupLongClickShare(settings)
