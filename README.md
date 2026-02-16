@@ -21,7 +21,8 @@ alt="Get it on Obtainium" align="center" height="54" />
 
 - Add websites as standalone apps with automatic icon and title fetching
 - Launch web apps directly from your home screen with adaptive icons
-- Optionally run web apps in isolated sandbox processes with separate cookies and storage
+- App grouping
+- Per-group and per-app optional isolated sandbox processes with separate cookies and storage
 - Block third-party requests, manage cookies, enforce HTTPS, set custom headers, etc
 - Lock sensitive web apps behind fingerprint or face authentication, set flag secure to disallow screencasting and screenshots
 - Force dark theme on any website with optional scheduling
@@ -50,6 +51,7 @@ Hard fork of [Native Alpha](https://github.com/cylonid/NativeAlphaForAndroid) wi
 - Material Design 3 dynamic color support
 - More reliable UUID-based app storage
 - Web-app reordering
+- App grouping and per-group sandboxing
 - Backups now include webapp positions in the list and images
 - Persistent notification with Home/Share/Reload actions
 - Optional pull-to-refresh
