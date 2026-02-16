@@ -36,10 +36,14 @@ class PeelWebViewClient(
             null,
         )
         if (host.effectiveSettings.isDynamicStatusBar == true) {
-            view?.evaluateJavascript(EXTRACT_PAGE_COLOR_JS) { result ->
-                val raw = result.trim('"').trim()
-                val color = parseWebColor(raw)
-                if (color != null) host.updateStatusBarColor(color)
+            if (host.isForceDarkActive) {
+                host.updateStatusBarColor(host.themeBackgroundColor)
+            } else {
+                view?.evaluateJavascript(EXTRACT_PAGE_COLOR_JS) { result ->
+                    val raw = result.trim('"').trim()
+                    val color = parseWebColor(raw) ?: return@evaluateJavascript
+                    host.updateStatusBarColor(color)
+                }
             }
         }
         host.showNotification()
@@ -192,19 +196,7 @@ class PeelWebViewClient(
             return null
         }
 
-        /**
-         * JS snippet that extracts the visible page background color.
-         *
-         * Priority (ground truth first):
-         *   1. Computed body background   — always reflects what the user sees
-         *   2. Computed html background   — fallback when body is transparent
-         *   3. Media-matched theme-color  — fallback when computed bg is absent
-         *   4. Non-media theme-color      — final fallback
-         *
-         * This ordering fixes sites like Roundcube whose static
-         * `<meta name="theme-color" content="#f4f4f4">` never updates
-         * when CSS-driven dark mode is applied.
-         */
+        // Priority: body bg → html bg → media theme-color → non-media theme-color
         private val EXTRACT_PAGE_COLOR_JS = """
             (function() {
                 function isOpaque(c) {

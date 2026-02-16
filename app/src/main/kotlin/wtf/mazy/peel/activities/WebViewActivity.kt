@@ -255,6 +255,9 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
             .show()
     }
 
+    override val isForceDarkActive: Boolean
+        get() = getDelegate().localNightMode == AppCompatDelegate.MODE_NIGHT_YES
+
     @SuppressLint("RequiresFeature")
     override fun setDarkModeIfNeeded() {
         val settings = webapp.effectiveSettings
@@ -321,6 +324,13 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     override fun startExternalIntent(uri: Uri) {
         startActivity(Intent(Intent.ACTION_VIEW, uri))
     }
+
+    override val themeBackgroundColor: Int
+        get() {
+            val tv = android.util.TypedValue()
+            theme.resolveAttribute(android.R.attr.colorBackground, tv, true)
+            return tv.data
+        }
 
     override fun runOnUi(action: Runnable) = runOnUiThread(action)
 

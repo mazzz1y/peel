@@ -6,6 +6,7 @@ import wtf.mazy.peel.model.WebAppSettings
 
 interface WebViewClientHost {
     val effectiveSettings: WebAppSettings
+    val isForceDarkActive: Boolean
     val baseUrl: String
     val webappUuid: String?
     var urlOnFirstPageload: String
@@ -25,6 +26,8 @@ interface WebViewClientHost {
     fun updateStatusBarColor(color: Int)
 
     fun startExternalIntent(uri: Uri)
+
+    val themeBackgroundColor: Int
 
     fun runOnUi(action: Runnable)
 
