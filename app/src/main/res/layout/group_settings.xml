@@ -58,7 +58,7 @@
                     android:inputType="text"
                     android:text="@={group.title}"
                     android:hint="@string/group_name_hint"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Large"
+                    android:textAppearance="?attr/textAppearanceTitleLarge"
                     android:layout_marginBottom="16dp" />
 
                 <LinearLayout

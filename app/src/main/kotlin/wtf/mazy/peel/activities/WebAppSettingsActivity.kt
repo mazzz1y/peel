@@ -175,7 +175,7 @@ class WebAppSettingsActivity :
         webapp: WebApp,
         groups: List<wtf.mazy.peel.model.WebAppGroup>
     ) {
-        val popup = android.widget.PopupMenu(this, anchor)
+        val popup = androidx.appcompat.widget.PopupMenu(this, anchor)
         groups.forEachIndexed { index, group -> popup.menu.add(0, index, index, group.title) }
         popup.menu.add(0, groups.size, groups.size, getString(R.string.none))
 

@@ -47,8 +47,4 @@
     <color name="md_theme_surfaceContainerHigh">#2B2930</color>
     <color name="md_theme_surfaceContainerHighest">#36343B</color>
 
-    <color name="colorSignature">#D0BCFF</color>
-    <color name="colorSignatureDark">#B69DF8</color>
-
-    <color name="snackbar_background">#333333</color>
 </resources>

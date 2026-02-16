@@ -18,8 +18,7 @@
         android:layout_height="wrap_content"
         android:paddingHorizontal="16dp"
         android:paddingVertical="8dp"
-        android:textSize="14sp"
-        android:textColor="?attr/colorPrimary"
-        android:textStyle="bold" />
+        android:textAppearance="?attr/textAppearanceLabelLarge"
+        android:textColor="?attr/colorPrimary" />
 
 </LinearLayout>

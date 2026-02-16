@@ -1,6 +1,7 @@
 package wtf.mazy.peel.activities
 
 import android.annotation.SuppressLint
+import androidx.activity.enableEdgeToEdge
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
@@ -10,7 +11,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import android.widget.PopupMenu
+import androidx.appcompat.widget.PopupMenu
 import android.widget.TextView
 import androidx.activity.addCallback
 import androidx.appcompat.app.AlertDialog
@@ -37,6 +38,7 @@ class GroupListActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.AppTheme)
+        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_group_list)
 

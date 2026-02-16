@@ -44,8 +44,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:text="@string/groups_empty_state"
-            android:textSize="18sp"
-            android:textColor="?android:attr/textColorSecondary"
+            android:textAppearance="?attr/textAppearanceBodyLarge"
+            android:textColor="?attr/colorOnSurfaceVariant"
             android:gravity="center"
             android:padding="32dp"
             android:visibility="gone" />

@@ -1,14 +1,9 @@
 <resources>
-    <style name="AppTheme" parent="Theme.Material3.DynamicColors.Dark.NoActionBar">
-        <item name="android:statusBarColor">@android:color/transparent</item>
-        <item name="android:windowLightStatusBar">false</item>
-    </style>
+    <style name="AppTheme" parent="Theme.Material3.DynamicColors.Dark.NoActionBar" />
 
     <style name="AppTheme.Launcher">
         <item name="android:windowBackground">@drawable/launch_screen</item>
     </style>
 
-    <style name="AppTheme.WebView">
-        <item name="android:statusBarColor">#373737</item>
-    </style>
+    <style name="AppTheme.WebView" />
 </resources>

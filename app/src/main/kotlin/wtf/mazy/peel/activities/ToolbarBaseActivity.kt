@@ -1,6 +1,7 @@
 package wtf.mazy.peel.activities
 
 import android.os.Bundle
+import androidx.activity.enableEdgeToEdge
 import android.view.LayoutInflater
 import androidx.activity.addCallback
 import androidx.appcompat.app.AppCompatActivity
@@ -18,6 +19,7 @@ abstract class ToolbarBaseActivity<VB : ViewBinding> : AppCompatActivity() {
     abstract fun inflateBinding(layoutInflater: LayoutInflater): VB
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
 
         val baseBinding = ActivityToolbarBaseBinding.inflate(layoutInflater)

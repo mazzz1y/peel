@@ -47,17 +47,4 @@
     <color name="md_theme_surfaceContainerHigh">#ECE6F0</color>
     <color name="md_theme_surfaceContainerHighest">#E6E0E9</color>
 
-    <color name="colorSignature">#6750A4</color>
-    <color name="colorSignatureDark">#4F378B</color>
-
-    <color name="transparent">#07000000</color>
-    <color name="snackbar_background">#CCCCCC</color>
-
-    <color name="disabled_background_color">#10181818</color>
-    <color name="disabled_text_color">#aaa</color>
-    <color name="secondary_text_color">#8A8A8A</color>
-
-    <color name="swipe_action_positive">#4DFF53</color>
-    <color name="swipe_action_neutral">#EF6C00</color>
-    <color name="swipe_action_negative">#FD2C2C</color>
 </resources>

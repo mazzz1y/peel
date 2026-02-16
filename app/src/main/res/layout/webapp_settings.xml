@@ -129,7 +129,7 @@
                                     android:gravity="center"
                                     android:inputType="text"
                                     android:text="@={webapp.title}"
-                                    android:textAppearance="@style/TextAppearance.AppCompat.Large" />
+                                    android:textAppearance="?attr/textAppearanceTitleLarge" />
 
                                 <EditText
                                     android:id="@+id/textBaseUrl"
@@ -141,7 +141,7 @@
                                     android:gravity="center"
                                     android:inputType="textUri"
                                     android:text="@={webapp.baseUrl}"
-                                    android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                                    android:textAppearance="?attr/textAppearanceBodySmall"
                                     android:layout_marginTop="4dp"
                                     android:layout_marginBottom="16dp" />
 
@@ -294,7 +294,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="@dimen/settings_bottom_innersection"
                         android:text="@string/these_settings_are_applied_globally_and_override_app_specific_settings"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                        android:textAppearance="?attr/textAppearanceBodySmall"
                         android:visibility="gone" />
                 </LinearLayout>
         </androidx.core.widget.NestedScrollView>

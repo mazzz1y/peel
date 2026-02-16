@@ -1,6 +1,5 @@
 package wtf.mazy.peel.ui.settings
 
-import android.app.TimePickerDialog
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
@@ -9,8 +8,11 @@ import android.widget.Button
 import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.materialswitch.MaterialSwitch
 import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.timepicker.MaterialTimePicker
+import com.google.android.material.timepicker.TimeFormat
 import java.util.Locale
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.SettingDefinition
@@ -217,37 +219,32 @@ class SettingViewFactory(
 
         switch.setOnCheckedChangeListener(switchListener)
 
-        val context = view.context
+        val activity = view.context as? AppCompatActivity ?: return
+
         btnStart.setOnClickListener {
             val parts = btnStart.text.toString().split(":")
-            TimePickerDialog(
-                    context,
-                    { _, h, m ->
-                        val time = String.format(Locale.ROOT, "%02d:%02d", h, m)
-                        btnStart.text = time
-                        settings.setValue(startKey, time)
-                        updateUndoVisibility(btnUndo, setting, settings)
-                    },
-                    parts.getOrNull(0)?.toIntOrNull() ?: 0,
-                    parts.getOrNull(1)?.toIntOrNull() ?: 0,
-                    true)
-                .show()
+            showMaterialTimePicker(
+                activity, parts.getOrNull(0)?.toIntOrNull() ?: 0,
+                parts.getOrNull(1)?.toIntOrNull() ?: 0
+            ) { h, m ->
+                val time = String.format(Locale.ROOT, "%02d:%02d", h, m)
+                btnStart.text = time
+                settings.setValue(startKey, time)
+                updateUndoVisibility(btnUndo, setting, settings)
+            }
         }
 
         btnEnd.setOnClickListener {
             val parts = btnEnd.text.toString().split(":")
-            TimePickerDialog(
-                    context,
-                    { _, h, m ->
-                        val time = String.format(Locale.ROOT, "%02d:%02d", h, m)
-                        btnEnd.text = time
-                        settings.setValue(endKey, time)
-                        updateUndoVisibility(btnUndo, setting, settings)
-                    },
-                    parts.getOrNull(0)?.toIntOrNull() ?: 0,
-                    parts.getOrNull(1)?.toIntOrNull() ?: 0,
-                    true)
-                .show()
+            showMaterialTimePicker(
+                activity, parts.getOrNull(0)?.toIntOrNull() ?: 0,
+                parts.getOrNull(1)?.toIntOrNull() ?: 0
+            ) { h, m ->
+                val time = String.format(Locale.ROOT, "%02d:%02d", h, m)
+                btnEnd.text = time
+                settings.setValue(endKey, time)
+                updateUndoVisibility(btnUndo, setting, settings)
+            }
         }
     }
 
@@ -401,5 +398,21 @@ class SettingViewFactory(
 
     private fun resetSettingToDefault(setting: SettingDefinition, settings: WebAppSettings) {
         setting.allFields.forEach { field -> settings.setValue(field.key, field.defaultValue) }
+    }
+
+    private fun showMaterialTimePicker(
+        activity: AppCompatActivity,
+        hour: Int,
+        minute: Int,
+        onTimeSelected: (Int, Int) -> Unit,
+    ) {
+        val picker =
+            MaterialTimePicker.Builder()
+                .setTimeFormat(TimeFormat.CLOCK_24H)
+                .setHour(hour)
+                .setMinute(minute)
+                .build()
+        picker.addOnPositiveButtonClickListener { onTimeSelected(picker.hour, picker.minute) }
+        picker.show(activity.supportFragmentManager, "time_picker")
     }
 }

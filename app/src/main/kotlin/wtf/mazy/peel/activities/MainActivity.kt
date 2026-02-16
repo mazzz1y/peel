@@ -1,6 +1,7 @@
 package wtf.mazy.peel.activities
 
 import android.content.ActivityNotFoundException
+import androidx.activity.enableEdgeToEdge
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
@@ -71,6 +72,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.AppTheme)
+        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         DataManager.instance.loadAppData()
