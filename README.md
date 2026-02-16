@@ -4,6 +4,8 @@
 
 # Peel
 
+⚠️ **Alpha:** This project is in early development. Expect breaking changes and instability
+
 **Turn any website into a native-like Android app**
 
 Peel is an open-source Android app that turns websites into standalone, app-like experiences. It lets you create lightweight web apps with custom icons, isolated storage, and fine-grained privacy controls, separate from browsers.
