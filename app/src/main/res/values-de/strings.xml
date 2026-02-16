@@ -175,6 +175,7 @@
     <string name="setting_safe_browsing">Sicheres Surfen</string>
     <string name="setting_always_https">Immer HTTPS</string>
     <string name="setting_custom_headers">Benutzerdefinierte Header</string>
+    <string name="setting_dynamic_status_bar">Dynamische Statusleistenfarbe</string>
 
     <string name="groups">Gruppen</string>
     <string name="group">Gruppe</string>

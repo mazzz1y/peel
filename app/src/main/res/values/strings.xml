@@ -180,6 +180,7 @@
     <string name="setting_safe_browsing">Safe browsing</string>
     <string name="setting_always_https">Always HTTPS</string>
     <string name="setting_custom_headers">Custom headers</string>
+    <string name="setting_dynamic_status_bar">Dynamic status bar color</string>
 
     <string name="groups">Groups</string>
     <string name="group">Group</string>

@@ -26,6 +26,7 @@ import android.webkit.WebView
 import android.webkit.WebView.HitTestResult
 import android.widget.ProgressBar
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
@@ -83,10 +84,13 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     private var biometricAuthenticated = false
     private var biometricPromptActive = false
 
+    private var statusBarScrim: View? = null
+    private var navigationBarScrim: View? = null
     private var geoPermissionRequestCallback: GeolocationPermissions.Callback? = null
     private var geoPermissionRequestOrigin: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
 
         webappUuid = intent.getStringExtra(Const.INTENT_WEBAPP_UUID)
@@ -304,6 +308,16 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         NotificationUtils.showToast(this, message)
     }
 
+    override fun updateStatusBarColor(color: Int) {
+        statusBarScrim?.setBackgroundColor(color)
+        navigationBarScrim?.setBackgroundColor(color)
+        val isLight = androidx.core.graphics.ColorUtils.calculateLuminance(color) > 0.5
+        androidx.core.view.WindowInsetsControllerCompat(window, window.decorView).apply {
+            isAppearanceLightStatusBars = isLight
+            isAppearanceLightNavigationBars = isLight
+        }
+    }
+
     override fun startExternalIntent(uri: Uri) {
         startActivity(Intent(Intent.ACTION_VIEW, uri))
     }
@@ -320,6 +334,8 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     }
 
     override fun hideSystemBars() {
+        statusBarScrim?.visibility = View.GONE
+        navigationBarScrim?.visibility = View.GONE
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             @Suppress("DEPRECATION") window.setDecorFitsSystemWindows(false)
             window.insetsController?.apply {
@@ -340,6 +356,8 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
 
     override fun showSystemBars() {
         if (webapp.effectiveSettings.isShowFullscreen == true) return
+        statusBarScrim?.visibility = View.VISIBLE
+        navigationBarScrim?.visibility = View.VISIBLE
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             @Suppress("DEPRECATION") window.setDecorFitsSystemWindows(true)
             window.insetsController?.apply {
@@ -426,6 +444,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     private fun setupWebView() {
         val settings = webapp.effectiveSettings
         setContentView(R.layout.full_webview)
+        setupSystemBarScrims()
         applyWindowFlags(settings)
         bindViews()
         setupPullToRefresh(settings)
@@ -443,6 +462,27 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         webView?.webChromeClient = PeelWebChromeClient(this)
         setupLongClickShare(settings)
         webView?.let { downloadHandler.install(it) }
+    }
+
+    private fun setupSystemBarScrims() {
+        statusBarScrim = findViewById(R.id.statusBarScrim)
+        navigationBarScrim = findViewById(R.id.navigationBarScrim)
+        androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(
+            findViewById(R.id.webview_root)
+        ) { _, insets ->
+            val systemInsets = insets.getInsets(
+                androidx.core.view.WindowInsetsCompat.Type.systemBars()
+            )
+            statusBarScrim?.apply {
+                layoutParams.height = systemInsets.top
+                requestLayout()
+            }
+            navigationBarScrim?.apply {
+                layoutParams.height = systemInsets.bottom
+                requestLayout()
+            }
+            insets
+        }
     }
 
     private fun applyWindowFlags(settings: WebAppSettings) {

@@ -177,6 +177,11 @@ object SettingRegistry {
                 SettingCategory.APPEARANCE,
             ),
             SettingDefinition.BooleanSetting(
+                SettingField(WebAppSettings::isDynamicStatusBar, false),
+                R.string.setting_dynamic_status_bar,
+                SettingCategory.APPEARANCE,
+            ),
+            SettingDefinition.BooleanSetting(
                 SettingField(WebAppSettings::isAlwaysHttps, true),
                 R.string.setting_always_https,
                 SettingCategory.ADVANCED,

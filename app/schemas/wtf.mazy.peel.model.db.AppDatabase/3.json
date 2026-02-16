@@ -1,0 +1,458 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 3,
+    "identityHash": "5b40d15e31dacf5b4765e1f6c55378d7",
+    "entities": [
+      {
+        "tableName": "webapps",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uuid` TEXT NOT NULL, `baseUrl` TEXT NOT NULL, `title` TEXT NOT NULL, `isActiveEntry` INTEGER NOT NULL, `isUseContainer` INTEGER NOT NULL, `isEphemeralSandbox` INTEGER NOT NULL, `order` INTEGER NOT NULL, `groupUuid` TEXT, `isOpenUrlExternal` INTEGER, `isAllowCookies` INTEGER, `isAllowThirdPartyCookies` INTEGER, `isAllowJs` INTEGER, `isRequestDesktop` INTEGER, `isClearCache` INTEGER, `isBlockImages` INTEGER, `isAlwaysHttps` INTEGER, `isAllowLocationAccess` INTEGER, `customHeaders` TEXT, `isAutoReload` INTEGER, `timeAutoReload` INTEGER, `isForceDarkMode` INTEGER, `isUseTimespanDarkMode` INTEGER, `timespanDarkModeBegin` TEXT, `timespanDarkModeEnd` TEXT, `isIgnoreSslErrors` INTEGER, `isBlockThirdPartyRequests` INTEGER, `isDrmAllowed` INTEGER, `isShowFullscreen` INTEGER, `isKeepAwake` INTEGER, `isCameraPermission` INTEGER, `isMicrophonePermission` INTEGER, `isEnableZooming` INTEGER, `isBiometricProtection` INTEGER, `isAllowMediaPlaybackInBackground` INTEGER, `isLongClickShare` INTEGER, `isShowProgressbar` INTEGER, `isDisableScreenshots` INTEGER, `isPullToRefresh` INTEGER, `isSafeBrowsing` INTEGER, `isDynamicStatusBar` INTEGER, PRIMARY KEY(`uuid`))",
+        "fields": [
+          {
+            "fieldPath": "uuid",
+            "columnName": "uuid",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "baseUrl",
+            "columnName": "baseUrl",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isActiveEntry",
+            "columnName": "isActiveEntry",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isUseContainer",
+            "columnName": "isUseContainer",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isEphemeralSandbox",
+            "columnName": "isEphemeralSandbox",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "order",
+            "columnName": "order",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "groupUuid",
+            "columnName": "groupUuid",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "settings.isOpenUrlExternal",
+            "columnName": "isOpenUrlExternal",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "settings.isAllowCookies",
+            "columnName": "isAllowCookies",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "settings.isAllowThirdPartyCookies",
+            "columnName": "isAllowThirdPartyCookies",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "settings.isAllowJs",
+            "columnName": "isAllowJs",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "settings.isRequestDesktop",
+            "columnName": "isRequestDesktop",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "settings.isClearCache",
+            "columnName": "isClearCache",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "settings.isBlockImages",
+            "columnName": "isBlockImages",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "settings.isAlwaysHttps",
+            "columnName": "isAlwaysHttps",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "settings.isAllowLocationAccess",
+            "columnName": "isAllowLocationAccess",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "settings.customHeaders",
+            "columnName": "customHeaders",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "settings.isAutoReload",
+            "columnName": "isAutoReload",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "settings.timeAutoReload",
+            "columnName": "timeAutoReload",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "settings.isForceDarkMode",
+            "columnName": "isForceDarkMode",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "settings.isUseTimespanDarkMode",
+            "columnName": "isUseTimespanDarkMode",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "settings.timespanDarkModeBegin",
+            "columnName": "timespanDarkModeBegin",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "settings.timespanDarkModeEnd",
+            "columnName": "timespanDarkModeEnd",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "settings.isIgnoreSslErrors",
+            "columnName": "isIgnoreSslErrors",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "settings.isBlockThirdPartyRequests",
+            "columnName": "isBlockThirdPartyRequests",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "settings.isDrmAllowed",
+            "columnName": "isDrmAllowed",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "settings.isShowFullscreen",
+            "columnName": "isShowFullscreen",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "settings.isKeepAwake",
+            "columnName": "isKeepAwake",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "settings.isCameraPermission",
+            "columnName": "isCameraPermission",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "settings.isMicrophonePermission",
+            "columnName": "isMicrophonePermission",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "settings.isEnableZooming",
+            "columnName": "isEnableZooming",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "settings.isBiometricProtection",
+            "columnName": "isBiometricProtection",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "settings.isAllowMediaPlaybackInBackground",
+            "columnName": "isAllowMediaPlaybackInBackground",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "settings.isLongClickShare",
+            "columnName": "isLongClickShare",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "settings.isShowProgressbar",
+            "columnName": "isShowProgressbar",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "settings.isDisableScreenshots",
+            "columnName": "isDisableScreenshots",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "settings.isPullToRefresh",
+            "columnName": "isPullToRefresh",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "settings.isSafeBrowsing",
+            "columnName": "isSafeBrowsing",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "settings.isDynamicStatusBar",
+            "columnName": "isDynamicStatusBar",
+            "affinity": "INTEGER"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "uuid"
+          ]
+        }
+      },
+      {
+        "tableName": "sandbox_slots",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`slotId` INTEGER NOT NULL, `webappUuid` TEXT NOT NULL, PRIMARY KEY(`slotId`))",
+        "fields": [
+          {
+            "fieldPath": "slotId",
+            "columnName": "slotId",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "webappUuid",
+            "columnName": "webappUuid",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "slotId"
+          ]
+        }
+      },
+      {
+        "tableName": "webapp_groups",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uuid` TEXT NOT NULL, `title` TEXT NOT NULL, `order` INTEGER NOT NULL, `isUseContainer` INTEGER NOT NULL, `isEphemeralSandbox` INTEGER NOT NULL, `isOpenUrlExternal` INTEGER, `isAllowCookies` INTEGER, `isAllowThirdPartyCookies` INTEGER, `isAllowJs` INTEGER, `isRequestDesktop` INTEGER, `isClearCache` INTEGER, `isBlockImages` INTEGER, `isAlwaysHttps` INTEGER, `isAllowLocationAccess` INTEGER, `customHeaders` TEXT, `isAutoReload` INTEGER, `timeAutoReload` INTEGER, `isForceDarkMode` INTEGER, `isUseTimespanDarkMode` INTEGER, `timespanDarkModeBegin` TEXT, `timespanDarkModeEnd` TEXT, `isIgnoreSslErrors` INTEGER, `isBlockThirdPartyRequests` INTEGER, `isDrmAllowed` INTEGER, `isShowFullscreen` INTEGER, `isKeepAwake` INTEGER, `isCameraPermission` INTEGER, `isMicrophonePermission` INTEGER, `isEnableZooming` INTEGER, `isBiometricProtection` INTEGER, `isAllowMediaPlaybackInBackground` INTEGER, `isLongClickShare` INTEGER, `isShowProgressbar` INTEGER, `isDisableScreenshots` INTEGER, `isPullToRefresh` INTEGER, `isSafeBrowsing` INTEGER, `isDynamicStatusBar` INTEGER, PRIMARY KEY(`uuid`))",
+        "fields": [
+          {
+            "fieldPath": "uuid",
+            "columnName": "uuid",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "order",
+            "columnName": "order",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isUseContainer",
+            "columnName": "isUseContainer",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isEphemeralSandbox",
+            "columnName": "isEphemeralSandbox",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "settings.isOpenUrlExternal",
+            "columnName": "isOpenUrlExternal",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "settings.isAllowCookies",
+            "columnName": "isAllowCookies",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "settings.isAllowThirdPartyCookies",
+            "columnName": "isAllowThirdPartyCookies",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "settings.isAllowJs",
+            "columnName": "isAllowJs",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "settings.isRequestDesktop",
+            "columnName": "isRequestDesktop",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "settings.isClearCache",
+            "columnName": "isClearCache",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "settings.isBlockImages",
+            "columnName": "isBlockImages",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "settings.isAlwaysHttps",
+            "columnName": "isAlwaysHttps",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "settings.isAllowLocationAccess",
+            "columnName": "isAllowLocationAccess",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "settings.customHeaders",
+            "columnName": "customHeaders",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "settings.isAutoReload",
+            "columnName": "isAutoReload",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "settings.timeAutoReload",
+            "columnName": "timeAutoReload",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "settings.isForceDarkMode",
+            "columnName": "isForceDarkMode",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "settings.isUseTimespanDarkMode",
+            "columnName": "isUseTimespanDarkMode",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "settings.timespanDarkModeBegin",
+            "columnName": "timespanDarkModeBegin",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "settings.timespanDarkModeEnd",
+            "columnName": "timespanDarkModeEnd",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "settings.isIgnoreSslErrors",
+            "columnName": "isIgnoreSslErrors",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "settings.isBlockThirdPartyRequests",
+            "columnName": "isBlockThirdPartyRequests",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "settings.isDrmAllowed",
+            "columnName": "isDrmAllowed",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "settings.isShowFullscreen",
+            "columnName": "isShowFullscreen",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "settings.isKeepAwake",
+            "columnName": "isKeepAwake",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "settings.isCameraPermission",
+            "columnName": "isCameraPermission",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "settings.isMicrophonePermission",
+            "columnName": "isMicrophonePermission",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "settings.isEnableZooming",
+            "columnName": "isEnableZooming",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "settings.isBiometricProtection",
+            "columnName": "isBiometricProtection",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "settings.isAllowMediaPlaybackInBackground",
+            "columnName": "isAllowMediaPlaybackInBackground",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "settings.isLongClickShare",
+            "columnName": "isLongClickShare",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "settings.isShowProgressbar",
+            "columnName": "isShowProgressbar",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "settings.isDisableScreenshots",
+            "columnName": "isDisableScreenshots",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "settings.isPullToRefresh",
+            "columnName": "isPullToRefresh",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "settings.isSafeBrowsing",
+            "columnName": "isSafeBrowsing",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "settings.isDynamicStatusBar",
+            "columnName": "isDynamicStatusBar",
+            "affinity": "INTEGER"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "uuid"
+          ]
+        }
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '5b40d15e31dacf5b4765e1f6c55378d7')"
+    ]
+  }
+}

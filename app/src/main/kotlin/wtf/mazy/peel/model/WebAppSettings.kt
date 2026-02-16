@@ -36,6 +36,7 @@ data class WebAppSettings(
     var isDisableScreenshots: Boolean? = null,
     var isPullToRefresh: Boolean? = null,
     var isSafeBrowsing: Boolean? = null,
+    var isDynamicStatusBar: Boolean? = null,
 ) {
     companion object {
         @Suppress("UNCHECKED_CAST")

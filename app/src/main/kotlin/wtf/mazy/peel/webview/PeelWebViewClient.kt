@@ -1,6 +1,7 @@
 package wtf.mazy.peel.webview
 
 import android.annotation.SuppressLint
+import android.graphics.Color
 import android.net.Uri
 import android.net.http.SslError
 import android.webkit.HttpAuthHandler
@@ -10,6 +11,7 @@ import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import androidx.core.graphics.toColorInt
 import androidx.core.net.toUri
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.DataManager
@@ -30,9 +32,16 @@ class PeelWebViewClient(
     override fun onPageFinished(view: WebView?, url: String) {
         view?.evaluateJavascript(
             "document.addEventListener(\"visibilitychange\"," +
-                "function(event){event.stopImmediatePropagation();},true);",
+                    "function(event){event.stopImmediatePropagation();},true);",
             null,
         )
+        if (host.effectiveSettings.isDynamicStatusBar == true) {
+            view?.evaluateJavascript(EXTRACT_PAGE_COLOR_JS) { result ->
+                val raw = result.trim('"').trim()
+                val color = parseWebColor(raw)
+                if (color != null) host.updateStatusBarColor(color)
+            }
+        }
         host.showNotification()
         super.onPageFinished(view, url)
     }
@@ -113,7 +122,7 @@ class PeelWebViewClient(
         }
         view.evaluateJavascript(
             "document.addEventListener(\"visibilitychange\"," +
-                "(event)=>{event.stopImmediatePropagation();});",
+                    "(event)=>{event.stopImmediatePropagation();});",
             null,
         )
     }
@@ -126,11 +135,13 @@ class PeelWebViewClient(
         if (!url.startsWith("http://") &&
             !url.startsWith("https://") &&
             !url.startsWith("file://") &&
-            !url.startsWith("about:")) {
+            !url.startsWith("about:")
+        ) {
             if (request.isForMainFrame && request.hasGesture()) {
                 try {
                     host.startExternalIntent(url.toUri())
-                } catch (_: Exception) {}
+                } catch (_: Exception) {
+                }
             }
             return true
         }
@@ -160,5 +171,60 @@ class PeelWebViewClient(
             val baseHost = baseUri.host ?: return true
             return requestHost == baseHost || requestHost.endsWith(".$baseHost")
         }
+
+        private val rgbRegex = Regex("""rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)""")
+
+        fun parseWebColor(raw: String): Int? {
+            if (raw.isBlank()) return null
+            if (raw.startsWith("#")) {
+                return try {
+                    raw.toColorInt()
+                } catch (_: IllegalArgumentException) {
+                    null
+                }
+            }
+            rgbRegex.find(raw)?.let { match ->
+                val r = match.groupValues[1].toIntOrNull() ?: return null
+                val g = match.groupValues[2].toIntOrNull() ?: return null
+                val b = match.groupValues[3].toIntOrNull() ?: return null
+                return Color.rgb(r, g, b)
+            }
+            return null
+        }
+
+        /**
+         * JS snippet that extracts the visible page background color.
+         *
+         * Priority (ground truth first):
+         *   1. Computed body background   — always reflects what the user sees
+         *   2. Computed html background   — fallback when body is transparent
+         *   3. Media-matched theme-color  — fallback when computed bg is absent
+         *   4. Non-media theme-color      — final fallback
+         *
+         * This ordering fixes sites like Roundcube whose static
+         * `<meta name="theme-color" content="#f4f4f4">` never updates
+         * when CSS-driven dark mode is applied.
+         */
+        private val EXTRACT_PAGE_COLOR_JS = """
+            (function() {
+                function isOpaque(c) {
+                    return c && c !== 'rgba(0, 0, 0, 0)' && c !== 'transparent';
+                }
+                var bodyBg = getComputedStyle(document.body).backgroundColor;
+                if (isOpaque(bodyBg)) return bodyBg;
+                var htmlBg = getComputedStyle(document.documentElement).backgroundColor;
+                if (isOpaque(htmlBg)) return htmlBg;
+                var isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                var metas = document.querySelectorAll('meta[name="theme-color"]');
+                var fallback = null;
+                for (var i = 0; i < metas.length; i++) {
+                    var media = metas[i].getAttribute('media');
+                    if (!media) { fallback = metas[i].content; continue; }
+                    if (isDark && media.indexOf('dark') !== -1) return metas[i].content;
+                    if (!isDark && media.indexOf('light') !== -1) return metas[i].content;
+                }
+                return fallback || '';
+            })()
+        """.trimIndent()
     }
 }
