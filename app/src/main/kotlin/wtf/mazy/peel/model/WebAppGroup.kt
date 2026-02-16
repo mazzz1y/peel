@@ -10,7 +10,9 @@ data class WebAppGroup(
     var isEphemeralSandbox: Boolean = false,
     var settings: WebAppSettings = WebAppSettings(),
 ) {
-    constructor(other: WebAppGroup) : this(
+    constructor(
+        other: WebAppGroup
+    ) : this(
         uuid = other.uuid,
         title = other.title,
         order = other.order,

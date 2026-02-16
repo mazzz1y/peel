@@ -20,11 +20,9 @@ interface WebAppGroupDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(entities: List<WebAppGroupEntity>)
 
-    @Query("DELETE FROM webapp_groups WHERE uuid = :uuid")
-    fun deleteByUuid(uuid: String)
+    @Query("DELETE FROM webapp_groups WHERE uuid = :uuid") fun deleteByUuid(uuid: String)
 
-    @Query("DELETE FROM webapp_groups")
-    fun deleteAll()
+    @Query("DELETE FROM webapp_groups") fun deleteAll()
 
     @Transaction
     fun replaceAll(entities: List<WebAppGroupEntity>) {

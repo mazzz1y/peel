@@ -26,9 +26,7 @@ data class WebApp(var baseUrl: String, val uuid: String = UUID.randomUUID().toSt
     val effectiveSettings: WebAppSettings
         get() {
             val globalSettings = DataManager.instance.defaultSettings.settings
-            val groupSettings = groupUuid?.let {
-                DataManager.instance.getGroup(it)?.settings
-            }
+            val groupSettings = groupUuid?.let { DataManager.instance.getGroup(it)?.settings }
             return if (groupSettings != null) {
                 settings.getEffective(groupSettings, globalSettings)
             } else {
@@ -43,7 +41,6 @@ data class WebApp(var baseUrl: String, val uuid: String = UUID.randomUUID().toSt
                 ?.replace("http://", "")
                 ?.replace("https://", "")
                 ?.replace("www.", "") ?: baseUrl
-        initDefaultSettings()
     }
 
     constructor(baseUrl: String, uuid: String, order: Int) : this(baseUrl, uuid) {
@@ -57,12 +54,6 @@ data class WebApp(var baseUrl: String, val uuid: String = UUID.randomUUID().toSt
         order = other.order
         groupUuid = other.groupUuid
         settings = other.settings.copy()
-    }
-
-    private fun initDefaultSettings() {
-        if (baseUrl.contains("facebook.com")) {
-            settings.customHeaders = mutableMapOf("User-Agent" to Const.DESKTOP_USER_AGENT)
-        }
     }
 
     fun markInactive(activity: Activity) {

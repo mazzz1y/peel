@@ -9,8 +9,8 @@ import wtf.mazy.peel.model.WebAppGroup
 /**
  * ViewPager2 adapter for group tabs.
  *
- * Pages 0..N-1 are groups, filtered by group UUID.
- * If [showUngrouped] is true, the last page shows ungrouped apps labeled "None".
+ * Pages 0..N-1 are groups, filtered by group UUID. If [showUngrouped] is true, the last page shows
+ * ungrouped apps labeled "None".
  */
 class GroupPagerAdapter(
     private val activity: FragmentActivity,

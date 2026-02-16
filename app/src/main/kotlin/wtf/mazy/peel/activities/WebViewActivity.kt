@@ -109,12 +109,13 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
                 finishAndRemoveTask()
                 return
             }
-            val isEphemeral = if (webapp.isUseContainer) {
-                webapp.isEphemeralSandbox
-            } else {
-                val group = webapp.groupUuid?.let { DataManager.instance.getGroup(it) }
-                group?.isEphemeralSandbox == true
-            }
+            val isEphemeral =
+                if (webapp.isUseContainer) {
+                    webapp.isEphemeralSandbox
+                } else {
+                    val group = webapp.groupUuid?.let { DataManager.instance.getGroup(it) }
+                    group?.isEphemeralSandbox == true
+                }
             if (isEphemeral) {
                 SandboxManager.wipeSandboxStorage(sandboxId)
             }
@@ -177,12 +178,13 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
             if (sandboxId != null) {
                 webView?.destroy()
                 webView = null
-                val isEphemeral = if (webapp.isUseContainer) {
-                    webapp.isEphemeralSandbox
-                } else {
-                    val group = webapp.groupUuid?.let { DataManager.instance.getGroup(it) }
-                    group?.isEphemeralSandbox == true
-                }
+                val isEphemeral =
+                    if (webapp.isUseContainer) {
+                        webapp.isEphemeralSandbox
+                    } else {
+                        val group = webapp.groupUuid?.let { DataManager.instance.getGroup(it) }
+                        group?.isEphemeralSandbox == true
+                    }
                 if (isEphemeral) {
                     SandboxManager.wipeSandboxStorage(sandboxId)
                 }

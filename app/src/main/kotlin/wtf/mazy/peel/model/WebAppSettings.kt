@@ -88,9 +88,10 @@ data class WebAppSettings(
     fun getEffective(vararg parents: WebAppSettings): WebAppSettings {
         val effective = WebAppSettings()
         ALL_KEYS.forEach { key ->
-            val value = this.getValue(key)
-                ?: parents.firstNotNullOfOrNull { it.getValue(key) }
-                ?: DEFAULTS[key]
+            val value =
+                this.getValue(key)
+                    ?: parents.firstNotNullOfOrNull { it.getValue(key) }
+                    ?: DEFAULTS[key]
             effective.setValue(key, value)
         }
         return effective

@@ -29,8 +29,7 @@ class WebAppListAdapter(private val activityOfFragment: Activity) :
         private set
 
     /**
-     * null = show ALL apps.
-     * UNGROUPED_FILTER = show only apps with no group.
+     * null = show ALL apps. UNGROUPED_FILTER = show only apps with no group.
      * Otherwise = show apps matching this group UUID.
      */
     var groupFilter: String? = null
@@ -79,7 +78,8 @@ class WebAppListAdapter(private val activityOfFragment: Activity) :
         }
         val sizePx = imageView.context.resources.displayMetrics.density * 48
         imageView.setImageBitmap(
-            LetterIconGenerator.generate(webapp.title, webapp.baseUrl, sizePx.toInt()))
+            LetterIconGenerator.generate(webapp.title, webapp.baseUrl, sizePx.toInt())
+        )
     }
 
     private fun showPopupMenu(view: View, webapp: WebApp, position: Int) {
@@ -136,7 +136,8 @@ class WebAppListAdapter(private val activityOfFragment: Activity) :
                 val destFile = clonedWebApp.iconFile
                 destFile.parentFile?.mkdirs()
                 webapp.iconFile.copyTo(destFile, overwrite = true)
-            } catch (_: Exception) {}
+            } catch (_: Exception) {
+            }
         }
 
         DataManager.instance.addWebsite(clonedWebApp)
@@ -186,13 +187,14 @@ class WebAppListAdapter(private val activityOfFragment: Activity) :
 
     @SuppressLint("NotifyDataSetChanged")
     fun updateWebAppList() {
-        items = when (groupFilter) {
-            null -> DataManager.instance.activeWebsites.toMutableList()
-            WebAppListFragment.UNGROUPED_FILTER ->
-                DataManager.instance.activeWebsitesForGroup(null).toMutableList()
-            else ->
-                DataManager.instance.activeWebsitesForGroup(groupFilter).toMutableList()
-        }
+        items =
+            when (groupFilter) {
+                null -> DataManager.instance.activeWebsites.toMutableList()
+                WebAppListFragment.UNGROUPED_FILTER ->
+                    DataManager.instance.activeWebsitesForGroup(null).toMutableList()
+
+                else -> DataManager.instance.activeWebsitesForGroup(groupFilter).toMutableList()
+            }
         notifyDataSetChanged()
     }
 }

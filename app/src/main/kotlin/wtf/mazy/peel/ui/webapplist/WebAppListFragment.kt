@@ -21,8 +21,7 @@ class WebAppListFragment : Fragment(R.layout.fragment_web_app_list) {
     private val dragScale = 1.05f
 
     /**
-     * null = show ALL apps (the "All" tab).
-     * UNGROUPED_FILTER = show only ungrouped apps.
+     * null = show ALL apps (the "All" tab). UNGROUPED_FILTER = show only ungrouped apps.
      * Otherwise = show apps belonging to that group UUID.
      */
     var groupFilter: String? = null
@@ -146,9 +145,7 @@ class WebAppListFragment : Fragment(R.layout.fragment_web_app_list) {
 
         fun newInstance(groupFilter: String?): WebAppListFragment {
             return WebAppListFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_GROUP_FILTER, groupFilter)
-                }
+                arguments = Bundle().apply { putString(ARG_GROUP_FILTER, groupFilter) }
             }
         }
     }

@@ -10,11 +10,11 @@ import androidx.appcompat.app.AlertDialog
 import wtf.mazy.peel.R
 import wtf.mazy.peel.databinding.GroupSettingsBinding
 import wtf.mazy.peel.model.DataManager
+import wtf.mazy.peel.model.SandboxManager
 import wtf.mazy.peel.model.SettingDefinition
 import wtf.mazy.peel.model.SettingRegistry
 import wtf.mazy.peel.model.WebAppGroup
 import wtf.mazy.peel.shortcut.LetterIconGenerator
-import wtf.mazy.peel.model.SandboxManager
 import wtf.mazy.peel.ui.dialog.OverridePickerDialog
 import wtf.mazy.peel.ui.settings.SettingViewFactory
 import wtf.mazy.peel.util.Const
@@ -43,11 +43,21 @@ class GroupSettingsActivity :
         binding.group = modifiedGroup
 
         updateGroupIcon()
-        binding.txtGroupName.addTextChangedListener(object : TextWatcher {
-            override fun afterTextChanged(s: Editable?) { updateGroupIcon() }
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-        })
+        binding.txtGroupName.addTextChangedListener(
+            object : TextWatcher {
+                override fun afterTextChanged(s: Editable?) {
+                    updateGroupIcon()
+                }
+
+                override fun beforeTextChanged(
+                    s: CharSequence?,
+                    start: Int,
+                    count: Int,
+                    after: Int
+                ) {}
+
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            })
 
         setupSandboxSwitch()
         setupOverridePicker()
@@ -72,8 +82,7 @@ class GroupSettingsActivity :
         val group = modifiedGroup ?: return
         val sizePx = (resources.displayMetrics.density * 96).toInt()
         binding.imgGroupIcon.setImageBitmap(
-            LetterIconGenerator.generate(group.title, group.title, sizePx)
-        )
+            LetterIconGenerator.generate(group.title, group.title, sizePx))
     }
 
     private fun setupSandboxSwitch() {
@@ -159,8 +168,7 @@ class GroupSettingsActivity :
 
         overriddenKeys.forEach { key ->
             val setting = SettingRegistry.getSettingByKey(key) ?: return@forEach
-            container.addView(
-                overrideViewFactory.createView(container, setting, group.settings))
+            container.addView(overrideViewFactory.createView(container, setting, group.settings))
         }
     }
 

@@ -85,8 +85,7 @@ abstract class AppDatabase : RoomDatabase() {
                         isDisableScreenshots INTEGER DEFAULT NULL,
                         isPullToRefresh INTEGER DEFAULT NULL,
                         isSafeBrowsing INTEGER DEFAULT NULL
-                    )"""
-                    )
+                    )""")
                 }
             }
 

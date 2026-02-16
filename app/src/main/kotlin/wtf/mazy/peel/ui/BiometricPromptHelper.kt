@@ -21,6 +21,7 @@ internal class BiometricPromptHelper(private val activity: FragmentActivity) {
                 BiometricManager.BIOMETRIC_SUCCESS -> null
                 BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED ->
                     context.getString(R.string.no_biometric_keys_enrolled)
+
                 else -> context.getString(R.string.no_biometric_devices)
             }
         }

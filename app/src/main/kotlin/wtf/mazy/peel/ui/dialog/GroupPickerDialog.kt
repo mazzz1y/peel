@@ -26,9 +26,7 @@ class GroupPickerDialog : DialogFragment() {
         ): GroupPickerDialog {
             return GroupPickerDialog().apply {
                 this.listener = listener
-                arguments = Bundle().apply {
-                    putString(ARG_CURRENT_GROUP, currentGroupUuid)
-                }
+                arguments = Bundle().apply { putString(ARG_CURRENT_GROUP, currentGroupUuid) }
             }
         }
     }
@@ -60,9 +58,7 @@ class GroupPickerDialog : DialogFragment() {
 
         return MaterialAlertDialogBuilder(requireContext())
             .setTitle(R.string.select_group)
-            .setItems(names.toTypedArray()) { _, which ->
-                listener?.onGroupSelected(uuids[which])
-            }
+            .setItems(names.toTypedArray()) { _, which -> listener?.onGroupSelected(uuids[which]) }
             .setNegativeButton(R.string.cancel, null)
             .create()
     }

@@ -24,8 +24,8 @@ import java.util.Collections
 import wtf.mazy.peel.R
 import wtf.mazy.peel.databinding.AddWebsiteDialogueBinding
 import wtf.mazy.peel.model.DataManager
-import wtf.mazy.peel.shortcut.LetterIconGenerator
 import wtf.mazy.peel.model.WebAppGroup
+import wtf.mazy.peel.shortcut.LetterIconGenerator
 import wtf.mazy.peel.util.Const
 
 class GroupListActivity : AppCompatActivity() {
@@ -86,36 +86,46 @@ class GroupListActivity : AppCompatActivity() {
         localBinding.websiteUrl.hint = getString(R.string.group_name_hint)
         localBinding.websiteUrl.inputType = android.text.InputType.TYPE_CLASS_TEXT
 
-        val dialog = AlertDialog.Builder(this)
-            .setView(localBinding.root)
-            .setTitle(getString(R.string.add_group))
-            .setPositiveButton(R.string.ok) { _: DialogInterface, _: Int ->
-                val name = localBinding.websiteUrl.text.toString().trim()
-                if (name.isNotEmpty()) {
-                    val group = WebAppGroup(
-                        title = name,
-                        order = DataManager.instance.getGroups().size,
-                    )
-                    DataManager.instance.addGroup(group)
-                    updateList()
+        val dialog =
+            AlertDialog.Builder(this)
+                .setView(localBinding.root)
+                .setTitle(getString(R.string.add_group))
+                .setPositiveButton(R.string.ok) { _: DialogInterface, _: Int ->
+                    val name = localBinding.websiteUrl.text.toString().trim()
+                    if (name.isNotEmpty()) {
+                        val group =
+                            WebAppGroup(
+                                title = name,
+                                order = DataManager.instance.getGroups().size,
+                            )
+                        DataManager.instance.addGroup(group)
+                        updateList()
 
-                    val intent = Intent(this, GroupSettingsActivity::class.java)
-                    intent.putExtra(Const.INTENT_GROUP_UUID, group.uuid)
-                    startActivity(intent)
+                        val intent = Intent(this, GroupSettingsActivity::class.java)
+                        intent.putExtra(Const.INTENT_GROUP_UUID, group.uuid)
+                        startActivity(intent)
+                    }
                 }
-            }
-            .create()
+                .create()
 
         dialog.show()
         val okButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
         okButton.isEnabled = false
-        localBinding.websiteUrl.addTextChangedListener(object : TextWatcher {
-            override fun afterTextChanged(s: Editable?) {
-                okButton.isEnabled = !s.isNullOrBlank()
-            }
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-        })
+        localBinding.websiteUrl.addTextChangedListener(
+            object : TextWatcher {
+                override fun afterTextChanged(s: Editable?) {
+                    okButton.isEnabled = !s.isNullOrBlank()
+                }
+
+                override fun beforeTextChanged(
+                    s: CharSequence?,
+                    start: Int,
+                    count: Int,
+                    after: Int
+                ) {}
+
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            })
     }
 
     private fun showDeleteGroupDialog(group: WebAppGroup) {
@@ -128,7 +138,9 @@ class GroupListActivity : AppCompatActivity() {
 
         val dialogView = layoutInflater.inflate(R.layout.dialog_delete_group, null)
         val message = dialogView.findViewById<TextView>(R.id.delete_group_message)
-        val switchUngroup = dialogView.findViewById<com.google.android.material.materialswitch.MaterialSwitch>(R.id.switchUngroupApps)
+        val switchUngroup =
+            dialogView.findViewById<com.google.android.material.materialswitch.MaterialSwitch>(
+                R.id.switchUngroupApps)
 
         message.text = getString(R.string.delete_group_confirm, group.title, appsInGroup.size)
 
@@ -143,32 +155,34 @@ class GroupListActivity : AppCompatActivity() {
             .show()
     }
 
-    private val dragCallback = object : ItemTouchHelper.Callback() {
-        override fun getMovementFlags(
-            recyclerView: RecyclerView,
-            viewHolder: RecyclerView.ViewHolder,
-        ): Int = makeMovementFlags(ItemTouchHelper.UP or ItemTouchHelper.DOWN, 0)
+    private val dragCallback =
+        object : ItemTouchHelper.Callback() {
+            override fun getMovementFlags(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+            ): Int = makeMovementFlags(ItemTouchHelper.UP or ItemTouchHelper.DOWN, 0)
 
-        override fun onMove(
-            recyclerView: RecyclerView,
-            viewHolder: RecyclerView.ViewHolder,
-            target: RecyclerView.ViewHolder,
-        ): Boolean {
-            adapter.moveItem(viewHolder.bindingAdapterPosition, target.bindingAdapterPosition)
-            return true
+            override fun onMove(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                target: RecyclerView.ViewHolder,
+            ): Boolean {
+                adapter.moveItem(viewHolder.bindingAdapterPosition, target.bindingAdapterPosition)
+                return true
+            }
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {}
+
+            override fun isLongPressDragEnabled() = true
+
+            override fun clearView(
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+            ) {
+                super.clearView(recyclerView, viewHolder)
+                saveOrder()
+            }
         }
-
-        override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {}
-        override fun isLongPressDragEnabled() = true
-
-        override fun clearView(
-            recyclerView: RecyclerView,
-            viewHolder: RecyclerView.ViewHolder,
-        ) {
-            super.clearView(recyclerView, viewHolder)
-            saveOrder()
-        }
-    }
 
     private fun saveOrder() {
         for ((i, group) in adapter.items.withIndex()) {
@@ -189,8 +203,8 @@ class GroupListActivity : AppCompatActivity() {
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-            val view = LayoutInflater.from(parent.context)
-                .inflate(R.layout.group_list_item, parent, false)
+            val view =
+                LayoutInflater.from(parent.context).inflate(R.layout.group_list_item, parent, false)
             return ViewHolder(view)
         }
 
@@ -200,11 +214,11 @@ class GroupListActivity : AppCompatActivity() {
 
             val sizePx = (resources.displayMetrics.density * 38).toInt()
             holder.iconView.setImageBitmap(
-                LetterIconGenerator.generate(group.title, group.title, sizePx)
-            )
+                LetterIconGenerator.generate(group.title, group.title, sizePx))
 
             val count = DataManager.instance.activeWebsitesForGroup(group.uuid).size
-            holder.countView.text = resources.getQuantityString(R.plurals.group_app_count, count, count)
+            holder.countView.text =
+                resources.getQuantityString(R.plurals.group_app_count, count, count)
 
             holder.itemView.setOnClickListener {
                 val intent = Intent(this@GroupListActivity, GroupSettingsActivity::class.java)
@@ -212,9 +226,7 @@ class GroupListActivity : AppCompatActivity() {
                 startActivity(intent)
             }
 
-            holder.menuButton.setOnClickListener { view ->
-                showPopupMenu(view, group)
-            }
+            holder.menuButton.setOnClickListener { view -> showPopupMenu(view, group) }
         }
 
         override fun getItemCount() = items.size
@@ -236,15 +248,18 @@ class GroupListActivity : AppCompatActivity() {
             popup.setOnMenuItemClickListener { menuItem ->
                 when (menuItem.itemId) {
                     R.id.action_edit -> {
-                        val intent = Intent(this@GroupListActivity, GroupSettingsActivity::class.java)
+                        val intent =
+                            Intent(this@GroupListActivity, GroupSettingsActivity::class.java)
                         intent.putExtra(Const.INTENT_GROUP_UUID, group.uuid)
                         startActivity(intent)
                         true
                     }
+
                     R.id.action_delete -> {
                         showDeleteGroupDialog(group)
                         true
                     }
+
                     else -> false
                 }
             }

@@ -146,10 +146,12 @@ class DataManager private constructor() {
 
     fun removeGroup(group: WebAppGroup, ungroupApps: Boolean) {
         if (ungroupApps) {
-            websites.filter { it.groupUuid == group.uuid }.forEach { webapp ->
-                webapp.groupUuid = null
-                dao.upsert(webapp.toEntity())
-            }
+            websites
+                .filter { it.groupUuid == group.uuid }
+                .forEach { webapp ->
+                    webapp.groupUuid = null
+                    dao.upsert(webapp.toEntity())
+                }
         }
         groups.remove(group)
         groupDao.deleteByUuid(group.uuid)

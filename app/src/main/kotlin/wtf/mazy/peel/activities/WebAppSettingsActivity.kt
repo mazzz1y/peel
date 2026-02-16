@@ -2,7 +2,6 @@ package wtf.mazy.peel.activities
 
 import android.annotation.SuppressLint
 import android.graphics.Bitmap
-import androidx.appcompat.app.AlertDialog
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
@@ -16,6 +15,7 @@ import android.view.animation.AnimationUtils
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import java.io.FileOutputStream
 import java.io.IOException
 import java.util.concurrent.ExecutorService
@@ -36,8 +36,7 @@ import wtf.mazy.peel.util.NotificationUtils.showToast
 import wtf.mazy.peel.util.Utility
 
 class WebAppSettingsActivity :
-    ToolbarBaseActivity<WebappSettingsBinding>(),
-    OverridePickerDialog.OnSettingSelectedListener {
+    ToolbarBaseActivity<WebappSettingsBinding>(), OverridePickerDialog.OnSettingSelectedListener {
     var webappUuid: String? = null
     var originalWebapp: WebApp? = null
     private var modifiedWebapp: WebApp? = null
@@ -171,11 +170,13 @@ class WebAppSettingsActivity :
         binding.txtGroupName.text = groupName ?: getString(R.string.none)
     }
 
-    private fun showGroupPopup(anchor: View, webapp: WebApp, groups: List<wtf.mazy.peel.model.WebAppGroup>) {
+    private fun showGroupPopup(
+        anchor: View,
+        webapp: WebApp,
+        groups: List<wtf.mazy.peel.model.WebAppGroup>
+    ) {
         val popup = android.widget.PopupMenu(this, anchor)
-        groups.forEachIndexed { index, group ->
-            popup.menu.add(0, index, index, group.title)
-        }
+        groups.forEachIndexed { index, group -> popup.menu.add(0, index, index, group.title) }
         popup.menu.add(0, groups.size, groups.size, getString(R.string.none))
 
         popup.setOnMenuItemClickListener { item ->

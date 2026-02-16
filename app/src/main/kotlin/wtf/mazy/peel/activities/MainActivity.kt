@@ -25,8 +25,8 @@ import java.util.Locale
 import wtf.mazy.peel.R
 import wtf.mazy.peel.databinding.AddWebsiteDialogueBinding
 import wtf.mazy.peel.model.BackupManager
-import wtf.mazy.peel.model.ImportMode
 import wtf.mazy.peel.model.DataManager
+import wtf.mazy.peel.model.ImportMode
 import wtf.mazy.peel.model.SandboxManager
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.ui.webapplist.GroupPagerAdapter
@@ -124,16 +124,17 @@ class MainActivity : AppCompatActivity() {
             lastShowUngrouped = hasUngrouped
 
             TabLayoutMediator(tabLayout!!, viewPager!!) { tab, position ->
-                tab.text = pagerAdapter?.getPageTitle(position)
-            }.attach()
+                    tab.text = pagerAdapter?.getPageTitle(position)
+                }
+                .attach()
         }
     }
 
     private fun refreshCurrentPages() {
         val groups = DataManager.instance.sortedGroups
         val newGroupKeys = groups.map { it.uuid to it.title }
-        val newShowUngrouped = groups.isNotEmpty() &&
-            DataManager.instance.activeWebsitesForGroup(null).isNotEmpty()
+        val newShowUngrouped =
+            groups.isNotEmpty() && DataManager.instance.activeWebsitesForGroup(null).isNotEmpty()
 
         if (lastGroupKeys != newGroupKeys || lastShowUngrouped != newShowUngrouped) {
             setupViewPager()
@@ -243,7 +244,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun buildImportModeDialog(uri: android.net.Uri) {
-        val modes = arrayOf(getString(R.string.import_mode_replace), getString(R.string.import_mode_merge))
+        val modes =
+            arrayOf(getString(R.string.import_mode_replace), getString(R.string.import_mode_merge))
         var selected = 0
         AlertDialog.Builder(this)
             .setTitle(getString(R.string.import_mode_title))

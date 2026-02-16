@@ -58,7 +58,6 @@ object WebViewLauncher {
 
     /**
      * Determines the sandbox identity for a webapp.
-     *
      * - If the app has its own sandbox enabled, returns the app's UUID (dedicated sandbox).
      * - If the app's group has sandbox enabled, returns the group's UUID (shared group sandbox).
      * - Otherwise returns null (no sandbox, runs in main process).
