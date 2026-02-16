@@ -199,11 +199,6 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
             return
         }
 
-        if (SandboxManager.isInSandboxProcess) {
-            finishAndRemoveTask()
-            return
-        }
-
         val newWebapp = DataManager.instance.getWebApp(newUuid) ?: return
         webappUuid = newUuid
         webapp = newWebapp
