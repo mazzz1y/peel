@@ -5,6 +5,7 @@ import android.net.Uri
 import android.net.http.SslError
 import android.webkit.HttpAuthHandler
 import android.webkit.SslErrorHandler
+import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
 import android.webkit.WebView
@@ -12,7 +13,6 @@ import android.webkit.WebViewClient
 import androidx.core.net.toUri
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.DataManager
-import wtf.mazy.peel.util.LocaleUtils.fileEnding
 
 class PeelWebViewClient(
     private val host: WebViewClientHost,
@@ -28,9 +28,6 @@ class PeelWebViewClient(
     }
 
     override fun onPageFinished(view: WebView?, url: String) {
-        if (url == "about:blank") {
-            view?.loadUrl("file:///android_asset/errorSite/error_${fileEnding}.html")
-        }
         view?.evaluateJavascript(
             "document.addEventListener(\"visibilitychange\"," +
                 "function(event){event.stopImmediatePropagation();},true);",
@@ -38,6 +35,18 @@ class PeelWebViewClient(
         )
         host.showNotification()
         super.onPageFinished(view, url)
+    }
+
+    override fun onReceivedError(
+        view: WebView?,
+        request: WebResourceRequest?,
+        error: WebResourceError?,
+    ) {
+        super.onReceivedError(view, request, error)
+        if (request?.isForMainFrame == true) {
+            host.showToast(host.getString(R.string.site_not_found))
+            host.finishActivity()
+        }
     }
 
     override fun shouldInterceptRequest(

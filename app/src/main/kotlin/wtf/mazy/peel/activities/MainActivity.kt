@@ -244,18 +244,19 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun buildImportModeDialog(uri: android.net.Uri) {
-        val modes =
-            arrayOf(getString(R.string.import_mode_replace), getString(R.string.import_mode_merge))
-        var selected = 0
+        val dialogView = layoutInflater.inflate(R.layout.dialog_import_mode, null)
+        val switchMerge =
+            dialogView.findViewById<com.google.android.material.materialswitch.MaterialSwitch>(
+                R.id.switchMergeMode)
+
         AlertDialog.Builder(this)
             .setTitle(getString(R.string.import_mode_title))
-            .setSingleChoiceItems(modes, selected) { _, which -> selected = which }
+            .setView(dialogView)
             .setPositiveButton(R.string.ok) { _, _ ->
-                val mode = if (selected == 0) ImportMode.REPLACE else ImportMode.MERGE
+                val mode = if (switchMerge.isChecked) ImportMode.MERGE else ImportMode.REPLACE
                 performImport(uri, mode)
             }
             .setNegativeButton(R.string.cancel, null)
-            .create()
             .show()
     }
 

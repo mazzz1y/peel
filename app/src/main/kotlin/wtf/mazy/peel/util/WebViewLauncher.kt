@@ -69,6 +69,17 @@ object WebViewLauncher {
         return null
     }
 
+    /**
+     * Whether the sandbox for this webapp is ephemeral (wiped on start/stop).
+     * - App-level sandbox: uses app's ephemeral setting.
+     * - Group-level sandbox: uses group's ephemeral setting.
+     */
+    fun isEphemeralSandbox(webapp: WebApp): Boolean {
+        if (webapp.isUseContainer) return webapp.isEphemeralSandbox
+        val group = webapp.groupUuid?.let { DataManager.instance.getGroup(it) }
+        return group?.isEphemeralSandbox == true
+    }
+
     private fun buildIntent(c: Context, activityClass: Class<*>, uuid: String): Intent {
         return Intent(c, activityClass).apply {
             putExtra(Const.INTENT_WEBAPP_UUID, uuid)

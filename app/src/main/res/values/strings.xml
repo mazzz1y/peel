@@ -52,8 +52,9 @@
     <string name="import_failed">The backup could not restored.</string>
     <string name="import_success">Backup with %1$d Web App(s) was restored successfully.</string>
     <string name="import_mode_title">Import mode</string>
-    <string name="import_mode_replace">Replace (overwrite all data)</string>
-    <string name="import_mode_merge">Merge (add to existing data)</string>
+    <string name="import_mode_description">Existing data will be replaced. Enable merge mode to keep apps not included in the backup.</string>
+    <string name="import_mode_merge_switch">Merge mode</string>
+
     <string name="export_failed">The backup could not be exported.</string>
     <string name="export_success">The backup was created successfully.</string>
     <string name="webapp_not_found">The Web App you are trying to reach is no longer available.</string>
@@ -187,7 +188,6 @@
     <string name="group_name_hint">Group name</string>
     <string name="group_sandbox">Shared Sandbox</string>
     <string name="groups_empty_state">No groups yet.\nTap the + button to create your first group.</string>
-    <string name="select_group">Select Group</string>
     <string name="none">Other</string>
     <string name="delete_group_title">Delete Group</string>
     <string name="delete_group_confirm">Delete group \"%1$s\"? It contains %2$d app(s).</string>

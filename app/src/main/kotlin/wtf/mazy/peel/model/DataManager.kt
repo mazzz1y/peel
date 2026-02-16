@@ -74,6 +74,14 @@ class DataManager private constructor() {
         globalSettings: WebAppSettings,
         importedGroups: List<WebAppGroup> = emptyList(),
     ) {
+        val importedGroupUuids = importedGroups.mapTo(mutableSetOf()) { it.uuid }
+        groups.filter { it.uuid !in importedGroupUuids && it.isUseContainer }
+            .forEach { SandboxManager.wipeSandboxStorage(it.uuid) }
+
+        val importedAppUuids = importedWebApps.mapTo(mutableSetOf()) { it.uuid }
+        websites.filter { it.uuid !in importedAppUuids && it.isUseContainer }
+            .forEach { SandboxManager.wipeSandboxStorage(it.uuid) }
+
         websites = importedWebApps.toMutableList()
         groups = importedGroups.toMutableList()
         _defaultSettings.settings = globalSettings
@@ -145,13 +153,17 @@ class DataManager private constructor() {
     }
 
     fun removeGroup(group: WebAppGroup, ungroupApps: Boolean) {
+        val appsInGroup = websites.filter { it.groupUuid == group.uuid }
         if (ungroupApps) {
-            websites
-                .filter { it.groupUuid == group.uuid }
-                .forEach { webapp ->
-                    webapp.groupUuid = null
-                    dao.upsert(webapp.toEntity())
-                }
+            appsInGroup.forEach { webapp ->
+                webapp.groupUuid = null
+                dao.upsert(webapp.toEntity())
+            }
+        } else {
+            appsInGroup.forEach { webapp ->
+                webapp.isActiveEntry = false
+                dao.upsert(webapp.toEntity())
+            }
         }
         groups.remove(group)
         groupDao.deleteByUuid(group.uuid)

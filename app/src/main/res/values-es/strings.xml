@@ -47,8 +47,9 @@
     <string name="import_failed">La copia de seguridad no se ha podido restaurar.</string>
     <string name="import_success">Copia de seguridad con %1$d aplicación(es) web ha sido restaurada con éxito.</string>
     <string name="import_mode_title">Modo de importación</string>
-    <string name="import_mode_replace">Reemplazar (sobrescribir todos los datos)</string>
-    <string name="import_mode_merge">Combinar (añadir a los datos existentes)</string>
+    <string name="import_mode_description">Los datos existentes serán reemplazados. Activa el modo combinar para conservar las apps que no están en la copia de seguridad.</string>
+    <string name="import_mode_merge_switch">Modo combinar</string>
+
     <string name="export_failed">No se ha podido exportar la copia de seguridad.</string>
     <string name="export_success">La copia de seguridad se ha creado con éxito.</string>
     <string name="webapp_not_found">La aplicación web a la que intenta acceder ya no está disponible.</string>
@@ -181,7 +182,6 @@
     <string name="group_name_hint">Nombre del grupo</string>
     <string name="group_sandbox">Sandbox compartido</string>
     <string name="groups_empty_state">A&#250;n no hay grupos.\nToca el bot&#243;n + para crear tu primer grupo.</string>
-    <string name="select_group">Seleccionar grupo</string>
     <string name="none">Otro</string>
     <string name="delete_group_title">Eliminar grupo</string>
     <string name="delete_group_confirm">&#191;Eliminar grupo \"%1$s\"? Contiene %2$d app(s).</string>

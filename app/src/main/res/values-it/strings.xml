@@ -47,8 +47,9 @@
     <string name="import_failed">Backup non ripristinabile.</string>
     <string name="import_success">Il backup di %1$d Web App è stato ripristinato con successo.</string>
     <string name="import_mode_title">Modalità di importazione</string>
-    <string name="import_mode_replace">Sostituisci (sovrascrivi tutti i dati)</string>
-    <string name="import_mode_merge">Unisci (aggiungi ai dati esistenti)</string>
+    <string name="import_mode_description">I dati esistenti verranno sostituiti. Attiva la modalità unione per conservare le app non incluse nel backup.</string>
+    <string name="import_mode_merge_switch">Modalità unione</string>
+
     <string name="export_failed">Backup non esportabile</string>
     <string name="export_success">Backup creato correttamente.</string>
     <string name="webapp_not_found">L\'applicazione Web che si sta cercando di aprire non è più disponibile.</string>
@@ -181,7 +182,6 @@
     <string name="group_name_hint">Nome del gruppo</string>
     <string name="group_sandbox">Sandbox condivisa</string>
     <string name="groups_empty_state">Nessun gruppo ancora.\nTocca il pulsante + per creare il tuo primo gruppo.</string>
-    <string name="select_group">Seleziona gruppo</string>
     <string name="none">Altro</string>
     <string name="delete_group_title">Elimina gruppo</string>
     <string name="delete_group_confirm">Eliminare il gruppo \"%1$s\"? Contiene %2$d app.</string>

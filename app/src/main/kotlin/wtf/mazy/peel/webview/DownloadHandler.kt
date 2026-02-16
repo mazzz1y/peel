@@ -15,10 +15,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
-import com.google.android.material.snackbar.Snackbar
 import wtf.mazy.peel.R
 import wtf.mazy.peel.util.Const
-import wtf.mazy.peel.util.NotificationUtils.showInfoSnackBar
+import wtf.mazy.peel.util.NotificationUtils.showToast
 import wtf.mazy.peel.util.Utility.getFileNameFromDownload
 
 class DownloadHandler(
@@ -60,8 +59,7 @@ class DownloadHandler(
         try {
             request = DownloadManager.Request(dlUrl.toUri())
         } catch (_: Exception) {
-            showInfoSnackBar(
-                activity, activity.getString(R.string.file_download), Snackbar.LENGTH_SHORT)
+            showToast(activity, activity.getString(R.string.file_download))
             return
         }
 
@@ -97,8 +95,7 @@ class DownloadHandler(
     private fun enqueueDownload(request: DownloadManager.Request) {
         val dm = activity.getSystemService(Context.DOWNLOAD_SERVICE) as? DownloadManager
         dm?.enqueue(request)
-        showInfoSnackBar(
-            activity, activity.getString(R.string.file_download), Snackbar.LENGTH_SHORT)
+        showToast(activity, activity.getString(R.string.file_download))
     }
 
     private fun navigateBackAfterDownload(dlUrl: String) {

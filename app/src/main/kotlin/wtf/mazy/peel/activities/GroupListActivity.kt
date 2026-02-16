@@ -148,6 +148,9 @@ class GroupListActivity : AppCompatActivity() {
             .setTitle(getString(R.string.delete_group_title))
             .setView(dialogView)
             .setPositiveButton(R.string.delete) { _, _ ->
+                if (!switchUngroup.isChecked) {
+                    appsInGroup.forEach { it.cleanupWebAppData(this) }
+                }
                 DataManager.instance.removeGroup(group, ungroupApps = switchUngroup.isChecked)
                 updateList()
             }
