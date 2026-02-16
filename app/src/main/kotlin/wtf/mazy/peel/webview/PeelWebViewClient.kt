@@ -97,6 +97,10 @@ class PeelWebViewClient(
         }
         handler.cancel()
 
+        val errorHost = error.url?.toUri()?.host
+        val baseHost = host.baseUrl.toUri().host
+        if (errorHost != null && errorHost != baseHost) return
+
         val reason =
             when (error.primaryError) {
                 SslError.SSL_UNTRUSTED -> host.getString(R.string.ssl_error_unknown_authority)
