@@ -5,20 +5,28 @@
     android:orientation="vertical"
     android:paddingStart="24dp"
     android:paddingEnd="24dp"
-    android:paddingTop="16dp"
+    android:paddingTop="8dp"
     android:paddingBottom="8dp">
 
-    <TextView
+    <com.google.android.material.materialswitch.MaterialSwitch
+        android:id="@+id/switchClearBrowsingData"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/clear_data_confirm"
-        android:textAppearance="?attr/textAppearanceBodyMedium" />
+        android:text="@string/clear_browsing_data" />
 
     <com.google.android.material.materialswitch.MaterialSwitch
-        android:id="@+id/switchSandboxed"
+        android:id="@+id/switchClearSandboxData"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="@string/include_sandboxed_apps" />
+        android:layout_marginTop="4dp"
+        android:visibility="gone"
+        android:text="@string/clear_sandbox_storage" />
+
+    <com.google.android.material.materialswitch.MaterialSwitch
+        android:id="@+id/switchFactoryReset"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="@string/factory_reset" />
 
 </LinearLayout>

@@ -29,7 +29,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
-import androidx.appcompat.app.AlertDialog
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.app.ActivityCompat
@@ -235,7 +235,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
 
     override fun showHttpAuthDialog(handler: HttpAuthHandler, host: String?, realm: String?) {
         val localBinding = DialogHttpAuthBinding.inflate(LayoutInflater.from(this))
-        AlertDialog.Builder(this)
+        MaterialAlertDialogBuilder(this)
             .setView(localBinding.root)
             .setTitle(getString(R.string.http_auth_title))
             .setMessage(getString(R.string.enter_http_auth_credentials, realm, host))

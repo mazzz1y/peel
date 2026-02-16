@@ -100,8 +100,9 @@
     <string name="clear_sandbox_data_confirm">Clear all sandbox data (cookies, cache, localStorage) for this Web App?</string>
     <string name="clear_group_sandbox_data_confirm">Clear all shared sandbox data (cookies, cache, localStorage) for this group?</string>
     <string name="clear_data">Clear data</string>
-    <string name="clear_data_confirm">Clear all data (cookies, cache, localStorage)?</string>
-    <string name="include_sandboxed_apps">Include sandboxed apps</string>
+    <string name="clear_browsing_data">Browsing data</string>
+    <string name="clear_sandbox_storage">Include sandbox storage</string>
+    <string name="factory_reset">Factory reset</string>
     <string name="show_fullscreen">Full Screen (Immersive Mode)</string>
     <string name="site_not_found">Page could not be loaded.</string>
     <string name="icon_not_found">Icon could not be loaded.</string>

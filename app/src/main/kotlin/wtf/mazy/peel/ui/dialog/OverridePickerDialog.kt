@@ -7,7 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.appcompat.app.AlertDialog
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import androidx.fragment.app.DialogFragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -71,10 +71,10 @@ class OverridePickerDialog : DialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         if (currentSettings == null || listener == null) {
             dismissAllowingStateLoss()
-            return AlertDialog.Builder(requireContext()).create()
+            return MaterialAlertDialogBuilder(requireContext()).create()
         }
 
-        val builder = AlertDialog.Builder(requireContext())
+        val builder = MaterialAlertDialogBuilder(requireContext())
         val view = layoutInflater.inflate(R.layout.dialog_override_picker, null)
 
         val recyclerView = view.findViewById<RecyclerView>(R.id.recycler_settings)

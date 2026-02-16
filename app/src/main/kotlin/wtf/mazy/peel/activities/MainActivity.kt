@@ -12,6 +12,7 @@ import android.view.MenuItem
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import androidx.appcompat.app.AppCompatActivity
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.appbar.MaterialToolbar
@@ -216,30 +217,74 @@ class MainActivity : AppCompatActivity() {
 
     private fun showClearDataConfirmDialog() {
         val dialogView = layoutInflater.inflate(R.layout.dialog_clear_data, null)
-        val switchSandboxed =
+        val switchBrowsing =
             dialogView.findViewById<com.google.android.material.materialswitch.MaterialSwitch>(
-                R.id.switchSandboxed)
+                R.id.switchClearBrowsingData)
+        val switchSandbox =
+            dialogView.findViewById<com.google.android.material.materialswitch.MaterialSwitch>(
+                R.id.switchClearSandboxData)
+        val switchFactory =
+            dialogView.findViewById<com.google.android.material.materialswitch.MaterialSwitch>(
+                R.id.switchFactoryReset)
 
-        AlertDialog.Builder(this)
+        switchBrowsing.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked && switchFactory.isChecked) switchFactory.isChecked = false
+            switchSandbox.visibility = if (isChecked) View.VISIBLE else View.GONE
+            if (!isChecked) switchSandbox.isChecked = false
+        }
+
+        switchFactory.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked && switchBrowsing.isChecked) switchBrowsing.isChecked = false
+        }
+
+        MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.clear_data)
             .setView(dialogView)
-            .setPositiveButton(R.string.ok) { _, _ -> clearData(switchSandboxed.isChecked) }
+            .setPositiveButton(R.string.ok) { _, _ ->
+                if (switchFactory.isChecked) {
+                    performFactoryReset()
+                } else if (switchBrowsing.isChecked) {
+                    clearBrowsingData(switchSandbox.isChecked)
+                }
+            }
             .setNegativeButton(R.string.cancel, null)
             .show()
     }
 
-    private fun clearData(includeSandboxed: Boolean) {
+    private fun clearBrowsingData(includeSandbox: Boolean) {
         SandboxManager.clearNonSandboxData(this)
-        if (includeSandboxed) {
+        if (includeSandbox) {
             SandboxManager.clearAllSandboxData(this)
         }
     }
 
+    private fun performFactoryReset() {
+        SandboxManager.clearNonSandboxData(this)
+        SandboxManager.clearAllSandboxData(this)
+
+        DataManager.instance.getWebsites().toList().forEach { webapp ->
+            webapp.cleanupWebAppData(this)
+            DataManager.instance.removeWebApp(webapp)
+        }
+        DataManager.instance.getGroups().toList().forEach { group ->
+            if (group.isUseContainer) {
+                SandboxManager.wipeSandboxStorage(group.uuid)
+            }
+            DataManager.instance.removeGroup(group, ungroupApps = false)
+        }
+
+        DataManager.instance.defaultSettings = DataManager.instance.defaultSettings.also {
+            it.settings = wtf.mazy.peel.model.WebAppSettings.createWithDefaults()
+        }
+
+        setupViewPager()
+    }
+
     private fun buildAboutDialog() {
-        AlertDialog.Builder(this)
+        MaterialAlertDialogBuilder(this)
             .setTitle(getString(R.string.app_name))
             .setMessage(getString(R.string.gnu_license))
             .setPositiveButton(R.string.ok, null)
-            .create()
             .show()
     }
 
@@ -249,7 +294,7 @@ class MainActivity : AppCompatActivity() {
             dialogView.findViewById<com.google.android.material.materialswitch.MaterialSwitch>(
                 R.id.switchMergeMode)
 
-        AlertDialog.Builder(this)
+        MaterialAlertDialogBuilder(this)
             .setTitle(getString(R.string.import_mode_title))
             .setView(dialogView)
             .setPositiveButton(R.string.ok) { _, _ ->
@@ -275,18 +320,17 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun buildImportSuccessDialog() {
-        AlertDialog.Builder(this)
+        MaterialAlertDialogBuilder(this)
             .setMessage(
                 getString(R.string.import_success, DataManager.instance.activeWebsitesCount))
             .setPositiveButton(R.string.ok, null)
-            .create()
             .show()
     }
 
     private fun buildAddWebsiteDialog(title: String) {
         val localBinding = AddWebsiteDialogueBinding.inflate(layoutInflater)
         val dialog =
-            AlertDialog.Builder(this@MainActivity)
+            MaterialAlertDialogBuilder(this@MainActivity)
                 .setView(localBinding.root)
                 .setTitle(title)
                 .setPositiveButton(R.string.ok) { _: DialogInterface, _: Int ->

@@ -14,6 +14,7 @@ import android.widget.PopupMenu
 import android.widget.TextView
 import androidx.activity.addCallback
 import androidx.appcompat.app.AlertDialog
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -87,7 +88,7 @@ class GroupListActivity : AppCompatActivity() {
         localBinding.websiteUrl.inputType = android.text.InputType.TYPE_CLASS_TEXT
 
         val dialog =
-            AlertDialog.Builder(this)
+            MaterialAlertDialogBuilder(this)
                 .setView(localBinding.root)
                 .setTitle(getString(R.string.add_group))
                 .setPositiveButton(R.string.ok) { _: DialogInterface, _: Int ->
@@ -144,7 +145,7 @@ class GroupListActivity : AppCompatActivity() {
 
         message.text = getString(R.string.delete_group_confirm, group.title, appsInGroup.size)
 
-        AlertDialog.Builder(this)
+        MaterialAlertDialogBuilder(this)
             .setTitle(getString(R.string.delete_group_title))
             .setView(dialogView)
             .setPositiveButton(R.string.delete) { _, _ ->

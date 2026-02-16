@@ -142,8 +142,9 @@
     <string name="clear_sandbox_data_confirm">Cancellare tutti i dati della sandbox (cookie, cache, localStorage) per questa Web App?</string>
     <string name="clear_group_sandbox_data_confirm">Cancellare tutti i dati condivisi della sandbox (cookie, cache, localStorage) per questo gruppo?</string>
     <string name="clear_data">Cancella dati</string>
-    <string name="clear_data_confirm">Cancellare tutti i dati (cookie, cache, localStorage)?</string>
-    <string name="include_sandboxed_apps">Includi app sandbox</string>
+    <string name="clear_browsing_data">Dati di navigazione</string>
+    <string name="clear_sandbox_storage">Includi archiviazione sandbox</string>
+    <string name="factory_reset">Ripristino di fabbrica</string>
 
     <string name="default_webapp_settings">Impostazioni predefinite</string>
     <string name="main_settings">Icona</string>

@@ -6,7 +6,7 @@ import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import wtf.mazy.peel.R
 import wtf.mazy.peel.databinding.GroupSettingsBinding
 import wtf.mazy.peel.model.DataManager
@@ -121,7 +121,7 @@ class GroupSettingsActivity :
     }
 
     private fun showClearSandboxConfirmDialog(group: WebAppGroup) {
-        AlertDialog.Builder(this)
+        MaterialAlertDialogBuilder(this)
             .setMessage(R.string.clear_group_sandbox_data_confirm)
             .setPositiveButton(R.string.ok) { _, _ -> clearSandboxData(group) }
             .setNegativeButton(R.string.cancel, null)

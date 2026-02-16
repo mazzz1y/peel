@@ -18,7 +18,7 @@ import android.widget.Toast
 import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts.GetContent
-import androidx.appcompat.app.AlertDialog
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import androidx.core.content.pm.ShortcutInfoCompat
 import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.core.graphics.drawable.IconCompat
@@ -102,7 +102,7 @@ class ShortcutDialogFragment : DialogFragment() {
         val view = getLayoutInflater().inflate(R.layout.shortcut_dialog, null)
 
         val dialog =
-            AlertDialog.Builder(requireActivity())
+            MaterialAlertDialogBuilder(requireActivity())
                 .setView(view)
                 .setCancelable(false)
                 .setPositiveButton(R.string.ok) { _, _ ->

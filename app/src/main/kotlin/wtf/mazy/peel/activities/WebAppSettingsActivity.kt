@@ -15,7 +15,7 @@ import android.view.animation.AnimationUtils
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AlertDialog
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import java.io.FileOutputStream
 import java.io.IOException
 import java.util.concurrent.ExecutorService
@@ -212,7 +212,7 @@ class WebAppSettingsActivity :
             if (isChecked) {
                 val sandboxDir = SandboxManager.getSandboxDataDir(modifiedWebapp.uuid)
                 if (sandboxDir.exists()) {
-                    AlertDialog.Builder(this)
+                    MaterialAlertDialogBuilder(this)
                         .setMessage(R.string.clear_sandbox_data_confirm)
                         .setPositiveButton(R.string.ok) { _, _ ->
                             modifiedWebapp.isEphemeralSandbox = true
@@ -247,7 +247,7 @@ class WebAppSettingsActivity :
     }
 
     private fun showClearSandboxConfirmDialog(webapp: WebApp) {
-        AlertDialog.Builder(this)
+        MaterialAlertDialogBuilder(this)
             .setMessage(R.string.clear_sandbox_data_confirm)
             .setPositiveButton(R.string.ok) { _, _ -> clearSandboxData(webapp) }
             .setNegativeButton(R.string.cancel, null)
