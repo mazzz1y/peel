@@ -53,6 +53,13 @@
         <item name="android:windowBackground">@drawable/launch_screen</item>
     </style>
 
+    <style name="AppTheme.Transparent" parent="AppTheme">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:backgroundDimEnabled">true</item>
+    </style>
+
     <style name="AppTheme.WebView" />
 
     <!-- Circle image style -->

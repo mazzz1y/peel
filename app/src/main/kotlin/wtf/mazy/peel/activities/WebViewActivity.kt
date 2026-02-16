@@ -467,7 +467,8 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         configureZoom(settings)
 
         customHeaders = buildCustomHeaders(settings)
-        loadURL(webapp.baseUrl)
+        val startUrl = intent.data?.toString() ?: webapp.baseUrl
+        loadURL(startUrl)
 
         webView?.webChromeClient = PeelWebChromeClient(this)
         setupLongClickShare(settings)

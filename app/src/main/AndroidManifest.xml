@@ -151,6 +151,18 @@
             android:exported="false" />
 
         <activity
+            android:name=".activities.ShareReceiverActivity"
+            android:theme="@style/AppTheme.Transparent"
+            android:exported="true"
+            android:excludeFromRecents="true">
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain" />
+            </intent-filter>
+        </activity>
+
+        <activity
             android:name=".activities.SettingsActivity"
             android:parentActivityName=".activities.MainActivity"
             android:windowSoftInputMode="adjustResize"

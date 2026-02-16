@@ -185,6 +185,7 @@
     <string name="group_sandbox">Sandbox condivisa</string>
     <string name="groups_empty_state">Nessun gruppo ancora.\nTocca il pulsante + per creare il tuo primo gruppo.</string>
     <string name="none">Altro</string>
+    <string name="open_in_peel">Apri in Peel</string>
     <string name="move_to_group">Sposta nel gruppo</string>
     <string name="delete_group_title">Elimina gruppo</string>
     <string name="delete_group_confirm">Eliminare il gruppo \"%1$s\"? Contiene %2$d app.</string>
