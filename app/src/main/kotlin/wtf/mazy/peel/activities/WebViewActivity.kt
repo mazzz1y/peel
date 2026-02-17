@@ -1,6 +1,7 @@
 package wtf.mazy.peel.activities
 
 import android.Manifest
+import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.app.ActivityManager
 import android.content.DialogInterface
@@ -81,12 +82,15 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     private lateinit var webapp: WebApp
     private lateinit var notificationManager: WebViewNotificationManager
     private lateinit var downloadHandler: DownloadHandler
+    private lateinit var peelWebViewClient: PeelWebViewClient
 
     private var biometricAuthenticated = false
     private var biometricPromptActive = false
 
     private var statusBarScrim: View? = null
     private var navigationBarScrim: View? = null
+    private var currentBarColor: Int? = null
+    private var barColorAnimator: ValueAnimator? = null
     private var geoPermissionRequestCallback: GeolocationPermissions.Callback? = null
     private var geoPermissionRequestOrigin: String? = null
 
@@ -171,6 +175,8 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     }
 
     override fun onDestroy() {
+        barColorAnimator?.cancel()
+        barColorAnimator = null
         if (isFinishing && ::webapp.isInitialized) {
             val sandboxId = WebViewLauncher.resolveSandboxId(webapp)
             if (sandboxId != null) {
@@ -315,6 +321,25 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     }
 
     override fun updateStatusBarColor(color: Int) {
+        val fromColor = currentBarColor ?: themeBackgroundColor
+        if (fromColor == color) {
+            applyBarColor(color)
+            return
+        }
+        barColorAnimator?.cancel()
+        barColorAnimator = ValueAnimator.ofArgb(fromColor, color).apply {
+            duration = 200
+            addUpdateListener { applyBarColor(it.animatedValue as Int) }
+            start()
+        }
+    }
+
+    override fun onPageFullyLoaded() {
+        webView?.let { peelWebViewClient.extractDynamicBarColor(it) }
+    }
+
+    private fun applyBarColor(color: Int) {
+        currentBarColor = color
         statusBarScrim?.setBackgroundColor(color)
         navigationBarScrim?.setBackgroundColor(color)
         val isLight = androidx.core.graphics.ColorUtils.calculateLuminance(color) > 0.5
@@ -535,7 +560,8 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     @SuppressLint("SetJavaScriptEnabled")
     private fun configureWebViewSettings(settings: WebAppSettings) {
         webView?.apply {
-            webViewClient = PeelWebViewClient(this@WebViewActivity)
+            peelWebViewClient = PeelWebViewClient(this@WebViewActivity)
+            webViewClient = peelWebViewClient
             this.settings.apply {
                 safeBrowsingEnabled = settings.isSafeBrowsing == true
                 domStorageEnabled = true

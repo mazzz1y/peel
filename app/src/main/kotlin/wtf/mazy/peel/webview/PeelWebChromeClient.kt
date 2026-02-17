@@ -125,6 +125,9 @@ class PeelWebChromeClient(
                 }
             }
         }
+        if (progress == 100) {
+            host.onPageFullyLoaded()
+        }
     }
 
     override fun onGeolocationPermissionsShowPrompt(

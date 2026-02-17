@@ -37,4 +37,6 @@ interface ChromeClientHost {
     )
 
     fun getString(resId: Int): String
+
+    fun onPageFullyLoaded()
 }

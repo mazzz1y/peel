@@ -58,7 +58,7 @@
             android:launchMode="singleTask"
             android:taskAffinity=""
             android:documentLaunchMode="intoExisting"
-            android:exported="true" />
+            android:exported="false" />
 
         <!-- Sandbox activities: 4 slots x 4 activities per slot -->
 

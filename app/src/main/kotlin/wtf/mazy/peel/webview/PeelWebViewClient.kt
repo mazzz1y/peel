@@ -35,19 +35,21 @@ class PeelWebViewClient(
                     "function(event){event.stopImmediatePropagation();},true);",
             null,
         )
-        if (host.effectiveSettings.isDynamicStatusBar == true) {
-            if (host.isForceDarkActive) {
-                host.updateStatusBarColor(host.themeBackgroundColor)
-            } else {
-                view?.evaluateJavascript(EXTRACT_PAGE_COLOR_JS) { result ->
-                    val raw = result.trim('"').trim()
-                    val color = parseWebColor(raw) ?: return@evaluateJavascript
-                    host.updateStatusBarColor(color)
-                }
-            }
-        }
         host.showNotification()
         super.onPageFinished(view, url)
+    }
+
+    fun extractDynamicBarColor(view: WebView) {
+        if (host.effectiveSettings.isDynamicStatusBar != true) return
+        if (host.isForceDarkActive) {
+            host.updateStatusBarColor(host.themeBackgroundColor)
+        } else {
+            view.evaluateJavascript(EXTRACT_PAGE_COLOR_JS) { result ->
+                val raw = result.trim('"').trim()
+                val color = parseWebColor(raw) ?: return@evaluateJavascript
+                host.updateStatusBarColor(color)
+            }
+        }
     }
 
     override fun onReceivedError(
