@@ -6,6 +6,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Handler
 import android.os.Looper
+import android.webkit.CookieManager
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
@@ -13,10 +14,9 @@ import android.webkit.WebViewClient
 import java.net.HttpURLConnection
 import java.net.URL
 import java.util.TreeMap
+import org.json.JSONArray
 import org.json.JSONObject
-import org.jsoup.Jsoup
 import wtf.mazy.peel.shortcut.ShortcutIconUtils.getWidthFromIcon
-import wtf.mazy.peel.util.Const
 
 class HeadlessWebViewFetcher(
     context: Context,
@@ -35,10 +35,10 @@ class HeadlessWebViewFetcher(
 
         webView.webViewClient = object : WebViewClient() {
             override fun onPageFinished(view: WebView, loadedUrl: String) {
-                extractHtml(view) { html ->
+                view.evaluateJavascript(FIND_LINKS_JS) { raw ->
                     Thread {
-                        val result = html?.let { resolve(it, loadedUrl) }
-                        handler.post { finish(result?.first, result?.second) }
+                        val result = resolve(raw, loadedUrl)
+                        handler.post { finish(result.first, result.second) }
                     }.start()
                 }
             }
@@ -56,51 +56,47 @@ class HeadlessWebViewFetcher(
         webView.loadUrl(url)
     }
 
-    private fun extractHtml(view: WebView, callback: (String?) -> Unit) {
-        view.evaluateJavascript("document.documentElement.outerHTML") { raw ->
-            val html = raw
-                ?.removeSurrounding("\"")
-                ?.replace("\\u003C", "<")
-                ?.replace("\\u003E", ">")
-                ?.replace("\\\"", "\"")
-                ?.replace("\\n", "\n")
-                ?.replace("\\t", "\t")
-                ?.replace("\\\\", "\\")
-            callback(html)
+    private fun resolve(raw: String?, pageUrl: String): Pair<String?, Bitmap?> {
+        if (raw == null || raw == "null") return Pair(null, null)
+
+        return try {
+            val decoded = JSONArray("[$raw]").optString(0)
+            if (decoded.isEmpty()) return Pair(null, null)
+            val json = JSONObject(decoded)
+
+            var title: String? = null
+            val icons = TreeMap<Int, String>()
+
+            val manifestUrl = json.optString("manifestUrl").takeIf { it.isNotEmpty() }
+            if (manifestUrl != null) {
+                title = parseManifest(manifestUrl, icons)
+            }
+
+            if (title == null) {
+                title = json.optString("title").takeIf { it.isNotEmpty() }
+            }
+
+            if (icons.isEmpty()) {
+                val iconLinks = json.optJSONArray("iconLinks")
+                if (iconLinks != null) parseIconLinks(iconLinks, icons)
+            }
+
+            if (icons.isEmpty()) {
+                val origin = URL(pageUrl).let { "${it.protocol}://${it.host}" }
+                FALLBACK_PATHS.firstOrNull { isReachable("$origin$it") }
+                    ?.let { icons[0] = "$origin$it" }
+            }
+
+            val icon = icons.lastEntry()?.value?.let { downloadBitmap(it) }
+            Pair(title, icon)
+        } catch (_: Exception) {
+            Pair(null, null)
         }
-    }
-
-    private fun resolve(html: String, pageUrl: String): Pair<String?, Bitmap?> {
-        val doc = Jsoup.parse(html, pageUrl)
-        val icons = TreeMap<Int, String>()
-        var title: String? = null
-
-        val manifestHref = doc.select("link[rel=manifest]").first()?.absUrl("href")
-        if (!manifestHref.isNullOrEmpty()) {
-            title = parseManifest(manifestHref, icons)
-        }
-
-        if (title == null) {
-            title = doc.title().takeIf { it.isNotBlank() }
-        }
-
-        if (icons.isEmpty()) findHtmlLinkIcons(doc, icons)
-
-        if (icons.isEmpty()) {
-            val origin = URL(pageUrl).let { "${it.protocol}://${it.host}" }
-            FALLBACK_PATHS.firstOrNull { isUrlReachable("$origin$it") }
-                ?.let { icons[0] = "$origin$it" }
-        }
-
-        val icon = icons.lastEntry()?.value?.let { downloadBitmap(it) }
-        return Pair(title, icon)
     }
 
     private fun parseManifest(manifestUrl: String, icons: TreeMap<Int, String>): String? {
         return try {
-            val conn = URL(manifestUrl).openConnection() as HttpURLConnection
-            conn.connectTimeout = 3000
-            conn.readTimeout = 3000
+            val conn = openConnection(manifestUrl)
             val json = JSONObject(conn.inputStream.bufferedReader().readText())
             conn.disconnect()
 
@@ -122,45 +118,50 @@ class HeadlessWebViewFetcher(
         }
     }
 
-    private fun findHtmlLinkIcons(doc: org.jsoup.nodes.Document, icons: TreeMap<Int, String>) {
-        for (el in doc.select("link[rel*=icon]")) {
-            val href = el.absUrl("href").takeIf { it.isNotEmpty() } ?: continue
+    private fun parseIconLinks(arr: JSONArray, icons: TreeMap<Int, String>) {
+        for (i in 0 until arr.length()) {
+            val obj = arr.optJSONObject(i) ?: continue
+            val href = obj.optString("href").takeIf { it.isNotEmpty() } ?: continue
             if (SUPPORTED_EXTENSIONS.none { href.lowercase().endsWith(it) }) continue
-            val sizes = el.attr("sizes")
+            val sizes = obj.optString("sizes")
             var width = if (sizes.isNotEmpty()) getWidthFromIcon(sizes) else 1
-            if (el.attr("rel").lowercase().contains("apple-touch-icon")) width += 10000
+            if (obj.optString("rel").lowercase().contains("apple-touch-icon")) width += 10000
             icons[width] = href
         }
     }
 
     private fun downloadBitmap(url: String): Bitmap? {
         return try {
-            val conn = URL(url).openConnection() as HttpURLConnection
-            conn.connectTimeout = 5000
-            conn.readTimeout = 5000
-            conn.setRequestProperty("User-Agent", Const.DESKTOP_USER_AGENT)
+            val conn = openConnection(url)
             val bytes = conn.inputStream.readBytes()
             conn.disconnect()
             val opts = BitmapFactory.Options().apply { inPreferredConfig = Bitmap.Config.ARGB_8888 }
             val bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.size, opts)
-            if (bmp != null && bmp.width >= Const.FAVICON_MIN_WIDTH) bmp else null
+            if (bmp != null && bmp.width >= MIN_ICON_WIDTH) bmp else null
         } catch (_: Exception) {
             null
         }
     }
 
-    private fun isUrlReachable(url: String): Boolean {
+    private fun isReachable(url: String): Boolean {
         return try {
-            val conn = URL(url).openConnection() as HttpURLConnection
+            val conn = openConnection(url)
             conn.requestMethod = "HEAD"
-            conn.connectTimeout = 2000
-            conn.readTimeout = 2000
             val code = conn.responseCode
             conn.disconnect()
             code == 200
         } catch (_: Exception) {
             false
         }
+    }
+
+    private fun openConnection(url: String): HttpURLConnection {
+        val conn = URL(url).openConnection() as HttpURLConnection
+        conn.connectTimeout = 5000
+        conn.readTimeout = 5000
+        val cookies = CookieManager.getInstance().getCookie(url)
+        if (cookies != null) conn.setRequestProperty("Cookie", cookies)
+        return conn
     }
 
     private fun finish(title: String?, icon: Bitmap?) {
@@ -174,11 +175,28 @@ class HeadlessWebViewFetcher(
 
     companion object {
         private const val TIMEOUT_MS = 15_000L
+        private const val MIN_ICON_WIDTH = 48
         private val SUPPORTED_EXTENSIONS = listOf(".png", ".jpg", ".jpeg", ".ico", ".webp")
         private val FALLBACK_PATHS = listOf(
             "/favicon.ico", "/favicon.png",
             "/assets/img/favicon.png", "/assets/favicon.png",
             "/static/favicon.png", "/images/favicon.png",
         )
+
+        private val FIND_LINKS_JS = """
+        (function() {
+            var result = { title: document.title || '', manifestUrl: '', iconLinks: [] };
+            var manifest = document.querySelector('link[rel="manifest"]');
+            if (manifest && manifest.href) result.manifestUrl = manifest.href;
+            var links = document.querySelectorAll('link[rel*="icon"]');
+            for (var i = 0; i < links.length; i++) {
+                var l = links[i];
+                if (l.href) result.iconLinks.push({
+                    href: l.href, rel: l.rel || '', sizes: l.getAttribute('sizes') || ''
+                });
+            }
+            return JSON.stringify(result);
+        })();
+        """.trimIndent()
     }
 }

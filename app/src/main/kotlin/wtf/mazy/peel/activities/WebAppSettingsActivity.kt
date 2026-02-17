@@ -1,10 +1,13 @@
 package wtf.mazy.peel.activities
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.graphics.Bitmap
+import android.os.Handler
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
+import android.os.ResultReceiver
 import android.provider.MediaStore
 import android.util.Log
 import android.view.LayoutInflater
@@ -31,6 +34,7 @@ import wtf.mazy.peel.ui.settings.SettingViewFactory
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.NotificationUtils.showToast
 import wtf.mazy.peel.util.Utility
+import wtf.mazy.peel.util.WebViewLauncher
 
 class WebAppSettingsActivity :
     ToolbarBaseActivity<WebappSettingsBinding>(), OverridePickerDialog.OnSettingSelectedListener {
@@ -331,9 +335,23 @@ class WebAppSettingsActivity :
         val rotateAnimation = AnimationUtils.loadAnimation(this, R.anim.rotate_indefinitely)
         binding.btnFetch.startAnimation(rotateAnimation)
 
-        HeadlessWebViewFetcher(this, urlToFetch) { title, icon ->
-            applyFetchResult(modifiedWebapp, title, icon)
-        }.start()
+        val sandboxId = WebViewLauncher.resolveSandboxId(modifiedWebapp)
+        if (sandboxId != null) {
+            val slotId = SandboxManager.resolveSlotId(this, sandboxId)
+            val receiver = object : ResultReceiver(Handler(mainLooper)) {
+                override fun onReceiveResult(resultCode: Int, resultData: Bundle?) {
+                    val title = resultData?.getString(SandboxFetchService.RESULT_TITLE)
+                    val iconBytes = resultData?.getByteArray(SandboxFetchService.RESULT_ICON)
+                    val icon = iconBytes?.let { BitmapFactory.decodeByteArray(it, 0, it.size) }
+                    applyFetchResult(modifiedWebapp, title, icon)
+                }
+            }
+            startService(SandboxFetchService.createIntent(this, slotId, sandboxId, urlToFetch, receiver))
+        } else {
+            HeadlessWebViewFetcher(this, urlToFetch) { title, icon ->
+                applyFetchResult(modifiedWebapp, title, icon)
+            }.start()
+        }
     }
 
     private fun applyFetchResult(modifiedWebapp: WebApp, title: String?, icon: Bitmap?) {

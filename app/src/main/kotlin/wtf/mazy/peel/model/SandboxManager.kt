@@ -41,6 +41,11 @@ object SandboxManager {
         }
     }
 
+    fun resolveSlotId(context: Context, sandboxId: String): Int {
+        val am = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+        return findOrAssignSlot(am, sandboxId)
+    }
+
     fun resolveActivityClass(context: Context, sandboxId: String, webappUuid: String): Class<*>? {
         val am = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
         val slotId = findOrAssignSlot(am, sandboxId)

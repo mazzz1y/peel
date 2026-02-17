@@ -166,6 +166,15 @@
             android:launchMode="singleTask" android:process=":sandbox_3"
             android:taskAffinity="" android:exported="false" />
 
+        <service android:name=".activities.SandboxFetchService0"
+            android:process=":sandbox_0" android:exported="false" />
+        <service android:name=".activities.SandboxFetchService1"
+            android:process=":sandbox_1" android:exported="false" />
+        <service android:name=".activities.SandboxFetchService2"
+            android:process=":sandbox_2" android:exported="false" />
+        <service android:name=".activities.SandboxFetchService3"
+            android:process=":sandbox_3" android:exported="false" />
+
         <activity
             android:name=".activities.ShareReceiverActivity"
             android:theme="@style/AppTheme.Transparent"
