@@ -328,7 +328,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         }
         barColorAnimator?.cancel()
         barColorAnimator = ValueAnimator.ofArgb(fromColor, color).apply {
-            duration = 200
+            duration = 300
             addUpdateListener { applyBarColor(it.animatedValue as Int) }
             start()
         }
