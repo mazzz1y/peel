@@ -346,9 +346,9 @@ class WebAppSettingsActivity :
                     applyFetchResult(modifiedWebapp, title, icon)
                 }
             }
-            startService(SandboxFetchService.createIntent(this, slotId, sandboxId, urlToFetch, receiver))
+            startService(SandboxFetchService.createIntent(this, slotId, sandboxId, urlToFetch, modifiedWebapp.effectiveSettings, receiver))
         } else {
-            HeadlessWebViewFetcher(this, urlToFetch) { title, icon ->
+            HeadlessWebViewFetcher(this, urlToFetch, modifiedWebapp.effectiveSettings) { title, icon ->
                 applyFetchResult(modifiedWebapp, title, icon)
             }.start()
         }

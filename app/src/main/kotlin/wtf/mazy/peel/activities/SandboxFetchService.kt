@@ -7,7 +7,9 @@ import android.graphics.Bitmap
 import android.os.Bundle
 import android.os.IBinder
 import android.os.ResultReceiver
+import kotlinx.serialization.json.Json
 import wtf.mazy.peel.model.SandboxManager
+import wtf.mazy.peel.model.WebAppSettings
 import wtf.mazy.peel.shortcut.HeadlessWebViewFetcher
 
 open class SandboxFetchService : Service() {
@@ -17,6 +19,7 @@ open class SandboxFetchService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         val sandboxId = intent?.getStringExtra(EXTRA_SANDBOX_ID)
         val url = intent?.getStringExtra(EXTRA_URL)
+        val settingsJson = intent?.getStringExtra(EXTRA_SETTINGS)
         val receiver = if (android.os.Build.VERSION.SDK_INT >= 33) {
             intent?.getParcelableExtra(EXTRA_RECEIVER, ResultReceiver::class.java)
         } else {
@@ -36,7 +39,11 @@ open class SandboxFetchService : Service() {
             return START_NOT_STICKY
         }
 
-        HeadlessWebViewFetcher(this, url) { title, icon ->
+        val settings = settingsJson?.let {
+            try { Json.decodeFromString<WebAppSettings>(it) } catch (_: Exception) { null }
+        } ?: WebAppSettings.createWithDefaults()
+
+        HeadlessWebViewFetcher(this, url, settings) { title, icon ->
             sendResult(receiver, title, icon)
             stopSelf(startId)
         }.start()
@@ -58,11 +65,19 @@ open class SandboxFetchService : Service() {
     companion object {
         const val EXTRA_SANDBOX_ID = "sandbox_id"
         const val EXTRA_URL = "fetch_url"
+        const val EXTRA_SETTINGS = "settings"
         const val EXTRA_RECEIVER = "receiver"
         const val RESULT_TITLE = "result_title"
         const val RESULT_ICON = "result_icon"
 
-        fun createIntent(context: Context, slotId: Int, sandboxId: String, url: String, receiver: ResultReceiver): Intent {
+        fun createIntent(
+            context: Context,
+            slotId: Int,
+            sandboxId: String,
+            url: String,
+            settings: WebAppSettings,
+            receiver: ResultReceiver,
+        ): Intent {
             val className = "wtf.mazy.peel.activities.SandboxFetchService$slotId"
             val serviceClass = try {
                 Class.forName(className)
@@ -72,6 +87,7 @@ open class SandboxFetchService : Service() {
             return Intent(context, serviceClass).apply {
                 putExtra(EXTRA_SANDBOX_ID, sandboxId)
                 putExtra(EXTRA_URL, url)
+                putExtra(EXTRA_SETTINGS, Json.encodeToString(settings))
                 putExtra(EXTRA_RECEIVER, receiver)
             }
         }

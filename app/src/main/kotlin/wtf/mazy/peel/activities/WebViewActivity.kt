@@ -51,6 +51,7 @@ import wtf.mazy.peel.model.WebAppSettings
 import wtf.mazy.peel.shortcut.LetterIconGenerator
 import wtf.mazy.peel.ui.BiometricPromptHelper
 import wtf.mazy.peel.util.Const
+import wtf.mazy.peel.util.sanitizeUserAgent
 import wtf.mazy.peel.util.DateUtils.convertStringToCalendar
 import wtf.mazy.peel.util.DateUtils.isInInterval
 import wtf.mazy.peel.util.NotificationUtils
@@ -458,8 +459,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         applyWindowFlags(settings)
         bindViews()
         setupPullToRefresh(settings)
-        sanitizeUserAgent()
-        applyCustomUserAgent(settings)
+        webView?.sanitizeUserAgent(this)
         if (settings.isShowFullscreen == true) hideSystemBars() else showSystemBars()
         configureWebViewSettings(settings)
         setDarkModeIfNeeded()
@@ -531,26 +531,6 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         }
     }
 
-    private fun sanitizeUserAgent() {
-        val fieldName =
-            WebViewActivity::class
-                .java
-                .declaredFields
-                .firstOrNull { it.type == WebView::class.java }
-                ?.name ?: return
-        val uaString = webView?.settings?.userAgentString?.replace("; $fieldName", "") ?: ""
-        webView?.settings?.userAgentString = uaString
-    }
-
-    private fun applyCustomUserAgent(settings: WebAppSettings) {
-        settings.customHeaders
-            ?.get("User-Agent")
-            ?.takeIf { it.isNotEmpty() }
-            ?.let { ua ->
-                webView?.settings?.userAgentString =
-                    ua.replace("\u0000", "").replace("\n", "").replace("\r", "")
-            }
-    }
 
     @SuppressLint("SetJavaScriptEnabled")
     private fun configureWebViewSettings(settings: WebAppSettings) {
@@ -649,7 +629,13 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
                 "DNT" to "1",
                 "X-REQUESTED-WITH" to "",
             )
-        settings.customHeaders?.forEach { (key, value) -> extraHeaders[key] = value }
+        settings.customHeaders?.forEach { (key, value) ->
+            if (key.equals("User-Agent", ignoreCase = true)) {
+                webView?.settings?.userAgentString = value
+            } else {
+                extraHeaders[key] = value
+            }
+        }
         return extraHeaders.toMap()
     }
 

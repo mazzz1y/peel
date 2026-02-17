@@ -4,9 +4,16 @@ import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.URLUtil
+import android.webkit.WebView
 import androidx.core.view.size
 import java.net.URLDecoder
 import java.util.regex.Pattern
+
+fun WebView.sanitizeUserAgent(owner: Any) {
+    val fieldName = owner.javaClass.declaredFields
+        .firstOrNull { it.type == WebView::class.java }?.name ?: return
+    settings.userAgentString = settings.userAgentString.replace("; $fieldName", "")
+}
 
 object Utility {
     fun setViewAndChildrenEnabled(view: View, enabled: Boolean) {

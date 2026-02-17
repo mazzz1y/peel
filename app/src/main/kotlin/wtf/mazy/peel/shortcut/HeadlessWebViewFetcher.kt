@@ -16,22 +16,53 @@ import java.net.URL
 import java.util.TreeMap
 import org.json.JSONArray
 import org.json.JSONObject
+import wtf.mazy.peel.model.WebAppSettings
 import wtf.mazy.peel.shortcut.ShortcutIconUtils.getWidthFromIcon
+import wtf.mazy.peel.util.Const
+import wtf.mazy.peel.util.sanitizeUserAgent
 
 class HeadlessWebViewFetcher(
     context: Context,
     private val url: String,
+    private val settings: WebAppSettings,
     private val onResult: (title: String?, icon: Bitmap?) -> Unit,
 ) {
     private val webView = WebView(context.applicationContext)
     private val handler = Handler(Looper.getMainLooper())
     private var finished = false
+    private var customHeaders: Map<String, String> = emptyMap()
     private val timeoutRunnable = Runnable { finish(null, null) }
 
     @SuppressLint("SetJavaScriptEnabled")
     fun start() {
-        webView.settings.javaScriptEnabled = true
-        webView.settings.blockNetworkImage = true
+        webView.sanitizeUserAgent(this)
+
+        webView.settings.apply {
+            javaScriptEnabled = settings.isAllowJs == true
+            blockNetworkImage = true
+            domStorageEnabled = true
+            safeBrowsingEnabled = settings.isSafeBrowsing == true
+            if (settings.isRequestDesktop == true) {
+                userAgentString = Const.DESKTOP_USER_AGENT
+                useWideViewPort = true
+                loadWithOverviewMode = true
+            }
+        }
+
+        CookieManager.getInstance().apply {
+            setAcceptCookie(settings.isAllowCookies == true)
+            setAcceptThirdPartyCookies(webView, settings.isAllowThirdPartyCookies == true)
+        }
+
+        val headers = mutableMapOf<String, String>()
+        settings.customHeaders?.forEach { (key, value) ->
+            if (key.equals("User-Agent", ignoreCase = true)) {
+                webView.settings.userAgentString = value
+            } else {
+                headers[key] = value
+            }
+        }
+        customHeaders = headers
 
         webView.webViewClient = object : WebViewClient() {
             override fun onPageFinished(view: WebView, loadedUrl: String) {
@@ -52,12 +83,17 @@ class HeadlessWebViewFetcher(
             }
         }
 
+        var loadUrl = url
+        if (loadUrl.startsWith("http://") && settings.isAlwaysHttps == true) {
+            loadUrl = loadUrl.replaceFirst("http://", "https://")
+        }
+
         handler.postDelayed(timeoutRunnable, TIMEOUT_MS)
-        webView.loadUrl(url)
+        webView.loadUrl(loadUrl, customHeaders)
     }
 
     private fun resolve(raw: String?, pageUrl: String): Pair<String?, Bitmap?> {
-        if (raw == null || raw == "null") return Pair(null, null)
+        if (finished || raw == null || raw == "null") return Pair(null, null)
 
         return try {
             val decoded = JSONArray("[$raw]").optString(0)
@@ -67,27 +103,26 @@ class HeadlessWebViewFetcher(
             var title: String? = null
             val icons = TreeMap<Int, String>()
 
-            val manifestUrl = json.optString("manifestUrl").takeIf { it.isNotEmpty() }
-            if (manifestUrl != null) {
-                title = parseManifest(manifestUrl, icons)
+            if (!finished) {
+                val manifestUrl = json.optString("manifestUrl").takeIf { it.isNotEmpty() }
+                if (manifestUrl != null) title = parseManifest(manifestUrl, icons)
             }
 
             if (title == null) {
                 title = json.optString("title").takeIf { it.isNotEmpty() }
             }
 
-            if (icons.isEmpty()) {
+            if (!finished && icons.isEmpty()) {
                 val iconLinks = json.optJSONArray("iconLinks")
                 if (iconLinks != null) parseIconLinks(iconLinks, icons)
             }
 
-            if (icons.isEmpty()) {
+            if (!finished && icons.isEmpty()) {
                 val origin = URL(pageUrl).let { "${it.protocol}://${it.host}" }
-                FALLBACK_PATHS.firstOrNull { isReachable("$origin$it") }
-                    ?.let { icons[0] = "$origin$it" }
+                if (isReachable("$origin/favicon.ico")) icons[0] = "$origin/favicon.ico"
             }
 
-            val icon = icons.lastEntry()?.value?.let { downloadBitmap(it) }
+            val icon = if (!finished) icons.lastEntry()?.value?.let { downloadBitmap(it) } else null
             Pair(title, icon)
         } catch (_: Exception) {
             Pair(null, null)
@@ -159,8 +194,10 @@ class HeadlessWebViewFetcher(
         val conn = URL(url).openConnection() as HttpURLConnection
         conn.connectTimeout = 5000
         conn.readTimeout = 5000
+        conn.instanceFollowRedirects = true
         val cookies = CookieManager.getInstance().getCookie(url)
         if (cookies != null) conn.setRequestProperty("Cookie", cookies)
+        customHeaders.forEach { (key, value) -> conn.setRequestProperty(key, value) }
         return conn
     }
 
@@ -177,11 +214,6 @@ class HeadlessWebViewFetcher(
         private const val TIMEOUT_MS = 15_000L
         private const val MIN_ICON_WIDTH = 48
         private val SUPPORTED_EXTENSIONS = listOf(".png", ".jpg", ".jpeg", ".ico", ".webp")
-        private val FALLBACK_PATHS = listOf(
-            "/favicon.ico", "/favicon.png",
-            "/assets/img/favicon.png", "/assets/favicon.png",
-            "/static/favicon.png", "/images/favicon.png",
-        )
 
         private val FIND_LINKS_JS = """
         (function() {
