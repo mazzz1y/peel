@@ -5,8 +5,6 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.provider.MediaStore
 import android.util.Log
 import android.view.LayoutInflater
@@ -18,8 +16,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import java.io.FileOutputStream
 import java.io.IOException
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
 import wtf.mazy.peel.R
 import wtf.mazy.peel.databinding.WebappSettingsBinding
 import wtf.mazy.peel.model.DataManager
@@ -27,8 +23,9 @@ import wtf.mazy.peel.model.SandboxManager
 import wtf.mazy.peel.model.SettingDefinition
 import wtf.mazy.peel.model.SettingRegistry
 import wtf.mazy.peel.model.WebApp
+import wtf.mazy.peel.shortcut.HeadlessWebViewFetcher
 import wtf.mazy.peel.shortcut.ShortcutHelper
-import wtf.mazy.peel.shortcut.WebAppIconFetcher
+
 import wtf.mazy.peel.ui.dialog.OverridePickerDialog
 import wtf.mazy.peel.ui.settings.SettingViewFactory
 import wtf.mazy.peel.util.Const
@@ -43,8 +40,6 @@ class WebAppSettingsActivity :
     private var isEditingDefaults: Boolean = false
     private var customIconBitmap: Bitmap? = null
     private lateinit var iconPickerLauncher: ActivityResultLauncher<String>
-    private var executorService: ExecutorService? = null
-    private val mainHandler = Handler(Looper.getMainLooper())
     private var isFetchingIcon = false
 
     @SuppressLint("SetJavaScriptEnabled", "ClickableViewAccessibility")
@@ -53,7 +48,6 @@ class WebAppSettingsActivity :
             registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
                 uri?.let { handleSelectedIcon(it) }
             }
-        executorService = Executors.newSingleThreadExecutor()
         super.onCreate(savedInstanceState)
 
         setToolbarTitle(getString(R.string.web_app_settings))
@@ -132,7 +126,6 @@ class WebAppSettingsActivity :
 
     override fun onDestroy() {
         super.onDestroy()
-        executorService?.shutdownNow()
     }
 
     override fun inflateBinding(layoutInflater: LayoutInflater): WebappSettingsBinding {
@@ -338,38 +331,29 @@ class WebAppSettingsActivity :
         val rotateAnimation = AnimationUtils.loadAnimation(this, R.anim.rotate_indefinitely)
         binding.btnFetch.startAnimation(rotateAnimation)
 
-        executorService?.submit {
-            try {
-                val result = WebAppIconFetcher.fetch(urlToFetch)
+        HeadlessWebViewFetcher(this, urlToFetch) { title, icon ->
+            applyFetchResult(modifiedWebapp, title, icon)
+        }.start()
+    }
 
-                mainHandler.post {
-                    isFetchingIcon = false
-                    binding.btnFetch.clearAnimation()
+    private fun applyFetchResult(modifiedWebapp: WebApp, title: String?, icon: Bitmap?) {
+        isFetchingIcon = false
+        binding.btnFetch.clearAnimation()
 
-                    if (!result.title.isNullOrEmpty()) {
-                        binding.txtWebAppName.setText(result.title)
-                        modifiedWebapp.title = result.title
-                    }
+        if (!title.isNullOrEmpty()) {
+            binding.txtWebAppName.setText(title)
+            modifiedWebapp.title = title
+        }
 
-                    if (result.icon != null) {
-                        customIconBitmap = result.icon
-                        binding.imgWebAppIcon.setImageBitmap(result.icon)
-                        binding.imgWebAppIconPlaceholder.visibility = View.GONE
-                        saveIconToFile(modifiedWebapp, result.icon)
-                    }
+        if (icon != null) {
+            customIconBitmap = icon
+            binding.imgWebAppIcon.setImageBitmap(icon)
+            binding.imgWebAppIconPlaceholder.visibility = View.GONE
+            saveIconToFile(modifiedWebapp, icon)
+        }
 
-                    if (result.title == null && result.icon == null) {
-                        showToast(this, getString(R.string.fetch_failed), Toast.LENGTH_SHORT)
-                    }
-                }
-            } catch (e: Exception) {
-                Log.e("WebAppSettings", "Failed to fetch data", e)
-                mainHandler.post {
-                    isFetchingIcon = false
-                    binding.btnFetch.clearAnimation()
-                    showToast(this, getString(R.string.fetch_failed), Toast.LENGTH_SHORT)
-                }
-            }
+        if (title == null && icon == null) {
+            showToast(this, getString(R.string.fetch_failed), Toast.LENGTH_SHORT)
         }
     }
 
