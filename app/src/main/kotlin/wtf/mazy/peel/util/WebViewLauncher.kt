@@ -47,8 +47,7 @@ object WebViewLauncher {
 
         val activityClass =
             if (sandboxId != null) {
-                val containerId = SandboxManager.findOrAssignContainer(c, sandboxId)
-                resolveSandboxClass(containerId) ?: return null
+                SandboxManager.resolveActivityClass(c, sandboxId, webapp.uuid) ?: return null
             } else {
                 WebViewActivity::class.java
             }
@@ -85,14 +84,6 @@ object WebViewLauncher {
             putExtra(Const.INTENT_WEBAPP_UUID, uuid)
             data = "app://$uuid".toUri()
             action = Intent.ACTION_VIEW
-        }
-    }
-
-    private fun resolveSandboxClass(containerId: Int): Class<*>? {
-        return try {
-            Class.forName("wtf.mazy.peel.activities.SandboxActivity$containerId")
-        } catch (_: ClassNotFoundException) {
-            null
         }
     }
 

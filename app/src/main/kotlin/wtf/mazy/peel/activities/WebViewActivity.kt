@@ -156,7 +156,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         if (webapp.effectiveSettings.isAllowMediaPlaybackInBackground != true) {
             webView?.evaluateJavascript(
                 "document.querySelectorAll('audio').forEach(x => x.pause());" +
-                    "document.querySelectorAll('video').forEach(x => x.pause());",
+                        "document.querySelectorAll('video').forEach(x => x.pause());",
                 null,
             )
             webView?.onPause()
@@ -270,7 +270,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
 
         val needsForcedDarkMode =
             isInDarkModeTimespan ||
-                (settings.isUseTimespanDarkMode != true && settings.isForceDarkMode == true)
+                    (settings.isUseTimespanDarkMode != true && settings.isForceDarkMode == true)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             val isAlgorithmicDarkeningSupported =
@@ -358,11 +358,11 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
             @Suppress("DEPRECATION")
             window.decorView.systemUiVisibility =
                 (View.SYSTEM_UI_FLAG_FULLSCREEN or
-                    View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
-                    View.SYSTEM_UI_FLAG_IMMERSIVE or
-                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
-                    View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
-                    View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION)
+                        View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
+                        View.SYSTEM_UI_FLAG_IMMERSIVE or
+                        View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
+                        View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
+                        View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION)
         }
     }
 
@@ -404,8 +404,6 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         geoPermissionRequestCallback = callback
         geoPermissionRequestOrigin = origin
     }
-
-    // Private methods
 
     private fun initNotificationManager() {
         notificationManager =
@@ -602,7 +600,8 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
             if (result?.type == HitTestResult.SRC_ANCHOR_TYPE) {
                 val linkUrl = result.extra
                 if (!linkUrl.isNullOrEmpty() &&
-                    (linkUrl.startsWith("http://") || linkUrl.startsWith("https://"))) {
+                    (linkUrl.startsWith("http://") || linkUrl.startsWith("https://"))
+                ) {
                     IntentBuilder(this@WebViewActivity)
                         .setType("text/plain")
                         .setChooserTitle("Share Link")
@@ -703,7 +702,8 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
                 webView?.reload()
                 scheduleAutoReload()
             },
-            interval * 1000L)
+            interval * 1000L
+        )
     }
 
     override fun onRequestPermissionsResult(
@@ -722,7 +722,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
 
         val granted =
             grantResults.isNotEmpty() &&
-                grantResults.all { it == PackageManager.PERMISSION_GRANTED }
+                    grantResults.all { it == PackageManager.PERMISSION_GRANTED }
 
         when (requestCode) {
             Const.PERMISSION_RC_LOCATION -> {
@@ -730,8 +730,10 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
                 geoPermissionRequestCallback = null
                 geoPermissionRequestOrigin = null
             }
+
             Const.PERMISSION_CAMERA,
             Const.PERMISSION_AUDIO -> if (granted) webView?.reload()
+
             Const.PERMISSION_RC_STORAGE -> if (granted) downloadHandler.onStoragePermissionGranted()
         }
     }

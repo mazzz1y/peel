@@ -14,22 +14,21 @@ import wtf.mazy.peel.util.App
 import wtf.mazy.peel.util.Const
 
 object SandboxManager {
-    private const val NUM_OF_SANDBOXES = 8
+    private const val NUM_SLOTS = 4
+    private const val ACTIVITIES_PER_SLOT = 4
+    private const val SANDBOX_CLASS_PREFIX = "wtf.mazy.peel.activities.SandboxActivity"
 
     private lateinit var dao: SandboxSlotDao
 
     var activeSuffix: String? = null
         private set
 
+    val currentSlotId: Int?
+        get() = Application.getProcessName().substringAfterLast(":sandbox_", "").toIntOrNull()
+
     fun initialize(dao: SandboxSlotDao) {
         this.dao = dao
     }
-
-    val isInSandboxProcess: Boolean
-        get() = Application.getProcessName() != App.appContext.packageName
-
-    val currentSlotId: Int?
-        get() = Application.getProcessName().substringAfterLast(":sandbox_", "").toIntOrNull()
 
     fun initDataDirectorySuffix(uuid: String): Boolean {
         return try {
@@ -42,16 +41,25 @@ object SandboxManager {
         }
     }
 
-    fun findOrAssignContainer(context: Context, uuid: String): Int {
+    fun resolveActivityClass(context: Context, sandboxId: String, webappUuid: String): Class<*>? {
         val am = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+        val slotId = findOrAssignSlot(am, sandboxId)
+        val activityIndex = findOrAssignActivityInSlot(am, slotId, webappUuid)
+        return try {
+            Class.forName("$SANDBOX_CLASS_PREFIX$activityIndex")
+        } catch (_: ClassNotFoundException) {
+            null
+        }
+    }
 
-        for (i in 0 until NUM_OF_SANDBOXES) {
-            if (readSlotMapping(i) == uuid && isSlotProcessAlive(am, i)) return i
+    private fun findOrAssignSlot(am: ActivityManager, sandboxId: String): Int {
+        for (i in 0 until NUM_SLOTS) {
+            if (readSlotMapping(i) == sandboxId && isSlotProcessAlive(am, i)) return i
         }
 
-        for (i in 0 until NUM_OF_SANDBOXES) {
+        for (i in 0 until NUM_SLOTS) {
             if (!isSlotProcessAlive(am, i)) {
-                writeSlotMapping(i, uuid)
+                writeSlotMapping(i, sandboxId)
                 return i
             }
         }
@@ -59,32 +67,59 @@ object SandboxManager {
         val evictSlot = findIdleSlot(am) ?: 0
         finishSandboxTasks(am, readSlotMapping(evictSlot))
         killSandboxProcess(am, evictSlot)
-        writeSlotMapping(evictSlot, uuid)
+        writeSlotMapping(evictSlot, sandboxId)
         return evictSlot
     }
 
-    private fun findIdleSlot(am: ActivityManager): Int? {
-        val taskSlots = mutableSetOf<Int>()
+    private fun findOrAssignActivityInSlot(
+        am: ActivityManager,
+        slotId: Int,
+        webappUuid: String,
+    ): Int {
+        val base = slotId * ACTIVITIES_PER_SLOT
+        val range = base until base + ACTIVITIES_PER_SLOT
+        val activeWebapps = buildActiveWebappMap(am, range)
+
+        activeWebapps.entries.firstOrNull { it.value == webappUuid }
+            ?.let { return it.key }
+
+        range.firstOrNull { it !in activeWebapps }
+            ?.let { return it }
+
+        // All activities occupied — swap via onNewIntent
+        return base
+    }
+
+    private fun buildActiveWebappMap(am: ActivityManager, range: IntRange): Map<Int, String> {
+        val result = mutableMapOf<Int, String>()
         am.appTasks?.forEach { task ->
-            val uuid =
-                task.taskInfo.baseIntent.getStringExtra(Const.INTENT_WEBAPP_UUID) ?: return@forEach
-            for (i in 0 until NUM_OF_SANDBOXES) {
-                if (readSlotMapping(i) == uuid) {
-                    taskSlots.add(i)
-                    break
-                }
+            val className = task.taskInfo.baseActivity?.className ?: return@forEach
+            val index = className.removePrefix(SANDBOX_CLASS_PREFIX).toIntOrNull()
+                ?: return@forEach
+            if (index in range) {
+                val uuid = task.taskInfo.baseIntent.getStringExtra(Const.INTENT_WEBAPP_UUID)
+                if (uuid != null) result[index] = uuid
             }
         }
-        for (i in 0 until NUM_OF_SANDBOXES) {
-            if (i !in taskSlots && isSlotProcessAlive(am, i)) return i
+        return result
+    }
+
+    // Finds a slot with a live process but no active tasks (candidate for eviction)
+    private fun findIdleSlot(am: ActivityManager): Int? {
+        val slotsWithTasks = mutableSetOf<Int>()
+        am.appTasks?.forEach { task ->
+            val className = task.taskInfo.baseActivity?.className ?: return@forEach
+            val index = className.removePrefix(SANDBOX_CLASS_PREFIX).toIntOrNull()
+                ?: return@forEach
+            slotsWithTasks.add(index / ACTIVITIES_PER_SLOT)
         }
-        return null
+        return (0 until NUM_SLOTS).firstOrNull { it !in slotsWithTasks && isSlotProcessAlive(am, it) }
     }
 
     fun releaseSandbox(context: Context, uuid: String) {
         val am = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
         finishSandboxTasks(am, uuid)
-        for (i in 0 until NUM_OF_SANDBOXES) {
+        for (i in 0 until NUM_SLOTS) {
             if (readSlotMapping(i) == uuid) {
                 killSandboxProcess(am, i)
                 return
@@ -95,7 +130,7 @@ object SandboxManager {
     fun clearSandboxData(context: Context, uuid: String): Boolean {
         val am = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
         finishSandboxTasks(am, uuid)
-        for (i in 0 until NUM_OF_SANDBOXES) {
+        for (i in 0 until NUM_SLOTS) {
             if (readSlotMapping(i) == uuid) {
                 killSandboxProcess(am, i)
                 clearSlotMapping(i)
@@ -119,6 +154,15 @@ object SandboxManager {
         }
     }
 
+    fun clearNonSandboxData(context: Context) {
+        clearWebViewData(context)
+
+        val dataDir = File(App.appContext.filesDir.parent, "app_webview")
+        if (dataDir.exists()) dataDir.deleteRecursively()
+
+        App.appContext.cacheDir?.deleteRecursively()
+    }
+
     fun wipeSandboxStorage(uuid: String): Boolean {
         val sandboxDir = getSandboxDataDir(uuid)
         val deleted = if (sandboxDir.exists()) sandboxDir.deleteRecursively() else true
@@ -131,15 +175,6 @@ object SandboxManager {
 
     fun getSandboxDataDir(uuid: String): File {
         return File(App.appContext.filesDir.parent, "app_webview_$uuid")
-    }
-
-    fun clearNonSandboxData(context: Context) {
-        clearWebViewData(context)
-
-        val dataDir = File(App.appContext.filesDir.parent, "app_webview")
-        if (dataDir.exists()) dataDir.deleteRecursively()
-
-        App.appContext.cacheDir?.deleteRecursively()
     }
 
     fun finishSandboxTasks(am: ActivityManager, uuid: String? = null) {

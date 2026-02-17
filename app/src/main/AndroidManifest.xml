@@ -60,95 +60,111 @@
             android:documentLaunchMode="intoExisting"
             android:exported="true" />
 
-        <!-- Sandbox activities (each runs in isolated process) -->
-        <activity
-            android:name=".activities.SandboxActivity0"
-            android:windowSoftInputMode="adjustResize"
-            android:icon="@mipmap/ic_launcher"
-            android:roundIcon="@mipmap/ic_launcher_round"
-            android:theme="@style/AppTheme.WebView"
+        <!-- Sandbox activities: 4 slots x 4 activities per slot -->
+
+        <!-- Slot 0 -->
+        <activity android:name=".activities.SandboxActivity0"
+            android:windowSoftInputMode="adjustResize" android:icon="@mipmap/ic_launcher"
+            android:roundIcon="@mipmap/ic_launcher_round" android:theme="@style/AppTheme.WebView"
             android:configChanges="orientation|screenSize|smallestScreenSize|density|screenLayout|uiMode|keyboard|keyboardHidden|navigation"
-            android:launchMode="singleTask"
-            android:process=":sandbox_0"
-            android:taskAffinity=""
-            android:exported="false" />
-        <activity
-            android:name=".activities.SandboxActivity1"
-            android:windowSoftInputMode="adjustResize"
-            android:icon="@mipmap/ic_launcher"
-            android:roundIcon="@mipmap/ic_launcher_round"
-            android:theme="@style/AppTheme.WebView"
+            android:launchMode="singleTask" android:process=":sandbox_0"
+            android:taskAffinity="" android:exported="false" />
+        <activity android:name=".activities.SandboxActivity1"
+            android:windowSoftInputMode="adjustResize" android:icon="@mipmap/ic_launcher"
+            android:roundIcon="@mipmap/ic_launcher_round" android:theme="@style/AppTheme.WebView"
             android:configChanges="orientation|screenSize|smallestScreenSize|density|screenLayout|uiMode|keyboard|keyboardHidden|navigation"
-            android:launchMode="singleTask"
-            android:process=":sandbox_1"
-            android:taskAffinity=""
-            android:exported="false" />
-        <activity
-            android:name=".activities.SandboxActivity2"
-            android:windowSoftInputMode="adjustResize"
-            android:icon="@mipmap/ic_launcher"
-            android:roundIcon="@mipmap/ic_launcher_round"
-            android:theme="@style/AppTheme.WebView"
+            android:launchMode="singleTask" android:process=":sandbox_0"
+            android:taskAffinity="" android:exported="false" />
+        <activity android:name=".activities.SandboxActivity2"
+            android:windowSoftInputMode="adjustResize" android:icon="@mipmap/ic_launcher"
+            android:roundIcon="@mipmap/ic_launcher_round" android:theme="@style/AppTheme.WebView"
             android:configChanges="orientation|screenSize|smallestScreenSize|density|screenLayout|uiMode|keyboard|keyboardHidden|navigation"
-            android:launchMode="singleTask"
-            android:process=":sandbox_2"
-            android:taskAffinity=""
-            android:exported="false" />
-        <activity
-            android:name=".activities.SandboxActivity3"
-            android:windowSoftInputMode="adjustResize"
-            android:icon="@mipmap/ic_launcher"
-            android:roundIcon="@mipmap/ic_launcher_round"
-            android:theme="@style/AppTheme.WebView"
+            android:launchMode="singleTask" android:process=":sandbox_0"
+            android:taskAffinity="" android:exported="false" />
+        <activity android:name=".activities.SandboxActivity3"
+            android:windowSoftInputMode="adjustResize" android:icon="@mipmap/ic_launcher"
+            android:roundIcon="@mipmap/ic_launcher_round" android:theme="@style/AppTheme.WebView"
             android:configChanges="orientation|screenSize|smallestScreenSize|density|screenLayout|uiMode|keyboard|keyboardHidden|navigation"
-            android:launchMode="singleTask"
-            android:process=":sandbox_3"
-            android:taskAffinity=""
-            android:exported="false" />
-        <activity
-            android:name=".activities.SandboxActivity4"
-            android:windowSoftInputMode="adjustResize"
-            android:icon="@mipmap/ic_launcher"
-            android:roundIcon="@mipmap/ic_launcher_round"
-            android:theme="@style/AppTheme.WebView"
+            android:launchMode="singleTask" android:process=":sandbox_0"
+            android:taskAffinity="" android:exported="false" />
+
+        <!-- Slot 1 -->
+        <activity android:name=".activities.SandboxActivity4"
+            android:windowSoftInputMode="adjustResize" android:icon="@mipmap/ic_launcher"
+            android:roundIcon="@mipmap/ic_launcher_round" android:theme="@style/AppTheme.WebView"
             android:configChanges="orientation|screenSize|smallestScreenSize|density|screenLayout|uiMode|keyboard|keyboardHidden|navigation"
-            android:launchMode="singleTask"
-            android:process=":sandbox_4"
-            android:taskAffinity=""
-            android:exported="false" />
-        <activity
-            android:name=".activities.SandboxActivity5"
-            android:windowSoftInputMode="adjustResize"
-            android:icon="@mipmap/ic_launcher"
-            android:roundIcon="@mipmap/ic_launcher_round"
-            android:theme="@style/AppTheme.WebView"
+            android:launchMode="singleTask" android:process=":sandbox_1"
+            android:taskAffinity="" android:exported="false" />
+        <activity android:name=".activities.SandboxActivity5"
+            android:windowSoftInputMode="adjustResize" android:icon="@mipmap/ic_launcher"
+            android:roundIcon="@mipmap/ic_launcher_round" android:theme="@style/AppTheme.WebView"
             android:configChanges="orientation|screenSize|smallestScreenSize|density|screenLayout|uiMode|keyboard|keyboardHidden|navigation"
-            android:launchMode="singleTask"
-            android:process=":sandbox_5"
-            android:taskAffinity=""
-            android:exported="false" />
-        <activity
-            android:name=".activities.SandboxActivity6"
-            android:windowSoftInputMode="adjustResize"
-            android:icon="@mipmap/ic_launcher"
-            android:roundIcon="@mipmap/ic_launcher_round"
-            android:theme="@style/AppTheme.WebView"
+            android:launchMode="singleTask" android:process=":sandbox_1"
+            android:taskAffinity="" android:exported="false" />
+        <activity android:name=".activities.SandboxActivity6"
+            android:windowSoftInputMode="adjustResize" android:icon="@mipmap/ic_launcher"
+            android:roundIcon="@mipmap/ic_launcher_round" android:theme="@style/AppTheme.WebView"
             android:configChanges="orientation|screenSize|smallestScreenSize|density|screenLayout|uiMode|keyboard|keyboardHidden|navigation"
-            android:launchMode="singleTask"
-            android:process=":sandbox_6"
-            android:taskAffinity=""
-            android:exported="false" />
-        <activity
-            android:name=".activities.SandboxActivity7"
-            android:windowSoftInputMode="adjustResize"
-            android:icon="@mipmap/ic_launcher"
-            android:roundIcon="@mipmap/ic_launcher_round"
-            android:theme="@style/AppTheme.WebView"
+            android:launchMode="singleTask" android:process=":sandbox_1"
+            android:taskAffinity="" android:exported="false" />
+        <activity android:name=".activities.SandboxActivity7"
+            android:windowSoftInputMode="adjustResize" android:icon="@mipmap/ic_launcher"
+            android:roundIcon="@mipmap/ic_launcher_round" android:theme="@style/AppTheme.WebView"
             android:configChanges="orientation|screenSize|smallestScreenSize|density|screenLayout|uiMode|keyboard|keyboardHidden|navigation"
-            android:launchMode="singleTask"
-            android:process=":sandbox_7"
-            android:taskAffinity=""
-            android:exported="false" />
+            android:launchMode="singleTask" android:process=":sandbox_1"
+            android:taskAffinity="" android:exported="false" />
+
+        <!-- Slot 2 -->
+        <activity android:name=".activities.SandboxActivity8"
+            android:windowSoftInputMode="adjustResize" android:icon="@mipmap/ic_launcher"
+            android:roundIcon="@mipmap/ic_launcher_round" android:theme="@style/AppTheme.WebView"
+            android:configChanges="orientation|screenSize|smallestScreenSize|density|screenLayout|uiMode|keyboard|keyboardHidden|navigation"
+            android:launchMode="singleTask" android:process=":sandbox_2"
+            android:taskAffinity="" android:exported="false" />
+        <activity android:name=".activities.SandboxActivity9"
+            android:windowSoftInputMode="adjustResize" android:icon="@mipmap/ic_launcher"
+            android:roundIcon="@mipmap/ic_launcher_round" android:theme="@style/AppTheme.WebView"
+            android:configChanges="orientation|screenSize|smallestScreenSize|density|screenLayout|uiMode|keyboard|keyboardHidden|navigation"
+            android:launchMode="singleTask" android:process=":sandbox_2"
+            android:taskAffinity="" android:exported="false" />
+        <activity android:name=".activities.SandboxActivity10"
+            android:windowSoftInputMode="adjustResize" android:icon="@mipmap/ic_launcher"
+            android:roundIcon="@mipmap/ic_launcher_round" android:theme="@style/AppTheme.WebView"
+            android:configChanges="orientation|screenSize|smallestScreenSize|density|screenLayout|uiMode|keyboard|keyboardHidden|navigation"
+            android:launchMode="singleTask" android:process=":sandbox_2"
+            android:taskAffinity="" android:exported="false" />
+        <activity android:name=".activities.SandboxActivity11"
+            android:windowSoftInputMode="adjustResize" android:icon="@mipmap/ic_launcher"
+            android:roundIcon="@mipmap/ic_launcher_round" android:theme="@style/AppTheme.WebView"
+            android:configChanges="orientation|screenSize|smallestScreenSize|density|screenLayout|uiMode|keyboard|keyboardHidden|navigation"
+            android:launchMode="singleTask" android:process=":sandbox_2"
+            android:taskAffinity="" android:exported="false" />
+
+        <!-- Slot 3 -->
+        <activity android:name=".activities.SandboxActivity12"
+            android:windowSoftInputMode="adjustResize" android:icon="@mipmap/ic_launcher"
+            android:roundIcon="@mipmap/ic_launcher_round" android:theme="@style/AppTheme.WebView"
+            android:configChanges="orientation|screenSize|smallestScreenSize|density|screenLayout|uiMode|keyboard|keyboardHidden|navigation"
+            android:launchMode="singleTask" android:process=":sandbox_3"
+            android:taskAffinity="" android:exported="false" />
+        <activity android:name=".activities.SandboxActivity13"
+            android:windowSoftInputMode="adjustResize" android:icon="@mipmap/ic_launcher"
+            android:roundIcon="@mipmap/ic_launcher_round" android:theme="@style/AppTheme.WebView"
+            android:configChanges="orientation|screenSize|smallestScreenSize|density|screenLayout|uiMode|keyboard|keyboardHidden|navigation"
+            android:launchMode="singleTask" android:process=":sandbox_3"
+            android:taskAffinity="" android:exported="false" />
+        <activity android:name=".activities.SandboxActivity14"
+            android:windowSoftInputMode="adjustResize" android:icon="@mipmap/ic_launcher"
+            android:roundIcon="@mipmap/ic_launcher_round" android:theme="@style/AppTheme.WebView"
+            android:configChanges="orientation|screenSize|smallestScreenSize|density|screenLayout|uiMode|keyboard|keyboardHidden|navigation"
+            android:launchMode="singleTask" android:process=":sandbox_3"
+            android:taskAffinity="" android:exported="false" />
+        <activity android:name=".activities.SandboxActivity15"
+            android:windowSoftInputMode="adjustResize" android:icon="@mipmap/ic_launcher"
+            android:roundIcon="@mipmap/ic_launcher_round" android:theme="@style/AppTheme.WebView"
+            android:configChanges="orientation|screenSize|smallestScreenSize|density|screenLayout|uiMode|keyboard|keyboardHidden|navigation"
+            android:launchMode="singleTask" android:process=":sandbox_3"
+            android:taskAffinity="" android:exported="false" />
 
         <activity
             android:name=".activities.ShareReceiverActivity"
