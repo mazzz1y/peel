@@ -5,6 +5,8 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.graphics.Bitmap
+import android.net.wifi.WifiManager
+import android.os.PowerManager
 import android.webkit.WebView
 import androidx.core.content.ContextCompat
 import java.util.Locale
@@ -25,26 +27,36 @@ class MediaPlaybackManager(
     private var lastHasPrevious = false
     private var lastHasNext = false
     private var jsInitiatedPause = false
+    private var wakeLock: PowerManager.WakeLock? = null
+    private var wifiLock: WifiManager.WifiLock? = null
 
     private val receiver = object : BroadcastReceiver() {
         override fun onReceive(ctx: Context?, intent: Intent) {
             when (intent.action) {
                 MediaPlaybackService.BROADCAST_PLAY ->
                     evalJs(MediaJsBridge.RESUME_JS)
+
                 MediaPlaybackService.BROADCAST_PAUSE -> {
-                    if (jsInitiatedPause) { jsInitiatedPause = false; return }
+                    if (jsInitiatedPause) {
+                        jsInitiatedPause = false; return
+                    }
                     evalJs(MediaJsBridge.PAUSE_ALL_JS)
                 }
+
                 MediaPlaybackService.BROADCAST_STOP -> {
                     evalJs(MediaJsBridge.PAUSE_ALL_JS)
                     serviceStarted = false
                 }
+
                 MediaPlaybackService.BROADCAST_PREVIOUS ->
                     evalJs(MediaJsBridge.PREVIOUS_TRACK_JS)
+
                 MediaPlaybackService.BROADCAST_NEXT ->
                     evalJs(MediaJsBridge.NEXT_TRACK_JS)
+
                 MediaPlaybackService.BROADCAST_SEEK_TO -> {
-                    val seekMs = intent.getLongExtra(MediaPlaybackService.EXTRA_SEEK_POSITION_MS, 0L)
+                    val seekMs =
+                        intent.getLongExtra(MediaPlaybackService.EXTRA_SEEK_POSITION_MS, 0L)
                     evalJs(String.format(Locale.US, MediaJsBridge.SEEK_TO_JS, seekMs / 1000.0))
                 }
             }
@@ -68,7 +80,15 @@ class MediaPlaybackManager(
     }
 
     override fun onMediaStarted() {
-        context.startService(MediaPlaybackService.createStartIntent(context, title, icon, webappUuid))
+        acquireWakeLocks()
+        context.startService(
+            MediaPlaybackService.createStartIntent(
+                context,
+                title,
+                icon,
+                webappUuid
+            )
+        )
         serviceStarted = true
         if (lastTitle != null || lastArtist != null || lastArtworkUrl != null) {
             onMetadataChanged(lastTitle, lastArtist, lastArtworkUrl)
@@ -88,6 +108,7 @@ class MediaPlaybackManager(
         lastTitle = null
         lastArtist = null
         lastArtworkUrl = null
+        releaseWakeLocks()
         if (!serviceStarted) return
         sendAction(MediaPlaybackService.ACTION_STOP)
         serviceStarted = false
@@ -134,6 +155,7 @@ class MediaPlaybackManager(
     }
 
     fun release() {
+        releaseWakeLocks()
         if (serviceStarted) {
             sendAction(MediaPlaybackService.ACTION_STOP)
             serviceStarted = false
@@ -161,10 +183,39 @@ class MediaPlaybackManager(
             addAction(MediaPlaybackService.BROADCAST_NEXT)
             addAction(MediaPlaybackService.BROADCAST_SEEK_TO)
         }
-        ContextCompat.registerReceiver(context, receiver, filter, ContextCompat.RECEIVER_NOT_EXPORTED)
+        ContextCompat.registerReceiver(
+            context,
+            receiver,
+            filter,
+            ContextCompat.RECEIVER_NOT_EXPORTED
+        )
     }
 
     private fun unregisterReceiver() {
-        try { context.unregisterReceiver(receiver) } catch (_: IllegalArgumentException) {}
+        try {
+            context.unregisterReceiver(receiver)
+        } catch (_: IllegalArgumentException) {
+        }
+    }
+
+    private fun acquireWakeLocks() {
+        if (wakeLock == null) {
+            val pm = context.getSystemService(PowerManager::class.java)
+            wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "peel:sandbox_media")
+                .apply { acquire(4 * 60 * 60 * 1000L) }
+        }
+        if (wifiLock == null) {
+            val wm = context.applicationContext.getSystemService(WifiManager::class.java)
+            @Suppress("DEPRECATION")
+            wifiLock = wm.createWifiLock(WifiManager.WIFI_MODE_FULL_HIGH_PERF, "peel:sandbox_media")
+                .apply { acquire() }
+        }
+    }
+
+    private fun releaseWakeLocks() {
+        wakeLock?.let { if (it.isHeld) it.release() }
+        wakeLock = null
+        wifiLock?.let { if (it.isHeld) it.release() }
+        wifiLock = null
     }
 }
