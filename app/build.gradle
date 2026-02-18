@@ -76,20 +76,16 @@ ksp {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-
-
     implementation 'org.jsoup:jsoup:1.22.1'
-
     implementation 'androidx.navigation:navigation-fragment-ktx:2.9.7'
     implementation 'androidx.navigation:navigation-ui-ktx:2.9.7'
     implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.10.0'
-
     implementation 'androidx.webkit:webkit:1.15.0'
     implementation "androidx.biometric:biometric:1.1.0"
     implementation "androidx.fragment:fragment-ktx:1.8.9"
     implementation 'com.google.android.material:material:1.13.0'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.2.0'
-
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2'
     implementation 'androidx.room:room-runtime:2.8.4'
     implementation 'androidx.room:room-ktx:2.8.4'
     ksp 'androidx.room:room-compiler:2.8.4'

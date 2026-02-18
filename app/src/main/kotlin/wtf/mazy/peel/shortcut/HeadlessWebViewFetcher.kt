@@ -7,6 +7,7 @@ import android.graphics.BitmapFactory
 import android.os.Handler
 import android.os.Looper
 import android.webkit.CookieManager
+import android.webkit.WebChromeClient
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
@@ -14,6 +15,14 @@ import android.webkit.WebViewClient
 import java.net.HttpURLConnection
 import java.net.URL
 import java.util.TreeMap
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import org.json.JSONObject
 import wtf.mazy.peel.model.WebAppSettings
@@ -29,8 +38,10 @@ class HeadlessWebViewFetcher(
 ) {
     private val webView = WebView(context.applicationContext)
     private val handler = Handler(Looper.getMainLooper())
-    private var finished = false
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     private var customHeaders: Map<String, String> = emptyMap()
+    private var finished = false
+    private var extracting = false
     private val timeoutRunnable = Runnable { finish(null, null) }
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -65,21 +76,19 @@ class HeadlessWebViewFetcher(
         customHeaders = headers
 
         webView.webViewClient = object : WebViewClient() {
-            override fun onPageFinished(view: WebView, loadedUrl: String) {
-                view.evaluateJavascript(FIND_LINKS_JS) { raw ->
-                    Thread {
-                        val result = resolve(raw, loadedUrl)
-                        handler.post { finish(result.first, result.second) }
-                    }.start()
-                }
-            }
-
             override fun onReceivedError(
                 view: WebView?,
                 request: WebResourceRequest?,
                 error: WebResourceError?,
             ) {
                 if (request?.isForMainFrame == true) finish(null, null)
+            }
+        }
+
+        webView.webChromeClient = object : WebChromeClient() {
+            override fun onProgressChanged(view: WebView, progress: Int) {
+                if (finished || extracting) return
+                if (progress >= EARLY_EXTRACT_PROGRESS) tryExtract(view)
             }
         }
 
@@ -92,62 +101,87 @@ class HeadlessWebViewFetcher(
         webView.loadUrl(loadUrl, customHeaders)
     }
 
-    private fun resolve(raw: String?, pageUrl: String): Pair<String?, Bitmap?> {
-        if (finished || raw == null || raw == "null") return Pair(null, null)
+    private fun tryExtract(view: WebView) {
+        if (finished || extracting) return
+        extracting = true
 
-        return try {
-            val decoded = JSONArray("[$raw]").optString(0)
-            if (decoded.isEmpty()) return Pair(null, null)
-            val json = JSONObject(decoded)
-
-            var title: String? = null
-            val icons = TreeMap<Int, String>()
-
-            if (!finished) {
-                val manifestUrl = json.optString("manifestUrl").takeIf { it.isNotEmpty() }
-                if (manifestUrl != null) title = parseManifest(manifestUrl, icons)
+        view.evaluateJavascript(FIND_LINKS_JS) { raw ->
+            if (finished) return@evaluateJavascript
+            scope.launch {
+                val result = resolve(raw, view.url ?: url)
+                if (result.first != null || result.second != null) {
+                    finish(result.first, result.second)
+                } else {
+                    extracting = false
+                }
             }
-
-            if (title == null) {
-                title = json.optString("title").takeIf { it.isNotEmpty() }
-            }
-
-            if (!finished && icons.isEmpty()) {
-                val iconLinks = json.optJSONArray("iconLinks")
-                if (iconLinks != null) parseIconLinks(iconLinks, icons)
-            }
-
-            if (!finished && icons.isEmpty()) {
-                val origin = URL(pageUrl).let { "${it.protocol}://${it.host}" }
-                if (isReachable("$origin/favicon.ico")) icons[0] = "$origin/favicon.ico"
-            }
-
-            val icon = if (!finished) icons.lastEntry()?.value?.let { downloadBitmap(it) } else null
-            Pair(title, icon)
-        } catch (_: Exception) {
-            Pair(null, null)
         }
     }
+
+    private suspend fun resolve(raw: String?, pageUrl: String): Pair<String?, Bitmap?> =
+        withContext(Dispatchers.IO) {
+            if (raw == null || raw == "null") return@withContext Pair(null, null)
+
+            try {
+                val decoded = JSONArray("[$raw]").optString(0)
+                if (decoded.isEmpty()) return@withContext Pair(null, null)
+                val json = JSONObject(decoded)
+
+                var title: String? = null
+                val icons = TreeMap<Int, String>()
+
+                ensureActive()
+                val manifestUrl = json.optString("manifestUrl").takeIf { it.isNotEmpty() }
+                if (manifestUrl != null) title = parseManifest(manifestUrl, icons)
+
+                if (title == null) {
+                    title = json.optString("title").takeIf { it.isNotEmpty() }
+                }
+
+                ensureActive()
+                if (icons.isEmpty()) {
+                    val iconLinks = json.optJSONArray("iconLinks")
+                    if (iconLinks != null) parseIconLinks(iconLinks, icons)
+                }
+
+                ensureActive()
+                if (icons.isEmpty()) {
+                    val origin = URL(pageUrl).let { "${it.protocol}://${it.host}" }
+                    if (isReachable("$origin/favicon.ico")) icons[0] = "$origin/favicon.ico"
+                }
+
+                ensureActive()
+                val icon = icons.lastEntry()?.value?.let { downloadBitmap(it) }
+                Pair(title, icon)
+            } catch (_: CancellationException) {
+                throw CancellationException()
+            } catch (_: Exception) {
+                Pair(null, null)
+            }
+        }
 
     private fun parseManifest(manifestUrl: String, icons: TreeMap<Int, String>): String? {
         return try {
             val conn = openConnection(manifestUrl)
-            val json = JSONObject(conn.inputStream.bufferedReader().readText())
-            conn.disconnect()
+            try {
+                val json = JSONObject(conn.inputStream.bufferedReader().use { it.readText() })
 
-            val arr = json.optJSONArray("icons")
-            if (arr != null) {
-                for (i in 0 until arr.length()) {
-                    val obj = arr.optJSONObject(i) ?: continue
-                    val src = obj.optString("src").takeIf { it.isNotEmpty() } ?: continue
-                    if (src.endsWith(".svg")) continue
-                    var width = getWidthFromIcon(obj.optString("sizes", ""))
-                    if (obj.optString("purpose", "").contains("maskable")) width += 20000
-                    icons[width] = URL(URL(manifestUrl), src).toString()
+                val arr = json.optJSONArray("icons")
+                if (arr != null) {
+                    for (i in 0 until arr.length()) {
+                        val obj = arr.optJSONObject(i) ?: continue
+                        val src = obj.optString("src").takeIf { it.isNotEmpty() } ?: continue
+                        if (src.endsWith(".svg")) continue
+                        var width = getWidthFromIcon(obj.optString("sizes", ""))
+                        if (obj.optString("purpose", "").contains("maskable")) width += 20000
+                        icons[width] = URL(URL(manifestUrl), src).toString()
+                    }
                 }
-            }
 
-            json.optString("name").takeIf { it.isNotEmpty() }
+                json.optString("name").takeIf { it.isNotEmpty() }
+            } finally {
+                conn.disconnect()
+            }
         } catch (_: Exception) {
             null
         }
@@ -168,11 +202,16 @@ class HeadlessWebViewFetcher(
     private fun downloadBitmap(url: String): Bitmap? {
         return try {
             val conn = openConnection(url)
-            val bytes = conn.inputStream.readBytes()
-            conn.disconnect()
-            val opts = BitmapFactory.Options().apply { inPreferredConfig = Bitmap.Config.ARGB_8888 }
-            val bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.size, opts)
-            if (bmp != null && bmp.width >= MIN_ICON_WIDTH) bmp else null
+            try {
+                if (conn.contentLength > MAX_ICON_BYTES) return null
+                val bytes = conn.inputStream.use { it.readBytes() }
+                val opts =
+                    BitmapFactory.Options().apply { inPreferredConfig = Bitmap.Config.ARGB_8888 }
+                val bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.size, opts)
+                if (bmp != null && bmp.width >= MIN_ICON_WIDTH) bmp else null
+            } finally {
+                conn.disconnect()
+            }
         } catch (_: Exception) {
             null
         }
@@ -181,10 +220,12 @@ class HeadlessWebViewFetcher(
     private fun isReachable(url: String): Boolean {
         return try {
             val conn = openConnection(url)
-            conn.requestMethod = "HEAD"
-            val code = conn.responseCode
-            conn.disconnect()
-            code == 200
+            try {
+                conn.requestMethod = "HEAD"
+                conn.responseCode == 200
+            } finally {
+                conn.disconnect()
+            }
         } catch (_: Exception) {
             false
         }
@@ -192,8 +233,8 @@ class HeadlessWebViewFetcher(
 
     private fun openConnection(url: String): HttpURLConnection {
         val conn = URL(url).openConnection() as HttpURLConnection
-        conn.connectTimeout = 5000
-        conn.readTimeout = 5000
+        conn.connectTimeout = CONNECTION_TIMEOUT_MS
+        conn.readTimeout = CONNECTION_TIMEOUT_MS
         conn.instanceFollowRedirects = true
         val cookies = CookieManager.getInstance().getCookie(url)
         if (cookies != null) conn.setRequestProperty("Cookie", cookies)
@@ -205,17 +246,22 @@ class HeadlessWebViewFetcher(
         if (finished) return
         finished = true
         handler.removeCallbacks(timeoutRunnable)
+        scope.cancel()
         webView.stopLoading()
         webView.destroy()
         onResult(title, icon)
     }
 
     companion object {
-        private const val TIMEOUT_MS = 15_000L
+        private const val TIMEOUT_MS = 10_000L
+        private const val CONNECTION_TIMEOUT_MS = 4_000
+        private const val EARLY_EXTRACT_PROGRESS = 30
         private const val MIN_ICON_WIDTH = 48
+        private const val MAX_ICON_BYTES = 5 * 1024 * 1024
         private val SUPPORTED_EXTENSIONS = listOf(".png", ".jpg", ".jpeg", ".ico", ".webp")
 
-        private val FIND_LINKS_JS = """
+        private val FIND_LINKS_JS =
+            """
         (function() {
             var result = { title: document.title || '', manifestUrl: '', iconLinks: [] };
             var manifest = document.querySelector('link[rel="manifest"]');
