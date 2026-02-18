@@ -68,11 +68,11 @@ class MediaPlaybackManager(
     }
 
     override fun onMediaStarted() {
-        lastTitle = null
-        lastArtist = null
-        lastArtworkUrl = null
         context.startService(MediaPlaybackService.createStartIntent(context, title, icon, webappUuid))
         serviceStarted = true
+        if (lastTitle != null || lastArtist != null || lastArtworkUrl != null) {
+            onMetadataChanged(lastTitle, lastArtist, lastArtworkUrl)
+        }
         if (lastHasPrevious || lastHasNext) {
             onActionsChanged(lastHasPrevious, lastHasNext)
         }
