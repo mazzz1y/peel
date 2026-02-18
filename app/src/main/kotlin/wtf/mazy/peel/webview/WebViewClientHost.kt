@@ -11,6 +11,8 @@ interface WebViewClientHost {
     val webappUuid: String?
     var urlOnFirstPageload: String
 
+    fun onPageStarted()
+
     fun showNotification()
 
     fun showHttpAuthDialog(handler: HttpAuthHandler, host: String?, realm: String?)

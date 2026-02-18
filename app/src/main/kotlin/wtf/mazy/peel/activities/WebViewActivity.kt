@@ -58,6 +58,8 @@ import wtf.mazy.peel.util.DateUtils.isInInterval
 import wtf.mazy.peel.util.NotificationUtils
 import wtf.mazy.peel.util.NotificationUtils.showInfoSnackBar
 import wtf.mazy.peel.util.WebViewLauncher
+import wtf.mazy.peel.media.MediaJsBridge
+import wtf.mazy.peel.media.MediaPlaybackManager
 import wtf.mazy.peel.webview.ChromeClientHost
 import wtf.mazy.peel.webview.DownloadHandler
 import wtf.mazy.peel.webview.PeelWebChromeClient
@@ -93,6 +95,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     private var barColorAnimator: ValueAnimator? = null
     private var geoPermissionRequestCallback: GeolocationPermissions.Callback? = null
     private var geoPermissionRequestOrigin: String? = null
+    private var mediaPlaybackManager: MediaPlaybackManager? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
@@ -177,6 +180,8 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     override fun onDestroy() {
         barColorAnimator?.cancel()
         barColorAnimator = null
+        mediaPlaybackManager?.release()
+        mediaPlaybackManager = null
         if (isFinishing && ::webapp.isInitialized) {
             val sandboxId = WebViewLauncher.resolveSandboxId(webapp)
             if (sandboxId != null) {
@@ -334,8 +339,13 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         }
     }
 
+    override fun onPageStarted() {
+        mediaPlaybackManager?.injectPolyfill()
+    }
+
     override fun onPageFullyLoaded() {
         webView?.let { peelWebViewClient.extractDynamicBarColor(it) }
+        mediaPlaybackManager?.injectObserver()
     }
 
     private fun applyBarColor(color: Int) {
@@ -497,6 +507,20 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         webView?.webChromeClient = PeelWebChromeClient(this)
         setupLongClickShare(settings)
         webView?.let { downloadHandler.install(it) }
+        setupMediaPlayback(settings)
+    }
+
+    @SuppressLint("JavascriptInterface")
+    private fun setupMediaPlayback(settings: WebAppSettings) {
+        if (settings.isAllowMediaPlaybackInBackground != true) return
+        val view = webView ?: return
+        val manager = MediaPlaybackManager(this)
+        val icon = if (webapp.hasCustomIcon) {
+            android.graphics.BitmapFactory.decodeFile(webapp.iconFile.absolutePath)
+        } else null
+        manager.attach(view, webapp.title, icon, webapp.uuid)
+        view.addJavascriptInterface(MediaJsBridge(manager), MediaJsBridge.JS_INTERFACE_NAME)
+        mediaPlaybackManager = manager
     }
 
     private fun setupSystemBarScrims() {

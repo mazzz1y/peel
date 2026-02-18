@@ -20,6 +20,11 @@ class PeelWebViewClient(
     private val host: WebViewClientHost,
 ) : WebViewClient() {
 
+    override fun onPageStarted(view: WebView?, url: String?, favicon: android.graphics.Bitmap?) {
+        super.onPageStarted(view, url, favicon)
+        host.onPageStarted()
+    }
+
     override fun onReceivedHttpAuthRequest(
         view: WebView?,
         handler: HttpAuthHandler,

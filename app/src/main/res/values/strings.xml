@@ -125,6 +125,8 @@
     <string name="bioprompt_enable_restriction">Enable access restriction?</string>
     <string name="bioprompt_not_recognized">Not recognized. Try again.</string>
     <string name="allow_media_playback_in_background">Allow media playback in background</string>
+    <string name="media_channel_name">Media Playback</string>
+    <string name="media_channel_description">Controls for background media playback</string>
 
     <string name="start_url">URL</string>
     <string name="more">More</string>
