@@ -125,23 +125,34 @@ class MediaJsBridge(private val listener: Listener) {
                 var active = window._peelActiveElement;
 
                 var lastDur = -1;
+                var lastPos = -1;
 
                 function setActive(el) { active = el; window._peelActiveElement = el; }
 
                 function hookElement(el) {
                     if (el._peelHooked) return;
                     el._peelHooked = true;
+
+                    el.addEventListener('pause', function(e) {
+                        if (window._peelBackground && !window._peelUserPause && el === active) {
+                            e.stopImmediatePropagation();
+                            try { el.play(); } catch(_) {}
+                            return;
+                        }
+                        if (el === active) B.onPause();
+                        window._peelUserPause = false;
+                    }, true);
+
                     el.addEventListener('play', function() {
                         setActive(el);
                         lastDur = -1;
+                        lastPos = -1;
                         B.onPlay();
                         if (isFinite(el.duration) && el.duration > 0) {
                             lastDur = Math.round(el.duration);
+                            lastPos = Math.round(el.currentTime);
                             B.onPositionState(el.duration, el.currentTime, el.playbackRate || 1);
                         }
-                    });
-                    el.addEventListener('pause', function() {
-                        if (el === active) B.onPause();
                     });
                     el.addEventListener('ended', function() {
                         if (el === active) { setActive(null); B.onEnded(); }
@@ -165,12 +176,17 @@ class MediaJsBridge(private val listener: Listener) {
                     if (active && !document.contains(active)) {
                         setActive(null);
                         lastDur = -1;
+                        lastPos = -1;
                         B.onEnded();
                     } else if (active && !active.paused && isFinite(active.duration) && active.duration > 0) {
                         var dur = Math.round(active.duration);
-                        if (dur !== lastDur) {
+                        var pos = Math.round(active.currentTime);
+                        if (dur !== lastDur || Math.abs(pos - lastPos - 1) > 1) {
                             lastDur = dur;
+                            lastPos = pos;
                             B.onPositionState(active.duration, active.currentTime, active.playbackRate || 1);
+                        } else {
+                            lastPos = pos;
                         }
                     }
                 }, 1000);
@@ -187,7 +203,7 @@ class MediaJsBridge(private val listener: Listener) {
             "var h = window._peelActionHandlers && window._peelActionHandlers.seekto; if (h) h({action:'seekto',seekTime:%f});"
 
         const val PAUSE_ALL_JS =
-            "document.querySelectorAll('audio, video').forEach(function(el) { el.pause(); });"
+            "window._peelUserPause = true; document.querySelectorAll('audio, video').forEach(function(el) { el.pause(); });"
 
         const val RESUME_JS =
             "(function() { var a = window._peelActiveElement; if (a && a.paused) a.play(); })();"

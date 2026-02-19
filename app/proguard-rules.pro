@@ -79,8 +79,7 @@
 -keep class com.google.android.material.appbar.AppBarLayout { *; }
 
 # Media playback
--keep class wtf.mazy.peel.media.MediaPlaybackService { *; }
--keep class wtf.mazy.peel.media.MediaPlaybackService$* { *; }
+-keep class wtf.mazy.peel.media.MediaPlaybackService* { *; }
 
 # Biometric
 -keep class androidx.biometric.BiometricPrompt { *; }

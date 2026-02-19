@@ -140,6 +140,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         super.onResume()
         webView?.onResume()
         webView?.resumeTimers()
+        mediaPlaybackManager?.setBackground(false)
         if (webView != null) setDarkModeIfNeeded()
 
         notificationManager.registerReceiver()
@@ -157,11 +158,14 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
 
     override fun onPause() {
         super.onPause()
+        val bgMedia = webapp.effectiveSettings.isAllowMediaPlaybackInBackground == true
         biometricAuthenticated = false
         notificationManager.unregisterReceiver()
         notificationManager.hideNotification()
 
-        if (webapp.effectiveSettings.isAllowMediaPlaybackInBackground != true) {
+        if (bgMedia) {
+            mediaPlaybackManager?.setBackground(true)
+        } else {
             webView?.evaluateJavascript(
                 "document.querySelectorAll('audio').forEach(x => x.pause());" +
                         "document.querySelectorAll('video').forEach(x => x.pause());",

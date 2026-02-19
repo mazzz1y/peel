@@ -177,6 +177,42 @@
                 <action android:name="androidx.media3.session.MediaSessionService" />
             </intent-filter>
         </service>
+        <service
+            android:name=".media.MediaPlaybackService0"
+            android:process=":sandbox_0"
+            android:foregroundServiceType="mediaPlayback"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="androidx.media3.session.MediaSessionService" />
+            </intent-filter>
+        </service>
+        <service
+            android:name=".media.MediaPlaybackService1"
+            android:process=":sandbox_1"
+            android:foregroundServiceType="mediaPlayback"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="androidx.media3.session.MediaSessionService" />
+            </intent-filter>
+        </service>
+        <service
+            android:name=".media.MediaPlaybackService2"
+            android:process=":sandbox_2"
+            android:foregroundServiceType="mediaPlayback"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="androidx.media3.session.MediaSessionService" />
+            </intent-filter>
+        </service>
+        <service
+            android:name=".media.MediaPlaybackService3"
+            android:process=":sandbox_3"
+            android:foregroundServiceType="mediaPlayback"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="androidx.media3.session.MediaSessionService" />
+            </intent-filter>
+        </service>
 
         <service android:name=".activities.SandboxFetchService0"
             android:process=":sandbox_0" android:exported="false" />

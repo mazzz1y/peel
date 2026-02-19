@@ -34,13 +34,14 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.DataManager
+import wtf.mazy.peel.model.SandboxManager
 import wtf.mazy.peel.util.WebViewLauncher
 import java.io.ByteArrayOutputStream
 import java.net.HttpURLConnection
 import java.net.URL
 
 @OptIn(UnstableApi::class)
-class MediaPlaybackService : MediaSessionService() {
+open class MediaPlaybackService : MediaSessionService() {
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     private var session: MediaSession? = null
@@ -64,6 +65,7 @@ class MediaPlaybackService : MediaSessionService() {
     private var positionMs = 0L
     private var playbackRate = 1f
     private var positionUpdateTime = 0L
+    private var generation = 0
 
     override fun onCreate() {
         super.onCreate()
@@ -89,6 +91,7 @@ class MediaPlaybackService : MediaSessionService() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
             ACTION_START -> handleStart(intent)
+            ACTION_RESUME -> setPlaying(true)
             ACTION_PAUSE -> {
                 broadcast(BROADCAST_PAUSE)
                 setPlaying(false)
@@ -138,6 +141,7 @@ class MediaPlaybackService : MediaSessionService() {
 
     private fun handleStart(intent: Intent) {
         appTitle = intent.getStringExtra(EXTRA_TITLE) ?: ""
+        generation = intent.getIntExtra(EXTRA_GENERATION, 0)
         val iconBytes = intent.getByteArrayExtra(EXTRA_ICON)
         appIcon = iconBytes?.let { BitmapFactory.decodeByteArray(it, 0, it.size) }
         buildContentIntent(intent.getStringExtra(EXTRA_WEBAPP_UUID))?.let {
@@ -261,6 +265,7 @@ class MediaPlaybackService : MediaSessionService() {
     private fun broadcast(action: String, extras: Intent? = null) {
         sendBroadcast(Intent(action).apply {
             setPackage(packageName)
+            putExtra(EXTRA_GENERATION, generation)
             extras?.extras?.let { putExtras(it) }
         })
     }
@@ -378,6 +383,7 @@ class MediaPlaybackService : MediaSessionService() {
         private const val NOTIFICATION_ID = 2001
 
         const val ACTION_START = "wtf.mazy.peel.media.START"
+        const val ACTION_RESUME = "wtf.mazy.peel.media.RESUME"
         const val ACTION_PAUSE = "wtf.mazy.peel.media.PAUSE"
         const val ACTION_STOP = "wtf.mazy.peel.media.STOP"
         const val ACTION_UPDATE_METADATA = "wtf.mazy.peel.media.UPDATE_METADATA"
@@ -403,17 +409,20 @@ class MediaPlaybackService : MediaSessionService() {
         const val EXTRA_POSITION_MS = "position_ms"
         const val EXTRA_PLAYBACK_RATE = "playback_rate"
         const val EXTRA_SEEK_POSITION_MS = "seek_position_ms"
+        const val EXTRA_GENERATION = "generation"
 
         fun createStartIntent(
             context: Context,
             title: String,
             icon: Bitmap?,
-            webappUuid: String
+            webappUuid: String,
+            generation: Int
         ): Intent {
-            return Intent(context, MediaPlaybackService::class.java).apply {
+            return Intent(context, resolveServiceClass()).apply {
                 action = ACTION_START
                 putExtra(EXTRA_TITLE, title)
                 putExtra(EXTRA_WEBAPP_UUID, webappUuid)
+                putExtra(EXTRA_GENERATION, generation)
                 if (icon != null) {
                     val stream = ByteArrayOutputStream()
                     icon.compress(Bitmap.CompressFormat.PNG, 100, stream)
@@ -422,6 +431,15 @@ class MediaPlaybackService : MediaSessionService() {
             }
         }
 
+        fun resolveServiceClass(): Class<out MediaPlaybackService> =
+            when (SandboxManager.currentSlotId) {
+                0 -> MediaPlaybackService0::class.java
+                1 -> MediaPlaybackService1::class.java
+                2 -> MediaPlaybackService2::class.java
+                3 -> MediaPlaybackService3::class.java
+                else -> MediaPlaybackService::class.java
+            }
+
         private fun bitmapToBytes(bmp: Bitmap): ByteArray {
             val stream = ByteArrayOutputStream()
             bmp.compress(Bitmap.CompressFormat.PNG, 100, stream)
@@ -429,3 +447,8 @@ class MediaPlaybackService : MediaSessionService() {
         }
     }
 }
+
+class MediaPlaybackService0 : MediaPlaybackService()
+class MediaPlaybackService1 : MediaPlaybackService()
+class MediaPlaybackService2 : MediaPlaybackService()
+class MediaPlaybackService3 : MediaPlaybackService()

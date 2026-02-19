@@ -35,11 +35,6 @@ class PeelWebViewClient(
     }
 
     override fun onPageFinished(view: WebView?, url: String) {
-        view?.evaluateJavascript(
-            "document.addEventListener(\"visibilitychange\"," +
-                    "function(event){event.stopImmediatePropagation();},true);",
-            null,
-        )
         host.showNotification()
         super.onPageFinished(view, url)
     }
@@ -135,11 +130,6 @@ class PeelWebViewClient(
                 null,
             )
         }
-        view.evaluateJavascript(
-            "document.addEventListener(\"visibilitychange\"," +
-                    "(event)=>{event.stopImmediatePropagation();});",
-            null,
-        )
     }
 
     override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
