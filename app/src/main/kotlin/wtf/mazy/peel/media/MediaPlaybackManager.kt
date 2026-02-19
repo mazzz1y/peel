@@ -97,12 +97,12 @@ class MediaPlaybackManager(
                 icon,
                 webappUuid,
                 generation,
+                lastTitle,
+                lastArtist,
+                lastArtworkUrl,
             )
         )
         serviceStarted = true
-        if (lastTitle != null || lastArtist != null || lastArtworkUrl != null) {
-            onMetadataChanged(lastTitle, lastArtist, lastArtworkUrl)
-        }
         if (lastHasPrevious || lastHasNext) {
             onActionsChanged(lastHasPrevious, lastHasNext)
         }

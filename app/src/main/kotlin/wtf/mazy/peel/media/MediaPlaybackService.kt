@@ -49,6 +49,7 @@ open class MediaPlaybackService : MediaSessionService() {
     private var wakeLock: PowerManager.WakeLock? = null
     private var wifiLock: WifiManager.WifiLock? = null
     private var artworkJob: Job? = null
+    private var sessionAdded = false
 
     private var appTitle = ""
     private var appIcon: Bitmap? = null
@@ -79,11 +80,9 @@ open class MediaPlaybackService : MediaSessionService() {
         createNotificationChannel()
         val p = PeelPlayer(Looper.getMainLooper())
         peelPlayer = p
-        val s = MediaSession.Builder(this, p)
+        session = MediaSession.Builder(this, p)
             .setCallback(SessionCallback())
             .build()
-        session = s
-        addSession(s)
     }
 
     override fun onGetSession(controllerInfo: MediaSession.ControllerInfo): MediaSession? = session
@@ -148,10 +147,13 @@ open class MediaPlaybackService : MediaSessionService() {
             session?.setSessionActivity(it)
         }
 
-        trackTitle = null
-        trackArtist = null
+        trackTitle = intent.getStringExtra(EXTRA_TRACK_TITLE)?.takeIf { it.isNotEmpty() }
+        trackArtist = intent.getStringExtra(EXTRA_TRACK_ARTIST)?.takeIf { it.isNotEmpty() }
         trackArtwork = null
-        trackArtworkUrl = null
+        val artworkUrl = intent.getStringExtra(EXTRA_TRACK_ARTWORK_URL)?.takeIf { it.isNotEmpty() }
+        trackArtworkUrl = artworkUrl
+        if (artworkUrl != null) fetchArtwork(artworkUrl)
+
         durationMs = 0L
         positionMs = 0L
         playbackRate = 1f
@@ -159,6 +161,10 @@ open class MediaPlaybackService : MediaSessionService() {
         playing = true
 
         acquireWakeLocks()
+        if (!sessionAdded) {
+            session?.let { addSession(it) }
+            sessionAdded = true
+        }
         notifyPlayerChanged()
     }
 
@@ -187,7 +193,6 @@ open class MediaPlaybackService : MediaSessionService() {
     private fun stopPlayback() {
         playing = false
         releaseWakeLocks()
-        notifyPlayerChanged()
         pauseAllPlayersAndStopSelf()
     }
 
@@ -416,7 +421,10 @@ open class MediaPlaybackService : MediaSessionService() {
             title: String,
             icon: Bitmap?,
             webappUuid: String,
-            generation: Int
+            generation: Int,
+            trackTitle: String? = null,
+            trackArtist: String? = null,
+            trackArtworkUrl: String? = null,
         ): Intent {
             return Intent(context, resolveServiceClass()).apply {
                 action = ACTION_START
@@ -428,6 +436,9 @@ open class MediaPlaybackService : MediaSessionService() {
                     icon.compress(Bitmap.CompressFormat.PNG, 100, stream)
                     putExtra(EXTRA_ICON, stream.toByteArray())
                 }
+                putExtra(EXTRA_TRACK_TITLE, trackTitle ?: "")
+                putExtra(EXTRA_TRACK_ARTIST, trackArtist ?: "")
+                putExtra(EXTRA_TRACK_ARTWORK_URL, trackArtworkUrl ?: "")
             }
         }
 
