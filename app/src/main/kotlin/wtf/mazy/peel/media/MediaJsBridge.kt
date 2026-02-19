@@ -70,47 +70,40 @@ class MediaJsBridge(private val listener: Listener) {
                     try { return new URL(src, location.href).href; } catch(e) { return src; }
                 }
 
-                if (!navigator.mediaSession || !navigator.mediaSession.setActionHandler) {
-                    var session = {
-                        playbackState: 'none',
-                        setActionHandler: function(action, handler) {
-                            handlers[action] = handler;
-                            B.onActions(!!handlers.previoustrack, !!handlers.nexttrack);
-                        },
-                        setPositionState: function(state) {
-                            if (state) {
-                                B.onPositionState(
-                                    state.duration || 0,
-                                    state.position || 0,
-                                    state.playbackRate || 1
-                                );
-                            }
-                        },
-                        setCameraActive: function() {},
-                        setMicrophoneActive: function() {}
-                    };
-
-                    Object.defineProperty(session, 'metadata', {
-                        get: function() { return currentMetadata; },
-                        set: function(md) {
-                            currentMetadata = md;
-                            if (md) {
-                                B.onMetadata(md.title || '', md.artist || '', resolveArtwork(md));
-                            }
-                        }
-                    });
-
-                    Object.defineProperty(navigator, 'mediaSession', {
-                        value: session, writable: false, configurable: true
-                    });
-                } else {
-                    var orig = navigator.mediaSession.setActionHandler.bind(navigator.mediaSession);
-                    navigator.mediaSession.setActionHandler = function(action, handler) {
+                var session = {
+                    playbackState: 'none',
+                    setActionHandler: function(action, handler) {
                         handlers[action] = handler;
                         B.onActions(!!handlers.previoustrack, !!handlers.nexttrack);
-                        return orig(action, handler);
-                    };
-                }
+                    },
+                    setPositionState: function(state) {
+                        if (state) {
+                            B.onPositionState(
+                                state.duration || 0,
+                                state.position || 0,
+                                state.playbackRate || 1
+                            );
+                        }
+                    },
+                    setCameraActive: function() {},
+                    setMicrophoneActive: function() {}
+                };
+
+                Object.defineProperty(session, 'metadata', {
+                    get: function() { return currentMetadata; },
+                    set: function(md) {
+                        currentMetadata = md;
+                        if (md) {
+                            B.onMetadata(md.title || '', md.artist || '', resolveArtwork(md));
+                        } else {
+                            B.onMetadata('', '', '');
+                        }
+                    }
+                });
+
+                Object.defineProperty(navigator, 'mediaSession', {
+                    value: session, writable: false, configurable: true
+                });
 
                 window._peelActionHandlers = handlers;
             })();

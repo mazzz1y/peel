@@ -129,7 +129,6 @@ class MediaPlaybackManager(
     }
 
     override fun onMetadataChanged(title: String?, artist: String?, artworkUrl: String?) {
-        if (title == null && artist == null && artworkUrl == null) return
         lastTitle = title
         lastArtist = artist
         lastArtworkUrl = artworkUrl
