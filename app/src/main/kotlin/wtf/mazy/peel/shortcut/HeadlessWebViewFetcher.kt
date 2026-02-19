@@ -83,6 +83,14 @@ class HeadlessWebViewFetcher(
             ) {
                 if (request?.isForMainFrame == true) finish(null, null)
             }
+
+            override fun onReceivedHttpError(
+                view: WebView?,
+                request: WebResourceRequest?,
+                errorResponse: android.webkit.WebResourceResponse?,
+            ) {
+                if (request?.isForMainFrame == true) finish(null, null)
+            }
         }
 
         webView.webChromeClient = object : WebChromeClient() {
@@ -134,6 +142,19 @@ class HeadlessWebViewFetcher(
                 val manifestUrl = json.optString("manifestUrl").takeIf { it.isNotEmpty() }
                 if (manifestUrl != null) title = parseManifest(manifestUrl, icons)
 
+                if (icons.isEmpty()) {
+                    val origin = originOf(url)
+                    val tried = mutableSetOf(manifestUrl)
+                    for (path in MANIFEST_PATHS) {
+                        val candidate = "$origin$path"
+                        if (tried.add(candidate)) {
+                            val name = parseManifest(candidate, icons)
+                            if (title == null && name != null) title = name
+                            if (icons.isNotEmpty()) break
+                        }
+                    }
+                }
+
                 if (title == null) {
                     title = json.optString("title").takeIf { it.isNotEmpty() }
                 }
@@ -146,7 +167,7 @@ class HeadlessWebViewFetcher(
 
                 ensureActive()
                 if (icons.isEmpty()) {
-                    val origin = URL(pageUrl).let { "${it.protocol}://${it.host}" }
+                    val origin = originOf(pageUrl)
                     if (isReachable("$origin/favicon.ico")) icons[0] = "$origin/favicon.ico"
                 }
 
@@ -164,6 +185,7 @@ class HeadlessWebViewFetcher(
         return try {
             val conn = openConnection(manifestUrl)
             try {
+                if (conn.responseCode != 200) return null
                 val json = JSONObject(conn.inputStream.bufferedReader().use { it.readText() })
 
                 val arr = json.optJSONArray("icons")
@@ -203,6 +225,7 @@ class HeadlessWebViewFetcher(
         return try {
             val conn = openConnection(url)
             try {
+                if (conn.responseCode != 200) return null
                 if (conn.contentLength > MAX_ICON_BYTES) return null
                 val bytes = conn.inputStream.use { it.readBytes() }
                 val opts =
@@ -256,9 +279,13 @@ class HeadlessWebViewFetcher(
         private const val TIMEOUT_MS = 10_000L
         private const val CONNECTION_TIMEOUT_MS = 4_000
         private const val EARLY_EXTRACT_PROGRESS = 30
-        private const val MIN_ICON_WIDTH = 48
+        private const val MIN_ICON_WIDTH = 32
         private const val MAX_ICON_BYTES = 5 * 1024 * 1024
         private val SUPPORTED_EXTENSIONS = listOf(".png", ".jpg", ".jpeg", ".ico", ".webp")
+        private val MANIFEST_PATHS = listOf("/manifest.webmanifest", "/manifest.json")
+
+        private fun originOf(url: String): String =
+            URL(url).let { "${it.protocol}://${it.host}" }
 
         private val FIND_LINKS_JS =
             """
