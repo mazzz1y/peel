@@ -169,13 +169,16 @@ open class MediaPlaybackService : MediaSessionService() {
     }
 
     private fun handleUpdateMetadata(intent: Intent) {
-        trackTitle = intent.getStringExtra(EXTRA_TRACK_TITLE)?.takeIf { it.isNotEmpty() }
-        trackArtist = intent.getStringExtra(EXTRA_TRACK_ARTIST)?.takeIf { it.isNotEmpty() }
-        val artworkUrl = intent.getStringExtra(EXTRA_TRACK_ARTWORK_URL)?.takeIf { it.isNotEmpty() }
-        if (artworkUrl != trackArtworkUrl) {
+        val newTitle = intent.getStringExtra(EXTRA_TRACK_TITLE)?.takeIf { it.isNotEmpty() }
+        val newArtist = intent.getStringExtra(EXTRA_TRACK_ARTIST)?.takeIf { it.isNotEmpty() }
+        val newArtworkUrl = intent.getStringExtra(EXTRA_TRACK_ARTWORK_URL)?.takeIf { it.isNotEmpty() }
+        if (newTitle == null && newArtist == null && newArtworkUrl == null) return
+        trackTitle = newTitle
+        trackArtist = newArtist
+        if (newArtworkUrl != trackArtworkUrl) {
             trackArtwork = null
-            trackArtworkUrl = artworkUrl
-            if (artworkUrl != null) fetchArtwork(artworkUrl)
+            trackArtworkUrl = newArtworkUrl
+            if (newArtworkUrl != null) fetchArtwork(newArtworkUrl)
         }
         notifyPlayerChanged()
     }
