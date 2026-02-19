@@ -113,18 +113,6 @@ class MediaJsBridge(private val listener: Listener) {
                 }
 
                 window._peelActionHandlers = handlers;
-
-                Object.defineProperty(document, 'hidden', {
-                    get: function() { return false; },
-                    configurable: true
-                });
-                Object.defineProperty(document, 'visibilityState', {
-                    get: function() { return 'visible'; },
-                    configurable: true
-                });
-                document.addEventListener('visibilitychange', function(e) {
-                    if (window._peelBackground) e.stopImmediatePropagation();
-                }, true);
             })();
         """.trimIndent()
 
