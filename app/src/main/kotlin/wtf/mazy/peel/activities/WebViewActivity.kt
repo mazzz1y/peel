@@ -445,6 +445,15 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         geoPermissionRequestOrigin = origin
     }
 
+    override fun showPermissionDialog(message: String, onResult: (Boolean) -> Unit) {
+        com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+            .setMessage(message)
+            .setPositiveButton(R.string.permission_allow) { _, _ -> onResult(true) }
+            .setNegativeButton(R.string.permission_deny) { _, _ -> onResult(false) }
+            .setOnCancelListener { onResult(false) }
+            .show()
+    }
+
     private fun initNotificationManager() {
         notificationManager =
             WebViewNotificationManager(

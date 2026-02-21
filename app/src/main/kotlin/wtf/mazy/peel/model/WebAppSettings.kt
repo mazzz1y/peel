@@ -13,7 +13,7 @@ data class WebAppSettings(
     var isClearCache: Boolean? = null,
     var isBlockImages: Boolean? = null,
     var isAlwaysHttps: Boolean? = null,
-    var isAllowLocationAccess: Boolean? = null,
+    var isAllowLocationAccess: Int? = null,
     var customHeaders: MutableMap<String, String>? = null,
     var isAutoReload: Boolean? = null,
     var timeAutoReload: Int? = null,
@@ -26,8 +26,8 @@ data class WebAppSettings(
     var isDrmAllowed: Boolean? = null,
     var isShowFullscreen: Boolean? = null,
     var isKeepAwake: Boolean? = null,
-    var isCameraPermission: Boolean? = null,
-    var isMicrophonePermission: Boolean? = null,
+    var isCameraPermission: Int? = null,
+    var isMicrophonePermission: Int? = null,
     var isEnableZooming: Boolean? = null,
     var isBiometricProtection: Boolean? = null,
     var isAllowMediaPlaybackInBackground: Boolean? = null,
@@ -39,6 +39,10 @@ data class WebAppSettings(
     var isDynamicStatusBar: Boolean? = null,
 ) {
     companion object {
+        const val PERMISSION_OFF = 0
+        const val PERMISSION_ASK = 1
+        const val PERMISSION_ON = 2
+
         @Suppress("UNCHECKED_CAST")
         private val PROPERTY_MAP: Map<String, KMutableProperty1<WebAppSettings, Any?>> by lazy {
             val map = mutableMapOf<String, KMutableProperty1<WebAppSettings, Any?>>()

@@ -29,6 +29,12 @@ sealed class SettingDefinition(
         category: SettingCategory,
     ) : SettingDefinition(toggle, displayNameResId, category)
 
+    class TriStateSetting(
+        toggle: SettingField,
+        @StringRes displayNameResId: Int,
+        category: SettingCategory,
+    ) : SettingDefinition(toggle, displayNameResId, category)
+
     class BooleanWithIntSetting(
         toggle: SettingField,
         @StringRes displayNameResId: Int,
@@ -129,18 +135,18 @@ object SettingRegistry {
                 R.string.setting_safe_browsing,
                 SettingCategory.PRIVACY,
             ),
-            SettingDefinition.BooleanSetting(
-                SettingField(WebAppSettings::isAllowLocationAccess, false),
+            SettingDefinition.TriStateSetting(
+                SettingField(WebAppSettings::isAllowLocationAccess, WebAppSettings.PERMISSION_OFF),
                 R.string.allow_location_access,
                 SettingCategory.PERMISSIONS,
             ),
-            SettingDefinition.BooleanSetting(
-                SettingField(WebAppSettings::isCameraPermission, false),
+            SettingDefinition.TriStateSetting(
+                SettingField(WebAppSettings::isCameraPermission, WebAppSettings.PERMISSION_OFF),
                 R.string.allow_camera_access,
                 SettingCategory.PERMISSIONS,
             ),
-            SettingDefinition.BooleanSetting(
-                SettingField(WebAppSettings::isMicrophonePermission, false),
+            SettingDefinition.TriStateSetting(
+                SettingField(WebAppSettings::isMicrophonePermission, WebAppSettings.PERMISSION_OFF),
                 R.string.allow_microphone_access,
                 SettingCategory.PERMISSIONS,
             ),

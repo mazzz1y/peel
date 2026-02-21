@@ -61,7 +61,7 @@
     <string name="no_filemanager">Please install a file manager.</string>
     <string name="export_btn">Export</string>
     <string name="import_btn">Import</string>
-    <string name="allow_location_access">Allow location access</string>
+    <string name="allow_location_access">Location</string>
     <string name="allow_drm_content">Allow DRM content</string>
     <string name="permission_location_rationale">If you want Web Apps to be able to retrieve your location, you can Peel grant the permission to access the location. You can decide to grant the permission for every Web App individually.</string>
     <string name="permission_storage_rationale">If you want Peel Web Apps to be able to download files, you have to accept the storage permission request.</string>
@@ -92,7 +92,7 @@
     <string name="export_data">Export</string>
     <string name="block_all_third_party_requests">Block third-party requests</string>
     <string name="sandbox">Sandbox</string>
-    <string name="no_sandbox">Do not use sandbox.</string>
+    <string name="no_sandbox">Do not use sandbox</string>
     <string name="all_sandboxes_used">All sandboxes are currently in use.</string>
     <string name="enable_sandbox">Enable Sandbox</string>
     <string name="ephemeral_sandbox">Ephemeral storage</string>
@@ -107,8 +107,16 @@
     <string name="site_not_found">Page could not be loaded.</string>
     <string name="icon_not_found">Icon could not be loaded.</string>
     <string name="keep_screen_awake">Keep screen awake</string>
-    <string name="allow_camera_access">Allow camera access</string>
-    <string name="allow_microphone_access">Allow microphone access</string>
+    <string name="allow_camera_access">Camera</string>
+    <string name="allow_microphone_access">Microphone</string>
+    <string name="permission_off">Off</string>
+    <string name="permission_ask">Ask</string>
+    <string name="permission_on">On</string>
+    <string name="permission_allow">Allow</string>
+    <string name="permission_deny">Deny</string>
+    <string name="permission_prompt_camera">This site wants to use your camera</string>
+    <string name="permission_prompt_microphone">This site wants to use your microphone</string>
+    <string name="permission_prompt_location">This site wants to access your location</string>
 
     <string name="shortcut_already_exists">A shortcut with this name already exists. Please choose another name or delete the existing shortcut.</string>
     <string name="back">Back</string>

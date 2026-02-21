@@ -14,6 +14,7 @@ import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
 import java.util.Locale
+import com.google.android.material.button.MaterialButtonToggleGroup
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.SettingDefinition
 import wtf.mazy.peel.model.WebAppSettings
@@ -40,6 +41,14 @@ class SettingViewFactory(
                     container,
                 ) {
                     setupBoolean(it, setting, settings)
+                }
+
+            is SettingDefinition.TriStateSetting ->
+                inflate(
+                    R.layout.item_setting_tristate,
+                    container,
+                ) {
+                    setupTriState(it, setting, settings)
                 }
 
             is SettingDefinition.BooleanWithIntSetting ->
@@ -103,6 +112,50 @@ class SettingViewFactory(
         }
 
         switch.setOnCheckedChangeListener(switchListener)
+    }
+
+    private fun setupTriState(
+        view: View,
+        setting: SettingDefinition.TriStateSetting,
+        settings: WebAppSettings,
+    ) {
+        val textName = view.findViewById<TextView>(R.id.textSettingName)
+        val toggleGroup = view.findViewById<MaterialButtonToggleGroup>(R.id.toggleGroup)
+        val btnRemove = view.findViewById<ImageButton>(R.id.btnRemoveOverride)
+        val btnUndo = view.findViewById<ImageButton>(R.id.btnUndo)
+
+        textName.text = view.context.getString(setting.displayNameResId)
+
+        fun checkedIdForValue(value: Int): Int = when (value) {
+            WebAppSettings.PERMISSION_ASK -> R.id.btnAsk
+            WebAppSettings.PERMISSION_ON -> R.id.btnOn
+            else -> R.id.btnOff
+        }
+
+        fun valueForCheckedId(id: Int): Int = when (id) {
+            R.id.btnAsk -> WebAppSettings.PERMISSION_ASK
+            R.id.btnOn -> WebAppSettings.PERMISSION_ON
+            else -> WebAppSettings.PERMISSION_OFF
+        }
+
+        val current = settings.getValue(setting.key) as? Int ?: WebAppSettings.PERMISSION_OFF
+        toggleGroup.check(checkedIdForValue(current))
+
+        val listener = MaterialButtonToggleGroup.OnButtonCheckedListener { _, checkedId, isChecked ->
+            if (isChecked) {
+                settings.setValue(setting.key, valueForCheckedId(checkedId))
+                updateUndoVisibility(btnUndo, setting, settings)
+            }
+        }
+
+        configureButtons(btnRemove, btnUndo, setting, settings) {
+            toggleGroup.removeOnButtonCheckedListener(listener)
+            val newValue = settings.getValue(setting.key) as? Int ?: WebAppSettings.PERMISSION_OFF
+            toggleGroup.check(checkedIdForValue(newValue))
+            toggleGroup.addOnButtonCheckedListener(listener)
+        }
+
+        toggleGroup.addOnButtonCheckedListener(listener)
     }
 
     private fun setupBooleanWithInt(

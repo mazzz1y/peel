@@ -15,6 +15,7 @@ import android.widget.ProgressBar
 import androidx.core.graphics.createBitmap
 import androidx.core.view.isGone
 import wtf.mazy.peel.R
+import wtf.mazy.peel.model.WebAppSettings
 import wtf.mazy.peel.util.Const
 
 class PeelWebChromeClient(
@@ -83,35 +84,43 @@ class PeelWebChromeClient(
     }
 
     override fun onPermissionRequest(request: PermissionRequest) {
-        val permissionsToGrant = mutableListOf<String>()
         val resources = request.resources.toList()
+        val immediate = mutableListOf<String>()
+        val pending = mutableListOf<PendingPermission>()
 
         if (PermissionRequest.RESOURCE_PROTECTED_MEDIA_ID in resources) {
             if (host.effectiveSettings.isDrmAllowed == true) {
-                permissionsToGrant.add(PermissionRequest.RESOURCE_PROTECTED_MEDIA_ID)
+                immediate.add(PermissionRequest.RESOURCE_PROTECTED_MEDIA_ID)
             }
         }
         if (PermissionRequest.RESOURCE_VIDEO_CAPTURE in resources) {
-            grantIfAllowed(
-                host.effectiveSettings.isCameraPermission == true,
+            handleTriState(
+                host.effectiveSettings.isCameraPermission,
                 arrayOf(Manifest.permission.CAMERA),
                 Const.PERMISSION_CAMERA,
-                permissionsToGrant,
                 PermissionRequest.RESOURCE_VIDEO_CAPTURE,
+                R.string.permission_prompt_camera,
+                immediate,
+                pending,
             )
         }
         if (PermissionRequest.RESOURCE_AUDIO_CAPTURE in resources) {
-            grantIfAllowed(
-                host.effectiveSettings.isMicrophonePermission == true,
-                arrayOf(
-                    Manifest.permission.RECORD_AUDIO, Manifest.permission.MODIFY_AUDIO_SETTINGS),
+            handleTriState(
+                host.effectiveSettings.isMicrophonePermission,
+                arrayOf(Manifest.permission.RECORD_AUDIO, Manifest.permission.MODIFY_AUDIO_SETTINGS),
                 Const.PERMISSION_AUDIO,
-                permissionsToGrant,
                 PermissionRequest.RESOURCE_AUDIO_CAPTURE,
+                R.string.permission_prompt_microphone,
+                immediate,
+                pending,
             )
         }
 
-        request.grant(permissionsToGrant.toTypedArray())
+        if (pending.isEmpty()) {
+            finalizePermissionRequest(request, immediate)
+        } else {
+            resolveAskPermissions(request, immediate, pending, 0)
+        }
     }
 
     override fun onProgressChanged(view: WebView?, progress: Int) {
@@ -134,15 +143,24 @@ class PeelWebChromeClient(
         origin: String?,
         callback: GeolocationPermissions.Callback?,
     ) {
-        if (host.effectiveSettings.isAllowLocationAccess != true) {
-            callback?.invoke(origin, false, false)
-            return
+        val state = host.effectiveSettings.isAllowLocationAccess
+        when (state) {
+            WebAppSettings.PERMISSION_ON -> grantLocation(origin, callback)
+            WebAppSettings.PERMISSION_ASK -> {
+                host.showPermissionDialog(host.getString(R.string.permission_prompt_location)) { allowed ->
+                    if (allowed) grantLocation(origin, callback)
+                    else callback?.invoke(origin, false, false)
+                }
+            }
+            else -> callback?.invoke(origin, false, false)
         }
-        val permissions =
-            arrayOf(
-                Manifest.permission.ACCESS_COARSE_LOCATION,
-                Manifest.permission.ACCESS_FINE_LOCATION,
-            )
+    }
+
+    private fun grantLocation(origin: String?, callback: GeolocationPermissions.Callback?) {
+        val permissions = arrayOf(
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+            Manifest.permission.ACCESS_FINE_LOCATION,
+        )
         if (!host.hasPermissions(*permissions)) {
             host.onGeoPermissionResult(origin, callback, false)
             host.requestHostPermissions(permissions, Const.PERMISSION_RC_LOCATION)
@@ -151,18 +169,60 @@ class PeelWebChromeClient(
         }
     }
 
-    private fun grantIfAllowed(
-        isEnabled: Boolean,
+    private data class PendingPermission(
+        val androidPermissions: Array<String>,
+        val requestCode: Int,
+        val webkitPermission: String,
+        val promptResId: Int,
+    )
+
+    private fun handleTriState(
+        state: Int?,
         androidPermissions: Array<String>,
         requestCode: Int,
-        permissionsToGrant: MutableList<String>,
         webkitPermission: String,
+        promptResId: Int,
+        immediate: MutableList<String>,
+        pending: MutableList<PendingPermission>,
     ) {
-        if (!isEnabled) return
-        if (!host.hasPermissions(*androidPermissions)) {
-            host.requestHostPermissions(androidPermissions, requestCode)
-        } else {
-            permissionsToGrant.add(webkitPermission)
+        when (state) {
+            WebAppSettings.PERMISSION_ON -> {
+                if (!host.hasPermissions(*androidPermissions)) {
+                    host.requestHostPermissions(androidPermissions, requestCode)
+                } else {
+                    immediate.add(webkitPermission)
+                }
+            }
+            WebAppSettings.PERMISSION_ASK -> {
+                pending.add(PendingPermission(androidPermissions, requestCode, webkitPermission, promptResId))
+            }
+        }
+    }
+
+    private fun finalizePermissionRequest(request: PermissionRequest, granted: List<String>) {
+        if (granted.isEmpty()) request.deny() else request.grant(granted.toTypedArray())
+    }
+
+    private fun resolveAskPermissions(
+        request: PermissionRequest,
+        granted: MutableList<String>,
+        pending: List<PendingPermission>,
+        index: Int,
+    ) {
+        if (index >= pending.size) {
+            finalizePermissionRequest(request, granted)
+            return
+        }
+        val p = pending[index]
+        host.showPermissionDialog(host.getString(p.promptResId)) { allowed ->
+            if (allowed) {
+                if (!host.hasPermissions(*p.androidPermissions)) {
+                    host.requestHostPermissions(p.androidPermissions, p.requestCode)
+                } else {
+                    granted.add(p.webkitPermission)
+                }
+            }
+            resolveAskPermissions(request, granted, pending, index + 1)
         }
     }
 }
