@@ -6,7 +6,8 @@ import wtf.mazy.peel.shortcut.ShortcutIconUtils
 
 data class WebApp(var baseUrl: String, override val uuid: String = UUID.randomUUID().toString()) :
     IconOwner {
-    var title: String
+    override var title: String
+    override val letterIconSeed: String get() = baseUrl
     var isActiveEntry = true
     var isUseContainer = false
     var isEphemeralSandbox = false

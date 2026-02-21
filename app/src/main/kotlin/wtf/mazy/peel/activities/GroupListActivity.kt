@@ -28,6 +28,7 @@ import wtf.mazy.peel.databinding.AddWebsiteDialogueBinding
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.WebAppGroup
 import wtf.mazy.peel.shortcut.LetterIconGenerator
+import wtf.mazy.peel.shortcut.ShortcutHelper
 import wtf.mazy.peel.util.Const
 
 class GroupListActivity : AppCompatActivity() {
@@ -258,6 +259,11 @@ class GroupListActivity : AppCompatActivity() {
             popup.menuInflater.inflate(R.menu.group_item_menu, popup.menu)
             popup.setOnMenuItemClickListener { menuItem ->
                 when (menuItem.itemId) {
+                    R.id.action_create_shortcut -> {
+                        ShortcutHelper.createShortcut(group, this@GroupListActivity)
+                        true
+                    }
+
                     R.id.action_edit -> {
                         val intent =
                             Intent(this@GroupListActivity, GroupSettingsActivity::class.java)

@@ -8,6 +8,8 @@ import wtf.mazy.peel.util.App
 
 interface IconOwner {
     val uuid: String
+    val title: String
+    val letterIconSeed: String get() = title
 
     val iconFile: File
         get() = File(App.appContext.filesDir, "icons/${uuid}.png")

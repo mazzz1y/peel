@@ -4,7 +4,7 @@ import java.util.UUID
 
 data class WebAppGroup(
     override val uuid: String = UUID.randomUUID().toString(),
-    var title: String = "",
+    override var title: String = "",
     var order: Int = 0,
     var isUseContainer: Boolean = false,
     var isEphemeralSandbox: Boolean = false,

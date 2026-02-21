@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.ShortcutManager
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
@@ -19,7 +18,9 @@ import androidx.core.net.toUri
 import kotlin.math.min
 import wtf.mazy.peel.R
 import wtf.mazy.peel.activities.TrampolineActivity
+import wtf.mazy.peel.model.IconOwner
 import wtf.mazy.peel.model.WebApp
+import wtf.mazy.peel.model.WebAppGroup
 import wtf.mazy.peel.util.App
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.NotificationUtils.showToast
@@ -27,6 +28,44 @@ import wtf.mazy.peel.util.NotificationUtils.showToast
 object ShortcutHelper {
     private const val ADAPTIVE_ICON_SIZE = 108
     private const val LOGO_SIZE = 48
+
+    fun createShortcut(owner: IconOwner, activity: Activity) {
+        if (!ShortcutManagerCompat.isRequestPinShortcutSupported(activity)) return
+
+        val intent = buildIntent(owner, activity)
+        val icon = resolveIcon(owner)
+        val title = owner.title.ifEmpty { "Unknown" }
+
+        val info = buildShortcutInfo(activity, owner.uuid, title, icon, intent)
+        val scManager = App.appContext.getSystemService(ShortcutManager::class.java)
+
+        if (scManager.pinnedShortcuts.none { it.id == info.id }) {
+            ShortcutManagerCompat.requestPinShortcut(activity, info, null)
+        } else {
+            showToast(activity, activity.getString(R.string.shortcut_already_exists), Toast.LENGTH_SHORT)
+        }
+    }
+
+    fun updatePinnedShortcut(webapp: WebApp, context: Context) {
+        val scManager = context.getSystemService(ShortcutManager::class.java)
+        if (scManager.pinnedShortcuts.none { it.id == webapp.uuid }) return
+
+        val intent = buildIntent(webapp, context)
+        val icon = resolveIcon(webapp)
+        val title = webapp.title.ifEmpty { "Unknown" }
+
+        val updated = buildShortcutInfo(context, webapp.uuid, title, icon, intent)
+        ShortcutManagerCompat.updateShortcuts(context, listOf(updated))
+    }
+
+    fun resolveIcon(owner: IconOwner): IconCompat {
+        val bitmap = owner.loadIcon()
+        if (bitmap != null) {
+            return IconCompat.createWithAdaptiveBitmap(resizeBitmapForAdaptiveIcon(bitmap))
+        }
+        return IconCompat.createWithAdaptiveBitmap(
+            LetterIconGenerator.generateForAdaptiveIcon(owner.title, owner.letterIconSeed))
+    }
 
     fun resizeBitmapForAdaptiveIcon(bitmap: Bitmap): Bitmap {
         val density = App.appContext.resources.displayMetrics.density
@@ -58,57 +97,13 @@ object ShortcutHelper {
         return finalBitmap
     }
 
-    fun createShortcut(webapp: WebApp, activity: Activity) {
-        val intent = buildShortcutIntent(webapp, activity)
-        val icon = resolveIcon(webapp)
-        val finalTitle = webapp.title.ifEmpty { "Unknown" }
-
-        if (!ShortcutManagerCompat.isRequestPinShortcutSupported(activity)) return
-
-        val pinShortcutInfo = buildShortcutInfo(activity, webapp.uuid, finalTitle, icon, intent)
-        val scManager: ShortcutManager =
-            App.appContext.getSystemService(ShortcutManager::class.java)
-
-        if (scManager.pinnedShortcuts.none { it.id == pinShortcutInfo.id }) {
-            ShortcutManagerCompat.requestPinShortcut(activity, pinShortcutInfo, null)
-        } else {
-            showToast(
-                activity,
-                activity.getString(R.string.shortcut_already_exists),
-                Toast.LENGTH_SHORT,
-            )
-        }
-    }
-
-    fun updatePinnedShortcut(webapp: WebApp, context: Context) {
-        val scManager = context.getSystemService(ShortcutManager::class.java)
-        if (scManager.pinnedShortcuts.none { it.id == webapp.uuid }) return
-
-        val intent = buildShortcutIntent(webapp, context)
-        val icon = resolveIcon(webapp)
-        val finalTitle = webapp.title.ifEmpty { "Unknown" }
-
-        val updated = buildShortcutInfo(context, webapp.uuid, finalTitle, icon, intent)
-        ShortcutManagerCompat.updateShortcuts(context, listOf(updated))
-    }
-
-    fun resolveIcon(webapp: WebApp): IconCompat {
-        if (webapp.hasCustomIcon) {
-            try {
-                val bitmap = BitmapFactory.decodeFile(webapp.iconFile.absolutePath)
-                if (bitmap != null) {
-                    return IconCompat.createWithAdaptiveBitmap(resizeBitmapForAdaptiveIcon(bitmap))
-                }
-            } catch (_: Exception) {}
-        }
-        return IconCompat.createWithAdaptiveBitmap(
-            LetterIconGenerator.generateForAdaptiveIcon(webapp.title, webapp.baseUrl))
-    }
-
-    private fun buildShortcutIntent(webapp: WebApp, context: Context): Intent {
+    private fun buildIntent(owner: IconOwner, context: Context): Intent {
         return Intent(context, TrampolineActivity::class.java).apply {
-            putExtra(Const.INTENT_WEBAPP_UUID, webapp.uuid)
-            data = "app://${webapp.uuid}".toUri()
+            when (owner) {
+                is WebApp -> putExtra(Const.INTENT_WEBAPP_UUID, owner.uuid)
+                is WebAppGroup -> putExtra(Const.INTENT_GROUP_UUID, owner.uuid)
+            }
+            data = "peel://${owner.uuid}".toUri()
             action = Intent.ACTION_VIEW
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
         }

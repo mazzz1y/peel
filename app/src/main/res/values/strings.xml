@@ -205,6 +205,7 @@
     <string name="group_name_hint">Group name</string>
     <string name="group_sandbox">Shared Sandbox</string>
     <string name="groups_empty_state">No groups yet.\nTap the + button to create your first group.</string>
+    <string name="group_empty">No apps in this group</string>
     <string name="none">Other</string>
     <string name="open_in_peel">Open in Peel</string>
     <string name="move_to_group">Move to group</string>

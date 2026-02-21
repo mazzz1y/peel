@@ -3,7 +3,18 @@ package wtf.mazy.peel.activities
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.BaseAdapter
+import android.widget.ImageView
+import android.widget.TextView
+import android.widget.Toast
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import wtf.mazy.peel.R
 import wtf.mazy.peel.model.DataManager
+import wtf.mazy.peel.model.WebApp
+import wtf.mazy.peel.shortcut.LetterIconGenerator
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.WebViewLauncher
 
@@ -12,21 +23,79 @@ class TrampolineActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val uuid = intent.getStringExtra(Const.INTENT_WEBAPP_UUID)
-        val webapp =
-            uuid?.let {
-                DataManager.instance.loadAppData()
-                DataManager.instance.getWebApp(it)
-            }
+        val webappUuid = intent.getStringExtra(Const.INTENT_WEBAPP_UUID)
+        if (webappUuid != null) {
+            launchWebApp(webappUuid)
+            finish()
+            return
+        }
 
-        if (webapp != null) {
-            val target = WebViewLauncher.createWebViewIntent(webapp, this)
-            if (target != null) {
-                target.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                startActivity(target)
-            }
+        val groupUuid = intent.getStringExtra(Const.INTENT_GROUP_UUID)
+        if (groupUuid != null) {
+            launchGroup(groupUuid)
+            return
         }
 
         finish()
+    }
+
+    private fun launchWebApp(uuid: String) {
+        val webapp = DataManager.instance.getWebApp(uuid) ?: return
+        val target = WebViewLauncher.createWebViewIntent(webapp, this) ?: return
+        target.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        startActivity(target)
+    }
+
+    private fun launchGroup(groupUuid: String) {
+        val group = DataManager.instance.getGroup(groupUuid)
+        val apps = DataManager.instance.activeWebsitesForGroup(groupUuid)
+
+        if (apps.isEmpty()) {
+            Toast.makeText(this, getString(R.string.group_empty), Toast.LENGTH_SHORT).show()
+            finish()
+            return
+        }
+
+        showPickerDialog(group?.title ?: "", apps)
+    }
+
+    private fun showPickerDialog(title: String, apps: List<WebApp>) {
+        val adapter = object : BaseAdapter() {
+            override fun getCount() = apps.size
+            override fun getItem(position: Int) = apps[position]
+            override fun getItemId(position: Int) = position.toLong()
+
+            override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+                val view = convertView ?: LayoutInflater.from(this@TrampolineActivity)
+                    .inflate(R.layout.item_share_picker, parent, false)
+
+                val webapp = apps[position]
+                view.findViewById<TextView>(R.id.appName).text = webapp.title
+                view.findViewById<TextView>(R.id.groupName).visibility = View.GONE
+                loadIcon(webapp, view.findViewById(R.id.appIcon))
+                return view
+            }
+        }
+
+        MaterialAlertDialogBuilder(this)
+            .setTitle(title)
+            .setAdapter(adapter) { _, position ->
+                WebViewLauncher.startWebView(apps[position], this)
+                finish()
+            }
+            .setOnCancelListener { finish() }
+            .setOnDismissListener { finish() }
+            .show()
+    }
+
+    private fun loadIcon(webapp: WebApp, imageView: ImageView) {
+        val bitmap = webapp.loadIcon()
+        if (bitmap != null) {
+            imageView.setImageBitmap(bitmap)
+            return
+        }
+        val sizePx = (resources.displayMetrics.density * 36).toInt()
+        imageView.setImageBitmap(
+            LetterIconGenerator.generate(webapp.title, webapp.baseUrl, sizePx))
     }
 }
