@@ -9,12 +9,12 @@ import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import com.google.android.material.button.MaterialButtonToggleGroup
 import com.google.android.material.materialswitch.MaterialSwitch
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
 import java.util.Locale
-import com.google.android.material.button.MaterialButtonToggleGroup
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.SettingDefinition
 import wtf.mazy.peel.model.WebAppSettings
@@ -128,13 +128,13 @@ class SettingViewFactory(
 
         fun checkedIdForValue(value: Int): Int = when (value) {
             WebAppSettings.PERMISSION_ASK -> R.id.btnAsk
-            WebAppSettings.PERMISSION_ON -> R.id.btnOn
-            else -> R.id.btnOff
+            WebAppSettings.PERMISSION_ON -> R.id.btnAllow
+            else -> R.id.btnDeny
         }
 
         fun valueForCheckedId(id: Int): Int = when (id) {
             R.id.btnAsk -> WebAppSettings.PERMISSION_ASK
-            R.id.btnOn -> WebAppSettings.PERMISSION_ON
+            R.id.btnAllow -> WebAppSettings.PERMISSION_ON
             else -> WebAppSettings.PERMISSION_OFF
         }
 

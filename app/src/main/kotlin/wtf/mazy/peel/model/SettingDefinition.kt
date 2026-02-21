@@ -65,16 +65,18 @@ sealed class SettingDefinition(
 
 enum class SettingCategory(@param:StringRes val displayNameResId: Int) {
     GENERAL(R.string.general),
-    PRIVACY(R.string.webapp_section_security),
-    PERMISSIONS(R.string.permissions),
-    ADVANCED(R.string.advanced),
     APPEARANCE(R.string.appearance),
+    PERMISSIONS(R.string.permissions),
+    CONTENT(R.string.content),
+    SECURITY(R.string.security),
+    ADVANCED(R.string.advanced),
 }
 
 object SettingRegistry {
 
     private val ALL_SETTINGS: List<SettingDefinition> =
         listOf(
+            // General
             SettingDefinition.BooleanSetting(
                 SettingField(WebAppSettings::isAllowJs, true),
                 R.string.allow_javascript,
@@ -101,60 +103,17 @@ object SettingRegistry {
                 SettingCategory.GENERAL,
             ),
             SettingDefinition.BooleanSetting(
-                SettingField(WebAppSettings::isAllowCookies, true),
-                R.string.accept_cookies,
-                SettingCategory.PRIVACY,
+                SettingField(WebAppSettings::isKeepAwake, false),
+                R.string.keep_screen_awake,
+                SettingCategory.GENERAL,
             ),
-            SettingDefinition.BooleanSetting(
-                SettingField(WebAppSettings::isAllowThirdPartyCookies, false),
-                R.string.accept_third_party_cookies,
-                SettingCategory.PRIVACY,
+            SettingDefinition.BooleanWithIntSetting(
+                SettingField(WebAppSettings::isAutoReload, false),
+                R.string.webapp_autoreload,
+                SettingCategory.GENERAL,
+                intField = SettingField(WebAppSettings::timeAutoReload, 0),
             ),
-            SettingDefinition.BooleanSetting(
-                SettingField(WebAppSettings::isClearCache, false),
-                R.string.clear_cache_after_usage,
-                SettingCategory.PRIVACY,
-            ),
-            SettingDefinition.BooleanSetting(
-                SettingField(WebAppSettings::isBlockImages, false),
-                R.string.do_not_load_images,
-                SettingCategory.PRIVACY,
-            ),
-            SettingDefinition.BooleanSetting(
-                SettingField(WebAppSettings::isBlockThirdPartyRequests, false),
-                R.string.block_all_third_party_requests,
-                SettingCategory.PRIVACY,
-            ),
-            SettingDefinition.BooleanSetting(
-                SettingField(WebAppSettings::isDisableScreenshots, false),
-                R.string.setting_disable_screenshots,
-                SettingCategory.PRIVACY,
-            ),
-            SettingDefinition.BooleanSetting(
-                SettingField(WebAppSettings::isSafeBrowsing, true),
-                R.string.setting_safe_browsing,
-                SettingCategory.PRIVACY,
-            ),
-            SettingDefinition.TriStateSetting(
-                SettingField(WebAppSettings::isAllowLocationAccess, WebAppSettings.PERMISSION_OFF),
-                R.string.allow_location_access,
-                SettingCategory.PERMISSIONS,
-            ),
-            SettingDefinition.TriStateSetting(
-                SettingField(WebAppSettings::isCameraPermission, WebAppSettings.PERMISSION_OFF),
-                R.string.allow_camera_access,
-                SettingCategory.PERMISSIONS,
-            ),
-            SettingDefinition.TriStateSetting(
-                SettingField(WebAppSettings::isMicrophonePermission, WebAppSettings.PERMISSION_OFF),
-                R.string.allow_microphone_access,
-                SettingCategory.PERMISSIONS,
-            ),
-            SettingDefinition.BooleanSetting(
-                SettingField(WebAppSettings::isDrmAllowed, false),
-                R.string.allow_drm_content,
-                SettingCategory.PERMISSIONS,
-            ),
+            // Appearance
             SettingDefinition.BooleanSetting(
                 SettingField(WebAppSettings::isShowProgressbar, true),
                 R.string.show_progress_bar_during_page_load,
@@ -187,37 +146,85 @@ object SettingRegistry {
                 R.string.setting_dynamic_status_bar,
                 SettingCategory.APPEARANCE,
             ),
+            // Permissions
+            SettingDefinition.TriStateSetting(
+                SettingField(WebAppSettings::isCameraPermission, WebAppSettings.PERMISSION_OFF),
+                R.string.allow_camera_access,
+                SettingCategory.PERMISSIONS,
+            ),
+            SettingDefinition.TriStateSetting(
+                SettingField(WebAppSettings::isMicrophonePermission, WebAppSettings.PERMISSION_OFF),
+                R.string.allow_microphone_access,
+                SettingCategory.PERMISSIONS,
+            ),
+            SettingDefinition.TriStateSetting(
+                SettingField(WebAppSettings::isAllowLocationAccess, WebAppSettings.PERMISSION_OFF),
+                R.string.allow_location_access,
+                SettingCategory.PERMISSIONS,
+            ),
+            // Content
             SettingDefinition.BooleanSetting(
-                SettingField(WebAppSettings::isAlwaysHttps, true),
-                R.string.setting_always_https,
-                SettingCategory.ADVANCED,
+                SettingField(WebAppSettings::isAllowCookies, true),
+                R.string.accept_cookies,
+                SettingCategory.CONTENT,
             ),
             SettingDefinition.BooleanSetting(
-                SettingField(WebAppSettings::isIgnoreSslErrors, false),
-                R.string.ignore_ssl_errors,
-                SettingCategory.ADVANCED,
+                SettingField(WebAppSettings::isAllowThirdPartyCookies, false),
+                R.string.accept_third_party_cookies,
+                SettingCategory.CONTENT,
             ),
             SettingDefinition.BooleanSetting(
-                SettingField(WebAppSettings::isBiometricProtection, false),
-                R.string.enable_access_restriction,
-                SettingCategory.ADVANCED,
+                SettingField(WebAppSettings::isBlockImages, false),
+                R.string.do_not_load_images,
+                SettingCategory.CONTENT,
             ),
             SettingDefinition.BooleanSetting(
-                SettingField(WebAppSettings::isKeepAwake, false),
-                R.string.keep_screen_awake,
-                SettingCategory.ADVANCED,
+                SettingField(WebAppSettings::isBlockThirdPartyRequests, false),
+                R.string.block_all_third_party_requests,
+                SettingCategory.CONTENT,
             ),
-            SettingDefinition.BooleanWithIntSetting(
-                SettingField(WebAppSettings::isAutoReload, false),
-                R.string.webapp_autoreload,
-                SettingCategory.ADVANCED,
-                intField = SettingField(WebAppSettings::timeAutoReload, 0),
+            SettingDefinition.BooleanSetting(
+                SettingField(WebAppSettings::isDrmAllowed, false),
+                R.string.allow_drm_content,
+                SettingCategory.CONTENT,
             ),
             SettingDefinition.BooleanSetting(
                 SettingField(WebAppSettings::isAllowMediaPlaybackInBackground, false),
                 R.string.allow_media_playback_in_background,
-                SettingCategory.ADVANCED,
+                SettingCategory.CONTENT,
             ),
+            // Security
+            SettingDefinition.BooleanSetting(
+                SettingField(WebAppSettings::isAlwaysHttps, true),
+                R.string.setting_always_https,
+                SettingCategory.SECURITY,
+            ),
+            SettingDefinition.BooleanSetting(
+                SettingField(WebAppSettings::isIgnoreSslErrors, false),
+                R.string.ignore_ssl_errors,
+                SettingCategory.SECURITY,
+            ),
+            SettingDefinition.BooleanSetting(
+                SettingField(WebAppSettings::isSafeBrowsing, true),
+                R.string.setting_safe_browsing,
+                SettingCategory.SECURITY,
+            ),
+            SettingDefinition.BooleanSetting(
+                SettingField(WebAppSettings::isBiometricProtection, false),
+                R.string.enable_access_restriction,
+                SettingCategory.SECURITY,
+            ),
+            SettingDefinition.BooleanSetting(
+                SettingField(WebAppSettings::isDisableScreenshots, false),
+                R.string.setting_disable_screenshots,
+                SettingCategory.SECURITY,
+            ),
+            SettingDefinition.BooleanSetting(
+                SettingField(WebAppSettings::isClearCache, false),
+                R.string.clear_cache_after_usage,
+                SettingCategory.SECURITY,
+            ),
+            // Advanced
             SettingDefinition.StringMapSetting(
                 SettingField(WebAppSettings::customHeaders, null),
                 R.string.setting_custom_headers,

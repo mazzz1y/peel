@@ -26,6 +26,16 @@ class PeelWebChromeClient(
     private var customViewCallback: CustomViewCallback? = null
     private var originalOrientation = 0
     private var originalSystemUiVisibility = 0
+    private val sessionGranted = mutableSetOf<String>()
+    private val sessionDenied = mutableSetOf<String>()
+
+    companion object {
+        private const val GEOLOCATION_KEY = "geolocation"
+        private const val MAX_NAME_LENGTH = 30
+    }
+
+    private val trimmedName: String
+        get() = host.webAppName.take(MAX_NAME_LENGTH)
 
     override fun onShowFileChooser(
         webView: WebView?,
@@ -147,9 +157,25 @@ class PeelWebChromeClient(
         when (state) {
             WebAppSettings.PERMISSION_ON -> grantLocation(origin, callback)
             WebAppSettings.PERMISSION_ASK -> {
-                host.showPermissionDialog(host.getString(R.string.permission_prompt_location)) { allowed ->
-                    if (allowed) grantLocation(origin, callback)
-                    else callback?.invoke(origin, false, false)
+                when {
+                    GEOLOCATION_KEY in sessionDenied -> callback?.invoke(origin, false, false)
+                    GEOLOCATION_KEY in sessionGranted -> grantLocation(origin, callback)
+                    else -> {
+                        host.showPermissionDialog(host.getString(R.string.permission_prompt_location, trimmedName)) { result ->
+                            when (result) {
+                                PermissionResult.ALLOW_SESSION -> {
+                                    sessionGranted.add(GEOLOCATION_KEY)
+                                    grantLocation(origin, callback)
+                                }
+                                PermissionResult.ALLOW_ONCE -> grantLocation(origin, callback)
+                                PermissionResult.DENY_SESSION -> {
+                                    sessionDenied.add(GEOLOCATION_KEY)
+                                    callback?.invoke(origin, false, false)
+                                }
+                                PermissionResult.DENY_ONCE -> callback?.invoke(origin, false, false)
+                            }
+                        }
+                    }
                 }
             }
             else -> callback?.invoke(origin, false, false)
@@ -176,6 +202,19 @@ class PeelWebChromeClient(
         val promptResId: Int,
     )
 
+    private fun grantOrRequestPermission(
+        androidPermissions: Array<String>,
+        requestCode: Int,
+        webkitPermission: String,
+        granted: MutableList<String>,
+    ) {
+        if (!host.hasPermissions(*androidPermissions)) {
+            host.requestHostPermissions(androidPermissions, requestCode)
+        } else {
+            granted.add(webkitPermission)
+        }
+    }
+
     private fun handleTriState(
         state: Int?,
         androidPermissions: Array<String>,
@@ -185,17 +224,12 @@ class PeelWebChromeClient(
         immediate: MutableList<String>,
         pending: MutableList<PendingPermission>,
     ) {
-        when (state) {
-            WebAppSettings.PERMISSION_ON -> {
-                if (!host.hasPermissions(*androidPermissions)) {
-                    host.requestHostPermissions(androidPermissions, requestCode)
-                } else {
-                    immediate.add(webkitPermission)
-                }
-            }
-            WebAppSettings.PERMISSION_ASK -> {
+        when {
+            webkitPermission in sessionDenied -> {}
+            state == WebAppSettings.PERMISSION_ON || webkitPermission in sessionGranted ->
+                grantOrRequestPermission(androidPermissions, requestCode, webkitPermission, immediate)
+            state == WebAppSettings.PERMISSION_ASK ->
                 pending.add(PendingPermission(androidPermissions, requestCode, webkitPermission, promptResId))
-            }
         }
     }
 
@@ -214,13 +248,16 @@ class PeelWebChromeClient(
             return
         }
         val p = pending[index]
-        host.showPermissionDialog(host.getString(p.promptResId)) { allowed ->
-            if (allowed) {
-                if (!host.hasPermissions(*p.androidPermissions)) {
-                    host.requestHostPermissions(p.androidPermissions, p.requestCode)
-                } else {
-                    granted.add(p.webkitPermission)
+        host.showPermissionDialog(host.getString(p.promptResId, trimmedName)) { result ->
+            when (result) {
+                PermissionResult.ALLOW_SESSION -> {
+                    sessionGranted.add(p.webkitPermission)
+                    grantOrRequestPermission(p.androidPermissions, p.requestCode, p.webkitPermission, granted)
                 }
+                PermissionResult.ALLOW_ONCE ->
+                    grantOrRequestPermission(p.androidPermissions, p.requestCode, p.webkitPermission, granted)
+                PermissionResult.DENY_SESSION -> sessionDenied.add(p.webkitPermission)
+                PermissionResult.DENY_ONCE -> {}
             }
             resolveAskPermissions(request, granted, pending, index + 1)
         }

@@ -62,6 +62,7 @@ import wtf.mazy.peel.media.MediaJsBridge
 import wtf.mazy.peel.media.MediaPlaybackManager
 import wtf.mazy.peel.webview.ChromeClientHost
 import wtf.mazy.peel.webview.DownloadHandler
+import wtf.mazy.peel.webview.PermissionResult
 import wtf.mazy.peel.webview.PeelWebChromeClient
 import wtf.mazy.peel.webview.PeelWebViewClient
 import wtf.mazy.peel.webview.WebViewClientHost
@@ -221,6 +222,9 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         applyTaskSnapshotProtection()
         loadURL(sharedUrlFromIntent() ?: newWebapp.baseUrl)
     }
+
+    override val webAppName: String
+        get() = webapp.title
 
     override val effectiveSettings: WebAppSettings
         get() = webapp.effectiveSettings
@@ -445,13 +449,21 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         geoPermissionRequestOrigin = origin
     }
 
-    override fun showPermissionDialog(message: String, onResult: (Boolean) -> Unit) {
-        com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
-            .setMessage(message)
-            .setPositiveButton(R.string.permission_allow) { _, _ -> onResult(true) }
-            .setNegativeButton(R.string.permission_deny) { _, _ -> onResult(false) }
-            .setOnCancelListener { onResult(false) }
+    override fun showPermissionDialog(message: String, onResult: (PermissionResult) -> Unit) {
+        val view = layoutInflater.inflate(R.layout.dialog_permission, null)
+        view.findViewById<android.widget.TextView>(R.id.textTitle).text = message
+        val dialog = com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+            .setView(view)
+            .setOnCancelListener { onResult(PermissionResult.DENY_ONCE) }
             .show()
+        view.findViewById<com.google.android.material.button.MaterialButton>(R.id.btnAllowSession)
+            .setOnClickListener { dialog.dismiss(); onResult(PermissionResult.ALLOW_SESSION) }
+        view.findViewById<com.google.android.material.button.MaterialButton>(R.id.btnAllowOnce)
+            .setOnClickListener { dialog.dismiss(); onResult(PermissionResult.ALLOW_ONCE) }
+        view.findViewById<com.google.android.material.button.MaterialButton>(R.id.btnDenyOnce)
+            .setOnClickListener { dialog.dismiss(); onResult(PermissionResult.DENY_ONCE) }
+        view.findViewById<com.google.android.material.button.MaterialButton>(R.id.btnDenySession)
+            .setOnClickListener { dialog.dismiss(); onResult(PermissionResult.DENY_SESSION) }
     }
 
     private fun initNotificationManager() {

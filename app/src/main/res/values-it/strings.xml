@@ -43,7 +43,6 @@
     <string name="allow_http">Consenti HTTP</string>
     <string name="https_only_blocked">Bloccato: connessione non crittografata</string>
     <string name="ssl_error_blocked">Bloccato: %1$s</string>
-    <string name="webapp_section_security">Sicurezza &amp; Privacy</string>
     <string name="import_failed">Backup non ripristinabile.</string>
     <string name="import_success">Il backup di %1$d Web App è stato ripristinato con successo.</string>
     <string name="import_mode_title">Modalità di importazione</string>

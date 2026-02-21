@@ -20,7 +20,7 @@
         android:layout_height="wrap_content"
         android:background="?attr/selectableItemBackgroundBorderless"
         android:contentDescription="@string/undo"
-        android:padding="12dp"
+        android:padding="16dp"
         android:src="@drawable/ic_undo_24dp"
         android:visibility="gone" />
 
@@ -32,37 +32,43 @@
         app:selectionRequired="true">
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnOff"
-            style="?attr/materialButtonOutlinedStyle"
+            android:id="@+id/btnDeny"
+            style="@style/Widget.Material3.Button.OutlinedButton"
             android:layout_width="wrap_content"
-            android:layout_height="40dp"
-            android:minWidth="64dp"
+            android:layout_height="32dp"
+            android:minWidth="60dp"
             android:paddingStart="16dp"
             android:paddingEnd="16dp"
-            android:textSize="13sp"
-            android:text="@string/permission_off" />
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:textSize="12sp"
+            android:text="@string/permission_deny" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnAsk"
-            style="?attr/materialButtonOutlinedStyle"
+            style="@style/Widget.Material3.Button.OutlinedButton"
             android:layout_width="wrap_content"
-            android:layout_height="40dp"
-            android:minWidth="64dp"
+            android:layout_height="32dp"
+            android:minWidth="60dp"
             android:paddingStart="16dp"
             android:paddingEnd="16dp"
-            android:textSize="13sp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:textSize="12sp"
             android:text="@string/permission_ask" />
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnOn"
-            style="?attr/materialButtonOutlinedStyle"
+            android:id="@+id/btnAllow"
+            style="@style/Widget.Material3.Button.OutlinedButton"
             android:layout_width="wrap_content"
-            android:layout_height="40dp"
-            android:minWidth="64dp"
+            android:layout_height="32dp"
+            android:minWidth="60dp"
             android:paddingStart="16dp"
             android:paddingEnd="16dp"
-            android:textSize="13sp"
-            android:text="@string/permission_on" />
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:textSize="12sp"
+            android:text="@string/permission_allow" />
 
     </com.google.android.material.button.MaterialButtonToggleGroup>
 
@@ -72,7 +78,7 @@
         android:layout_height="wrap_content"
         android:background="?attr/selectableItemBackgroundBorderless"
         android:contentDescription="@string/remove_override"
-        android:padding="12dp"
+        android:padding="16dp"
         android:src="@drawable/ic_close_24dp" />
 
 </LinearLayout>

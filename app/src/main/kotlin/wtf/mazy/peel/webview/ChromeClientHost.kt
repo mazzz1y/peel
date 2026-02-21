@@ -8,7 +8,10 @@ import android.webkit.ValueCallback
 import android.widget.ProgressBar
 import wtf.mazy.peel.model.WebAppSettings
 
+enum class PermissionResult { ALLOW_SESSION, ALLOW_ONCE, DENY_ONCE, DENY_SESSION }
+
 interface ChromeClientHost {
+    val webAppName: String
     val effectiveSettings: WebAppSettings
     var currentlyReloading: Boolean
     val hostProgressBar: ProgressBar?
@@ -36,9 +39,10 @@ interface ChromeClientHost {
         allow: Boolean
     )
 
-    fun showPermissionDialog(message: String, onResult: (Boolean) -> Unit)
+    fun showPermissionDialog(message: String, onResult: (PermissionResult) -> Unit)
 
     fun getString(resId: Int): String
+    fun getString(resId: Int, vararg args: Any): String
 
     fun onPageFullyLoaded()
 }
