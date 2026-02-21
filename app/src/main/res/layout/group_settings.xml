@@ -49,7 +49,7 @@
                             android:id="@+id/imgGroupIcon"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:scaleType="centerInside"
+                            android:scaleType="fitCenter"
                             android:contentDescription="@string/app_icon" />
 
                     </FrameLayout>
