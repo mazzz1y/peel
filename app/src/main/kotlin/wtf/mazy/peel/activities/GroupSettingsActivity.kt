@@ -1,12 +1,18 @@
 package wtf.mazy.peel.activities
 
+import android.graphics.Bitmap
+import android.net.Uri
 import android.os.Bundle
+import android.provider.MediaStore
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import java.io.IOException
 import wtf.mazy.peel.R
 import wtf.mazy.peel.databinding.GroupSettingsBinding
 import wtf.mazy.peel.model.DataManager
@@ -25,8 +31,14 @@ class GroupSettingsActivity :
 
     private var originalGroup: WebAppGroup? = null
     private var modifiedGroup: WebAppGroup? = null
+    private var customIconBitmap: Bitmap? = null
+    private lateinit var iconPickerLauncher: ActivityResultLauncher<String>
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        iconPickerLauncher =
+            registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+                uri?.let { handleSelectedIcon(it) }
+            }
         super.onCreate(savedInstanceState)
         setToolbarTitle(getString(R.string.group_settings))
 
@@ -42,6 +54,7 @@ class GroupSettingsActivity :
         modifiedGroup = WebAppGroup(originalGroup!!)
         binding.group = modifiedGroup
 
+        setupIconButton()
         updateGroupIcon()
         binding.txtGroupName.addTextChangedListener(
             object : TextWatcher {
@@ -78,8 +91,68 @@ class GroupSettingsActivity :
         return GroupSettingsBinding.inflate(layoutInflater)
     }
 
+    private fun setupIconButton() {
+        val showIconDialog = { showIconEditDialog() }
+        binding.iconContainer.setOnClickListener { showIconDialog() }
+        binding.btnEditIcon.setOnClickListener { showIconDialog() }
+    }
+
+    private fun showIconEditDialog() {
+        val group = modifiedGroup ?: return
+
+        val items = mutableListOf(getString(R.string.icon_update))
+        if (group.hasCustomIcon) items.add(getString(R.string.icon_remove))
+
+        MaterialAlertDialogBuilder(this)
+            .setItems(items.toTypedArray()) { _, which ->
+                when (which) {
+                    0 -> launchIconPicker()
+                    1 -> removeIcon(group)
+                }
+            }
+            .show()
+    }
+
+    private fun launchIconPicker() {
+        try {
+            iconPickerLauncher.launch("image/*")
+        } catch (e: Exception) {
+            showToast(this, getString(R.string.icon_not_found), Toast.LENGTH_SHORT)
+        }
+    }
+
+    private fun handleSelectedIcon(uri: Uri) {
+        try {
+            @Suppress("DEPRECATION")
+            val bitmap = MediaStore.Images.Media.getBitmap(contentResolver, uri)
+            if (bitmap != null) {
+                customIconBitmap = bitmap
+                binding.imgGroupIcon.setImageBitmap(bitmap)
+                modifiedGroup?.saveIcon(bitmap)
+            }
+        } catch (e: IOException) {
+            showToast(this, getString(R.string.icon_not_found), Toast.LENGTH_SHORT)
+        }
+    }
+
+    private fun removeIcon(group: WebAppGroup) {
+        group.deleteIcon()
+        customIconBitmap = null
+        updateGroupIcon()
+    }
+
     private fun updateGroupIcon() {
         val group = modifiedGroup ?: return
+        if (customIconBitmap != null) {
+            binding.imgGroupIcon.setImageBitmap(customIconBitmap)
+            return
+        }
+        val bitmap = group.loadIcon()
+        if (bitmap != null) {
+            customIconBitmap = bitmap
+            binding.imgGroupIcon.setImageBitmap(bitmap)
+            return
+        }
         val sizePx = (resources.displayMetrics.density * 96).toInt()
         binding.imgGroupIcon.setImageBitmap(
             LetterIconGenerator.generate(group.title, group.title, sizePx))

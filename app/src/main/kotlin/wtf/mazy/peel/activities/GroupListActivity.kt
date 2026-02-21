@@ -218,9 +218,14 @@ class GroupListActivity : AppCompatActivity() {
             val group = items[position]
             holder.titleView.text = group.title
 
-            val sizePx = (resources.displayMetrics.density * 38).toInt()
-            holder.iconView.setImageBitmap(
-                LetterIconGenerator.generate(group.title, group.title, sizePx))
+            val bitmap = group.loadIcon()
+            if (bitmap != null) {
+                holder.iconView.setImageBitmap(bitmap)
+            } else {
+                val sizePx = (resources.displayMetrics.density * 38).toInt()
+                holder.iconView.setImageBitmap(
+                    LetterIconGenerator.generate(group.title, group.title, sizePx))
+            }
 
             val count = DataManager.instance.activeWebsitesForGroup(group.uuid).size
             holder.countView.text =

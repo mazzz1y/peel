@@ -79,15 +79,6 @@
                                     android:focusable="true">
 
                                     <ImageView
-                                        android:id="@+id/imgWebAppIconPlaceholder"
-                                        android:layout_width="match_parent"
-                                        android:layout_height="match_parent"
-                                        android:contentDescription="@string/shortcut_icon"
-                                        android:scaleType="centerInside"
-                                        android:src="@drawable/ic_add_photo_24dp"
-                                        android:alpha="0.5" />
-
-                                    <ImageView
                                         android:id="@+id/imgWebAppIcon"
                                         android:layout_width="match_parent"
                                         android:layout_height="match_parent"

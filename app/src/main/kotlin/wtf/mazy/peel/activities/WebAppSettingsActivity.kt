@@ -3,13 +3,12 @@ package wtf.mazy.peel.activities
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.Bitmap
-import android.os.Handler
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
 import android.os.ResultReceiver
 import android.provider.MediaStore
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.animation.AnimationUtils
@@ -17,7 +16,6 @@ import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import java.io.FileOutputStream
 import java.io.IOException
 import wtf.mazy.peel.R
 import wtf.mazy.peel.databinding.WebappSettingsBinding
@@ -27,8 +25,8 @@ import wtf.mazy.peel.model.SettingDefinition
 import wtf.mazy.peel.model.SettingRegistry
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.shortcut.HeadlessWebViewFetcher
+import wtf.mazy.peel.shortcut.LetterIconGenerator
 import wtf.mazy.peel.shortcut.ShortcutHelper
-
 import wtf.mazy.peel.ui.dialog.OverridePickerDialog
 import wtf.mazy.peel.ui.settings.SettingViewFactory
 import wtf.mazy.peel.util.Const
@@ -259,16 +257,40 @@ class WebAppSettingsActivity :
     }
 
     private fun setupIconButton() {
-        val launchIconPicker = {
-            try {
-                iconPickerLauncher.launch("image/*")
-            } catch (e: Exception) {
-                showToast(this, getString(R.string.icon_not_found), Toast.LENGTH_SHORT)
-                Log.e("WebAppSettings", "Failed to launch icon picker", e)
-            }
+        val showIconDialog = { showIconEditDialog() }
+        binding.iconContainer.setOnClickListener { showIconDialog() }
+        binding.btnEditIcon.setOnClickListener { showIconDialog() }
+    }
+
+    private fun launchIconPicker() {
+        try {
+            iconPickerLauncher.launch("image/*")
+        } catch (e: Exception) {
+            showToast(this, getString(R.string.icon_not_found), Toast.LENGTH_SHORT)
         }
-        binding.iconContainer.setOnClickListener { launchIconPicker() }
-        binding.btnEditIcon.setOnClickListener { launchIconPicker() }
+    }
+
+    private fun showIconEditDialog() {
+        val webapp = modifiedWebapp ?: return
+        val hasIcon = webapp.hasCustomIcon
+
+        val items = mutableListOf(getString(R.string.icon_update))
+        if (hasIcon) items.add(getString(R.string.icon_remove))
+
+        MaterialAlertDialogBuilder(this)
+            .setItems(items.toTypedArray()) { _, which ->
+                when (which) {
+                    0 -> launchIconPicker()
+                    1 -> removeIcon(webapp)
+                }
+            }
+            .show()
+    }
+
+    private fun removeIcon(webapp: WebApp) {
+        webapp.deleteIcon()
+        customIconBitmap = null
+        showGeneratedIcon(webapp)
     }
 
     private fun handleSelectedIcon(uri: Uri) {
@@ -278,40 +300,27 @@ class WebAppSettingsActivity :
             if (bitmap != null) {
                 customIconBitmap = bitmap
                 binding.imgWebAppIcon.setImageBitmap(bitmap)
-                binding.imgWebAppIconPlaceholder.visibility = View.GONE
-                binding.webapp?.let { modifiedWebapp -> saveIconToFile(modifiedWebapp, bitmap) }
+                modifiedWebapp?.saveIcon(bitmap)
             }
         } catch (e: IOException) {
             showToast(this, getString(R.string.icon_not_found), Toast.LENGTH_SHORT)
-            Log.e("WebAppSettings", "Failed to load icon from URI", e)
         }
     }
 
-    private fun loadCurrentIcon(modifiedWebapp: WebApp) {
-        if (modifiedWebapp.hasCustomIcon) {
-            try {
-                val bitmap = BitmapFactory.decodeFile(modifiedWebapp.iconFile.absolutePath)
-                if (bitmap != null) {
-                    binding.imgWebAppIcon.setImageBitmap(bitmap)
-                    binding.imgWebAppIconPlaceholder.visibility = View.GONE
-                    customIconBitmap = bitmap
-                }
-            } catch (e: Exception) {
-                Log.w("WebAppSettings", "Failed to load custom icon", e)
-            }
+    private fun loadCurrentIcon(webapp: WebApp) {
+        val bitmap = webapp.loadIcon()
+        if (bitmap != null) {
+            binding.imgWebAppIcon.setImageBitmap(bitmap)
+            customIconBitmap = bitmap
+        } else {
+            showGeneratedIcon(webapp)
         }
     }
 
-    private fun saveIconToFile(webApp: WebApp, bitmap: Bitmap) {
-        try {
-            val iconFile = webApp.iconFile
-            iconFile.parentFile?.mkdirs()
-            FileOutputStream(iconFile).use { output ->
-                bitmap.compress(Bitmap.CompressFormat.PNG, 100, output)
-            }
-        } catch (e: Exception) {
-            Log.w("WebAppSettings", "Failed to save icon for webapp ${webApp.uuid}", e)
-        }
+    private fun showGeneratedIcon(webapp: WebApp) {
+        val sizePx = (resources.displayMetrics.density * 96).toInt()
+        binding.imgWebAppIcon.setImageBitmap(
+            LetterIconGenerator.generate(webapp.title, webapp.baseUrl, sizePx))
     }
 
     private fun setupFetchButton(modifiedWebapp: WebApp) {
@@ -366,8 +375,7 @@ class WebAppSettingsActivity :
         if (icon != null) {
             customIconBitmap = icon
             binding.imgWebAppIcon.setImageBitmap(icon)
-            binding.imgWebAppIconPlaceholder.visibility = View.GONE
-            saveIconToFile(modifiedWebapp, icon)
+            modifiedWebapp.saveIcon(icon)
         }
 
         if (title == null && icon == null) {

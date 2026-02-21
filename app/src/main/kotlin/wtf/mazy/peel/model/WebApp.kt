@@ -1,13 +1,11 @@
 package wtf.mazy.peel.model
 
 import android.app.Activity
-import java.io.File
 import java.util.UUID
 import wtf.mazy.peel.shortcut.ShortcutIconUtils
-import wtf.mazy.peel.util.App
-import wtf.mazy.peel.util.Const
 
-data class WebApp(var baseUrl: String, val uuid: String = UUID.randomUUID().toString()) {
+data class WebApp(var baseUrl: String, override val uuid: String = UUID.randomUUID().toString()) :
+    IconOwner {
     var title: String
     var isActiveEntry = true
     var isUseContainer = false
@@ -16,12 +14,6 @@ data class WebApp(var baseUrl: String, val uuid: String = UUID.randomUUID().toSt
     var groupUuid: String? = null
 
     var settings = WebAppSettings()
-
-    val iconFile: File
-        get() = File(App.appContext.filesDir, "icons/${uuid}.png")
-
-    val hasCustomIcon: Boolean
-        get() = iconFile.exists()
 
     val effectiveSettings: WebAppSettings
         get() {
@@ -59,14 +51,6 @@ data class WebApp(var baseUrl: String, val uuid: String = UUID.randomUUID().toSt
     fun markInactive(activity: Activity) {
         isActiveEntry = false
         ShortcutIconUtils.deleteShortcuts(listOf(uuid), activity)
-    }
-
-    fun deleteIcon() {
-        try {
-            if (iconFile.exists()) {
-                iconFile.delete()
-            }
-        } catch (_: Exception) {}
     }
 
     fun cleanupWebAppData(activity: Activity) {

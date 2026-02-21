@@ -3,13 +3,13 @@ package wtf.mazy.peel.model
 import java.util.UUID
 
 data class WebAppGroup(
-    val uuid: String = UUID.randomUUID().toString(),
+    override val uuid: String = UUID.randomUUID().toString(),
     var title: String = "",
     var order: Int = 0,
     var isUseContainer: Boolean = false,
     var isEphemeralSandbox: Boolean = false,
     var settings: WebAppSettings = WebAppSettings(),
-) {
+) : IconOwner {
     constructor(
         other: WebAppGroup
     ) : this(

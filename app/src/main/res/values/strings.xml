@@ -69,6 +69,8 @@
     <string name="file_download">File is being downloaded…</string>
     <string name="file_download_failed">Could not download file.</string>
     <string name="custom_icon">Select custom icon</string>
+    <string name="icon_update">Update image</string>
+    <string name="icon_remove">Remove image</string>
     <string name="show_progress_bar_during_page_load">Loading indicator</string>
     <string name="webapp_autoreload">Auto-reload</string>
     <string name="webapp_interval_for_reload">Interval in seconds</string>
