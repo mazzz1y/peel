@@ -1,5 +1,5 @@
 <p align="center">
-  <img src=".github/icon.svg" width="96" height="96" alt="Peel Logo">
+  <img src=".github/icon.png" width="96" height="96" alt="Peel Logo">
 </p>
 
 # Peel
