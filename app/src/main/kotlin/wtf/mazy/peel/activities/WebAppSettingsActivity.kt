@@ -357,6 +357,7 @@ class WebAppSettingsActivity :
     }
 
     private fun handleFetchCandidates(webapp: WebApp, candidates: List<FetchCandidate>) {
+        if (isFinishing || isDestroyed) return
         val withIcons = candidates.filter { it.icon != null }
         if (withIcons.isEmpty()) {
             val titleOnly = candidates.firstOrNull()
