@@ -50,17 +50,21 @@ jobs:
           MINOR=${MINOR:-0}
           PATCH=${PATCH:-0}
           CODE=$((MAJOR * 10000 + MINOR * 100 + PATCH))
-          echo "name=$TAG" >> $GITHUB_OUTPUT
+          echo "name=v$TAG" >> $GITHUB_OUTPUT
           echo "code=$CODE" >> $GITHUB_OUTPUT
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
       
       - name: Build Release APK
         run: ./gradlew assembleRelease -PVERSION_NAME=${{ steps.version.outputs.name }} -PVERSION_CODE=${{ steps.version.outputs.code }}
+
+      - name: Rename APK
+        run: mv app/build/outputs/apk/release/app-release.apk app/build/outputs/apk/release/peel-${{ steps.version.outputs.name }}-universal.apk
       
       - name: Create Release
         run: |
           gh release create ${{ github.ref_name }} \
-            --title "Release ${{ steps.version.outputs.name }}" \
+            --title "${{ steps.version.outputs.name }}" \
             --generate-notes \
-            app/build/outputs/apk/release/*.apk
+            app/build/outputs/apk/release/peel-${{ steps.version.outputs.name }}-universal.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
