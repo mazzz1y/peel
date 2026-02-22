@@ -17,6 +17,7 @@ object SandboxManager {
     private const val NUM_SLOTS = 4
     private const val ACTIVITIES_PER_SLOT = 4
     private const val SANDBOX_CLASS_PREFIX = "wtf.mazy.peel.activities.SandboxActivity"
+    private const val SANDBOX_PROCESS_SUFFIX = ":sandbox_"
 
     private lateinit var dao: SandboxSlotDao
 
@@ -24,7 +25,7 @@ object SandboxManager {
         private set
 
     val currentSlotId: Int?
-        get() = Application.getProcessName().substringAfterLast(":sandbox_", "").toIntOrNull()
+        get() = Application.getProcessName().substringAfterLast(SANDBOX_PROCESS_SUFFIX, "").toIntOrNull()
 
     fun initialize(dao: SandboxSlotDao) {
         this.dao = dao
@@ -58,22 +59,40 @@ object SandboxManager {
     }
 
     private fun findOrAssignSlot(am: ActivityManager, sandboxId: String): Int {
+        val slots = loadSlotMappings()
+        val aliveSlots = aliveSlotSet(am)
+
         for (i in 0 until NUM_SLOTS) {
-            if (readSlotMapping(i) == sandboxId && isSlotProcessAlive(am, i)) return i
+            if (slots[i] == sandboxId && i in aliveSlots) return i
         }
 
         for (i in 0 until NUM_SLOTS) {
-            if (!isSlotProcessAlive(am, i)) {
+            if (i !in aliveSlots) {
                 writeSlotMapping(i, sandboxId)
                 return i
             }
         }
 
-        val evictSlot = findIdleSlot(am) ?: 0
-        finishSandboxTasks(am, readSlotMapping(evictSlot))
+        val evictSlot = findIdleSlot(am, aliveSlots) ?: 0
+        finishSandboxTasks(am, slots[evictSlot])
         killSandboxProcess(am, evictSlot)
         writeSlotMapping(evictSlot, sandboxId)
         return evictSlot
+    }
+
+    private fun loadSlotMappings(): Map<Int, String> =
+        dao.getAll().associate { it.slotId to it.webappUuid }
+
+    private fun aliveSlotSet(am: ActivityManager): Set<Int> {
+        val processes = am.runningAppProcesses ?: return emptySet()
+        val prefix = App.appContext.packageName + SANDBOX_PROCESS_SUFFIX
+        val result = mutableSetOf<Int>()
+        for (info in processes) {
+            if (!info.processName.startsWith(prefix)) continue
+            val idx = info.processName.removePrefix(prefix).toIntOrNull()
+            if (idx != null) result.add(idx)
+        }
+        return result
     }
 
     private fun findOrAssignActivityInSlot(
@@ -109,8 +128,7 @@ object SandboxManager {
         return result
     }
 
-    // Finds a slot with a live process but no active tasks (candidate for eviction)
-    private fun findIdleSlot(am: ActivityManager): Int? {
+    private fun findIdleSlot(am: ActivityManager, aliveSlots: Set<Int>): Int? {
         val slotsWithTasks = mutableSetOf<Int>()
         am.appTasks?.forEach { task ->
             val className = task.taskInfo.baseActivity?.className ?: return@forEach
@@ -118,7 +136,7 @@ object SandboxManager {
                 ?: return@forEach
             slotsWithTasks.add(index / ACTIVITIES_PER_SLOT)
         }
-        return (0 until NUM_SLOTS).firstOrNull { it !in slotsWithTasks && isSlotProcessAlive(am, it) }
+        return (0 until NUM_SLOTS).firstOrNull { it !in slotsWithTasks && it in aliveSlots }
     }
 
     fun releaseSandbox(context: Context, uuid: String) {
@@ -191,21 +209,17 @@ object SandboxManager {
         }
     }
 
-    private fun isSlotProcessAlive(am: ActivityManager, slotId: Int): Boolean {
-        val suffix = ":sandbox_$slotId"
-        return am.runningAppProcesses?.any { it.processName.endsWith(suffix) } == true
-    }
-
     private fun killSandboxProcess(am: ActivityManager, slotId: Int) {
-        val suffix = ":sandbox_$slotId"
+        val expected = App.appContext.packageName + SANDBOX_PROCESS_SUFFIX + slotId
         am.runningAppProcesses?.forEach { info ->
-            if (info.processName.endsWith(suffix)) Process.killProcess(info.pid)
+            if (info.processName == expected) Process.killProcess(info.pid)
         }
     }
 
     private fun killAllSandboxProcesses(am: ActivityManager) {
+        val prefix = App.appContext.packageName + SANDBOX_PROCESS_SUFFIX
         am.runningAppProcesses?.forEach { info ->
-            if (info.processName.contains(":sandbox_")) Process.killProcess(info.pid)
+            if (info.processName.startsWith(prefix)) Process.killProcess(info.pid)
         }
     }
 

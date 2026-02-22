@@ -102,7 +102,6 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         super.onCreate(savedInstanceState)
 
         webappUuid = intent.getStringExtra(Const.INTENT_WEBAPP_UUID)
-        DataManager.instance.loadAppData()
         webapp =
             webappUuid?.let { DataManager.instance.getWebApp(it) }
                 ?: run {
@@ -714,9 +713,8 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
             setRecentsScreenshotEnabled(!shouldProtect)
         }
 
-        val icon = webapp.resolveIcon()
         @Suppress("DEPRECATION")
-        setTaskDescription(ActivityManager.TaskDescription(webapp.title, icon))
+        setTaskDescription(ActivityManager.TaskDescription(webapp.title, webapp.resolveIcon()))
     }
 
     private fun showBiometricPrompt() {
