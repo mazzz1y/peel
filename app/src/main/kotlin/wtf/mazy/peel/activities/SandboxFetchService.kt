@@ -10,6 +10,7 @@ import android.os.ResultReceiver
 import kotlinx.serialization.json.Json
 import wtf.mazy.peel.model.SandboxManager
 import wtf.mazy.peel.model.WebAppSettings
+import wtf.mazy.peel.shortcut.FetchCandidate
 import wtf.mazy.peel.shortcut.HeadlessWebViewFetcher
 
 open class SandboxFetchService : Service() {
@@ -28,13 +29,13 @@ open class SandboxFetchService : Service() {
         }
 
         if (sandboxId == null || url == null || receiver == null) {
-            sendResult(receiver, null, null)
+            receiver?.send(0, Bundle())
             stopSelf(startId)
             return START_NOT_STICKY
         }
 
         if (!SandboxManager.initDataDirectorySuffix(sandboxId)) {
-            sendResult(receiver, null, null)
+            receiver?.send(0, Bundle())
             stopSelf(startId)
             return START_NOT_STICKY
         }
@@ -43,23 +44,26 @@ open class SandboxFetchService : Service() {
             try { Json.decodeFromString<WebAppSettings>(it) } catch (_: Exception) { null }
         } ?: WebAppSettings.createWithDefaults()
 
-        HeadlessWebViewFetcher(this, url, settings) { title, icon ->
-            sendResult(receiver, title, icon)
+        HeadlessWebViewFetcher(this, url, settings) { candidates ->
+            val bundle = Bundle()
+            val list = ArrayList<Bundle>(candidates.size)
+            for (c in candidates) {
+                val entry = Bundle()
+                if (c.title != null) entry.putString(KEY_TITLE, c.title)
+                entry.putString(KEY_SOURCE, c.source)
+                if (c.icon != null) {
+                    val stream = java.io.ByteArrayOutputStream()
+                    c.icon.compress(Bitmap.CompressFormat.PNG, 100, stream)
+                    entry.putByteArray(KEY_ICON, stream.toByteArray())
+                }
+                list.add(entry)
+            }
+            bundle.putParcelableArrayList(RESULT_CANDIDATES, list)
+            receiver.send(0, bundle)
             stopSelf(startId)
         }.start()
 
         return START_NOT_STICKY
-    }
-
-    private fun sendResult(receiver: ResultReceiver?, title: String?, icon: Bitmap?) {
-        val bundle = Bundle()
-        if (title != null) bundle.putString(RESULT_TITLE, title)
-        if (icon != null) {
-            val stream = java.io.ByteArrayOutputStream()
-            icon.compress(Bitmap.CompressFormat.PNG, 100, stream)
-            bundle.putByteArray(RESULT_ICON, stream.toByteArray())
-        }
-        receiver?.send(0, bundle)
     }
 
     companion object {
@@ -67,8 +71,26 @@ open class SandboxFetchService : Service() {
         const val EXTRA_URL = "fetch_url"
         const val EXTRA_SETTINGS = "settings"
         const val EXTRA_RECEIVER = "receiver"
-        const val RESULT_TITLE = "result_title"
-        const val RESULT_ICON = "result_icon"
+        const val RESULT_CANDIDATES = "result_candidates"
+        const val KEY_TITLE = "title"
+        const val KEY_ICON = "icon"
+        const val KEY_SOURCE = "source"
+
+        fun parseCandidates(resultData: Bundle?): List<FetchCandidate> {
+            val list = if (android.os.Build.VERSION.SDK_INT >= 33) {
+                resultData?.getParcelableArrayList(RESULT_CANDIDATES, Bundle::class.java)
+            } else {
+                @Suppress("DEPRECATION")
+                resultData?.getParcelableArrayList(RESULT_CANDIDATES)
+            } ?: return emptyList()
+            return list.map { entry ->
+                val title = entry.getString(KEY_TITLE)
+                val source = entry.getString(KEY_SOURCE) ?: ""
+                val iconBytes = entry.getByteArray(KEY_ICON)
+                val icon = iconBytes?.let { android.graphics.BitmapFactory.decodeByteArray(it, 0, it.size) }
+                FetchCandidate(title, icon, source)
+            }
+        }
 
         fun createIntent(
             context: Context,

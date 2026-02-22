@@ -3,7 +3,6 @@ package wtf.mazy.peel.activities
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
@@ -24,6 +23,7 @@ import wtf.mazy.peel.model.SandboxManager
 import wtf.mazy.peel.model.SettingDefinition
 import wtf.mazy.peel.model.SettingRegistry
 import wtf.mazy.peel.model.WebApp
+import wtf.mazy.peel.shortcut.FetchCandidate
 import wtf.mazy.peel.shortcut.HeadlessWebViewFetcher
 import wtf.mazy.peel.shortcut.LetterIconGenerator
 import wtf.mazy.peel.shortcut.ShortcutHelper
@@ -345,18 +345,75 @@ class WebAppSettingsActivity :
             val slotId = SandboxManager.resolveSlotId(this, sandboxId)
             val receiver = object : ResultReceiver(Handler(mainLooper)) {
                 override fun onReceiveResult(resultCode: Int, resultData: Bundle?) {
-                    val title = resultData?.getString(SandboxFetchService.RESULT_TITLE)
-                    val iconBytes = resultData?.getByteArray(SandboxFetchService.RESULT_ICON)
-                    val icon = iconBytes?.let { BitmapFactory.decodeByteArray(it, 0, it.size) }
-                    applyFetchResult(modifiedWebapp, title, icon)
+                    handleFetchCandidates(modifiedWebapp, SandboxFetchService.parseCandidates(resultData))
                 }
             }
             startService(SandboxFetchService.createIntent(this, slotId, sandboxId, urlToFetch, modifiedWebapp.effectiveSettings, receiver))
         } else {
-            HeadlessWebViewFetcher(this, urlToFetch, modifiedWebapp.effectiveSettings) { title, icon ->
-                applyFetchResult(modifiedWebapp, title, icon)
+            HeadlessWebViewFetcher(this, urlToFetch, modifiedWebapp.effectiveSettings) { candidates ->
+                handleFetchCandidates(modifiedWebapp, candidates)
             }.start()
         }
+    }
+
+    private fun handleFetchCandidates(webapp: WebApp, candidates: List<FetchCandidate>) {
+        val withIcons = candidates.filter { it.icon != null }
+        if (withIcons.isEmpty()) {
+            val titleOnly = candidates.firstOrNull()
+            applyFetchResult(webapp, titleOnly?.title, null)
+            return
+        }
+        val isInitialFetch = !webapp.hasCustomIcon && webapp.title.isEmpty()
+        if (isInitialFetch && withIcons.size == 1) {
+            val candidate = withIcons.first()
+            applyFetchResult(webapp, candidate.title, candidate.icon)
+            return
+        }
+        showFetchPickerDialog(webapp, withIcons)
+    }
+
+    private fun showFetchPickerDialog(webapp: WebApp, candidates: List<FetchCandidate>) {
+        isFetchingIcon = false
+        binding.btnFetch.clearAnimation()
+
+        val adapter = object : android.widget.BaseAdapter() {
+            override fun getCount() = candidates.size
+            override fun getItem(position: Int) = candidates[position]
+            override fun getItemId(position: Int) = position.toLong()
+
+            override fun getView(position: Int, convertView: View?, parent: android.view.ViewGroup): View {
+                val view = convertView ?: layoutInflater.inflate(R.layout.item_share_picker, parent, false)
+                val candidate = candidates[position]
+                val icon = view.findViewById<android.widget.ImageView>(R.id.appIcon)
+                val name = view.findViewById<android.widget.TextView>(R.id.appName)
+                val detail = view.findViewById<android.widget.TextView>(R.id.groupName)
+
+                name.text = candidate.title ?: getString(R.string.none)
+                val bmp = candidate.icon
+                if (bmp != null) {
+                    icon.setImageBitmap(bmp)
+                    detail.text = "${bmp.width}x${bmp.height} · ${candidate.source}"
+                    detail.visibility = View.VISIBLE
+                } else {
+                    icon.setImageDrawable(null)
+                    detail.visibility = View.GONE
+                }
+                return view
+            }
+        }
+
+        MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.choose_icon)
+            .setAdapter(adapter) { _, which ->
+                applyFetchResult(webapp, candidates[which].title, candidates[which].icon)
+            }
+            .setOnCancelListener { stopFetchAnimation() }
+            .show()
+    }
+
+    private fun stopFetchAnimation() {
+        isFetchingIcon = false
+        binding.btnFetch.clearAnimation()
     }
 
     private fun applyFetchResult(modifiedWebapp: WebApp, title: String?, icon: Bitmap?) {
