@@ -81,7 +81,8 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     private var reloadHandler: Handler? = null
     override var urlOnFirstPageload = ""
 
-    private lateinit var webapp: WebApp
+    private val webapp: WebApp
+        get() = DataManager.instance.getWebApp(webappUuid!!)!!
     private lateinit var notificationManager: WebViewNotificationManager
     private lateinit var downloadHandler: DownloadHandler
     private lateinit var peelWebViewClient: PeelWebViewClient
@@ -102,13 +103,12 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         super.onCreate(savedInstanceState)
 
         webappUuid = intent.getStringExtra(Const.INTENT_WEBAPP_UUID)
-        webapp =
-            webappUuid?.let { DataManager.instance.getWebApp(it) }
-                ?: run {
-                    NotificationUtils.showToast(this, getString(R.string.webapp_not_found))
-                    finishAndRemoveTask()
-                    return
-                }
+        if (SandboxManager.currentSlotId != null) DataManager.instance.loadAppData()
+        if (webappUuid == null || DataManager.instance.getWebApp(webappUuid!!) == null) {
+            NotificationUtils.showToast(this, getString(R.string.webapp_not_found))
+            finishAndRemoveTask()
+            return
+        }
 
         initNotificationManager()
         initFilePickerLauncher()
@@ -137,6 +137,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
 
     override fun onResume() {
         super.onResume()
+        if (SandboxManager.currentSlotId != null) DataManager.instance.loadAppData()
         webView?.onResume()
         webView?.resumeTimers()
         mediaPlaybackManager?.setBackground(false)
@@ -185,12 +186,13 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         barColorAnimator = null
         mediaPlaybackManager?.release()
         mediaPlaybackManager = null
-        if (isFinishing && ::webapp.isInitialized) {
-            val sandboxId = WebViewLauncher.resolveSandboxId(webapp)
+        val app = webappUuid?.let { DataManager.instance.getWebApp(it) }
+        if (isFinishing && app != null) {
+            val sandboxId = WebViewLauncher.resolveSandboxId(app)
             if (sandboxId != null) {
                 webView?.destroy()
                 webView = null
-                if (WebViewLauncher.isEphemeralSandbox(webapp)) {
+                if (WebViewLauncher.isEphemeralSandbox(app)) {
                     SandboxManager.wipeSandboxStorage(sandboxId)
                 }
             }
@@ -214,11 +216,10 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
             return
         }
 
-        val newWebapp = DataManager.instance.getWebApp(newUuid) ?: return
+        if (DataManager.instance.getWebApp(newUuid) == null) return
         webappUuid = newUuid
-        webapp = newWebapp
         applyTaskSnapshotProtection()
-        loadURL(sharedUrlFromIntent() ?: newWebapp.baseUrl)
+        loadURL(sharedUrlFromIntent() ?: webapp.baseUrl)
     }
 
     override val webAppName: String
