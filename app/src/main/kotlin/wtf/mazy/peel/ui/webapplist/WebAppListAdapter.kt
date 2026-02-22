@@ -3,7 +3,6 @@ package wtf.mazy.peel.ui.webapplist
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
-import android.graphics.BitmapFactory
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,7 +16,6 @@ import wtf.mazy.peel.R
 import wtf.mazy.peel.activities.WebAppSettingsActivity
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.WebApp
-import wtf.mazy.peel.shortcut.LetterIconGenerator
 import wtf.mazy.peel.shortcut.ShortcutHelper
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.WebViewLauncher.startWebView
@@ -54,7 +52,7 @@ class WebAppListAdapter(
         holder.titleView.text = item.title
         holder.urlView.text = item.baseUrl
 
-        loadIcon(item, holder.appIcon)
+        holder.appIcon.setImageBitmap(item.resolveIcon())
 
         holder.itemView.setOnClickListener { openWebView(item) }
 
@@ -68,20 +66,6 @@ class WebAppListAdapter(
     fun moveItem(from: Int, to: Int) {
         Collections.swap(items, from, to)
         notifyItemMoved(from, to)
-    }
-
-    private fun loadIcon(webapp: WebApp, imageView: ImageView) {
-        if (webapp.hasCustomIcon) {
-            val bitmap = BitmapFactory.decodeFile(webapp.iconFile.absolutePath)
-            if (bitmap != null) {
-                imageView.setImageBitmap(bitmap)
-                return
-            }
-        }
-        val sizePx = imageView.context.resources.displayMetrics.density * 48
-        imageView.setImageBitmap(
-            LetterIconGenerator.generate(webapp.title, webapp.baseUrl, sizePx.toInt())
-        )
     }
 
     private fun showPopupMenu(view: View, webapp: WebApp, position: Int) {

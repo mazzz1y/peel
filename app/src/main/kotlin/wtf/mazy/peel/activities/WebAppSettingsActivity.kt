@@ -25,7 +25,6 @@ import wtf.mazy.peel.model.SettingRegistry
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.shortcut.FetchCandidate
 import wtf.mazy.peel.shortcut.HeadlessWebViewFetcher
-import wtf.mazy.peel.shortcut.LetterIconGenerator
 import wtf.mazy.peel.shortcut.ShortcutHelper
 import wtf.mazy.peel.ui.dialog.OverridePickerDialog
 import wtf.mazy.peel.ui.settings.SettingViewFactory
@@ -40,7 +39,6 @@ class WebAppSettingsActivity :
     var originalWebapp: WebApp? = null
     private var modifiedWebapp: WebApp? = null
     private var isEditingDefaults: Boolean = false
-    private var customIconBitmap: Bitmap? = null
     private lateinit var iconPickerLauncher: ActivityResultLauncher<String>
     private var isFetchingIcon = false
 
@@ -285,8 +283,7 @@ class WebAppSettingsActivity :
 
     private fun removeIcon(webapp: WebApp) {
         webapp.deleteIcon()
-        customIconBitmap = null
-        showGeneratedIcon(webapp)
+        loadCurrentIcon(webapp)
     }
 
     private fun handleSelectedIcon(uri: Uri) {
@@ -294,9 +291,10 @@ class WebAppSettingsActivity :
             @Suppress("DEPRECATION")
             val bitmap = MediaStore.Images.Media.getBitmap(contentResolver, uri)
             if (bitmap != null) {
-                customIconBitmap = bitmap
-                binding.imgWebAppIcon.setImageBitmap(bitmap)
-                modifiedWebapp?.saveIcon(bitmap)
+                modifiedWebapp?.let {
+                    it.saveIcon(bitmap)
+                    loadCurrentIcon(it)
+                }
             }
         } catch (e: IOException) {
             showToast(this, getString(R.string.icon_not_found), Toast.LENGTH_SHORT)
@@ -304,19 +302,8 @@ class WebAppSettingsActivity :
     }
 
     private fun loadCurrentIcon(webapp: WebApp) {
-        val bitmap = webapp.loadIcon()
-        if (bitmap != null) {
-            binding.imgWebAppIcon.setImageBitmap(bitmap)
-            customIconBitmap = bitmap
-        } else {
-            showGeneratedIcon(webapp)
-        }
-    }
-
-    private fun showGeneratedIcon(webapp: WebApp) {
         val sizePx = (resources.displayMetrics.density * 96).toInt()
-        binding.imgWebAppIcon.setImageBitmap(
-            LetterIconGenerator.generate(webapp.title, webapp.baseUrl, sizePx))
+        binding.imgWebAppIcon.setImageBitmap(webapp.resolveIcon(sizePx))
     }
 
     private fun setupFetchButton(modifiedWebapp: WebApp) {
@@ -427,9 +414,8 @@ class WebAppSettingsActivity :
         }
 
         if (icon != null) {
-            customIconBitmap = icon
-            binding.imgWebAppIcon.setImageBitmap(icon)
             modifiedWebapp.saveIcon(icon)
+            loadCurrentIcon(modifiedWebapp)
         }
 
         if (title == null && icon == null) {

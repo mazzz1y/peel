@@ -1,6 +1,5 @@
 package wtf.mazy.peel.activities
 
-import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
@@ -20,7 +19,6 @@ import wtf.mazy.peel.model.SandboxManager
 import wtf.mazy.peel.model.SettingDefinition
 import wtf.mazy.peel.model.SettingRegistry
 import wtf.mazy.peel.model.WebAppGroup
-import wtf.mazy.peel.shortcut.LetterIconGenerator
 import wtf.mazy.peel.ui.dialog.OverridePickerDialog
 import wtf.mazy.peel.ui.settings.SettingViewFactory
 import wtf.mazy.peel.util.Const
@@ -31,7 +29,7 @@ class GroupSettingsActivity :
 
     private var originalGroup: WebAppGroup? = null
     private var modifiedGroup: WebAppGroup? = null
-    private var customIconBitmap: Bitmap? = null
+
     private lateinit var iconPickerLauncher: ActivityResultLauncher<String>
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -127,9 +125,10 @@ class GroupSettingsActivity :
             @Suppress("DEPRECATION")
             val bitmap = MediaStore.Images.Media.getBitmap(contentResolver, uri)
             if (bitmap != null) {
-                customIconBitmap = bitmap
-                binding.imgGroupIcon.setImageBitmap(bitmap)
-                modifiedGroup?.saveIcon(bitmap)
+                modifiedGroup?.let {
+                    it.saveIcon(bitmap)
+                    updateGroupIcon()
+                }
             }
         } catch (e: IOException) {
             showToast(this, getString(R.string.icon_not_found), Toast.LENGTH_SHORT)
@@ -138,25 +137,13 @@ class GroupSettingsActivity :
 
     private fun removeIcon(group: WebAppGroup) {
         group.deleteIcon()
-        customIconBitmap = null
         updateGroupIcon()
     }
 
     private fun updateGroupIcon() {
         val group = modifiedGroup ?: return
-        if (customIconBitmap != null) {
-            binding.imgGroupIcon.setImageBitmap(customIconBitmap)
-            return
-        }
-        val bitmap = group.loadIcon()
-        if (bitmap != null) {
-            customIconBitmap = bitmap
-            binding.imgGroupIcon.setImageBitmap(bitmap)
-            return
-        }
         val sizePx = (resources.displayMetrics.density * 96).toInt()
-        binding.imgGroupIcon.setImageBitmap(
-            LetterIconGenerator.generate(group.title, group.title, sizePx))
+        binding.imgGroupIcon.setImageBitmap(group.resolveIcon(sizePx))
     }
 
     private fun setupSandboxSwitch() {

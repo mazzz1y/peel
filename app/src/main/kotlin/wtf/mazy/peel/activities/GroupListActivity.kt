@@ -27,7 +27,6 @@ import wtf.mazy.peel.R
 import wtf.mazy.peel.databinding.AddWebsiteDialogueBinding
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.WebAppGroup
-import wtf.mazy.peel.shortcut.LetterIconGenerator
 import wtf.mazy.peel.shortcut.ShortcutHelper
 import wtf.mazy.peel.util.Const
 
@@ -219,14 +218,7 @@ class GroupListActivity : AppCompatActivity() {
             val group = items[position]
             holder.titleView.text = group.title
 
-            val bitmap = group.loadIcon()
-            if (bitmap != null) {
-                holder.iconView.setImageBitmap(bitmap)
-            } else {
-                val sizePx = (resources.displayMetrics.density * 38).toInt()
-                holder.iconView.setImageBitmap(
-                    LetterIconGenerator.generate(group.title, group.title, sizePx))
-            }
+            holder.iconView.setImageBitmap(group.resolveIcon())
 
             val count = DataManager.instance.activeWebsitesForGroup(group.uuid).size
             holder.countView.text =

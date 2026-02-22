@@ -1,7 +1,6 @@
 package wtf.mazy.peel.activities
 
 import android.content.Intent
-import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -15,7 +14,6 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.WebApp
-import wtf.mazy.peel.shortcut.LetterIconGenerator
 import wtf.mazy.peel.util.WebViewLauncher
 
 class ShareReceiverActivity : AppCompatActivity() {
@@ -91,7 +89,7 @@ class ShareReceiverActivity : AppCompatActivity() {
             val group = view.findViewById<TextView>(R.id.groupName)
 
             name.text = webapp.title
-            loadIcon(webapp, icon)
+            icon.setImageBitmap(webapp.resolveIcon())
 
             val groupName = webapp.groupUuid?.let { DataManager.instance.getGroup(it)?.title }
             if (groupName != null) {
@@ -102,20 +100,6 @@ class ShareReceiverActivity : AppCompatActivity() {
             }
 
             return view
-        }
-
-        private fun loadIcon(webapp: WebApp, imageView: ImageView) {
-            if (webapp.hasCustomIcon) {
-                val bitmap = BitmapFactory.decodeFile(webapp.iconFile.absolutePath)
-                if (bitmap != null) {
-                    imageView.setImageBitmap(bitmap)
-                    return
-                }
-            }
-            val sizePx = (imageView.context.resources.displayMetrics.density * 36).toInt()
-            imageView.setImageBitmap(
-                LetterIconGenerator.generate(webapp.title, webapp.baseUrl, sizePx)
-            )
         }
     }
 }

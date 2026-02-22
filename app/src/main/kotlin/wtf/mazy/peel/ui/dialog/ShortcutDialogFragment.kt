@@ -5,7 +5,6 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.ShortcutManager
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Bundle
@@ -32,7 +31,6 @@ import wtf.mazy.peel.R
 import wtf.mazy.peel.activities.TrampolineActivity
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.WebApp
-import wtf.mazy.peel.shortcut.LetterIconGenerator
 import wtf.mazy.peel.shortcut.ShortcutHelper
 import wtf.mazy.peel.util.App
 import wtf.mazy.peel.util.Const
@@ -131,28 +129,9 @@ class ShortcutDialogFragment : DialogFragment() {
             uiTitle?.setText(webapp?.title)
         }
 
-        if (webapp?.hasCustomIcon == true) {
-            try {
-                bitmap = BitmapFactory.decodeFile(webapp?.iconFile?.absolutePath)
-                if (bitmap != null) {
-                    uiFavicon?.setImageBitmap(bitmap)
-                } else {
-                    setLetterIconFallback()
-                }
-            } catch (e: Exception) {
-                Log.w("ShortcutDialog", "Failed to load saved icon", e)
-                setLetterIconFallback()
-            }
-        } else {
-            setLetterIconFallback()
-        }
-    }
-
-    private fun setLetterIconFallback() {
         val app = webapp ?: return
-        val density = resources.displayMetrics.density
-        val sizePx = (48 * density).toInt()
-        uiFavicon?.setImageBitmap(LetterIconGenerator.generate(app.title, app.baseUrl, sizePx))
+        bitmap = app.loadIcon()
+        uiFavicon?.setImageBitmap(bitmap ?: app.resolveIcon())
     }
 
     private fun addShortcutToHomeScreen(bitmap: Bitmap?) {

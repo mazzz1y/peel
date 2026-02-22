@@ -14,7 +14,6 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.WebApp
-import wtf.mazy.peel.shortcut.LetterIconGenerator
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.WebViewLauncher
 
@@ -72,7 +71,7 @@ class TrampolineActivity : Activity() {
                 val webapp = apps[position]
                 view.findViewById<TextView>(R.id.appName).text = webapp.title
                 view.findViewById<TextView>(R.id.groupName).visibility = View.GONE
-                loadIcon(webapp, view.findViewById(R.id.appIcon))
+                view.findViewById<ImageView>(R.id.appIcon).setImageBitmap(webapp.resolveIcon())
                 return view
             }
         }
@@ -86,16 +85,5 @@ class TrampolineActivity : Activity() {
             .setOnCancelListener { finish() }
             .setOnDismissListener { finish() }
             .show()
-    }
-
-    private fun loadIcon(webapp: WebApp, imageView: ImageView) {
-        val bitmap = webapp.loadIcon()
-        if (bitmap != null) {
-            imageView.setImageBitmap(bitmap)
-            return
-        }
-        val sizePx = (resources.displayMetrics.density * 36).toInt()
-        imageView.setImageBitmap(
-            LetterIconGenerator.generate(webapp.title, webapp.baseUrl, sizePx))
     }
 }

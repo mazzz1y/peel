@@ -9,7 +9,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
-import android.graphics.BitmapFactory
 import android.os.Build
 import android.webkit.WebView
 import androidx.appcompat.app.AppCompatActivity
@@ -18,7 +17,6 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.WebApp
-import wtf.mazy.peel.shortcut.LetterIconGenerator
 
 class WebViewNotificationManager(
     private val activity: AppCompatActivity,
@@ -125,16 +123,7 @@ class WebViewNotificationManager(
             )
 
         val webapp = getWebapp()
-        val notificationIcon =
-            if (webapp.hasCustomIcon) {
-                BitmapFactory.decodeFile(webapp.iconFile.absolutePath)
-            } else {
-                LetterIconGenerator.generate(
-                    webapp.title,
-                    webapp.baseUrl,
-                    (48 * activity.resources.displayMetrics.density).toInt(),
-                )
-            }
+        val notificationIcon = webapp.resolveIcon()
 
         val notification =
             NotificationCompat.Builder(activity, CHANNEL_ID)

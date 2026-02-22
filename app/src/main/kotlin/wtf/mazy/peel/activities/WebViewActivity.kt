@@ -49,7 +49,6 @@ import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.SandboxManager
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.model.WebAppSettings
-import wtf.mazy.peel.shortcut.LetterIconGenerator
 import wtf.mazy.peel.ui.BiometricPromptHelper
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.sanitizeUserAgent
@@ -538,7 +537,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         if (settings.isAllowMediaPlaybackInBackground != true) return
         val view = webView ?: return
         val manager = MediaPlaybackManager(this)
-        manager.attach(view, webapp.title, webapp.loadIcon(), webapp.uuid)
+        manager.attach(view, webapp.title, webapp.resolveIcon(), webapp.uuid)
         view.addJavascriptInterface(MediaJsBridge(manager), MediaJsBridge.JS_INTERFACE_NAME)
         mediaPlaybackManager = manager
     }
@@ -715,9 +714,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
             setRecentsScreenshotEnabled(!shouldProtect)
         }
 
-        val icon = webapp.loadIcon() ?: LetterIconGenerator.generate(
-            webapp.title, webapp.baseUrl, (48 * resources.displayMetrics.density).toInt()
-        )
+        val icon = webapp.resolveIcon()
         @Suppress("DEPRECATION")
         setTaskDescription(ActivityManager.TaskDescription(webapp.title, icon))
     }
