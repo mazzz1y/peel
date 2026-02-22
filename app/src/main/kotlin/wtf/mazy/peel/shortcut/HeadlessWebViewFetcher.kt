@@ -12,14 +12,12 @@ import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import java.net.HttpURLConnection
-import java.net.URL
-import java.util.TreeMap
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -29,6 +27,9 @@ import wtf.mazy.peel.model.WebAppSettings
 import wtf.mazy.peel.shortcut.ShortcutIconUtils.getWidthFromIcon
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.sanitizeUserAgent
+import java.net.HttpURLConnection
+import java.net.URL
+import java.util.TreeMap
 
 class HeadlessWebViewFetcher(
     context: Context,
@@ -140,18 +141,19 @@ class HeadlessWebViewFetcher(
 
                 ensureActive()
                 val manifestUrl = json.optString("manifestUrl").takeIf { it.isNotEmpty() }
-                if (manifestUrl != null) title = parseManifest(manifestUrl, icons)
+                val tried = mutableSetOf<String>()
+                if (manifestUrl != null) {
+                    tried.add(manifestUrl)
+                    title = parseManifest(manifestUrl, icons)
+                }
 
-                if (icons.isEmpty()) {
-                    val origin = originOf(url)
-                    val tried = mutableSetOf(manifestUrl)
-                    for (path in MANIFEST_PATHS) {
-                        val candidate = "$origin$path"
-                        if (tried.add(candidate)) {
-                            val name = parseManifest(candidate, icons)
-                            if (title == null && name != null) title = name
-                            if (icons.isNotEmpty()) break
-                        }
+                val origin = originOf(url)
+                for (path in MANIFEST_PATHS) {
+                    val candidate = "$origin$path"
+                    if (tried.add(candidate)) {
+                        val name = parseManifest(candidate, icons)
+                        if (title == null && name != null) title = name
+                        if (icons.isNotEmpty()) break
                     }
                 }
 
@@ -160,19 +162,17 @@ class HeadlessWebViewFetcher(
                 }
 
                 ensureActive()
-                if (icons.isEmpty()) {
-                    val iconLinks = json.optJSONArray("iconLinks")
-                    if (iconLinks != null) parseIconLinks(iconLinks, icons)
-                }
+                val iconLinks = json.optJSONArray("iconLinks")
+                if (iconLinks != null) parseIconLinks(iconLinks, icons)
 
                 ensureActive()
                 if (icons.isEmpty()) {
-                    val origin = originOf(pageUrl)
-                    if (isReachable("$origin/favicon.ico")) icons[0] = "$origin/favicon.ico"
+                    val pageOrigin = originOf(pageUrl)
+                    if (isReachable("$pageOrigin/favicon.ico")) icons[0] = "$pageOrigin/favicon.ico"
                 }
 
                 ensureActive()
-                val icon = icons.lastEntry()?.value?.let { downloadBitmap(it) }
+                val icon = downloadBestIcon(icons)
                 Pair(title, icon)
             } catch (_: CancellationException) {
                 throw CancellationException()
@@ -196,6 +196,7 @@ class HeadlessWebViewFetcher(
                         if (src.endsWith(".svg")) continue
                         var width = getWidthFromIcon(obj.optString("sizes", ""))
                         if (obj.optString("purpose", "").contains("maskable")) width += 20000
+                        width += MANIFEST_ICON_BOOST
                         icons[width] = URL(URL(manifestUrl), src).toString()
                     }
                 }
@@ -219,6 +220,15 @@ class HeadlessWebViewFetcher(
             if (obj.optString("rel").lowercase().contains("apple-touch-icon")) width += 10000
             icons[width] = href
         }
+    }
+
+    private suspend fun downloadBestIcon(icons: TreeMap<Int, String>): Bitmap? {
+        for (entry in icons.descendingMap()) {
+            currentCoroutineContext().ensureActive()
+            val bmp = downloadBitmap(entry.value)
+            if (bmp != null) return bmp
+        }
+        return null
     }
 
     private fun downloadBitmap(url: String): Bitmap? {
@@ -280,12 +290,18 @@ class HeadlessWebViewFetcher(
         private const val CONNECTION_TIMEOUT_MS = 4_000
         private const val EARLY_EXTRACT_PROGRESS = 30
         private const val MIN_ICON_WIDTH = 32
+        private const val MANIFEST_ICON_BOOST = 30000
         private const val MAX_ICON_BYTES = 5 * 1024 * 1024
         private val SUPPORTED_EXTENSIONS = listOf(".png", ".jpg", ".jpeg", ".ico", ".webp")
-        private val MANIFEST_PATHS = listOf("/manifest.webmanifest", "/manifest.json")
+        private val MANIFEST_PATHS = listOf(
+            "/manifest.webmanifest", "/manifest.json", "/site.webmanifest"
+        )
 
         private fun originOf(url: String): String =
-            URL(url).let { "${it.protocol}://${it.host}" }
+            URL(url).let {
+                if (it.port != -1 && it.port != it.defaultPort) "${it.protocol}://${it.host}:${it.port}"
+                else "${it.protocol}://${it.host}"
+            }
 
         private val FIND_LINKS_JS =
             """

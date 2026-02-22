@@ -257,9 +257,26 @@ class WebAppSettingsActivity :
     }
 
     private fun setupIconButton() {
-        val showIconDialog = { showIconEditDialog() }
-        binding.iconContainer.setOnClickListener { showIconDialog() }
-        binding.btnEditIcon.setOnClickListener { showIconDialog() }
+        binding.imgWebAppIcon.setOnClickListener { onIconTap() }
+    }
+
+    private fun onIconTap() {
+        val webapp = modifiedWebapp ?: return
+        if (webapp.hasCustomIcon) {
+            MaterialAlertDialogBuilder(this)
+                .setItems(arrayOf(
+                    getString(R.string.icon_update),
+                    getString(R.string.icon_remove)
+                )) { _, which ->
+                    when (which) {
+                        0 -> launchIconPicker()
+                        1 -> removeIcon(webapp)
+                    }
+                }
+                .show()
+        } else {
+            launchIconPicker()
+        }
     }
 
     private fun launchIconPicker() {
@@ -268,23 +285,6 @@ class WebAppSettingsActivity :
         } catch (e: Exception) {
             showToast(this, getString(R.string.icon_not_found), Toast.LENGTH_SHORT)
         }
-    }
-
-    private fun showIconEditDialog() {
-        val webapp = modifiedWebapp ?: return
-        val hasIcon = webapp.hasCustomIcon
-
-        val items = mutableListOf(getString(R.string.icon_update))
-        if (hasIcon) items.add(getString(R.string.icon_remove))
-
-        MaterialAlertDialogBuilder(this)
-            .setItems(items.toTypedArray()) { _, which ->
-                when (which) {
-                    0 -> launchIconPicker()
-                    1 -> removeIcon(webapp)
-                }
-            }
-            .show()
     }
 
     private fun removeIcon(webapp: WebApp) {

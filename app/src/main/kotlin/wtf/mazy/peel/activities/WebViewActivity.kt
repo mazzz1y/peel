@@ -452,18 +452,16 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     override fun showPermissionDialog(message: String, onResult: (PermissionResult) -> Unit) {
         val view = layoutInflater.inflate(R.layout.dialog_permission, null)
         view.findViewById<android.widget.TextView>(R.id.textTitle).text = message
-        val dialog = com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
+        val dialog = MaterialAlertDialogBuilder(this)
             .setView(view)
             .setOnCancelListener { onResult(PermissionResult.DENY_ONCE) }
             .show()
-        view.findViewById<com.google.android.material.button.MaterialButton>(R.id.btnAllowSession)
-            .setOnClickListener { dialog.dismiss(); onResult(PermissionResult.ALLOW_SESSION) }
-        view.findViewById<com.google.android.material.button.MaterialButton>(R.id.btnAllowOnce)
-            .setOnClickListener { dialog.dismiss(); onResult(PermissionResult.ALLOW_ONCE) }
-        view.findViewById<com.google.android.material.button.MaterialButton>(R.id.btnDenyOnce)
-            .setOnClickListener { dialog.dismiss(); onResult(PermissionResult.DENY_ONCE) }
-        view.findViewById<com.google.android.material.button.MaterialButton>(R.id.btnDenySession)
-            .setOnClickListener { dialog.dismiss(); onResult(PermissionResult.DENY_SESSION) }
+        fun bind(id: Int, result: PermissionResult) =
+            view.findViewById<View>(id).setOnClickListener { dialog.dismiss(); onResult(result) }
+        bind(R.id.btnAllowSession, PermissionResult.ALLOW_SESSION)
+        bind(R.id.btnAllowOnce, PermissionResult.ALLOW_ONCE)
+        bind(R.id.btnDenyOnce, PermissionResult.DENY_ONCE)
+        bind(R.id.btnDenySession, PermissionResult.DENY_SESSION)
     }
 
     private fun initNotificationManager() {
@@ -540,10 +538,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         if (settings.isAllowMediaPlaybackInBackground != true) return
         val view = webView ?: return
         val manager = MediaPlaybackManager(this)
-        val icon = if (webapp.hasCustomIcon) {
-            android.graphics.BitmapFactory.decodeFile(webapp.iconFile.absolutePath)
-        } else null
-        manager.attach(view, webapp.title, icon, webapp.uuid)
+        manager.attach(view, webapp.title, webapp.loadIcon(), webapp.uuid)
         view.addJavascriptInterface(MediaJsBridge(manager), MediaJsBridge.JS_INTERFACE_NAME)
         mediaPlaybackManager = manager
     }
@@ -720,16 +715,9 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
             setRecentsScreenshotEnabled(!shouldProtect)
         }
 
-        val icon =
-            if (webapp.hasCustomIcon) {
-                android.graphics.BitmapFactory.decodeFile(webapp.iconFile.absolutePath)
-            } else {
-                LetterIconGenerator.generate(
-                    webapp.title,
-                    webapp.baseUrl,
-                    (48 * resources.displayMetrics.density).toInt(),
-                )
-            }
+        val icon = webapp.loadIcon() ?: LetterIconGenerator.generate(
+            webapp.title, webapp.baseUrl, (48 * resources.displayMetrics.density).toInt()
+        )
         @Suppress("DEPRECATION")
         setTaskDescription(ActivityManager.TaskDescription(webapp.title, icon))
     }

@@ -92,25 +92,26 @@ class GroupSettingsActivity :
     }
 
     private fun setupIconButton() {
-        val showIconDialog = { showIconEditDialog() }
-        binding.iconContainer.setOnClickListener { showIconDialog() }
-        binding.btnEditIcon.setOnClickListener { showIconDialog() }
+        binding.imgGroupIcon.setOnClickListener { onIconTap() }
     }
 
-    private fun showIconEditDialog() {
+    private fun onIconTap() {
         val group = modifiedGroup ?: return
-
-        val items = mutableListOf(getString(R.string.icon_update))
-        if (group.hasCustomIcon) items.add(getString(R.string.icon_remove))
-
-        MaterialAlertDialogBuilder(this)
-            .setItems(items.toTypedArray()) { _, which ->
-                when (which) {
-                    0 -> launchIconPicker()
-                    1 -> removeIcon(group)
+        if (group.hasCustomIcon) {
+            MaterialAlertDialogBuilder(this)
+                .setItems(arrayOf(
+                    getString(R.string.icon_update),
+                    getString(R.string.icon_remove)
+                )) { _, which ->
+                    when (which) {
+                        0 -> launchIconPicker()
+                        1 -> removeIcon(group)
+                    }
                 }
-            }
-            .show()
+                .show()
+        } else {
+            launchIconPicker()
+        }
     }
 
     private fun launchIconPicker() {

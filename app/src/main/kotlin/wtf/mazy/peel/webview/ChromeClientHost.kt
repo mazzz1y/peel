@@ -42,7 +42,7 @@ interface ChromeClientHost {
     fun showPermissionDialog(message: String, onResult: (PermissionResult) -> Unit)
 
     fun getString(resId: Int): String
-    fun getString(resId: Int, vararg args: Any): String
+    fun getString(resId: Int, vararg formatArgs: Any): String
 
     fun onPageFullyLoaded()
 }
