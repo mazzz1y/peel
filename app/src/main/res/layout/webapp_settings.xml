@@ -63,6 +63,7 @@
                             <LinearLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
+                                android:layout_marginTop="32dp"
                                 android:orientation="vertical"
                                 android:gravity="center_horizontal">
 
@@ -99,7 +100,7 @@
                                     android:gravity="center"
                                     android:inputType="textUri"
                                     android:text="@={webapp.baseUrl}"
-                                    android:textAppearance="?attr/textAppearanceBodySmall"
+                                    android:textAppearance="?attr/textAppearanceBodyMedium"
                                     android:layout_marginTop="4dp"
                                     android:layout_marginBottom="16dp" />
 
@@ -112,7 +113,6 @@
                             style="@style/SettingsItemContainer"
                             android:orientation="horizontal"
                             android:gravity="center_vertical"
-                            android:background="?attr/selectableItemBackground"
                             android:minHeight="56dp"
                             android:visibility="gone">
 
@@ -132,7 +132,10 @@
                                 android:textColor="?attr/colorOnSurfaceVariant"
                                 android:textSize="@dimen/settings_text_size"
                                 android:drawableEnd="@drawable/ic_expand_more_24dp"
-                                android:drawablePadding="4dp" />
+                                android:drawablePadding="4dp"
+                                android:background="?attr/selectableItemBackground"
+                                android:paddingVertical="8dp"
+                                android:paddingStart="8dp" />
 
                         </LinearLayout>
 

@@ -157,7 +157,7 @@ class WebAppSettingsActivity :
         binding.groupDivider.visibility = View.VISIBLE
         updateGroupLabel(webapp)
 
-        binding.groupRow.setOnClickListener { showGroupPopup(binding.txtGroupName, webapp, groups) }
+        binding.txtGroupName.setOnClickListener { showGroupPicker(webapp, groups) }
     }
 
     private fun updateGroupLabel(webapp: WebApp) {
@@ -165,12 +165,8 @@ class WebAppSettingsActivity :
         binding.txtGroupName.text = groupName ?: getString(R.string.none)
     }
 
-    private fun showGroupPopup(
-        anchor: View,
-        webapp: WebApp,
-        groups: List<wtf.mazy.peel.model.WebAppGroup>
-    ) {
-        val popup = androidx.appcompat.widget.PopupMenu(this, anchor)
+    private fun showGroupPicker(webapp: WebApp, groups: List<wtf.mazy.peel.model.WebAppGroup>) {
+        val popup = androidx.appcompat.widget.PopupMenu(this, binding.txtGroupName)
         groups.forEachIndexed { index, group -> popup.menu.add(0, index, index, group.title) }
         popup.menu.add(0, groups.size, groups.size, getString(R.string.none))
 
