@@ -25,6 +25,7 @@ import wtf.mazy.peel.model.SettingRegistry
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.shortcut.FetchCandidate
 import wtf.mazy.peel.shortcut.HeadlessWebViewFetcher
+import wtf.mazy.peel.shortcut.LetterIconGenerator
 import wtf.mazy.peel.shortcut.ShortcutHelper
 import wtf.mazy.peel.ui.dialog.OverridePickerDialog
 import wtf.mazy.peel.ui.settings.SettingViewFactory
@@ -345,19 +346,17 @@ class WebAppSettingsActivity :
 
     private fun handleFetchCandidates(webapp: WebApp, candidates: List<FetchCandidate>) {
         if (isFinishing || isDestroyed) return
-        val withIcons = candidates.filter { it.icon != null }
-        if (withIcons.isEmpty()) {
-            val titleOnly = candidates.firstOrNull()
-            applyFetchResult(webapp, titleOnly?.title, null)
+        if (candidates.isEmpty()) {
+            stopFetchAnimation()
+            showToast(this, getString(R.string.fetch_failed), Toast.LENGTH_SHORT)
             return
         }
         val isInitialFetch = !webapp.hasCustomIcon && webapp.title.isEmpty()
-        if (isInitialFetch && withIcons.size == 1) {
-            val candidate = withIcons.first()
-            applyFetchResult(webapp, candidate.title, candidate.icon)
+        if (isInitialFetch && candidates.size == 1) {
+            applyFetchResult(webapp, candidates.first().title, candidates.first().icon)
             return
         }
-        showFetchPickerDialog(webapp, withIcons)
+        showFetchPickerDialog(webapp, candidates)
     }
 
     private fun showFetchPickerDialog(webapp: WebApp, candidates: List<FetchCandidate>) {
@@ -376,15 +375,18 @@ class WebAppSettingsActivity :
                 val name = view.findViewById<android.widget.TextView>(R.id.appName)
                 val detail = view.findViewById<android.widget.TextView>(R.id.groupName)
 
-                name.text = candidate.title ?: getString(R.string.none)
+                val title = candidate.title ?: getString(R.string.none)
+                name.text = title
                 val bmp = candidate.icon
                 if (bmp != null) {
                     icon.setImageBitmap(bmp)
                     detail.text = "${bmp.width}x${bmp.height} · ${candidate.source}"
                     detail.visibility = View.VISIBLE
                 } else {
-                    icon.setImageDrawable(null)
-                    detail.visibility = View.GONE
+                    val sizePx = (resources.displayMetrics.density * 48).toInt()
+                    icon.setImageBitmap(LetterIconGenerator.generate(title, title, sizePx))
+                    detail.text = candidate.source
+                    detail.visibility = View.VISIBLE
                 }
                 return view
             }
