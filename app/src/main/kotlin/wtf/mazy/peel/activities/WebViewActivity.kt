@@ -51,7 +51,7 @@ import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.model.WebAppSettings
 import wtf.mazy.peel.ui.BiometricPromptHelper
 import wtf.mazy.peel.util.Const
-import wtf.mazy.peel.util.sanitizeUserAgent
+import wtf.mazy.peel.util.buildUserAgent
 import wtf.mazy.peel.util.DateUtils.convertStringToCalendar
 import wtf.mazy.peel.util.DateUtils.isInInterval
 import wtf.mazy.peel.util.NotificationUtils
@@ -516,7 +516,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         applyWindowFlags(settings)
         bindViews()
         setupPullToRefresh(settings)
-        webView?.sanitizeUserAgent(this)
+        webView?.buildUserAgent()
         if (settings.isShowFullscreen == true) hideSystemBars() else showSystemBars()
         configureWebViewSettings(settings)
         setDarkModeIfNeeded()

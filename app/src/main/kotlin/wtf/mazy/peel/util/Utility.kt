@@ -9,10 +9,15 @@ import androidx.core.view.size
 import java.net.URLDecoder
 import java.util.regex.Pattern
 
-fun WebView.sanitizeUserAgent(owner: Any) {
-    val fieldName = owner.javaClass.declaredFields
-        .firstOrNull { it.type == WebView::class.java }?.name ?: return
-    settings.userAgentString = settings.userAgentString.replace("; $fieldName", "")
+private val CHROME_VERSION_RE = Regex("""Chrome/([\d.]+)""")
+
+fun WebView.buildUserAgent() {
+    val raw = settings.userAgentString ?: ""
+    val major = CHROME_VERSION_RE.find(raw)?.groupValues?.get(1)?.substringBefore('.') ?: "145"
+    settings.userAgentString =
+        "Mozilla/5.0 (Linux; Android 10; K) " +
+        "AppleWebKit/537.36 (KHTML, like Gecko) " +
+        "Chrome/$major.0.0.0 Mobile Safari/537.36"
 }
 
 object Utility {

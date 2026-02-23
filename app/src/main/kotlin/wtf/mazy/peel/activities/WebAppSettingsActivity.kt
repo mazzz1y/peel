@@ -402,6 +402,7 @@ class WebAppSettingsActivity :
     private fun showFetchPickerDialog(webapp: WebApp, candidates: List<FetchCandidate>) {
         dismissFetchProgress()
         val defaultIconSizePx = (resources.displayMetrics.density * 48).toInt()
+        val colorSeed = webapp.letterIconSeed
 
         val adapter = object : BaseAdapter() {
             override fun getCount() = candidates.size
@@ -422,7 +423,7 @@ class WebAppSettingsActivity :
                     iconView.setImageBitmap(bmp)
                     detailView.text = "${bmp.width}x${bmp.height} · ${candidate.source}"
                 } else {
-                    iconView.setImageBitmap(LetterIconGenerator.generate(title, title, defaultIconSizePx))
+                    iconView.setImageBitmap(LetterIconGenerator.generate(title, colorSeed, defaultIconSizePx))
                     detailView.text = candidate.source
                 }
                 detailView.visibility = View.VISIBLE

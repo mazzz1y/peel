@@ -27,7 +27,7 @@ import wtf.mazy.peel.R
 import wtf.mazy.peel.model.WebAppSettings
 import wtf.mazy.peel.shortcut.ShortcutIconUtils.getWidthFromIcon
 import wtf.mazy.peel.util.Const
-import wtf.mazy.peel.util.sanitizeUserAgent
+import wtf.mazy.peel.util.buildUserAgent
 import java.net.HttpURLConnection
 import java.net.URL
 import java.util.TreeMap
@@ -50,13 +50,14 @@ class HeadlessWebViewFetcher(
     private val handler = Handler(Looper.getMainLooper())
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     private var customHeaders: Map<String, String> = emptyMap()
+    private lateinit var userAgent: String
     private var finished = false
     private var extracting = false
     private val timeoutRunnable = Runnable { finish() }
 
     @SuppressLint("SetJavaScriptEnabled")
     fun start() {
-        webView.sanitizeUserAgent(this)
+        webView.buildUserAgent()
 
         webView.settings.apply {
             javaScriptEnabled = settings.isAllowJs == true
@@ -84,6 +85,7 @@ class HeadlessWebViewFetcher(
             }
         }
         customHeaders = headers
+        userAgent = webView.settings.userAgentString
 
         webView.webViewClient = object : WebViewClient() {
             override fun onReceivedError(
@@ -299,6 +301,7 @@ class HeadlessWebViewFetcher(
         conn.connectTimeout = CONNECTION_TIMEOUT_MS
         conn.readTimeout = CONNECTION_TIMEOUT_MS
         conn.instanceFollowRedirects = true
+        conn.setRequestProperty("User-Agent", userAgent)
         val cookies = CookieManager.getInstance().getCookie(url)
         if (cookies != null) conn.setRequestProperty("Cookie", cookies)
         customHeaders.forEach { (key, value) -> conn.setRequestProperty(key, value) }
