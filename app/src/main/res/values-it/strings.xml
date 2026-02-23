@@ -129,6 +129,10 @@
 
     <string name="fetch_failed">Impossibile recuperare i dati dal sito web</string>
     <string name="fetch_icon_title">Recupera dal sito web</string>
+    <string name="fetch_step_loading">Caricamento pagina…</string>
+    <string name="fetch_step_manifests">Controllo manifesti…</string>
+    <string name="fetch_step_icons">Controllo icone della pagina…</string>
+    <string name="fetch_step_downloading">Download icone…</string>
     <string name="permissions">Permessi</string>
     <string name="advanced">Avanzate</string>
     <string name="appearance">Aspetto</string>

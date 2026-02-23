@@ -44,24 +44,29 @@ open class SandboxFetchService : Service() {
             try { Json.decodeFromString<WebAppSettings>(it) } catch (_: Exception) { null }
         } ?: WebAppSettings.createWithDefaults()
 
-        HeadlessWebViewFetcher(this, url, settings) { candidates ->
-            val bundle = Bundle()
-            val list = ArrayList<Bundle>(candidates.size)
-            for (c in candidates) {
-                val entry = Bundle()
-                if (c.title != null) entry.putString(KEY_TITLE, c.title)
-                entry.putString(KEY_SOURCE, c.source)
-                if (c.icon != null) {
-                    val stream = java.io.ByteArrayOutputStream()
-                    c.icon.compress(Bitmap.CompressFormat.PNG, 100, stream)
-                    entry.putByteArray(KEY_ICON, stream.toByteArray())
+        HeadlessWebViewFetcher(this, url, settings,
+            onProgress = { text ->
+                receiver.send(RESULT_PROGRESS, Bundle().apply { putString(KEY_PROGRESS, text) })
+            },
+            onResult = { candidates ->
+                val bundle = Bundle()
+                val list = ArrayList<Bundle>(candidates.size)
+                for (c in candidates) {
+                    val entry = Bundle()
+                    if (c.title != null) entry.putString(KEY_TITLE, c.title)
+                    entry.putString(KEY_SOURCE, c.source)
+                    if (c.icon != null) {
+                        val stream = java.io.ByteArrayOutputStream()
+                        c.icon.compress(Bitmap.CompressFormat.PNG, 100, stream)
+                        entry.putByteArray(KEY_ICON, stream.toByteArray())
+                    }
+                    list.add(entry)
                 }
-                list.add(entry)
-            }
-            bundle.putParcelableArrayList(RESULT_CANDIDATES, list)
-            receiver.send(0, bundle)
-            stopSelf(startId)
-        }.start()
+                bundle.putParcelableArrayList(RESULT_CANDIDATES, list)
+                receiver.send(RESULT_DONE, bundle)
+                stopSelf(startId)
+            },
+        ).start()
 
         return START_NOT_STICKY
     }
@@ -71,10 +76,13 @@ open class SandboxFetchService : Service() {
         const val EXTRA_URL = "fetch_url"
         const val EXTRA_SETTINGS = "settings"
         const val EXTRA_RECEIVER = "receiver"
+        const val RESULT_DONE = 0
+        const val RESULT_PROGRESS = 1
         const val RESULT_CANDIDATES = "result_candidates"
         const val KEY_TITLE = "title"
         const val KEY_ICON = "icon"
         const val KEY_SOURCE = "source"
+        const val KEY_PROGRESS = "progress"
 
         fun parseCandidates(resultData: Bundle?): List<FetchCandidate> {
             val list = if (android.os.Build.VERSION.SDK_INT >= 33) {

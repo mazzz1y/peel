@@ -131,6 +131,10 @@
 
     <string name="fetch_failed">Daten konnten nicht von der Website abgerufen werden</string>
     <string name="fetch_icon_title">Von Website abrufen</string>
+    <string name="fetch_step_loading">Seite wird geladen…</string>
+    <string name="fetch_step_manifests">Manifeste werden geprüft…</string>
+    <string name="fetch_step_icons">Seitensymbole werden geprüft…</string>
+    <string name="fetch_step_downloading">Symbole werden heruntergeladen…</string>
     <string name="permissions">Berechtigungen</string>
     <string name="advanced">Erweitert</string>
     <string name="appearance">Erscheinungsbild</string>

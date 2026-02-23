@@ -2,19 +2,25 @@ package wtf.mazy.peel.activities
 
 import android.annotation.SuppressLint
 import android.content.Intent
-import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.ResultReceiver
 import android.provider.MediaStore
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
-import android.view.animation.AnimationUtils
+import android.view.ViewGroup
+import android.widget.BaseAdapter
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.progressindicator.CircularProgressIndicator
 import java.io.IOException
 import wtf.mazy.peel.R
 import wtf.mazy.peel.databinding.WebappSettingsBinding
@@ -41,7 +47,8 @@ class WebAppSettingsActivity :
     private var modifiedWebapp: WebApp? = null
     private var isEditingDefaults: Boolean = false
     private lateinit var iconPickerLauncher: ActivityResultLauncher<String>
-    private var isFetchingIcon = false
+    private var fetchDialog: AlertDialog? = null
+    private var fetchDialogText: TextView? = null
 
     @SuppressLint("SetJavaScriptEnabled", "ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -309,119 +316,135 @@ class WebAppSettingsActivity :
 
     private fun setupFetchButton(modifiedWebapp: WebApp) {
         binding.btnFetch.setOnClickListener {
-            if (!isFetchingIcon) {
-                fetchIconAndName(modifiedWebapp)
-            }
+            if (fetchDialog == null) fetchIconAndName(modifiedWebapp)
         }
     }
 
-    private fun fetchIconAndName(modifiedWebapp: WebApp) {
-        if (isFetchingIcon) return
+    private fun showFetchProgress() {
+        val dp = resources.displayMetrics.density
+        val text = TextView(this).apply {
+            setText(R.string.loading_icon_and_website_title)
+            setTextAppearance(com.google.android.material.R.style.TextAppearance_Material3_BodyMedium)
+        }
+        val layout = LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            setPadding((dp * 24).toInt(), (dp * 24).toInt(), (dp * 24).toInt(), (dp * 16).toInt())
+            addView(CircularProgressIndicator(context).apply {
+                isIndeterminate = true
+                indicatorSize = (dp * 40).toInt()
+            })
+            addView(text, LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+            ).apply { marginStart = (dp * 16).toInt() })
+        }
+        fetchDialogText = text
+        fetchDialog = MaterialAlertDialogBuilder(this)
+            .setView(layout)
+            .setCancelable(true)
+            .setOnCancelListener { dismissFetchProgress() }
+            .show()
+    }
 
-        val urlToFetch = binding.textBaseUrl.text.toString().trim()
-        if (urlToFetch.isEmpty()) {
+    private fun dismissFetchProgress() {
+        fetchDialog?.dismiss()
+        fetchDialog = null
+        fetchDialogText = null
+    }
+
+    private fun fetchIconAndName(webapp: WebApp) {
+        val url = binding.textBaseUrl.text.toString().trim()
+        if (url.isEmpty()) {
             showToast(this, getString(R.string.enter_valid_url), Toast.LENGTH_SHORT)
             return
         }
 
-        isFetchingIcon = true
-        val rotateAnimation = AnimationUtils.loadAnimation(this, R.anim.rotate_indefinitely)
-        binding.btnFetch.startAnimation(rotateAnimation)
+        showFetchProgress()
+        val onProgress: (String) -> Unit = { fetchDialogText?.text = it }
 
-        val sandboxId = WebViewLauncher.resolveSandboxId(modifiedWebapp)
+        val sandboxId = WebViewLauncher.resolveSandboxId(webapp)
         if (sandboxId != null) {
             val slotId = SandboxManager.resolveSlotId(this, sandboxId)
             val receiver = object : ResultReceiver(Handler(mainLooper)) {
                 override fun onReceiveResult(resultCode: Int, resultData: Bundle?) {
-                    handleFetchCandidates(modifiedWebapp, SandboxFetchService.parseCandidates(resultData))
+                    when (resultCode) {
+                        SandboxFetchService.RESULT_PROGRESS ->
+                            onProgress(resultData?.getString(SandboxFetchService.KEY_PROGRESS) ?: "")
+                        SandboxFetchService.RESULT_DONE ->
+                            handleFetchCandidates(webapp, SandboxFetchService.parseCandidates(resultData))
+                    }
                 }
             }
-            startService(SandboxFetchService.createIntent(this, slotId, sandboxId, urlToFetch, modifiedWebapp.effectiveSettings, receiver))
+            startService(SandboxFetchService.createIntent(this, slotId, sandboxId, url, webapp.effectiveSettings, receiver))
         } else {
-            HeadlessWebViewFetcher(this, urlToFetch, modifiedWebapp.effectiveSettings) { candidates ->
-                handleFetchCandidates(modifiedWebapp, candidates)
-            }.start()
+            HeadlessWebViewFetcher(this, url, webapp.effectiveSettings,
+                onProgress = onProgress,
+                onResult = { handleFetchCandidates(webapp, it) },
+            ).start()
         }
     }
 
     private fun handleFetchCandidates(webapp: WebApp, candidates: List<FetchCandidate>) {
         if (isFinishing || isDestroyed) return
         if (candidates.isEmpty()) {
-            stopFetchAnimation()
+            dismissFetchProgress()
             showToast(this, getString(R.string.fetch_failed), Toast.LENGTH_SHORT)
             return
         }
-        val isInitialFetch = !webapp.hasCustomIcon && webapp.title.isEmpty()
-        if (isInitialFetch && candidates.size == 1) {
-            applyFetchResult(webapp, candidates.first().title, candidates.first().icon)
+        if (!webapp.hasCustomIcon && webapp.title.isEmpty() && candidates.size == 1) {
+            applyFetchResult(webapp, candidates.first())
             return
         }
         showFetchPickerDialog(webapp, candidates)
     }
 
     private fun showFetchPickerDialog(webapp: WebApp, candidates: List<FetchCandidate>) {
-        isFetchingIcon = false
-        binding.btnFetch.clearAnimation()
+        dismissFetchProgress()
+        val defaultIconSizePx = (resources.displayMetrics.density * 48).toInt()
 
-        val adapter = object : android.widget.BaseAdapter() {
+        val adapter = object : BaseAdapter() {
             override fun getCount() = candidates.size
             override fun getItem(position: Int) = candidates[position]
             override fun getItemId(position: Int) = position.toLong()
 
-            override fun getView(position: Int, convertView: View?, parent: android.view.ViewGroup): View {
+            override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
                 val view = convertView ?: layoutInflater.inflate(R.layout.item_share_picker, parent, false)
                 val candidate = candidates[position]
-                val icon = view.findViewById<android.widget.ImageView>(R.id.appIcon)
-                val name = view.findViewById<android.widget.TextView>(R.id.appName)
-                val detail = view.findViewById<android.widget.TextView>(R.id.groupName)
+                val iconView = view.findViewById<ImageView>(R.id.appIcon)
+                val nameView = view.findViewById<TextView>(R.id.appName)
+                val detailView = view.findViewById<TextView>(R.id.groupName)
 
                 val title = candidate.title ?: getString(R.string.none)
-                name.text = title
+                nameView.text = title
                 val bmp = candidate.icon
                 if (bmp != null) {
-                    icon.setImageBitmap(bmp)
-                    detail.text = "${bmp.width}x${bmp.height} · ${candidate.source}"
-                    detail.visibility = View.VISIBLE
+                    iconView.setImageBitmap(bmp)
+                    detailView.text = "${bmp.width}x${bmp.height} · ${candidate.source}"
                 } else {
-                    val sizePx = (resources.displayMetrics.density * 48).toInt()
-                    icon.setImageBitmap(LetterIconGenerator.generate(title, title, sizePx))
-                    detail.text = candidate.source
-                    detail.visibility = View.VISIBLE
+                    iconView.setImageBitmap(LetterIconGenerator.generate(title, title, defaultIconSizePx))
+                    detailView.text = candidate.source
                 }
+                detailView.visibility = View.VISIBLE
                 return view
             }
         }
 
         MaterialAlertDialogBuilder(this)
             .setTitle(R.string.choose_icon)
-            .setAdapter(adapter) { _, which ->
-                applyFetchResult(webapp, candidates[which].title, candidates[which].icon)
-            }
-            .setOnCancelListener { stopFetchAnimation() }
+            .setAdapter(adapter) { _, which -> applyFetchResult(webapp, candidates[which]) }
             .show()
     }
 
-    private fun stopFetchAnimation() {
-        isFetchingIcon = false
-        binding.btnFetch.clearAnimation()
-    }
-
-    private fun applyFetchResult(modifiedWebapp: WebApp, title: String?, icon: Bitmap?) {
-        isFetchingIcon = false
-        binding.btnFetch.clearAnimation()
-
-        if (!title.isNullOrEmpty()) {
-            binding.txtWebAppName.setText(title)
-            modifiedWebapp.title = title
+    private fun applyFetchResult(webapp: WebApp, candidate: FetchCandidate) {
+        dismissFetchProgress()
+        if (!candidate.title.isNullOrEmpty()) {
+            binding.txtWebAppName.setText(candidate.title)
+            webapp.title = candidate.title
         }
-
-        if (icon != null) {
-            modifiedWebapp.saveIcon(icon)
-            loadCurrentIcon(modifiedWebapp)
-        }
-
-        if (title == null && icon == null) {
-            showToast(this, getString(R.string.fetch_failed), Toast.LENGTH_SHORT)
+        if (candidate.icon != null) {
+            webapp.saveIcon(candidate.icon)
+            loadCurrentIcon(webapp)
         }
     }
 

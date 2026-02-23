@@ -23,6 +23,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import org.json.JSONObject
+import wtf.mazy.peel.R
 import wtf.mazy.peel.model.WebAppSettings
 import wtf.mazy.peel.shortcut.ShortcutIconUtils.getWidthFromIcon
 import wtf.mazy.peel.util.Const
@@ -41,9 +42,11 @@ class HeadlessWebViewFetcher(
     context: Context,
     private val url: String,
     private val settings: WebAppSettings,
+    private val onProgress: ((String) -> Unit)? = null,
     private val onResult: (candidates: List<FetchCandidate>) -> Unit,
 ) {
-    private val webView = WebView(context.applicationContext)
+    private val appContext = context.applicationContext
+    private val webView = WebView(appContext)
     private val handler = Handler(Looper.getMainLooper())
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     private var customHeaders: Map<String, String> = emptyMap()
@@ -113,6 +116,7 @@ class HeadlessWebViewFetcher(
         }
 
         handler.postDelayed(timeoutRunnable, TIMEOUT_MS)
+        onProgress?.invoke(appContext.getString(R.string.fetch_step_loading))
         webView.loadUrl(loadUrl, customHeaders)
     }
 
@@ -146,6 +150,7 @@ class HeadlessWebViewFetcher(
                 val pageTitle = json.optString("title").takeIf { it.isNotEmpty() }
 
                 ensureActive()
+                postProgress(appContext.getString(R.string.fetch_step_manifests))
                 val origin = originOf(url)
                 val tried = mutableSetOf<String>()
                 for (path in MANIFEST_PATHS) {
@@ -173,10 +178,12 @@ class HeadlessWebViewFetcher(
                 }
 
                 ensureActive()
+                postProgress(appContext.getString(R.string.fetch_step_icons))
                 val touchIcons = TreeMap<Int, String>()
                 val linkIcons = TreeMap<Int, String>()
                 val iconLinks = json.optJSONArray("iconLinks")
                 if (iconLinks != null) parseIconLinks(iconLinks, touchIcons, linkIcons)
+                postProgress(appContext.getString(R.string.fetch_step_downloading))
                 val touchIcon = downloadBestIcon(touchIcons)
                 if (touchIcon != null) candidates.add(FetchCandidate(pageTitle, touchIcon, "Apple"))
                 val linkIcon = downloadBestIcon(linkIcons)
@@ -296,6 +303,10 @@ class HeadlessWebViewFetcher(
         if (cookies != null) conn.setRequestProperty("Cookie", cookies)
         customHeaders.forEach { (key, value) -> conn.setRequestProperty(key, value) }
         return conn
+    }
+
+    private fun postProgress(text: String) {
+        handler.post { onProgress?.invoke(text) }
     }
 
     private fun finish(candidates: List<FetchCandidate> = emptyList()) {

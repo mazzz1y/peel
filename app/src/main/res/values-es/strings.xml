@@ -130,6 +130,10 @@
 
     <string name="fetch_failed">No se pudieron obtener datos del sitio web</string>
     <string name="fetch_icon_title">Obtener del sitio web</string>
+    <string name="fetch_step_loading">Cargando página…</string>
+    <string name="fetch_step_manifests">Comprobando manifiestos…</string>
+    <string name="fetch_step_icons">Comprobando iconos de la página…</string>
+    <string name="fetch_step_downloading">Descargando iconos…</string>
     <string name="permissions">Permisos</string>
     <string name="advanced">Avanzado</string>
     <string name="appearance">Apariencia</string>
