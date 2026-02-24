@@ -12,10 +12,12 @@ import androidx.appcompat.widget.PopupMenu
 import android.widget.TextView
 import androidx.activity.addCallback
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.materialswitch.MaterialSwitch
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import wtf.mazy.peel.ui.dragReorderCallback
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.util.Collections
@@ -109,8 +111,7 @@ class GroupListActivity : AppCompatActivity() {
         val dialogView = layoutInflater.inflate(R.layout.dialog_delete_group, null)
         val message = dialogView.findViewById<TextView>(R.id.delete_group_message)
         val switchUngroup =
-            dialogView.findViewById<com.google.android.material.materialswitch.MaterialSwitch>(
-                R.id.switchUngroupApps)
+            dialogView.findViewById<MaterialSwitch>(R.id.switchUngroupApps)
 
         message.text = getString(R.string.delete_group_confirm, group.title, appsInGroup.size)
 
@@ -128,34 +129,10 @@ class GroupListActivity : AppCompatActivity() {
             .show()
     }
 
-    private val dragCallback =
-        object : ItemTouchHelper.Callback() {
-            override fun getMovementFlags(
-                recyclerView: RecyclerView,
-                viewHolder: RecyclerView.ViewHolder,
-            ): Int = makeMovementFlags(ItemTouchHelper.UP or ItemTouchHelper.DOWN, 0)
-
-            override fun onMove(
-                recyclerView: RecyclerView,
-                viewHolder: RecyclerView.ViewHolder,
-                target: RecyclerView.ViewHolder,
-            ): Boolean {
-                adapter.moveItem(viewHolder.bindingAdapterPosition, target.bindingAdapterPosition)
-                return true
-            }
-
-            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {}
-
-            override fun isLongPressDragEnabled() = true
-
-            override fun clearView(
-                recyclerView: RecyclerView,
-                viewHolder: RecyclerView.ViewHolder,
-            ) {
-                super.clearView(recyclerView, viewHolder)
-                saveOrder()
-            }
-        }
+    private val dragCallback = dragReorderCallback(
+        onMove = { from, to -> adapter.moveItem(from, to) },
+        onDrop = ::saveOrder,
+    )
 
     private fun saveOrder() {
         for ((i, group) in adapter.items.withIndex()) {

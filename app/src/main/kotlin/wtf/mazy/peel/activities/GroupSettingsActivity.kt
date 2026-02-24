@@ -1,26 +1,21 @@
 package wtf.mazy.peel.activities
 
-import android.net.Uri
 import android.os.Bundle
-import android.provider.MediaStore
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.Toast
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import java.io.IOException
 import wtf.mazy.peel.R
 import wtf.mazy.peel.databinding.GroupSettingsBinding
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.SandboxManager
 import wtf.mazy.peel.model.SettingDefinition
-import wtf.mazy.peel.model.SettingRegistry
 import wtf.mazy.peel.model.WebAppGroup
+import wtf.mazy.peel.ui.IconEditorController
 import wtf.mazy.peel.ui.dialog.OverridePickerDialog
-import wtf.mazy.peel.ui.settings.SettingViewFactory
+import wtf.mazy.peel.ui.settings.OverridePickerController
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.NotificationUtils.showToast
 
@@ -29,14 +24,10 @@ class GroupSettingsActivity :
 
     private var originalGroup: WebAppGroup? = null
     private var modifiedGroup: WebAppGroup? = null
-
-    private lateinit var iconPickerLauncher: ActivityResultLauncher<String>
+    private lateinit var iconEditor: IconEditorController
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        iconPickerLauncher =
-            registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-                uri?.let { handleSelectedIcon(it) }
-            }
+        iconEditor = IconEditorController(this, { binding.imgGroupIcon }) { modifiedGroup }
         super.onCreate(savedInstanceState)
         setToolbarTitle(getString(R.string.group_settings))
 
@@ -52,12 +43,12 @@ class GroupSettingsActivity :
         modifiedGroup = WebAppGroup(originalGroup!!)
         binding.group = modifiedGroup
 
-        setupIconButton()
-        updateGroupIcon()
+        binding.imgGroupIcon.setOnClickListener { iconEditor.onIconTap() }
+        iconEditor.refreshIcon()
         binding.txtGroupName.addTextChangedListener(
             object : TextWatcher {
                 override fun afterTextChanged(s: Editable?) {
-                    updateGroupIcon()
+                    iconEditor.refreshIcon()
                 }
 
                 override fun beforeTextChanged(
@@ -72,7 +63,7 @@ class GroupSettingsActivity :
 
         setupSandboxSwitch()
         setupOverridePicker()
-        setupKeyboardListener()
+        setupKeyboardPadding(binding.contentContainer)
     }
 
     override fun onPause() {
@@ -87,63 +78,6 @@ class GroupSettingsActivity :
 
     override fun inflateBinding(layoutInflater: LayoutInflater): GroupSettingsBinding {
         return GroupSettingsBinding.inflate(layoutInflater)
-    }
-
-    private fun setupIconButton() {
-        binding.imgGroupIcon.setOnClickListener { onIconTap() }
-    }
-
-    private fun onIconTap() {
-        val group = modifiedGroup ?: return
-        if (group.hasCustomIcon) {
-            MaterialAlertDialogBuilder(this)
-                .setItems(arrayOf(
-                    getString(R.string.icon_update),
-                    getString(R.string.icon_remove)
-                )) { _, which ->
-                    when (which) {
-                        0 -> launchIconPicker()
-                        1 -> removeIcon(group)
-                    }
-                }
-                .show()
-        } else {
-            launchIconPicker()
-        }
-    }
-
-    private fun launchIconPicker() {
-        try {
-            iconPickerLauncher.launch("image/*")
-        } catch (e: Exception) {
-            showToast(this, getString(R.string.icon_not_found), Toast.LENGTH_SHORT)
-        }
-    }
-
-    private fun handleSelectedIcon(uri: Uri) {
-        try {
-            @Suppress("DEPRECATION")
-            val bitmap = MediaStore.Images.Media.getBitmap(contentResolver, uri)
-            if (bitmap != null) {
-                modifiedGroup?.let {
-                    it.saveIcon(bitmap)
-                    updateGroupIcon()
-                }
-            }
-        } catch (e: IOException) {
-            showToast(this, getString(R.string.icon_not_found), Toast.LENGTH_SHORT)
-        }
-    }
-
-    private fun removeIcon(group: WebAppGroup) {
-        group.deleteIcon()
-        updateGroupIcon()
-    }
-
-    private fun updateGroupIcon() {
-        val group = modifiedGroup ?: return
-        val sizePx = (resources.displayMetrics.density * 96).toInt()
-        binding.imgGroupIcon.setImageBitmap(group.resolveIcon(sizePx))
     }
 
     private fun setupSandboxSwitch() {
@@ -196,87 +130,17 @@ class GroupSettingsActivity :
         updateClearSandboxButtonVisibility(group)
     }
 
-    private lateinit var overrideViewFactory: SettingViewFactory
+    private lateinit var overrideController: OverridePickerController
 
     private fun setupOverridePicker() {
         val group = modifiedGroup ?: return
-        updateOverrideViewFactory(group)
-        updateOverridesList(group)
-        binding.btnAddOverride.setOnClickListener { showOverridePickerDialog(group) }
-    }
-
-    private fun updateOverrideViewFactory(group: WebAppGroup) {
-        overrideViewFactory =
-            SettingViewFactory(
-                layoutInflater,
-                SettingViewFactory.ButtonStrategy.Override { setting ->
-                    removeOverride(group, setting.key)
-                    updateOverridesList(group)
-                },
-            )
-    }
-
-    private fun updateOverridesList(group: WebAppGroup) {
-        val allOverriddenKeys = group.settings.getOverriddenKeys()
-        val compoundKeys =
-            SettingRegistry.getAllSettings().flatMapTo(mutableSetOf()) { setting ->
-                setting.allFields.drop(1).map { it.key }
-            }
-        val overriddenKeys = allOverriddenKeys.filter { it !in compoundKeys }
-
-        val container = binding.linearLayoutOverrides
-        container.removeAllViews()
-
-        overriddenKeys.forEach { key ->
-            val setting = SettingRegistry.getSettingByKey(key) ?: return@forEach
-            container.addView(overrideViewFactory.createView(container, setting, group.settings))
-        }
-    }
-
-    private fun removeOverride(group: WebAppGroup, key: String) {
-        val setting = SettingRegistry.getSettingByKey(key) ?: return
-        setting.allFields.forEach { group.settings.setValue(it.key, null) }
+        overrideController = OverridePickerController(
+            this, group.settings, binding.linearLayoutOverrides, binding.btnAddOverride,
+        )
+        overrideController.setup()
     }
 
     override fun onSettingSelected(setting: SettingDefinition) {
-        val group = modifiedGroup ?: return
-        val globalSettings = DataManager.instance.defaultSettings.settings
-        if (setting is SettingDefinition.StringMapSetting) {
-            group.settings.customHeaders = mutableMapOf()
-        } else {
-            setting.allFields.forEach { field ->
-                group.settings.setValue(field.key, globalSettings.getValue(field.key))
-            }
-        }
-        binding.linearLayoutOverrides.addView(
-            overrideViewFactory.createView(binding.linearLayoutOverrides, setting, group.settings))
-    }
-
-    private fun showOverridePickerDialog(group: WebAppGroup) {
-        val dialog =
-            OverridePickerDialog.newInstance(
-                group.settings,
-                DataManager.instance.defaultSettings.settings,
-                this,
-            )
-        dialog.show(supportFragmentManager, "OverridePickerDialog")
-    }
-
-    private fun setupKeyboardListener() {
-        val rootView = binding.root
-        val contentContainer = binding.contentContainer
-
-        rootView.viewTreeObserver.addOnGlobalLayoutListener {
-            val rect = android.graphics.Rect()
-            rootView.getWindowVisibleDisplayFrame(rect)
-            val screenHeight = rootView.rootView.height
-            val keyboardHeight = screenHeight - rect.bottom
-
-            if (keyboardHeight > screenHeight * 0.15) {
-                contentContainer.setPadding(0, 0, 0, keyboardHeight)
-            } else {
-                contentContainer.setPadding(0, 0, 0, 0)
-            }
-        }
+        overrideController.onSettingSelected(setting)
     }
 }

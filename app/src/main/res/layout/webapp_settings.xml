@@ -117,20 +117,23 @@
                             android:visibility="gone">
 
                             <TextView
-                                android:layout_width="0dp"
+                                android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_weight="1"
                                 android:text="@string/group"
                                 android:textColor="?attr/colorOnSurface"
                                 android:textSize="@dimen/settings_text_size" />
 
                             <TextView
                                 android:id="@+id/txtGroupName"
-                                android:layout_width="wrap_content"
+                                android:layout_width="0dp"
                                 android:layout_height="wrap_content"
+                                android:layout_weight="1"
                                 android:text="@string/none"
                                 android:textColor="?attr/colorOnSurfaceVariant"
                                 android:textSize="@dimen/settings_text_size"
+                                android:gravity="end"
+                                android:maxLines="1"
+                                android:ellipsize="end"
                                 android:drawableEnd="@drawable/ic_expand_more_24dp"
                                 android:drawablePadding="4dp"
                                 android:background="?attr/selectableItemBackground"

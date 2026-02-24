@@ -156,7 +156,7 @@ class OverridePickerDialog : DialogFragment() {
 
         override fun getItemCount() = items.size
 
-        private inner class HeaderViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        private class HeaderViewHolder(view: View) : RecyclerView.ViewHolder(view) {
             private val textView: TextView = view.findViewById(R.id.text_category)
             private val divider: View = view.findViewById(R.id.divider)
 

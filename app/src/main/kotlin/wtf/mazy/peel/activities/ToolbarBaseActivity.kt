@@ -1,9 +1,11 @@
 package wtf.mazy.peel.activities
 
+import android.graphics.Rect
 import android.os.Bundle
-import androidx.activity.enableEdgeToEdge
 import android.view.LayoutInflater
+import android.view.View
 import androidx.activity.addCallback
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.viewbinding.ViewBinding
 import wtf.mazy.peel.databinding.ActivityToolbarBaseBinding
@@ -41,5 +43,20 @@ abstract class ToolbarBaseActivity<VB : ViewBinding> : AppCompatActivity() {
 
     fun setToolbarTitle(title: String) {
         supportActionBar?.title = title
+    }
+
+    protected fun setupKeyboardPadding(contentContainer: View) {
+        val rootView = binding.root
+        rootView.viewTreeObserver.addOnGlobalLayoutListener {
+            val rect = Rect()
+            rootView.getWindowVisibleDisplayFrame(rect)
+            val screenHeight = rootView.rootView.height
+            val keyboardHeight = screenHeight - rect.bottom
+            if (keyboardHeight > screenHeight * 0.15) {
+                contentContainer.setPadding(0, 0, 0, keyboardHeight)
+            } else {
+                contentContainer.setPadding(0, 0, 0, 0)
+            }
+        }
     }
 }

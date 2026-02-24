@@ -3,17 +3,13 @@ package wtf.mazy.peel.activities
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-import android.widget.BaseAdapter
-import android.widget.ImageView
-import android.widget.TextView
 import android.widget.Toast
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.WebApp
+import wtf.mazy.peel.ui.ListPickerAdapter
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.WebViewLauncher
 
@@ -59,21 +55,10 @@ class TrampolineActivity : Activity() {
     }
 
     private fun showPickerDialog(title: String, apps: List<WebApp>) {
-        val adapter = object : BaseAdapter() {
-            override fun getCount() = apps.size
-            override fun getItem(position: Int) = apps[position]
-            override fun getItemId(position: Int) = position.toLong()
-
-            override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-                val view = convertView ?: LayoutInflater.from(this@TrampolineActivity)
-                    .inflate(R.layout.item_share_picker, parent, false)
-
-                val webapp = apps[position]
-                view.findViewById<TextView>(R.id.appName).text = webapp.title
-                view.findViewById<TextView>(R.id.groupName).visibility = View.GONE
-                view.findViewById<ImageView>(R.id.appIcon).setImageBitmap(webapp.resolveIcon())
-                return view
-            }
+        val adapter = ListPickerAdapter(apps) { webapp, icon, name, detail ->
+            name.text = webapp.title
+            icon.setImageBitmap(webapp.resolveIcon())
+            detail.visibility = View.GONE
         }
 
         MaterialAlertDialogBuilder(this)

@@ -18,7 +18,7 @@ class SettingsActivity : ToolbarBaseActivity<GlobalSettingsBinding>() {
         super.onCreate(savedInstanceState)
         setToolbarTitle(getString(R.string.global_settings))
         setupDefaultSettingsUI()
-        setupKeyboardListener()
+        setupKeyboardPadding(binding.linearLayoutGlobalSettings)
     }
 
     override fun onPause() {
@@ -84,21 +84,4 @@ class SettingsActivity : ToolbarBaseActivity<GlobalSettingsBinding>() {
         container.addView(divider)
     }
 
-    private fun setupKeyboardListener() {
-        val rootView = binding.root
-        val contentContainer = binding.linearLayoutGlobalSettings
-
-        rootView.viewTreeObserver.addOnGlobalLayoutListener {
-            val rect = android.graphics.Rect()
-            rootView.getWindowVisibleDisplayFrame(rect)
-            val screenHeight = rootView.rootView.height
-            val keyboardHeight = screenHeight - rect.bottom
-
-            if (keyboardHeight > screenHeight * 0.15) {
-                contentContainer.setPadding(0, 0, 0, keyboardHeight)
-            } else {
-                contentContainer.setPadding(0, 0, 0, 0)
-            }
-        }
-    }
 }

@@ -17,7 +17,8 @@ internal class BiometricPromptHelper(private val activity: FragmentActivity) {
 
             return when (biometricManager.canAuthenticate(
                 BiometricManager.Authenticators.BIOMETRIC_STRONG or
-                    BiometricManager.Authenticators.DEVICE_CREDENTIAL)) {
+                        BiometricManager.Authenticators.DEVICE_CREDENTIAL
+            )) {
                 BiometricManager.BIOMETRIC_SUCCESS -> null
                 BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED ->
                     context.getString(R.string.no_biometric_keys_enrolled)
@@ -65,7 +66,8 @@ internal class BiometricPromptHelper(private val activity: FragmentActivity) {
                 .setTitle(promptTitle)
                 .setAllowedAuthenticators(
                     BiometricManager.Authenticators.BIOMETRIC_STRONG or
-                        BiometricManager.Authenticators.DEVICE_CREDENTIAL)
+                            BiometricManager.Authenticators.DEVICE_CREDENTIAL
+                )
                 .build()
         biometricPrompt.authenticate(promptInfo)
     }
