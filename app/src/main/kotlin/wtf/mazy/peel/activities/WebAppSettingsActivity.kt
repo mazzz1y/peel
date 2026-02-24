@@ -25,6 +25,7 @@ import java.io.IOException
 import wtf.mazy.peel.R
 import wtf.mazy.peel.databinding.WebappSettingsBinding
 import wtf.mazy.peel.model.DataManager
+import wtf.mazy.peel.model.IconCache
 import wtf.mazy.peel.model.SandboxManager
 import wtf.mazy.peel.model.SettingDefinition
 import wtf.mazy.peel.model.SettingRegistry
@@ -446,8 +447,10 @@ class WebAppSettingsActivity :
         }
         if (candidate.icon != null) {
             webapp.saveIcon(candidate.icon)
-            loadCurrentIcon(webapp)
+        } else {
+            IconCache.evict(webapp)
         }
+        loadCurrentIcon(webapp)
     }
 
     private lateinit var overrideViewFactory: SettingViewFactory

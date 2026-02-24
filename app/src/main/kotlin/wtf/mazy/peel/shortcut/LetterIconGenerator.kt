@@ -6,6 +6,7 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Typeface
 import androidx.core.graphics.createBitmap
+import java.text.BreakIterator
 import kotlin.math.abs
 import wtf.mazy.peel.util.App
 
@@ -30,7 +31,8 @@ object LetterIconGenerator {
         )
 
     fun generate(title: String, url: String, sizePx: Int, textRatio: Float = 0.45f): Bitmap {
-        val letter = extractLetter(title, url)
+        val glyph = extractGlyph(title, url)
+        val isEmoji = glyph.length > 1 || (glyph.isNotEmpty() && !glyph[0].isLetterOrDigit())
         val color = pickColor(url.ifEmpty { title })
 
         val bitmap = createBitmap(sizePx, sizePx)
@@ -49,12 +51,12 @@ object LetterIconGenerator {
         val textPaint =
             Paint(Paint.ANTI_ALIAS_FLAG).apply {
                 this.color = Color.WHITE
-                textSize = sizePx * textRatio
+                textSize = sizePx * if (isEmoji) textRatio * 1.2f else textRatio
                 typeface = Typeface.create(Typeface.SANS_SERIF, Typeface.BOLD)
                 textAlign = Paint.Align.CENTER
             }
         val textY = cy - (textPaint.descent() + textPaint.ascent()) / 2f
-        canvas.drawText(letter, cx, textY, textPaint)
+        canvas.drawText(glyph, cx, textY, textPaint)
 
         return bitmap
     }
@@ -65,15 +67,26 @@ object LetterIconGenerator {
         return generate(title, url, iconSizePx, textRatio = 0.3f)
     }
 
-    private fun extractLetter(title: String, url: String): String {
-        val titleLetter = title.trim().firstOrNull { it.isLetterOrDigit() }
-        if (titleLetter != null) return titleLetter.uppercase()
+    private fun extractGlyph(title: String, url: String): String {
+        val trimmed = title.trim()
+        if (trimmed.isNotEmpty()) {
+            val first = firstGrapheme(trimmed)
+            val cp = first.codePointAt(0)
+            if (!Character.isLetterOrDigit(cp)) return first
+            return first[0].uppercase()
+        }
 
         val domain = url.removePrefix("https://").removePrefix("http://").removePrefix("www.")
         val domainLetter = domain.firstOrNull { it.isLetterOrDigit() }
         if (domainLetter != null) return domainLetter.uppercase()
 
         return "?"
+    }
+
+    private fun firstGrapheme(text: String): String {
+        val iter = BreakIterator.getCharacterInstance()
+        iter.setText(text)
+        return text.substring(0, iter.next())
     }
 
     private fun pickColor(key: String): Int {

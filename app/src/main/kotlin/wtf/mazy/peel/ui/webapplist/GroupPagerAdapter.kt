@@ -3,6 +3,7 @@ package wtf.mazy.peel.ui.webapplist
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
+import java.text.BreakIterator
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.WebAppGroup
 
@@ -29,10 +30,24 @@ class GroupPagerAdapter(
     }
 
     fun getPageTitle(position: Int): String {
-        return if (position < groups.size) {
-            groups[position].title
-        } else {
-            activity.getString(R.string.none)
+        if (position >= groups.size) return activity.getString(R.string.none)
+        val title = groups[position].title
+        return leadingEmojis(title, 3) ?: title
+    }
+
+    private fun leadingEmojis(text: String, max: Int): String? {
+        val iter = BreakIterator.getCharacterInstance()
+        iter.setText(text)
+        var prev = 0
+        var count = 0
+        while (count < max) {
+            val end = iter.next()
+            if (end == BreakIterator.DONE) break
+            val segment = text.substring(prev, end)
+            if (segment.isBlank() || Character.isLetterOrDigit(segment.codePointAt(0))) break
+            prev = end
+            count++
         }
+        return if (count > 0) text.substring(0, prev) else null
     }
 }

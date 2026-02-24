@@ -77,10 +77,11 @@ object IconCache {
     }
 
     private fun fallback(owner: IconOwner, dir: File, sizePx: Int): Bitmap {
-        val name = "fallback-$sizePx"
-        readCache(dir, name)?.let { return it }
+        val key = "fallback-$sizePx-${owner.title.hashCode()}"
+        readCache(dir, key)?.let { return it }
+        dir.listFiles()?.filter { it.name.startsWith("fallback-") }?.forEach { it.delete() }
         val bitmap = LetterIconGenerator.generate(owner.title, owner.letterIconSeed, sizePx)
-        writeCache(dir, name, bitmap)
+        writeCache(dir, key, bitmap)
         return bitmap
     }
 
