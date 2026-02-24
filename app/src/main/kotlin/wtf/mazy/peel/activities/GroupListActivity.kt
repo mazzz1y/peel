@@ -2,11 +2,8 @@ package wtf.mazy.peel.activities
 
 import android.annotation.SuppressLint
 import androidx.activity.enableEdgeToEdge
-import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,7 +11,6 @@ import android.widget.ImageView
 import androidx.appcompat.widget.PopupMenu
 import android.widget.TextView
 import androidx.activity.addCallback
-import androidx.appcompat.app.AlertDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -24,11 +20,11 @@ import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.util.Collections
 import wtf.mazy.peel.R
-import wtf.mazy.peel.databinding.AddWebsiteDialogueBinding
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.WebAppGroup
 import wtf.mazy.peel.shortcut.ShortcutHelper
 import wtf.mazy.peel.util.Const
+import wtf.mazy.peel.ui.dialog.showInputDialog
 
 class GroupListActivity : AppCompatActivity() {
 
@@ -85,50 +81,21 @@ class GroupListActivity : AppCompatActivity() {
     }
 
     private fun showAddGroupDialog() {
-        val localBinding = AddWebsiteDialogueBinding.inflate(layoutInflater)
-        localBinding.websiteUrl.hint = getString(R.string.group_name_hint)
-        localBinding.websiteUrl.inputType = android.text.InputType.TYPE_CLASS_TEXT
+        showInputDialog(
+            titleRes = R.string.add_group,
+            hintRes = R.string.group_name_hint,
+        ) { name ->
+            val group = WebAppGroup(
+                title = name,
+                order = DataManager.instance.getGroups().size,
+            )
+            DataManager.instance.addGroup(group)
+            updateList()
 
-        val dialog =
-            MaterialAlertDialogBuilder(this)
-                .setView(localBinding.root)
-                .setTitle(getString(R.string.add_group))
-                .setPositiveButton(R.string.ok) { _: DialogInterface, _: Int ->
-                    val name = localBinding.websiteUrl.text.toString().trim()
-                    if (name.isNotEmpty()) {
-                        val group =
-                            WebAppGroup(
-                                title = name,
-                                order = DataManager.instance.getGroups().size,
-                            )
-                        DataManager.instance.addGroup(group)
-                        updateList()
-
-                        val intent = Intent(this, GroupSettingsActivity::class.java)
-                        intent.putExtra(Const.INTENT_GROUP_UUID, group.uuid)
-                        startActivity(intent)
-                    }
-                }
-                .create()
-
-        dialog.show()
-        val okButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
-        okButton.isEnabled = false
-        localBinding.websiteUrl.addTextChangedListener(
-            object : TextWatcher {
-                override fun afterTextChanged(s: Editable?) {
-                    okButton.isEnabled = !s.isNullOrBlank()
-                }
-
-                override fun beforeTextChanged(
-                    s: CharSequence?,
-                    start: Int,
-                    count: Int,
-                    after: Int
-                ) {}
-
-                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-            })
+            val intent = Intent(this, GroupSettingsActivity::class.java)
+            intent.putExtra(Const.INTENT_GROUP_UUID, group.uuid)
+            startActivity(intent)
+        }
     }
 
     private fun showDeleteGroupDialog(group: WebAppGroup) {

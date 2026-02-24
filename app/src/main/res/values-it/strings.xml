@@ -92,7 +92,9 @@
     <string name="keep_screen_awake">Mantieni schermo acceso</string>
     <string name="allow_camera_access">Consenti accesso alla fotocamera</string>
     <string name="allow_microphone_access">Consenti accesso al microfono</string>
-    <string name="shortcut_already_exists">Esiste già un collegamento con questo nome. Scegliere un altro nome o elimina il collegamento esistente.</string>
+    <string name="create_shortcut">Crea scorciatoia</string>
+    <string name="create">Crea</string>
+    <string name="shortcut_updated">Scorciatoia aggiornata.</string>
     <string name="back">Indietro</string>
     <string name="forward">Avanti</string>
     <string name="copy_url">Copia indirizzo</string>
@@ -156,7 +158,6 @@
     <string name="reset_global_settings">Ripristina impostazioni globali</string>
     <string name="delete">Elimina</string>
     <string name="settings">Impostazioni</string>
-    <string name="create_shortcut">Crea scorciatoia</string>
     <string name="drag_to_reorder">Trascina per riordinare</string>
     <string name="app_icon">Icona app</string>
     <string name="select_setting_to_override">Seleziona impostazione da sovrascrivere</string>

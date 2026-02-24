@@ -166,10 +166,11 @@ class ShortcutDialogFragment : DialogFragment() {
                 .build()
         val scManager: ShortcutManager =
             App.appContext.getSystemService(ShortcutManager::class.java)
-        if (scManager.pinnedShortcuts.none { it.id == pinShortcutInfo.id }) {
-            ShortcutManagerCompat.requestPinShortcut(activity, pinShortcutInfo, null)
+        if (scManager.pinnedShortcuts.any { it.id == pinShortcutInfo.id }) {
+            ShortcutManagerCompat.updateShortcuts(activity, listOf(pinShortcutInfo))
+            showToast(activity, getString(R.string.shortcut_updated))
         } else {
-            showToast(activity, getString(R.string.shortcut_already_exists))
+            ShortcutManagerCompat.requestPinShortcut(activity, pinShortcutInfo, null)
         }
     }
 

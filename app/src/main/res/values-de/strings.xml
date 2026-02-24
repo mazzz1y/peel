@@ -92,7 +92,9 @@
     <string name="keep_screen_awake">Standby verhindern</string>
     <string name="allow_camera_access">Kamerazugriff erlauben</string>
     <string name="allow_microphone_access">Mikrofonzugriff erlauben</string>
-    <string name="shortcut_already_exists">Eine Verknüpfung mit diesem Namen existiert bereits. Bitte wählen Sie einen anderen Namen oder löschen die existierende Verknüpfung.</string>
+    <string name="create_shortcut">Verknüpfung erstellen</string>
+    <string name="create">Erstellen</string>
+    <string name="shortcut_updated">Verknüpfung aktualisiert.</string>
     <string name="back">Zurück</string>
     <string name="forward">Vor</string>
     <string name="copy_url">URL kopieren</string>
@@ -157,7 +159,6 @@
     <string name="reset_global_settings">Globale Einstellungen zurücksetzen</string>
     <string name="delete">Löschen</string>
     <string name="settings">Einstellungen</string>
-    <string name="create_shortcut">Verknüpfung erstellen</string>
     <string name="drag_to_reorder">Ziehen zum Neuordnen</string>
     <string name="app_icon">App-Symbol</string>
     <string name="select_setting_to_override">Einstellung zum Überschreiben auswählen</string>

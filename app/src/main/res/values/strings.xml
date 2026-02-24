@@ -128,7 +128,9 @@
     <string name="permission_prompt_microphone">Allow %1$s to access your microphone?</string>
     <string name="permission_prompt_location">Allow %1$s to access your location?</string>
 
-    <string name="shortcut_already_exists">A shortcut with this name already exists. Please choose another name or delete the existing shortcut.</string>
+    <string name="create_shortcut">Create shortcut</string>
+    <string name="create">Create</string>
+    <string name="shortcut_updated">Shortcut updated.</string>
     <string name="back">Back</string>
     <string name="forward">Forward</string>
     <string name="copy_url">Copy URL</string>
@@ -178,7 +180,6 @@
     <string name="reset_global_settings">Reset Global Settings</string>
     <string name="delete">Delete</string>
     <string name="settings">Settings</string>
-    <string name="create_shortcut">Create Shortcut</string>
     <string name="drag_to_reorder">Drag to reorder</string>
     <string name="app_icon">App icon</string>
 

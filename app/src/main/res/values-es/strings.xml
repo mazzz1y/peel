@@ -93,7 +93,9 @@
     <string name="keep_screen_awake">Mantener la pantalla despierta</string>
     <string name="allow_camera_access">Permitir el acceso a la cámara</string>
     <string name="allow_microphone_access">Permitir el acceso al micrófono</string>
-    <string name="shortcut_already_exists">Ya existe un acceso directo con este nombre. Por favor, elija otro nombre o elimine el acceso directo existente.</string>
+    <string name="create_shortcut">Crear acceso directo</string>
+    <string name="create">Crear</string>
+    <string name="shortcut_updated">Acceso directo actualizado.</string>
     <string name="back">Volver</string>
     <string name="forward">Avanzar</string>
     <string name="copy_url">Copiar URL</string>
@@ -156,7 +158,6 @@
     <string name="reset_global_settings">Restablecer configuración global</string>
     <string name="delete">Eliminar</string>
     <string name="settings">Configuración</string>
-    <string name="create_shortcut">Crear acceso directo</string>
     <string name="drag_to_reorder">Arrastrar para reordenar</string>
     <string name="app_icon">Icono de la aplicación</string>
     <string name="select_setting_to_override">Seleccionar configuración para anular</string>

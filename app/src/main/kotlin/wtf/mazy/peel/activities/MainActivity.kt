@@ -2,17 +2,13 @@ package wtf.mazy.peel.activities
 
 import android.content.ActivityNotFoundException
 import androidx.activity.enableEdgeToEdge
-import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AlertDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import androidx.appcompat.app.AppCompatActivity
 import androidx.viewpager2.widget.ViewPager2
@@ -25,7 +21,6 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import wtf.mazy.peel.R
-import wtf.mazy.peel.databinding.AddWebsiteDialogueBinding
 import wtf.mazy.peel.model.BackupManager
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.ImportMode
@@ -35,6 +30,7 @@ import wtf.mazy.peel.ui.webapplist.GroupPagerAdapter
 import wtf.mazy.peel.ui.webapplist.WebAppListFragment
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.NotificationUtils
+import wtf.mazy.peel.ui.dialog.showInputDialog
 
 class MainActivity : AppCompatActivity() {
 
@@ -81,7 +77,7 @@ class MainActivity : AppCompatActivity() {
         viewPager = findViewById(R.id.viewPager)
 
         val fab = findViewById<FloatingActionButton>(R.id.fab)
-        fab.setOnClickListener { buildAddWebsiteDialog(getString(R.string.add_webapp)) }
+        fab.setOnClickListener { buildAddWebsiteDialog() }
         personalizeToolbar()
 
         setupViewPager()
@@ -329,56 +325,31 @@ class MainActivity : AppCompatActivity() {
             .show()
     }
 
-    private fun buildAddWebsiteDialog(title: String) {
-        val localBinding = AddWebsiteDialogueBinding.inflate(layoutInflater)
-        val dialog =
-            MaterialAlertDialogBuilder(this@MainActivity)
-                .setView(localBinding.root)
-                .setTitle(title)
-                .setPositiveButton(R.string.ok) { _: DialogInterface, _: Int ->
-                    val url = localBinding.websiteUrl.text.toString().trim()
-                    val urlWithProtocol =
-                        if (url.startsWith("https://") || url.startsWith("http://")) url
-                        else "https://$url"
-                    val newSite = WebApp(urlWithProtocol)
-                    newSite.order = DataManager.instance.incrementedOrder
+    private fun buildAddWebsiteDialog() {
+        showInputDialog(
+            titleRes = R.string.add_webapp,
+            hintRes = R.string.url,
+            inputType = android.text.InputType.TYPE_TEXT_VARIATION_URI,
+        ) { url ->
+            val urlWithProtocol =
+                if (url.startsWith("https://") || url.startsWith("http://")) url
+                else "https://$url"
+            val newSite = WebApp(urlWithProtocol)
+            newSite.order = DataManager.instance.incrementedOrder
 
-                    // Assign to currently selected group tab (last tab = ungrouped)
-                    val currentPage = viewPager?.currentItem ?: 0
-                    val groups = DataManager.instance.sortedGroups
-                    if (groups.isNotEmpty() && currentPage < groups.size) {
-                        newSite.groupUuid = groups[currentPage].uuid
-                    }
+            val currentPage = viewPager?.currentItem ?: 0
+            val groups = DataManager.instance.sortedGroups
+            if (groups.isNotEmpty() && currentPage < groups.size) {
+                newSite.groupUuid = groups[currentPage].uuid
+            }
 
-                    DataManager.instance.addWebsite(newSite)
+            DataManager.instance.addWebsite(newSite)
+            refreshCurrentPages()
 
-                    refreshCurrentPages()
-
-                    val settingsIntent =
-                        Intent(this@MainActivity, WebAppSettingsActivity::class.java)
-                    settingsIntent.putExtra(Const.INTENT_WEBAPP_UUID, newSite.uuid)
-                    settingsIntent.putExtra(Const.INTENT_AUTO_FETCH, true)
-                    startActivity(settingsIntent)
-                }
-                .create()
-
-        dialog.show()
-        val okButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
-        okButton.isEnabled = false
-        localBinding.websiteUrl.addTextChangedListener(
-            object : TextWatcher {
-                override fun afterTextChanged(s: Editable?) {
-                    okButton.isEnabled = !s.isNullOrBlank()
-                }
-
-                override fun beforeTextChanged(
-                    s: CharSequence?,
-                    start: Int,
-                    count: Int,
-                    after: Int
-                ) {}
-
-                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-            })
+            val settingsIntent = Intent(this, WebAppSettingsActivity::class.java)
+            settingsIntent.putExtra(Const.INTENT_WEBAPP_UUID, newSite.uuid)
+            settingsIntent.putExtra(Const.INTENT_AUTO_FETCH, true)
+            startActivity(settingsIntent)
+        }
     }
 }

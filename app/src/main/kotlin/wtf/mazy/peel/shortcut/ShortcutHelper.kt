@@ -8,7 +8,6 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
-import android.widget.Toast
 import androidx.core.content.pm.ShortcutInfoCompat
 import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.core.graphics.createBitmap
@@ -23,7 +22,7 @@ import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.model.WebAppGroup
 import wtf.mazy.peel.util.App
 import wtf.mazy.peel.util.Const
-import wtf.mazy.peel.util.NotificationUtils.showToast
+import wtf.mazy.peel.ui.dialog.showInputDialog
 
 object ShortcutHelper {
     private const val ADAPTIVE_ICON_SIZE = 108
@@ -32,18 +31,21 @@ object ShortcutHelper {
     fun createShortcut(owner: IconOwner, activity: Activity) {
         if (!ShortcutManagerCompat.isRequestPinShortcutSupported(activity)) return
 
+        activity.showInputDialog(
+            titleRes = R.string.create_shortcut,
+            hintRes = R.string.name,
+            prefill = owner.title,
+            positiveRes = R.string.create,
+        ) { name ->
+            pinShortcut(owner, activity, name.ifEmpty { owner.title.ifEmpty { "Unknown" } })
+        }
+    }
+
+    private fun pinShortcut(owner: IconOwner, activity: Activity, title: String) {
         val intent = buildIntent(owner, activity)
         val icon = resolveIcon(owner)
-        val title = owner.title.ifEmpty { "Unknown" }
-
         val info = buildShortcutInfo(activity, owner.uuid, title, icon, intent)
-        val scManager = App.appContext.getSystemService(ShortcutManager::class.java)
-
-        if (scManager.pinnedShortcuts.none { it.id == info.id }) {
-            ShortcutManagerCompat.requestPinShortcut(activity, info, null)
-        } else {
-            showToast(activity, activity.getString(R.string.shortcut_already_exists), Toast.LENGTH_SHORT)
-        }
+        ShortcutManagerCompat.requestPinShortcut(activity, info, null)
     }
 
     fun updatePinnedShortcut(webapp: WebApp, context: Context) {

@@ -36,7 +36,13 @@ class PeelWebViewClient(
 
     override fun onPageFinished(view: WebView?, url: String) {
         host.showNotification()
+        if (view != null) extractDynamicBarColor(view)
         super.onPageFinished(view, url)
+    }
+
+    override fun doUpdateVisitedHistory(view: WebView?, url: String?, isReload: Boolean) {
+        super.doUpdateVisitedHistory(view, url, isReload)
+        if (view != null) extractDynamicBarColor(view)
     }
 
     fun extractDynamicBarColor(view: WebView) {
