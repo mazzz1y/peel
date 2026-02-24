@@ -1,39 +1,38 @@
 package wtf.mazy.peel.activities
 
 import android.content.ActivityNotFoundException
-import androidx.activity.enableEdgeToEdge
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import androidx.appcompat.app.AppCompatActivity
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.appbar.MaterialToolbar
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.BackupManager
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.ImportMode
 import wtf.mazy.peel.model.SandboxManager
 import wtf.mazy.peel.model.WebApp
+import wtf.mazy.peel.ui.dialog.showInputDialog
 import wtf.mazy.peel.ui.webapplist.GroupPagerAdapter
 import wtf.mazy.peel.ui.webapplist.WebAppListFragment
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.NotificationUtils
-import wtf.mazy.peel.ui.dialog.showInputDialog
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class MainActivity : AppCompatActivity() {
-
     private var tabLayout: TabLayout? = null
     private var viewPager: ViewPager2? = null
     private var pagerAdapter: GroupPagerAdapter? = null
@@ -41,8 +40,7 @@ class MainActivity : AppCompatActivity() {
     private var lastShowUngrouped: Boolean = true
 
     private val exportLauncher =
-        registerForActivityResult(ActivityResultContracts.CreateDocument("application/zip")) { uri
-            ->
+        registerForActivityResult(ActivityResultContracts.CreateDocument("application/zip")) { uri ->
             uri?.let {
                 DataManager.instance.saveDefaultSettings()
                 if (!BackupManager.exportToZip(it)) {
@@ -123,9 +121,8 @@ class MainActivity : AppCompatActivity() {
             lastShowUngrouped = hasUngrouped
 
             TabLayoutMediator(tabLayout!!, viewPager!!) { tab, position ->
-                    tab.text = pagerAdapter?.getPageTitle(position)
-                }
-                .attach()
+                tab.text = pagerAdapter?.getPageTitle(position)
+            }.attach()
         }
     }
 
@@ -217,13 +214,16 @@ class MainActivity : AppCompatActivity() {
         val dialogView = layoutInflater.inflate(R.layout.dialog_clear_data, null)
         val switchBrowsing =
             dialogView.findViewById<com.google.android.material.materialswitch.MaterialSwitch>(
-                R.id.switchClearBrowsingData)
+                R.id.switchClearBrowsingData
+            )
         val switchSandbox =
             dialogView.findViewById<com.google.android.material.materialswitch.MaterialSwitch>(
-                R.id.switchClearSandboxData)
+                R.id.switchClearSandboxData
+            )
         val switchFactory =
             dialogView.findViewById<com.google.android.material.materialswitch.MaterialSwitch>(
-                R.id.switchFactoryReset)
+                R.id.switchFactoryReset
+            )
 
         switchBrowsing.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked && switchFactory.isChecked) switchFactory.isChecked = false
@@ -235,18 +235,14 @@ class MainActivity : AppCompatActivity() {
             if (isChecked && switchBrowsing.isChecked) switchBrowsing.isChecked = false
         }
 
-        MaterialAlertDialogBuilder(this)
-            .setTitle(R.string.clear_data)
-            .setView(dialogView)
+        MaterialAlertDialogBuilder(this).setTitle(R.string.clear_data).setView(dialogView)
             .setPositiveButton(R.string.ok) { _, _ ->
                 if (switchFactory.isChecked) {
                     performFactoryReset()
                 } else if (switchBrowsing.isChecked) {
                     clearBrowsingData(switchSandbox.isChecked)
                 }
-            }
-            .setNegativeButton(R.string.cancel, null)
-            .show()
+            }.setNegativeButton(R.string.cancel, null).show()
     }
 
     private fun clearBrowsingData(includeSandbox: Boolean) {
@@ -279,28 +275,22 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun buildAboutDialog() {
-        MaterialAlertDialogBuilder(this)
-            .setTitle(getString(R.string.app_name))
-            .setMessage(getString(R.string.gnu_license))
-            .setPositiveButton(R.string.ok, null)
-            .show()
+        MaterialAlertDialogBuilder(this).setTitle(getString(R.string.app_name))
+            .setMessage(getString(R.string.gnu_license)).setPositiveButton(R.string.ok, null).show()
     }
 
     private fun buildImportModeDialog(uri: android.net.Uri) {
         val dialogView = layoutInflater.inflate(R.layout.dialog_import_mode, null)
         val switchMerge =
             dialogView.findViewById<com.google.android.material.materialswitch.MaterialSwitch>(
-                R.id.switchMergeMode)
+                R.id.switchMergeMode
+            )
 
-        MaterialAlertDialogBuilder(this)
-            .setTitle(getString(R.string.import_mode_title))
-            .setView(dialogView)
-            .setPositiveButton(R.string.ok) { _, _ ->
+        MaterialAlertDialogBuilder(this).setTitle(getString(R.string.import_mode_title))
+            .setView(dialogView).setPositiveButton(R.string.ok) { _, _ ->
                 val mode = if (switchMerge.isChecked) ImportMode.MERGE else ImportMode.REPLACE
                 performImport(uri, mode)
-            }
-            .setNegativeButton(R.string.cancel, null)
-            .show()
+            }.setNegativeButton(R.string.cancel, null).show()
     }
 
     private fun performImport(uri: android.net.Uri, mode: ImportMode) {
@@ -318,11 +308,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun buildImportSuccessDialog() {
-        MaterialAlertDialogBuilder(this)
-            .setMessage(
-                getString(R.string.import_success, DataManager.instance.activeWebsitesCount))
-            .setPositiveButton(R.string.ok, null)
-            .show()
+        MaterialAlertDialogBuilder(this).setMessage(
+                getString(R.string.import_success, DataManager.instance.activeWebsitesCount)
+            ).setPositiveButton(R.string.ok, null).show()
     }
 
     private fun buildAddWebsiteDialog() {
@@ -331,9 +319,8 @@ class MainActivity : AppCompatActivity() {
             hintRes = R.string.url,
             inputType = android.text.InputType.TYPE_TEXT_VARIATION_URI,
         ) { url ->
-            val urlWithProtocol =
-                if (url.startsWith("https://") || url.startsWith("http://")) url
-                else "https://$url"
+            val urlWithProtocol = if (url.startsWith("https://") || url.startsWith("http://")) url
+            else "https://$url"
             val newSite = WebApp(urlWithProtocol)
             newSite.order = DataManager.instance.incrementedOrder
 

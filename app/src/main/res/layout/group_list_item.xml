@@ -40,20 +40,35 @@
             android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
             android:textColor="?attr/colorOnSurface"
             app:layout_constraintStart_toEndOf="@id/groupIcon"
-            app:layout_constraintEnd_toStartOf="@id/groupAppCount"
+            app:layout_constraintEnd_toStartOf="@id/iconEphemeral"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent" />
 
-        <TextView
-            android:id="@+id/groupAppCount"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:textAppearance="@style/TextAppearance.Material3.BodySmall"
-            android:textColor="?attr/colorOnSurfaceVariant"
+        <ImageView
+            android:id="@+id/iconEphemeral"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:src="@drawable/ic_ephemeral_24dp"
+            android:scaleType="fitCenter"
+            android:visibility="gone"
+            android:importantForAccessibility="no"
+            app:layout_constraintEnd_toStartOf="@id/iconSandbox"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginEnd="4dp" />
+
+        <ImageView
+            android:id="@+id/iconSandbox"
+            android:layout_width="18dp"
+            android:layout_height="18dp"
+            android:src="@drawable/ic_sandbox_24dp"
+            android:scaleType="fitCenter"
+            android:visibility="gone"
+            android:importantForAccessibility="no"
             app:layout_constraintEnd_toStartOf="@id/btnMenu"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent" />
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginEnd="4dp" />
 
         <ImageView
             android:id="@+id/btnMenu"

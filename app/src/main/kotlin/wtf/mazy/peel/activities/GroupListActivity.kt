@@ -148,8 +148,9 @@ class GroupListActivity : AppCompatActivity() {
         inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
             val iconView: ImageView = itemView.findViewById(R.id.groupIcon)
             val titleView: TextView = itemView.findViewById(R.id.groupTitle)
-            val countView: TextView = itemView.findViewById(R.id.groupAppCount)
             val menuButton: ImageView = itemView.findViewById(R.id.btnMenu)
+            val iconSandbox: ImageView = itemView.findViewById(R.id.iconSandbox)
+            val iconEphemeral: ImageView = itemView.findViewById(R.id.iconEphemeral)
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -164,9 +165,10 @@ class GroupListActivity : AppCompatActivity() {
 
             holder.iconView.setImageBitmap(group.resolveIcon())
 
-            val count = DataManager.instance.activeWebsitesForGroup(group.uuid).size
-            holder.countView.text =
-                resources.getQuantityString(R.plurals.group_app_count, count, count)
+            holder.iconSandbox.visibility =
+                if (group.isUseContainer) View.VISIBLE else View.GONE
+            holder.iconEphemeral.visibility =
+                if (group.isUseContainer && group.isEphemeralSandbox) View.VISIBLE else View.GONE
 
             holder.itemView.setOnClickListener {
                 val intent = Intent(this@GroupListActivity, GroupSettingsActivity::class.java)

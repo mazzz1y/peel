@@ -36,10 +36,8 @@ class SettingsActivity : ToolbarBaseActivity<GlobalSettingsBinding>() {
         val factory =
             SettingViewFactory(layoutInflater, SettingViewFactory.ButtonStrategy.GlobalDefaults())
 
-        val settingsGrouped =
-            SettingRegistry.getAllSettings()
-                .groupBy { it.category }
-                .toSortedMap(compareBy { it.ordinal })
+        val settingsGrouped = SettingRegistry.getAllSettings().groupBy { it.category }
+            .toSortedMap(compareBy { it.ordinal })
 
         val categories = settingsGrouped.keys.toList()
         settingsGrouped.forEach { (category, definitions) ->
@@ -56,32 +54,31 @@ class SettingsActivity : ToolbarBaseActivity<GlobalSettingsBinding>() {
     }
 
     private fun addCategoryHeader(container: LinearLayout, title: String) {
-        val headerView =
-            layoutInflater.inflate(R.layout.item_setting_category_header, container, false)
-                as TextView
+        val headerView = layoutInflater.inflate(
+            R.layout.item_setting_category_header,
+            container,
+            false
+        ) as TextView
         headerView.text = title
         container.addView(headerView)
     }
 
     private fun addDivider(container: LinearLayout) {
-        val divider =
-            View(this).apply {
-                layoutParams =
-                    LinearLayout.LayoutParams(
-                            LinearLayout.LayoutParams.MATCH_PARENT,
-                            resources.getDimensionPixelSize(R.dimen.divider_height),
-                        )
-                        .apply {
-                            topMargin =
-                                resources.getDimensionPixelSize(R.dimen.settings_divider_margin_top)
-                            bottomMargin =
-                                resources.getDimensionPixelSize(
-                                    R.dimen.settings_divider_margin_bottom)
-                        }
-                val attrs = intArrayOf(android.R.attr.listDivider)
-                withStyledAttributes(null, attrs) { background = getDrawable(0) }
-            }
+        val divider = View(this).apply {
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                resources.getDimensionPixelSize(R.dimen.divider_height),
+            ).apply {
+                    topMargin = resources.getDimensionPixelSize(
+                        R.dimen.settings_divider_margin_top
+                    )
+                    bottomMargin = resources.getDimensionPixelSize(
+                        R.dimen.settings_divider_margin_bottom
+                    )
+                }
+            val attrs = intArrayOf(android.R.attr.listDivider)
+            withStyledAttributes(null, attrs) { background = getDrawable(0) }
+        }
         container.addView(divider)
     }
-
 }

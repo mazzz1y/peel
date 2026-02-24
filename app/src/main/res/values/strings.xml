@@ -105,8 +105,7 @@
     <string name="enable_sandbox">Enable Sandbox</string>
     <string name="ephemeral_sandbox">Ephemeral storage</string>
     <string name="clear_sandbox_data">Clear sandbox data</string>
-    <string name="clear_sandbox_data_confirm">Clear all sandbox data (cookies, cache, localStorage) for this Web App?</string>
-    <string name="clear_group_sandbox_data_confirm">Clear all shared sandbox data (cookies, cache, localStorage) for this group?</string>
+    <string name="clear_sandbox_data_confirm">Clear all sandbox data (cookies, cache, localStorage)?</string>
     <string name="clear_data">Clear data</string>
     <string name="clear_browsing_data">Browsing data</string>
     <string name="clear_sandbox_storage">Include sandbox storage</string>

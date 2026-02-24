@@ -30,6 +30,7 @@ import wtf.mazy.peel.ui.IconEditorController
 import wtf.mazy.peel.ui.ListPickerAdapter
 import wtf.mazy.peel.ui.dialog.OverridePickerDialog
 import wtf.mazy.peel.ui.settings.OverridePickerController
+import wtf.mazy.peel.ui.settings.SandboxSwitchController
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.NotificationUtils.showToast
 import wtf.mazy.peel.util.Utility
@@ -155,77 +156,12 @@ class WebAppSettingsActivity :
     }
 
     private fun setupSandboxSwitch(modifiedWebapp: WebApp) {
-        updateClearSandboxButtonVisibility(modifiedWebapp)
-        updateEphemeralSandboxVisibility(modifiedWebapp.isUseContainer)
-
-        binding.switchSandbox.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked == modifiedWebapp.isUseContainer) {
-                return@setOnCheckedChangeListener
-            }
-            SandboxManager.releaseSandbox(this, modifiedWebapp.uuid)
-            modifiedWebapp.isUseContainer = isChecked
-            if (!isChecked) {
-                modifiedWebapp.isEphemeralSandbox = false
-                binding.switchEphemeralSandbox.isChecked = false
-            }
-            updateClearSandboxButtonVisibility(modifiedWebapp)
-            updateEphemeralSandboxVisibility(isChecked)
-        }
-
-        binding.switchEphemeralSandbox.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked == modifiedWebapp.isEphemeralSandbox) {
-                return@setOnCheckedChangeListener
-            }
-            if (isChecked) {
-                val sandboxDir = SandboxManager.getSandboxDataDir(modifiedWebapp.uuid)
-                if (sandboxDir.exists()) {
-                    MaterialAlertDialogBuilder(this)
-                        .setMessage(R.string.clear_sandbox_data_confirm)
-                        .setPositiveButton(R.string.ok) { _, _ ->
-                            modifiedWebapp.isEphemeralSandbox = true
-                            clearSandboxData(modifiedWebapp)
-                        }
-                        .setNegativeButton(R.string.cancel) { _, _ ->
-                            binding.switchEphemeralSandbox.isChecked = false
-                        }
-                        .show()
-                } else {
-                    SandboxManager.releaseSandbox(this, modifiedWebapp.uuid)
-                    modifiedWebapp.isEphemeralSandbox = true
-                    updateClearSandboxButtonVisibility(modifiedWebapp)
-                }
-            } else {
-                modifiedWebapp.isEphemeralSandbox = false
-                updateClearSandboxButtonVisibility(modifiedWebapp)
-            }
-        }
-
-        binding.btnClearSandbox.setOnClickListener { showClearSandboxConfirmDialog(modifiedWebapp) }
-    }
-
-    private fun updateEphemeralSandboxVisibility(sandboxEnabled: Boolean) {
-        binding.ephemeralSandboxRow.visibility = if (sandboxEnabled) View.VISIBLE else View.GONE
-    }
-
-    private fun updateClearSandboxButtonVisibility(webapp: WebApp) {
-        val sandboxDir = SandboxManager.getSandboxDataDir(webapp.uuid)
-        val show = sandboxDir.exists() && !webapp.isEphemeralSandbox
-        binding.btnClearSandbox.visibility = if (show) View.VISIBLE else View.GONE
-    }
-
-    private fun showClearSandboxConfirmDialog(webapp: WebApp) {
-        MaterialAlertDialogBuilder(this)
-            .setMessage(R.string.clear_sandbox_data_confirm)
-            .setPositiveButton(R.string.ok) { _, _ -> clearSandboxData(webapp) }
-            .setNegativeButton(R.string.cancel, null)
-            .show()
-    }
-
-    private fun clearSandboxData(webapp: WebApp) {
-        if (SandboxManager.clearSandboxData(this, webapp.uuid)) {
-            showToast(this, getString(R.string.clear_sandbox_data), Toast.LENGTH_SHORT)
-        }
-        updateClearSandboxButtonVisibility(webapp)
+        SandboxSwitchController(
+            this, modifiedWebapp,
+            binding.switchSandbox, binding.switchEphemeralSandbox,
+            binding.ephemeralSandboxRow, binding.btnClearSandbox,
+            onReleaseSandbox = { SandboxManager.releaseSandbox(this, modifiedWebapp.uuid) },
+        ).setup()
     }
 
     private fun setupFetchButton(modifiedWebapp: WebApp) {

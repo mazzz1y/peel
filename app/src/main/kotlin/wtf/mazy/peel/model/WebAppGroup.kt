@@ -6,10 +6,10 @@ data class WebAppGroup(
     override val uuid: String = UUID.randomUUID().toString(),
     override var title: String = "",
     var order: Int = 0,
-    var isUseContainer: Boolean = false,
-    var isEphemeralSandbox: Boolean = false,
+    override var isUseContainer: Boolean = false,
+    override var isEphemeralSandbox: Boolean = false,
     var settings: WebAppSettings = WebAppSettings(),
-) : IconOwner {
+) : IconOwner, SandboxOwner {
     constructor(
         other: WebAppGroup
     ) : this(

@@ -150,9 +150,10 @@ object SandboxManager {
         }
     }
 
-    fun clearSandboxData(context: Context, uuid: String): Boolean {
+    fun clearSandboxData(context: Context, uuid: String, alsoFinishUuids: List<String> = emptyList()): Boolean {
         val am = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
         finishSandboxTasks(am, uuid)
+        alsoFinishUuids.forEach { finishSandboxTasks(am, it) }
         for (i in 0 until NUM_SLOTS) {
             if (readSlotMapping(i) == uuid) {
                 killSandboxProcess(am, i)

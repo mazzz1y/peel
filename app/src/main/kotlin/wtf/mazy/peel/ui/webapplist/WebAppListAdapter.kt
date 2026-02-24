@@ -39,6 +39,8 @@ class WebAppListAdapter(
         val titleView: TextView = itemView.findViewById(R.id.btnWebAppTitle)
         val urlView: TextView = itemView.findViewById(R.id.appUrl)
         val menuButton: ImageView = itemView.findViewById(R.id.btnMenu)
+        val iconSandbox: ImageView = itemView.findViewById(R.id.iconSandbox)
+        val iconEphemeral: ImageView = itemView.findViewById(R.id.iconEphemeral)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -53,6 +55,11 @@ class WebAppListAdapter(
         holder.urlView.text = item.baseUrl
 
         holder.appIcon.setImageBitmap(item.resolveIcon())
+
+        holder.iconSandbox.visibility =
+            if (item.isUseContainer) View.VISIBLE else View.GONE
+        holder.iconEphemeral.visibility =
+            if (item.isUseContainer && item.isEphemeralSandbox) View.VISIBLE else View.GONE
 
         holder.itemView.setOnClickListener { openWebView(item) }
 

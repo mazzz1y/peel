@@ -145,8 +145,7 @@
     <string name="import_data">Importieren</string>
     <string name="export_data">Exportieren</string>
     <string name="clear_sandbox_data">Sandbox-Daten löschen</string>
-    <string name="clear_sandbox_data_confirm">Alle Sandbox-Daten (Cookies, Cache, localStorage) für diese Web-App löschen?</string>
-    <string name="clear_group_sandbox_data_confirm">Alle gemeinsamen Sandbox-Daten (Cookies, Cache, localStorage) für diese Gruppe löschen?</string>
+    <string name="clear_sandbox_data_confirm">Alle Sandbox-Daten (Cookies, Cache, localStorage) löschen?</string>
     <string name="clear_data">Daten löschen</string>
     <string name="clear_browsing_data">Browserdaten</string>
     <string name="clear_sandbox_storage">Sandbox-Speicher einschließen</string>
