@@ -15,7 +15,15 @@ import wtf.mazy.peel.shortcut.HeadlessWebViewFetcher
 
 open class SandboxFetchService : Service() {
 
+    private var activeFetcher: HeadlessWebViewFetcher? = null
+
     override fun onBind(intent: Intent?): IBinder? = null
+
+    override fun onDestroy() {
+        activeFetcher?.cancel()
+        activeFetcher = null
+        super.onDestroy()
+    }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         val sandboxId = intent?.getStringExtra(EXTRA_SANDBOX_ID)
@@ -49,7 +57,7 @@ open class SandboxFetchService : Service() {
                 }
             } ?: WebAppSettings.createWithDefaults()
 
-        HeadlessWebViewFetcher(
+        val fetcher = HeadlessWebViewFetcher(
             this,
             url,
             settings,
@@ -75,7 +83,8 @@ open class SandboxFetchService : Service() {
                 stopSelf(startId)
             },
         )
-            .start()
+        activeFetcher = fetcher
+        fetcher.start()
 
         return START_NOT_STICKY
     }

@@ -1,6 +1,7 @@
 package wtf.mazy.peel.activities
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.ResultReceiver
@@ -45,6 +46,9 @@ class WebAppSettingsActivity :
     private lateinit var iconEditor: IconEditorController
     private var fetchDialog: AlertDialog? = null
     private var fetchDialogText: TextView? = null
+    private var activeFetcher: HeadlessWebViewFetcher? = null
+    private var activeFetchServiceIntent: Intent? = null
+    private var fetchGeneration: Int = 0
 
     @SuppressLint("SetJavaScriptEnabled", "ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -209,8 +213,19 @@ class WebAppSettingsActivity :
             MaterialAlertDialogBuilder(this)
                 .setView(layout)
                 .setCancelable(true)
-                .setOnCancelListener { dismissFetchProgress() }
+                .setOnCancelListener {
+                    cancelActiveFetch()
+                    dismissFetchProgress()
+                }
                 .show()
+    }
+
+    private fun cancelActiveFetch() {
+        fetchGeneration += 1
+        activeFetcher?.cancel()
+        activeFetcher = null
+        activeFetchServiceIntent?.let { stopService(it) }
+        activeFetchServiceIntent = null
     }
 
     private fun dismissFetchProgress() {
@@ -227,6 +242,8 @@ class WebAppSettingsActivity :
         }
 
         showFetchProgress()
+        fetchGeneration += 1
+        val generation = fetchGeneration
         val onProgress: (String) -> Unit = { fetchDialogText?.text = it }
 
         val sandboxId = WebViewLauncher.resolveSandboxId(webapp)
@@ -235,6 +252,7 @@ class WebAppSettingsActivity :
             val receiver =
                 object : ResultReceiver(Handler(mainLooper)) {
                     override fun onReceiveResult(resultCode: Int, resultData: Bundle?) {
+                        if (generation != fetchGeneration) return
                         when (resultCode) {
                             SandboxFetchService.RESULT_PROGRESS ->
                                 onProgress(
@@ -243,35 +261,45 @@ class WebAppSettingsActivity :
 
                             SandboxFetchService.RESULT_DONE ->
                                 handleFetchCandidates(
-                                    webapp, SandboxFetchService.parseCandidates(resultData)
+                                    webapp,
+                                    SandboxFetchService.parseCandidates(resultData),
+                                    generation,
                                 )
                         }
                     }
                 }
-            startService(
-                SandboxFetchService.createIntent(
-                    this,
-                    slotId,
-                    sandboxId,
-                    url,
-                    webapp.effectiveSettings,
-                    receiver,
-                )
+            val intent = SandboxFetchService.createIntent(
+                this,
+                slotId,
+                sandboxId,
+                url,
+                webapp.effectiveSettings,
+                receiver,
             )
+            activeFetchServiceIntent = intent
+            startService(intent)
         } else {
-            HeadlessWebViewFetcher(
+            val fetcher = HeadlessWebViewFetcher(
                 this,
                 url,
                 webapp.effectiveSettings,
                 onProgress = onProgress,
-                onResult = { handleFetchCandidates(webapp, it) },
+                onResult = { if (generation == fetchGeneration) handleFetchCandidates(webapp, it, generation) },
             )
-                .start()
+            activeFetcher = fetcher
+            fetcher.start()
         }
     }
 
-    private fun handleFetchCandidates(webapp: WebApp, candidates: List<FetchCandidate>) {
+    private fun handleFetchCandidates(
+        webapp: WebApp,
+        candidates: List<FetchCandidate>,
+        generation: Int,
+    ) {
+        if (generation != fetchGeneration) return
         if (isFinishing || isDestroyed) return
+        activeFetcher = null
+        activeFetchServiceIntent = null
         if (candidates.isEmpty()) {
             dismissFetchProgress()
             showToast(this, getString(R.string.fetch_failed), Toast.LENGTH_SHORT)
@@ -298,13 +326,13 @@ class WebAppSettingsActivity :
                 if (bmp != null) {
                     iconView.setImageBitmap(bmp)
                     detailView.text = "${bmp.width}x${bmp.height} · ${candidate.source}"
+                    detailView.visibility = View.VISIBLE
                 } else {
                     iconView.setImageBitmap(
                         LetterIconGenerator.generate(title, colorSeed, defaultIconSizePx)
                     )
-                    detailView.text = candidate.source
+                    detailView.visibility = View.GONE
                 }
-                detailView.visibility = View.VISIBLE
             }
 
         MaterialAlertDialogBuilder(this)

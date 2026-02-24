@@ -92,7 +92,6 @@ class ShortcutDialogFragment : DialogFragment() {
         super.onDestroy()
         if (faviconFetcherTask?.isDone == false) {
             faviconFetcherTask?.cancel(true)
-            Log.d("CLEANUP", "Cancelled running favicon fetcher")
         }
         executorService?.shutdownNow()
     }

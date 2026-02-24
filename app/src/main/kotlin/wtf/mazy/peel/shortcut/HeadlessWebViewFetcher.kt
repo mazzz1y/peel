@@ -44,18 +44,24 @@ class HeadlessWebViewFetcher(
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     private var customHeaders: Map<String, String> = emptyMap()
     private lateinit var userAgent: String
-    private var extractStarted = false
+    private var extracting = false
+    private var finished = false
+    private val timeoutRunnable = Runnable { tryExtract(force = true) }
 
     @SuppressLint("SetJavaScriptEnabled")
     fun start() {
         configureWebView()
-        handler.postDelayed({ finish() }, TIMEOUT_MS)
+        handler.postDelayed(timeoutRunnable, TIMEOUT_MS)
         postProgress(appContext.getString(R.string.fetch_step_loading))
 
         var loadUrl = url
         if (loadUrl.startsWith("http://") && settings.isAlwaysHttps == true)
             loadUrl = loadUrl.replaceFirst("http://", "https://")
         webView.loadUrl(loadUrl, customHeaders)
+    }
+
+    fun cancel() {
+        finish()
     }
 
     private fun configureWebView() {
@@ -86,7 +92,7 @@ class HeadlessWebViewFetcher(
 
         webView.webViewClient = object : WebViewClient() {
             override fun onPageFinished(view: WebView?, url: String?) {
-                if (view != null) extract(view)
+                if (view != null) tryExtract(force = true)
             }
 
             override fun onReceivedError(
@@ -103,39 +109,57 @@ class HeadlessWebViewFetcher(
                 if (request?.isForMainFrame == true) finish()
             }
         }
-        webView.webChromeClient = object : WebChromeClient() {}
+        webView.webChromeClient = object : WebChromeClient() {
+            override fun onProgressChanged(view: WebView?, newProgress: Int) {
+                if (view != null && newProgress >= EARLY_EXTRACT_PROGRESS) tryExtract(force = false)
+            }
+        }
     }
 
-    private fun extract(view: WebView) {
-        if (extractStarted) return
-        extractStarted = true
-        handler.removeCallbacksAndMessages(null)
+    private fun tryExtract(force: Boolean) {
+        if (finished || extracting) return
+        val view = webView
+        extracting = true
         view.evaluateJavascript(EXTRACT_JS) { raw ->
+            if (finished) return@evaluateJavascript
+            val json = parseJsResult(raw)
+            val ready = json?.optBoolean("ready") == true
+            val hasLinks = json != null && (
+                (json.optJSONArray("iconLinks")?.length() ?: 0) > 0 ||
+                json.optString("manifestUrl").isNotEmpty()
+            )
+            if ((!ready || !hasLinks) && !force) {
+                extracting = false
+                return@evaluateJavascript
+            }
+            handler.removeCallbacksAndMessages(null)
             scope.launch { finish(resolve(raw, view.url ?: url)) }
         }
     }
 
     private suspend fun resolve(raw: String?, pageUrl: String): List<FetchCandidate> =
         withContext(Dispatchers.IO) {
-            val json = parseJsResult(raw) ?: return@withContext emptyList()
-            val pageTitle = json.optString("title").takeIf { it.isNotEmpty() }
+            val json = parseJsResult(raw)
+            val pageTitle = json?.optString("title")?.takeIf { it.isNotEmpty() }
 
             val candidates = mutableListOf<FetchCandidate>()
 
-            scope.ensureActive()
-            postProgress(appContext.getString(R.string.fetch_step_manifests))
-            findManifestCandidate(json, pageUrl, pageTitle)?.let { candidates += it }
+            if (json != null) {
+                scope.ensureActive()
+                postProgress(appContext.getString(R.string.fetch_step_manifests))
+                findManifestCandidate(json, pageUrl, pageTitle)?.let { candidates += it }
 
-            scope.ensureActive()
-            postProgress(appContext.getString(R.string.fetch_step_icons))
-            candidates += findPageIconCandidates(json, pageTitle)
+                scope.ensureActive()
+                postProgress(appContext.getString(R.string.fetch_step_icons))
+                candidates += findPageIconCandidates(json, pageTitle)
+            }
 
             scope.ensureActive()
             postProgress(appContext.getString(R.string.fetch_step_downloading))
             findFaviconCandidate(pageUrl, pageTitle)?.let { candidates += it }
 
             val bestTitle = candidates.firstOrNull { it.source == "PWA" }?.title ?: pageTitle
-            if (bestTitle != null) candidates += FetchCandidate(bestTitle, null, "Fallback")
+            if (bestTitle != null) candidates += FetchCandidate(bestTitle, null, "")
 
             candidates.deduplicatedBySize()
         }
@@ -263,6 +287,8 @@ class HeadlessWebViewFetcher(
     }
 
     private fun finish(candidates: List<FetchCandidate> = emptyList()) {
+        if (finished) return
+        finished = true
         handler.removeCallbacksAndMessages(null)
         scope.cancel()
         webView.stopLoading()
@@ -272,6 +298,7 @@ class HeadlessWebViewFetcher(
 
     companion object {
         private const val TIMEOUT_MS = 10_000L
+        private const val EARLY_EXTRACT_PROGRESS = 30
         private const val CONNECTION_TIMEOUT_MS = 4_000
         private const val MIN_ICON_WIDTH = 32
         private const val MAX_ICON_BYTES = 5 * 1024 * 1024
@@ -302,7 +329,12 @@ class HeadlessWebViewFetcher(
 
         private val EXTRACT_JS = """
             (function() {
-                var result = { title: document.title || '', manifestUrl: '', iconLinks: [] };
+                var result = {
+                    ready: document.readyState !== 'loading',
+                    title: document.title || '',
+                    manifestUrl: '',
+                    iconLinks: []
+                };
                 var manifest = document.querySelector('link[rel="manifest"]');
                 if (manifest && manifest.href) result.manifestUrl = manifest.href;
                 var links = document.querySelectorAll('link[rel*="icon"]');
