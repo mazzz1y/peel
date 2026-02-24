@@ -1,32 +1,32 @@
 package wtf.mazy.peel.activities
 
 import android.annotation.SuppressLint
-import androidx.activity.enableEdgeToEdge
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import androidx.appcompat.widget.PopupMenu
 import android.widget.TextView
 import androidx.activity.addCallback
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.materialswitch.MaterialSwitch
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.PopupMenu
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import wtf.mazy.peel.ui.dragReorderCallback
 import com.google.android.material.appbar.MaterialToolbar
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import java.util.Collections
+import com.google.android.material.materialswitch.MaterialSwitch
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.WebAppGroup
 import wtf.mazy.peel.shortcut.ShortcutHelper
-import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.ui.dialog.showInputDialog
+import wtf.mazy.peel.ui.dragReorderCallback
+import wtf.mazy.peel.util.Const
+import java.util.Collections
 
 class GroupListActivity : AppCompatActivity() {
 
@@ -83,14 +83,8 @@ class GroupListActivity : AppCompatActivity() {
     }
 
     private fun showAddGroupDialog() {
-        showInputDialog(
-            titleRes = R.string.add_group,
-            hintRes = R.string.group_name_hint,
-        ) { name ->
-            val group = WebAppGroup(
-                title = name,
-                order = DataManager.instance.getGroups().size,
-            )
+        showInputDialog(titleRes = R.string.add_group, hintRes = R.string.group_name_hint) { name ->
+            val group = WebAppGroup(title = name, order = DataManager.instance.getGroups().size)
             DataManager.instance.addGroup(group)
             updateList()
 
@@ -110,8 +104,7 @@ class GroupListActivity : AppCompatActivity() {
 
         val dialogView = layoutInflater.inflate(R.layout.dialog_delete_group, null)
         val message = dialogView.findViewById<TextView>(R.id.delete_group_message)
-        val switchUngroup =
-            dialogView.findViewById<MaterialSwitch>(R.id.switchUngroupApps)
+        val switchUngroup = dialogView.findViewById<MaterialSwitch>(R.id.switchUngroupApps)
 
         message.text = getString(R.string.delete_group_confirm, group.title, appsInGroup.size)
 
@@ -129,10 +122,10 @@ class GroupListActivity : AppCompatActivity() {
             .show()
     }
 
-    private val dragCallback = dragReorderCallback(
-        onMove = { from, to -> adapter.moveItem(from, to) },
-        onDrop = ::saveOrder,
-    )
+    private val dragCallback =
+        dragReorderCallback(
+            onMove = { from, to -> adapter.moveItem(from, to) }, onDrop = ::saveOrder
+        )
 
     private fun saveOrder() {
         for ((i, group) in adapter.items.withIndex()) {
@@ -165,8 +158,7 @@ class GroupListActivity : AppCompatActivity() {
 
             holder.iconView.setImageBitmap(group.resolveIcon())
 
-            holder.iconSandbox.visibility =
-                if (group.isUseContainer) View.VISIBLE else View.GONE
+            holder.iconSandbox.visibility = if (group.isUseContainer) View.VISIBLE else View.GONE
             holder.iconEphemeral.visibility =
                 if (group.isUseContainer && group.isEphemeralSandbox) View.VISIBLE else View.GONE
 

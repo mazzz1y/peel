@@ -3,9 +3,9 @@ package wtf.mazy.peel.ui.webapplist
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
-import java.text.BreakIterator
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.WebAppGroup
+import java.text.BreakIterator
 
 /**
  * ViewPager2 adapter for group tabs.

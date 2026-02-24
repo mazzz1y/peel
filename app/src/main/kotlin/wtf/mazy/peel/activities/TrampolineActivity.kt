@@ -61,14 +61,9 @@ class TrampolineActivity : Activity() {
             detail.visibility = View.GONE
         }
 
-        MaterialAlertDialogBuilder(this)
-            .setTitle(title)
-            .setAdapter(adapter) { _, position ->
+        MaterialAlertDialogBuilder(this).setTitle(title).setAdapter(adapter) { _, position ->
                 WebViewLauncher.startWebView(apps[position], this)
                 finish()
-            }
-            .setOnCancelListener { finish() }
-            .setOnDismissListener { finish() }
-            .show()
+            }.setOnCancelListener { finish() }.setOnDismissListener { finish() }.show()
     }
 }

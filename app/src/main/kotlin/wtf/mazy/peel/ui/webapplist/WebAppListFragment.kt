@@ -23,8 +23,8 @@ class WebAppListFragment : Fragment(R.layout.fragment_web_app_list) {
     private val dragScale = 1.05f
 
     /**
-     * null = show ALL apps (the "All" tab). UNGROUPED_FILTER = show only ungrouped apps.
-     * Otherwise = show apps belonging to that group UUID.
+     * null = show ALL apps (the "All" tab). UNGROUPED_FILTER = show only ungrouped apps. Otherwise
+     * = show apps belonging to that group UUID.
      */
     var groupFilter: String? = null
 
@@ -33,9 +33,10 @@ class WebAppListFragment : Fragment(R.layout.fragment_web_app_list) {
 
         groupFilter = arguments?.getString(ARG_GROUP_FILTER)
 
-        adapter = WebAppListAdapter(requiredActivity()) {
-            (activity as? MainActivity)?.refreshCurrentPages()
-        }
+        adapter =
+            WebAppListAdapter(requiredActivity()) {
+                (activity as? MainActivity)?.refreshCurrentPages()
+            }
         adapter.groupFilter = groupFilter
         adapter.updateWebAppList()
 
@@ -70,12 +71,13 @@ class WebAppListFragment : Fragment(R.layout.fragment_web_app_list) {
         return requireNotNull(activity) { "WebAppListFragment is not attached to an activity." }
     }
 
-    private val itemTouchCallback = dragReorderCallback(
-        onMove = { from, to -> adapter.moveItem(from, to) },
-        onDrop = ::saveCurrentDisplayedOrderOfWebAppsToDisk,
-        onPickUp = ::animatePickedUp,
-        onRelease = ::animateDropped,
-    )
+    private val itemTouchCallback =
+        dragReorderCallback(
+            onMove = { from, to -> adapter.moveItem(from, to) },
+            onDrop = ::saveCurrentDisplayedOrderOfWebAppsToDisk,
+            onPickUp = ::animatePickedUp,
+            onRelease = ::animateDropped,
+        )
 
     private fun animatePickedUp(view: View) {
         AnimatorSet().apply {
@@ -111,6 +113,7 @@ class WebAppListFragment : Fragment(R.layout.fragment_web_app_list) {
 
     companion object {
         const val ARG_GROUP_FILTER = "group_filter"
+
         /** Sentinel value meaning "show only ungrouped apps". */
         const val UNGROUPED_FILTER = "__ungrouped__"
 

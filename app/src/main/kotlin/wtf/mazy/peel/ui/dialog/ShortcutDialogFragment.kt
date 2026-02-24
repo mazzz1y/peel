@@ -17,16 +17,12 @@ import android.widget.Toast
 import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts.GetContent
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import androidx.core.content.pm.ShortcutInfoCompat
 import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.core.graphics.drawable.IconCompat
 import androidx.fragment.app.DialogFragment
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.progressindicator.CircularProgressIndicator
-import java.io.IOException
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
-import java.util.concurrent.Future
 import wtf.mazy.peel.R
 import wtf.mazy.peel.activities.TrampolineActivity
 import wtf.mazy.peel.model.DataManager
@@ -35,6 +31,10 @@ import wtf.mazy.peel.shortcut.ShortcutHelper
 import wtf.mazy.peel.util.App
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.NotificationUtils.showToast
+import java.io.IOException
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
+import java.util.concurrent.Future
 
 class ShortcutDialogFragment : DialogFragment() {
     private var webapp: WebApp? = null
@@ -80,7 +80,8 @@ class ShortcutDialogFragment : DialogFragment() {
                         showToast(
                             requireActivity(),
                             getString(R.string.icon_not_found),
-                            Toast.LENGTH_SHORT)
+                            Toast.LENGTH_SHORT
+                        )
                         Log.e("ShortcutDialog", "Failed to load icon from URI", e)
                     }
                 },
@@ -146,7 +147,8 @@ class ShortcutDialogFragment : DialogFragment() {
         val icon =
             if (bitmap != null) {
                 IconCompat.createWithAdaptiveBitmap(
-                    ShortcutHelper.resizeBitmapForAdaptiveIcon(bitmap))
+                    ShortcutHelper.resizeBitmapForAdaptiveIcon(bitmap)
+                )
             } else {
                 ShortcutHelper.resolveIcon(app)
             }
@@ -192,8 +194,8 @@ class ShortcutDialogFragment : DialogFragment() {
         showToast(
             requireActivity(),
             getString(R.string.icon_fetch_failed_line1, title) +
-                getString(R.string.icon_fetch_failed_line2) +
-                getString(R.string.icon_fetch_failed_line3),
+                    getString(R.string.icon_fetch_failed_line2) +
+                    getString(R.string.icon_fetch_failed_line3),
         )
     }
 

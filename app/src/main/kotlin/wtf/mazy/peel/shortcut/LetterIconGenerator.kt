@@ -6,9 +6,9 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Typeface
 import androidx.core.graphics.createBitmap
+import wtf.mazy.peel.util.App
 import java.text.BreakIterator
 import kotlin.math.abs
-import wtf.mazy.peel.util.App
 
 object LetterIconGenerator {
 
@@ -86,7 +86,7 @@ object LetterIconGenerator {
     private fun firstGrapheme(text: String): String {
         val iter = BreakIterator.getCharacterInstance()
         iter.setText(text)
-        return text.substring(0, iter.next())
+        return text.take(iter.next())
     }
 
     private fun pickColor(key: String): Int {

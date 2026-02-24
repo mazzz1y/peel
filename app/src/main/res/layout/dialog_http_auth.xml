@@ -1,27 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical"
-    android:padding="?android:dialogPreferredPadding"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="?android:dialogPreferredPadding">
 
     <EditText
         android:id="@+id/username"
-        android:autofillHints="username"
-        android:inputType="text"
-        android:focusedByDefault="true"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:autofillHints="username"
+        android:focusedByDefault="true"
         android:hint="@string/username"
-        />
+        android:inputType="text" />
+
     <EditText
         android:id="@+id/password"
-        android:autofillHints="password"
-        android:inputType="textPassword"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:autofillHints="password"
         android:hint="@string/password"
+        android:inputType="textPassword"
         tools:ignore="Autofill" />
 
 </LinearLayout>

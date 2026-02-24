@@ -1,7 +1,7 @@
 package wtf.mazy.peel.model
 
-import kotlin.reflect.KMutableProperty1
 import kotlinx.serialization.Serializable
+import kotlin.reflect.KMutableProperty1
 
 @Serializable
 data class WebAppSettings(

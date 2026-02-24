@@ -2,9 +2,9 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     style="@style/SettingsItemContainer"
-    android:orientation="horizontal"
     android:gravity="center_vertical"
-    android:minHeight="56dp">
+    android:minHeight="56dp"
+    android:orientation="horizontal">
 
     <TextView
         android:id="@+id/textSettingName"
@@ -28,47 +28,47 @@
         android:id="@+id/toggleGroup"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:singleSelection="true"
-        app:selectionRequired="true">
+        app:selectionRequired="true"
+        app:singleSelection="true">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnDeny"
             style="@style/Widget.Material3.Button.OutlinedButton"
             android:layout_width="wrap_content"
             android:layout_height="32dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
             android:minWidth="60dp"
             android:paddingStart="16dp"
             android:paddingEnd="16dp"
-            android:insetTop="0dp"
-            android:insetBottom="0dp"
-            android:textSize="12sp"
-            android:text="@string/permission_deny" />
+            android:text="@string/permission_deny"
+            android:textSize="12sp" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnAsk"
             style="@style/Widget.Material3.Button.OutlinedButton"
             android:layout_width="wrap_content"
             android:layout_height="32dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
             android:minWidth="60dp"
             android:paddingStart="16dp"
             android:paddingEnd="16dp"
-            android:insetTop="0dp"
-            android:insetBottom="0dp"
-            android:textSize="12sp"
-            android:text="@string/permission_ask" />
+            android:text="@string/permission_ask"
+            android:textSize="12sp" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnAllow"
             style="@style/Widget.Material3.Button.OutlinedButton"
             android:layout_width="wrap_content"
             android:layout_height="32dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
             android:minWidth="60dp"
             android:paddingStart="16dp"
             android:paddingEnd="16dp"
-            android:insetTop="0dp"
-            android:insetBottom="0dp"
-            android:textSize="12sp"
-            android:text="@string/permission_allow" />
+            android:text="@string/permission_allow"
+            android:textSize="12sp" />
 
     </com.google.android.material.button.MaterialButtonToggleGroup>
 

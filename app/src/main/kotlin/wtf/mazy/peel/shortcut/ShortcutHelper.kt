@@ -14,15 +14,15 @@ import androidx.core.graphics.createBitmap
 import androidx.core.graphics.drawable.IconCompat
 import androidx.core.graphics.scale
 import androidx.core.net.toUri
-import kotlin.math.min
 import wtf.mazy.peel.R
 import wtf.mazy.peel.activities.TrampolineActivity
 import wtf.mazy.peel.model.IconOwner
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.model.WebAppGroup
+import wtf.mazy.peel.ui.dialog.showInputDialog
 import wtf.mazy.peel.util.App
 import wtf.mazy.peel.util.Const
-import wtf.mazy.peel.ui.dialog.showInputDialog
+import kotlin.math.min
 
 object ShortcutHelper {
     private const val ADAPTIVE_ICON_SIZE = 108
@@ -66,7 +66,8 @@ object ShortcutHelper {
             return IconCompat.createWithAdaptiveBitmap(resizeBitmapForAdaptiveIcon(bitmap))
         }
         return IconCompat.createWithAdaptiveBitmap(
-            LetterIconGenerator.generateForAdaptiveIcon(owner.title, owner.letterIconSeed))
+            LetterIconGenerator.generateForAdaptiveIcon(owner.title, owner.letterIconSeed)
+        )
     }
 
     fun resizeBitmapForAdaptiveIcon(bitmap: Bitmap): Bitmap {

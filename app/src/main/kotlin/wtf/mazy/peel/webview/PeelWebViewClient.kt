@@ -16,9 +16,7 @@ import androidx.core.net.toUri
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.DataManager
 
-class PeelWebViewClient(
-    private val host: WebViewClientHost,
-) : WebViewClient() {
+class PeelWebViewClient(private val host: WebViewClientHost) : WebViewClient() {
 
     override fun onPageStarted(view: WebView?, url: String?, favicon: android.graphics.Bitmap?) {
         super.onPageStarted(view, url, favicon)
@@ -204,7 +202,8 @@ class PeelWebViewClient(
         }
 
         // Priority: body bg → html bg → media theme-color → non-media theme-color
-        private val EXTRACT_PAGE_COLOR_JS = """
+        private val EXTRACT_PAGE_COLOR_JS =
+            """
             (function() {
                 function isOpaque(c) {
                     return c && c !== 'rgba(0, 0, 0, 0)' && c !== 'transparent';
@@ -224,6 +223,7 @@ class PeelWebViewClient(
                 }
                 return fallback || '';
             })()
-        """.trimIndent()
+        """
+                .trimIndent()
     }
 }

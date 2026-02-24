@@ -11,9 +11,7 @@ import android.webkit.WebView
 import androidx.core.content.ContextCompat
 import java.util.Locale
 
-class MediaPlaybackManager(
-    private val context: Context,
-) : MediaJsBridge.Listener {
+class MediaPlaybackManager(private val context: Context) : MediaJsBridge.Listener {
 
     private var webView: WebView? = null
     private var title: String = ""
@@ -31,36 +29,40 @@ class MediaPlaybackManager(
     private val handler = Handler(Looper.getMainLooper())
     private var pendingPause: Runnable? = null
 
-    private val receiver = object : BroadcastReceiver() {
-        override fun onReceive(ctx: Context?, intent: Intent) {
-            val gen = intent.getIntExtra(MediaPlaybackService.EXTRA_GENERATION, -1)
-            if (gen != -1 && gen != generation) return
-            when (intent.action) {
-                MediaPlaybackService.BROADCAST_PLAY -> evalJs(MediaJsBridge.RESUME_JS)
+    private val receiver =
+        object : BroadcastReceiver() {
+            override fun onReceive(ctx: Context?, intent: Intent) {
+                val gen = intent.getIntExtra(MediaPlaybackService.EXTRA_GENERATION, -1)
+                if (gen != -1 && gen != generation) return
+                when (intent.action) {
+                    MediaPlaybackService.BROADCAST_PLAY -> evalJs(MediaJsBridge.RESUME_JS)
 
-                MediaPlaybackService.BROADCAST_PAUSE -> {
-                    if (jsInitiatedPause) {
-                        jsInitiatedPause = false
-                        return
+                    MediaPlaybackService.BROADCAST_PAUSE -> {
+                        if (jsInitiatedPause) {
+                            jsInitiatedPause = false
+                            return
+                        }
+                        evalJs(MediaJsBridge.PAUSE_ALL_JS)
                     }
-                    evalJs(MediaJsBridge.PAUSE_ALL_JS)
-                }
 
-                MediaPlaybackService.BROADCAST_STOP -> {
-                    evalJs(MediaJsBridge.PAUSE_ALL_JS)
-                    serviceStarted = false
-                }
+                    MediaPlaybackService.BROADCAST_STOP -> {
+                        evalJs(MediaJsBridge.PAUSE_ALL_JS)
+                        serviceStarted = false
+                    }
 
-                MediaPlaybackService.BROADCAST_PREVIOUS -> evalJs(MediaJsBridge.PREVIOUS_TRACK_JS)
-                MediaPlaybackService.BROADCAST_NEXT -> evalJs(MediaJsBridge.NEXT_TRACK_JS)
+                    MediaPlaybackService.BROADCAST_PREVIOUS ->
+                        evalJs(MediaJsBridge.PREVIOUS_TRACK_JS)
 
-                MediaPlaybackService.BROADCAST_SEEK_TO -> {
-                    val seekMs = intent.getLongExtra(MediaPlaybackService.EXTRA_SEEK_POSITION_MS, 0L)
-                    evalJs(String.format(Locale.US, MediaJsBridge.SEEK_TO_JS, seekMs / 1000.0))
+                    MediaPlaybackService.BROADCAST_NEXT -> evalJs(MediaJsBridge.NEXT_TRACK_JS)
+
+                    MediaPlaybackService.BROADCAST_SEEK_TO -> {
+                        val seekMs =
+                            intent.getLongExtra(MediaPlaybackService.EXTRA_SEEK_POSITION_MS, 0L)
+                        evalJs(String.format(Locale.US, MediaJsBridge.SEEK_TO_JS, seekMs / 1000.0))
+                    }
                 }
             }
         }
-    }
 
     fun attach(webView: WebView, title: String, icon: Bitmap?, webappUuid: String) {
         this.webView = webView
@@ -111,11 +113,13 @@ class MediaPlaybackManager(
     override fun onMediaPaused() {
         if (!serviceStarted) return
         cancelPendingPause()
-        pendingPause = Runnable {
-            if (!serviceStarted) return@Runnable
-            jsInitiatedPause = true
-            sendAction(MediaPlaybackService.ACTION_PAUSE)
-        }.also { handler.postDelayed(it, 1200L) }
+        pendingPause =
+            Runnable {
+                if (!serviceStarted) return@Runnable
+                jsInitiatedPause = true
+                sendAction(MediaPlaybackService.ACTION_PAUSE)
+            }
+                .also { handler.postDelayed(it, 1200L) }
     }
 
     override fun onMediaStopped() {
@@ -139,8 +143,7 @@ class MediaPlaybackManager(
                 putExtra(MediaPlaybackService.EXTRA_TRACK_TITLE, title ?: "")
                 putExtra(MediaPlaybackService.EXTRA_TRACK_ARTIST, artist ?: "")
                 putExtra(MediaPlaybackService.EXTRA_TRACK_ARTWORK_URL, artworkUrl ?: "")
-            }
-        )
+            })
     }
 
     override fun onActionsChanged(hasPrevious: Boolean, hasNext: Boolean) {
@@ -152,8 +155,7 @@ class MediaPlaybackManager(
                 action = MediaPlaybackService.ACTION_UPDATE_ACTIONS
                 putExtra(MediaPlaybackService.EXTRA_HAS_PREVIOUS, hasPrevious)
                 putExtra(MediaPlaybackService.EXTRA_HAS_NEXT, hasNext)
-            }
-        )
+            })
     }
 
     override fun onPositionChanged(durationMs: Long, positionMs: Long, playbackRate: Float) {
@@ -164,8 +166,7 @@ class MediaPlaybackManager(
                 putExtra(MediaPlaybackService.EXTRA_DURATION_MS, durationMs)
                 putExtra(MediaPlaybackService.EXTRA_POSITION_MS, positionMs)
                 putExtra(MediaPlaybackService.EXTRA_PLAYBACK_RATE, playbackRate)
-            }
-        )
+            })
     }
 
     fun release() {
@@ -184,24 +185,23 @@ class MediaPlaybackManager(
 
     private fun sendAction(action: String) {
         context.startService(
-            Intent(context, MediaPlaybackService.resolveServiceClass()).apply { this.action = action }
-        )
+            Intent(context, MediaPlaybackService.resolveServiceClass()).apply {
+                this.action = action
+            })
     }
 
     private fun registerReceiver() {
-        val filter = IntentFilter().apply {
-            addAction(MediaPlaybackService.BROADCAST_PLAY)
-            addAction(MediaPlaybackService.BROADCAST_PAUSE)
-            addAction(MediaPlaybackService.BROADCAST_STOP)
-            addAction(MediaPlaybackService.BROADCAST_PREVIOUS)
-            addAction(MediaPlaybackService.BROADCAST_NEXT)
-            addAction(MediaPlaybackService.BROADCAST_SEEK_TO)
-        }
+        val filter =
+            IntentFilter().apply {
+                addAction(MediaPlaybackService.BROADCAST_PLAY)
+                addAction(MediaPlaybackService.BROADCAST_PAUSE)
+                addAction(MediaPlaybackService.BROADCAST_STOP)
+                addAction(MediaPlaybackService.BROADCAST_PREVIOUS)
+                addAction(MediaPlaybackService.BROADCAST_NEXT)
+                addAction(MediaPlaybackService.BROADCAST_SEEK_TO)
+            }
         ContextCompat.registerReceiver(
-            context,
-            receiver,
-            filter,
-            ContextCompat.RECEIVER_NOT_EXPORTED,
+            context, receiver, filter, ContextCompat.RECEIVER_NOT_EXPORTED
         )
     }
 
@@ -219,19 +219,19 @@ class MediaPlaybackManager(
 
     private fun stopOtherSlots() {
         val myClass = MediaPlaybackService.resolveServiceClass()
-        val allClasses = arrayOf(
-            MediaPlaybackService::class.java,
-            MediaPlaybackService0::class.java,
-            MediaPlaybackService1::class.java,
-            MediaPlaybackService2::class.java,
-            MediaPlaybackService3::class.java,
-        )
+        val allClasses =
+            arrayOf(
+                MediaPlaybackService::class.java,
+                MediaPlaybackService0::class.java,
+                MediaPlaybackService1::class.java,
+                MediaPlaybackService2::class.java,
+                MediaPlaybackService3::class.java,
+            )
         for (cls in allClasses) {
             if (cls != myClass) {
                 try {
                     context.startService(
-                        Intent(context, cls).apply { action = MediaPlaybackService.ACTION_STOP }
-                    )
+                        Intent(context, cls).apply { action = MediaPlaybackService.ACTION_STOP })
                 } catch (_: Exception) {
                 }
             }

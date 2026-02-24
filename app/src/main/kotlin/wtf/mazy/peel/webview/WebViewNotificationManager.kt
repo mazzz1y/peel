@@ -47,11 +47,7 @@ class WebViewNotificationManager(
 
     fun createChannel() {
         val channel =
-            NotificationChannel(
-                    CHANNEL_ID,
-                    "WebView Controls",
-                    NotificationManager.IMPORTANCE_MIN,
-                )
+            NotificationChannel(CHANNEL_ID, "WebView Controls", NotificationManager.IMPORTANCE_MIN)
                 .apply {
                     description = "Controls for WebView navigation"
                     setShowBadge(false)
@@ -69,23 +65,22 @@ class WebViewNotificationManager(
                 addAction(actionHome)
             }
         ContextCompat.registerReceiver(
-            activity,
-            receiver,
-            filter,
-            ContextCompat.RECEIVER_NOT_EXPORTED,
+            activity, receiver, filter, ContextCompat.RECEIVER_NOT_EXPORTED
         )
     }
 
     fun unregisterReceiver() {
         try {
             activity.unregisterReceiver(receiver)
-        } catch (_: IllegalArgumentException) {}
+        } catch (_: IllegalArgumentException) {
+        }
     }
 
     fun showNotification(): Boolean {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (activity.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) !=
-                PackageManager.PERMISSION_GRANTED) {
+                PackageManager.PERMISSION_GRANTED
+            ) {
                 return false
             }
         }

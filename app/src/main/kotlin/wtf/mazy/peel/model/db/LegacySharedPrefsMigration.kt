@@ -10,7 +10,8 @@ import wtf.mazy.peel.model.WebAppSurrogate
 import wtf.mazy.peel.util.Const
 
 @Deprecated(
-    "Remove after a few releases once all users have migrated from SharedPreferences to Room")
+    "Remove after a few releases once all users have migrated from SharedPreferences to Room"
+)
 object LegacySharedPrefsMigration {
 
     private const val OLD_PREF_FILE = "WEBSITEDATA"

@@ -157,11 +157,15 @@ class WebAppSettingsActivity :
 
     private fun setupSandboxSwitch(modifiedWebapp: WebApp) {
         SandboxSwitchController(
-            this, modifiedWebapp,
-            binding.switchSandbox, binding.switchEphemeralSandbox,
-            binding.ephemeralSandboxRow, binding.btnClearSandbox,
+            this,
+            modifiedWebapp,
+            binding.switchSandbox,
+            binding.switchEphemeralSandbox,
+            binding.ephemeralSandboxRow,
+            binding.btnClearSandbox,
             onReleaseSandbox = { SandboxManager.releaseSandbox(this, modifiedWebapp.uuid) },
-        ).setup()
+        )
+            .setup()
     }
 
     private fun setupFetchButton(modifiedWebapp: WebApp) {
@@ -172,29 +176,41 @@ class WebAppSettingsActivity :
 
     private fun showFetchProgress() {
         val dp = resources.displayMetrics.density
-        val text = TextView(this).apply {
-            setText(R.string.loading_icon_and_website_title)
-            setTextAppearance(com.google.android.material.R.style.TextAppearance_Material3_BodyMedium)
-        }
-        val layout = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER_VERTICAL
-            setPadding((dp * 24).toInt(), (dp * 24).toInt(), (dp * 24).toInt(), (dp * 16).toInt())
-            addView(CircularProgressIndicator(context).apply {
-                isIndeterminate = true
-                indicatorSize = (dp * 40).toInt()
-            })
-            addView(text, LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-            ).apply { marginStart = (dp * 16).toInt() })
-        }
+        val text =
+            TextView(this).apply {
+                setText(R.string.loading_icon_and_website_title)
+                setTextAppearance(
+                    com.google.android.material.R.style.TextAppearance_Material3_BodyMedium
+                )
+            }
+        val layout =
+            LinearLayout(this).apply {
+                orientation = LinearLayout.HORIZONTAL
+                gravity = Gravity.CENTER_VERTICAL
+                setPadding(
+                    (dp * 24).toInt(), (dp * 24).toInt(), (dp * 24).toInt(), (dp * 16).toInt()
+                )
+                addView(
+                    CircularProgressIndicator(context).apply {
+                        isIndeterminate = true
+                        indicatorSize = (dp * 40).toInt()
+                    })
+                addView(
+                    text,
+                    LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.WRAP_CONTENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT,
+                    )
+                        .apply { marginStart = (dp * 16).toInt() },
+                )
+            }
         fetchDialogText = text
-        fetchDialog = MaterialAlertDialogBuilder(this)
-            .setView(layout)
-            .setCancelable(true)
-            .setOnCancelListener { dismissFetchProgress() }
-            .show()
+        fetchDialog =
+            MaterialAlertDialogBuilder(this)
+                .setView(layout)
+                .setCancelable(true)
+                .setOnCancelListener { dismissFetchProgress() }
+                .show()
     }
 
     private fun dismissFetchProgress() {
@@ -216,22 +232,41 @@ class WebAppSettingsActivity :
         val sandboxId = WebViewLauncher.resolveSandboxId(webapp)
         if (sandboxId != null) {
             val slotId = SandboxManager.resolveSlotId(this, sandboxId)
-            val receiver = object : ResultReceiver(Handler(mainLooper)) {
-                override fun onReceiveResult(resultCode: Int, resultData: Bundle?) {
-                    when (resultCode) {
-                        SandboxFetchService.RESULT_PROGRESS ->
-                            onProgress(resultData?.getString(SandboxFetchService.KEY_PROGRESS) ?: "")
-                        SandboxFetchService.RESULT_DONE ->
-                            handleFetchCandidates(webapp, SandboxFetchService.parseCandidates(resultData))
+            val receiver =
+                object : ResultReceiver(Handler(mainLooper)) {
+                    override fun onReceiveResult(resultCode: Int, resultData: Bundle?) {
+                        when (resultCode) {
+                            SandboxFetchService.RESULT_PROGRESS ->
+                                onProgress(
+                                    resultData?.getString(SandboxFetchService.KEY_PROGRESS) ?: ""
+                                )
+
+                            SandboxFetchService.RESULT_DONE ->
+                                handleFetchCandidates(
+                                    webapp, SandboxFetchService.parseCandidates(resultData)
+                                )
+                        }
                     }
                 }
-            }
-            startService(SandboxFetchService.createIntent(this, slotId, sandboxId, url, webapp.effectiveSettings, receiver))
+            startService(
+                SandboxFetchService.createIntent(
+                    this,
+                    slotId,
+                    sandboxId,
+                    url,
+                    webapp.effectiveSettings,
+                    receiver,
+                )
+            )
         } else {
-            HeadlessWebViewFetcher(this, url, webapp.effectiveSettings,
+            HeadlessWebViewFetcher(
+                this,
+                url,
+                webapp.effectiveSettings,
                 onProgress = onProgress,
                 onResult = { handleFetchCandidates(webapp, it) },
-            ).start()
+            )
+                .start()
         }
     }
 
@@ -255,19 +290,22 @@ class WebAppSettingsActivity :
         val defaultIconSizePx = (resources.displayMetrics.density * 48).toInt()
         val colorSeed = webapp.letterIconSeed
 
-        val adapter = ListPickerAdapter(candidates) { candidate, iconView, nameView, detailView ->
-            val title = candidate.title ?: getString(R.string.none)
-            nameView.text = title
-            val bmp = candidate.icon
-            if (bmp != null) {
-                iconView.setImageBitmap(bmp)
-                detailView.text = "${bmp.width}x${bmp.height} · ${candidate.source}"
-            } else {
-                iconView.setImageBitmap(LetterIconGenerator.generate(title, colorSeed, defaultIconSizePx))
-                detailView.text = candidate.source
+        val adapter =
+            ListPickerAdapter(candidates) { candidate, iconView, nameView, detailView ->
+                val title = candidate.title ?: getString(R.string.none)
+                nameView.text = title
+                val bmp = candidate.icon
+                if (bmp != null) {
+                    iconView.setImageBitmap(bmp)
+                    detailView.text = "${bmp.width}x${bmp.height} · ${candidate.source}"
+                } else {
+                    iconView.setImageBitmap(
+                        LetterIconGenerator.generate(title, colorSeed, defaultIconSizePx)
+                    )
+                    detailView.text = candidate.source
+                }
+                detailView.visibility = View.VISIBLE
             }
-            detailView.visibility = View.VISIBLE
-        }
 
         MaterialAlertDialogBuilder(this)
             .setTitle(R.string.choose_icon)
@@ -292,9 +330,13 @@ class WebAppSettingsActivity :
     private lateinit var overrideController: OverridePickerController
 
     private fun setupOverridePicker(modifiedWebapp: WebApp) {
-        overrideController = OverridePickerController(
-            this, modifiedWebapp.settings, binding.linearLayoutOverrides, binding.btnAddOverride,
-        )
+        overrideController =
+            OverridePickerController(
+                this,
+                modifiedWebapp.settings,
+                binding.linearLayoutOverrides,
+                binding.btnAddOverride,
+            )
         overrideController.setup()
     }
 

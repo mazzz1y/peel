@@ -40,7 +40,8 @@ class MainActivity : AppCompatActivity() {
     private var lastShowUngrouped: Boolean = true
 
     private val exportLauncher =
-        registerForActivityResult(ActivityResultContracts.CreateDocument("application/zip")) { uri ->
+        registerForActivityResult(ActivityResultContracts.CreateDocument("application/zip")) { uri
+            ->
             uri?.let {
                 DataManager.instance.saveDefaultSettings()
                 if (!BackupManager.exportToZip(it)) {
@@ -122,7 +123,8 @@ class MainActivity : AppCompatActivity() {
 
             TabLayoutMediator(tabLayout!!, viewPager!!) { tab, position ->
                 tab.text = pagerAdapter?.getPageTitle(position)
-            }.attach()
+            }
+                .attach()
         }
     }
 
@@ -235,14 +237,18 @@ class MainActivity : AppCompatActivity() {
             if (isChecked && switchBrowsing.isChecked) switchBrowsing.isChecked = false
         }
 
-        MaterialAlertDialogBuilder(this).setTitle(R.string.clear_data).setView(dialogView)
+        MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.clear_data)
+            .setView(dialogView)
             .setPositiveButton(R.string.ok) { _, _ ->
                 if (switchFactory.isChecked) {
                     performFactoryReset()
                 } else if (switchBrowsing.isChecked) {
                     clearBrowsingData(switchSandbox.isChecked)
                 }
-            }.setNegativeButton(R.string.cancel, null).show()
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
     }
 
     private fun clearBrowsingData(includeSandbox: Boolean) {
@@ -267,16 +273,20 @@ class MainActivity : AppCompatActivity() {
             DataManager.instance.removeGroup(group, ungroupApps = false)
         }
 
-        DataManager.instance.defaultSettings = DataManager.instance.defaultSettings.also {
-            it.settings = wtf.mazy.peel.model.WebAppSettings.createWithDefaults()
-        }
+        DataManager.instance.defaultSettings =
+            DataManager.instance.defaultSettings.also {
+                it.settings = wtf.mazy.peel.model.WebAppSettings.createWithDefaults()
+            }
 
         setupViewPager()
     }
 
     private fun buildAboutDialog() {
-        MaterialAlertDialogBuilder(this).setTitle(getString(R.string.app_name))
-            .setMessage(getString(R.string.gnu_license)).setPositiveButton(R.string.ok, null).show()
+        MaterialAlertDialogBuilder(this)
+            .setTitle(getString(R.string.app_name))
+            .setMessage(getString(R.string.gnu_license))
+            .setPositiveButton(R.string.ok, null)
+            .show()
     }
 
     private fun buildImportModeDialog(uri: android.net.Uri) {
@@ -286,11 +296,15 @@ class MainActivity : AppCompatActivity() {
                 R.id.switchMergeMode
             )
 
-        MaterialAlertDialogBuilder(this).setTitle(getString(R.string.import_mode_title))
-            .setView(dialogView).setPositiveButton(R.string.ok) { _, _ ->
+        MaterialAlertDialogBuilder(this)
+            .setTitle(getString(R.string.import_mode_title))
+            .setView(dialogView)
+            .setPositiveButton(R.string.ok) { _, _ ->
                 val mode = if (switchMerge.isChecked) ImportMode.MERGE else ImportMode.REPLACE
                 performImport(uri, mode)
-            }.setNegativeButton(R.string.cancel, null).show()
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
     }
 
     private fun performImport(uri: android.net.Uri, mode: ImportMode) {
@@ -308,9 +322,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun buildImportSuccessDialog() {
-        MaterialAlertDialogBuilder(this).setMessage(
+        MaterialAlertDialogBuilder(this)
+            .setMessage(
                 getString(R.string.import_success, DataManager.instance.activeWebsitesCount)
-            ).setPositiveButton(R.string.ok, null).show()
+            )
+            .setPositiveButton(R.string.ok, null)
+            .show()
     }
 
     private fun buildAddWebsiteDialog() {
@@ -319,8 +336,8 @@ class MainActivity : AppCompatActivity() {
             hintRes = R.string.url,
             inputType = android.text.InputType.TYPE_TEXT_VARIATION_URI,
         ) { url ->
-            val urlWithProtocol = if (url.startsWith("https://") || url.startsWith("http://")) url
-            else "https://$url"
+            val urlWithProtocol =
+                if (url.startsWith("https://") || url.startsWith("http://")) url else "https://$url"
             val newSite = WebApp(urlWithProtocol)
             newSite.order = DataManager.instance.incrementedOrder
 

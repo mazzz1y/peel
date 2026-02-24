@@ -80,9 +80,7 @@ open class MediaPlaybackService : MediaSessionService() {
         createNotificationChannel()
         val p = PeelPlayer(Looper.getMainLooper())
         peelPlayer = p
-        session = MediaSession.Builder(this, p)
-            .setCallback(SessionCallback())
-            .build()
+        session = MediaSession.Builder(this, p).setCallback(SessionCallback()).build()
     }
 
     override fun onGetSession(controllerInfo: MediaSession.ControllerInfo): MediaSession? = session
@@ -202,38 +200,44 @@ open class MediaPlaybackService : MediaSessionService() {
 
     private fun fetchArtwork(url: String) {
         artworkJob?.cancel()
-        artworkJob = scope.launch {
-            val bmp = withContext(Dispatchers.IO) {
-                try {
-                    val conn = URL(url).openConnection() as HttpURLConnection
-                    conn.connectTimeout = 4000
-                    conn.readTimeout = 4000
-                    conn.instanceFollowRedirects = true
-                    val result = BitmapFactory.decodeStream(conn.inputStream)
-                    conn.disconnect()
-                    result
-                } catch (_: Exception) {
-                    null
+        artworkJob =
+            scope.launch {
+                val bmp =
+                    withContext(Dispatchers.IO) {
+                        try {
+                            val conn = URL(url).openConnection() as HttpURLConnection
+                            conn.connectTimeout = 4000
+                            conn.readTimeout = 4000
+                            conn.instanceFollowRedirects = true
+                            val result = BitmapFactory.decodeStream(conn.inputStream)
+                            conn.disconnect()
+                            result
+                        } catch (_: Exception) {
+                            null
+                        }
+                    }
+                if (bmp != null && trackArtworkUrl == url) {
+                    trackArtwork = bmp
+                    notifyPlayerChanged()
                 }
             }
-            if (bmp != null && trackArtworkUrl == url) {
-                trackArtwork = bmp
-                notifyPlayerChanged()
-            }
-        }
     }
 
     private fun acquireWakeLocks() {
         if (wakeLock == null) {
             val pm = getSystemService(PowerManager::class.java)
-            wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "peel:media")
-                .apply { acquire(4 * 60 * 60 * 1000L) }
+            wakeLock =
+                pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "peel:media").apply {
+                    acquire(4 * 60 * 60 * 1000L)
+                }
         }
         if (wifiLock == null) {
             val wm = applicationContext.getSystemService(WifiManager::class.java)
             @Suppress("DEPRECATION")
-            wifiLock = wm.createWifiLock(WifiManager.WIFI_MODE_FULL_HIGH_PERF, "peel:media")
-                .apply { acquire() }
+            wifiLock =
+                wm.createWifiLock(WifiManager.WIFI_MODE_FULL_HIGH_PERF, "peel:media").apply {
+                    acquire()
+                }
         }
     }
 
@@ -251,28 +255,35 @@ open class MediaPlaybackService : MediaSessionService() {
         val intent = WebViewLauncher.createWebViewIntent(webapp, this) ?: return null
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
         return PendingIntent.getActivity(
-            this, uuid.hashCode(), intent,
+            this,
+            uuid.hashCode(),
+            intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
     }
 
     private fun createNotificationChannel() {
-        val channel = NotificationChannel(
-            CHANNEL_ID, getString(R.string.media_channel_name), NotificationManager.IMPORTANCE_LOW,
-        ).apply {
-            description = getString(R.string.media_channel_description)
-            setShowBadge(false)
-            setSound(null, null)
-        }
+        val channel =
+            NotificationChannel(
+                CHANNEL_ID,
+                getString(R.string.media_channel_name),
+                NotificationManager.IMPORTANCE_LOW,
+            )
+                .apply {
+                    description = getString(R.string.media_channel_description)
+                    setShowBadge(false)
+                    setSound(null, null)
+                }
         getSystemService(NotificationManager::class.java).createNotificationChannel(channel)
     }
 
     private fun broadcast(action: String, extras: Intent? = null) {
-        sendBroadcast(Intent(action).apply {
-            setPackage(packageName)
-            putExtra(EXTRA_GENERATION, generation)
-            extras?.extras?.let { putExtras(it) }
-        })
+        sendBroadcast(
+            Intent(action).apply {
+                setPackage(packageName)
+                putExtra(EXTRA_GENERATION, generation)
+                extras?.extras?.let { putExtras(it) }
+            })
     }
 
     private inner class PeelPlayer(looper: Looper) : SimpleBasePlayer(looper) {
@@ -283,29 +294,26 @@ open class MediaPlaybackService : MediaSessionService() {
             val displayTitle = trackTitle ?: appTitle
             val art = trackArtwork ?: appIcon
 
-            val metadataBuilder = MediaMetadata.Builder()
-                .setTitle(displayTitle)
+            val metadataBuilder = MediaMetadata.Builder().setTitle(displayTitle)
             trackArtist?.let { metadataBuilder.setArtist(it) }
             art?.let {
                 metadataBuilder.setArtworkData(
-                    bitmapToBytes(it),
-                    MediaMetadata.PICTURE_TYPE_FRONT_COVER
+                    bitmapToBytes(it), MediaMetadata.PICTURE_TYPE_FRONT_COVER
                 )
             }
             val metadata = metadataBuilder.build()
 
-            val mediaItem = MediaItem.Builder()
-                .setMediaId("current")
-                .setMediaMetadata(metadata)
-                .build()
+            val mediaItem =
+                MediaItem.Builder().setMediaId("current").setMediaMetadata(metadata).build()
 
-            val commands = Player.Commands.Builder()
-                .addAll(
-                    COMMAND_PLAY_PAUSE,
-                    COMMAND_STOP,
-                    COMMAND_GET_METADATA,
-                    COMMAND_GET_CURRENT_MEDIA_ITEM,
-                )
+            val commands =
+                Player.Commands.Builder()
+                    .addAll(
+                        COMMAND_PLAY_PAUSE,
+                        COMMAND_STOP,
+                        COMMAND_GET_METADATA,
+                        COMMAND_GET_CURRENT_MEDIA_ITEM,
+                    )
             if (hasPrevious) commands.add(COMMAND_SEEK_TO_PREVIOUS)
             if (hasNext) commands.add(COMMAND_SEEK_TO_NEXT)
             if (durationMs > 0) commands.add(COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM)
@@ -352,18 +360,17 @@ open class MediaPlaybackService : MediaSessionService() {
             seekCommand: Int,
         ): ListenableFuture<*> {
             when (seekCommand) {
-                COMMAND_SEEK_TO_PREVIOUS, COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM ->
-                    broadcast(BROADCAST_PREVIOUS)
+                COMMAND_SEEK_TO_PREVIOUS,
+                COMMAND_SEEK_TO_PREVIOUS_MEDIA_ITEM -> broadcast(BROADCAST_PREVIOUS)
 
-                COMMAND_SEEK_TO_NEXT, COMMAND_SEEK_TO_NEXT_MEDIA_ITEM ->
-                    broadcast(BROADCAST_NEXT)
+                COMMAND_SEEK_TO_NEXT,
+                COMMAND_SEEK_TO_NEXT_MEDIA_ITEM -> broadcast(BROADCAST_NEXT)
 
                 else -> {
                     this@MediaPlaybackService.positionMs = positionMs
                     this@MediaPlaybackService.positionUpdateTime = SystemClock.elapsedRealtime()
                     broadcast(
-                        BROADCAST_SEEK_TO,
-                        Intent().putExtra(EXTRA_SEEK_POSITION_MS, positionMs)
+                        BROADCAST_SEEK_TO, Intent().putExtra(EXTRA_SEEK_POSITION_MS, positionMs)
                     )
                 }
             }
@@ -377,9 +384,7 @@ open class MediaPlaybackService : MediaSessionService() {
             controller: MediaSession.ControllerInfo,
         ): MediaSession.ConnectionResult =
             MediaSession.ConnectionResult.AcceptedResultBuilder(session)
-                .setAvailableSessionCommands(
-                    MediaSession.ConnectionResult.DEFAULT_SESSION_COMMANDS
-                )
+                .setAvailableSessionCommands(MediaSession.ConnectionResult.DEFAULT_SESSION_COMMANDS)
                 .build()
     }
 
@@ -460,6 +465,9 @@ open class MediaPlaybackService : MediaSessionService() {
 }
 
 class MediaPlaybackService0 : MediaPlaybackService()
+
 class MediaPlaybackService1 : MediaPlaybackService()
+
 class MediaPlaybackService2 : MediaPlaybackService()
+
 class MediaPlaybackService3 : MediaPlaybackService()

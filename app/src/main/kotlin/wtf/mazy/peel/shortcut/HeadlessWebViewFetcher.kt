@@ -30,11 +30,7 @@ import java.net.HttpURLConnection
 import java.net.URL
 import java.util.TreeMap
 
-data class FetchCandidate(
-    val title: String?,
-    val icon: Bitmap?,
-    val source: String,
-)
+data class FetchCandidate(val title: String?, val icon: Bitmap?, val source: String)
 
 class HeadlessWebViewFetcher(
     context: Context,
@@ -83,27 +79,28 @@ class HeadlessWebViewFetcher(
         customHeaders = headers
         userAgent = webView.settings.userAgentString
 
-        webView.webViewClient = object : WebViewClient() {
-            override fun onPageFinished(view: WebView?, url: String?) {
-                if (view != null) extract(view)
-            }
+        webView.webViewClient =
+            object : WebViewClient() {
+                override fun onPageFinished(view: WebView?, url: String?) {
+                    if (view != null) extract(view)
+                }
 
-            override fun onReceivedError(
-                view: WebView?,
-                request: WebResourceRequest?,
-                error: WebResourceError?,
-            ) {
-                if (request?.isForMainFrame == true) finish()
-            }
+                override fun onReceivedError(
+                    view: WebView?,
+                    request: WebResourceRequest?,
+                    error: WebResourceError?,
+                ) {
+                    if (request?.isForMainFrame == true) finish()
+                }
 
-            override fun onReceivedHttpError(
-                view: WebView?,
-                request: WebResourceRequest?,
-                errorResponse: android.webkit.WebResourceResponse?,
-            ) {
-                if (request?.isForMainFrame == true) finish()
+                override fun onReceivedHttpError(
+                    view: WebView?,
+                    request: WebResourceRequest?,
+                    errorResponse: android.webkit.WebResourceResponse?,
+                ) {
+                    if (request?.isForMainFrame == true) finish()
+                }
             }
-        }
 
         webView.webChromeClient = object : WebChromeClient() {}
 
@@ -123,9 +120,7 @@ class HeadlessWebViewFetcher(
         handler.removeCallbacksAndMessages(null)
 
         view.evaluateJavascript(FIND_LINKS_JS) { raw ->
-            scope.launch {
-                finish(resolve(raw, view.url ?: url))
-            }
+            scope.launch { finish(resolve(raw, view.url ?: url)) }
         }
     }
 
@@ -157,7 +152,8 @@ class HeadlessWebViewFetcher(
             }
 
             val seen = mutableSetOf<Pair<Int, Int>>()
-            candidates.filter { it.icon == null || seen.add(it.icon.width to it.icon.height) }
+            candidates
+                .filter { it.icon == null || seen.add(it.icon.width to it.icon.height) }
                 .sortedBy { if (it.icon != null) 0 else 1 }
         }
 
@@ -171,7 +167,7 @@ class HeadlessWebViewFetcher(
         }
     }
 
-    private suspend fun collectManifest(
+    private fun collectManifest(
         json: JSONObject,
         pageTitle: String?,
         out: MutableList<FetchCandidate>,
@@ -194,7 +190,7 @@ class HeadlessWebViewFetcher(
         }
     }
 
-    private suspend fun collectManifestByGuess(
+    private fun collectManifestByGuess(
         pageUrl: String,
         pageTitle: String?,
         out: MutableList<FetchCandidate>,
@@ -222,7 +218,7 @@ class HeadlessWebViewFetcher(
         }
     }
 
-    private suspend fun downloadBestManifestIcon(manifest: JSONObject, baseUrl: String): Bitmap? {
+    private fun downloadBestManifestIcon(manifest: JSONObject, baseUrl: String): Bitmap? {
         val icons = TreeMap<Int, String>()
         val arr = manifest.optJSONArray("icons") ?: return null
         for (i in 0 until arr.length()) {
@@ -234,7 +230,7 @@ class HeadlessWebViewFetcher(
         return downloadBestIcon(icons)
     }
 
-    private suspend fun collectPageIcons(
+    private fun collectPageIcons(
         json: JSONObject,
         pageTitle: String?,
         out: MutableList<FetchCandidate>,
@@ -327,16 +323,18 @@ class HeadlessWebViewFetcher(
         private const val MIN_ICON_WIDTH = 32
         private const val MAX_ICON_BYTES = 5 * 1024 * 1024
         private val SUPPORTED_EXTENSIONS = listOf(".png", ".jpg", ".jpeg", ".ico", ".webp")
-        private val MANIFEST_FALLBACK_PATHS = listOf(
-            "/manifest.webmanifest", "/manifest.json", "/site.webmanifest"
-        )
+        private val MANIFEST_FALLBACK_PATHS =
+            listOf("/manifest.webmanifest", "/manifest.json", "/site.webmanifest")
 
-        private fun originOf(url: String): String = URL(url).let {
-            if (it.port != -1 && it.port != it.defaultPort) "${it.protocol}://${it.host}:${it.port}"
-            else "${it.protocol}://${it.host}"
-        }
+        private fun originOf(url: String): String =
+            URL(url).let {
+                if (it.port != -1 && it.port != it.defaultPort)
+                    "${it.protocol}://${it.host}:${it.port}"
+                else "${it.protocol}://${it.host}"
+            }
 
-        private val FIND_LINKS_JS = """
+        private val FIND_LINKS_JS =
+            """
         (function() {
             var result = { title: document.title || '', manifestUrl: '', iconLinks: [] };
             var manifest = document.querySelector('link[rel="manifest"]');
@@ -350,6 +348,7 @@ class HeadlessWebViewFetcher(
             }
             return JSON.stringify(result);
         })();
-        """.trimIndent()
+        """
+                .trimIndent()
     }
 }

@@ -13,9 +13,12 @@ interface SandboxSlotDao {
     @Query("SELECT * FROM sandbox_slots")
     fun getAll(): List<SandboxSlotEntity>
 
-    @Upsert fun assign(slot: SandboxSlotEntity)
+    @Upsert
+    fun assign(slot: SandboxSlotEntity)
 
-    @Query("DELETE FROM sandbox_slots WHERE slotId = :slotId") fun clear(slotId: Int)
+    @Query("DELETE FROM sandbox_slots WHERE slotId = :slotId")
+    fun clear(slotId: Int)
 
-    @Query("DELETE FROM sandbox_slots") fun clearAll()
+    @Query("DELETE FROM sandbox_slots")
+    fun clearAll()
 }

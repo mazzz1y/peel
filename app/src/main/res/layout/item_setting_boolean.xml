@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     style="@style/SettingsItemContainer"
-    android:orientation="horizontal"
     android:gravity="center_vertical"
-    android:minHeight="56dp">
+    android:minHeight="56dp"
+    android:orientation="horizontal">
 
     <TextView
         android:id="@+id/textSettingName"

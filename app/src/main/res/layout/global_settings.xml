@@ -15,10 +15,10 @@
             android:layout_marginTop="@dimen/margin_activity"
             android:layout_marginBottom="@dimen/margin_activity"
             android:fadeScrollbars="true"
-            android:scrollbarFadeDuration="300"
-            android:scrollbarStyle="outsideOverlay"
             android:fillViewport="true"
-            android:isScrollContainer="true">
+            android:isScrollContainer="true"
+            android:scrollbarFadeDuration="300"
+            android:scrollbarStyle="outsideOverlay">
 
             <LinearLayout
                 android:id="@+id/linearLayoutGlobalSettings"

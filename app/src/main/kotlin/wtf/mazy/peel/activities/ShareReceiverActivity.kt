@@ -17,14 +17,24 @@ class ShareReceiverActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val sharedUrl = extractUrl() ?: run { finish(); return }
+        val sharedUrl =
+            extractUrl()
+                ?: run {
+                    finish()
+                    return
+                }
         DataManager.instance.loadAppData()
         val apps = DataManager.instance.activeWebsites
-        if (apps.isEmpty()) { finish(); return }
+        if (apps.isEmpty()) {
+            finish()
+            return
+        }
 
         val sharedHost = sharedUrl.toUri().host ?: ""
         val sharedParts = sharedHost.lowercase().split('.').reversed()
-        val sorted = apps.sortedWith(compareByDescending<WebApp> { domainAffinity(it, sharedParts) }.thenBy { it.title })
+        val sorted =
+            apps.sortedWith(
+                compareByDescending<WebApp> { domainAffinity(it, sharedParts) }.thenBy { it.title })
 
         showPickerDialog(sorted, sharedUrl)
     }
@@ -50,17 +60,18 @@ class ShareReceiverActivity : AppCompatActivity() {
     }
 
     private fun showPickerDialog(apps: List<WebApp>, url: String) {
-        val adapter = ListPickerAdapter(apps) { webapp, icon, name, detail ->
-            name.text = webapp.title
-            icon.setImageBitmap(webapp.resolveIcon())
-            val groupName = webapp.groupUuid?.let { DataManager.instance.getGroup(it)?.title }
-            if (groupName != null) {
-                detail.text = groupName
-                detail.visibility = View.VISIBLE
-            } else {
-                detail.visibility = View.GONE
+        val adapter =
+            ListPickerAdapter(apps) { webapp, icon, name, detail ->
+                name.text = webapp.title
+                icon.setImageBitmap(webapp.resolveIcon())
+                val groupName = webapp.groupUuid?.let { DataManager.instance.getGroup(it)?.title }
+                if (groupName != null) {
+                    detail.text = groupName
+                    detail.visibility = View.VISIBLE
+                } else {
+                    detail.visibility = View.GONE
+                }
             }
-        }
 
         MaterialAlertDialogBuilder(this)
             .setTitle(R.string.open_in_peel)

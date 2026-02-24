@@ -8,7 +8,7 @@
     <dimen name="remove_divider">-10dp</dimen>
     <dimen name="margin_swipe_icon">20dp</dimen>
     <dimen name="material_button_gap_space">10dp</dimen>
-    
+
     <!-- Unified settings spacing -->
     <dimen name="settings_item_padding_vertical">8dp</dimen>
     <dimen name="settings_item_gap">16dp</dimen>

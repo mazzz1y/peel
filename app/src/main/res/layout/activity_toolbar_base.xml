@@ -12,8 +12,9 @@
         android:fitsSystemWindows="true"
         app:liftOnScroll="false">
 
-        <include layout="@layout/toolbar_back_action"
-            android:id="@+id/toolbar"/>
+        <include
+            android:id="@+id/toolbar"
+            layout="@layout/toolbar_back_action" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -22,6 +23,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="?android:attr/colorBackground"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -5,9 +5,9 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:minHeight="56dp">
+        android:minHeight="56dp"
+        android:orientation="horizontal">
 
         <TextView
             android:id="@+id/textSettingName"
@@ -46,11 +46,11 @@
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/layoutNumberInput"
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
-        android:visibility="gone"
-        style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+        android:visibility="gone">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/editTextNumber"

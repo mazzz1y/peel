@@ -40,7 +40,8 @@ abstract class AppDatabase : RoomDatabase() {
     companion object {
         private const val DATABASE_NAME = "peel.db"
 
-        @Volatile private var instance: AppDatabase? = null
+        @Volatile
+        private var instance: AppDatabase? = null
 
         val MIGRATION_1_2 =
             object : Migration(1, 2) {
@@ -85,15 +86,20 @@ abstract class AppDatabase : RoomDatabase() {
                         isDisableScreenshots INTEGER DEFAULT NULL,
                         isPullToRefresh INTEGER DEFAULT NULL,
                         isSafeBrowsing INTEGER DEFAULT NULL
-                    )""")
+                    )"""
+                    )
                 }
             }
 
         val MIGRATION_2_3 =
             object : Migration(2, 3) {
                 override fun migrate(db: SupportSQLiteDatabase) {
-                    db.execSQL("ALTER TABLE webapps ADD COLUMN isDynamicStatusBar INTEGER DEFAULT NULL")
-                    db.execSQL("ALTER TABLE webapp_groups ADD COLUMN isDynamicStatusBar INTEGER DEFAULT NULL")
+                    db.execSQL(
+                        "ALTER TABLE webapps ADD COLUMN isDynamicStatusBar INTEGER DEFAULT NULL"
+                    )
+                    db.execSQL(
+                        "ALTER TABLE webapp_groups ADD COLUMN isDynamicStatusBar INTEGER DEFAULT NULL"
+                    )
                 }
             }
 
@@ -101,11 +107,10 @@ abstract class AppDatabase : RoomDatabase() {
             object : Migration(3, 4) {
                 override fun migrate(db: SupportSQLiteDatabase) {
                     val tables = listOf("webapps", "webapp_groups")
-                    val columns = listOf(
-                        "isAllowLocationAccess",
-                        "isCameraPermission",
-                        "isMicrophonePermission",
-                    )
+                    val columns =
+                        listOf(
+                            "isAllowLocationAccess", "isCameraPermission", "isMicrophonePermission"
+                        )
                     for (table in tables) {
                         for (col in columns) {
                             db.execSQL("UPDATE $table SET $col = 2 WHERE $col = 1")
@@ -121,7 +126,10 @@ abstract class AppDatabase : RoomDatabase() {
 
         private fun buildDatabase(context: Context): AppDatabase {
             return Room.databaseBuilder(
-                    context.applicationContext, AppDatabase::class.java, DATABASE_NAME)
+                context.applicationContext,
+                AppDatabase::class.java,
+                DATABASE_NAME,
+            )
                 .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4)
                 .allowMainThreadQueries()
                 .build()

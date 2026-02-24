@@ -7,11 +7,11 @@ import android.os.Process
 import android.webkit.CookieManager
 import android.webkit.WebStorage
 import android.webkit.WebViewDatabase
-import java.io.File
 import wtf.mazy.peel.model.db.SandboxSlotDao
 import wtf.mazy.peel.model.db.SandboxSlotEntity
 import wtf.mazy.peel.util.App
 import wtf.mazy.peel.util.Const
+import java.io.File
 
 object SandboxManager {
     private const val NUM_SLOTS = 4
@@ -25,7 +25,10 @@ object SandboxManager {
         private set
 
     val currentSlotId: Int?
-        get() = Application.getProcessName().substringAfterLast(SANDBOX_PROCESS_SUFFIX, "").toIntOrNull()
+        get() =
+            Application.getProcessName()
+                .substringAfterLast(SANDBOX_PROCESS_SUFFIX, "")
+                .toIntOrNull()
 
     fun initialize(dao: SandboxSlotDao) {
         this.dao = dao
@@ -104,11 +107,17 @@ object SandboxManager {
         val range = base until base + ACTIVITIES_PER_SLOT
         val activeWebapps = buildActiveWebappMap(am, range)
 
-        activeWebapps.entries.firstOrNull { it.value == webappUuid }
-            ?.let { return it.key }
+        activeWebapps.entries
+            .firstOrNull { it.value == webappUuid }
+            ?.let {
+                return it.key
+            }
 
-        range.firstOrNull { it !in activeWebapps }
-            ?.let { return it }
+        range
+            .firstOrNull { it !in activeWebapps }
+            ?.let {
+                return it
+            }
 
         // All activities occupied — swap via onNewIntent
         return base
@@ -118,8 +127,7 @@ object SandboxManager {
         val result = mutableMapOf<Int, String>()
         am.appTasks?.forEach { task ->
             val className = task.taskInfo.baseActivity?.className ?: return@forEach
-            val index = className.removePrefix(SANDBOX_CLASS_PREFIX).toIntOrNull()
-                ?: return@forEach
+            val index = className.removePrefix(SANDBOX_CLASS_PREFIX).toIntOrNull() ?: return@forEach
             if (index in range) {
                 val uuid = task.taskInfo.baseIntent.getStringExtra(Const.INTENT_WEBAPP_UUID)
                 if (uuid != null) result[index] = uuid
@@ -132,8 +140,7 @@ object SandboxManager {
         val slotsWithTasks = mutableSetOf<Int>()
         am.appTasks?.forEach { task ->
             val className = task.taskInfo.baseActivity?.className ?: return@forEach
-            val index = className.removePrefix(SANDBOX_CLASS_PREFIX).toIntOrNull()
-                ?: return@forEach
+            val index = className.removePrefix(SANDBOX_CLASS_PREFIX).toIntOrNull() ?: return@forEach
             slotsWithTasks.add(index / ACTIVITIES_PER_SLOT)
         }
         return (0 until NUM_SLOTS).firstOrNull { it !in slotsWithTasks && it in aliveSlots }
@@ -150,7 +157,11 @@ object SandboxManager {
         }
     }
 
-    fun clearSandboxData(context: Context, uuid: String, alsoFinishUuids: List<String> = emptyList()): Boolean {
+    fun clearSandboxData(
+        context: Context,
+        uuid: String,
+        alsoFinishUuids: List<String> = emptyList(),
+    ): Boolean {
         val am = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
         finishSandboxTasks(am, uuid)
         alsoFinishUuids.forEach { finishSandboxTasks(am, it) }
@@ -242,6 +253,7 @@ object SandboxManager {
             CookieManager.getInstance().flush()
             WebStorage.getInstance().deleteAllData()
             @Suppress("DEPRECATION") WebViewDatabase.getInstance(context).clearFormData()
-        } catch (_: Exception) {}
+        } catch (_: Exception) {
+        }
     }
 }

@@ -1,22 +1,24 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:padding="?android:dialogPreferredPadding"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:padding="?android:dialogPreferredPadding">
 
 
     <LinearLayout
-        android:orientation="vertical"
+        android:id="@+id/layoutIcon"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/layoutIcon">
+        android:orientation="vertical">
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="4dp"
             android:layout_marginTop="4dp"
-            android:text="@string/shortcut_icon"/>
+            android:text="@string/shortcut_icon" />
+
         <com.google.android.material.progressindicator.CircularProgressIndicator
             android:id="@+id/circularProgressBar"
             android:layout_width="80dp"
@@ -27,6 +29,7 @@
             app:indicatorColor="?attr/colorPrimary"
             app:trackColor="?attr/colorSurfaceVariant"
             app:trackThickness="5dp" />
+
         <ImageView
             android:id="@+id/favicon"
             android:layout_width="80dp"
@@ -36,21 +39,23 @@
             android:layout_marginEnd="10dp"
             android:layout_marginBottom="10dp"
             android:scaleType="centerInside"
-            app:srcCompat="@mipmap/ic_launcher_foreground"
             android:visibility="gone"
-            />
+            app:srcCompat="@mipmap/ic_launcher_foreground" />
 
     </LinearLayout>
+
     <LinearLayout
-        android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
         <TextView
             android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:layout_marginStart="4dp"
             android:layout_marginTop="4dp"
-            android:layout_height="wrap_content"
-            android:text="@string/shortcut_title"/>
+            android:text="@string/shortcut_title" />
+
         <EditText
             android:id="@+id/websiteTitle"
             android:layout_width="match_parent"
@@ -65,11 +70,12 @@
 
 
     </LinearLayout>
+
     <Button
+        android:id="@+id/btnCustomIcon"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/custom_icon"
-        android:id="@+id/btnCustomIcon" />
+        android:text="@string/custom_icon" />
 
 
 </LinearLayout>

@@ -4,17 +4,18 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import androidx.core.graphics.createBitmap
 import androidx.core.graphics.scale
+import wtf.mazy.peel.shortcut.LetterIconGenerator
+import wtf.mazy.peel.util.App
 import java.io.File
 import java.io.FileOutputStream
 import java.io.RandomAccessFile
 import java.nio.channels.FileChannel
-import wtf.mazy.peel.shortcut.LetterIconGenerator
-import wtf.mazy.peel.util.App
 
 interface IconOwner {
     val uuid: String
     val title: String
-    val letterIconSeed: String get() = title
+    val letterIconSeed: String
+        get() = title
 
     val iconFile: File
         get() = File(App.appContext.filesDir, "icons/${uuid}.png")
@@ -24,22 +25,23 @@ interface IconOwner {
 
     fun loadIcon(): Bitmap? = IconCache.getOriginal(this)
 
-    fun resolveIcon(sizePx: Int = defaultIconSizePx()): Bitmap =
-        IconCache.resolve(this, sizePx)
+    fun resolveIcon(sizePx: Int = defaultIconSizePx()): Bitmap = IconCache.resolve(this, sizePx)
 
     fun saveIcon(bitmap: Bitmap) {
         try {
             val file = iconFile
             file.parentFile?.mkdirs()
             FileOutputStream(file).use { bitmap.compress(Bitmap.CompressFormat.PNG, 100, it) }
-        } catch (_: Exception) {}
+        } catch (_: Exception) {
+        }
         IconCache.evict(this)
     }
 
     fun deleteIcon() {
         try {
             if (iconFile.exists()) iconFile.delete()
-        } catch (_: Exception) {}
+        } catch (_: Exception) {
+        }
         IconCache.evict(this)
     }
 
@@ -50,14 +52,14 @@ interface IconOwner {
 }
 
 object IconCache {
-    private val cacheDir by lazy {
-        File(App.appContext.cacheDir, "icons").also { it.mkdirs() }
-    }
+    private val cacheDir by lazy { File(App.appContext.cacheDir, "icons").also { it.mkdirs() } }
 
     fun resolve(owner: IconOwner, sizePx: Int): Bitmap {
         val dir = File(cacheDir, owner.uuid)
         if (owner.hasCustomIcon) {
-            readCache(dir, "$sizePx")?.let { return it }
+            readCache(dir, "$sizePx")?.let {
+                return it
+            }
             val original = decodeSource(owner.iconFile) ?: return fallback(owner, dir, sizePx)
             val bitmap = scaleToFit(original, sizePx)
             writeCache(dir, "$sizePx", bitmap)
@@ -78,16 +80,21 @@ object IconCache {
 
     private fun fallback(owner: IconOwner, dir: File, sizePx: Int): Bitmap {
         val key = "fallback-$sizePx-${owner.title.hashCode()}"
-        readCache(dir, key)?.let { return it }
+        readCache(dir, key)?.let {
+            return it
+        }
         dir.listFiles()?.filter { it.name.startsWith("fallback-") }?.forEach { it.delete() }
         val bitmap = LetterIconGenerator.generate(owner.title, owner.letterIconSeed, sizePx)
         writeCache(dir, key, bitmap)
         return bitmap
     }
 
-    private fun decodeSource(file: File): Bitmap? = try {
-        BitmapFactory.decodeFile(file.absolutePath)
-    } catch (_: Exception) { null }
+    private fun decodeSource(file: File): Bitmap? =
+        try {
+            BitmapFactory.decodeFile(file.absolutePath)
+        } catch (_: Exception) {
+            null
+        }
 
     private fun scaleToFit(bitmap: Bitmap, sizePx: Int): Bitmap {
         val max = maxOf(bitmap.width, bitmap.height)
@@ -129,6 +136,7 @@ object IconCache {
                 mapped.putShort(bitmap.height.toShort())
                 bitmap.copyPixelsToBuffer(mapped)
             }
-        } catch (_: Exception) {}
+        } catch (_: Exception) {
+        }
     }
 }

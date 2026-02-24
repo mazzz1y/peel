@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -15,19 +14,19 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingVertical="12dp"
-        android:paddingHorizontal="16dp">
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="12dp">
 
         <ImageView
             android:id="@+id/groupIcon"
             android:layout_width="44dp"
             android:layout_height="44dp"
+            android:contentDescription="@string/app_icon"
             android:padding="3dp"
             android:scaleType="fitCenter"
-            android:contentDescription="@string/app_icon"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/groupTitle"
@@ -35,54 +34,54 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginEnd="8dp"
-            android:maxLines="1"
             android:ellipsize="end"
+            android:maxLines="1"
             android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
             android:textColor="?attr/colorOnSurface"
-            app:layout_constraintStart_toEndOf="@id/groupIcon"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/iconEphemeral"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent" />
+            app:layout_constraintStart_toEndOf="@id/groupIcon"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
             android:id="@+id/iconEphemeral"
             android:layout_width="18dp"
             android:layout_height="18dp"
-            android:src="@drawable/ic_ephemeral_24dp"
-            android:scaleType="fitCenter"
-            android:visibility="gone"
+            android:layout_marginEnd="4dp"
             android:importantForAccessibility="no"
-            app:layout_constraintEnd_toStartOf="@id/iconSandbox"
-            app:layout_constraintTop_toTopOf="parent"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_ephemeral_24dp"
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
-            android:layout_marginEnd="4dp" />
+            app:layout_constraintEnd_toStartOf="@id/iconSandbox"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
             android:id="@+id/iconSandbox"
             android:layout_width="18dp"
             android:layout_height="18dp"
-            android:src="@drawable/ic_sandbox_24dp"
-            android:scaleType="fitCenter"
-            android:visibility="gone"
+            android:layout_marginEnd="4dp"
             android:importantForAccessibility="no"
-            app:layout_constraintEnd_toStartOf="@id/btnMenu"
-            app:layout_constraintTop_toTopOf="parent"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_sandbox_24dp"
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
-            android:layout_marginEnd="4dp" />
+            app:layout_constraintEnd_toStartOf="@id/btnMenu"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
             android:id="@+id/btnMenu"
             android:layout_width="48dp"
             android:layout_height="48dp"
-            android:src="@drawable/ic_baseline_more_vert_24"
-            android:scaleType="center"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:clickable="true"
-            android:focusable="true"
             android:contentDescription="@string/more"
+            android:focusable="true"
+            android:scaleType="center"
+            android:src="@drawable/ic_baseline_more_vert_24"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent" />
+            app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

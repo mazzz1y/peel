@@ -3,15 +3,16 @@ package wtf.mazy.peel.model
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
+import kotlinx.serialization.json.Json
+import wtf.mazy.peel.model.db.toDomain
+import wtf.mazy.peel.model.db.toSurrogate
+import wtf.mazy.peel.shortcut.ShortcutHelper
+import wtf.mazy.peel.util.App
 import java.io.File
 import java.io.FileOutputStream
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
-import kotlinx.serialization.json.Json
-import wtf.mazy.peel.model.db.*
-import wtf.mazy.peel.shortcut.ShortcutHelper
-import wtf.mazy.peel.util.App
 
 enum class ImportMode {
     REPLACE,
@@ -73,7 +74,8 @@ object BackupManager {
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, zip)
             zip.closeEntry()
             bitmap.recycle()
-        } catch (_: Exception) {}
+        } catch (_: Exception) {
+        }
     }
 
     private fun processZipImport(zip: ZipInputStream, mode: ImportMode): Boolean {
@@ -86,6 +88,7 @@ object BackupManager {
                 entry.name == DATA_ENTRY -> {
                     jsonString = zip.readBytes().toString(Charsets.UTF_8)
                 }
+
                 entry.name.startsWith(ICONS_PREFIX) && entry.name.endsWith(".png") -> {
                     val appUuid = entry.name.removePrefix(ICONS_PREFIX).removeSuffix(".png")
                     val bitmap = BitmapFactory.decodeStream(zip)
@@ -114,6 +117,7 @@ object BackupManager {
         when (mode) {
             ImportMode.REPLACE ->
                 dataManager.importData(importedWebApps, backupData.globalSettings, importedGroups)
+
             ImportMode.MERGE ->
                 dataManager.mergeData(importedWebApps, backupData.globalSettings, importedGroups)
         }
@@ -129,6 +133,7 @@ object BackupManager {
             FileOutputStream(iconFile).use { output ->
                 bitmap.compress(Bitmap.CompressFormat.PNG, 100, output)
             }
-        } catch (_: Exception) {}
+        } catch (_: Exception) {
+        }
     }
 }

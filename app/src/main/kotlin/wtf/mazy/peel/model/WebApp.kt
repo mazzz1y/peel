@@ -1,13 +1,15 @@
 package wtf.mazy.peel.model
 
 import android.app.Activity
-import java.util.UUID
 import wtf.mazy.peel.shortcut.ShortcutIconUtils
+import java.util.UUID
 
 data class WebApp(var baseUrl: String, override val uuid: String = UUID.randomUUID().toString()) :
     IconOwner, SandboxOwner {
     override var title: String
-    override val letterIconSeed: String get() = baseUrl
+    override val letterIconSeed: String
+        get() = baseUrl
+
     var isActiveEntry = true
     override var isUseContainer = false
     override var isEphemeralSandbox = false

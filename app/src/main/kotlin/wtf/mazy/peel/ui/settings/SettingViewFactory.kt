@@ -14,10 +14,10 @@ import com.google.android.material.materialswitch.MaterialSwitch
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
-import java.util.Locale
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.SettingDefinition
 import wtf.mazy.peel.model.WebAppSettings
+import java.util.Locale
 
 class SettingViewFactory(
     private val inflater: LayoutInflater,
@@ -36,42 +36,27 @@ class SettingViewFactory(
     ): View {
         return when (setting) {
             is SettingDefinition.BooleanSetting ->
-                inflate(
-                    R.layout.item_setting_boolean,
-                    container,
-                ) {
+                inflate(R.layout.item_setting_boolean, container) {
                     setupBoolean(it, setting, settings)
                 }
 
             is SettingDefinition.TriStateSetting ->
-                inflate(
-                    R.layout.item_setting_tristate,
-                    container,
-                ) {
+                inflate(R.layout.item_setting_tristate, container) {
                     setupTriState(it, setting, settings)
                 }
 
             is SettingDefinition.BooleanWithIntSetting ->
-                inflate(
-                    R.layout.item_setting_boolean_int,
-                    container,
-                ) {
+                inflate(R.layout.item_setting_boolean_int, container) {
                     setupBooleanWithInt(it, setting, settings)
                 }
 
             is SettingDefinition.TimeRangeSetting ->
-                inflate(
-                    R.layout.item_setting_time_range,
-                    container,
-                ) {
+                inflate(R.layout.item_setting_time_range, container) {
                     setupTimeRange(it, setting, settings)
                 }
 
             is SettingDefinition.StringMapSetting ->
-                inflate(
-                    R.layout.item_setting_header_map,
-                    container,
-                ) {
+                inflate(R.layout.item_setting_header_map, container) {
                     setupHeaderMap(it, setting, settings)
                 }
         }
@@ -80,7 +65,7 @@ class SettingViewFactory(
     private inline fun inflate(
         layoutRes: Int,
         container: LinearLayout,
-        setup: (View) -> Unit,
+        setup: (View) -> Unit
     ): View {
         val view = inflater.inflate(layoutRes, container, false)
         setup(view)
@@ -126,27 +111,30 @@ class SettingViewFactory(
 
         textName.text = view.context.getString(setting.displayNameResId)
 
-        fun checkedIdForValue(value: Int): Int = when (value) {
-            WebAppSettings.PERMISSION_ASK -> R.id.btnAsk
-            WebAppSettings.PERMISSION_ON -> R.id.btnAllow
-            else -> R.id.btnDeny
-        }
+        fun checkedIdForValue(value: Int): Int =
+            when (value) {
+                WebAppSettings.PERMISSION_ASK -> R.id.btnAsk
+                WebAppSettings.PERMISSION_ON -> R.id.btnAllow
+                else -> R.id.btnDeny
+            }
 
-        fun valueForCheckedId(id: Int): Int = when (id) {
-            R.id.btnAsk -> WebAppSettings.PERMISSION_ASK
-            R.id.btnAllow -> WebAppSettings.PERMISSION_ON
-            else -> WebAppSettings.PERMISSION_OFF
-        }
+        fun valueForCheckedId(id: Int): Int =
+            when (id) {
+                R.id.btnAsk -> WebAppSettings.PERMISSION_ASK
+                R.id.btnAllow -> WebAppSettings.PERMISSION_ON
+                else -> WebAppSettings.PERMISSION_OFF
+            }
 
         val current = settings.getValue(setting.key) as? Int ?: WebAppSettings.PERMISSION_OFF
         toggleGroup.check(checkedIdForValue(current))
 
-        val listener = MaterialButtonToggleGroup.OnButtonCheckedListener { _, checkedId, isChecked ->
-            if (isChecked) {
-                settings.setValue(setting.key, valueForCheckedId(checkedId))
-                updateUndoVisibility(btnUndo, setting, settings)
+        val listener =
+            MaterialButtonToggleGroup.OnButtonCheckedListener { _, checkedId, isChecked ->
+                if (isChecked) {
+                    settings.setValue(setting.key, valueForCheckedId(checkedId))
+                    updateUndoVisibility(btnUndo, setting, settings)
+                }
             }
-        }
 
         configureButtons(btnRemove, btnUndo, setting, settings) {
             toggleGroup.removeOnButtonCheckedListener(listener)
@@ -186,7 +174,8 @@ class SettingViewFactory(
                     start: Int,
                     count: Int,
                     after: Int
-                ) {}
+                ) {
+                }
 
                 override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
 
@@ -277,8 +266,9 @@ class SettingViewFactory(
         btnStart.setOnClickListener {
             val parts = btnStart.text.toString().split(":")
             showMaterialTimePicker(
-                activity, parts.getOrNull(0)?.toIntOrNull() ?: 0,
-                parts.getOrNull(1)?.toIntOrNull() ?: 0
+                activity,
+                parts.getOrNull(0)?.toIntOrNull() ?: 0,
+                parts.getOrNull(1)?.toIntOrNull() ?: 0,
             ) { h, m ->
                 val time = String.format(Locale.ROOT, "%02d:%02d", h, m)
                 btnStart.text = time
@@ -290,8 +280,9 @@ class SettingViewFactory(
         btnEnd.setOnClickListener {
             val parts = btnEnd.text.toString().split(":")
             showMaterialTimePicker(
-                activity, parts.getOrNull(0)?.toIntOrNull() ?: 0,
-                parts.getOrNull(1)?.toIntOrNull() ?: 0
+                activity,
+                parts.getOrNull(0)?.toIntOrNull() ?: 0,
+                parts.getOrNull(1)?.toIntOrNull() ?: 0,
             ) { h, m ->
                 val time = String.format(Locale.ROOT, "%02d:%02d", h, m)
                 btnEnd.text = time
@@ -367,7 +358,8 @@ class SettingViewFactory(
                     start: Int,
                     count: Int,
                     after: Int
-                ) {}
+                ) {
+                }
 
                 override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
 
@@ -390,7 +382,8 @@ class SettingViewFactory(
                     start: Int,
                     count: Int,
                     after: Int
-                ) {}
+                ) {
+                }
 
                 override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
 
@@ -422,6 +415,7 @@ class SettingViewFactory(
                 btnUndo.visibility = View.GONE
                 btnRemove.setOnClickListener { strategy.onRemove(setting) }
             }
+
             is ButtonStrategy.GlobalDefaults -> {
                 btnRemove.visibility = View.GONE
                 updateUndoVisibility(btnUndo, setting, settings)

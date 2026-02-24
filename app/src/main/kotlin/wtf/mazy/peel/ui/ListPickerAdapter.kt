@@ -13,12 +13,16 @@ class ListPickerAdapter<T>(
     private val bind: (item: T, icon: ImageView, name: TextView, detail: TextView) -> Unit,
 ) : BaseAdapter() {
     override fun getCount() = items.size
+
     override fun getItem(position: Int) = items[position]
+
     override fun getItemId(position: Int) = position.toLong()
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-        val view = convertView
-            ?: LayoutInflater.from(parent.context).inflate(R.layout.item_share_picker, parent, false)
+        val view =
+            convertView
+                ?: LayoutInflater.from(parent.context)
+                    .inflate(R.layout.item_share_picker, parent, false)
         bind(
             items[position],
             view.findViewById(R.id.appIcon),

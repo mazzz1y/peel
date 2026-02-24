@@ -31,7 +31,6 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.app.ActivityCompat
@@ -41,31 +40,32 @@ import androidx.core.net.toUri
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import androidx.webkit.WebSettingsCompat
 import androidx.webkit.WebViewFeature
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
-import java.util.Calendar
 import wtf.mazy.peel.R
 import wtf.mazy.peel.databinding.DialogHttpAuthBinding
+import wtf.mazy.peel.media.MediaJsBridge
+import wtf.mazy.peel.media.MediaPlaybackManager
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.SandboxManager
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.model.WebAppSettings
 import wtf.mazy.peel.ui.BiometricPromptHelper
 import wtf.mazy.peel.util.Const
-import wtf.mazy.peel.util.buildUserAgent
 import wtf.mazy.peel.util.DateUtils.convertStringToCalendar
 import wtf.mazy.peel.util.DateUtils.isInInterval
 import wtf.mazy.peel.util.NotificationUtils
 import wtf.mazy.peel.util.NotificationUtils.showInfoSnackBar
 import wtf.mazy.peel.util.WebViewLauncher
-import wtf.mazy.peel.media.MediaJsBridge
-import wtf.mazy.peel.media.MediaPlaybackManager
+import wtf.mazy.peel.util.buildUserAgent
 import wtf.mazy.peel.webview.ChromeClientHost
 import wtf.mazy.peel.webview.DownloadHandler
-import wtf.mazy.peel.webview.PermissionResult
 import wtf.mazy.peel.webview.PeelWebChromeClient
 import wtf.mazy.peel.webview.PeelWebViewClient
+import wtf.mazy.peel.webview.PermissionResult
 import wtf.mazy.peel.webview.WebViewClientHost
 import wtf.mazy.peel.webview.WebViewNotificationManager
+import java.util.Calendar
 
 open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClientHost {
     override var webappUuid: String? = null
@@ -83,6 +83,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
 
     private val webapp: WebApp
         get() = DataManager.instance.getWebApp(webappUuid!!)!!
+
     private lateinit var notificationManager: WebViewNotificationManager
     private lateinit var downloadHandler: DownloadHandler
     private lateinit var peelWebViewClient: PeelWebViewClient
@@ -339,11 +340,12 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
             return
         }
         barColorAnimator?.cancel()
-        barColorAnimator = ValueAnimator.ofArgb(fromColor, color).apply {
-            duration = 300
-            addUpdateListener { applyBarColor(it.animatedValue as Int) }
-            start()
-        }
+        barColorAnimator =
+            ValueAnimator.ofArgb(fromColor, color).apply {
+                duration = 300
+                addUpdateListener { applyBarColor(it.animatedValue as Int) }
+                start()
+            }
     }
 
     override fun onPageStarted() {
@@ -451,12 +453,17 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     override fun showPermissionDialog(message: String, onResult: (PermissionResult) -> Unit) {
         val view = layoutInflater.inflate(R.layout.dialog_permission, null)
         view.findViewById<android.widget.TextView>(R.id.textTitle).text = message
-        val dialog = MaterialAlertDialogBuilder(this)
-            .setView(view)
-            .setOnCancelListener { onResult(PermissionResult.DENY_ONCE) }
-            .show()
+        val dialog =
+            MaterialAlertDialogBuilder(this)
+                .setView(view)
+                .setOnCancelListener { onResult(PermissionResult.DENY_ONCE) }
+                .show()
+
         fun bind(id: Int, result: PermissionResult) =
-            view.findViewById<View>(id).setOnClickListener { dialog.dismiss(); onResult(result) }
+            view.findViewById<View>(id).setOnClickListener {
+                dialog.dismiss()
+                onResult(result)
+            }
         bind(R.id.btnAllowSession, PermissionResult.ALLOW_SESSION)
         bind(R.id.btnAllowOnce, PermissionResult.ALLOW_ONCE)
         bind(R.id.btnDenyOnce, PermissionResult.DENY_ONCE)
@@ -489,7 +496,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
                             android.webkit.WebChromeClient.FileChooserParams.parseResult(
                                 result.resultCode,
                                 result.data,
-                            ),
+                            )
                         )
                     }
                     filePathCallback = null
@@ -548,9 +555,8 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(
             findViewById(R.id.webview_root)
         ) { _, insets ->
-            val systemInsets = insets.getInsets(
-                androidx.core.view.WindowInsetsCompat.Type.systemBars()
-            )
+            val systemInsets =
+                insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars())
             statusBarScrim?.apply {
                 layoutParams.height = systemInsets.top
                 requestLayout()
@@ -598,7 +604,6 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
             swipeRefreshLayout?.isEnabled = false
         }
     }
-
 
     @SuppressLint("SetJavaScriptEnabled")
     private fun configureWebViewSettings(settings: WebAppSettings) {
@@ -674,7 +679,8 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
                         else -> finishAndRemoveTask()
                     }
                 }
-            })
+            },
+        )
     }
 
     private fun getBackSteps(): Int {
@@ -693,11 +699,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     }
 
     private fun buildCustomHeaders(settings: WebAppSettings): Map<String, String> {
-        val extraHeaders =
-            mutableMapOf(
-                "DNT" to "1",
-                "X-REQUESTED-WITH" to "",
-            )
+        val extraHeaders = mutableMapOf("DNT" to "1", "X-REQUESTED-WITH" to "")
         settings.customHeaders?.forEach { (key, value) ->
             if (key.equals("User-Agent", ignoreCase = true)) {
                 webView?.settings?.userAgentString = value
@@ -747,7 +749,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
                 webView?.reload()
                 scheduleAutoReload()
             },
-            interval * 1000L
+            interval * 1000L,
         )
     }
 

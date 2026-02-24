@@ -54,7 +54,8 @@ class GroupSettingsActivity :
                     start: Int,
                     count: Int,
                     after: Int
-                ) {}
+                ) {
+                }
 
                 override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             })
@@ -81,22 +82,30 @@ class GroupSettingsActivity :
     private fun setupSandboxSwitch() {
         val group = modifiedGroup ?: return
         SandboxSwitchController(
-            this, group,
-            binding.switchSandbox, binding.switchEphemeralSandbox,
-            binding.ephemeralSandboxRow, binding.btnClearSandbox,
+            this,
+            group,
+            binding.switchSandbox,
+            binding.switchEphemeralSandbox,
+            binding.ephemeralSandboxRow,
+            binding.btnClearSandbox,
             memberUuids = {
                 DataManager.instance.activeWebsitesForGroup(group.uuid).map { it.uuid }
             },
-        ).setup()
+        )
+            .setup()
     }
 
     private lateinit var overrideController: OverridePickerController
 
     private fun setupOverridePicker() {
         val group = modifiedGroup ?: return
-        overrideController = OverridePickerController(
-            this, group.settings, binding.linearLayoutOverrides, binding.btnAddOverride,
-        )
+        overrideController =
+            OverridePickerController(
+                this,
+                group.settings,
+                binding.linearLayoutOverrides,
+                binding.btnAddOverride,
+            )
         overrideController.setup()
     }
 

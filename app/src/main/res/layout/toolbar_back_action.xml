@@ -6,7 +6,7 @@
     android:layout_height="wrap_content"
     android:background="?attr/colorSurfaceContainer"
     android:elevation="0dp"
-    app:titleTextColor="?attr/colorOnSurface"
-    app:navigationIconTint="?attr/colorOnSurface"
     app:navigationIcon="@drawable/ic_baseline_arrow_back_24"
-    app:theme="@style/ThemeOverlay.App.Toolbar"/>
+    app:navigationIconTint="?attr/colorOnSurface"
+    app:theme="@style/ThemeOverlay.App.Toolbar"
+    app:titleTextColor="?attr/colorOnSurface" />

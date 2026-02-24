@@ -12,9 +12,9 @@
         android:layout_height="wrap_content"
         android:background="?attr/colorSurfaceContainer"
         android:visibility="gone"
-        app:tabMode="scrollable"
         app:tabGravity="start"
         app:tabIndicatorColor="?attr/colorPrimary"
+        app:tabMode="scrollable"
         app:tabSelectedTextColor="?attr/colorPrimary"
         app:tabTextColor="?attr/colorOnSurfaceVariant" />
 

@@ -1,7 +1,12 @@
 package wtf.mazy.peel.model
 
 import android.content.Context
-import wtf.mazy.peel.model.db.*
+import wtf.mazy.peel.model.db.AppDatabase
+import wtf.mazy.peel.model.db.LegacySharedPrefsMigration
+import wtf.mazy.peel.model.db.WebAppDao
+import wtf.mazy.peel.model.db.WebAppGroupDao
+import wtf.mazy.peel.model.db.toDomain
+import wtf.mazy.peel.model.db.toEntity
 import wtf.mazy.peel.shortcut.ShortcutIconUtils
 import wtf.mazy.peel.util.App
 import wtf.mazy.peel.util.Const
@@ -75,11 +80,13 @@ class DataManager private constructor() {
         importedGroups: List<WebAppGroup> = emptyList(),
     ) {
         val importedGroupUuids = importedGroups.mapTo(mutableSetOf()) { it.uuid }
-        groups.filter { it.uuid !in importedGroupUuids && it.isUseContainer }
+        groups
+            .filter { it.uuid !in importedGroupUuids && it.isUseContainer }
             .forEach { SandboxManager.wipeSandboxStorage(it.uuid) }
 
         val importedAppUuids = importedWebApps.mapTo(mutableSetOf()) { it.uuid }
-        websites.filter { it.uuid !in importedAppUuids && it.isUseContainer }
+        websites
+            .filter { it.uuid !in importedAppUuids && it.isUseContainer }
             .forEach { SandboxManager.wipeSandboxStorage(it.uuid) }
 
         websites = importedWebApps.toMutableList()
@@ -173,10 +180,7 @@ class DataManager private constructor() {
         groupDao.replaceAll(groups.map { it.toEntity() })
     }
 
-    private fun removeStaleShortcuts(
-        oldWebApps: List<WebApp>,
-        newWebApps: List<WebApp>,
-    ) {
+    private fun removeStaleShortcuts(oldWebApps: List<WebApp>, newWebApps: List<WebApp>) {
         val staleUuids =
             newWebApps
                 .filter { newApp ->
@@ -196,6 +200,7 @@ class DataManager private constructor() {
     }
 
     companion object {
-        @JvmField val instance = DataManager()
+        @JvmField
+        val instance = DataManager()
     }
 }

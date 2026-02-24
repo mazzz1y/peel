@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
@@ -26,241 +25,241 @@
             android:layout_marginTop="@dimen/margin_activity"
             android:layout_marginBottom="@dimen/margin_activity"
             android:fadeScrollbars="true"
-            android:scrollbarFadeDuration="300"
-            android:scrollbarStyle="outsideOverlay"
             android:fillViewport="true"
-            android:isScrollContainer="true">
+            android:isScrollContainer="true"
+            android:scrollbarFadeDuration="300"
+            android:scrollbarStyle="outsideOverlay">
+
+            <LinearLayout
+                android:id="@+id/contentContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/margin_activity"
+                android:layout_marginEnd="@dimen/margin_activity"
+                android:orientation="vertical">
 
                 <LinearLayout
-                    android:id="@+id/contentContainer"
+                    android:id="@+id/sectionMainSettings"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/margin_activity"
-                    android:layout_marginEnd="@dimen/margin_activity"
                     android:orientation="vertical">
 
-                    <LinearLayout
-                        android:id="@+id/sectionMainSettings"
+                    <FrameLayout
+                        style="@style/SettingsItemContainer"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical">
+                        android:layout_height="wrap_content">
 
-                        <FrameLayout
-                            style="@style/SettingsItemContainer"
+                        <ImageView
+                            android:id="@+id/btnFetch"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="end|top"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:contentDescription="@string/fetch_icon_title"
+                            android:padding="16dp"
+                            android:src="@drawable/ic_refresh_24dp" />
+
+                        <LinearLayout
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content">
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="32dp"
+                            android:gravity="center_horizontal"
+                            android:orientation="vertical">
 
                             <ImageView
-                                android:id="@+id/btnFetch"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_gravity="end|top"
-                                android:padding="16dp"
-                                android:background="?attr/selectableItemBackgroundBorderless"
-                                android:contentDescription="@string/fetch_icon_title"
-                                android:src="@drawable/ic_refresh_24dp" />
+                                android:id="@+id/imgWebAppIcon"
+                                android:layout_width="96dp"
+                                android:layout_height="96dp"
+                                android:layout_gravity="center"
+                                android:layout_marginBottom="16dp"
+                                android:clickable="true"
+                                android:contentDescription="@string/shortcut_icon"
+                                android:focusable="true"
+                                android:scaleType="fitCenter" />
 
-                            <LinearLayout
+                            <EditText
+                                android:id="@+id/txtWebAppName"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="32dp"
-                                android:orientation="vertical"
-                                android:gravity="center_horizontal">
+                                android:autofillHints=""
+                                android:background="@null"
+                                android:fontFamily="sans-serif"
+                                android:gravity="center"
+                                android:inputType="text"
+                                android:text="@={webapp.title}"
+                                android:textAppearance="?attr/textAppearanceTitleLarge" />
 
-                                <ImageView
-                                    android:id="@+id/imgWebAppIcon"
-                                    android:layout_width="96dp"
-                                    android:layout_height="96dp"
-                                    android:layout_gravity="center"
-                                    android:clickable="true"
-                                    android:focusable="true"
-                                    android:contentDescription="@string/shortcut_icon"
-                                    android:scaleType="fitCenter"
-                                    android:layout_marginBottom="16dp" />
-
-                                <EditText
-                                    android:id="@+id/txtWebAppName"
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:autofillHints=""
-                                    android:background="@null"
-                                    android:fontFamily="sans-serif"
-                                    android:gravity="center"
-                                    android:inputType="text"
-                                    android:text="@={webapp.title}"
-                                    android:textAppearance="?attr/textAppearanceTitleLarge" />
-
-                                <EditText
-                                    android:id="@+id/textBaseUrl"
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:autofillHints=""
-                                    android:background="@null"
-                                    android:fontFamily="sans-serif"
-                                    android:gravity="center"
-                                    android:inputType="textUri"
-                                    android:text="@={webapp.baseUrl}"
-                                    android:textAppearance="?attr/textAppearanceBodyMedium"
-                                    android:layout_marginTop="4dp"
-                                    android:layout_marginBottom="16dp" />
-
-                            </LinearLayout>
-
-                        </FrameLayout>
-
-                        <LinearLayout
-                            android:id="@+id/groupRow"
-                            style="@style/SettingsItemContainer"
-                            android:orientation="horizontal"
-                            android:gravity="center_vertical"
-                            android:minHeight="56dp"
-                            android:visibility="gone">
-
-                            <TextView
-                                android:layout_width="wrap_content"
+                            <EditText
+                                android:id="@+id/textBaseUrl"
+                                android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:text="@string/group"
-                                android:textColor="?attr/colorOnSurface"
-                                android:textSize="@dimen/settings_text_size" />
-
-                            <TextView
-                                android:id="@+id/txtGroupName"
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:text="@string/none"
-                                android:textColor="?attr/colorOnSurfaceVariant"
-                                android:textSize="@dimen/settings_text_size"
-                                android:gravity="end"
-                                android:maxLines="1"
-                                android:ellipsize="end"
-                                android:drawableEnd="@drawable/ic_expand_more_24dp"
-                                android:drawablePadding="4dp"
-                                android:background="?attr/selectableItemBackground"
-                                android:paddingVertical="8dp"
-                                android:paddingStart="8dp" />
+                                android:layout_marginTop="4dp"
+                                android:layout_marginBottom="16dp"
+                                android:autofillHints=""
+                                android:background="@null"
+                                android:fontFamily="sans-serif"
+                                android:gravity="center"
+                                android:inputType="textUri"
+                                android:text="@={webapp.baseUrl}"
+                                android:textAppearance="?attr/textAppearanceBodyMedium" />
 
                         </LinearLayout>
 
-                        <View
-                            android:id="@+id/groupDivider"
-                            android:layout_width="match_parent"
-                            android:layout_height="1dp"
-                            android:layout_marginVertical="@dimen/settings_item_padding_vertical"
-                            android:background="?android:attr/listDivider"
-                            android:visibility="gone" />
+                    </FrameLayout>
 
-                        <LinearLayout
-                            android:id="@+id/sandboxRow"
-                            style="@style/SettingsItemContainer"
-                            android:orientation="horizontal"
-                            android:gravity="center_vertical"
-                            android:minHeight="56dp">
+                    <LinearLayout
+                        android:id="@+id/groupRow"
+                        style="@style/SettingsItemContainer"
+                        android:gravity="center_vertical"
+                        android:minHeight="56dp"
+                        android:orientation="horizontal"
+                        android:visibility="gone">
 
-                            <TextView
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:text="@string/enable_sandbox"
-                                android:textColor="?attr/colorOnSurface"
-                                android:textSize="@dimen/settings_text_size" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/group"
+                            android:textColor="?attr/colorOnSurface"
+                            android:textSize="@dimen/settings_text_size" />
 
-                            <ImageButton
-                                android:id="@+id/btnClearSandbox"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:background="?attr/selectableItemBackgroundBorderless"
-                                android:contentDescription="@string/clear_sandbox_data"
-                                android:padding="16dp"
-                                android:src="@drawable/ic_delete_black_24dp"
-                                android:visibility="gone" />
-
-                            <com.google.android.material.materialswitch.MaterialSwitch
-                                android:id="@+id/switchSandbox"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:checked="@{webapp.useContainer}" />
-
-                        </LinearLayout>
-
-                        <LinearLayout
-                            android:id="@+id/ephemeralSandboxRow"
-                            style="@style/SettingsItemContainer"
-                            android:orientation="horizontal"
-                            android:gravity="center_vertical"
-                            android:minHeight="56dp"
-                            android:visibility="gone">
-
-                            <TextView
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:text="@string/ephemeral_sandbox"
-                                android:textColor="?attr/colorOnSurface"
-                                android:textSize="@dimen/settings_text_size" />
-
-                            <com.google.android.material.materialswitch.MaterialSwitch
-                                android:id="@+id/switchEphemeralSandbox"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:checked="@{webapp.ephemeralSandbox}" />
-
-                        </LinearLayout>
+                        <TextView
+                            android:id="@+id/txtGroupName"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:background="?attr/selectableItemBackground"
+                            android:drawableEnd="@drawable/ic_expand_more_24dp"
+                            android:drawablePadding="4dp"
+                            android:ellipsize="end"
+                            android:gravity="end"
+                            android:maxLines="1"
+                            android:paddingVertical="8dp"
+                            android:paddingStart="8dp"
+                            android:text="@string/none"
+                            android:textColor="?attr/colorOnSurfaceVariant"
+                            android:textSize="@dimen/settings_text_size" />
 
                     </LinearLayout>
 
                     <View
+                        android:id="@+id/groupDivider"
                         android:layout_width="match_parent"
                         android:layout_height="1dp"
-                        android:layout_marginTop="@dimen/settings_divider_margin_top"
-                        android:layout_marginBottom="@dimen/settings_divider_margin_bottom"
-                        android:background="?android:attr/listDivider" />
+                        android:layout_marginVertical="@dimen/settings_item_padding_vertical"
+                        android:background="?android:attr/listDivider"
+                        android:visibility="gone" />
 
                     <LinearLayout
-                        android:id="@+id/sectionOverrideHeader"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical">
+                        android:id="@+id/sandboxRow"
+                        style="@style/SettingsItemContainer"
+                        android:gravity="center_vertical"
+                        android:minHeight="56dp"
+                        android:orientation="horizontal">
 
                         <TextView
-                            android:id="@+id/textViewOverriddenSettings"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="@string/overridden_settings"
-                            android:textSize="@dimen/settings_text_size"
-                            android:textColor="?attr/colorOnSurfaceVariant"
-                            android:textStyle="bold" />
+                            android:text="@string/enable_sandbox"
+                            android:textColor="?attr/colorOnSurface"
+                            android:textSize="@dimen/settings_text_size" />
 
                         <ImageButton
-                            android:id="@+id/btnAddOverride"
+                            android:id="@+id/btnClearSandbox"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:background="?attr/selectableItemBackgroundBorderless"
-                            android:contentDescription="@string/add_override"
-                            android:paddingHorizontal="16dp"
-                            android:paddingVertical="8dp"
-                            android:src="@drawable/ic_add_24dp" />
+                            android:contentDescription="@string/clear_sandbox_data"
+                            android:padding="16dp"
+                            android:src="@drawable/ic_delete_black_24dp"
+                            android:visibility="gone" />
+
+                        <com.google.android.material.materialswitch.MaterialSwitch
+                            android:id="@+id/switchSandbox"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:checked="@{webapp.useContainer}" />
 
                     </LinearLayout>
 
                     <LinearLayout
-                        android:id="@+id/linearLayoutOverrides"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:paddingTop="8dp" />
+                        android:id="@+id/ephemeralSandboxRow"
+                        style="@style/SettingsItemContainer"
+                        android:gravity="center_vertical"
+                        android:minHeight="56dp"
+                        android:orientation="horizontal"
+                        android:visibility="gone">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/ephemeral_sandbox"
+                            android:textColor="?attr/colorOnSurface"
+                            android:textSize="@dimen/settings_text_size" />
+
+                        <com.google.android.material.materialswitch.MaterialSwitch
+                            android:id="@+id/switchEphemeralSandbox"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:checked="@{webapp.ephemeralSandbox}" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="@dimen/settings_divider_margin_top"
+                    android:layout_marginBottom="@dimen/settings_divider_margin_bottom"
+                    android:background="?android:attr/listDivider" />
+
+                <LinearLayout
+                    android:id="@+id/sectionOverrideHeader"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
 
                     <TextView
-                        android:id="@+id/global_settings_info_text"
+                        android:id="@+id/textViewOverriddenSettings"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/overridden_settings"
+                        android:textColor="?attr/colorOnSurfaceVariant"
+                        android:textSize="@dimen/settings_text_size"
+                        android:textStyle="bold" />
+
+                    <ImageButton
+                        android:id="@+id/btnAddOverride"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="@dimen/settings_bottom_innersection"
-                        android:text="@string/these_settings_are_applied_globally_and_override_app_specific_settings"
-                        android:textAppearance="?attr/textAppearanceBodySmall"
-                        android:visibility="gone" />
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:contentDescription="@string/add_override"
+                        android:paddingHorizontal="16dp"
+                        android:paddingVertical="8dp"
+                        android:src="@drawable/ic_add_24dp" />
+
                 </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/linearLayoutOverrides"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingTop="8dp" />
+
+                <TextView
+                    android:id="@+id/global_settings_info_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/settings_bottom_innersection"
+                    android:text="@string/these_settings_are_applied_globally_and_override_app_specific_settings"
+                    android:textAppearance="?attr/textAppearanceBodySmall"
+                    android:visibility="gone" />
+            </LinearLayout>
         </androidx.core.widget.NestedScrollView>
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>

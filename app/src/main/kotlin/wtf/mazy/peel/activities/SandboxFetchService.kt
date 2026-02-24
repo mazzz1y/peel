@@ -21,12 +21,12 @@ open class SandboxFetchService : Service() {
         val sandboxId = intent?.getStringExtra(EXTRA_SANDBOX_ID)
         val url = intent?.getStringExtra(EXTRA_URL)
         val settingsJson = intent?.getStringExtra(EXTRA_SETTINGS)
-        val receiver = if (android.os.Build.VERSION.SDK_INT >= 33) {
-            intent?.getParcelableExtra(EXTRA_RECEIVER, ResultReceiver::class.java)
-        } else {
-            @Suppress("DEPRECATION")
-            intent?.getParcelableExtra(EXTRA_RECEIVER)
-        }
+        val receiver =
+            if (android.os.Build.VERSION.SDK_INT >= 33) {
+                intent?.getParcelableExtra(EXTRA_RECEIVER, ResultReceiver::class.java)
+            } else {
+                @Suppress("DEPRECATION") intent?.getParcelableExtra(EXTRA_RECEIVER)
+            }
 
         if (sandboxId == null || url == null || receiver == null) {
             receiver?.send(0, Bundle())
@@ -40,11 +40,19 @@ open class SandboxFetchService : Service() {
             return START_NOT_STICKY
         }
 
-        val settings = settingsJson?.let {
-            try { Json.decodeFromString<WebAppSettings>(it) } catch (_: Exception) { null }
-        } ?: WebAppSettings.createWithDefaults()
+        val settings =
+            settingsJson?.let {
+                try {
+                    Json.decodeFromString<WebAppSettings>(it)
+                } catch (_: Exception) {
+                    null
+                }
+            } ?: WebAppSettings.createWithDefaults()
 
-        HeadlessWebViewFetcher(this, url, settings,
+        HeadlessWebViewFetcher(
+            this,
+            url,
+            settings,
             onProgress = { text ->
                 receiver.send(RESULT_PROGRESS, Bundle().apply { putString(KEY_PROGRESS, text) })
             },
@@ -66,7 +74,8 @@ open class SandboxFetchService : Service() {
                 receiver.send(RESULT_DONE, bundle)
                 stopSelf(startId)
             },
-        ).start()
+        )
+            .start()
 
         return START_NOT_STICKY
     }
@@ -85,17 +94,20 @@ open class SandboxFetchService : Service() {
         const val KEY_PROGRESS = "progress"
 
         fun parseCandidates(resultData: Bundle?): List<FetchCandidate> {
-            val list = if (android.os.Build.VERSION.SDK_INT >= 33) {
-                resultData?.getParcelableArrayList(RESULT_CANDIDATES, Bundle::class.java)
-            } else {
-                @Suppress("DEPRECATION")
-                resultData?.getParcelableArrayList(RESULT_CANDIDATES)
-            } ?: return emptyList()
+            val list =
+                if (android.os.Build.VERSION.SDK_INT >= 33) {
+                    resultData?.getParcelableArrayList(RESULT_CANDIDATES, Bundle::class.java)
+                } else {
+                    @Suppress("DEPRECATION") resultData?.getParcelableArrayList(RESULT_CANDIDATES)
+                } ?: return emptyList()
             return list.map { entry ->
                 val title = entry.getString(KEY_TITLE)
                 val source = entry.getString(KEY_SOURCE) ?: ""
                 val iconBytes = entry.getByteArray(KEY_ICON)
-                val icon = iconBytes?.let { android.graphics.BitmapFactory.decodeByteArray(it, 0, it.size) }
+                val icon =
+                    iconBytes?.let {
+                        android.graphics.BitmapFactory.decodeByteArray(it, 0, it.size)
+                    }
                 FetchCandidate(title, icon, source)
             }
         }
@@ -109,11 +121,12 @@ open class SandboxFetchService : Service() {
             receiver: ResultReceiver,
         ): Intent {
             val className = "wtf.mazy.peel.activities.SandboxFetchService$slotId"
-            val serviceClass = try {
-                Class.forName(className)
-            } catch (_: ClassNotFoundException) {
-                SandboxFetchService::class.java
-            }
+            val serviceClass =
+                try {
+                    Class.forName(className)
+                } catch (_: ClassNotFoundException) {
+                    SandboxFetchService::class.java
+                }
             return Intent(context, serviceClass).apply {
                 putExtra(EXTRA_SANDBOX_ID, sandboxId)
                 putExtra(EXTRA_URL, url)
@@ -125,6 +138,9 @@ open class SandboxFetchService : Service() {
 }
 
 class SandboxFetchService0 : SandboxFetchService()
+
 class SandboxFetchService1 : SandboxFetchService()
+
 class SandboxFetchService2 : SandboxFetchService()
+
 class SandboxFetchService3 : SandboxFetchService()

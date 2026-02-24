@@ -16,8 +16,8 @@ fun WebView.buildUserAgent() {
     val major = CHROME_VERSION_RE.find(raw)?.groupValues?.get(1)?.substringBefore('.') ?: "145"
     settings.userAgentString =
         "Mozilla/5.0 (Linux; Android 10; K) " +
-        "AppleWebKit/537.36 (KHTML, like Gecko) " +
-        "Chrome/$major.0.0.0 Mobile Safari/537.36"
+                "AppleWebKit/537.36 (KHTML, like Gecko) " +
+                "Chrome/$major.0.0.0 Mobile Safari/537.36"
 }
 
 object Utility {

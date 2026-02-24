@@ -2,19 +2,19 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:gravity="center_horizontal"
     android:orientation="vertical"
     android:paddingHorizontal="24dp"
     android:paddingTop="24dp"
-    android:paddingBottom="16dp"
-    android:gravity="center_horizontal">
+    android:paddingBottom="16dp">
 
     <TextView
         android:id="@+id/textTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
         android:gravity="center"
-        android:textAppearance="?attr/textAppearanceTitleMedium"
-        android:layout_marginBottom="12dp" />
+        android:textAppearance="?attr/textAppearanceTitleMedium" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnAllowSession"

@@ -18,10 +18,10 @@
             android:layout_height="wrap_content"
             android:background="?attr/colorSurfaceContainer"
             android:elevation="0dp"
-            app:titleTextColor="?attr/colorOnSurface"
-            app:navigationIconTint="?attr/colorOnSurface"
             app:navigationIcon="@drawable/ic_baseline_arrow_back_24"
-            app:theme="@style/ThemeOverlay.App.Toolbar" />
+            app:navigationIconTint="?attr/colorOnSurface"
+            app:theme="@style/ThemeOverlay.App.Toolbar"
+            app:titleTextColor="?attr/colorOnSurface" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -34,20 +34,20 @@
             android:id="@+id/group_list"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:clipToPadding="false"
             android:paddingTop="6dp"
-            android:paddingBottom="100dp"
-            android:clipToPadding="false" />
+            android:paddingBottom="100dp" />
 
         <TextView
             android:id="@+id/empty_state_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:gravity="center"
+            android:padding="32dp"
             android:text="@string/groups_empty_state"
             android:textAppearance="?attr/textAppearanceBodyLarge"
             android:textColor="?attr/colorOnSurfaceVariant"
-            android:gravity="center"
-            android:padding="32dp"
             android:visibility="gone" />
 
     </FrameLayout>

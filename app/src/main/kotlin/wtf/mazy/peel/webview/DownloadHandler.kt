@@ -69,7 +69,8 @@ class DownloadHandler(
         request.addRequestHeader("User-Agent", userAgent)
         request.setTitle(fileName)
         request.setNotificationVisibility(
-            DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+            DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED
+        )
         request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName)
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
@@ -79,8 +80,11 @@ class DownloadHandler(
                     Manifest.permission.READ_EXTERNAL_STORAGE,
                 )
             if (!perms.all {
-                ContextCompat.checkSelfPermission(activity, it) == PackageManager.PERMISSION_GRANTED
-            }) {
+                    ContextCompat.checkSelfPermission(
+                        activity,
+                        it
+                    ) == PackageManager.PERMISSION_GRANTED
+                }) {
                 pendingRequest = request
                 pendingDownloadUrl = dlUrl
                 ActivityCompat.requestPermissions(activity, perms, Const.PERMISSION_RC_STORAGE)

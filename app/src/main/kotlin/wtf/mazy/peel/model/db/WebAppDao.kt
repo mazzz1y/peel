@@ -17,15 +17,20 @@ interface WebAppDao {
     @Query("SELECT * FROM webapps WHERE uuid = '${Const.GLOBAL_WEBAPP_UUID}' LIMIT 1")
     fun getGlobalSettings(): WebAppEntity?
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE) fun insertAll(entities: List<WebAppEntity>)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insertAll(entities: List<WebAppEntity>)
 
-    @Upsert fun upsert(entity: WebAppEntity)
+    @Upsert
+    fun upsert(entity: WebAppEntity)
 
-    @Upsert fun upsertAll(entities: List<WebAppEntity>)
+    @Upsert
+    fun upsertAll(entities: List<WebAppEntity>)
 
-    @Query("DELETE FROM webapps WHERE uuid = :uuid") fun deleteByUuid(uuid: String)
+    @Query("DELETE FROM webapps WHERE uuid = :uuid")
+    fun deleteByUuid(uuid: String)
 
-    @Query("DELETE FROM webapps WHERE uuid != '${Const.GLOBAL_WEBAPP_UUID}'") fun deleteAllWebApps()
+    @Query("DELETE FROM webapps WHERE uuid != '${Const.GLOBAL_WEBAPP_UUID}'")
+    fun deleteAllWebApps()
 
     @Transaction
     fun replaceAllWebApps(entities: List<WebAppEntity>) {

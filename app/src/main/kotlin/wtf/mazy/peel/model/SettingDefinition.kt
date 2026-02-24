@@ -1,8 +1,8 @@
 package wtf.mazy.peel.model
 
 import androidx.annotation.StringRes
-import kotlin.reflect.KMutableProperty1
 import wtf.mazy.peel.R
+import kotlin.reflect.KMutableProperty1
 
 data class SettingField(
     val property: KMutableProperty1<WebAppSettings, *>,

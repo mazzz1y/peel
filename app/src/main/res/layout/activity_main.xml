@@ -16,12 +16,12 @@
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
-            app:titleTextColor="?attr/colorOnSurface"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:elevation="0dp"
             app:menu="@menu/menu_main"
-            app:theme="@style/ThemeOverlay.App.Toolbar" />
+            app:theme="@style/ThemeOverlay.App.Toolbar"
+            app:titleTextColor="?attr/colorOnSurface" />
 
     </com.google.android.material.appbar.AppBarLayout>
 

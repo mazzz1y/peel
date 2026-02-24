@@ -7,10 +7,15 @@ class MediaJsBridge(private val listener: Listener) {
 
     interface Listener {
         fun onMediaStarted()
+
         fun onMediaPaused()
+
         fun onMediaStopped()
+
         fun onMetadataChanged(title: String?, artist: String?, artworkUrl: String?)
+
         fun onActionsChanged(hasPrevious: Boolean, hasNext: Boolean)
+
         fun onPositionChanged(durationMs: Long, positionMs: Long, playbackRate: Float)
     }
 
@@ -46,7 +51,8 @@ class MediaJsBridge(private val listener: Listener) {
     companion object {
         const val JS_INTERFACE_NAME = "_PeelMedia"
 
-        val POLYFILL_JS = """
+        val POLYFILL_JS =
+            """
             (function() {
                 if (window._peelPolyfillActive) return;
                 window._peelPolyfillActive = true;
@@ -107,9 +113,11 @@ class MediaJsBridge(private val listener: Listener) {
 
                 window._peelActionHandlers = handlers;
             })();
-        """.trimIndent()
+        """
+                .trimIndent()
 
-        val OBSERVER_JS = """
+        val OBSERVER_JS =
+            """
             (function() {
                 if (window._peelObserverActive) return;
                 window._peelObserverActive = true;
@@ -184,7 +192,8 @@ class MediaJsBridge(private val listener: Listener) {
                     }
                 }, 1000);
             })();
-        """.trimIndent()
+        """
+                .trimIndent()
 
         const val PREVIOUS_TRACK_JS =
             "var h = window._peelActionHandlers && window._peelActionHandlers.previoustrack; if (h) h({action:'previoustrack'});"

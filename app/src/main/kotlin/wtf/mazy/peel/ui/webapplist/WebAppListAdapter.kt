@@ -11,7 +11,6 @@ import android.widget.TextView
 import androidx.appcompat.widget.PopupMenu
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
-import java.util.Collections
 import wtf.mazy.peel.R
 import wtf.mazy.peel.activities.WebAppSettingsActivity
 import wtf.mazy.peel.model.DataManager
@@ -19,6 +18,7 @@ import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.shortcut.ShortcutHelper
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.WebViewLauncher.startWebView
+import java.util.Collections
 
 class WebAppListAdapter(
     private val activityOfFragment: Activity,
@@ -29,8 +29,8 @@ class WebAppListAdapter(
         private set
 
     /**
-     * null = show ALL apps. UNGROUPED_FILTER = show only apps with no group.
-     * Otherwise = show apps matching this group UUID.
+     * null = show ALL apps. UNGROUPED_FILTER = show only apps with no group. Otherwise = show apps
+     * matching this group UUID.
      */
     var groupFilter: String? = null
 
@@ -56,8 +56,7 @@ class WebAppListAdapter(
 
         holder.appIcon.setImageBitmap(item.resolveIcon())
 
-        holder.iconSandbox.visibility =
-            if (item.isUseContainer) View.VISIBLE else View.GONE
+        holder.iconSandbox.visibility = if (item.isUseContainer) View.VISIBLE else View.GONE
         holder.iconEphemeral.visibility =
             if (item.isUseContainer && item.isEphemeralSandbox) View.VISIBLE else View.GONE
 
@@ -81,12 +80,19 @@ class WebAppListAdapter(
 
         val groups = DataManager.instance.sortedGroups
         if (groups.isNotEmpty()) {
-            val subMenu = popup.menu.addSubMenu(0, 0, 20, activityOfFragment.getString(R.string.move_to_group))
+            val subMenu =
+                popup.menu.addSubMenu(
+                    0, 0, 20, activityOfFragment.getString(R.string.move_to_group)
+                )
             groups.forEachIndexed { index, group ->
                 subMenu.add(0, MENU_GROUP_BASE + index, index, group.title)
             }
-            subMenu.add(0, MENU_GROUP_BASE + groups.size, groups.size,
-                activityOfFragment.getString(R.string.none))
+            subMenu.add(
+                0,
+                MENU_GROUP_BASE + groups.size,
+                groups.size,
+                activityOfFragment.getString(R.string.none),
+            )
         }
 
         popup.setOnMenuItemClickListener { menuItem ->
@@ -114,7 +120,8 @@ class WebAppListAdapter(
                 else -> {
                     val groupIndex = menuItem.itemId - MENU_GROUP_BASE
                     if (groupIndex in 0..groups.size) {
-                        webapp.groupUuid = if (groupIndex < groups.size) groups[groupIndex].uuid else null
+                        webapp.groupUuid =
+                            if (groupIndex < groups.size) groups[groupIndex].uuid else null
                         DataManager.instance.replaceWebApp(webapp)
                         onGroupChanged()
                         true
