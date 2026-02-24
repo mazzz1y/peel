@@ -552,6 +552,9 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     private fun setupSystemBarScrims() {
         statusBarScrim = findViewById(R.id.statusBarScrim)
         navigationBarScrim = findViewById(R.id.navigationBarScrim)
+        if (webapp.effectiveSettings.isDynamicStatusBar == true) {
+            applyBarColor(themeBackgroundColor)
+        }
         androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(
             findViewById(R.id.webview_root)
         ) { _, insets ->
