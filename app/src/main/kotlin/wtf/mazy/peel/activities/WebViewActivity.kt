@@ -183,6 +183,9 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     }
 
     override fun onDestroy() {
+        if (::peelWebViewClient.isInitialized) {
+            peelWebViewClient.clearDynamicBarColorRetry()
+        }
         barColorAnimator?.cancel()
         barColorAnimator = null
         mediaPlaybackManager?.release()

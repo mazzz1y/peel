@@ -18,7 +18,20 @@ import wtf.mazy.peel.model.DataManager
 
 class PeelWebViewClient(private val host: WebViewClientHost) : WebViewClient() {
 
+    private var dynamicBarColorGeneration = 0
+    private var dynamicBarColorRetryCount = 0
+    private var dynamicBarColorRetryScheduled = false
+    private var dynamicBarColorRetryRunnable: Runnable? = null
+    private var dynamicBarColorRetryView: WebView? = null
+
     override fun onPageStarted(view: WebView?, url: String?, favicon: android.graphics.Bitmap?) {
+        clearDynamicBarColorRetry()
+        dynamicBarColorGeneration += 1
+        dynamicBarColorRetryCount = 0
+        dynamicBarColorRetryScheduled = false
+        if (host.effectiveSettings.isDynamicStatusBar == true) {
+            host.updateStatusBarColor(host.themeBackgroundColor)
+        }
         super.onPageStarted(view, url, favicon)
         host.onPageStarted()
     }
@@ -38,6 +51,11 @@ class PeelWebViewClient(private val host: WebViewClientHost) : WebViewClient() {
         super.onPageFinished(view, url)
     }
 
+    override fun onPageCommitVisible(view: WebView?, url: String?) {
+        super.onPageCommitVisible(view, url)
+        if (view != null) extractDynamicBarColor(view)
+    }
+
     override fun doUpdateVisitedHistory(view: WebView?, url: String?, isReload: Boolean) {
         super.doUpdateVisitedHistory(view, url, isReload)
         if (view != null) extractDynamicBarColor(view)
@@ -46,14 +64,50 @@ class PeelWebViewClient(private val host: WebViewClientHost) : WebViewClient() {
     fun extractDynamicBarColor(view: WebView) {
         if (host.effectiveSettings.isDynamicStatusBar != true) return
         if (host.isForceDarkActive) {
+            clearDynamicBarColorRetry()
+            dynamicBarColorRetryCount = 0
+            dynamicBarColorRetryScheduled = false
             host.updateStatusBarColor(host.themeBackgroundColor)
         } else {
+            val generation = dynamicBarColorGeneration
             view.evaluateJavascript(EXTRACT_PAGE_COLOR_JS) { result ->
+                if (generation != dynamicBarColorGeneration) return@evaluateJavascript
                 val raw = result.trim('"').trim()
-                val color = parseWebColor(raw) ?: return@evaluateJavascript
+                val color = parseWebColor(raw)
+                if (color == null) {
+                    scheduleDynamicBarColorRetry(view, generation)
+                    return@evaluateJavascript
+                }
+                clearDynamicBarColorRetry()
+                dynamicBarColorRetryCount = 0
+                dynamicBarColorRetryScheduled = false
                 host.updateStatusBarColor(color)
             }
         }
+    }
+
+    private fun scheduleDynamicBarColorRetry(view: WebView, generation: Int) {
+        if (dynamicBarColorRetryScheduled) return
+        if (dynamicBarColorRetryCount >= DYNAMIC_BAR_COLOR_MAX_RETRIES) return
+        clearDynamicBarColorRetry()
+        dynamicBarColorRetryScheduled = true
+        dynamicBarColorRetryCount += 1
+        dynamicBarColorRetryView = view
+        dynamicBarColorRetryRunnable = Runnable {
+            if (generation != dynamicBarColorGeneration) return@Runnable
+            dynamicBarColorRetryScheduled = false
+            extractDynamicBarColor(view)
+        }
+        view.postDelayed(dynamicBarColorRetryRunnable!!, DYNAMIC_BAR_COLOR_RETRY_DELAY_MS)
+    }
+
+    fun clearDynamicBarColorRetry() {
+        dynamicBarColorRetryRunnable?.let { runnable ->
+            dynamicBarColorRetryView?.removeCallbacks(runnable)
+        }
+        dynamicBarColorRetryRunnable = null
+        dynamicBarColorRetryView = null
+        dynamicBarColorRetryScheduled = false
     }
 
     override fun onReceivedError(
@@ -175,6 +229,9 @@ class PeelWebViewClient(private val host: WebViewClientHost) : WebViewClient() {
     }
 
     companion object {
+        private const val DYNAMIC_BAR_COLOR_MAX_RETRIES = 24
+        private const val DYNAMIC_BAR_COLOR_RETRY_DELAY_MS = 250L
+
         fun isHostMatch(requestUri: Uri, baseUri: Uri): Boolean {
             val requestHost = requestUri.host?.removePrefix("www.") ?: return true
             val baseHost = baseUri.host?.removePrefix("www.") ?: return true
@@ -185,12 +242,9 @@ class PeelWebViewClient(private val host: WebViewClientHost) : WebViewClient() {
 
         fun parseWebColor(raw: String): Int? {
             if (raw.isBlank()) return null
-            if (raw.startsWith("#")) {
-                return try {
-                    raw.toColorInt()
-                } catch (_: IllegalArgumentException) {
-                    null
-                }
+            try {
+                return raw.toColorInt()
+            } catch (_: IllegalArgumentException) {
             }
             rgbRegex.find(raw)?.let { match ->
                 val r = match.groupValues[1].toIntOrNull() ?: return null
