@@ -176,8 +176,8 @@ class PeelWebViewClient(private val host: WebViewClientHost) : WebViewClient() {
 
     companion object {
         fun isHostMatch(requestUri: Uri, baseUri: Uri): Boolean {
-            val requestHost = requestUri.host ?: return true
-            val baseHost = baseUri.host ?: return true
+            val requestHost = requestUri.host?.removePrefix("www.") ?: return true
+            val baseHost = baseUri.host?.removePrefix("www.") ?: return true
             return requestHost == baseHost || requestHost.endsWith(".$baseHost")
         }
 
