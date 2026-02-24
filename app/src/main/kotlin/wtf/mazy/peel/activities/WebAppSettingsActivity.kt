@@ -392,8 +392,9 @@ class WebAppSettingsActivity :
             showToast(this, getString(R.string.fetch_failed), Toast.LENGTH_SHORT)
             return
         }
-        if (!webapp.hasCustomIcon && webapp.title.isEmpty() && candidates.size == 1) {
-            applyFetchResult(webapp, candidates.first())
+        val withIcon = candidates.filter { it.icon != null }
+        if (!webapp.hasCustomIcon && webapp.title.isEmpty() && withIcon.size == 1) {
+            applyFetchResult(webapp, withIcon.first())
             return
         }
         showFetchPickerDialog(webapp, candidates)

@@ -12,12 +12,10 @@ import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -43,7 +41,7 @@ class HeadlessWebViewFetcher(
     private val url: String,
     private val settings: WebAppSettings,
     private val onProgress: ((String) -> Unit)? = null,
-    private val onResult: (candidates: List<FetchCandidate>) -> Unit,
+    private val onResult: (List<FetchCandidate>) -> Unit,
 ) {
     private val appContext = context.applicationContext
     private val webView = WebView(appContext)
@@ -51,9 +49,7 @@ class HeadlessWebViewFetcher(
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     private var customHeaders: Map<String, String> = emptyMap()
     private lateinit var userAgent: String
-    private var finished = false
-    private var extracting = false
-    private val timeoutRunnable = Runnable { finish() }
+    private var extractStarted = false
 
     @SuppressLint("SetJavaScriptEnabled")
     fun start() {
@@ -88,6 +84,10 @@ class HeadlessWebViewFetcher(
         userAgent = webView.settings.userAgentString
 
         webView.webViewClient = object : WebViewClient() {
+            override fun onPageFinished(view: WebView?, url: String?) {
+                if (view != null) extract(view)
+            }
+
             override fun onReceivedError(
                 view: WebView?,
                 request: WebResourceRequest?,
@@ -105,143 +105,144 @@ class HeadlessWebViewFetcher(
             }
         }
 
-        webView.webChromeClient = object : WebChromeClient() {
-            override fun onProgressChanged(view: WebView, progress: Int) {
-                if (finished || extracting) return
-                if (progress >= EARLY_EXTRACT_PROGRESS) tryExtract(view)
-            }
-        }
+        webView.webChromeClient = object : WebChromeClient() {}
 
         var loadUrl = url
         if (loadUrl.startsWith("http://") && settings.isAlwaysHttps == true) {
             loadUrl = loadUrl.replaceFirst("http://", "https://")
         }
 
-        handler.postDelayed(timeoutRunnable, TIMEOUT_MS)
-        onProgress?.invoke(appContext.getString(R.string.fetch_step_loading))
+        handler.postDelayed({ finish() }, TIMEOUT_MS)
+        postProgress(appContext.getString(R.string.fetch_step_loading))
         webView.loadUrl(loadUrl, customHeaders)
     }
 
-    private fun tryExtract(view: WebView) {
-        if (finished || extracting) return
-        extracting = true
+    private fun extract(view: WebView) {
+        if (extractStarted) return
+        extractStarted = true
+        handler.removeCallbacksAndMessages(null)
 
         view.evaluateJavascript(FIND_LINKS_JS) { raw ->
-            if (finished) return@evaluateJavascript
             scope.launch {
-                val candidates = resolve(raw, view.url ?: url)
-                if (candidates.isNotEmpty()) {
-                    finish(candidates)
-                } else {
-                    extracting = false
-                }
+                finish(resolve(raw, view.url ?: url))
             }
         }
     }
 
     private suspend fun resolve(raw: String?, pageUrl: String): List<FetchCandidate> =
         withContext(Dispatchers.IO) {
-            if (raw == null || raw == "null") return@withContext emptyList()
+            val json = parseJsResult(raw) ?: return@withContext emptyList()
 
-            try {
-                val decoded = JSONArray("[$raw]").optString(0)
-                if (decoded.isEmpty()) return@withContext emptyList()
-                val json = JSONObject(decoded)
+            val candidates = mutableListOf<FetchCandidate>()
+            val pageTitle = json.optString("title").takeIf { it.isNotEmpty() }
 
-                val candidates = mutableListOf<FetchCandidate>()
-                val pageTitle = json.optString("title").takeIf { it.isNotEmpty() }
-
-                ensureActive()
-                postProgress(appContext.getString(R.string.fetch_step_manifests))
-                val origin = originOf(url)
-                val tried = mutableSetOf<String>()
-                for (path in MANIFEST_PATHS) {
-                    val candidate = "$origin$path"
-                    if (tried.add(candidate)) {
-                        val icons = TreeMap<Int, String>()
-                        val name = parseManifest(candidate, icons)
-                        val icon = downloadBestIcon(icons)
-                        if (name != null || icon != null) {
-                            candidates.add(FetchCandidate(name ?: pageTitle, icon, "PWA"))
-                            break
-                        }
-                    }
-                }
-
-                ensureActive()
-                val manifestUrl = json.optString("manifestUrl").takeIf { it.isNotEmpty() }
-                if (manifestUrl != null && tried.add(manifestUrl)) {
-                    val icons = TreeMap<Int, String>()
-                    val name = parseManifest(manifestUrl, icons)
-                    val icon = downloadBestIcon(icons)
-                    if (name != null || icon != null) {
-                        candidates.add(FetchCandidate(name ?: pageTitle, icon, "PWA"))
-                    }
-                }
-
-                ensureActive()
-                postProgress(appContext.getString(R.string.fetch_step_icons))
-                val touchIcons = TreeMap<Int, String>()
-                val linkIcons = TreeMap<Int, String>()
-                val iconLinks = json.optJSONArray("iconLinks")
-                if (iconLinks != null) parseIconLinks(iconLinks, touchIcons, linkIcons)
-                postProgress(appContext.getString(R.string.fetch_step_downloading))
-                val touchIcon = downloadBestIcon(touchIcons)
-                if (touchIcon != null) candidates.add(FetchCandidate(pageTitle, touchIcon, "Apple"))
-                val linkIcon = downloadBestIcon(linkIcons)
-                if (linkIcon != null) candidates.add(FetchCandidate(pageTitle, linkIcon, "HTML"))
-                if (touchIcons.isEmpty() && linkIcons.isEmpty()) {
-                    val pageOrigin = originOf(pageUrl)
-                    if (isReachable("$pageOrigin/favicon.ico")) {
-                        val favicon = downloadBitmap("$pageOrigin/favicon.ico")
-                        if (favicon != null) candidates.add(FetchCandidate(pageTitle, favicon, "Favicon"))
-                    }
-                }
-
-                if (candidates.isEmpty() && pageTitle != null) {
-                    candidates.add(FetchCandidate(pageTitle, null, "Page"))
-                }
-
-                candidates
-            } catch (_: CancellationException) {
-                throw CancellationException()
-            } catch (_: Exception) {
-                emptyList()
+            scope.ensureActive()
+            postProgress(appContext.getString(R.string.fetch_step_manifests))
+            collectManifest(json, pageTitle, candidates)
+            if (candidates.none { it.icon != null }) {
+                collectManifestByGuess(pageUrl, pageTitle, candidates)
             }
+
+            scope.ensureActive()
+            postProgress(appContext.getString(R.string.fetch_step_icons))
+            collectPageIcons(json, pageTitle, candidates)
+
+            scope.ensureActive()
+            postProgress(appContext.getString(R.string.fetch_step_downloading))
+            collectFavicon(pageUrl, pageTitle, candidates)
+
+            val bestTitle = candidates.firstOrNull { it.source == "PWA" }?.title ?: pageTitle
+            if (bestTitle != null) {
+                candidates.add(FetchCandidate(bestTitle, null, "Fallback"))
+            }
+
+            val seen = mutableSetOf<Pair<Int, Int>>()
+            candidates.filter { it.icon == null || seen.add(it.icon.width to it.icon.height) }
+                .sortedBy { if (it.icon != null) 0 else 1 }
         }
 
-    private fun parseManifest(manifestUrl: String, icons: TreeMap<Int, String>): String? {
+    private fun parseJsResult(raw: String?): JSONObject? {
+        if (raw == null || raw == "null") return null
         return try {
-            val conn = openConnection(manifestUrl)
-            try {
-                if (conn.responseCode != 200) return null
-                val json = JSONObject(conn.inputStream.bufferedReader().use { it.readText() })
-
-                val arr = json.optJSONArray("icons")
-                if (arr != null) {
-                    for (i in 0 until arr.length()) {
-                        val obj = arr.optJSONObject(i) ?: continue
-                        val src = obj.optString("src").takeIf { it.isNotEmpty() } ?: continue
-                        if (src.endsWith(".svg")) continue
-                        val width = getWidthFromIcon(obj.optString("sizes", ""))
-                        icons[width] = URL(URL(manifestUrl), src).toString()
-                    }
-                }
-
-                json.optString("name").takeIf { it.isNotEmpty() }
-            } finally {
-                conn.disconnect()
-            }
+            val decoded = JSONArray("[$raw]").optString(0)
+            if (decoded.isEmpty()) null else JSONObject(decoded)
         } catch (_: Exception) {
             null
         }
     }
 
-    private fun parseIconLinks(
-        arr: JSONArray,
-        touchIcons: TreeMap<Int, String>,
-        linkIcons: TreeMap<Int, String>,
+    private suspend fun collectManifest(
+        json: JSONObject,
+        pageTitle: String?,
+        out: MutableList<FetchCandidate>,
     ) {
+        val manifestUrl = json.optString("manifestUrl").takeIf { it.isNotEmpty() } ?: return
+        try {
+            val conn = openConnection(manifestUrl)
+            try {
+                if (conn.responseCode != 200) return
+                val manifest = JSONObject(conn.inputStream.bufferedReader().use { it.readText() })
+                val name = manifest.optString("name").takeIf { it.isNotEmpty() }
+                val icon = downloadBestManifestIcon(manifest, manifestUrl)
+                if (name != null || icon != null) {
+                    out.add(FetchCandidate(name ?: pageTitle, icon, "PWA"))
+                }
+            } finally {
+                conn.disconnect()
+            }
+        } catch (_: Exception) {
+        }
+    }
+
+    private suspend fun collectManifestByGuess(
+        pageUrl: String,
+        pageTitle: String?,
+        out: MutableList<FetchCandidate>,
+    ) {
+        val origin = originOf(pageUrl)
+        for (path in MANIFEST_FALLBACK_PATHS) {
+            scope.ensureActive()
+            try {
+                val conn = openConnection("$origin$path")
+                try {
+                    if (conn.responseCode != 200) continue
+                    val manifest =
+                        JSONObject(conn.inputStream.bufferedReader().use { it.readText() })
+                    val name = manifest.optString("name").takeIf { it.isNotEmpty() }
+                    val icon = downloadBestManifestIcon(manifest, "$origin$path")
+                    if (name != null || icon != null) {
+                        out.add(FetchCandidate(name ?: pageTitle, icon, "PWA"))
+                        return
+                    }
+                } finally {
+                    conn.disconnect()
+                }
+            } catch (_: Exception) {
+            }
+        }
+    }
+
+    private suspend fun downloadBestManifestIcon(manifest: JSONObject, baseUrl: String): Bitmap? {
+        val icons = TreeMap<Int, String>()
+        val arr = manifest.optJSONArray("icons") ?: return null
+        for (i in 0 until arr.length()) {
+            val obj = arr.optJSONObject(i) ?: continue
+            val src = obj.optString("src").takeIf { it.isNotEmpty() } ?: continue
+            if (src.endsWith(".svg")) continue
+            icons[getWidthFromIcon(obj.optString("sizes", ""))] = URL(URL(baseUrl), src).toString()
+        }
+        return downloadBestIcon(icons)
+    }
+
+    private suspend fun collectPageIcons(
+        json: JSONObject,
+        pageTitle: String?,
+        out: MutableList<FetchCandidate>,
+    ) {
+        val arr = json.optJSONArray("iconLinks") ?: return
+        val touchIcons = TreeMap<Int, String>()
+        val linkIcons = TreeMap<Int, String>()
+
         for (i in 0 until arr.length()) {
             val obj = arr.optJSONObject(i) ?: continue
             val href = obj.optString("href").takeIf { it.isNotEmpty() } ?: continue
@@ -252,11 +253,25 @@ class HeadlessWebViewFetcher(
             if (rel.contains("apple-touch-icon")) touchIcons[width] = href
             else linkIcons[width] = href
         }
+
+        val touchIcon = downloadBestIcon(touchIcons)
+        if (touchIcon != null) out.add(FetchCandidate(pageTitle, touchIcon, "Apple"))
+        val linkIcon = downloadBestIcon(linkIcons)
+        if (linkIcon != null) out.add(FetchCandidate(pageTitle, linkIcon, "HTML"))
     }
 
-    private suspend fun downloadBestIcon(icons: TreeMap<Int, String>): Bitmap? {
+    private fun collectFavicon(
+        pageUrl: String,
+        pageTitle: String?,
+        out: MutableList<FetchCandidate>,
+    ) {
+        val favicon = downloadBitmap("${originOf(pageUrl)}/favicon.ico")
+        if (favicon != null) out.add(FetchCandidate(pageTitle, favicon, "Favicon"))
+    }
+
+    private fun downloadBestIcon(icons: TreeMap<Int, String>): Bitmap? {
         for (entry in icons.descendingMap()) {
-            currentCoroutineContext().ensureActive()
+            scope.ensureActive()
             val bmp = downloadBitmap(entry.value)
             if (bmp != null) return bmp
         }
@@ -282,20 +297,6 @@ class HeadlessWebViewFetcher(
         }
     }
 
-    private fun isReachable(url: String): Boolean {
-        return try {
-            val conn = openConnection(url)
-            try {
-                conn.requestMethod = "HEAD"
-                conn.responseCode == 200
-            } finally {
-                conn.disconnect()
-            }
-        } catch (_: Exception) {
-            false
-        }
-    }
-
     private fun openConnection(url: String): HttpURLConnection {
         val conn = URL(url).openConnection() as HttpURLConnection
         conn.connectTimeout = CONNECTION_TIMEOUT_MS
@@ -313,9 +314,7 @@ class HeadlessWebViewFetcher(
     }
 
     private fun finish(candidates: List<FetchCandidate> = emptyList()) {
-        if (finished) return
-        finished = true
-        handler.removeCallbacks(timeoutRunnable)
+        handler.removeCallbacksAndMessages(null)
         scope.cancel()
         webView.stopLoading()
         webView.destroy()
@@ -325,22 +324,19 @@ class HeadlessWebViewFetcher(
     companion object {
         private const val TIMEOUT_MS = 10_000L
         private const val CONNECTION_TIMEOUT_MS = 4_000
-        private const val EARLY_EXTRACT_PROGRESS = 30
         private const val MIN_ICON_WIDTH = 32
         private const val MAX_ICON_BYTES = 5 * 1024 * 1024
         private val SUPPORTED_EXTENSIONS = listOf(".png", ".jpg", ".jpeg", ".ico", ".webp")
-        private val MANIFEST_PATHS = listOf(
+        private val MANIFEST_FALLBACK_PATHS = listOf(
             "/manifest.webmanifest", "/manifest.json", "/site.webmanifest"
         )
 
-        private fun originOf(url: String): String =
-            URL(url).let {
-                if (it.port != -1 && it.port != it.defaultPort) "${it.protocol}://${it.host}:${it.port}"
-                else "${it.protocol}://${it.host}"
-            }
+        private fun originOf(url: String): String = URL(url).let {
+            if (it.port != -1 && it.port != it.defaultPort) "${it.protocol}://${it.host}:${it.port}"
+            else "${it.protocol}://${it.host}"
+        }
 
-        private val FIND_LINKS_JS =
-            """
+        private val FIND_LINKS_JS = """
         (function() {
             var result = { title: document.title || '', manifestUrl: '', iconLinks: [] };
             var manifest = document.querySelector('link[rel="manifest"]');
