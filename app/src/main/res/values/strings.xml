@@ -7,8 +7,8 @@
     <string name="loading_icon_and_website_title">Fetching…</string>
     <string name="open_external_links_in_browser_app">Open links externally</string>
     <string name="allow_javascript">Allow JavaScript</string>
-    <string name="accept_cookies">Cookies</string>
-    <string name="accept_third_party_cookies">Third-party cookies</string>
+    <string name="accept_cookies">Allow cookies</string>
+    <string name="accept_third_party_cookies">Allow third-party cookies</string>
     <string name="clear_cache_after_usage">Clear cache on exit</string>
     <string name="re_create_shortcut">Create shortcut</string>
     <string name="create_shortcut_on_home_screen">Create shortcut on home screen</string>
@@ -98,7 +98,7 @@
     <string name="backup">Backup</string>
     <string name="import_data">Import</string>
     <string name="export_data">Export</string>
-    <string name="block_all_third_party_requests">Third-party requests</string>
+    <string name="block_all_third_party_requests">Block third-party requests</string>
     <string name="sandbox">Sandbox</string>
     <string name="no_sandbox">Do not use sandbox</string>
     <string name="all_sandboxes_used">All sandboxes are currently in use.</string>
