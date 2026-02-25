@@ -9,6 +9,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -183,9 +184,6 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     }
 
     override fun onDestroy() {
-        if (::peelWebViewClient.isInitialized) {
-            peelWebViewClient.clearDynamicBarColorRetry()
-        }
         barColorAnimator?.cancel()
         barColorAnimator = null
         mediaPlaybackManager?.release()
@@ -521,6 +519,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     @SuppressLint("ClickableViewAccessibility")
     private fun setupWebView() {
         val settings = webapp.effectiveSettings
+        window.setBackgroundDrawable(ColorDrawable(themeBackgroundColor))
         setContentView(R.layout.full_webview)
         setupSystemBarScrims()
         applyWindowFlags(settings)
@@ -589,7 +588,9 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     }
 
     private fun bindViews() {
-        webView = findViewById(R.id.webview)
+        findViewById<View>(R.id.webview_root)?.setBackgroundColor(themeBackgroundColor)
+        findViewById<View>(R.id.webviewActivity)?.setBackgroundColor(themeBackgroundColor)
+        webView = findViewById<WebView>(R.id.webview).apply { setBackgroundColor(themeBackgroundColor) }
         progressBar = findViewById(R.id.progressBar)
         swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout)
     }
