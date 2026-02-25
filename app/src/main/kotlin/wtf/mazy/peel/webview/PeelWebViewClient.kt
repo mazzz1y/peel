@@ -186,14 +186,17 @@ class PeelWebViewClient(private val host: WebViewClientHost) : WebViewClient() {
             return requestHost == baseHost || requestHost.endsWith(".$baseHost")
         }
 
-        private val rgbRegex = Regex("""rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)""")
+        // rgb(r, g, b), rgba(r, g, b, a), rgb(r g b), rgb(r g b / a)
+        private val rgbRegex = Regex("""rgba?\(\s*(\d+)[\s,]+(\d+)[\s,]+(\d+)""")
 
         fun parseWebColor(raw: String): Int? {
             if (raw.isBlank()) return null
+            val normalized = normalizeHexColor(raw)
             try {
-                return raw.toColorInt()
-            } catch (_: IllegalArgumentException) {
-            }
+                val color = normalized.toColorInt()
+                if (Color.alpha(color) == 0) return null
+                return color
+            } catch (_: IllegalArgumentException) {}
             rgbRegex.find(raw)?.let { match ->
                 val r = match.groupValues[1].toIntOrNull() ?: return null
                 val g = match.groupValues[2].toIntOrNull() ?: return null
@@ -201,6 +204,17 @@ class PeelWebViewClient(private val host: WebViewClientHost) : WebViewClient() {
                 return Color.rgb(r, g, b)
             }
             return null
+        }
+
+        private fun normalizeHexColor(color: String): String {
+            if (!color.startsWith('#')) return color
+            val hex = color.substring(1)
+            return when (hex.length) {
+                3 -> "#${hex[0]}${hex[0]}${hex[1]}${hex[1]}${hex[2]}${hex[2]}"
+                4 -> "#${hex[3]}${hex[3]}${hex[0]}${hex[0]}${hex[1]}${hex[1]}${hex[2]}${hex[2]}"
+                8 -> "#${hex.substring(6, 8)}${hex.take(6)}"
+                else -> color
+            }
         }
 
         private val EXTRACT_THEME_COLOR_JS =
