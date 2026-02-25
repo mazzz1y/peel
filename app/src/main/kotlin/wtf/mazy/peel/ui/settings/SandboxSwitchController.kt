@@ -26,14 +26,20 @@ class SandboxSwitchController(
 
         switchSandbox.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked == owner.isUseContainer) return@setOnCheckedChangeListener
-            onReleaseSandbox?.invoke()
-            owner.isUseContainer = isChecked
-            if (!isChecked) {
-                owner.isEphemeralSandbox = false
-                switchEphemeral.isChecked = false
+            if (!isChecked && SandboxManager.getSandboxDataDir(owner.uuid).exists()) {
+                MaterialAlertDialogBuilder(activity)
+                    .setMessage(R.string.clear_sandbox_data_confirm)
+                    .setPositiveButton(R.string.ok) { _, _ ->
+                        disableSandbox(releaseProcess = false)
+                        clearSandboxData()
+                    }
+                    .setNegativeButton(R.string.cancel) { _, _ ->
+                        switchSandbox.isChecked = true
+                    }
+                    .show()
+            } else {
+                setSandboxEnabled(isChecked)
             }
-            updateEphemeralVisibility()
-            updateClearButtonVisibility()
         }
 
         switchEphemeral.setOnCheckedChangeListener { _, isChecked ->
@@ -81,6 +87,25 @@ class SandboxSwitchController(
             .setPositiveButton(R.string.ok) { _, _ -> clearSandboxData() }
             .setNegativeButton(R.string.cancel, null)
             .show()
+    }
+
+    private fun setSandboxEnabled(enabled: Boolean) {
+        if (enabled) {
+            owner.isUseContainer = true
+            updateEphemeralVisibility()
+            updateClearButtonVisibility()
+            return
+        }
+        disableSandbox(releaseProcess = true)
+    }
+
+    private fun disableSandbox(releaseProcess: Boolean) {
+        if (releaseProcess) onReleaseSandbox?.invoke()
+        owner.isUseContainer = false
+        owner.isEphemeralSandbox = false
+        switchEphemeral.isChecked = false
+        updateEphemeralVisibility()
+        updateClearButtonVisibility()
     }
 
     private fun clearSandboxData() {
