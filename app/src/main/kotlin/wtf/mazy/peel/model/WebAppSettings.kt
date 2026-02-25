@@ -37,6 +37,7 @@ data class WebAppSettings(
     var isPullToRefresh: Boolean? = null,
     var isSafeBrowsing: Boolean? = null,
     var isDynamicStatusBar: Boolean? = null,
+    var isShowNotification: Boolean? = null,
 ) {
     companion object {
         const val PERMISSION_OFF = 0

@@ -103,6 +103,11 @@ object SettingRegistry {
                 SettingCategory.GENERAL,
             ),
             SettingDefinition.BooleanSetting(
+                SettingField(WebAppSettings::isShowNotification, true),
+                R.string.setting_show_notification,
+                SettingCategory.GENERAL,
+            ),
+            SettingDefinition.BooleanSetting(
                 SettingField(WebAppSettings::isKeepAwake, false),
                 R.string.keep_screen_awake,
                 SettingCategory.GENERAL,

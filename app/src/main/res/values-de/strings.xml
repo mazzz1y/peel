@@ -194,7 +194,7 @@
     <string name="delete_group_title">Gruppe löschen</string>
     <string name="delete_group_confirm">Gruppe \"%1$s\" löschen? Sie enthält %2$d App(s).</string>
     <string name="ungroup_apps_on_delete">Apps behalten (zu ungruppiert verschieben)</string>
-
+    <string name="setting_show_notification">Benachrichtigungssteuerung</string>
     <plurals name="group_app_count">
         <item quantity="one">%d App</item>
         <item quantity="other">%d Apps</item>

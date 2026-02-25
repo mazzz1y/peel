@@ -145,8 +145,10 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         mediaPlaybackManager?.setBackground(false)
         if (webView != null) setDarkModeIfNeeded()
 
-        notificationManager.registerReceiver()
-        showNotification()
+        if (webapp.effectiveSettings.isShowNotification == true) {
+            notificationManager.registerReceiver()
+            showNotification()
+        }
 
         if (webapp.effectiveSettings.isBiometricProtection == true && !biometricAuthenticated) {
             showBiometricPrompt()
@@ -162,8 +164,10 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         super.onPause()
         val bgMedia = webapp.effectiveSettings.isAllowMediaPlaybackInBackground == true
         biometricAuthenticated = false
-        notificationManager.unregisterReceiver()
-        notificationManager.hideNotification()
+        if (webapp.effectiveSettings.isShowNotification == true) {
+            notificationManager.unregisterReceiver()
+            notificationManager.hideNotification()
+        }
 
         if (bgMedia) {
             mediaPlaybackManager?.setBackground(true)
@@ -246,6 +250,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         get() = window
 
     override fun showNotification() {
+        if (webapp.effectiveSettings.isShowNotification != true) return
         if (!notificationManager.showNotification()) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 ActivityCompat.requestPermissions(

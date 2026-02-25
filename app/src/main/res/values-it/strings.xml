@@ -193,7 +193,7 @@
     <string name="delete_group_title">Elimina gruppo</string>
     <string name="delete_group_confirm">Eliminare il gruppo \"%1$s\"? Contiene %2$d app.</string>
     <string name="ungroup_apps_on_delete">Mantieni le app (sposta a non raggruppate)</string>
-
+    <string name="setting_show_notification">Controlli notifica</string>
     <plurals name="group_app_count">
         <item quantity="one">%d app</item>
         <item quantity="other">%d app</item>

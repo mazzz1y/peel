@@ -30,10 +30,10 @@ class WebViewNotificationManager(
         get() = getWebappUuid().hashCode().and(0x7FFFFFFF)
 
     private val actionReload: String
-        get() = "wtf.mazy.peel.RELOAD.${getWebappUuid()}"
+        get() = "$ACTION_PREFIX.RELOAD.${getWebappUuid()}"
 
     private val actionHome: String
-        get() = "wtf.mazy.peel.HOME.${getWebappUuid()}"
+        get() = "$ACTION_PREFIX.HOME.${getWebappUuid()}"
 
     private val receiver =
         object : BroadcastReceiver() {
@@ -59,11 +59,10 @@ class WebViewNotificationManager(
     }
 
     fun registerReceiver() {
-        val filter =
-            IntentFilter().apply {
-                addAction(actionReload)
-                addAction(actionHome)
-            }
+        val filter = IntentFilter().apply {
+            addAction(actionReload)
+            addAction(actionHome)
+        }
         ContextCompat.registerReceiver(
             activity, receiver, filter, ContextCompat.RECEIVER_NOT_EXPORTED
         )
@@ -86,46 +85,35 @@ class WebViewNotificationManager(
         }
 
         val currentUrl = getWebView()?.url ?: "Loading..."
-        val shareChooser =
-            Intent.createChooser(
-                Intent(Intent.ACTION_SEND).apply {
-                    type = "text/plain"
-                    putExtra(Intent.EXTRA_TEXT, currentUrl)
-                },
-                null,
-            )
-
-        val shareIntent =
-            PendingIntent.getActivity(
-                activity,
-                RC_SHARE + idHash,
-                shareChooser,
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
-            )
-        val reloadIntent =
-            PendingIntent.getBroadcast(
-                activity,
-                RC_RELOAD + idHash,
-                Intent(actionReload).apply { setPackage(activity.packageName) },
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
-            )
-        val homeIntent =
-            PendingIntent.getBroadcast(
-                activity,
-                RC_HOME + idHash,
-                Intent(actionHome).apply { setPackage(activity.packageName) },
-                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
-            )
+        val shareChooser = Intent.createChooser(
+            Intent(Intent.ACTION_SEND).apply {
+                type = "text/plain"
+                putExtra(Intent.EXTRA_TEXT, currentUrl)
+            },
+            null,
+        )
+        val shareIntent = PendingIntent.getActivity(
+            activity, RC_SHARE + idHash, shareChooser,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+        )
+        val reloadIntent = PendingIntent.getBroadcast(
+            activity, RC_RELOAD + idHash,
+            Intent(actionReload).apply { setPackage(activity.packageName) },
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+        )
+        val homeIntent = PendingIntent.getBroadcast(
+            activity, RC_HOME + idHash,
+            Intent(actionHome).apply { setPackage(activity.packageName) },
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+        )
 
         val webapp = getWebapp()
-        val notificationIcon = webapp.resolveIcon()
-
         val notification =
             NotificationCompat.Builder(activity, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_notification)
-                .setLargeIcon(notificationIcon)
+                .setLargeIcon(webapp.resolveIcon())
                 .setContentTitle(webapp.title)
-                .setContentText(getWebView()?.url ?: "Loading...")
+                .setContentText(currentUrl)
                 .setPriority(NotificationCompat.PRIORITY_MIN)
                 .setCategory(NotificationCompat.CATEGORY_SERVICE)
                 .setOngoing(true)
@@ -144,10 +132,20 @@ class WebViewNotificationManager(
     }
 
     companion object {
+        private const val ACTION_PREFIX = "wtf.mazy.peel"
         private const val CHANNEL_ID = "webview_controls"
         private const val RC_SHARE = 1
         private const val RC_RELOAD = 2
         private const val RC_HOME = 3
-        private const val NOTIFICATION_BASE_ID = 1001
+        const val NOTIFICATION_BASE_ID = 1001
+
+        fun cancelAllControlNotifications(context: Context) {
+            val nm = context.getSystemService(NotificationManager::class.java)
+            for (notification in nm.activeNotifications) {
+                if (notification.notification.channelId == CHANNEL_ID) {
+                    nm.cancel(notification.id)
+                }
+            }
+        }
     }
 }
