@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     style="@style/SettingsItemContainer">
 
     <LinearLayout
@@ -28,10 +29,40 @@
             android:src="@drawable/ic_undo_24dp"
             android:visibility="gone" />
 
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/layoutNumberInput"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense"
+            android:layout_width="64dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginEnd="12dp"
+            android:translationY="-3dp"
+            app:boxCollapsedPaddingTop="0dp"
+            android:visibility="gone">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/editTextNumber"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:imeOptions="actionDone"
+                android:inputType="number"
+                android:includeFontPadding="false"
+                android:maxLines="1"
+                android:minHeight="34dp"
+                android:paddingStart="6dp"
+                android:paddingEnd="6dp"
+                android:paddingTop="0dp"
+                android:paddingBottom="0dp"
+                android:textSize="14sp" />
+        </com.google.android.material.textfield.TextInputLayout>
+
         <com.google.android.material.materialswitch.MaterialSwitch
             android:id="@+id/switchSetting"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginStart="4dp" />
 
         <ImageButton
             android:id="@+id/btnRemoveOverride"
@@ -43,20 +74,4 @@
             android:src="@drawable/ic_close_24dp" />
 
     </LinearLayout>
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/layoutNumberInput"
-        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:visibility="gone">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/editTextNumber"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Interval (seconds)"
-            android:inputType="number" />
-    </com.google.android.material.textfield.TextInputLayout>
 </LinearLayout>

@@ -96,7 +96,7 @@ class WebAppSettingsActivity :
             binding.root.post { fetchIconAndName(editableWebapp) }
         }
 
-        setupKeyboardPadding(findViewById(R.id.contentContainer))
+        setupKeyboardPadding(binding.scrollView)
     }
 
     override fun onPause() {

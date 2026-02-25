@@ -62,7 +62,7 @@ class GroupSettingsActivity :
 
         setupSandboxSwitch()
         setupOverridePicker()
-        setupKeyboardPadding(binding.contentContainer)
+        setupKeyboardPadding(binding.scrollView)
     }
 
     override fun onPause() {

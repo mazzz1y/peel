@@ -164,7 +164,7 @@ class SettingViewFactory(
         val intValue = settings.getValue(intKey) as? Int
 
         switch.isChecked = boolValue
-        editText.setText(intValue?.toString() ?: "")
+        editText.setText(intValue?.takeIf { it > 0 }?.toString() ?: "")
         layout.visibility = if (boolValue) View.VISIBLE else View.GONE
 
         val textWatcher =
@@ -181,16 +181,21 @@ class SettingViewFactory(
 
                 override fun afterTextChanged(s: Editable?) {
                     val intVal = s?.toString()?.toIntOrNull()
-                    if (intVal != null) {
-                        settings.setValue(intKey, intVal)
-                        updateUndoVisibility(btnUndo, setting, settings)
-                    }
+                    settings.setValue(intKey, intVal)
+                    updateUndoVisibility(btnUndo, setting, settings)
                 }
             }
 
         val switchListener = { _: android.widget.CompoundButton?, isChecked: Boolean ->
             settings.setValue(setting.key, isChecked)
             layout.visibility = if (isChecked) View.VISIBLE else View.GONE
+            if (isChecked) {
+                if ((settings.getValue(intKey) as? Int ?: 0) <= 0) {
+                    settings.setValue(intKey, null)
+                    editText.setText("")
+                }
+                editText.post { editText.requestFocus() }
+            }
             updateUndoVisibility(btnUndo, setting, settings)
         }
 
@@ -203,7 +208,7 @@ class SettingViewFactory(
             val newBool = settings.getValue(setting.key) as? Boolean ?: false
             val newInt = settings.getValue(intKey) as? Int
             switch.isChecked = newBool
-            editText.setText(newInt?.toString() ?: "")
+            editText.setText(newInt?.takeIf { it > 0 }?.toString() ?: "")
             layout.visibility = if (newBool) View.VISIBLE else View.GONE
 
             switch.setOnCheckedChangeListener(switchListener)
@@ -401,6 +406,7 @@ class SettingViewFactory(
         }
 
         container.addView(entryView)
+        if (initialKey.isEmpty()) editName.requestFocus()
     }
 
     private fun configureButtons(

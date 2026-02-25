@@ -18,7 +18,7 @@ class SettingsActivity : ToolbarBaseActivity<GlobalSettingsBinding>() {
         super.onCreate(savedInstanceState)
         setToolbarTitle(getString(R.string.global_settings))
         setupDefaultSettingsUI()
-        setupKeyboardPadding(binding.linearLayoutGlobalSettings)
+        setupKeyboardPadding(binding.scrollView)
     }
 
     override fun onPause() {
