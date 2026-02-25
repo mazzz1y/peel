@@ -224,8 +224,6 @@ class HeadlessWebViewFetcher(
         for (i in 0 until arr.length()) {
             val obj = arr.optJSONObject(i) ?: continue
             val href = obj.optString("href").takeIf { it.isNotEmpty() } ?: continue
-            val path = try { URL(href).path.lowercase() } catch (_: Exception) { href.lowercase() }
-            if (ICON_EXTENSIONS.none { path.endsWith(it) }) continue
             val sizes = obj.optString("sizes")
             val width = if (sizes.isNotEmpty()) getWidthFromIcon(sizes) else 1
             val rel = obj.optString("rel").lowercase()
@@ -257,6 +255,14 @@ class HeadlessWebViewFetcher(
             val conn = openConnection(url)
             try {
                 if (conn.responseCode != 200) return null
+                val contentType = conn.contentType?.lowercase().orEmpty()
+                if (contentType.contains("image/svg")) return null
+                if (
+                    contentType.startsWith("text/") ||
+                        contentType.contains("html") ||
+                        contentType.contains("json") ||
+                        contentType.contains("xml")
+                ) return null
                 if (conn.contentLength > MAX_ICON_BYTES) return null
                 val bytes = conn.inputStream.use { it.readBytes() }
                 val opts = BitmapFactory.Options().apply {
@@ -302,7 +308,6 @@ class HeadlessWebViewFetcher(
         private const val CONNECTION_TIMEOUT_MS = 4_000
         private const val MIN_ICON_WIDTH = 32
         private const val MAX_ICON_BYTES = 5 * 1024 * 1024
-        private val ICON_EXTENSIONS = listOf(".png", ".jpg", ".jpeg", ".ico", ".webp")
         private val MANIFEST_FALLBACK_PATHS =
             listOf("/manifest.webmanifest", "/manifest.json", "/site.webmanifest")
 
