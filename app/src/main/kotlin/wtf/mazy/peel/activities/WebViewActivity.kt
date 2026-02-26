@@ -1,6 +1,5 @@
 package wtf.mazy.peel.activities
 
-import android.Manifest
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.app.ActivityManager
@@ -52,6 +51,7 @@ import wtf.mazy.peel.model.SandboxManager
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.model.WebAppSettings
 import wtf.mazy.peel.ui.BiometricPromptHelper
+import wtf.mazy.peel.ui.FloatingControlsView
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.DateUtils.convertStringToCalendar
 import wtf.mazy.peel.util.DateUtils.isInInterval
@@ -65,7 +65,6 @@ import wtf.mazy.peel.webview.PeelWebChromeClient
 import wtf.mazy.peel.webview.PeelWebViewClient
 import wtf.mazy.peel.webview.PermissionResult
 import wtf.mazy.peel.webview.WebViewClientHost
-import wtf.mazy.peel.webview.WebViewNotificationManager
 import java.util.Calendar
 
 open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClientHost {
@@ -85,7 +84,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     private val webapp: WebApp
         get() = DataManager.instance.getWebApp(webappUuid!!)!!
 
-    private lateinit var notificationManager: WebViewNotificationManager
+    private var floatingControls: FloatingControlsView? = null
     private lateinit var downloadHandler: DownloadHandler
     private lateinit var peelWebViewClient: PeelWebViewClient
 
@@ -112,7 +111,6 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
             return
         }
 
-        initNotificationManager()
         initFilePickerLauncher()
         initDownloadHandler()
 
@@ -145,9 +143,12 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         mediaPlaybackManager?.setBackground(false)
         if (webView != null) setDarkModeIfNeeded()
 
-        if (webapp.effectiveSettings.isShowNotification == true) {
-            notificationManager.registerReceiver()
-            showNotification()
+        if (webapp.effectiveSettings.isShowNotification == true && floatingControls == null) {
+            floatingControls = FloatingControlsView(
+                parent = findViewById(R.id.webview_root),
+                getWebView = { webView },
+                onHome = { loadURL(webapp.baseUrl) },
+            )
         }
 
         if (webapp.effectiveSettings.isBiometricProtection == true && !biometricAuthenticated) {
@@ -164,10 +165,8 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         super.onPause()
         val bgMedia = webapp.effectiveSettings.isAllowMediaPlaybackInBackground == true
         biometricAuthenticated = false
-        if (webapp.effectiveSettings.isShowNotification == true) {
-            notificationManager.unregisterReceiver()
-            notificationManager.hideNotification()
-        }
+        floatingControls?.remove()
+        floatingControls = null
 
         if (bgMedia) {
             mediaPlaybackManager?.setBackground(true)
@@ -248,19 +247,6 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
 
     override val hostWindow: android.view.Window
         get() = window
-
-    override fun showNotification() {
-        if (webapp.effectiveSettings.isShowNotification != true) return
-        if (!notificationManager.showNotification()) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                ActivityCompat.requestPermissions(
-                    this,
-                    arrayOf(Manifest.permission.POST_NOTIFICATIONS),
-                    REQUEST_NOTIFICATION_PERMISSION,
-                )
-            }
-        }
-    }
 
     override fun showHttpAuthDialog(handler: HttpAuthHandler, host: String?, realm: String?) {
         val localBinding = DialogHttpAuthBinding.inflate(LayoutInflater.from(this))
@@ -476,19 +462,6 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         bind(R.id.btnDenySession, PermissionResult.DENY_SESSION)
     }
 
-    private fun initNotificationManager() {
-        notificationManager =
-            WebViewNotificationManager(
-                activity = this,
-                getWebapp = { webapp },
-                getWebappUuid = { webapp.uuid },
-                getWebView = { webView },
-                onReload = { webView?.reload() },
-                onHome = { loadURL(webapp.baseUrl) },
-            )
-        notificationManager.createChannel()
-    }
-
     private fun initFilePickerLauncher() {
         filePickerLauncher =
             registerForActivityResult(
@@ -517,7 +490,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
                 getWebView = { webView },
                 getBaseUrl = { webapp.baseUrl },
                 getProgressBar = { progressBar },
-                onDownloadComplete = { showNotification() },
+                onDownloadComplete = {},
             )
     }
 
@@ -772,13 +745,6 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
-        if (requestCode == REQUEST_NOTIFICATION_PERMISSION) {
-            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                showNotification()
-            }
-            return
-        }
-
         val granted =
             grantResults.isNotEmpty() &&
                     grantResults.all { it == PackageManager.PERMISSION_GRANTED }
@@ -795,9 +761,5 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
 
             Const.PERMISSION_RC_STORAGE -> if (granted) downloadHandler.onStoragePermissionGranted()
         }
-    }
-
-    companion object {
-        private const val REQUEST_NOTIFICATION_PERMISSION = 1002
     }
 }

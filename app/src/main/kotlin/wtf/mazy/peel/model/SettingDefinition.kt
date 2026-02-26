@@ -104,7 +104,7 @@ object SettingRegistry {
             ),
             SettingDefinition.BooleanSetting(
                 SettingField(WebAppSettings::isShowNotification, true),
-                R.string.setting_show_notification,
+                R.string.setting_floating_controls,
                 SettingCategory.GENERAL,
             ),
             SettingDefinition.BooleanSetting(

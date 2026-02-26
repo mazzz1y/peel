@@ -201,7 +201,7 @@
     <string name="setting_always_https">HTTPS only</string>
     <string name="setting_custom_headers">Custom headers</string>
     <string name="setting_dynamic_status_bar">Dynamic status bar</string>
-    <string name="setting_show_notification">Notification controls</string>
+    <string name="setting_floating_controls">Floating controls</string>
 
     <string name="groups">Groups</string>
     <string name="group">Group</string>

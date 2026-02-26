@@ -33,7 +33,6 @@ class PeelWebViewClient(private val host: WebViewClientHost) : WebViewClient() {
     }
 
     override fun onPageFinished(view: WebView?, url: String) {
-        host.showNotification()
         if (view != null) extractDynamicBarColor(view)
         super.onPageFinished(view, url)
     }
