@@ -3,8 +3,11 @@ package wtf.mazy.peel.activities
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.app.ActivityManager
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.Color
@@ -74,6 +77,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
 
     private var progressBar: ProgressBar? = null
     private var swipeRefreshLayout: SwipeRefreshLayout? = null
+    private var webviewLaunchOverlay: View? = null
     override var currentlyReloading = true
     private var customHeaders: Map<String, String>? = null
     override var filePathCallback: ValueCallback<Array<Uri?>?>? = null
@@ -88,7 +92,6 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     private lateinit var downloadHandler: DownloadHandler
     private lateinit var peelWebViewClient: PeelWebViewClient
 
-    private var biometricAuthenticated = false
     private var biometricPromptActive = false
 
     private var statusBarScrim: View? = null
@@ -98,6 +101,15 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     private var geoPermissionRequestCallback: GeolocationPermissions.Callback? = null
     private var geoPermissionRequestOrigin: String? = null
     private var mediaPlaybackManager: MediaPlaybackManager? = null
+    private var isScreenStateReceiverRegistered = false
+    private val screenStateReceiver =
+        object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                if (intent?.action == Intent.ACTION_SCREEN_OFF) {
+                    clearBiometricUnlocks()
+                }
+            }
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
@@ -127,8 +139,10 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
 
         applyTaskSnapshotProtection()
         setupWebView()
+        registerReceiver(screenStateReceiver, IntentFilter(Intent.ACTION_SCREEN_OFF))
+        isScreenStateReceiverRegistered = true
 
-        if (webapp.effectiveSettings.isBiometricProtection == true) {
+        if (webapp.effectiveSettings.isBiometricProtection == true && !isBiometricUnlocked()) {
             showBiometricPrompt()
         }
 
@@ -151,7 +165,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
             )
         }
 
-        if (webapp.effectiveSettings.isBiometricProtection == true && !biometricAuthenticated) {
+        if (webapp.effectiveSettings.isBiometricProtection == true && !isBiometricUnlocked()) {
             showBiometricPrompt()
         }
 
@@ -164,7 +178,6 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     override fun onPause() {
         super.onPause()
         val bgMedia = webapp.effectiveSettings.isAllowMediaPlaybackInBackground == true
-        biometricAuthenticated = false
         floatingControls?.remove()
         floatingControls = null
 
@@ -187,6 +200,10 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     }
 
     override fun onDestroy() {
+        if (isScreenStateReceiverRegistered) {
+            unregisterReceiver(screenStateReceiver)
+            isScreenStateReceiverRegistered = false
+        }
         barColorAnimator?.cancel()
         barColorAnimator = null
         mediaPlaybackManager?.release()
@@ -335,14 +352,25 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         barColorAnimator?.cancel()
         barColorAnimator =
             ValueAnimator.ofArgb(fromColor, color).apply {
-                duration = 300
+                duration = UI_ANIMATION_DURATION_MS
                 addUpdateListener { applyBarColor(it.animatedValue as Int) }
                 start()
             }
     }
 
     override fun onPageStarted() {
+        webviewLaunchOverlay?.apply {
+            animate().cancel()
+            alpha = 1f
+            visibility = View.VISIBLE
+        }
         mediaPlaybackManager?.injectPolyfill()
+    }
+
+    override fun onPageCommitVisible() {
+        webviewLaunchOverlay?.animate()?.alpha(0f)?.setDuration(UI_ANIMATION_DURATION_MS)?.withEndAction {
+            webviewLaunchOverlay?.visibility = View.GONE
+        }?.start()
     }
 
     override fun onPageFullyLoaded() {
@@ -570,6 +598,11 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         findViewById<View>(R.id.webview_root)?.setBackgroundColor(themeBackgroundColor)
         findViewById<View>(R.id.webviewActivity)?.setBackgroundColor(themeBackgroundColor)
         webView = findViewById(R.id.webview)
+        webviewLaunchOverlay = findViewById<View>(R.id.webviewLaunchOverlay).apply {
+            setBackgroundColor(themeBackgroundColor)
+            alpha = 1f
+            visibility = View.VISIBLE
+        }
         progressBar = findViewById(R.id.progressBar)
         swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout)
     }
@@ -714,7 +747,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         BiometricPromptHelper(this)
             .showPrompt(
                 {
-                    biometricAuthenticated = true
+                    setBiometricUnlocked()
                     biometricPromptActive = false
                     fullActivityView.visibility = View.VISIBLE
                 },
@@ -762,5 +795,24 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
 
             Const.PERMISSION_RC_STORAGE -> if (granted) downloadHandler.onStoragePermissionGranted()
         }
+    }
+
+    private fun isBiometricUnlocked(): Boolean {
+        val uuid = webappUuid ?: return false
+        return unlockedBiometricWebapps.contains(uuid)
+    }
+
+    private fun setBiometricUnlocked() {
+        val uuid = webappUuid ?: return
+        unlockedBiometricWebapps.add(uuid)
+    }
+
+    private fun clearBiometricUnlocks() {
+        unlockedBiometricWebapps.clear()
+    }
+
+    companion object {
+        private const val UI_ANIMATION_DURATION_MS = 300L
+        private val unlockedBiometricWebapps = mutableSetOf<String>()
     }
 }

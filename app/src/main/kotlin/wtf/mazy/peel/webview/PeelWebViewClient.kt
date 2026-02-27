@@ -39,6 +39,7 @@ class PeelWebViewClient(private val host: WebViewClientHost) : WebViewClient() {
 
     override fun onPageCommitVisible(view: WebView?, url: String?) {
         super.onPageCommitVisible(view, url)
+        host.onPageCommitVisible()
         if (view != null) extractDynamicBarColor(view)
     }
 

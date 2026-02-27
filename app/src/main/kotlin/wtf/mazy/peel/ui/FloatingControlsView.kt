@@ -11,6 +11,7 @@ import android.widget.ImageButton
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import wtf.mazy.peel.R
+import androidx.core.content.edit
 
 class FloatingControlsView(
     private val parent: FrameLayout,
@@ -145,10 +146,10 @@ class FloatingControlsView(
 
     private fun savePosition() {
         if (parent.width <= 0 || parent.height <= 0) return
-        prefs.edit()
-            .putFloat(KEY_X, trigger.x / parent.width)
-            .putFloat(KEY_Y, trigger.y / parent.height)
-            .apply()
+        prefs.edit {
+            putFloat(KEY_X, trigger.x / parent.width)
+                .putFloat(KEY_Y, trigger.y / parent.height)
+        }
     }
 
     private fun moveTriggerTo(x: Float, y: Float) {
