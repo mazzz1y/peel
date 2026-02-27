@@ -147,7 +147,7 @@ class WebAppSettingsActivity :
     }
 
     private fun showGroupPicker(webapp: WebApp, groups: List<WebAppGroup>) {
-        val popup = PopupMenu(this, binding.txtGroupName)
+        val popup = PopupMenu(this, binding.txtGroupName, Gravity.END)
         groups.forEachIndexed { index, group -> popup.menu.add(0, index, index, group.title) }
         popup.menu.add(0, groups.size, groups.size, getString(R.string.none))
 
