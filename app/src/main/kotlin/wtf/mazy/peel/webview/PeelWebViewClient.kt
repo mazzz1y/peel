@@ -221,10 +221,9 @@ class PeelWebViewClient(private val host: WebViewClientHost) : WebViewClient() {
             (function() {
                 var isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
                 var metas = document.querySelectorAll('meta[name="theme-color"]');
-                var genericThemeColor = null;
                 for (var i = 0; i < metas.length; i++) {
                     var media = metas[i].getAttribute('media');
-                    if (!media) { genericThemeColor = metas[i].content; continue; }
+                    if (!media) continue;
                     if (isDark && media.indexOf('dark') !== -1) return metas[i].content;
                     if (!isDark && media.indexOf('light') !== -1) return metas[i].content;
                 }
@@ -237,7 +236,7 @@ class PeelWebViewClient(private val host: WebViewClientHost) : WebViewClient() {
                 var htmlBg = getComputedStyle(document.documentElement).backgroundColor;
                 if (isOpaque(htmlBg)) return htmlBg;
 
-                return genericThemeColor || '';
+                return '';
             })()
         """
                 .trimIndent()

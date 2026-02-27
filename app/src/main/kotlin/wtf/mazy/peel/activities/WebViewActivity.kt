@@ -299,6 +299,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
                     WebSettingsCompat.setAlgorithmicDarkeningAllowed(currentWebView.settings, true)
                 }
             } else {
+                currentWebView.setBackgroundColor(Color.WHITE)
                 getDelegate().localNightMode = AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
                 if (isAlgorithmicDarkeningSupported) {
                     @Suppress("DEPRECATION")
@@ -568,7 +569,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     private fun bindViews() {
         findViewById<View>(R.id.webview_root)?.setBackgroundColor(themeBackgroundColor)
         findViewById<View>(R.id.webviewActivity)?.setBackgroundColor(themeBackgroundColor)
-        webView = findViewById<WebView>(R.id.webview).apply { setBackgroundColor(themeBackgroundColor) }
+        webView = findViewById(R.id.webview)
         progressBar = findViewById(R.id.progressBar)
         swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout)
     }

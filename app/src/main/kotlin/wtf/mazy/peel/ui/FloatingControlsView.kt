@@ -2,6 +2,7 @@ package wtf.mazy.peel.ui
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.content.SharedPreferences
 import android.view.MotionEvent
 import android.view.View
 import android.webkit.WebView
@@ -16,6 +17,8 @@ class FloatingControlsView(
     private val getWebView: () -> WebView?,
     private val onHome: () -> Unit,
 ) {
+    private val prefs: SharedPreferences =
+        parent.context.getSharedPreferences(PREFS_NAME, 0)
     private val density = parent.resources.displayMetrics.density
     private val buttonSizePx = (40 * density).toInt()
     private val gapPx = (8 * density).toInt()
@@ -53,7 +56,7 @@ class FloatingControlsView(
         parent.addView(trigger)
         setupTouchHandling()
         setupActions()
-        placeDefault()
+        placeInitial()
     }
 
     fun remove() {
@@ -99,7 +102,7 @@ class FloatingControlsView(
                 }
 
                 MotionEvent.ACTION_UP -> {
-                    if (!isDragging) toggle()
+                    if (isDragging) savePosition() else toggle()
                     true
                 }
 
@@ -127,12 +130,25 @@ class FloatingControlsView(
         actionButtons[2].setOnClickListener { collapse(); getWebView()?.reload() }
     }
 
-    private fun placeDefault() {
+    private fun placeInitial() {
         trigger.post {
-            val x = (parent.width - buttonSizePx - marginPx).toFloat()
-            val y = parent.height * 0.25f
+            val savedFracX = prefs.getFloat(KEY_X, -1f)
+            val savedFracY = prefs.getFloat(KEY_Y, -1f)
+            val (x, y) = if (savedFracX >= 0f && savedFracY >= 0f) {
+                savedFracX * parent.width to savedFracY * parent.height
+            } else {
+                (parent.width - buttonSizePx - marginPx).toFloat() to parent.height * 0.25f
+            }
             moveTriggerTo(x, y)
         }
+    }
+
+    private fun savePosition() {
+        if (parent.width <= 0 || parent.height <= 0) return
+        prefs.edit()
+            .putFloat(KEY_X, trigger.x / parent.width)
+            .putFloat(KEY_Y, trigger.y / parent.height)
+            .apply()
     }
 
     private fun moveTriggerTo(x: Float, y: Float) {
@@ -190,5 +206,11 @@ class FloatingControlsView(
                 .start()
         }
         trigger.animate().rotation(0f).setDuration(150).start()
+    }
+
+    companion object {
+        private const val PREFS_NAME = "floating_controls"
+        private const val KEY_X = "x"
+        private const val KEY_Y = "y"
     }
 }
