@@ -40,7 +40,8 @@
             android:layout_marginBottom="10dp"
             android:scaleType="centerInside"
             android:visibility="gone"
-            app:srcCompat="@mipmap/ic_launcher_foreground" />
+            android:contentDescription="@string/shortcut_icon"
+            app:srcCompat="@drawable/ic_launcher_foreground" />
 
     </LinearLayout>
 

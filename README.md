@@ -1,10 +1,10 @@
 <p align="center">
-  <img src=".github/icon.png" width="96" height="96" alt="Peel Logo">
+  <img src=".github/icon.svg" width="96" height="96" alt="Peel Logo">
 </p>
 
-# Peel
-
 ⚠️ **Alpha:** This project is in early development. Expect breaking changes and instability
+
+# Peel
 
 **Turn any website into a native-like Android app**
 
