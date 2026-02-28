@@ -78,6 +78,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     private var progressBar: ProgressBar? = null
     private var swipeRefreshLayout: SwipeRefreshLayout? = null
     private var webviewLaunchOverlay: View? = null
+    private var isLaunchOverlayVisible = true
     override var currentlyReloading = true
     private var customHeaders: Map<String, String>? = null
     override var filePathCallback: ValueCallback<Array<Uri?>?>? = null
@@ -359,23 +360,25 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     }
 
     override fun onPageStarted() {
-        webviewLaunchOverlay?.apply {
-            animate().cancel()
-            alpha = 1f
-            visibility = View.VISIBLE
-        }
         mediaPlaybackManager?.injectPolyfill()
     }
 
     override fun onPageCommitVisible() {
-        webviewLaunchOverlay?.animate()?.alpha(0f)?.setDuration(UI_ANIMATION_DURATION_MS)?.withEndAction {
-            webviewLaunchOverlay?.visibility = View.GONE
-        }?.start()
+        hideLaunchOverlayIfNeeded()
     }
 
     override fun onPageFullyLoaded() {
+        hideLaunchOverlayIfNeeded()
         webView?.let { peelWebViewClient.extractDynamicBarColor(it) }
         mediaPlaybackManager?.injectObserver()
+    }
+
+    private fun hideLaunchOverlayIfNeeded() {
+        if (!isLaunchOverlayVisible) return
+        isLaunchOverlayVisible = false
+        webviewLaunchOverlay?.animate()?.alpha(0f)?.setDuration(UI_ANIMATION_DURATION_MS)?.withEndAction {
+            webviewLaunchOverlay?.visibility = View.GONE
+        }?.start()
     }
 
     private fun applyBarColor(color: Int) {
@@ -603,6 +606,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
             alpha = 1f
             visibility = View.VISIBLE
         }
+        isLaunchOverlayVisible = true
         progressBar = findViewById(R.id.progressBar)
         swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout)
     }
