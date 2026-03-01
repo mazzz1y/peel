@@ -23,7 +23,6 @@ import android.view.WindowInsets
 import android.view.WindowInsetsController
 import android.view.WindowManager
 import android.webkit.CookieManager
-import android.webkit.GeolocationPermissions
 import android.webkit.HttpAuthHandler
 import android.webkit.ValueCallback
 import android.webkit.WebView
@@ -33,10 +32,10 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultCallback
 import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.core.app.ActivityCompat
 import androidx.core.app.ShareCompat.IntentBuilder
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
@@ -83,6 +82,13 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     private var customHeaders: Map<String, String>? = null
     override var filePathCallback: ValueCallback<Array<Uri?>?>? = null
     private var filePickerLauncher: ActivityResultLauncher<Intent?>? = null
+    private var pendingPermissionCallback: ((Boolean) -> Unit)? = null
+    private val permissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { results ->
+            val allGranted = results.isNotEmpty() && results.values.all { it }
+            pendingPermissionCallback?.invoke(allGranted)
+            pendingPermissionCallback = null
+        }
     private var reloadHandler: Handler? = null
     override var urlOnFirstPageload = ""
 
@@ -92,6 +98,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     private var floatingControls: FloatingControlsView? = null
     private lateinit var downloadHandler: DownloadHandler
     private lateinit var peelWebViewClient: PeelWebViewClient
+    private var peelWebChromeClient: PeelWebChromeClient? = null
 
     private var biometricPromptActive = false
 
@@ -99,8 +106,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     private var navigationBarScrim: View? = null
     private var currentBarColor: Int? = null
     private var barColorAnimator: ValueAnimator? = null
-    private var geoPermissionRequestCallback: GeolocationPermissions.Callback? = null
-    private var geoPermissionRequestOrigin: String? = null
+
     private var mediaPlaybackManager: MediaPlaybackManager? = null
     private var isScreenStateReceiverRegistered = false
     private val screenStateReceiver =
@@ -360,6 +366,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     }
 
     override fun onPageStarted() {
+        peelWebChromeClient?.clearPagePermissions()
         mediaPlaybackManager?.injectPolyfill()
     }
 
@@ -451,8 +458,12 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         }
     }
 
-    override fun requestHostPermissions(permissions: Array<String>, requestCode: Int) {
-        ActivityCompat.requestPermissions(this, permissions, requestCode)
+    override fun requestOsPermissions(
+        permissions: Array<String>,
+        onResult: (granted: Boolean) -> Unit,
+    ) {
+        pendingPermissionCallback = onResult
+        permissionLauncher.launch(permissions)
     }
 
     override fun hasPermissions(vararg permissions: String): Boolean {
@@ -461,37 +472,19 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         }
     }
 
-    override fun onGeoPermissionResult(
-        origin: String?,
-        callback: GeolocationPermissions.Callback?,
-        allow: Boolean,
-    ) {
-        if (allow) {
-            callback?.invoke(origin, true, false)
-            return
-        }
-        geoPermissionRequestCallback = callback
-        geoPermissionRequestOrigin = origin
-    }
-
     override fun showPermissionDialog(message: String, onResult: (PermissionResult) -> Unit) {
-        val view = layoutInflater.inflate(R.layout.dialog_permission, null)
-        view.findViewById<android.widget.TextView>(R.id.textTitle).text = message
-        val dialog =
-            MaterialAlertDialogBuilder(this)
-                .setView(view)
-                .setOnCancelListener { onResult(PermissionResult.DENY_ONCE) }
-                .show()
-
-        fun bind(id: Int, result: PermissionResult) =
-            view.findViewById<View>(id).setOnClickListener {
+        MaterialAlertDialogBuilder(this)
+            .setMessage(message)
+            .setPositiveButton(R.string.permission_allow) { dialog, _ ->
                 dialog.dismiss()
-                onResult(result)
+                onResult(PermissionResult.ALLOW)
             }
-        bind(R.id.btnAllowSession, PermissionResult.ALLOW_SESSION)
-        bind(R.id.btnAllowOnce, PermissionResult.ALLOW_ONCE)
-        bind(R.id.btnDenyOnce, PermissionResult.DENY_ONCE)
-        bind(R.id.btnDenySession, PermissionResult.DENY_SESSION)
+            .setNegativeButton(R.string.permission_deny) { dialog, _ ->
+                dialog.dismiss()
+                onResult(PermissionResult.DENY)
+            }
+            .setOnCancelListener { onResult(PermissionResult.DENY) }
+            .show()
     }
 
     private fun initFilePickerLauncher() {
@@ -545,7 +538,8 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         customHeaders = buildCustomHeaders(settings)
         loadURL(sharedUrlFromIntent() ?: webapp.baseUrl)
 
-        webView?.webChromeClient = PeelWebChromeClient(this)
+        peelWebChromeClient = PeelWebChromeClient(this)
+        webView?.webChromeClient = peelWebChromeClient
         setupLongClickShare(settings)
         webView?.let { downloadHandler.install(it) }
         setupMediaPlayback(settings)
@@ -788,15 +782,6 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
                     grantResults.all { it == PackageManager.PERMISSION_GRANTED }
 
         when (requestCode) {
-            Const.PERMISSION_RC_LOCATION -> {
-                geoPermissionRequestCallback?.invoke(geoPermissionRequestOrigin, granted, false)
-                geoPermissionRequestCallback = null
-                geoPermissionRequestOrigin = null
-            }
-
-            Const.PERMISSION_CAMERA,
-            Const.PERMISSION_AUDIO -> if (granted) webView?.reload()
-
             Const.PERMISSION_RC_STORAGE -> if (granted) downloadHandler.onStoragePermissionGranted()
         }
     }

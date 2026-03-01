@@ -3,16 +3,13 @@ package wtf.mazy.peel.webview
 import android.content.Intent
 import android.net.Uri
 import android.view.Window
-import android.webkit.GeolocationPermissions
 import android.webkit.ValueCallback
 import android.widget.ProgressBar
 import wtf.mazy.peel.model.WebAppSettings
 
 enum class PermissionResult {
-    ALLOW_SESSION,
-    ALLOW_ONCE,
-    DENY_ONCE,
-    DENY_SESSION,
+    ALLOW,
+    DENY,
 }
 
 interface ChromeClientHost {
@@ -34,15 +31,9 @@ interface ChromeClientHost {
 
     fun showSystemBars()
 
-    fun requestHostPermissions(permissions: Array<String>, requestCode: Int)
+    fun requestOsPermissions(permissions: Array<String>, onResult: (granted: Boolean) -> Unit)
 
     fun hasPermissions(vararg permissions: String): Boolean
-
-    fun onGeoPermissionResult(
-        origin: String?,
-        callback: GeolocationPermissions.Callback?,
-        allow: Boolean,
-    )
 
     fun showPermissionDialog(message: String, onResult: (PermissionResult) -> Unit)
 

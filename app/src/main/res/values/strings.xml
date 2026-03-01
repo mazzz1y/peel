@@ -119,10 +119,6 @@
     <string name="permission_deny">Deny</string>
     <string name="permission_ask">Ask</string>
     <string name="permission_allow">Allow</string>
-    <string name="permission_allow_session">Allow for this session</string>
-    <string name="permission_allow_once">Allow once</string>
-    <string name="permission_deny_once">Deny once</string>
-    <string name="permission_deny_session">Deny for this session</string>
     <string name="permission_prompt_camera">Allow %1$s to access your camera?</string>
     <string name="permission_prompt_microphone">Allow %1$s to access your microphone?</string>
     <string name="permission_prompt_location">Allow %1$s to access your location?</string>

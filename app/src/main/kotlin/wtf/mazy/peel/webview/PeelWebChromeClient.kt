@@ -16,7 +16,6 @@ import androidx.core.graphics.createBitmap
 import androidx.core.view.isGone
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.WebAppSettings
-import wtf.mazy.peel.util.Const
 
 class PeelWebChromeClient(private val host: ChromeClientHost) : WebChromeClient() {
 
@@ -24,8 +23,13 @@ class PeelWebChromeClient(private val host: ChromeClientHost) : WebChromeClient(
     private var customViewCallback: CustomViewCallback? = null
     private var originalOrientation = 0
     private var originalSystemUiVisibility = 0
-    private val sessionGranted = mutableSetOf<String>()
-    private val sessionDenied = mutableSetOf<String>()
+    private val pageGranted = mutableSetOf<String>()
+    private val pageDenied = mutableSetOf<String>()
+
+    fun clearPagePermissions() {
+        pageGranted.clear()
+        pageDenied.clear()
+    }
 
     companion object {
         private const val GEOLOCATION_KEY = "geolocation"
@@ -90,22 +94,20 @@ class PeelWebChromeClient(private val host: ChromeClientHost) : WebChromeClient(
 
     override fun onPermissionRequest(request: PermissionRequest) {
         val resources = request.resources.toList()
-        val immediate = mutableListOf<String>()
+        val granted = mutableListOf<String>()
         val pending = mutableListOf<PendingPermission>()
 
         if (PermissionRequest.RESOURCE_PROTECTED_MEDIA_ID in resources) {
             if (host.effectiveSettings.isDrmAllowed == true) {
-                immediate.add(PermissionRequest.RESOURCE_PROTECTED_MEDIA_ID)
+                granted.add(PermissionRequest.RESOURCE_PROTECTED_MEDIA_ID)
             }
         }
         if (PermissionRequest.RESOURCE_VIDEO_CAPTURE in resources) {
             handleTriState(
                 host.effectiveSettings.isCameraPermission,
                 arrayOf(Manifest.permission.CAMERA),
-                Const.PERMISSION_CAMERA,
                 PermissionRequest.RESOURCE_VIDEO_CAPTURE,
                 R.string.permission_prompt_camera,
-                immediate,
                 pending,
             )
         }
@@ -115,18 +117,16 @@ class PeelWebChromeClient(private val host: ChromeClientHost) : WebChromeClient(
                 arrayOf(
                     Manifest.permission.RECORD_AUDIO, Manifest.permission.MODIFY_AUDIO_SETTINGS
                 ),
-                Const.PERMISSION_AUDIO,
                 PermissionRequest.RESOURCE_AUDIO_CAPTURE,
                 R.string.permission_prompt_microphone,
-                immediate,
                 pending,
             )
         }
 
         if (pending.isEmpty()) {
-            finalizePermissionRequest(request, immediate)
+            finalizePermissionRequest(request, granted)
         } else {
-            resolveAskPermissions(request, immediate, pending, 0)
+            resolvePermissions(request, granted, pending, 0)
         }
     }
 
@@ -155,26 +155,24 @@ class PeelWebChromeClient(private val host: ChromeClientHost) : WebChromeClient(
             WebAppSettings.PERMISSION_ON -> grantLocation(origin, callback)
             WebAppSettings.PERMISSION_ASK -> {
                 when {
-                    GEOLOCATION_KEY in sessionDenied -> callback?.invoke(origin, false, false)
-                    GEOLOCATION_KEY in sessionGranted -> grantLocation(origin, callback)
+                    GEOLOCATION_KEY in pageDenied ->
+                        callback?.invoke(origin, false, false)
+                    GEOLOCATION_KEY in pageGranted ->
+                        grantLocation(origin, callback)
                     else -> {
                         host.showPermissionDialog(
                             host.getString(R.string.permission_prompt_location, trimmedName)
                         ) { result ->
                             when (result) {
-                                PermissionResult.ALLOW_SESSION -> {
-                                    sessionGranted.add(GEOLOCATION_KEY)
+                                PermissionResult.ALLOW -> {
+                                    pageGranted.add(GEOLOCATION_KEY)
                                     grantLocation(origin, callback)
                                 }
 
-                                PermissionResult.ALLOW_ONCE -> grantLocation(origin, callback)
-                                PermissionResult.DENY_SESSION -> {
-                                    sessionDenied.add(GEOLOCATION_KEY)
+                                PermissionResult.DENY -> {
+                                    pageDenied.add(GEOLOCATION_KEY)
                                     callback?.invoke(origin, false, false)
                                 }
-
-                                PermissionResult.DENY_ONCE ->
-                                    callback?.invoke(origin, false, false)
                             }
                         }
                     }
@@ -191,55 +189,35 @@ class PeelWebChromeClient(private val host: ChromeClientHost) : WebChromeClient(
                 Manifest.permission.ACCESS_COARSE_LOCATION,
                 Manifest.permission.ACCESS_FINE_LOCATION
             )
-        if (!host.hasPermissions(*permissions)) {
-            host.onGeoPermissionResult(origin, callback, false)
-            host.requestHostPermissions(permissions, Const.PERMISSION_RC_LOCATION)
-        } else {
-            callback?.invoke(origin, true, false)
+        ensureOsPermission(permissions) { granted ->
+            callback?.invoke(origin, granted, false)
         }
     }
 
     private data class PendingPermission(
         val androidPermissions: Array<String>,
-        val requestCode: Int,
         val webkitPermission: String,
         val promptResId: Int,
+        val skipInAppDialog: Boolean,
     )
-
-    private fun grantOrRequestPermission(
-        androidPermissions: Array<String>,
-        requestCode: Int,
-        webkitPermission: String,
-        granted: MutableList<String>,
-    ) {
-        if (!host.hasPermissions(*androidPermissions)) {
-            host.requestHostPermissions(androidPermissions, requestCode)
-        } else {
-            granted.add(webkitPermission)
-        }
-    }
 
     private fun handleTriState(
         state: Int?,
         androidPermissions: Array<String>,
-        requestCode: Int,
         webkitPermission: String,
         promptResId: Int,
-        immediate: MutableList<String>,
         pending: MutableList<PendingPermission>,
     ) {
         when {
-            webkitPermission in sessionDenied -> {}
-            state == WebAppSettings.PERMISSION_ON || webkitPermission in sessionGranted ->
-                grantOrRequestPermission(
-                    androidPermissions, requestCode, webkitPermission, immediate
+            webkitPermission in pageDenied -> {}
+            state == WebAppSettings.PERMISSION_ON || webkitPermission in pageGranted ->
+                pending.add(
+                    PendingPermission(androidPermissions, webkitPermission, promptResId, skipInAppDialog = true)
                 )
 
             state == WebAppSettings.PERMISSION_ASK ->
                 pending.add(
-                    PendingPermission(
-                        androidPermissions, requestCode, webkitPermission, promptResId
-                    )
+                    PendingPermission(androidPermissions, webkitPermission, promptResId, skipInAppDialog = false)
                 )
         }
     }
@@ -248,7 +226,7 @@ class PeelWebChromeClient(private val host: ChromeClientHost) : WebChromeClient(
         if (granted.isEmpty()) request.deny() else request.grant(granted.toTypedArray())
     }
 
-    private fun resolveAskPermissions(
+    private fun resolvePermissions(
         request: PermissionRequest,
         granted: MutableList<String>,
         pending: List<PendingPermission>,
@@ -259,24 +237,53 @@ class PeelWebChromeClient(private val host: ChromeClientHost) : WebChromeClient(
             return
         }
         val p = pending[index]
+
+        if (p.skipInAppDialog) {
+            // PERMISSION_ON / already granted on this page: just ensure OS permission
+            ensureOsPermission(p.androidPermissions) { osGranted ->
+                if (osGranted) granted.add(p.webkitPermission)
+                resolvePermissions(request, granted, pending, index + 1)
+            }
+            return
+        }
+
+        // PERMISSION_ASK: ensure OS permission first, then show in-app dialog
+        ensureOsPermission(p.androidPermissions) { osGranted ->
+            if (!osGranted) {
+                resolvePermissions(request, granted, pending, index + 1)
+                return@ensureOsPermission
+            }
+            showInAppDialog(p, granted) {
+                resolvePermissions(request, granted, pending, index + 1)
+            }
+        }
+    }
+
+    private fun ensureOsPermission(
+        androidPermissions: Array<String>,
+        onDone: (granted: Boolean) -> Unit,
+    ) {
+        if (host.hasPermissions(*androidPermissions)) {
+            onDone(true)
+        } else {
+            host.requestOsPermissions(androidPermissions, onDone)
+        }
+    }
+
+    private fun showInAppDialog(
+        p: PendingPermission,
+        granted: MutableList<String>,
+        onDone: () -> Unit,
+    ) {
         host.showPermissionDialog(host.getString(p.promptResId, trimmedName)) { result ->
             when (result) {
-                PermissionResult.ALLOW_SESSION -> {
-                    sessionGranted.add(p.webkitPermission)
-                    grantOrRequestPermission(
-                        p.androidPermissions, p.requestCode, p.webkitPermission, granted
-                    )
+                PermissionResult.ALLOW -> {
+                    pageGranted.add(p.webkitPermission)
+                    granted.add(p.webkitPermission)
                 }
-
-                PermissionResult.ALLOW_ONCE ->
-                    grantOrRequestPermission(
-                        p.androidPermissions, p.requestCode, p.webkitPermission, granted
-                    )
-
-                PermissionResult.DENY_SESSION -> sessionDenied.add(p.webkitPermission)
-                PermissionResult.DENY_ONCE -> {}
+                PermissionResult.DENY -> pageDenied.add(p.webkitPermission)
             }
-            resolveAskPermissions(request, granted, pending, index + 1)
+            onDone()
         }
     }
 }
