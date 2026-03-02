@@ -63,6 +63,7 @@ import wtf.mazy.peel.util.WebViewLauncher
 import wtf.mazy.peel.util.buildUserAgent
 import wtf.mazy.peel.webview.ChromeClientHost
 import wtf.mazy.peel.webview.DownloadHandler
+import wtf.mazy.peel.webview.NavigationStartPoint
 import wtf.mazy.peel.webview.PeelWebChromeClient
 import wtf.mazy.peel.webview.PeelWebViewClient
 import wtf.mazy.peel.webview.PermissionResult
@@ -92,6 +93,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     private var reloadHandler: Handler? = null
     override var urlOnFirstPageload = ""
 
+    override val navigationStartPoint by lazy { NavigationStartPoint(webapp.baseUrl) }
     private val webapp: WebApp
         get() = DataManager.instance.getWebApp(webappUuid!!)!!
 
@@ -708,11 +710,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         val currentIndex = history.currentIndex
         if (currentIndex <= 0) return 0
 
-        val currentHost = wv.url?.toUri()?.host
-        val baseHost = webapp.baseUrl.toUri().host ?: return 1
-        val prevHost = history.getItemAtIndex(currentIndex - 1)?.url?.toUri()?.host
-
-        return if (currentHost == baseHost && prevHost != baseHost) 0 else 1
+        return if (navigationStartPoint.canGoBackFrom(currentIndex)) 1 else 0
     }
 
     private fun buildCustomHeaders(settings: WebAppSettings): Map<String, String> {

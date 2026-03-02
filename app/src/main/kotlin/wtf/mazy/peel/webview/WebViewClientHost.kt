@@ -10,6 +10,7 @@ interface WebViewClientHost {
     val baseUrl: String
     val webappUuid: String?
     var urlOnFirstPageload: String
+    val navigationStartPoint: NavigationStartPoint
 
     fun onPageStarted()
 
