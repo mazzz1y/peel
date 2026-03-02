@@ -26,7 +26,6 @@ import android.webkit.CookieManager
 import android.webkit.HttpAuthHandler
 import android.webkit.ValueCallback
 import android.webkit.WebView
-import android.webkit.WebView.HitTestResult
 import android.widget.ProgressBar
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
@@ -54,6 +53,7 @@ import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.model.WebAppSettings
 import wtf.mazy.peel.ui.BiometricPromptHelper
 import wtf.mazy.peel.ui.FloatingControlsView
+import wtf.mazy.peel.webview.WebViewLinkResolver
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.DateUtils.convertStringToCalendar
 import wtf.mazy.peel.util.DateUtils.isInInterval
@@ -92,8 +92,8 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         }
     private var reloadHandler: Handler? = null
     override var urlOnFirstPageload = ""
-
     override val navigationStartPoint by lazy { NavigationStartPoint(webapp.baseUrl) }
+
     private val webapp: WebApp
         get() = DataManager.instance.getWebApp(webappUuid!!)!!
 
@@ -667,23 +667,20 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     }
 
     private fun setupLongClickShare(settings: WebAppSettings) {
-        webView?.setOnLongClickListener { _ ->
-            if (settings.isLongClickShare != true) return@setOnLongClickListener false
-            val result = webView?.hitTestResult
-            if (result?.type == HitTestResult.SRC_ANCHOR_TYPE) {
-                val linkUrl = result.extra
-                if (!linkUrl.isNullOrEmpty() &&
-                    (linkUrl.startsWith("http://") || linkUrl.startsWith("https://"))
-                ) {
-                    IntentBuilder(this@WebViewActivity)
+        if (settings.isLongClickShare != true) return
+        val wv = webView ?: return
+        val resolver = WebViewLinkResolver()
+        wv.setOnLongClickListener {
+            if (!resolver.hasHit(wv)) return@setOnLongClickListener false
+            resolver.resolve(wv) { url ->
+                if (url != null) {
+                    IntentBuilder(this)
                         .setType("text/plain")
-                        .setChooserTitle("Share Link")
-                        .setText(linkUrl)
+                        .setText(url)
                         .startChooser()
-                    return@setOnLongClickListener true
                 }
             }
-            false
+            true
         }
     }
 
