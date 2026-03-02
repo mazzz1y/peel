@@ -112,6 +112,9 @@
     <string name="factory_reset">Factory reset</string>
     <string name="show_fullscreen">Fullscreen mode</string>
     <string name="site_not_found">Page could not be loaded.</string>
+    <string name="connection_error">Connection error: %1$s</string>
+    <string name="retry">Retry</string>
+    <string name="exit">Exit</string>
     <string name="icon_not_found">Icon could not be loaded.</string>
     <string name="keep_screen_awake">Keep screen on</string>
     <string name="allow_camera_access">Camera</string>

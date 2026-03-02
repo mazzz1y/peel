@@ -352,6 +352,21 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         NotificationUtils.showToast(this, message)
     }
 
+    override fun showConnectionError(description: String, url: String) {
+        if (isLaunchOverlayVisible) {
+            showToast(getString(R.string.connection_error, description))
+            finish()
+            return
+        }
+        MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.site_not_found)
+            .setMessage(getString(R.string.connection_error, description))
+            .setPositiveButton(R.string.retry) { _, _ -> loadURL(url) }
+            .setNegativeButton(R.string.exit) { _, _ -> finish() }
+            .setCancelable(false)
+            .show()
+    }
+
     override fun updateStatusBarColor(color: Int) {
         val fromColor = currentBarColor ?: themeBackgroundColor
         if (fromColor == color) {

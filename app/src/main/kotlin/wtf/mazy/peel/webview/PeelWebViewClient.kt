@@ -67,10 +67,10 @@ class PeelWebViewClient(private val host: WebViewClientHost) : WebViewClient() {
         error: WebResourceError?,
     ) {
         super.onReceivedError(view, request, error)
-        if (request?.isForMainFrame == true) {
-            host.showToast(host.getString(R.string.site_not_found))
-            host.finishActivity()
-        }
+        if (request?.isForMainFrame != true) return
+        val description = error?.description?.toString() ?: "Unknown error"
+        val url = request.url?.toString() ?: host.baseUrl
+        host.showConnectionError(description, url)
     }
 
     override fun shouldInterceptRequest(

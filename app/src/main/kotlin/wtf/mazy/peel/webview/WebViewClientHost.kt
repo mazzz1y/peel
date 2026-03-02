@@ -26,6 +26,8 @@ interface WebViewClientHost {
 
     fun showToast(message: String)
 
+    fun showConnectionError(description: String, url: String)
+
     fun updateStatusBarColor(color: Int)
 
     fun startExternalIntent(uri: Uri)
