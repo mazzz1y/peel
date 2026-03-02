@@ -757,7 +757,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
 
     private fun scheduleAutoReload() {
         val handler = reloadHandler ?: return
-        val interval = webapp.effectiveSettings.timeAutoReload ?: 0
+        val interval = webapp.effectiveSettings.timeAutoReload?.coerceAtLeast(1) ?: return
         handler.postDelayed(
             {
                 currentlyReloading = true
