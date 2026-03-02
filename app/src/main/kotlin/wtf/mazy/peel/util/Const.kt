@@ -13,7 +13,5 @@ object Const {
 
     const val GLOBAL_WEBAPP_UUID: String = "00000000-0000-0000-0000-000000000000"
 
-    const val PERMISSION_RC_STORAGE: Int = 132
-
     const val FAVICON_MIN_WIDTH: Int = 48
 }

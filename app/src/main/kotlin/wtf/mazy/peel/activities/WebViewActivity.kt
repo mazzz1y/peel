@@ -770,22 +770,6 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         )
     }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<String>,
-        grantResults: IntArray,
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-
-        val granted =
-            grantResults.isNotEmpty() &&
-                    grantResults.all { it == PackageManager.PERMISSION_GRANTED }
-
-        when (requestCode) {
-            Const.PERMISSION_RC_STORAGE -> if (granted) downloadHandler.onStoragePermissionGranted()
-        }
-    }
-
     private fun isBiometricUnlocked(): Boolean {
         val uuid = webappUuid ?: return false
         return unlockedBiometricWebapps.contains(uuid)

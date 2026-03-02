@@ -11,12 +11,11 @@ import android.os.Looper
 import android.webkit.CookieManager
 import android.webkit.WebView
 import android.widget.ProgressBar
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import wtf.mazy.peel.R
-import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.NotificationUtils.showToast
 import wtf.mazy.peel.util.Utility.getFileNameFromDownload
 
@@ -27,22 +26,21 @@ class DownloadHandler(
     private val getProgressBar: () -> ProgressBar?,
     private val onDownloadComplete: () -> Unit,
 ) {
-    private var pendingRequest: DownloadManager.Request? = null
-    private var pendingDownloadUrl: String? = null
+    private var pendingAction: (() -> Unit)? = null
+
+    private val storagePermissionLauncher =
+        activity.registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { results ->
+            val allGranted = results.isNotEmpty() && results.values.all { it }
+            if (allGranted) {
+                pendingAction?.invoke()
+            }
+            pendingAction = null
+        }
 
     fun install(webView: WebView) {
         webView.setDownloadListener { dlUrl, userAgent, contentDisposition, mimeType, _ ->
             handleDownload(dlUrl, userAgent, contentDisposition, mimeType)
         }
-    }
-
-    fun onStoragePermissionGranted() {
-        val request = pendingRequest ?: return
-        val dlUrl = pendingDownloadUrl
-        pendingRequest = null
-        pendingDownloadUrl = null
-        enqueueDownload(request)
-        if (dlUrl != null) navigateBackAfterDownload(dlUrl)
     }
 
     private fun handleDownload(
@@ -85,9 +83,11 @@ class DownloadHandler(
                         it
                     ) == PackageManager.PERMISSION_GRANTED
                 }) {
-                pendingRequest = request
-                pendingDownloadUrl = dlUrl
-                ActivityCompat.requestPermissions(activity, perms, Const.PERMISSION_RC_STORAGE)
+                pendingAction = {
+                    enqueueDownload(request)
+                    navigateBackAfterDownload(dlUrl)
+                }
+                storagePermissionLauncher.launch(perms)
                 return
             }
         }

@@ -105,7 +105,7 @@ class PeelWebChromeClient(private val host: ChromeClientHost) : WebChromeClient(
         if (PermissionRequest.RESOURCE_VIDEO_CAPTURE in resources) {
             handleTriState(
                 host.effectiveSettings.isCameraPermission,
-                arrayOf(Manifest.permission.CAMERA),
+                listOf(Manifest.permission.CAMERA),
                 PermissionRequest.RESOURCE_VIDEO_CAPTURE,
                 R.string.permission_prompt_camera,
                 pending,
@@ -114,7 +114,7 @@ class PeelWebChromeClient(private val host: ChromeClientHost) : WebChromeClient(
         if (PermissionRequest.RESOURCE_AUDIO_CAPTURE in resources) {
             handleTriState(
                 host.effectiveSettings.isMicrophonePermission,
-                arrayOf(
+                listOf(
                     Manifest.permission.RECORD_AUDIO, Manifest.permission.MODIFY_AUDIO_SETTINGS
                 ),
                 PermissionRequest.RESOURCE_AUDIO_CAPTURE,
@@ -154,11 +154,13 @@ class PeelWebChromeClient(private val host: ChromeClientHost) : WebChromeClient(
         when (state) {
             WebAppSettings.PERMISSION_ON -> grantLocation(origin, callback)
             WebAppSettings.PERMISSION_ASK -> {
-                when {
-                    GEOLOCATION_KEY in pageDenied ->
+                when (GEOLOCATION_KEY) {
+                    in pageDenied ->
                         callback?.invoke(origin, false, false)
-                    GEOLOCATION_KEY in pageGranted ->
+
+                    in pageGranted ->
                         grantLocation(origin, callback)
+
                     else -> {
                         host.showPermissionDialog(
                             host.getString(R.string.permission_prompt_location, trimmedName)
@@ -185,7 +187,7 @@ class PeelWebChromeClient(private val host: ChromeClientHost) : WebChromeClient(
 
     private fun grantLocation(origin: String?, callback: GeolocationPermissions.Callback?) {
         val permissions =
-            arrayOf(
+            listOf(
                 Manifest.permission.ACCESS_COARSE_LOCATION,
                 Manifest.permission.ACCESS_FINE_LOCATION
             )
@@ -195,7 +197,7 @@ class PeelWebChromeClient(private val host: ChromeClientHost) : WebChromeClient(
     }
 
     private data class PendingPermission(
-        val androidPermissions: Array<String>,
+        val androidPermissions: List<String>,
         val webkitPermission: String,
         val promptResId: Int,
         val skipInAppDialog: Boolean,
@@ -203,7 +205,7 @@ class PeelWebChromeClient(private val host: ChromeClientHost) : WebChromeClient(
 
     private fun handleTriState(
         state: Int?,
-        androidPermissions: Array<String>,
+        androidPermissions: List<String>,
         webkitPermission: String,
         promptResId: Int,
         pending: MutableList<PendingPermission>,
@@ -260,13 +262,14 @@ class PeelWebChromeClient(private val host: ChromeClientHost) : WebChromeClient(
     }
 
     private fun ensureOsPermission(
-        androidPermissions: Array<String>,
+        androidPermissions: List<String>,
         onDone: (granted: Boolean) -> Unit,
     ) {
-        if (host.hasPermissions(*androidPermissions)) {
+        val perms = androidPermissions.toTypedArray()
+        if (host.hasPermissions(*perms)) {
             onDone(true)
         } else {
-            host.requestOsPermissions(androidPermissions, onDone)
+            host.requestOsPermissions(perms, onDone)
         }
     }
 
