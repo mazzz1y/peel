@@ -5,24 +5,14 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.ShortcutManager
 import android.graphics.Bitmap
-import android.graphics.ImageDecoder
-import android.net.Uri
 import android.os.Bundle
-import android.util.Log
-import android.view.View
-import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
-import android.widget.Toast
-import androidx.activity.result.ActivityResultCallback
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts.GetContent
 import androidx.core.content.pm.ShortcutInfoCompat
 import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.core.graphics.drawable.IconCompat
 import androidx.fragment.app.DialogFragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.progressindicator.CircularProgressIndicator
 import wtf.mazy.peel.R
 import wtf.mazy.peel.activities.TrampolineActivity
 import wtf.mazy.peel.model.DataManager
@@ -31,20 +21,12 @@ import wtf.mazy.peel.shortcut.ShortcutHelper
 import wtf.mazy.peel.util.App
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.NotificationUtils.showToast
-import java.io.IOException
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
-import java.util.concurrent.Future
 
 class ShortcutDialogFragment : DialogFragment() {
     private var webapp: WebApp? = null
     private var bitmap: Bitmap? = null
     private var uiFavicon: ImageView? = null
-    private var uiProgressBar: CircularProgressIndicator? = null
     private var uiTitle: EditText? = null
-    private var executorService: ExecutorService? = null
-    private var faviconFetcherTask: Future<*>? = null
-    private var iconPickerLauncher: ActivityResultLauncher<String?>? = null
 
     companion object {
         private const val ARG_WEBAPP_UUID = "webapp_uuid"
@@ -58,42 +40,10 @@ class ShortcutDialogFragment : DialogFragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         val uuid = arguments?.getString(ARG_WEBAPP_UUID)
         if (uuid != null) {
             webapp = DataManager.instance.getWebApp(uuid)
         }
-
-        executorService = Executors.newSingleThreadExecutor()
-
-        iconPickerLauncher =
-            registerForActivityResult<String?, Uri?>(
-                GetContent(),
-                ActivityResultCallback { uri: Uri? ->
-                    if (uri == null) return@ActivityResultCallback
-                    try {
-                        val source =
-                            ImageDecoder.createSource(requireActivity().contentResolver, uri)
-                        bitmap = ImageDecoder.decodeBitmap(source)
-                        applyNewBitmapToDialog()
-                    } catch (e: IOException) {
-                        showToast(
-                            requireActivity(),
-                            getString(R.string.icon_not_found),
-                            Toast.LENGTH_SHORT
-                        )
-                        Log.e("ShortcutDialog", "Failed to load icon from URI", e)
-                    }
-                },
-            )
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        if (faviconFetcherTask?.isDone == false) {
-            faviconFetcherTask?.cancel(true)
-        }
-        executorService?.shutdownNow()
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -112,18 +62,13 @@ class ShortcutDialogFragment : DialogFragment() {
 
         uiTitle = view.findViewById(R.id.websiteTitle)
         uiFavicon = view.findViewById(R.id.favicon)
-        uiProgressBar = view.findViewById(R.id.circularProgressBar)
-
-        val btnCustomIcon = view.findViewById<Button>(R.id.btnCustomIcon)
-        btnCustomIcon.visibility = View.GONE
         dialog.setOnShowListener { _: DialogInterface? -> loadSavedIconAndTitle() }
 
         return dialog
     }
 
     private fun loadSavedIconAndTitle() {
-        uiProgressBar?.visibility = View.GONE
-        uiFavicon?.visibility = View.VISIBLE
+        uiFavicon?.visibility = ImageView.VISIBLE
 
         if (webapp?.title?.isNotEmpty() == true) {
             uiTitle?.setText(webapp?.title)
@@ -173,38 +118,5 @@ class ShortcutDialogFragment : DialogFragment() {
         } else {
             ShortcutManagerCompat.requestPinShortcut(activity, pinShortcutInfo, null)
         }
-    }
-
-    private fun prepareFailedUI() {
-        val app = webapp ?: return
-        showFailedMessage()
-        if (app.title.isNotEmpty()) {
-            uiTitle?.setText(app.title)
-        }
-
-        uiTitle?.requestFocus()
-
-        uiProgressBar?.visibility = View.GONE
-        uiFavicon?.visibility = View.VISIBLE
-    }
-
-    private fun showFailedMessage() {
-        val title = webapp?.title ?: ""
-        showToast(
-            requireActivity(),
-            getString(R.string.icon_fetch_failed_line1, title) +
-                    getString(R.string.icon_fetch_failed_line2) +
-                    getString(R.string.icon_fetch_failed_line3),
-        )
-    }
-
-    private fun applyNewBitmapToDialog() {
-        if (bitmap == null) {
-            prepareFailedUI()
-            return
-        }
-        uiFavicon?.setImageBitmap(bitmap)
-        uiProgressBar?.visibility = View.GONE
-        uiFavicon?.visibility = View.VISIBLE
     }
 }

@@ -9,7 +9,6 @@ interface WebViewClientHost {
     val isForceDarkActive: Boolean
     val baseUrl: String
     val webappUuid: String?
-    var urlOnFirstPageload: String
     val navigationStartPoint: NavigationStartPoint
 
     fun onPageStarted()

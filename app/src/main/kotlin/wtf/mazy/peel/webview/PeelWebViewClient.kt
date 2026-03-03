@@ -34,6 +34,7 @@ class PeelWebViewClient(private val host: WebViewClientHost) : WebViewClient() {
 
     override fun onPageFinished(view: WebView?, url: String) {
         if (view != null) extractDynamicBarColor(view)
+        host.navigationStartPoint.onPageFinished()
         super.onPageFinished(view, url)
     }
 
@@ -76,10 +77,6 @@ class PeelWebViewClient(private val host: WebViewClientHost) : WebViewClient() {
         view: WebView?,
         request: WebResourceRequest,
     ): WebResourceResponse? {
-        if (host.urlOnFirstPageload.isEmpty()) {
-            host.urlOnFirstPageload = request.url.toString()
-        }
-
         val settings = host.effectiveSettings
         if (settings.isAlwaysHttps == true && request.url.scheme == "http") {
             if (request.isForMainFrame) {
@@ -141,9 +138,6 @@ class PeelWebViewClient(private val host: WebViewClientHost) : WebViewClient() {
     }
 
     override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
-        if (request.isForMainFrame) {
-            host.navigationStartPoint.onNavigationStarted(request.hasGesture())
-        }
         host.runOnUi { host.setDarkModeIfNeeded() }
         var url = request.url.toString()
         val webapp = host.webappUuid?.let { DataManager.instance.getWebApp(it) }

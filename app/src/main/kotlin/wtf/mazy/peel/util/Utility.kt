@@ -1,11 +1,7 @@
 package wtf.mazy.peel.util
 
-import android.util.Log
-import android.view.View
-import android.view.ViewGroup
 import android.webkit.URLUtil
 import android.webkit.WebView
-import androidx.core.view.size
 import java.net.URLDecoder
 import java.util.regex.Pattern
 
@@ -21,28 +17,6 @@ fun WebView.buildUserAgent() {
 }
 
 object Utility {
-    fun setViewAndChildrenEnabled(view: View, enabled: Boolean) {
-        view.isClickable = enabled
-        if (enabled) {
-            view.alpha = 1.0f
-        } else {
-            view.alpha = 0.75f
-        }
-
-        if (view is ViewGroup) {
-            for (i in 0..<view.size) {
-                val child = view.getChildAt(i)
-                setViewAndChildrenEnabled(child, enabled)
-            }
-        }
-    }
-
-    @JvmStatic
-    fun assert(condition: Boolean, message: String?) {
-        if (!condition) {
-            Log.e("Utility", "Assertion failed: $message")
-        }
-    }
 
     @JvmStatic
     fun getFileNameFromDownload(

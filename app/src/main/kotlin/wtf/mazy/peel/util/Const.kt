@@ -12,6 +12,4 @@ object Const {
     const val INTENT_AUTO_FETCH: String = "auto_fetch"
 
     const val GLOBAL_WEBAPP_UUID: String = "00000000-0000-0000-0000-000000000000"
-
-    const val FAVICON_MIN_WIDTH: Int = 48
 }

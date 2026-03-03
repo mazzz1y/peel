@@ -3,7 +3,6 @@ package wtf.mazy.peel.util
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
-import java.util.Objects.requireNonNull
 
 object DateUtils {
 
@@ -25,8 +24,9 @@ object DateUtils {
 
     @JvmStatic
     fun isInInterval(low: Calendar, time: Calendar, high: Calendar): Boolean {
+        val fmt = getHourMinFormat()
         val middle = Calendar.getInstance()
-        middle.time = requireNonNull(getHourMinFormat().parse(getHourMinFormat().format(time.time)))
+        middle.time = fmt.parse(fmt.format(time.time)) ?: return false
 
         val highCopy = high.clone() as Calendar
         if (highCopy.before(low)) {

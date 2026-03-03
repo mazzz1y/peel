@@ -34,7 +34,6 @@ import wtf.mazy.peel.ui.settings.OverridePickerController
 import wtf.mazy.peel.ui.settings.SandboxSwitchController
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.NotificationUtils.showToast
-import wtf.mazy.peel.util.Utility
 import wtf.mazy.peel.util.WebViewLauncher
 
 class WebAppSettingsActivity :
@@ -58,7 +57,6 @@ class WebAppSettingsActivity :
         setToolbarTitle(getString(R.string.web_app_settings))
 
         webappUuid = intent.getStringExtra(Const.INTENT_WEBAPP_UUID)
-        Utility.assert(webappUuid != null, "WebApp UUID could not be retrieved.")
         isEditingDefaults = webappUuid == DataManager.instance.defaultSettings.uuid
 
         if (isEditingDefaults) {

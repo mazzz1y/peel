@@ -91,7 +91,6 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
             pendingPermissionCallback = null
         }
     private var reloadHandler: Handler? = null
-    override var urlOnFirstPageload = ""
     override val navigationStartPoint by lazy { NavigationStartPoint(webapp.baseUrl) }
 
     private val webapp: WebApp
@@ -148,7 +147,12 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
 
         applyTaskSnapshotProtection()
         setupWebView()
-        registerReceiver(screenStateReceiver, IntentFilter(Intent.ACTION_SCREEN_OFF))
+        ContextCompat.registerReceiver(
+            this,
+            screenStateReceiver,
+            IntentFilter(Intent.ACTION_SCREEN_OFF),
+            ContextCompat.RECEIVER_NOT_EXPORTED,
+        )
         isScreenStateReceiverRegistered = true
 
         if (webapp.effectiveSettings.isBiometricProtection == true && !isBiometricUnlocked()) {
@@ -217,13 +221,13 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         barColorAnimator = null
         mediaPlaybackManager?.release()
         mediaPlaybackManager = null
-        val app = webappUuid?.let { DataManager.instance.getWebApp(it) }
-        if (isFinishing && app != null) {
-            val sandboxId = WebViewLauncher.resolveSandboxId(app)
-            if (sandboxId != null) {
-                webView?.destroy()
-                webView = null
-                if (WebViewLauncher.isEphemeralSandbox(app)) {
+        webView?.destroy()
+        webView = null
+        if (isFinishing) {
+            val app = webappUuid?.let { DataManager.instance.getWebApp(it) }
+            if (app != null) {
+                val sandboxId = WebViewLauncher.resolveSandboxId(app)
+                if (sandboxId != null && WebViewLauncher.isEphemeralSandbox(app)) {
                     SandboxManager.wipeSandboxStorage(sandboxId)
                 }
             }
@@ -417,7 +421,9 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     }
 
     override fun startExternalIntent(uri: Uri) {
-        startActivity(Intent(Intent.ACTION_VIEW, uri))
+        try {
+            startActivity(Intent(Intent.ACTION_VIEW, uri))
+        } catch (_: Exception) {}
     }
 
     override val themeBackgroundColor: Int
@@ -647,7 +653,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
             this.settings.apply {
                 safeBrowsingEnabled = settings.isSafeBrowsing == true
                 domStorageEnabled = true
-                allowFileAccess = true
+                allowFileAccess = false
                 blockNetworkLoads = false
                 javaScriptEnabled = settings.isAllowJs == true
                 if (settings.isBlockImages == true) blockNetworkImage = true
