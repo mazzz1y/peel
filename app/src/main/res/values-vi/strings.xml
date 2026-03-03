@@ -198,10 +198,10 @@
     <string name="context_menu_open_link">Mở trong trình duyệt</string>
     <string name="context_menu_copy_link">Sao chép địa chỉ liên kết</string>
     <string name="context_menu_copy_link_text">Sao chép văn bản liên kết</string>
-    <string name="context_menu_download_link">Tải liên kết</string>
-    <string name="context_menu_share_link">Chia sẻ liên kết</string>
-    <string name="context_menu_copy_image">Sao chép hình ảnh</string>
-    <string name="context_menu_download_image">Tải hình ảnh</string>
+    <string name="context_menu_download_link">Tải đường liên kết xuống</string>
+    <string name="context_menu_share_link">Chia sẻ đường liên kết</string>
+    <string name="context_menu_copy_image">Sao chép ảnh</string>
+    <string name="context_menu_download_image">Tải hình ảnh xuống</string>
     <string name="context_menu_share_image">Chia sẻ hình ảnh</string>
     <string name="link_copied">Đã sao chép liên kết</string>
     <string name="text_copied">Đã sao chép văn bản</string>

@@ -201,9 +201,9 @@
     <string name="context_menu_open_link">Открыть в браузере</string>
     <string name="context_menu_copy_link">Копировать адрес ссылки</string>
     <string name="context_menu_copy_link_text">Копировать текст ссылки</string>
-    <string name="context_menu_download_link">Скачать ссылку</string>
+    <string name="context_menu_download_link">Сохранить данные по ссылке</string>
     <string name="context_menu_share_link">Поделиться ссылкой</string>
-    <string name="context_menu_copy_image">Копировать изображение</string>
+    <string name="context_menu_copy_image">Скопировать изображение</string>
     <string name="context_menu_download_image">Скачать изображение</string>
     <string name="context_menu_share_image">Поделиться изображением</string>
     <string name="link_copied">Ссылка скопирована</string>

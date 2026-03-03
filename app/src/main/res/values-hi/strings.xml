@@ -197,13 +197,13 @@
     </plurals>
 
     <string name="context_menu_open_link">ब्राउज़र में खोलें</string>
-    <string name="context_menu_copy_link">लिंक पता कॉपी करें</string>
-    <string name="context_menu_copy_link_text">लिंक टेक्स्ट कॉपी करें</string>
-    <string name="context_menu_download_link">लिंक डाउनलोड करें</string>
+    <string name="context_menu_copy_link">लिंक पते को कॉपी करें</string>
+    <string name="context_menu_copy_link_text">लिंक लेख को कॉपी करें</string>
+    <string name="context_menu_download_link">डाउनलोड करने का लिंक</string>
     <string name="context_menu_share_link">लिंक शेयर करें</string>
-    <string name="context_menu_copy_image">छवि कॉपी करें</string>
-    <string name="context_menu_download_image">छवि डाउनलोड करें</string>
-    <string name="context_menu_share_image">छवि शेयर करें</string>
+    <string name="context_menu_copy_image">इमेज की कॉपी बनाएं</string>
+    <string name="context_menu_download_image">इमेज डाउनलोड करें</string>
+    <string name="context_menu_share_image">इमेज शेयर करें</string>
     <string name="link_copied">लिंक कॉपी हुआ</string>
     <string name="text_copied">टेक्स्ट कॉपी हुआ</string>
     <string name="image_copied">छवि कॉपी हुई</string>

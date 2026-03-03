@@ -196,7 +196,7 @@
     </plurals>
 
     <string name="context_menu_open_link">在瀏覽器中開啟</string>
-    <string name="context_menu_copy_link">複製連結地址</string>
+    <string name="context_menu_copy_link">複製連結網址</string>
     <string name="context_menu_copy_link_text">複製連結文字</string>
     <string name="context_menu_download_link">下載連結</string>
     <string name="context_menu_share_link">分享連結</string>

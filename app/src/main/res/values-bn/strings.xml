@@ -197,8 +197,8 @@
     </plurals>
 
     <string name="context_menu_open_link">ব্রাউজারে খুলুন</string>
-    <string name="context_menu_copy_link">লিঙ্ক ঠিকানা কপি করুন</string>
-    <string name="context_menu_copy_link_text">লিঙ্কের লেখা কপি করুন</string>
+    <string name="context_menu_copy_link">লিঙ্ক অ্যাড্রেস কপি করুন</string>
+    <string name="context_menu_copy_link_text">লিঙ্ক টেক্সট কপি করুন</string>
     <string name="context_menu_download_link">লিঙ্ক ডাউনলোড করুন</string>
     <string name="context_menu_share_link">লিঙ্ক শেয়ার করুন</string>
     <string name="context_menu_copy_image">ছবি কপি করুন</string>
