@@ -251,14 +251,7 @@
                     android:orientation="vertical"
                     android:paddingTop="8dp" />
 
-                <TextView
-                    android:id="@+id/global_settings_info_text"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="@dimen/settings_bottom_innersection"
-                    android:text="@string/these_settings_are_applied_globally_and_override_app_specific_settings"
-                    android:textAppearance="?attr/textAppearanceBodySmall"
-                    android:visibility="gone" />
+
             </LinearLayout>
         </androidx.core.widget.NestedScrollView>
     </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -2,7 +2,6 @@
 <resources>
     <string name="action_settings">Impostazioni</string>
     <string name="global_settings">Impostazioni generali</string>
-    <string name="these_settings_are_applied_globally_and_override_app_specific_settings">Queste impostazioni sono utilizzate da tutte le Web App, tranne quelle che sovrascrivono esplicitamente le impostazioni globali.</string>
     <string name="save">Salva</string>
     <string name="loading_icon_and_website_title">Caricamento icona e titolo del sito web…</string>
     <string name="open_external_links_in_browser_app">Apri i collegamenti esterni nell\'applicazione del browser</string>
@@ -10,11 +9,6 @@
     <string name="accept_cookies">Accetta i cookies</string>
     <string name="accept_third_party_cookies">Accetta cookies di terze parti</string>
     <string name="clear_cache_after_usage">Cancella la cache dopo l\'utilizzo</string>
-    <string name="re_create_shortcut">Crea di nuovo scorciatoia</string>
-    <string name="create_shortcut_on_home_screen">Crea una scorciatoia nella schermata iniziale</string>
-    <string name="icon_fetch_failed_line1">"Non è stato possibile trovare un'icona per %1$s. Possibili motivi: "</string>
-    <string name="icon_fetch_failed_line2">• Nessuna connessione di rete</string>
-    <string name="icon_fetch_failed_line3">• Il sito web non ha un\'icona adatta.</string>
     <string name="delete_question">Sei sicuro di voler rimuovere questo sito?</string>
     <string name="enter_valid_url">Inserire un indirizzo web valido.</string>
     <string name="edit_webapp_settings">Modifica le impostazioni della Web App</string>
@@ -22,9 +16,6 @@
     <string name="empty_state_message">Nessuna web app ancora.\nTocca il pulsante + per aggiungere la tua prima app.</string>
     <string name="request_website_in_desktop_version">Richiedi il sito web in versione desktop</string>
     <string name="shortcut_icon">Icona Scorciatoia</string>
-    <string name="shortcut_title">Titolo della scorciatoia</string>
-    <string name="eula_title">Accordo di licenza con l\'utente finale</string>
-    <string name="eula_content">Il software viene fornito ”così com\'è“, senza alcun tipo di garanzia, esplicita o implicita, includendo, a titolo esemplificativo, le garanzie di commerciabilità, idoneità a uno scopo particolare e inviolabilità. In nessun caso gli autori o i detentori dei diritti d\'autore saranno responsabili per qualsiasi reclamo, danno o altra responsabilità, sia in un\'azione contrattuale, che in un\'azione illecita o altro, derivante da, in relazione o meno con il software o l\'uso o altri rapporti con il software.</string>
     <string name="gnu_license">Questo software è rilasciato sotto licenza GNU General Public License - Versione 3.\nhttps://www.gnu.org/licenses/gpl-3.0.txt</string>
     <string name="app_info">Info</string>
     <string name="web_app_settings">Impostazioni Web App</string>
@@ -34,12 +25,7 @@
     <string name="ssl_error_expired">Il certificato è scaduto.</string>
     <string name="ssl_error_id_mismatch">Il certificato non corrisponde al nome dell\'host.</string>
     <string name="ssl_error_notyetvalid">Il certificato non è ancora valido.</string>
-    <string name="ssl_error_msg_line2">Si sconsiglia di caricare la pagina.</string>
-    <string name="ssl_error_title">Attenzione: Potenziale minaccia alla sicurezza</string>
     <string name="load_anyway">Carica comunque</string>
-    <string name="no_https_dialog_title">Nessuna crittografia HTTPS</string>
-    <string name="no_https_dialog_accept">Consenti HTTP all\'interno di questa applicazione web</string>
-    <string name="no_https_dialog_msg">Questa pagina utilizza una connessione HTTP non criptata. Non inserire dati sensibili.</string>
     <string name="allow_http">Consenti HTTP</string>
     <string name="https_only_blocked">Bloccato: connessione non crittografata</string>
     <string name="ssl_error_blocked">Bloccato: %1$s</string>
@@ -56,24 +42,18 @@
     <string name="allow_location_access">Consenti l\'accesso alla posizione</string>
     <string name="allow_drm_content">Consenti i contenuti DRM</string>
 
-    <string name="permission_location_rationale">Se si desidera che le Web App siano in grado di recuperare la propria posizione, è possibile concedere a Peel l\'autorizzazione ad accedere alla posizione. Si può decidere di concedere l\'autorizzazione per ogni Web App individualmente.</string>
-    <string name="permission_storage_rationale">Se si desidera che le Web App Peel siano in grado di scaricare i file, è necessario accettare la richiesta di autorizzazione all\'archiviazione.</string>
     <string name="file_download">Scaricamento file in corso…</string>
-    <string name="custom_icon">Seleziona un\'icona personalizzata</string>
     <string name="show_progress_bar_during_page_load">Mostra barra di avanzamento durante il caricamento della pagina</string>
     <string name="webapp_autoreload">Ricarica automaticamente la pagina</string>
     <string name="webapp_interval_for_reload">Intervallo in secondi</string>
     <string name="webapp_autoreload_switch">Aggiornare regolarmente la pagina</string>
     <string name="name">Nome</string>
-    <string name="backup_import_done">Importazione backup terminata</string>
-    <string name="backup_imported_done_txt">È necessario ricaricare la schermata per applicare il tema ripristinato della UI.</string>
     <string name="force_dark_mode">Forza Tema scuro</string>
     <string name="end">Fine</string>
     <string name="begin">Inizio</string>
     <string name="limit_dark_mode_to_time_span">Limita il tema scuro all\'intervallo di tempo</string>
     <string name="dark_mode">Tema Scuro</string>
     <string name="ssl_errors">Errori SSL</string>
-    <string name="ssl_permanent_warning">Utilizza questa opzione solo per i siti web non di produzione ospitati autonomamente.</string>
     <string name="ignore_ssl_errors">Ignorare errori SSL</string>
     <string name="webapp_already_deleted">Questa Web App non è più disponibile. È possibile eliminare questo collegamento.</string>
     <string name="override_global_settings">Sovrascrivi impostazioni globali</string>
@@ -101,29 +81,21 @@
     <string name="share">Condividi</string>
     <string name="reload">Ricarica</string>
     <string name="activate_two_finger_zoom">Abilita ingrandimento con due dita</string>
-    <string name="webapp_section_access_restriction">Restrizione di accesso</string>
     <string name="bioprompt_restricted_webapp">Restrizione di accesso</string>
-    <string name="bioprompt_disable_restricition">Disattivare la restrizione di accesso?</string>
     <string name="enable_access_restriction">Abilita restrizione di accesso</string>
-    <string name="bioprompt_enable_restriction">Abilitare la restrizione di accesso?</string>
     <string name="allow_media_playback_in_background">Consentire la riproduzione dei media in sottofondo</string>
     <string name="start_url">URL</string>
     <string name="more">Altro</string>
     <string name="close_web_app">Chiudi Web App</string>
-    <string name="select_text">Seleziona testo</string>
     <string name="to_main_menu">Al menu principale</string>
     <string name="cancel">Cancella</string>
     <string name="ok">OK</string>
-    <string name="accept">Accetta</string>
-    <string name="cancel_eula">Per continuare è necessario accettare l\'EULA.</string>
     <string name="no_biometric_devices">Il dispositivo non supporta l\'autenticazione biometrica.</string>
     <string name="no_biometric_keys_enrolled">Il dispositivo supporta l\'autenticazione biometrica, ma non è stato ancora registrato alcun metodo.</string>
     <string name="webview_activity_launch_failed">Impossibile avviare la Web App.</string>
-    <string name="no_url_entered">Inserire un indirizzo</string>
 
     <string name="undo">Annulla</string>
     <string name="x_was_removed">%1$s è stato rimosso.</string>
-    <string name="restore_standard_setting">Ripristina impostazioni predefinite</string>
     <string name="http_auth_title">Accedi (HTTP Auth)</string>
     <string name="username">Nome utente</string>
     <string name="password">Password</string>
@@ -194,6 +166,26 @@
     <string name="delete_group_confirm">Eliminare il gruppo \"%1$s\"? Contiene %2$d app.</string>
     <string name="ungroup_apps_on_delete">Mantieni le app (sposta a non raggruppate)</string>
     <string name="setting_floating_controls">Controlli flottanti</string>
+
+    <string name="bioprompt_not_recognized">Non riconosciuto. Riprova.</string>
+    <string name="choose_icon">Scegli icona e titolo</string>
+    <string name="connection_error">Errore di connessione: %1$s</string>
+    <string name="content">Contenuto</string>
+    <string name="exit">Esci</string>
+    <string name="group_empty">Nessuna app in questo gruppo</string>
+    <string name="icon_remove">Rimuovi immagine</string>
+    <string name="icon_update">Aggiorna immagine</string>
+    <string name="media_channel_description">Controlli per la riproduzione multimediale in background</string>
+    <string name="media_channel_name">Riproduzione multimediale</string>
+    <string name="permission_allow">Consenti</string>
+    <string name="permission_ask">Chiedi</string>
+    <string name="permission_deny">Nega</string>
+    <string name="permission_prompt_camera">Consentire a %1$s di accedere alla fotocamera?</string>
+    <string name="permission_prompt_location">Consentire a %1$s di accedere alla posizione?</string>
+    <string name="permission_prompt_microphone">Consentire a %1$s di accedere al microfono?</string>
+    <string name="retry">Riprova</string>
+    <string name="security">Sicurezza</string>
+
     <plurals name="group_app_count">
         <item quantity="one">%d app</item>
         <item quantity="other">%d app</item>

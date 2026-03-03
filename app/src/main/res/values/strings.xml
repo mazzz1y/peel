@@ -2,7 +2,6 @@
     <string name="app_name" translatable="false">Peel</string>
     <string name="action_settings">Settings</string>
     <string name="global_settings">Global Settings</string>
-    <string name="these_settings_are_applied_globally_and_override_app_specific_settings">These settings are used by all Web Apps, except those which explicitly override the global settings.</string>
     <string name="save">Save</string>
     <string name="loading_icon_and_website_title">Fetching…</string>
     <string name="open_external_links_in_browser_app">Open links externally</string>
@@ -10,12 +9,7 @@
     <string name="accept_cookies">Allow cookies</string>
     <string name="accept_third_party_cookies">Allow third-party cookies</string>
     <string name="clear_cache_after_usage">Clear cache on exit</string>
-    <string name="re_create_shortcut">Create shortcut</string>
-    <string name="create_shortcut_on_home_screen">Create shortcut on home screen</string>
     <string name="url" translatable="false">URL</string>
-    <string name="icon_fetch_failed_line1">We could not retrieve an icon for %1$s.\nPossible reasons:\n</string>
-    <string name="icon_fetch_failed_line2">• No internet connection\n</string>
-    <string name="icon_fetch_failed_line3">• The website has no suitable icon stored.</string>
     <string name="fetch_failed">Failed to fetch data from website</string>
     <string name="delete_question">Are you sure you want to remove this website?</string>
     <string name="enter_valid_url">Please enter a valid web address.</string>
@@ -24,7 +18,6 @@
     <string name="empty_state_message">No web apps yet.\nTap the + button to add your first app.</string>
     <string name="request_website_in_desktop_version">Desktop mode</string>
     <string name="shortcut_icon">Shortcut Icon</string>
-    <string name="shortcut_title">Shortcut Title</string>
     <string name="fetch_icon_title">Fetch from website</string>
     <string name="choose_icon">Choose icon and title</string>
     <string name="fetch_step_loading">Loading page…</string>
@@ -32,8 +25,6 @@
     <string name="fetch_step_icons">Checking page icons…</string>
     <string name="fetch_step_downloading">Downloading icons…</string>
 
-    <string name="eula_title">End-user license agreement</string>
-    <string name="eula_content">The software is provided “as is”, without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose and noninfringement. In no event shall the authors or copyright holders be liable for any claim, damages or other liability, whether in an action of contract, tort or otherwise, arising from, out of or in connection with the software or the use or other dealings in the software.</string>
     <string name="web_app_settings">Web App Settings</string>
     <string name="do_not_load_images">Block images</string>
     <string name="ssl_error_msg_line1">This page has a problem with its SSL certificate.</string>
@@ -41,12 +32,7 @@
     <string name="ssl_error_expired">The certificate has expired.</string>
     <string name="ssl_error_id_mismatch">The certificate does not match the host name.</string>
     <string name="ssl_error_notyetvalid">The certificate is not yet valid.</string>
-    <string name="ssl_error_msg_line2">It is not recommended to load the page.</string>
-    <string name="ssl_error_title">Warning: Potential security threat</string>
     <string name="load_anyway">Load anyway</string>
-    <string name="no_https_dialog_title">No HTTPS encryption</string>
-    <string name="no_https_dialog_accept">Allow HTTP within this Web App</string>
-    <string name="no_https_dialog_msg">This page uses an unencrypted HTTP connection. Do not enter any sensible data.</string>
     <string name="https_only_blocked">Blocked: unencrypted connection</string>
     <string name="ssl_error_blocked">Blocked: %1$s</string>
     <string name="allow_http">Allow HTTP</string>
@@ -69,11 +55,8 @@
     <string name="import_btn">Import</string>
     <string name="allow_location_access">Location</string>
     <string name="allow_drm_content">DRM content</string>
-    <string name="permission_location_rationale">If you want Web Apps to be able to retrieve your location, you can Peel grant the permission to access the location. You can decide to grant the permission for every Web App individually.</string>
-    <string name="permission_storage_rationale">If you want Peel Web Apps to be able to download files, you have to accept the storage permission request.</string>
     <string name="file_download">File is being downloaded…</string>
     <string name="file_download_failed">Could not download file.</string>
-    <string name="custom_icon">Select custom icon</string>
     <string name="icon_update">Update image</string>
     <string name="icon_remove">Remove image</string>
     <string name="show_progress_bar_during_page_load">Loading indicator</string>
@@ -81,15 +64,12 @@
     <string name="webapp_interval_for_reload">Interval in seconds</string>
     <string name="webapp_autoreload_switch">Refresh page regularly</string>
     <string name="name">Name</string>
-    <string name="backup_import_done">Backup import finished</string>
-    <string name="backup_imported_done_txt">The screen needs to be reloaded to apply the restored UI theme.</string>
     <string name="force_dark_mode">Dark mode</string>
     <string name="end">End</string>
     <string name="begin">Begin</string>
     <string name="limit_dark_mode_to_time_span">Dark mode schedule</string>
     <string name="dark_mode">Dark Mode</string>
     <string name="ssl_errors">SSL Errors</string>
-    <string name="ssl_permanent_warning">Only use this option for self-hosted non-production websites</string>
     <string name="ignore_ssl_errors">Ignore SSL errors</string>
     <string name="webapp_already_deleted">This Web App is no longer available. You can delete this shortcut.</string>
     <string name="override_global_settings">Override global settings</string>
@@ -136,11 +116,8 @@
     <string name="share">Share</string>
     <string name="reload">Reload</string>
     <string name="activate_two_finger_zoom">Pinch to zoom</string>
-    <string name="webapp_section_access_restriction">Access Restriction</string>
     <string name="bioprompt_restricted_webapp">Access Restriction</string>
-    <string name="bioprompt_disable_restricition">Disable access restriction?</string>
     <string name="enable_access_restriction">Biometric lock</string>
-    <string name="bioprompt_enable_restriction">Enable access restriction?</string>
     <string name="bioprompt_not_recognized">Not recognized. Try again.</string>
     <string name="allow_media_playback_in_background">Background playback</string>
     <string name="media_channel_name">Media Playback</string>
@@ -149,20 +126,15 @@
     <string name="start_url">URL</string>
     <string name="more">More</string>
     <string name="close_web_app">Close Web App</string>
-    <string name="select_text">Select text</string>
     <string name="to_main_menu">To Main Menu</string>
     <string name="cancel">Cancel</string>
     <string name="ok">OK</string>
-    <string name="accept">Accept</string>
-    <string name="cancel_eula">You must accept the EULA to continue.</string>
     <string name="no_biometric_devices">Your device does not support biometric authentication.</string>
     <string name="no_biometric_keys_enrolled">Your device supports biometric authentication, but no method is enrolled.</string>
     <string name="webview_activity_launch_failed">Web App could not be started.</string>
-    <string name="no_url_entered">Please enter an URL.</string>
 
     <string name="undo">Undo</string>
     <string name="x_was_removed">%1$s was removed.</string>
-    <string name="restore_standard_setting">Restore default</string>
     <string name="http_auth_title">Log in (HTTP Auth)</string>
     <string name="username">User name</string>
     <string name="password">Password</string>

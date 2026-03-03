@@ -120,7 +120,6 @@ class WebAppSettingsActivity :
         binding.groupDivider.visibility = View.GONE
         binding.sectionOverrideHeader.visibility = View.GONE
         binding.linearLayoutOverrides.visibility = View.GONE
-        binding.globalSettingsInfoText.visibility = View.VISIBLE
         setToolbarTitle(getString(R.string.global_web_app_settings))
     }
 

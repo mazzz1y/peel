@@ -1,7 +1,6 @@
 <resources>
     <string name="action_settings">Configuraciones</string>
     <string name="global_settings">Ajustes generales</string>
-    <string name="these_settings_are_applied_globally_and_override_app_specific_settings">Estas configuraciones son utilizadas por todas las Aplicaciones Web, excepto aquellas que anulan explícitamente las configuraciones generales.</string>
     <string name="save">Guardar</string>
     <string name="loading_icon_and_website_title">Cargando el icono y el título del sitio web...</string>
     <string name="open_external_links_in_browser_app">Abrir enlaces externos en la aplicación del navegador</string>
@@ -9,11 +8,6 @@
     <string name="accept_cookies">Acceptar cookies</string>
     <string name="accept_third_party_cookies">Acceptar cookies de terceros</string>
     <string name="clear_cache_after_usage">Eliminar el cache después del uso</string>
-    <string name="re_create_shortcut">Volver a crear el acceso directo</string>
-    <string name="create_shortcut_on_home_screen">Crear un acceso directo en la pantalla de inicio</string>
-    <string name="icon_fetch_failed_line1">No hemos podido recuperar un icono para %1$s.\nPosibles razones:\n</string>
-    <string name="icon_fetch_failed_line2">• No hay conexión a Internet\n</string>
-    <string name="icon_fetch_failed_line3">• El sitio web no tiene un icono adecuado almacenado.</string>
     <string name="delete_question">¿Está seguro de que quiere eliminar este sitio web?</string>
     <string name="enter_valid_url">Por favor, introduzca una dirección web válida.</string>
     <string name="edit_webapp_settings">Editar la configuración de la aplicación web</string>
@@ -21,10 +15,7 @@
     <string name="empty_state_message">No hay aplicaciones web todavía.\nToca el botón + para añadir tu primera aplicación.</string>
     <string name="request_website_in_desktop_version">Solicitar el sitio web en versión de escritorio</string>
     <string name="shortcut_icon">Icono de acceso directo</string>
-    <string name="shortcut_title">Título de acceso directo</string>
 
-    <string name="eula_title">Acuerdo de licencia de usuario final</string>
-    <string name="eula_content">El software se suministra "tal cual", sin garantía de ningún tipo, expresa o implícita, incluidas, pero sin limitarse a ellas, las garantías de comerciabilidad, idoneidad para un fin determinado y no infracción. En ningún caso los autores o los titulares de los derechos de autor serán responsables de ninguna reclamación, daño u otra responsabilidad, ya sea en una acción contractual, extracontractual o de otro tipo, que surja de, o esté relacionada con el software o el uso u otras operaciones con el software.</string>
     <string name="gnu_license">Este software se publica bajo la Licencia Pública General GNU - Versión 3.\nhttps://www.gnu.org/licenses/gpl-3.0.txt</string>
     <string name="app_info">Acerca de</string>
     <string name="web_app_settings">Configuración de la aplicación web</string>
@@ -34,12 +25,7 @@
     <string name="ssl_error_expired">El certificado ha caducado.</string>
     <string name="ssl_error_id_mismatch">El certificado no coincide con el nombre del host.</string>
     <string name="ssl_error_notyetvalid">El certificado aún no es válido.</string>
-    <string name="ssl_error_msg_line2">No se recomienda cargar la página.</string>
-    <string name="ssl_error_title">Advertencia: Posible amenaza a la seguridad</string>
     <string name="load_anyway">Cargar de todos modos</string>
-    <string name="no_https_dialog_title">No hay cifrado HTTPS</string>
-    <string name="no_https_dialog_accept">Permitir HTTP en esta aplicación web</string>
-    <string name="no_https_dialog_msg">Esta página utiliza una conexión HTTP no cifrada. No introduzca ningún dato sensible.</string>
     <string name="allow_http">Permitir HTTP</string>
     <string name="https_only_blocked">Bloqueado: conexión no cifrada</string>
     <string name="ssl_error_blocked">Bloqueado: %1$s</string>
@@ -56,25 +42,19 @@
     <string name="allow_location_access">Permitir el acceso a la ubicación</string>
     <string name="allow_drm_content">Permitir contenidos DRM</string>
 
-    <string name="permission_location_rationale">Si desea que las aplicaciones web puedan recuperar su ubicación, puede conceder a Peel el permiso para acceder a la ubicación. Puedes decidir conceder el permiso para cada Aplicación Web individualmente.</string>
-    <string name="permission_storage_rationale">Si quieres que las Aplicaciones Web de Peel sean capaces de descargar archivos, tienes que aceptar la solicitud de permiso de almacenamiento.</string>
     <string name="file_download">El archivo se está descargando...</string>
     <string name="file_download_failed">Descarga fallida.</string>
-    <string name="custom_icon">Seleccione un icono personalizado</string>
     <string name="show_progress_bar_during_page_load">Mostrar la barra de progreso durante la carga de la página</string>
     <string name="webapp_autoreload">Recargar automáticamente la página</string>
     <string name="webapp_interval_for_reload">Intervalo en segundos</string>
     <string name="webapp_autoreload_switch">Actualizar la página regularmente</string>
     <string name="name">Nombre</string>
-    <string name="backup_import_done">La importación de la copia de seguridad ha finalizado</string>
-    <string name="backup_imported_done_txt">Es necesario recargar la pantalla para aplicar el tema de la interfaz de usuario restaurado.</string>
     <string name="force_dark_mode">Forzar el modo oscuro</string>
     <string name="end">Final</string>
     <string name="begin">Inicio</string>
     <string name="limit_dark_mode_to_time_span">Limitar el modo oscuro a un intervalo de tiempo</string>
     <string name="dark_mode">Modo oscuro</string>
     <string name="ssl_errors">Errores SSL</string>
-    <string name="ssl_permanent_warning">Utilice esta opción sólo para los sitios web autoalojados que no sean de producción</string>
     <string name="ignore_ssl_errors">Ignorar los errores de SSL</string>
     <string name="webapp_already_deleted">Esta aplicación web ya no está disponible. Puede eliminar este acceso directo.</string>
     <string name="override_global_settings">Anular la configuración general</string>
@@ -102,29 +82,21 @@
     <string name="share">Compartir</string>
     <string name="reload">Recargar</string>
     <string name="activate_two_finger_zoom">Activar la función de Zoom</string>
-    <string name="webapp_section_access_restriction">Restricción de acceso</string>
     <string name="bioprompt_restricted_webapp">Restricción de acceso</string>
-    <string name="bioprompt_disable_restricition">¿Desactivar la restricción de acceso?</string>
     <string name="enable_access_restriction">Activar la restricción de acceso</string>
-    <string name="bioprompt_enable_restriction">¿Permitir la restricción de acceso?</string>
     <string name="allow_media_playback_in_background">Permitir la reproducción de medios en segundo plano</string>
     <string name="start_url">URL</string>
     <string name="more">Más</string>
     <string name="close_web_app">Cerrar Aplicación Web</string>
-    <string name="select_text">Seleccionar texto</string>
     <string name="to_main_menu">Ir al menú principal</string>
     <string name="cancel">Cancelar</string>
     <string name="ok">De Acuerdo</string>
-    <string name="accept">Aceptar</string>
-    <string name="cancel_eula">Debes aceptar el EULA para continuar.</string>
     <string name="no_biometric_devices">Su dispositivo no admite la autenticación biométrica.</string>
     <string name="no_biometric_keys_enrolled">Su dispositivo admite la autenticación biométrica, pero aún no ha registrado ningún método.</string>
     <string name="webview_activity_launch_failed">La Aplicación Web no pudo ser iniciada.</string>
-    <string name="no_url_entered">Por favor, introduzca una URL.</string>
 
     <string name="undo">Deshacer</string>
     <string name="x_was_removed">Se ha eliminado %1$s.</string>
-    <string name="restore_standard_setting">Restaurar configuración predeterminada</string>
     <string name="http_auth_title">Iniciar sesión (HTTP Auth)</string>
     <string name="username">Nombre de usuario</string>
     <string name="password">Contraseña</string>
@@ -194,6 +166,26 @@
     <string name="delete_group_confirm">&#191;Eliminar grupo \"%1$s\"? Contiene %2$d app(s).</string>
     <string name="ungroup_apps_on_delete">Mantener apps (mover a sin grupo)</string>
     <string name="setting_floating_controls">Controles flotantes</string>
+
+    <string name="bioprompt_not_recognized">No reconocido. Inténtelo de nuevo.</string>
+    <string name="choose_icon">Elegir icono y título</string>
+    <string name="connection_error">Error de conexión: %1$s</string>
+    <string name="content">Contenido</string>
+    <string name="exit">Salir</string>
+    <string name="group_empty">No hay apps en este grupo</string>
+    <string name="icon_remove">Eliminar imagen</string>
+    <string name="icon_update">Actualizar imagen</string>
+    <string name="media_channel_description">Controles de reproducción de medios en segundo plano</string>
+    <string name="media_channel_name">Reproducción de medios</string>
+    <string name="permission_allow">Permitir</string>
+    <string name="permission_ask">Preguntar</string>
+    <string name="permission_deny">Denegar</string>
+    <string name="permission_prompt_camera">¿Permitir a %1$s acceder a la cámara?</string>
+    <string name="permission_prompt_location">¿Permitir a %1$s acceder a la ubicación?</string>
+    <string name="permission_prompt_microphone">¿Permitir a %1$s acceder al micrófono?</string>
+    <string name="retry">Reintentar</string>
+    <string name="security">Seguridad</string>
+
     <plurals name="group_app_count">
         <item quantity="one">%d app</item>
         <item quantity="other">%d apps</item>
