@@ -159,13 +159,23 @@ class SettingViewFactory(
         val editText = view.findViewById<TextInputEditText>(R.id.editTextNumber)
 
         val intKey = setting.intField.key
+        val intDefault = setting.intField.defaultValue
         textName.text = view.context.getString(setting.displayNameResId)
-        val boolValue = settings.getValue(setting.key) as? Boolean ?: false
-        val intValue = settings.getValue(intKey) as? Int
 
-        switch.isChecked = boolValue
-        editText.setText(intValue?.takeIf { it > 0 }?.toString() ?: "")
-        layout.visibility = if (boolValue) View.VISIBLE else View.GONE
+        fun intDisplayText(value: Any?): String {
+            val n = value as? Int ?: return ""
+            return if (n > 0) n.toString() else ""
+        }
+
+        fun syncUi() {
+            val boolVal = settings.getValue(setting.key) as? Boolean ?: false
+            switch.isChecked = boolVal
+            editText.setText(intDisplayText(settings.getValue(intKey)))
+            layout.visibility = if (boolVal) View.VISIBLE else View.GONE
+            updateUndoVisibility(btnUndo, setting, settings)
+        }
+
+        var listenersActive = false
 
         val textWatcher =
             object : TextWatcher {
@@ -173,49 +183,53 @@ class SettingViewFactory(
                     s: CharSequence?,
                     start: Int,
                     count: Int,
-                    after: Int
-                ) {
-                }
+                    after: Int,
+                ) {}
 
                 override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
 
                 override fun afterTextChanged(s: Editable?) {
-                    val intVal = s?.toString()?.toIntOrNull()
-                    settings.setValue(intKey, intVal)
+                    if (!listenersActive) return
+                    settings.setValue(intKey, s?.toString()?.toIntOrNull() ?: intDefault)
                     updateUndoVisibility(btnUndo, setting, settings)
                 }
             }
 
         val switchListener = { _: android.widget.CompoundButton?, isChecked: Boolean ->
-            settings.setValue(setting.key, isChecked)
-            layout.visibility = if (isChecked) View.VISIBLE else View.GONE
-            if (isChecked) {
-                if ((settings.getValue(intKey) as? Int ?: 0) <= 0) {
-                    settings.setValue(intKey, null)
-                    editText.setText("")
+            if (listenersActive) {
+                settings.setValue(setting.key, isChecked)
+                listenersActive = false
+                if (isChecked) {
+                    val current = settings.getValue(intKey) as? Int ?: 0
+                    if (current <= 0) {
+                        settings.setValue(intKey, intDefault)
+                        editText.setText("")
+                    }
+                    layout.visibility = View.VISIBLE
+                    editText.post { editText.requestFocus() }
+                } else {
+                    val current = settings.getValue(intKey) as? Int
+                    if (current == null || current <= 0) {
+                        settings.setValue(intKey, intDefault)
+                        editText.setText("")
+                    }
+                    layout.visibility = View.GONE
                 }
-                editText.post { editText.requestFocus() }
+                listenersActive = true
+                updateUndoVisibility(btnUndo, setting, settings)
             }
-            updateUndoVisibility(btnUndo, setting, settings)
         }
 
+        syncUi()
         editText.addTextChangedListener(textWatcher)
+        switch.setOnCheckedChangeListener(switchListener)
+        listenersActive = true
 
         configureButtons(btnRemove, btnUndo, setting, settings) {
-            switch.setOnCheckedChangeListener(null)
-            editText.removeTextChangedListener(textWatcher)
-
-            val newBool = settings.getValue(setting.key) as? Boolean ?: false
-            val newInt = settings.getValue(intKey) as? Int
-            switch.isChecked = newBool
-            editText.setText(newInt?.takeIf { it > 0 }?.toString() ?: "")
-            layout.visibility = if (newBool) View.VISIBLE else View.GONE
-
-            switch.setOnCheckedChangeListener(switchListener)
-            editText.addTextChangedListener(textWatcher)
+            listenersActive = false
+            syncUi()
+            listenersActive = true
         }
-
-        switch.setOnCheckedChangeListener(switchListener)
     }
 
     private fun setupTimeRange(
