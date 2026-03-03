@@ -142,6 +142,9 @@ class PeelWebViewClient(private val host: WebViewClientHost) : WebViewClient() {
     }
 
     override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
+        if (request.isForMainFrame) {
+            host.navigationStartPoint.onNavigationStarted(request.hasGesture())
+        }
         host.runOnUi { host.setDarkModeIfNeeded() }
         var url = request.url.toString()
         val webapp = host.webappUuid?.let { DataManager.instance.getWebApp(it) }
