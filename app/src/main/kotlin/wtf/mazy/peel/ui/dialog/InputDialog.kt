@@ -5,10 +5,11 @@ import android.app.AlertDialog
 import android.text.Editable
 import android.text.InputType
 import android.text.TextWatcher
-import android.widget.EditText
 import android.widget.LinearLayout
 import androidx.annotation.StringRes
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 
 fun Activity.showInputDialog(
     @StringRes titleRes: Int,
@@ -19,22 +20,29 @@ fun Activity.showInputDialog(
     allowEmpty: Boolean = false,
     onResult: (String) -> Unit,
 ) {
-    val input =
-        EditText(this).apply {
-            setText(prefill)
-            setHint(hintRes)
-            setInputType(inputType)
-            if (prefill.isNotEmpty()) selectAll()
-        }
+    val inputLayout = TextInputLayout(this).apply {
+        hint = getString(hintRes)
+        layoutParams = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT,
+        )
+    }
+    val input = TextInputEditText(inputLayout.context).apply {
+        setText(prefill)
+        setInputType(inputType)
+        if (prefill.isNotEmpty()) selectAll()
+    }
+    inputLayout.addView(input)
+
     val ta = obtainStyledAttributes(intArrayOf(android.R.attr.dialogPreferredPadding))
     val padding = ta.getDimensionPixelSize(0, 0)
     ta.recycle()
-    val container =
-        LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(padding, padding, padding, padding)
-            addView(input)
-        }
+    val container = LinearLayout(this).apply {
+        orientation = LinearLayout.VERTICAL
+        setPadding(padding, padding, padding, padding)
+        addView(inputLayout)
+    }
+
     val dialog =
         MaterialAlertDialogBuilder(this)
             .setTitle(titleRes)
@@ -57,8 +65,7 @@ fun Activity.showInputDialog(
                     start: Int,
                     count: Int,
                     after: Int
-                ) {
-                }
+                ) {}
 
                 override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             })
