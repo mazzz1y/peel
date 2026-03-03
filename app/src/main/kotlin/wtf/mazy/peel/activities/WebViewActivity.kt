@@ -516,20 +516,19 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
                 StartActivityForResult(),
                 ActivityResultCallback { result ->
                     val callback = filePathCallback ?: return@ActivityResultCallback
-                    if (result?.resultCode == RESULT_CANCELED) {
+                    if (result?.resultCode == RESULT_OK) {
+                        callback.onReceiveValue(extractUris(result.data))
+                    } else {
                         callback.onReceiveValue(null)
-                    } else if (result?.resultCode == RESULT_OK) {
-                        callback.onReceiveValue(
-                            android.webkit.WebChromeClient.FileChooserParams.parseResult(
-                                result.resultCode,
-                                result.data,
-                            )
-                        )
                     }
                     filePathCallback = null
                 },
             )
     }
+
+    private fun extractUris(intent: Intent?): Array<Uri?>? =
+        intent?.data?.let { arrayOf(it) }
+            ?: intent?.clipData?.let { clip -> Array(clip.itemCount) { clip.getItemAt(it).uri } }
 
     private fun initDownloadHandler() {
         downloadHandler =
