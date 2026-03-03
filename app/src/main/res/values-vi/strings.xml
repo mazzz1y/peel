@@ -164,7 +164,7 @@
     <string name="add">Thêm</string>
     <string name="remove">Xóa</string>
 
-    <string name="setting_long_click_share">Nhấn giữ để chia sẻ</string>
+    <string name="setting_long_click_share">Menu ngữ cảnh nhấn giữ</string>
     <string name="setting_pull_to_refresh">Kéo xuống để làm mới</string>
     <string name="setting_disable_screenshots">Chặn chụp màn hình</string>
     <string name="setting_safe_browsing">Duyệt web an toàn</string>
@@ -192,4 +192,17 @@
     <plurals name="group_app_count">
         <item quantity="other">%d ứng dụng</item>
     </plurals>
+
+    <string name="context_menu_open_link">Mở trong trình duyệt</string>
+    <string name="context_menu_copy_link">Sao chép địa chỉ liên kết</string>
+    <string name="context_menu_copy_link_text">Sao chép văn bản liên kết</string>
+    <string name="context_menu_download_link">Tải liên kết</string>
+    <string name="context_menu_share_link">Chia sẻ liên kết</string>
+    <string name="context_menu_copy_image">Sao chép hình ảnh</string>
+    <string name="context_menu_download_image">Tải hình ảnh</string>
+    <string name="context_menu_share_image">Chia sẻ hình ảnh</string>
+    <string name="link_copied">Đã sao chép liên kết</string>
+    <string name="text_copied">Đã sao chép văn bản</string>
+    <string name="image_copied">Đã sao chép hình ảnh</string>
+    <string name="image_download_failed">Tải hình ảnh thất bại</string>
 </resources>

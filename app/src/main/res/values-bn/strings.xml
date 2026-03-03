@@ -164,7 +164,7 @@
     <string name="add">যোগ করুন</string>
     <string name="remove">সরান</string>
 
-    <string name="setting_long_click_share">দীর্ঘ চাপে শেয়ার</string>
+    <string name="setting_long_click_share">দীর্ঘ চাপে প্রসঙ্গ মেনু</string>
     <string name="setting_pull_to_refresh">টেনে রিফ্রেশ</string>
     <string name="setting_disable_screenshots">স্ক্রিনশট ব্লক করুন</string>
     <string name="setting_safe_browsing">নিরাপদ ব্রাউজিং</string>
@@ -193,4 +193,17 @@
         <item quantity="one">%dটি অ্যাপ</item>
         <item quantity="other">%dটি অ্যাপ</item>
     </plurals>
+
+    <string name="context_menu_open_link">ব্রাউজারে খুলুন</string>
+    <string name="context_menu_copy_link">লিঙ্ক ঠিকানা কপি করুন</string>
+    <string name="context_menu_copy_link_text">লিঙ্কের লেখা কপি করুন</string>
+    <string name="context_menu_download_link">লিঙ্ক ডাউনলোড করুন</string>
+    <string name="context_menu_share_link">লিঙ্ক শেয়ার করুন</string>
+    <string name="context_menu_copy_image">ছবি কপি করুন</string>
+    <string name="context_menu_download_image">ছবি ডাউনলোড করুন</string>
+    <string name="context_menu_share_image">ছবি শেয়ার করুন</string>
+    <string name="link_copied">লিঙ্ক কপি হয়েছে</string>
+    <string name="text_copied">লেখা কপি হয়েছে</string>
+    <string name="image_copied">ছবি কপি হয়েছে</string>
+    <string name="image_download_failed">ছবি ডাউনলোড ব্যর্থ হয়েছে</string>
 </resources>

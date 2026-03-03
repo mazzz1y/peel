@@ -164,7 +164,7 @@
     <string name="add">追加</string>
     <string name="remove">削除</string>
 
-    <string name="setting_long_click_share">長押しで共有</string>
+    <string name="setting_long_click_share">長押しコンテキストメニュー</string>
     <string name="setting_pull_to_refresh">引いて更新</string>
     <string name="setting_disable_screenshots">スクリーンショットをブロック</string>
     <string name="setting_safe_browsing">セーフブラウジング</string>
@@ -192,4 +192,17 @@
     <plurals name="group_app_count">
         <item quantity="other">%d個のアプリ</item>
     </plurals>
+
+    <string name="context_menu_open_link">ブラウザで開く</string>
+    <string name="context_menu_copy_link">リンクアドレスをコピー</string>
+    <string name="context_menu_copy_link_text">リンクテキストをコピー</string>
+    <string name="context_menu_download_link">リンクをダウンロード</string>
+    <string name="context_menu_share_link">リンクを共有</string>
+    <string name="context_menu_copy_image">画像をコピー</string>
+    <string name="context_menu_download_image">画像をダウンロード</string>
+    <string name="context_menu_share_image">画像を共有</string>
+    <string name="link_copied">リンクをコピーしました</string>
+    <string name="text_copied">テキストをコピーしました</string>
+    <string name="image_copied">画像をコピーしました</string>
+    <string name="image_download_failed">画像のダウンロードに失敗しました</string>
 </resources>

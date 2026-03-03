@@ -11,12 +11,12 @@ import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.WindowInsets
@@ -35,8 +35,8 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.core.app.ShareCompat.IntentBuilder
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.toDrawable
 import androidx.core.net.toUri
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import androidx.webkit.WebSettingsCompat
@@ -53,7 +53,6 @@ import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.model.WebAppSettings
 import wtf.mazy.peel.ui.BiometricPromptHelper
 import wtf.mazy.peel.ui.FloatingControlsView
-import wtf.mazy.peel.webview.WebViewLinkResolver
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.DateUtils.convertStringToCalendar
 import wtf.mazy.peel.util.DateUtils.isInInterval
@@ -68,6 +67,7 @@ import wtf.mazy.peel.webview.PeelWebChromeClient
 import wtf.mazy.peel.webview.PeelWebViewClient
 import wtf.mazy.peel.webview.PermissionResult
 import wtf.mazy.peel.webview.WebViewClientHost
+import wtf.mazy.peel.webview.WebViewContextMenu
 import java.util.Calendar
 
 open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClientHost {
@@ -428,7 +428,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
 
     override val themeBackgroundColor: Int
         get() {
-            val tv = android.util.TypedValue()
+            val tv = TypedValue()
             theme.resolveAttribute(android.R.attr.colorBackground, tv, true)
             return tv.data
         }
@@ -544,7 +544,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     @SuppressLint("ClickableViewAccessibility")
     private fun setupWebView() {
         val settings = webapp.effectiveSettings
-        window.setBackgroundDrawable(ColorDrawable(themeBackgroundColor))
+        window.setBackgroundDrawable(themeBackgroundColor.toDrawable())
         setContentView(R.layout.full_webview)
         setupSystemBarScrims()
         applyWindowFlags(settings)
@@ -689,19 +689,12 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     private fun setupLongClickShare(settings: WebAppSettings) {
         if (settings.isLongClickShare != true) return
         val wv = webView ?: return
-        val resolver = WebViewLinkResolver()
-        wv.setOnLongClickListener {
-            if (!resolver.hasHit(wv)) return@setOnLongClickListener false
-            resolver.resolve(wv) { url ->
-                if (url != null) {
-                    IntentBuilder(this)
-                        .setType("text/plain")
-                        .setText(url)
-                        .startChooser()
-                }
-            }
-            true
-        }
+        WebViewContextMenu(
+            activity = this,
+            getWebView = { webView },
+            onExternalIntent = ::startExternalIntent,
+            onToast = ::showToast,
+        ).install(wv)
     }
 
     private fun setupBackNavigation() {

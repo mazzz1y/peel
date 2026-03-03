@@ -164,7 +164,7 @@
     <string name="add">Добавить</string>
     <string name="remove">Удалить</string>
 
-    <string name="setting_long_click_share">Поделиться по долгому нажатию</string>
+    <string name="setting_long_click_share">Контекстное меню</string>
     <string name="setting_pull_to_refresh">Обновление свайпом вниз</string>
     <string name="setting_disable_screenshots">Блокировать скриншоты</string>
     <string name="setting_safe_browsing">Безопасный просмотр</string>
@@ -195,4 +195,17 @@
         <item quantity="many">%d приложений</item>
         <item quantity="other">%d приложений</item>
     </plurals>
+
+    <string name="context_menu_open_link">Открыть в браузере</string>
+    <string name="context_menu_copy_link">Копировать адрес ссылки</string>
+    <string name="context_menu_copy_link_text">Копировать текст ссылки</string>
+    <string name="context_menu_download_link">Скачать ссылку</string>
+    <string name="context_menu_share_link">Поделиться ссылкой</string>
+    <string name="context_menu_copy_image">Копировать изображение</string>
+    <string name="context_menu_download_image">Скачать изображение</string>
+    <string name="context_menu_share_image">Поделиться изображением</string>
+    <string name="link_copied">Ссылка скопирована</string>
+    <string name="text_copied">Текст скопирован</string>
+    <string name="image_copied">Изображение скопировано</string>
+    <string name="image_download_failed">Не удалось скачать изображение</string>
 </resources>

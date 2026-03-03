@@ -143,7 +143,7 @@
     <string name="remove">Eliminar</string>
     <string name="clone">Clonar</string>
 
-    <string name="setting_long_click_share">Mantener pulsado para compartir enlaces</string>
+    <string name="setting_long_click_share">Menú contextual</string>
     <string name="setting_pull_to_refresh">Deslizar para actualizar</string>
     <string name="setting_disable_screenshots">Desactivar capturas de pantalla</string>
     <string name="setting_safe_browsing">Navegación segura</string>
@@ -190,4 +190,17 @@
         <item quantity="one">%d app</item>
         <item quantity="other">%d apps</item>
     </plurals>
+
+    <string name="context_menu_open_link">Abrir en el navegador</string>
+    <string name="context_menu_copy_link">Copiar dirección del enlace</string>
+    <string name="context_menu_copy_link_text">Copiar texto del enlace</string>
+    <string name="context_menu_download_link">Descargar enlace</string>
+    <string name="context_menu_share_link">Compartir enlace</string>
+    <string name="context_menu_copy_image">Copiar imagen</string>
+    <string name="context_menu_download_image">Descargar imagen</string>
+    <string name="context_menu_share_image">Compartir imagen</string>
+    <string name="link_copied">Enlace copiado</string>
+    <string name="text_copied">Texto copiado</string>
+    <string name="image_copied">Imagen copiada</string>
+    <string name="image_download_failed">Error al descargar la imagen</string>
 </resources>

@@ -164,7 +164,7 @@
     <string name="add">जोड़ें</string>
     <string name="remove">हटाएं</string>
 
-    <string name="setting_long_click_share">लंबा दबाकर साझा करें</string>
+    <string name="setting_long_click_share">लंबा दबाकर संदर्भ मेनू</string>
     <string name="setting_pull_to_refresh">खींचकर रीफ़्रेश करें</string>
     <string name="setting_disable_screenshots">स्क्रीनशॉट अवरोधित करें</string>
     <string name="setting_safe_browsing">सुरक्षित ब्राउज़िंग</string>
@@ -193,4 +193,17 @@
         <item quantity="one">%d ऐप</item>
         <item quantity="other">%d ऐप्स</item>
     </plurals>
+
+    <string name="context_menu_open_link">ब्राउज़र में खोलें</string>
+    <string name="context_menu_copy_link">लिंक पता कॉपी करें</string>
+    <string name="context_menu_copy_link_text">लिंक टेक्स्ट कॉपी करें</string>
+    <string name="context_menu_download_link">लिंक डाउनलोड करें</string>
+    <string name="context_menu_share_link">लिंक शेयर करें</string>
+    <string name="context_menu_copy_image">छवि कॉपी करें</string>
+    <string name="context_menu_download_image">छवि डाउनलोड करें</string>
+    <string name="context_menu_share_image">छवि शेयर करें</string>
+    <string name="link_copied">लिंक कॉपी हुआ</string>
+    <string name="text_copied">टेक्स्ट कॉपी हुआ</string>
+    <string name="image_copied">छवि कॉपी हुई</string>
+    <string name="image_download_failed">छवि डाउनलोड विफल</string>
 </resources>

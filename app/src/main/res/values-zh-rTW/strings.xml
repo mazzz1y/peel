@@ -164,7 +164,7 @@
     <string name="add">新增</string>
     <string name="remove">刪除</string>
 
-    <string name="setting_long_click_share">長按分享</string>
+    <string name="setting_long_click_share">長按快捷選單</string>
     <string name="setting_pull_to_refresh">下拉重新整理</string>
     <string name="setting_disable_screenshots">禁止截圖</string>
     <string name="setting_safe_browsing">安全瀏覽</string>
@@ -192,4 +192,17 @@
     <plurals name="group_app_count">
         <item quantity="other">%d 個應用程式</item>
     </plurals>
+
+    <string name="context_menu_open_link">在瀏覽器中開啟</string>
+    <string name="context_menu_copy_link">複製連結地址</string>
+    <string name="context_menu_copy_link_text">複製連結文字</string>
+    <string name="context_menu_download_link">下載連結</string>
+    <string name="context_menu_share_link">分享連結</string>
+    <string name="context_menu_copy_image">複製圖片</string>
+    <string name="context_menu_download_image">下載圖片</string>
+    <string name="context_menu_share_image">分享圖片</string>
+    <string name="link_copied">連結已複製</string>
+    <string name="text_copied">文字已複製</string>
+    <string name="image_copied">圖片已複製</string>
+    <string name="image_download_failed">圖片下載失敗</string>
 </resources>

@@ -166,7 +166,19 @@
     <string name="add">Add</string>
     <string name="remove">Remove</string>
 
-    <string name="setting_long_click_share">Long-press sharing</string>
+    <string name="setting_long_click_share">Long-press context menu</string>
+    <string name="context_menu_open_link">Open in browser</string>
+    <string name="context_menu_copy_link">Copy link address</string>
+    <string name="context_menu_copy_link_text">Copy link text</string>
+    <string name="context_menu_download_link">Download link</string>
+    <string name="context_menu_share_link">Share link</string>
+    <string name="context_menu_copy_image">Copy image</string>
+    <string name="context_menu_download_image">Download image</string>
+    <string name="context_menu_share_image">Share image</string>
+    <string name="link_copied">Link copied</string>
+    <string name="text_copied">Text copied</string>
+    <string name="image_copied">Image copied</string>
+    <string name="image_download_failed">Failed to download image</string>
     <string name="setting_pull_to_refresh">Pull to refresh</string>
     <string name="setting_disable_screenshots">Block screenshots</string>
     <string name="setting_safe_browsing">Safe browsing</string>

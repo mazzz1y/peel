@@ -164,7 +164,7 @@
     <string name="add">Adicionar</string>
     <string name="remove">Remover</string>
 
-    <string name="setting_long_click_share">Compartilhar ao pressionar longo</string>
+    <string name="setting_long_click_share">Menu de contexto</string>
     <string name="setting_pull_to_refresh">Puxar para atualizar</string>
     <string name="setting_disable_screenshots">Bloquear capturas de tela</string>
     <string name="setting_safe_browsing">Navegação segura</string>
@@ -193,4 +193,17 @@
         <item quantity="one">%d app</item>
         <item quantity="other">%d apps</item>
     </plurals>
+
+    <string name="context_menu_open_link">Abrir no navegador</string>
+    <string name="context_menu_copy_link">Copiar endereço do link</string>
+    <string name="context_menu_copy_link_text">Copiar texto do link</string>
+    <string name="context_menu_download_link">Baixar link</string>
+    <string name="context_menu_share_link">Compartilhar link</string>
+    <string name="context_menu_copy_image">Copiar imagem</string>
+    <string name="context_menu_download_image">Baixar imagem</string>
+    <string name="context_menu_share_image">Compartilhar imagem</string>
+    <string name="link_copied">Link copiado</string>
+    <string name="text_copied">Texto copiado</string>
+    <string name="image_copied">Imagem copiada</string>
+    <string name="image_download_failed">Falha ao baixar imagem</string>
 </resources>

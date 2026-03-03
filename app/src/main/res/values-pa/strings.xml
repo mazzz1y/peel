@@ -154,7 +154,7 @@
     <string name="header_value">ਮੁੱਲ</string>
     <string name="add">ਸ਼ਾਮਲ ਕਰੋ</string>
     <string name="remove">ਹਟਾਓ</string>
-    <string name="setting_long_click_share">ਲੰਬਾ ਦਬਾ ਕੇ ਸਾਂਝਾ ਕਰੋ</string>
+    <string name="setting_long_click_share">ਲੰਬਾ ਦਬਾ ਕੇ ਸੰਦਰਭ ਮੀਨੂ</string>
     <string name="setting_pull_to_refresh">ਖਿੱਚ ਕੇ ਤਾਜ਼ਾ ਕਰੋ</string>
     <string name="setting_disable_screenshots">ਸਕ੍ਰੀਨਸ਼ਾਟ ਬਲਾਕ ਕਰੋ</string>
     <string name="setting_safe_browsing">ਸੁਰੱਖਿਅਤ ਬ੍ਰਾਊਜ਼ਿੰਗ</string>
@@ -181,4 +181,17 @@
         <item quantity="one">%d ਐਪ</item>
         <item quantity="other">%d ਐਪਾਂ</item>
     </plurals>
+
+    <string name="context_menu_open_link">ਬ੍ਰਾਊਜ਼ਰ ਵਿੱਚ ਖੋਲ੍ਹੋ</string>
+    <string name="context_menu_copy_link">ਲਿੰਕ ਪਤਾ ਕਾਪੀ ਕਰੋ</string>
+    <string name="context_menu_copy_link_text">ਲਿੰਕ ਟੈਕਸਟ ਕਾਪੀ ਕਰੋ</string>
+    <string name="context_menu_download_link">ਲਿੰਕ ਡਾਊਨਲੋਡ ਕਰੋ</string>
+    <string name="context_menu_share_link">ਲਿੰਕ ਸਾਂਝਾ ਕਰੋ</string>
+    <string name="context_menu_copy_image">ਚਿੱਤਰ ਕਾਪੀ ਕਰੋ</string>
+    <string name="context_menu_download_image">ਚਿੱਤਰ ਡਾਊਨਲੋਡ ਕਰੋ</string>
+    <string name="context_menu_share_image">ਚਿੱਤਰ ਸਾਂਝਾ ਕਰੋ</string>
+    <string name="link_copied">ਲਿੰਕ ਕਾਪੀ ਹੋਇਆ</string>
+    <string name="text_copied">ਟੈਕਸਟ ਕਾਪੀ ਹੋਇਆ</string>
+    <string name="image_copied">ਚਿੱਤਰ ਕਾਪੀ ਹੋਇਆ</string>
+    <string name="image_download_failed">ਚਿੱਤਰ ਡਾਊਨਲੋਡ ਅਸਫਲ</string>
 </resources>
