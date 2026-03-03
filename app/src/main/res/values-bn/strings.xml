@@ -101,6 +101,8 @@
     <string name="permission_deny">বন্ধ</string>
     <string name="permission_ask">জিজ্ঞাসা</string>
     <string name="permission_allow">চালু</string>
+    <string name="permission_prompt_allow">হ্যাঁ</string>
+    <string name="permission_prompt_deny">না</string>
     <string name="permission_prompt_camera">%1$s-কে ক্যামেরা অ্যাক্সেসের অনুমতি দেবেন?</string>
     <string name="permission_prompt_microphone">%1$s-কে মাইক্রোফোন অ্যাক্সেসের অনুমতি দেবেন?</string>
     <string name="permission_prompt_location">%1$s-কে অবস্থান অ্যাক্সেসের অনুমতি দেবেন?</string>
@@ -152,7 +154,7 @@
     <string name="drag_to_reorder">সাজাতে টেনে আনুন</string>
     <string name="app_icon">অ্যাপ আইকন</string>
 
-    <string name="select_setting_to_override">ওভাররাইড করতে সেটিং নির্বাচন করুন</string>
+    <string name="select_setting_to_override">সেটিং নির্বাচন করুন</string>
     <string name="override_picker_hint">এই ওয়েব অ্যাপের জন্য কাস্টমাইজ করতে একটি সেটিং বেছে নিন। এটি গ্লোবাল ডিফল্টের পরিবর্তে নিজস্ব মান ব্যবহার করবে।</string>
     <string name="add_override">ওভাররাইড যোগ করুন</string>
     <string name="remove_override">ওভাররাইড সরান</string>

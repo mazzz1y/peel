@@ -498,11 +498,11 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     override fun showPermissionDialog(message: String, onResult: (PermissionResult) -> Unit) {
         MaterialAlertDialogBuilder(this)
             .setMessage(message)
-            .setPositiveButton(R.string.permission_allow) { dialog, _ ->
+            .setPositiveButton(R.string.permission_prompt_allow) { dialog, _ ->
                 dialog.dismiss()
                 onResult(PermissionResult.ALLOW)
             }
-            .setNegativeButton(R.string.permission_deny) { dialog, _ ->
+            .setNegativeButton(R.string.permission_prompt_deny) { dialog, _ ->
                 dialog.dismiss()
                 onResult(PermissionResult.DENY)
             }

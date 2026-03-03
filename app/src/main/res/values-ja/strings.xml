@@ -101,6 +101,8 @@
     <string name="permission_deny">オフ</string>
     <string name="permission_ask">確認</string>
     <string name="permission_allow">オン</string>
+    <string name="permission_prompt_allow">許可</string>
+    <string name="permission_prompt_deny">拒否</string>
     <string name="permission_prompt_camera">%1$sにカメラへのアクセスを許可しますか？</string>
     <string name="permission_prompt_microphone">%1$sにマイクへのアクセスを許可しますか？</string>
     <string name="permission_prompt_location">%1$sに位置情報へのアクセスを許可しますか？</string>
@@ -152,7 +154,7 @@
     <string name="drag_to_reorder">ドラッグして並べ替え</string>
     <string name="app_icon">アプリアイコン</string>
 
-    <string name="select_setting_to_override">オーバーライドする設定を選択</string>
+    <string name="select_setting_to_override">設定を選択</string>
     <string name="override_picker_hint">このウェブアプリ用にカスタマイズする設定を選択してください。グローバルデフォルトの代わりに独自の値が使用されます。</string>
     <string name="add_override">オーバーライドを追加</string>
     <string name="remove_override">オーバーライドを削除</string>

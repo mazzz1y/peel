@@ -101,6 +101,8 @@
     <string name="permission_deny">關</string>
     <string name="permission_ask">詢問</string>
     <string name="permission_allow">開</string>
+    <string name="permission_prompt_allow">允許</string>
+    <string name="permission_prompt_deny">拒絕</string>
     <string name="permission_prompt_camera">允許 %1$s 存取相機？</string>
     <string name="permission_prompt_microphone">允許 %1$s 存取麥克風？</string>
     <string name="permission_prompt_location">允許 %1$s 存取位置？</string>
@@ -152,7 +154,7 @@
     <string name="drag_to_reorder">拖曳排序</string>
     <string name="app_icon">應用程式圖示</string>
 
-    <string name="select_setting_to_override">選擇要覆寫的設定</string>
+    <string name="select_setting_to_override">選擇設定</string>
     <string name="override_picker_hint">選擇要為此網頁應用程式自訂的設定，它將使用自己的值而非全域預設值。</string>
     <string name="add_override">新增覆寫</string>
     <string name="remove_override">刪除覆寫</string>

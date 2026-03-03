@@ -131,7 +131,7 @@
     <string name="settings">Configuración</string>
     <string name="drag_to_reorder">Arrastrar para reordenar</string>
     <string name="app_icon">Icono de la aplicación</string>
-    <string name="select_setting_to_override">Seleccionar configuración para anular</string>
+    <string name="select_setting_to_override">Seleccionar ajuste</string>
     <string name="override_picker_hint">Elige una configuración para personalizar para esta aplicación web. Usará su propio valor en lugar del valor global predeterminado.</string>
     <string name="add_override">Añadir anulación</string>
     <string name="remove_override">Eliminar anulación</string>

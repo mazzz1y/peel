@@ -101,6 +101,8 @@
     <string name="permission_deny">बंद</string>
     <string name="permission_ask">पूछें</string>
     <string name="permission_allow">चालू</string>
+    <string name="permission_prompt_allow">हाँ</string>
+    <string name="permission_prompt_deny">नहीं</string>
     <string name="permission_prompt_camera">%1$s को कैमरा एक्सेस की अनुमति दें?</string>
     <string name="permission_prompt_microphone">%1$s को माइक्रोफ़ोन एक्सेस की अनुमति दें?</string>
     <string name="permission_prompt_location">%1$s को स्थान एक्सेस की अनुमति दें?</string>
@@ -152,7 +154,7 @@
     <string name="drag_to_reorder">क्रम बदलने के लिए खींचें</string>
     <string name="app_icon">ऐप आइकन</string>
 
-    <string name="select_setting_to_override">ओवरराइड करने के लिए सेटिंग चुनें</string>
+    <string name="select_setting_to_override">सेटिंग चुनें</string>
     <string name="override_picker_hint">इस वेब ऐप के लिए कस्टमाइज़ करने हेतु एक सेटिंग चुनें। यह वैश्विक डिफ़ॉल्ट के बजाय अपना मान उपयोग करेगी।</string>
     <string name="add_override">ओवरराइड जोड़ें</string>
     <string name="remove_override">ओवरराइड हटाएं</string>

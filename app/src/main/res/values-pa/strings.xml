@@ -99,6 +99,8 @@
     <string name="permission_deny">ਬੰਦ</string>
     <string name="permission_ask">ਪੁੱਛੋ</string>
     <string name="permission_allow">ਚਾਲੂ</string>
+    <string name="permission_prompt_allow">ਹਾਂ</string>
+    <string name="permission_prompt_deny">ਨਹੀਂ</string>
     <string name="permission_prompt_camera">%1$s ਨੂੰ ਕੈਮਰਾ ਐਕਸੈਸ ਦੀ ਇਜਾਜ਼ਤ ਦਿਓ?</string>
     <string name="permission_prompt_microphone">%1$s ਨੂੰ ਮਾਈਕ੍ਰੋਫ਼ੋਨ ਐਕਸੈਸ ਦੀ ਇਜਾਜ਼ਤ ਦਿਓ?</string>
     <string name="permission_prompt_location">%1$s ਨੂੰ ਟਿਕਾਣਾ ਐਕਸੈਸ ਦੀ ਇਜਾਜ਼ਤ ਦਿਓ?</string>
@@ -144,7 +146,7 @@
     <string name="settings">ਸੈਟਿੰਗਾਂ</string>
     <string name="drag_to_reorder">ਕ੍ਰਮ ਬਦਲਣ ਲਈ ਖਿੱਚੋ</string>
     <string name="app_icon">ਐਪ ਆਈਕਨ</string>
-    <string name="select_setting_to_override">ਓਵਰਰਾਈਡ ਕਰਨ ਲਈ ਸੈਟਿੰਗ ਚੁਣੋ</string>
+    <string name="select_setting_to_override">ਸੈਟਿੰਗ ਚੁਣੋ</string>
     <string name="override_picker_hint">ਇਸ ਵੈੱਬ ਐਪ ਲਈ ਕਸਟਮਾਈਜ਼ ਕਰਨ ਲਈ ਇੱਕ ਸੈਟਿੰਗ ਚੁਣੋ। ਇਹ ਗਲੋਬਲ ਡਿਫ਼ਾਲਟ ਦੀ ਬਜਾਏ ਆਪਣਾ ਮੁੱਲ ਵਰਤੇਗੀ।</string>
     <string name="add_override">ਓਵਰਰਾਈਡ ਸ਼ਾਮਲ ਕਰੋ</string>
     <string name="remove_override">ਓਵਰਰਾਈਡ ਹਟਾਓ</string>

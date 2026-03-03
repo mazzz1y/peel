@@ -132,7 +132,7 @@
     <string name="settings">Einstellungen</string>
     <string name="drag_to_reorder">Ziehen zum Neuordnen</string>
     <string name="app_icon">App-Symbol</string>
-    <string name="select_setting_to_override">Einstellung zum Überschreiben auswählen</string>
+    <string name="select_setting_to_override">Einstellung wählen</string>
     <string name="override_picker_hint">Wählen Sie eine Einstellung, die Sie für diese Web-App anpassen möchten. Sie verwendet dann ihren eigenen Wert anstelle des globalen Standards.</string>
     <string name="add_override">Überschreibung hinzufügen</string>
     <string name="remove_override">Überschreibung entfernen</string>

@@ -131,7 +131,7 @@
     <string name="settings">Impostazioni</string>
     <string name="drag_to_reorder">Trascina per riordinare</string>
     <string name="app_icon">Icona app</string>
-    <string name="select_setting_to_override">Seleziona impostazione da sovrascrivere</string>
+    <string name="select_setting_to_override">Seleziona impostazione</string>
     <string name="override_picker_hint">Scegli un\'impostazione da personalizzare per questa web app. Utilizzerà il proprio valore invece del valore globale predefinito.</string>
     <string name="add_override">Aggiungi sovrascrittura</string>
     <string name="remove_override">Rimuovi sovrascrittura</string>

@@ -101,6 +101,8 @@
     <string name="permission_deny">关</string>
     <string name="permission_ask">询问</string>
     <string name="permission_allow">开</string>
+    <string name="permission_prompt_allow">允许</string>
+    <string name="permission_prompt_deny">拒绝</string>
     <string name="permission_prompt_camera">允许 %1$s 访问相机？</string>
     <string name="permission_prompt_microphone">允许 %1$s 访问麦克风？</string>
     <string name="permission_prompt_location">允许 %1$s 访问位置？</string>
@@ -152,7 +154,7 @@
     <string name="drag_to_reorder">拖动排序</string>
     <string name="app_icon">应用图标</string>
 
-    <string name="select_setting_to_override">选择要覆盖的设置</string>
+    <string name="select_setting_to_override">选择设置</string>
     <string name="override_picker_hint">选择要为此网页应用自定义的设置，它将使用自己的值而非全局默认值。</string>
     <string name="add_override">添加覆盖</string>
     <string name="remove_override">删除覆盖</string>

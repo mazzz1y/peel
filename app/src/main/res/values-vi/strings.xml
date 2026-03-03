@@ -101,6 +101,8 @@
     <string name="permission_deny">Tắt</string>
     <string name="permission_ask">Hỏi</string>
     <string name="permission_allow">Bật</string>
+    <string name="permission_prompt_allow">Cho phép</string>
+    <string name="permission_prompt_deny">Từ chối</string>
     <string name="permission_prompt_camera">Cho phép %1$s truy cập camera?</string>
     <string name="permission_prompt_microphone">Cho phép %1$s truy cập micro?</string>
     <string name="permission_prompt_location">Cho phép %1$s truy cập vị trí?</string>
@@ -152,7 +154,7 @@
     <string name="drag_to_reorder">Kéo để sắp xếp</string>
     <string name="app_icon">Biểu tượng ứng dụng</string>
 
-    <string name="select_setting_to_override">Chọn cài đặt để ghi đè</string>
+    <string name="select_setting_to_override">Chọn cài đặt</string>
     <string name="override_picker_hint">Chọn một cài đặt để tùy chỉnh cho ứng dụng web này. Nó sẽ dùng giá trị riêng thay vì mặc định toàn cục.</string>
     <string name="add_override">Thêm ghi đè</string>
     <string name="remove_override">Xóa ghi đè</string>

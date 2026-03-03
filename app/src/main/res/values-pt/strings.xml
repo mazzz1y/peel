@@ -101,6 +101,8 @@
     <string name="permission_deny">Desligado</string>
     <string name="permission_ask">Perguntar</string>
     <string name="permission_allow">Ligado</string>
+    <string name="permission_prompt_allow">Permitir</string>
+    <string name="permission_prompt_deny">Negar</string>
     <string name="permission_prompt_camera">Permitir %1$s acessar a câmera?</string>
     <string name="permission_prompt_microphone">Permitir %1$s acessar o microfone?</string>
     <string name="permission_prompt_location">Permitir %1$s acessar a localização?</string>
@@ -152,7 +154,7 @@
     <string name="drag_to_reorder">Arraste para reordenar</string>
     <string name="app_icon">Ícone do app</string>
 
-    <string name="select_setting_to_override">Selecionar configuração para substituir</string>
+    <string name="select_setting_to_override">Selecionar configuração</string>
     <string name="override_picker_hint">Escolha uma configuração para personalizar para este Web App. Ele usará seu próprio valor em vez do padrão global.</string>
     <string name="add_override">Adicionar substituição</string>
     <string name="remove_override">Remover substituição</string>

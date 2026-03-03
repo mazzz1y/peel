@@ -103,6 +103,8 @@
     <string name="permission_deny">Deny</string>
     <string name="permission_ask">Ask</string>
     <string name="permission_allow">Allow</string>
+    <string name="permission_prompt_allow">Allow</string>
+    <string name="permission_prompt_deny">Deny</string>
     <string name="permission_prompt_camera">Allow %1$s to access your camera?</string>
     <string name="permission_prompt_microphone">Allow %1$s to access your microphone?</string>
     <string name="permission_prompt_location">Allow %1$s to access your location?</string>
@@ -154,7 +156,7 @@
     <string name="drag_to_reorder">Drag to reorder</string>
     <string name="app_icon">App icon</string>
 
-    <string name="select_setting_to_override">Select Setting to Override</string>
+    <string name="select_setting_to_override">Select setting</string>
     <string name="override_picker_hint">Choose a setting to customize for this web app. It will use its own value instead of the global default.</string>
     <string name="add_override">Add Override</string>
     <string name="remove_override">Remove Override</string>
