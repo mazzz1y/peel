@@ -322,7 +322,7 @@ class WebAppSettingsActivity :
                 val bmp = candidate.icon
                 if (bmp != null) {
                     iconView.setImageBitmap(bmp)
-                    detailView.text = "${bmp.width}x${bmp.height} · ${candidate.source}"
+                    detailView.text = getString(R.string.icon_dimensions_source, bmp.width, bmp.height, candidate.source)
                     detailView.visibility = View.VISIBLE
                 } else {
                     iconView.setImageBitmap(

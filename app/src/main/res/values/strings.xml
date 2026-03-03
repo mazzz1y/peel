@@ -24,6 +24,7 @@
     <string name="fetch_step_manifests">Checking manifests…</string>
     <string name="fetch_step_icons">Checking page icons…</string>
     <string name="fetch_step_downloading">Downloading icons…</string>
+    <string name="icon_dimensions_source">%1$dx%2$d · %3$s</string>
 
     <string name="web_app_settings">Web App Settings</string>
     <string name="do_not_load_images">Block images</string>
