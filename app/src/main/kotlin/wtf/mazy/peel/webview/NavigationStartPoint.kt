@@ -7,11 +7,10 @@ class NavigationStartPoint(private val baseUrl: String) {
 
     private var index: Int? = null
     private var wasOnForeignHost = false
-
-    val isSet: Boolean get() = index != null
+    private var settled = false
 
     fun onVisitedHistoryUpdated(view: WebView, url: String?, isReload: Boolean) {
-        if (isSet || isReload) return
+        if (settled || isReload) return
         val urlHost = url?.toUri()?.host?.removePrefix("www.") ?: return
         val baseHost = baseUrl.toUri().host?.removePrefix("www.") ?: return
         val isBaseHost = urlHost == baseHost || urlHost.endsWith(".$baseHost")
@@ -24,6 +23,7 @@ class NavigationStartPoint(private val baseUrl: String) {
         if (wasOnForeignHost) {
             index = view.copyBackForwardList().currentIndex
         }
+        settled = true
     }
 
     fun canGoBackFrom(currentIndex: Int): Boolean {
