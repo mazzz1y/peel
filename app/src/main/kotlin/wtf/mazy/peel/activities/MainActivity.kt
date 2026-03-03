@@ -23,7 +23,7 @@ import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.ImportMode
 import wtf.mazy.peel.model.SandboxManager
 import wtf.mazy.peel.model.WebApp
-import wtf.mazy.peel.ui.dialog.showInputDialog
+import wtf.mazy.peel.ui.dialog.showSandboxInputDialog
 import wtf.mazy.peel.ui.webapplist.GroupPagerAdapter
 import wtf.mazy.peel.ui.webapplist.WebAppListFragment
 import wtf.mazy.peel.util.Const
@@ -331,15 +331,18 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun buildAddWebsiteDialog() {
-        showInputDialog(
+        showSandboxInputDialog(
             titleRes = R.string.add_webapp,
             hintRes = R.string.url,
             inputType = android.text.InputType.TYPE_TEXT_VARIATION_URI,
-        ) { url ->
+        ) { result ->
+            val url = result.text
             val urlWithProtocol =
                 if (url.startsWith("https://") || url.startsWith("http://")) url else "https://$url"
             val newSite = WebApp(urlWithProtocol)
             newSite.order = DataManager.instance.incrementedOrder
+            newSite.isUseContainer = result.sandbox
+            newSite.isEphemeralSandbox = result.ephemeral
 
             val currentPage = viewPager?.currentItem ?: 0
             val groups = DataManager.instance.sortedGroups

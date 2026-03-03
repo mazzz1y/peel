@@ -23,7 +23,7 @@ import wtf.mazy.peel.R
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.WebAppGroup
 import wtf.mazy.peel.shortcut.ShortcutHelper
-import wtf.mazy.peel.ui.dialog.showInputDialog
+import wtf.mazy.peel.ui.dialog.showSandboxInputDialog
 import wtf.mazy.peel.ui.dragReorderCallback
 import wtf.mazy.peel.util.Const
 import java.util.Collections
@@ -83,14 +83,15 @@ class GroupListActivity : AppCompatActivity() {
     }
 
     private fun showAddGroupDialog() {
-        showInputDialog(titleRes = R.string.add_group, hintRes = R.string.group_name_hint) { name ->
-            val group = WebAppGroup(title = name, order = DataManager.instance.getGroups().size)
+        showSandboxInputDialog(
+            titleRes = R.string.add_group,
+            hintRes = R.string.group_name_hint,
+        ) { result ->
+            val group = WebAppGroup(title = result.text, order = DataManager.instance.getGroups().size)
+            group.isUseContainer = result.sandbox
+            group.isEphemeralSandbox = result.ephemeral
             DataManager.instance.addGroup(group)
             updateList()
-
-            val intent = Intent(this, GroupSettingsActivity::class.java)
-            intent.putExtra(Const.INTENT_GROUP_UUID, group.uuid)
-            startActivity(intent)
         }
     }
 
