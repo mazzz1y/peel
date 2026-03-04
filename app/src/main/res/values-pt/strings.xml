@@ -19,6 +19,10 @@
     <string name="shortcut_icon">Ícone do atalho</string>
     <string name="fetch_icon_title">Obter do site</string>
     <string name="choose_icon">Escolher ícone e título</string>
+    <string name="manifest_start_url_title">Atualizar URL?</string>
+    <string name="manifest_start_url_message">O manifesto do site sugere um URL inicial diferente:\n\n%1$s</string>
+    <string name="manifest_start_url_update">Atualizar</string>
+    <string name="manifest_start_url_keep">Manter atual</string>
     <string name="fetch_step_loading">Carregando página…</string>
     <string name="fetch_step_manifests">Verificando manifestos…</string>
     <string name="fetch_step_icons">Verificando ícones…</string>

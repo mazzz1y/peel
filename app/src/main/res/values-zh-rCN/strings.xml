@@ -19,6 +19,10 @@
     <string name="shortcut_icon">快捷方式图标</string>
     <string name="fetch_icon_title">从网站获取</string>
     <string name="choose_icon">选择图标和标题</string>
+    <string name="manifest_start_url_title">更新网址？</string>
+    <string name="manifest_start_url_message">网站清单建议使用不同的起始网址：\n\n%1$s</string>
+    <string name="manifest_start_url_update">更新</string>
+    <string name="manifest_start_url_keep">保持当前</string>
     <string name="fetch_step_loading">加载页面…</string>
     <string name="fetch_step_manifests">检查清单…</string>
     <string name="fetch_step_icons">检查图标…</string>

@@ -16,6 +16,12 @@ fun WebView.buildUserAgent() {
                 "Chrome/$major.0.0.0 Mobile Safari/537.36"
 }
 
+fun displayUrl(url: String): String {
+    val queryStart = url.indexOf('?')
+    val clean = if (queryStart >= 0) url.substring(0, queryStart) else url
+    return clean.trimEnd('/')
+}
+
 object Utility {
 
     @JvmStatic

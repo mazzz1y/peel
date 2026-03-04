@@ -29,7 +29,7 @@ import wtf.mazy.peel.util.buildUserAgent
 import java.net.HttpURLConnection
 import java.net.URL
 
-data class FetchCandidate(val title: String?, val icon: Bitmap?, val source: String)
+data class FetchCandidate(val title: String?, val icon: Bitmap?, val source: String, val startUrl: String? = null)
 
 class HeadlessWebViewFetcher(
     context: Context,
@@ -189,7 +189,9 @@ class HeadlessWebViewFetcher(
                 val manifest = JSONObject(conn.inputStream.bufferedReader().use { it.readText() })
                 val name = manifest.optString("name").takeIf { it.isNotEmpty() }
                 val icon = downloadBestManifestIcon(manifest, manifestUrl)
-                if (name != null || icon != null) FetchCandidate(name ?: pageTitle, icon, "PWA")
+                val startUrl = manifest.optString("start_url").takeIf { it.isNotEmpty() }
+                    ?.let { URL(URL(manifestUrl), it).toString() }
+                if (name != null || icon != null) FetchCandidate(name ?: pageTitle, icon, "PWA", startUrl)
                 else null
             } finally {
                 conn.disconnect()

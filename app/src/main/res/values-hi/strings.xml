@@ -19,6 +19,10 @@
     <string name="shortcut_icon">शॉर्टकट आइकन</string>
     <string name="fetch_icon_title">वेबसाइट से प्राप्त करें</string>
     <string name="choose_icon">आइकन और शीर्षक चुनें</string>
+    <string name="manifest_start_url_title">URL अपडेट करें?</string>
+    <string name="manifest_start_url_message">वेबसाइट मैनिफ़ेस्ट एक अलग शुरुआती URL सुझाता है:\n\n%1$s</string>
+    <string name="manifest_start_url_update">अपडेट करें</string>
+    <string name="manifest_start_url_keep">मौजूदा रखें</string>
     <string name="fetch_step_loading">पेज लोड हो रहा है…</string>
     <string name="fetch_step_manifests">मैनिफ़ेस्ट जांच रहा है…</string>
     <string name="fetch_step_icons">आइकन जांच रहा है…</string>

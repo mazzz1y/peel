@@ -71,6 +71,7 @@ open class SandboxFetchService : Service() {
                     val entry = Bundle()
                     if (c.title != null) entry.putString(KEY_TITLE, c.title)
                     entry.putString(KEY_SOURCE, c.source)
+                    if (c.startUrl != null) entry.putString(KEY_START_URL, c.startUrl)
                     if (c.icon != null) {
                         val stream = java.io.ByteArrayOutputStream()
                         c.icon.compress(Bitmap.CompressFormat.PNG, 100, stream)
@@ -100,6 +101,7 @@ open class SandboxFetchService : Service() {
         const val KEY_TITLE = "title"
         const val KEY_ICON = "icon"
         const val KEY_SOURCE = "source"
+        const val KEY_START_URL = "start_url"
         const val KEY_PROGRESS = "progress"
 
         fun parseCandidates(resultData: Bundle?): List<FetchCandidate> {
@@ -112,12 +114,13 @@ open class SandboxFetchService : Service() {
             return list.map { entry ->
                 val title = entry.getString(KEY_TITLE)
                 val source = entry.getString(KEY_SOURCE) ?: ""
+                val startUrl = entry.getString(KEY_START_URL)
                 val iconBytes = entry.getByteArray(KEY_ICON)
                 val icon =
                     iconBytes?.let {
                         android.graphics.BitmapFactory.decodeByteArray(it, 0, it.size)
                     }
-                FetchCandidate(title, icon, source)
+                FetchCandidate(title, icon, source, startUrl)
             }
         }
 

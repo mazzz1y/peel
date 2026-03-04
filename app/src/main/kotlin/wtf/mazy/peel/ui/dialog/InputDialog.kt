@@ -12,7 +12,7 @@ import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 
 fun Activity.showInputDialog(
-    @StringRes titleRes: Int,
+    @StringRes titleRes: Int = 0,
     @StringRes hintRes: Int,
     prefill: String = "",
     inputType: Int = InputType.TYPE_CLASS_TEXT,
@@ -25,8 +25,8 @@ fun Activity.showInputDialog(
     }
 }
 
-internal fun Activity.buildInputDialog(
-    @StringRes titleRes: Int,
+fun Activity.buildInputDialog(
+    @StringRes titleRes: Int = 0,
     @StringRes hintRes: Int,
     prefill: String = "",
     inputType: Int = InputType.TYPE_CLASS_TEXT,
@@ -60,12 +60,12 @@ internal fun Activity.buildInputDialog(
     container.addView(inputLayout)
     extraContent?.invoke(container)
 
-    val dialog = MaterialAlertDialogBuilder(this)
-        .setTitle(titleRes)
+    val builder = MaterialAlertDialogBuilder(this)
         .setView(container)
         .setPositiveButton(positiveRes) { _, _ -> onPositive(input, container) }
         .setNegativeButton(android.R.string.cancel, null)
-        .create()
+    if (titleRes != 0) builder.setTitle(titleRes)
+    val dialog = builder.create()
 
     dialog.show()
 

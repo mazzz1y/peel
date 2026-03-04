@@ -18,6 +18,7 @@ import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.shortcut.ShortcutHelper
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.WebViewLauncher.startWebView
+import wtf.mazy.peel.util.displayUrl
 import java.util.Collections
 
 class WebAppListAdapter(
@@ -52,7 +53,7 @@ class WebAppListAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = items[position]
         holder.titleView.text = item.title
-        holder.urlView.text = item.baseUrl
+        holder.urlView.text = displayUrl(item.baseUrl)
 
         holder.appIcon.setImageBitmap(item.resolveIcon())
 

@@ -19,6 +19,10 @@
     <string name="shortcut_icon">Biểu tượng lối tắt</string>
     <string name="fetch_icon_title">Lấy từ trang web</string>
     <string name="choose_icon">Chọn biểu tượng và tiêu đề</string>
+    <string name="manifest_start_url_title">Cập nhật URL?</string>
+    <string name="manifest_start_url_message">Tệp kê khai của trang web đề xuất URL bắt đầu khác:\n\n%1$s</string>
+    <string name="manifest_start_url_update">Cập nhật</string>
+    <string name="manifest_start_url_keep">Giữ hiện tại</string>
     <string name="fetch_step_loading">Đang tải trang…</string>
     <string name="fetch_step_manifests">Đang kiểm tra manifest…</string>
     <string name="fetch_step_icons">Đang kiểm tra biểu tượng…</string>

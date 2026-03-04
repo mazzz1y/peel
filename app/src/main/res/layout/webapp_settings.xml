@@ -47,7 +47,8 @@
                     <FrameLayout
                         style="@style/SettingsItemContainer"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content">
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp">
 
                         <ImageView
                             android:id="@+id/btnFetch"
@@ -77,31 +78,38 @@
                                 android:focusable="true"
                                 android:scaleType="fitCenter" />
 
-                            <EditText
-                                android:id="@+id/txtWebAppName"
+                            <LinearLayout
+                                android:id="@+id/titleUrlBlock"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:autofillHints=""
-                                android:background="@null"
-                                android:fontFamily="sans-serif"
-                                android:gravity="center"
-                                android:inputType="text"
-                                android:text="@={webapp.title}"
-                                android:textAppearance="?attr/textAppearanceTitleLarge" />
+                                android:clickable="true"
+                                android:focusable="true"
+                                android:gravity="center_horizontal"
+                                android:orientation="vertical">
 
-                            <EditText
-                                android:id="@+id/textBaseUrl"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="4dp"
-                                android:layout_marginBottom="16dp"
-                                android:autofillHints=""
-                                android:background="@null"
-                                android:fontFamily="sans-serif"
-                                android:gravity="center"
-                                android:inputType="textUri"
-                                android:text="@={webapp.baseUrl}"
-                                android:textAppearance="?attr/textAppearanceBodyMedium" />
+                                <TextView
+                                    android:id="@+id/txtWebAppName"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:fontFamily="sans-serif"
+                                    android:gravity="center"
+                                    android:text="@{webapp.title}"
+                                    android:textAppearance="?attr/textAppearanceTitleLarge" />
+
+                                <TextView
+                                    android:id="@+id/textBaseUrl"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="4dp"
+                                    android:layout_marginBottom="16dp"
+                                    android:ellipsize="end"
+                                    android:fontFamily="sans-serif"
+                                    android:gravity="center"
+                                    android:maxLines="1"
+                                    android:textAppearance="?attr/textAppearanceBodyMedium"
+                                    android:textColor="?attr/colorOnSurfaceVariant" />
+
+                            </LinearLayout>
 
                         </LinearLayout>
 

@@ -15,6 +15,8 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.PopupMenu
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.progressindicator.CircularProgressIndicator
+import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import wtf.mazy.peel.R
 import wtf.mazy.peel.databinding.WebappSettingsBinding
 import wtf.mazy.peel.model.DataManager
@@ -30,11 +32,13 @@ import wtf.mazy.peel.shortcut.ShortcutHelper
 import wtf.mazy.peel.ui.IconEditorController
 import wtf.mazy.peel.ui.ListPickerAdapter
 import wtf.mazy.peel.ui.dialog.OverridePickerDialog
+import wtf.mazy.peel.ui.dialog.buildInputDialog
 import wtf.mazy.peel.ui.settings.OverridePickerController
 import wtf.mazy.peel.ui.settings.SandboxSwitchController
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.NotificationUtils.showToast
 import wtf.mazy.peel.util.WebViewLauncher
+import wtf.mazy.peel.util.displayUrl
 
 class WebAppSettingsActivity :
     ToolbarBaseActivity<WebappSettingsBinding>(), OverridePickerDialog.OnSettingSelectedListener {
@@ -79,8 +83,10 @@ class WebAppSettingsActivity :
                 }
         binding.webapp = editableWebapp
         binding.activity = this@WebAppSettingsActivity
+        binding.textBaseUrl.text = displayUrl(editableWebapp.baseUrl)
 
         binding.imgWebAppIcon.setOnClickListener { iconEditor.onIconTap() }
+        binding.titleUrlBlock.setOnClickListener { showEditDialog(editableWebapp) }
         setupFetchButton(editableWebapp)
         setupOverridePicker(editableWebapp)
         if (!isEditingDefaults) {
@@ -121,6 +127,40 @@ class WebAppSettingsActivity :
         binding.sectionOverrideHeader.visibility = View.GONE
         binding.linearLayoutOverrides.visibility = View.GONE
         setToolbarTitle(getString(R.string.global_web_app_settings))
+    }
+
+    private fun showEditDialog(webapp: WebApp) {
+        var urlInput: TextInputEditText? = null
+        buildInputDialog(
+            hintRes = R.string.name,
+            prefill = webapp.title,
+            positiveRes = R.string.save,
+            allowEmpty = false,
+            extraContent = { container ->
+                val urlLayout = TextInputLayout(container.context).apply {
+                    hint = getString(R.string.url)
+                    layoutParams = LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT,
+                    ).apply {
+                        topMargin = (resources.displayMetrics.density * 16).toInt()
+                    }
+                }
+                urlInput = TextInputEditText(urlLayout.context).apply {
+                    setText(webapp.baseUrl)
+                    inputType = android.text.InputType.TYPE_TEXT_VARIATION_URI
+                    isSingleLine = true
+                }
+                urlLayout.addView(urlInput)
+                container.addView(urlLayout)
+            },
+        ) { nameInput, _ ->
+            webapp.title = nameInput.text.toString().trim()
+            webapp.baseUrl = urlInput?.text.toString().trim()
+            binding.txtWebAppName.text = webapp.title
+            binding.textBaseUrl.text = displayUrl(webapp.baseUrl)
+            iconEditor.refreshIcon()
+        }
     }
 
     private fun setupGroupPicker(webapp: WebApp) {
@@ -232,7 +272,7 @@ class WebAppSettingsActivity :
     }
 
     private fun fetchIconAndName(webapp: WebApp) {
-        val url = binding.textBaseUrl.text.toString().trim()
+        val url = webapp.baseUrl.trim()
         if (url.isEmpty()) {
             showToast(this, getString(R.string.enter_valid_url), Toast.LENGTH_SHORT)
             return
@@ -302,15 +342,16 @@ class WebAppSettingsActivity :
             showToast(this, getString(R.string.fetch_failed), Toast.LENGTH_SHORT)
             return
         }
+        val startUrl = candidates.firstNotNullOfOrNull { it.startUrl }
         val withIcon = candidates.filter { it.icon != null }
         if (!webapp.hasCustomIcon && webapp.title.isEmpty() && withIcon.size == 1) {
-            applyFetchResult(webapp, withIcon.first())
+            applyFetchResult(webapp, withIcon.first(), startUrl)
             return
         }
-        showFetchPickerDialog(webapp, candidates)
+        showFetchPickerDialog(webapp, candidates, startUrl)
     }
 
-    private fun showFetchPickerDialog(webapp: WebApp, candidates: List<FetchCandidate>) {
+    private fun showFetchPickerDialog(webapp: WebApp, candidates: List<FetchCandidate>, startUrl: String?) {
         dismissFetchProgress()
         val defaultIconSizePx = (resources.displayMetrics.density * 48).toInt()
         val colorSeed = webapp.letterIconSeed
@@ -334,11 +375,11 @@ class WebAppSettingsActivity :
 
         MaterialAlertDialogBuilder(this)
             .setTitle(R.string.choose_icon)
-            .setAdapter(adapter) { _, which -> applyFetchResult(webapp, candidates[which]) }
+            .setAdapter(adapter) { _, which -> applyFetchResult(webapp, candidates[which], startUrl) }
             .show()
     }
 
-    private fun applyFetchResult(webapp: WebApp, candidate: FetchCandidate) {
+    private fun applyFetchResult(webapp: WebApp, candidate: FetchCandidate, startUrl: String?) {
         dismissFetchProgress()
         if (!candidate.title.isNullOrEmpty()) {
             binding.txtWebAppName.setText(candidate.title)
@@ -350,6 +391,20 @@ class WebAppSettingsActivity :
             IconCache.evict(webapp)
         }
         iconEditor.refreshIcon()
+        startUrl?.let { promptStartUrl(webapp, it) }
+    }
+
+    private fun promptStartUrl(webapp: WebApp, startUrl: String) {
+        if (startUrl.trimEnd('/') == webapp.baseUrl.trimEnd('/')) return
+        MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.manifest_start_url_title)
+            .setMessage(getString(R.string.manifest_start_url_message, startUrl))
+            .setPositiveButton(R.string.manifest_start_url_update) { _, _ ->
+                webapp.baseUrl = startUrl
+                binding.textBaseUrl.text = displayUrl(startUrl)
+            }
+            .setNegativeButton(R.string.manifest_start_url_keep, null)
+            .show()
     }
 
     private lateinit var overrideController: OverridePickerController

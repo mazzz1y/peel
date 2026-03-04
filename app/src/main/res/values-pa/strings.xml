@@ -19,6 +19,10 @@
     <string name="shortcut_icon">ਸ਼ਾਰਟਕੱਟ ਆਈਕਨ</string>
     <string name="fetch_icon_title">ਵੈੱਬਸਾਈਟ ਤੋਂ ਪ੍ਰਾਪਤ ਕਰੋ</string>
     <string name="choose_icon">ਆਈਕਨ ਅਤੇ ਸਿਰਲੇਖ ਚੁਣੋ</string>
+    <string name="manifest_start_url_title">URL ਅੱਪਡੇਟ ਕਰੋ?</string>
+    <string name="manifest_start_url_message">ਵੈੱਬਸਾਈਟ ਮੈਨੀਫੈਸਟ ਇੱਕ ਵੱਖਰਾ ਸ਼ੁਰੂਆਤੀ URL ਸੁਝਾਉਂਦਾ ਹੈ:\n\n%1$s</string>
+    <string name="manifest_start_url_update">ਅੱਪਡੇਟ ਕਰੋ</string>
+    <string name="manifest_start_url_keep">ਮੌਜੂਦਾ ਰੱਖੋ</string>
     <string name="fetch_step_loading">ਪੰਨਾ ਲੋਡ ਹੋ ਰਿਹਾ ਹੈ…</string>
     <string name="fetch_step_manifests">ਮੈਨੀਫੈਸਟ ਜਾਂਚ ਰਿਹਾ ਹੈ…</string>
     <string name="fetch_step_icons">ਆਈਕਨ ਜਾਂਚ ਰਿਹਾ ਹੈ…</string>

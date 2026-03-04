@@ -1,8 +1,6 @@
 package wtf.mazy.peel.activities
 
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.widget.Toast
 import wtf.mazy.peel.R
@@ -12,6 +10,7 @@ import wtf.mazy.peel.model.SettingDefinition
 import wtf.mazy.peel.model.WebAppGroup
 import wtf.mazy.peel.ui.IconEditorController
 import wtf.mazy.peel.ui.dialog.OverridePickerDialog
+import wtf.mazy.peel.ui.dialog.showInputDialog
 import wtf.mazy.peel.ui.settings.OverridePickerController
 import wtf.mazy.peel.ui.settings.SandboxSwitchController
 import wtf.mazy.peel.util.Const
@@ -42,23 +41,8 @@ class GroupSettingsActivity :
         binding.group = modifiedGroup
 
         binding.imgGroupIcon.setOnClickListener { iconEditor.onIconTap() }
+        binding.titleBlock.setOnClickListener { modifiedGroup?.let { showEditDialog(it) } }
         iconEditor.refreshIcon()
-        binding.txtGroupName.addTextChangedListener(
-            object : TextWatcher {
-                override fun afterTextChanged(s: Editable?) {
-                    iconEditor.refreshIcon()
-                }
-
-                override fun beforeTextChanged(
-                    s: CharSequence?,
-                    start: Int,
-                    count: Int,
-                    after: Int
-                ) {
-                }
-
-                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-            })
 
         setupSandboxSwitch()
         setupOverridePicker()
@@ -77,6 +61,19 @@ class GroupSettingsActivity :
 
     override fun inflateBinding(layoutInflater: LayoutInflater): GroupSettingsBinding {
         return GroupSettingsBinding.inflate(layoutInflater)
+    }
+
+    private fun showEditDialog(group: WebAppGroup) {
+        showInputDialog(
+            hintRes = R.string.name,
+            prefill = group.title,
+            positiveRes = R.string.save,
+            allowEmpty = false,
+        ) { name ->
+            group.title = name
+            binding.txtGroupName.text = name
+            iconEditor.refreshIcon()
+        }
     }
 
     private fun setupSandboxSwitch() {
