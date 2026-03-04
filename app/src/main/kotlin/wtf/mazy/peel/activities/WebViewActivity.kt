@@ -62,6 +62,7 @@ import wtf.mazy.peel.util.WebViewLauncher
 import wtf.mazy.peel.util.buildUserAgent
 import wtf.mazy.peel.webview.ChromeClientHost
 import wtf.mazy.peel.webview.DownloadHandler
+import wtf.mazy.peel.webview.ImageCache
 import wtf.mazy.peel.webview.NavigationStartPoint
 import wtf.mazy.peel.webview.PeelWebChromeClient
 import wtf.mazy.peel.webview.PeelWebViewClient
@@ -98,6 +99,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
 
     private var floatingControls: FloatingControlsView? = null
     private lateinit var downloadHandler: DownloadHandler
+    private lateinit var imageCache: ImageCache
     private lateinit var peelWebViewClient: PeelWebViewClient
     private var peelWebChromeClient: PeelWebChromeClient? = null
 
@@ -539,6 +541,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
             ?: intent?.clipData?.let { clip -> Array(clip.itemCount) { clip.getItemAt(it).uri } }
 
     private fun initDownloadHandler() {
+        imageCache = ImageCache(cacheDir = cacheDir, getWebView = { webView })
         downloadHandler =
             DownloadHandler(
                 activity = this,
@@ -702,6 +705,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         WebViewContextMenu(
             activity = this,
             getWebView = { webView },
+            imageCache = imageCache,
             onExternalIntent = ::startExternalIntent,
             onToast = ::showToast,
         ).install(wv)

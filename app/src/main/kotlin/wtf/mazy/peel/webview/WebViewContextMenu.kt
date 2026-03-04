@@ -23,13 +23,11 @@ import androidx.core.net.toUri
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import wtf.mazy.peel.R
 import java.io.File
-import java.net.HttpURLConnection
-import java.net.URL
-import kotlin.concurrent.thread
 
 class WebViewContextMenu(
     private val activity: Context,
     private val getWebView: () -> WebView?,
+    private val imageCache: ImageCache,
     private val onExternalIntent: (Uri) -> Unit,
     private val onToast: (String) -> Unit,
 ) {
@@ -73,16 +71,17 @@ class WebViewContextMenu(
 
         return when (hit.type) {
             HitTestResult.SRC_ANCHOR_TYPE ->
-                HitInfo(title, extra, linkActionsFor(extra, title), emptyList())
+                HitInfo(title?.takeIf { it != extra }, extra, linkActionsFor(extra, title), emptyList())
 
             HitTestResult.IMAGE_TYPE ->
                 HitInfo(null, extra, emptyList(), imageActionsFor(extra))
 
             HitTestResult.SRC_IMAGE_ANCHOR_TYPE -> {
                 val anchorUrl = nodeHref?.getString("url")
+                val displayUrl = anchorUrl ?: extra
                 HitInfo(
-                    title = title,
-                    url = anchorUrl ?: extra,
+                    title = title?.takeIf { it != displayUrl },
+                    url = displayUrl,
                     linkActions = anchorUrl?.let { linkActionsFor(it, title) } ?: emptyList(),
                     imageActions = imageActionsFor(extra),
                 )
@@ -101,7 +100,7 @@ class WebViewContextMenu(
             })
         }
         add(MenuAction(str(R.string.context_menu_download_link)) { downloadUrl(url) })
-        add(MenuAction(str(R.string.context_menu_share_link)) { shareText(url) })
+        add(MenuAction(str(R.string.context_menu_share_link)) { shareText(url, title) })
     }
 
     private fun imageActionsFor(url: String) = listOf(
@@ -115,7 +114,7 @@ class WebViewContextMenu(
 
         val content = LinearLayout(activity).apply {
             orientation = LinearLayout.VERTICAL
-            addView(buildHeader(info.title, info.url))
+            addView(buildHeader(info.title, displayUrl(info.url)))
             addView(buildDivider())
             val sections = listOf(info.linkActions, info.imageActions).filter { it.isNotEmpty() }
             sections.forEachIndexed { i, actions ->
@@ -177,15 +176,27 @@ class WebViewContextMenu(
         onToast(str(toastResId))
     }
 
-    private fun shareText(text: String) {
+    private fun shareText(text: String, title: String? = null) {
         val intent = Intent(Intent.ACTION_SEND).apply {
             type = "text/plain"
             putExtra(Intent.EXTRA_TEXT, text)
+            putExtra(Intent.EXTRA_TITLE, title ?: text)
         }
         activity.startActivity(Intent.createChooser(intent, null))
     }
 
     private fun downloadUrl(url: String) {
+        if (url.startsWith("blob:") || url.startsWith("data:")) {
+            withImageFile(url) { file ->
+                val target = File(
+                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+                    file.name,
+                )
+                file.copyTo(target, overwrite = true)
+                onToast(str(R.string.file_download))
+            }
+            return
+        }
         val uri = url.toUri()
         val fileName = uri.lastPathSegment ?: "download"
         val request = DownloadManager.Request(uri).apply {
@@ -200,37 +211,9 @@ class WebViewContextMenu(
     }
 
     private fun withImageFile(url: String, action: (File) -> Unit) {
-        val cookie = CookieManager.getInstance().getCookie(url)
-        val userAgent = getWebView()?.settings?.userAgentString ?: ""
-        thread {
-            val file = downloadImageToCache(url, cookie, userAgent)
-            Handler(Looper.getMainLooper()).post {
-                if (file != null) {
-                    action(file)
-                } else {
-                    onToast(str(R.string.image_download_failed))
-                }
-            }
-        }
-    }
-
-    private fun downloadImageToCache(url: String, cookie: String?, userAgent: String): File? {
-        val dir = File(activity.cacheDir, CACHE_DIR).apply {
-            if (exists()) listFiles()?.forEach { it.delete() }
-            mkdirs()
-        }
-        val ext = MimeTypeMap.getFileExtensionFromUrl(url).ifEmpty { "jpg" }
-        val file = File(dir, "image_${System.currentTimeMillis()}.$ext")
-        return try {
-            val conn = URL(url).openConnection() as HttpURLConnection
-            if (cookie != null) conn.setRequestProperty("Cookie", cookie)
-            conn.setRequestProperty("User-Agent", userAgent)
-            conn.inputStream.use { input -> file.outputStream().use { input.copyTo(it) } }
-            conn.disconnect()
-            file
-        } catch (_: Exception) {
-            file.delete()
-            null
+        imageCache.fetch(url, null) { file ->
+            if (file != null) action(file)
+            else onToast(str(R.string.image_download_failed))
         }
     }
 
@@ -256,13 +239,24 @@ class WebViewContextMenu(
         val intent = Intent(Intent.ACTION_SEND).apply {
             type = mime
             putExtra(Intent.EXTRA_STREAM, uri)
-            clipData = ClipData.newUri(activity.contentResolver, "image", uri)
+            if (url.startsWith("http")) putExtra(Intent.EXTRA_TEXT, stripQueryParams(url))
+            clipData = ClipData.newUri(activity.contentResolver, null, uri)
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
         activity.startActivity(Intent.createChooser(intent, null))
     }
 
     private fun str(resId: Int): String = activity.getString(resId)
+
+    private fun displayUrl(url: String): String {
+        if (url.startsWith("data:")) return url.substringBefore(",").substringAfter("data:")
+        return stripQueryParams(url)
+    }
+
+    private fun stripQueryParams(url: String): String {
+        val q = url.indexOf('?')
+        return if (q > 0) url.substring(0, q) else url
+    }
 
     private fun resolveThemeColor(attr: Int): Int {
         val tv = TypedValue()
@@ -273,8 +267,4 @@ class WebViewContextMenu(
     private fun dpToPx(dp: Float): Int = TypedValue.applyDimension(
         TypedValue.COMPLEX_UNIT_DIP, dp, activity.resources.displayMetrics,
     ).toInt()
-
-    companion object {
-        private const val CACHE_DIR = "shared_images"
-    }
 }
