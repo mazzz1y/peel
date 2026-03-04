@@ -14,9 +14,10 @@ class NavigationStartPoint(private val baseUrl: String) {
     private var settled = false
     private var visitedForeignHost = false
 
-    fun reset() {
-        index = null
-        settled = false
+    fun reset(view: WebView) {
+        val list = view.copyBackForwardList()
+        index = if (list.size == 0) 0 else list.currentIndex + 1
+        settled = true
         visitedForeignHost = false
     }
 

@@ -180,8 +180,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
                 parent = findViewById(R.id.webview_root),
                 getWebView = { webView },
                 onHome = {
-                    navigationStartPoint.reset()
-                    webView?.clearHistory()
+                    webView?.let { navigationStartPoint.reset(it) }
                     loadURL(webapp.baseUrl)
                 },
             )
