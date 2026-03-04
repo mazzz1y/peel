@@ -98,7 +98,7 @@ class HeadlessWebViewFetcher(
             override fun onReceivedError(
                 view: WebView?, request: WebResourceRequest?, error: WebResourceError?,
             ) {
-                if (request?.isForMainFrame == true) finish()
+                if (request?.isForMainFrame == true && !extracting) finish()
             }
 
             override fun onReceivedHttpError(
@@ -106,7 +106,7 @@ class HeadlessWebViewFetcher(
                 request: WebResourceRequest?,
                 errorResponse: android.webkit.WebResourceResponse?,
             ) {
-                if (request?.isForMainFrame == true) finish()
+                if (request?.isForMainFrame == true && !extracting) finish()
             }
         }
         webView.webChromeClient = object : WebChromeClient() {
@@ -133,7 +133,14 @@ class HeadlessWebViewFetcher(
                 return@evaluateJavascript
             }
             handler.removeCallbacksAndMessages(null)
-            scope.launch { finish(resolve(raw, view.url ?: url)) }
+            scope.launch {
+                val candidates = try {
+                    kotlinx.coroutines.withTimeout(RESOLVE_TIMEOUT_MS) { resolve(raw, view.url ?: url) }
+                } catch (_: kotlinx.coroutines.TimeoutCancellationException) {
+                    emptyList()
+                }
+                finish(candidates)
+            }
         }
     }
 
@@ -306,6 +313,7 @@ class HeadlessWebViewFetcher(
 
     companion object {
         private const val TIMEOUT_MS = 10_000L
+        private const val RESOLVE_TIMEOUT_MS = 15_000L
         private const val EARLY_EXTRACT_PROGRESS = 30
         private const val CONNECTION_TIMEOUT_MS = 4_000
         private const val MIN_ICON_WIDTH = 32
