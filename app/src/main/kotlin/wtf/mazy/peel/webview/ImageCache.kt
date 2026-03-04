@@ -65,8 +65,8 @@ class ImageCache(
         userAgent: String,
     ): File? {
         val dir = prepareDir()
+        val conn = URL(url).openConnection() as HttpURLConnection
         return try {
-            val conn = URL(url).openConnection() as HttpURLConnection
             conn.connectTimeout = 10_000
             conn.readTimeout = 15_000
             if (cookie != null) conn.setRequestProperty("Cookie", cookie)
@@ -79,10 +79,11 @@ class ImageCache(
             val name = fileName ?: "image_${System.currentTimeMillis()}.$ext"
             val file = File(dir, name)
             conn.inputStream.use { input -> file.outputStream().use { input.copyTo(it) } }
-            conn.disconnect()
             file
         } catch (_: Exception) {
             null
+        } finally {
+            conn.disconnect()
         }
     }
 
