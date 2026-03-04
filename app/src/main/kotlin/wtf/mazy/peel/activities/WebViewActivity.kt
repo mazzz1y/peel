@@ -177,7 +177,11 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
             floatingControls = FloatingControlsView(
                 parent = findViewById(R.id.webview_root),
                 getWebView = { webView },
-                onHome = { loadURL(webapp.baseUrl) },
+                onHome = {
+                    navigationStartPoint.reset()
+                    webView?.clearHistory()
+                    loadURL(webapp.baseUrl)
+                },
             )
         }
 

@@ -14,6 +14,12 @@ class NavigationStartPoint(private val baseUrl: String) {
     private var settled = false
     private var visitedForeignHost = false
 
+    fun reset() {
+        index = null
+        settled = false
+        visitedForeignHost = false
+    }
+
     fun onPageFinished() {
         if (!settled && !visitedForeignHost) settled = true
     }
