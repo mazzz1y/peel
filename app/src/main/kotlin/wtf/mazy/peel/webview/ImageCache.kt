@@ -107,11 +107,13 @@ class ImageCache(
     }
 
     private fun prepareDir() = File(cacheDir, CACHE_DIR).apply {
-        if (exists()) listFiles()?.forEach { it.delete() }
         mkdirs()
+        val staleThreshold = System.currentTimeMillis() - STALE_MS
+        listFiles()?.forEach { if (it.lastModified() < staleThreshold) it.delete() }
     }
 
     companion object {
         private const val CACHE_DIR = "shared_images"
+        private const val STALE_MS = 5 * 60 * 1000L
     }
 }
