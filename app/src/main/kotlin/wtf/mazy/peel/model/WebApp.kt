@@ -48,7 +48,7 @@ data class WebApp(var baseUrl: String, override val uuid: String = UUID.randomUU
         isEphemeralSandbox = other.isEphemeralSandbox
         order = other.order
         groupUuid = other.groupUuid
-        settings = other.settings.copy()
+        settings = other.settings.deepCopy()
     }
 
     fun markInactive(activity: Activity) {

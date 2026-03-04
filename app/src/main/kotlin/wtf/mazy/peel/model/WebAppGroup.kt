@@ -18,6 +18,6 @@ data class WebAppGroup(
         order = other.order,
         isUseContainer = other.isUseContainer,
         isEphemeralSandbox = other.isEphemeralSandbox,
-        settings = other.settings.copy(),
+        settings = other.settings.deepCopy(),
     )
 }

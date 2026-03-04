@@ -151,7 +151,7 @@ class WebAppListAdapter(
     private fun cloneWebApp(webapp: WebApp, position: Int) {
         val clonedWebApp = WebApp(webapp.baseUrl)
         clonedWebApp.title = webapp.title
-        clonedWebApp.settings = webapp.settings.copy()
+        clonedWebApp.settings = webapp.settings.deepCopy()
         clonedWebApp.order = webapp.order + 1
         clonedWebApp.groupUuid = webapp.groupUuid
 

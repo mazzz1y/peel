@@ -100,10 +100,13 @@ data class WebAppSettings(
                     ?: DEFAULTS[key]
             effective.setValue(key, value)
         }
+        effective.customHeaders = effective.customHeaders?.toMutableMap()
         return effective
     }
 
     fun getOverriddenKeys(): List<String> {
         return ALL_KEYS.filter { getValue(it) != null }
     }
+
+    fun deepCopy() = copy(customHeaders = customHeaders?.toMutableMap())
 }
