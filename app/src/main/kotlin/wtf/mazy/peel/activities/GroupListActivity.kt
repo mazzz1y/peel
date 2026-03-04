@@ -107,7 +107,7 @@ class GroupListActivity : AppCompatActivity() {
         val message = dialogView.findViewById<TextView>(R.id.delete_group_message)
         val switchUngroup = dialogView.findViewById<MaterialSwitch>(R.id.switchUngroupApps)
 
-        message.text = getString(R.string.delete_group_confirm, group.title, appsInGroup.size)
+        message.text = getString(R.string.delete_group_confirm, group.title)
 
         MaterialAlertDialogBuilder(this)
             .setTitle(getString(R.string.delete_group_title))

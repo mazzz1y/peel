@@ -163,8 +163,8 @@
     <string name="open_in_peel">Abrir en Peel</string>
     <string name="move_to_group">Mover a grupo</string>
     <string name="delete_group_title">Eliminar grupo</string>
-    <string name="delete_group_confirm">&#191;Eliminar grupo \"%1$s\"? Contiene %2$d app(s).</string>
-    <string name="ungroup_apps_on_delete">Mantener apps (mover a sin grupo)</string>
+    <string name="delete_group_confirm">&#191;Eliminar grupo \"%1$s\"?</string>
+    <string name="ungroup_apps_on_delete">Mover apps a \"Otro\"</string>
     <string name="setting_floating_controls">Controles flotantes</string>
 
     <string name="bioprompt_not_recognized">No reconocido. Inténtelo de nuevo.</string>

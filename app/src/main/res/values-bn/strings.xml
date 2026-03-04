@@ -188,8 +188,8 @@
     <string name="open_in_peel">Peel-এ খুলুন</string>
     <string name="move_to_group">গ্রুপে সরান</string>
     <string name="delete_group_title">গ্রুপ মুছুন</string>
-    <string name="delete_group_confirm">\"%1$s\" গ্রুপ মুছবেন? এতে %2$dটি অ্যাপ আছে।</string>
-    <string name="ungroup_apps_on_delete">অ্যাপ রাখুন (গ্রুপবিহীনে সরান)</string>
+    <string name="delete_group_confirm">\"%1$s\" গ্রুপ মুছবেন?</string>
+    <string name="ungroup_apps_on_delete">অ্যাপ \"অন্যান্য\"-এ সরান</string>
 
     <plurals name="group_app_count">
         <item quantity="one">%dটি অ্যাপ</item>

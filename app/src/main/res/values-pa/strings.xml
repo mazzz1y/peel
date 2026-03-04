@@ -177,8 +177,8 @@
     <string name="open_in_peel">Peel ਵਿੱਚ ਖੋਲ੍ਹੋ</string>
     <string name="move_to_group">ਗਰੁੱਪ ਵਿੱਚ ਭੇਜੋ</string>
     <string name="delete_group_title">ਗਰੁੱਪ ਮਿਟਾਓ</string>
-    <string name="delete_group_confirm">ਗਰੁੱਪ \"%1$s\" ਮਿਟਾਓ? ਇਸ ਵਿੱਚ %2$d ਐਪਾਂ ਹਨ।</string>
-    <string name="ungroup_apps_on_delete">ਐਪਾਂ ਰੱਖੋ (ਅਣ-ਗਰੁੱਪ ਵਿੱਚ ਭੇਜੋ)</string>
+    <string name="delete_group_confirm">ਗਰੁੱਪ \"%1$s\" ਮਿਟਾਓ?</string>
+    <string name="ungroup_apps_on_delete">ਐਪਾਂ \"ਹੋਰ\" ਵਿੱਚ ਭੇਜੋ</string>
     <plurals name="group_app_count">
         <item quantity="one">%d ਐਪ</item>
         <item quantity="other">%d ਐਪਾਂ</item>

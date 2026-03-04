@@ -188,8 +188,8 @@
     <string name="open_in_peel">在 Peel 中開啟</string>
     <string name="move_to_group">移至群組</string>
     <string name="delete_group_title">刪除群組</string>
-    <string name="delete_group_confirm">刪除群組「%1$s」？其中包含 %2$d 個應用程式。</string>
-    <string name="ungroup_apps_on_delete">保留應用程式（移至未分組）</string>
+    <string name="delete_group_confirm">刪除群組「%1$s」？</string>
+    <string name="ungroup_apps_on_delete">將應用程式移至「其他」</string>
 
     <plurals name="group_app_count">
         <item quantity="other">%d 個應用程式</item>

@@ -188,8 +188,8 @@
     <string name="open_in_peel">Mở trong Peel</string>
     <string name="move_to_group">Chuyển vào nhóm</string>
     <string name="delete_group_title">Xóa nhóm</string>
-    <string name="delete_group_confirm">Xóa nhóm \"%1$s\"? Có %2$d ứng dụng.</string>
-    <string name="ungroup_apps_on_delete">Giữ ứng dụng (chuyển sang chưa phân nhóm)</string>
+    <string name="delete_group_confirm">Xóa nhóm \"%1$s\"?</string>
+    <string name="ungroup_apps_on_delete">Chuyển ứng dụng sang \"Khác\"</string>
 
     <plurals name="group_app_count">
         <item quantity="other">%d ứng dụng</item>

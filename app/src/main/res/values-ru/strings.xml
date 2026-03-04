@@ -188,8 +188,8 @@
     <string name="open_in_peel">Открыть в Peel</string>
     <string name="move_to_group">Переместить в группу</string>
     <string name="delete_group_title">Удалить группу</string>
-    <string name="delete_group_confirm">Удалить группу «%1$s»? В ней %2$d приложений.</string>
-    <string name="ungroup_apps_on_delete">Сохранить приложения (переместить в без группы)</string>
+    <string name="delete_group_confirm">Удалить группу «%1$s»?</string>
+    <string name="ungroup_apps_on_delete">Переместить приложения в «Прочее»</string>
 
     <plurals name="group_app_count">
         <item quantity="one">%d приложение</item>
