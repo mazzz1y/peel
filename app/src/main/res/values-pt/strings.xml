@@ -88,7 +88,7 @@
     <string name="clear_data">Limpar dados</string>
     <string name="clear_browsing_data">Dados de navegação</string>
     <string name="clear_sandbox_storage">Incluir armazenamento da sandbox</string>
-    <string name="factory_reset">Restaurar padrões</string>
+    <string name="factory_reset">Redefinição de fábrica</string>
     <string name="show_fullscreen">Modo tela cheia</string>
     <string name="site_not_found">Não foi possível carregar a página.</string>
     <string name="connection_error">Erro de conexão: %1$s</string>

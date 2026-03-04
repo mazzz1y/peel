@@ -121,7 +121,7 @@
     <string name="clear_data">Daten löschen</string>
     <string name="clear_browsing_data">Browserdaten</string>
     <string name="clear_sandbox_storage">Sandbox-Speicher einschließen</string>
-    <string name="factory_reset">Werkseinstellungen</string>
+    <string name="factory_reset">Werksreset</string>
 
     <string name="default_webapp_settings">Standardeinstellungen</string>
     <string name="main_settings">Symbol</string>
