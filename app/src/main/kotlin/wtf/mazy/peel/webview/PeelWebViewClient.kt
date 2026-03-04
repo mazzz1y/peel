@@ -14,7 +14,6 @@ import android.webkit.WebViewClient
 import androidx.core.graphics.toColorInt
 import androidx.core.net.toUri
 import wtf.mazy.peel.R
-import wtf.mazy.peel.model.DataManager
 
 class PeelWebViewClient(private val host: WebViewClientHost) : WebViewClient() {
 
@@ -120,27 +119,10 @@ class PeelWebViewClient(private val host: WebViewClientHost) : WebViewClient() {
         host.finishActivity()
     }
 
-    override fun onLoadResource(view: WebView, url: String?) {
-        super.onLoadResource(view, url)
-        if (host.effectiveSettings.isRequestDesktop == true) {
-            view.evaluateJavascript(
-                """
-                var needsForcedWidth = document.documentElement.clientWidth < 1200;
-                if(needsForcedWidth) {
-                  document.querySelector('meta[name="viewport"]').setAttribute('content',
-                    'width=1200px, initial-scale=' + (document.documentElement.clientWidth / 1200));
-                }
-                """
-                    .trimIndent(),
-                null,
-            )
-        }
-    }
-
     override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
         host.runOnUi { host.setDarkModeIfNeeded() }
         var url = request.url.toString()
-        val webapp = host.webappUuid?.let { DataManager.instance.getWebApp(it) }
+        val settings = host.effectiveSettings
 
         if (!url.startsWith("http://") &&
             !url.startsWith("https://") &&
@@ -156,7 +138,7 @@ class PeelWebViewClient(private val host: WebViewClientHost) : WebViewClient() {
             return true
         }
 
-        if (webapp?.effectiveSettings?.isAlwaysHttps == true && url.startsWith("http://")) {
+        if (settings.isAlwaysHttps == true && url.startsWith("http://")) {
             if (request.isRedirect) {
                 host.showToast(host.getString(R.string.https_only_blocked))
                 host.finishActivity()
@@ -165,8 +147,8 @@ class PeelWebViewClient(private val host: WebViewClientHost) : WebViewClient() {
             url = url.replaceFirst("http://", "https://")
         }
 
-        if (webapp?.effectiveSettings?.isOpenUrlExternal == true) {
-            if (!isHostMatch(url.toUri(), webapp.baseUrl.toUri())) {
+        if (settings.isOpenUrlExternal == true) {
+            if (!isHostMatch(url.toUri(), host.baseUrl.toUri())) {
                 host.startExternalIntent(url.toUri())
                 return true
             }

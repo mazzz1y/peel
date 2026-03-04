@@ -109,6 +109,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     private var barColorAnimator: ValueAnimator? = null
 
     private var mediaPlaybackManager: MediaPlaybackManager? = null
+    private var cachedSettings: WebAppSettings? = null
     private var isScreenStateReceiverRegistered = false
     private val screenStateReceiver =
         object : BroadcastReceiver() {
@@ -145,6 +146,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
             }
         }
 
+        cachedSettings = webapp.effectiveSettings
         applyTaskSnapshotProtection()
         setupWebView()
         ContextCompat.registerReceiver(
@@ -155,7 +157,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         )
         isScreenStateReceiverRegistered = true
 
-        if (webapp.effectiveSettings.isBiometricProtection == true && !isBiometricUnlocked()) {
+        if (effectiveSettings.isBiometricProtection == true && !isBiometricUnlocked()) {
             showBiometricPrompt()
         }
 
@@ -165,12 +167,13 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     override fun onResume() {
         super.onResume()
         if (SandboxManager.currentSlotId != null) DataManager.instance.loadAppData()
+        cachedSettings = webapp.effectiveSettings
         webView?.onResume()
         webView?.resumeTimers()
         mediaPlaybackManager?.setBackground(false)
         if (webView != null) setDarkModeIfNeeded()
 
-        if (webapp.effectiveSettings.isShowNotification == true && floatingControls == null) {
+        if (effectiveSettings.isShowNotification == true && floatingControls == null) {
             floatingControls = FloatingControlsView(
                 parent = findViewById(R.id.webview_root),
                 getWebView = { webView },
@@ -178,11 +181,11 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
             )
         }
 
-        if (webapp.effectiveSettings.isBiometricProtection == true && !isBiometricUnlocked()) {
+        if (effectiveSettings.isBiometricProtection == true && !isBiometricUnlocked()) {
             showBiometricPrompt()
         }
 
-        if (webapp.effectiveSettings.isAutoReload == true) {
+        if (effectiveSettings.isAutoReload == true) {
             reloadHandler = Handler(Looper.getMainLooper())
             scheduleAutoReload()
         }
@@ -190,7 +193,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
 
     override fun onPause() {
         super.onPause()
-        val bgMedia = webapp.effectiveSettings.isAllowMediaPlaybackInBackground == true
+        val bgMedia = effectiveSettings.isAllowMediaPlaybackInBackground == true
         floatingControls?.remove()
         floatingControls = null
 
@@ -206,7 +209,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
             webView?.pauseTimers()
         }
 
-        if (webapp.effectiveSettings.isClearCache == true) webView?.clearCache(true)
+        if (effectiveSettings.isClearCache == true) webView?.clearCache(true)
 
         reloadHandler?.removeCallbacksAndMessages(null)
         reloadHandler = null
@@ -253,6 +256,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
 
         if (DataManager.instance.getWebApp(newUuid) == null) return
         webappUuid = newUuid
+        cachedSettings = webapp.effectiveSettings
         applyTaskSnapshotProtection()
         loadURL(sharedUrlFromIntent() ?: webapp.baseUrl)
     }
@@ -261,7 +265,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         get() = webapp.title
 
     override val effectiveSettings: WebAppSettings
-        get() = webapp.effectiveSettings
+        get() = cachedSettings ?: webapp.effectiveSettings
 
     override val baseUrl: String
         get() = webapp.baseUrl
@@ -301,7 +305,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
 
     @SuppressLint("RequiresFeature")
     override fun setDarkModeIfNeeded() {
-        val settings = webapp.effectiveSettings
+        val settings = effectiveSettings
         val isInDarkModeTimespan =
             if (settings.isUseTimespanDarkMode == true) {
                 val begin = convertStringToCalendar(settings.timespanDarkModeBegin)
@@ -341,7 +345,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
 
     override fun loadURL(url: String) {
         var finalUrl = url
-        if (url.startsWith("http://") && webapp.effectiveSettings.isAlwaysHttps == true) {
+        if (url.startsWith("http://") && effectiveSettings.isAlwaysHttps == true) {
             finalUrl = url.replaceFirst("http://", "https://")
         }
         webView?.loadUrl(finalUrl, customHeaders ?: emptyMap())
@@ -466,7 +470,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     }
 
     override fun showSystemBars() {
-        if (webapp.effectiveSettings.isShowFullscreen == true) return
+        if (effectiveSettings.isShowFullscreen == true) return
         statusBarScrim?.visibility = View.VISIBLE
         navigationBarScrim?.visibility = View.VISIBLE
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -543,7 +547,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
 
     @SuppressLint("ClickableViewAccessibility")
     private fun setupWebView() {
-        val settings = webapp.effectiveSettings
+        val settings = effectiveSettings
         window.setBackgroundDrawable(themeBackgroundColor.toDrawable())
         setContentView(R.layout.full_webview)
         setupSystemBarScrims()
@@ -558,10 +562,12 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         configureZoom(settings)
 
         customHeaders = buildCustomHeaders(settings)
-        loadURL(sharedUrlFromIntent() ?: webapp.baseUrl)
 
         peelWebChromeClient = PeelWebChromeClient(this)
         webView?.webChromeClient = peelWebChromeClient
+
+        loadURL(sharedUrlFromIntent() ?: webapp.baseUrl)
+
         setupLongClickShare(settings)
         webView?.let { downloadHandler.install(it) }
         setupMediaPlayback(settings)
@@ -580,7 +586,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     private fun setupSystemBarScrims() {
         statusBarScrim = findViewById(R.id.statusBarScrim)
         navigationBarScrim = findViewById(R.id.navigationBarScrim)
-        if (webapp.effectiveSettings.isDynamicStatusBar == true) {
+        if (effectiveSettings.isDynamicStatusBar == true) {
             applyBarColor(themeBackgroundColor)
         }
         androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(
@@ -736,7 +742,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     }
 
     private fun applyTaskSnapshotProtection() {
-        val shouldProtect = webapp.effectiveSettings.isBiometricProtection == true
+        val shouldProtect = effectiveSettings.isBiometricProtection == true
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             setRecentsScreenshotEnabled(!shouldProtect)
         }
@@ -767,7 +773,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
 
     private fun scheduleAutoReload() {
         val handler = reloadHandler ?: return
-        val interval = webapp.effectiveSettings.timeAutoReload?.coerceAtLeast(1) ?: return
+        val interval = effectiveSettings.timeAutoReload?.coerceAtLeast(1) ?: return
         handler.postDelayed(
             {
                 currentlyReloading = true
