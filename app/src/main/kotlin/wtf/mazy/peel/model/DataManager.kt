@@ -168,8 +168,8 @@ class DataManager private constructor() {
             }
         } else {
             appsInGroup.forEach { webapp ->
-                webapp.isActiveEntry = false
-                dao.upsert(webapp.toEntity())
+                websites.remove(webapp)
+                dao.deleteByUuid(webapp.uuid)
             }
         }
         groups.remove(group)

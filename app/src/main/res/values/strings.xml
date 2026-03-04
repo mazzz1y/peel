@@ -203,7 +203,7 @@
     <string name="move_to_group">Move to group</string>
     <string name="delete_group_title">Delete Group</string>
     <string name="delete_group_confirm">Delete group \"%1$s\"? It contains %2$d app(s).</string>
-    <string name="ungroup_apps_on_delete">Keep apps (move to ungrouped)</string>
+    <string name="ungroup_apps_on_delete">Keep apps (move to \"Other\")</string>
 
     <plurals name="group_app_count">
         <item quantity="one">%d app</item>
