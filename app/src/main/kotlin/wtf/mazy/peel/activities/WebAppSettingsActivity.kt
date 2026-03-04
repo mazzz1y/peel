@@ -5,6 +5,9 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.ResultReceiver
+import android.text.SpannableString
+import android.text.Spanned
+import android.text.style.TypefaceSpan
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -396,9 +399,16 @@ class WebAppSettingsActivity :
 
     private fun promptStartUrl(webapp: WebApp, startUrl: String) {
         if (startUrl.trimEnd('/') == webapp.baseUrl.trimEnd('/')) return
+        val text = getString(R.string.manifest_start_url_message, startUrl)
+        val urlStart = text.indexOf(startUrl)
+        val message = SpannableString(text).apply {
+            if (urlStart >= 0) {
+                setSpan(TypefaceSpan("monospace"), urlStart, urlStart + startUrl.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            }
+        }
         MaterialAlertDialogBuilder(this)
             .setTitle(R.string.manifest_start_url_title)
-            .setMessage(getString(R.string.manifest_start_url_message, startUrl))
+            .setMessage(message)
             .setPositiveButton(R.string.manifest_start_url_update) { _, _ ->
                 webapp.baseUrl = startUrl
                 binding.textBaseUrl.text = displayUrl(startUrl)
