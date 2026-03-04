@@ -1,11 +1,14 @@
 package wtf.mazy.peel.webview
 
+import android.Manifest
 import android.app.DownloadManager
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.os.Environment
 import android.os.Handler
 import android.os.Looper
@@ -18,6 +21,7 @@ import android.webkit.WebView
 import android.webkit.WebView.HitTestResult
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.net.toUri
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -186,6 +190,7 @@ class WebViewContextMenu(
     }
 
     private fun downloadUrl(url: String) {
+        if (!hasStoragePermission()) return
         if (url.startsWith("blob:") || url.startsWith("data:")) {
             withImageFile(url) { file ->
                 val target = File(
@@ -208,6 +213,13 @@ class WebViewContextMenu(
         }
         (activity.getSystemService(Context.DOWNLOAD_SERVICE) as? DownloadManager)?.enqueue(request)
         onToast(str(R.string.file_download))
+    }
+
+    private fun hasStoragePermission(): Boolean {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) return true
+        return ContextCompat.checkSelfPermission(
+            activity, Manifest.permission.WRITE_EXTERNAL_STORAGE,
+        ) == PackageManager.PERMISSION_GRANTED
     }
 
     private fun withImageFile(url: String, action: (File) -> Unit) {
