@@ -81,12 +81,12 @@ class DataManager private constructor() {
     ) {
         val importedGroupUuids = importedGroups.mapTo(mutableSetOf()) { it.uuid }
         groups
-            .filter { it.uuid !in importedGroupUuids && it.isUseContainer }
+            .filter { it.uuid !in importedGroupUuids }
             .forEach { SandboxManager.wipeSandboxStorage(it.uuid) }
 
         val importedAppUuids = importedWebApps.mapTo(mutableSetOf()) { it.uuid }
         websites
-            .filter { it.uuid !in importedAppUuids && it.isUseContainer }
+            .filter { it.uuid !in importedAppUuids }
             .forEach { SandboxManager.wipeSandboxStorage(it.uuid) }
 
         websites = importedWebApps.toMutableList()

@@ -267,9 +267,7 @@ class MainActivity : AppCompatActivity() {
             DataManager.instance.removeWebApp(webapp)
         }
         DataManager.instance.getGroups().toList().forEach { group ->
-            if (group.isUseContainer) {
-                SandboxManager.wipeSandboxStorage(group.uuid)
-            }
+            SandboxManager.wipeSandboxStorage(group.uuid)
             DataManager.instance.removeGroup(group, ungroupApps = false)
         }
 
