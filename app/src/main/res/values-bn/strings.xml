@@ -24,8 +24,6 @@
     <string name="manifest_start_url_update">আপডেট করুন</string>
     <string name="manifest_start_url_keep">বর্তমানটি রাখুন</string>
     <string name="fetch_step_loading">পৃষ্ঠা লোড হচ্ছে…</string>
-    <string name="fetch_step_manifests">ম্যানিফেস্ট পরীক্ষা করা হচ্ছে…</string>
-    <string name="fetch_step_icons">আইকন পরীক্ষা করা হচ্ছে…</string>
     <string name="fetch_step_downloading">আইকন ডাউনলোড হচ্ছে…</string>
 
     <string name="web_app_settings">ওয়েব অ্যাপ সেটিংস</string>

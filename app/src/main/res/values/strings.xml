@@ -21,8 +21,6 @@
     <string name="fetch_icon_title">Fetch from website</string>
     <string name="choose_icon">Choose icon and title</string>
     <string name="fetch_step_loading">Loading page…</string>
-    <string name="fetch_step_manifests">Checking manifests…</string>
-    <string name="fetch_step_icons">Checking page icons…</string>
     <string name="fetch_step_downloading">Downloading icons…</string>
     <string name="icon_dimensions_source">%1$dx%2$d · %3$s</string>
     <string name="manifest_start_url_title">Update URL?</string>

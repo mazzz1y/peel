@@ -24,8 +24,6 @@
     <string name="manifest_start_url_update">Обновить</string>
     <string name="manifest_start_url_keep">Оставить текущий</string>
     <string name="fetch_step_loading">Загрузка страницы…</string>
-    <string name="fetch_step_manifests">Проверка манифестов…</string>
-    <string name="fetch_step_icons">Проверка иконок…</string>
     <string name="fetch_step_downloading">Загрузка иконок…</string>
 
     <string name="web_app_settings">Настройки веб-приложения</string>
