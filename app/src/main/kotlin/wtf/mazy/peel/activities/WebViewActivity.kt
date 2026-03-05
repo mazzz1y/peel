@@ -10,6 +10,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.content.res.Configuration
+import android.graphics.Bitmap
 import android.graphics.Color
 import android.net.Uri
 import android.os.Build
@@ -53,6 +54,7 @@ import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.model.WebAppSettings
 import wtf.mazy.peel.ui.BiometricPromptHelper
 import wtf.mazy.peel.ui.FloatingControlsView
+import wtf.mazy.peel.ui.ListPickerAdapter
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.DateUtils.convertStringToCalendar
 import wtf.mazy.peel.util.DateUtils.isInInterval
@@ -60,6 +62,8 @@ import wtf.mazy.peel.util.NotificationUtils
 import wtf.mazy.peel.util.NotificationUtils.showInfoSnackBar
 import wtf.mazy.peel.util.WebViewLauncher
 import wtf.mazy.peel.util.buildUserAgent
+import wtf.mazy.peel.util.domainAffinity
+import wtf.mazy.peel.util.shortLabel
 import wtf.mazy.peel.webview.ChromeClientHost
 import wtf.mazy.peel.webview.DownloadHandler
 import wtf.mazy.peel.webview.ImageCache
@@ -706,8 +710,57 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
             getWebView = { webView },
             imageCache = imageCache,
             onExternalIntent = ::startExternalIntent,
+            onOpenInPeel = ::openInPeel,
+            onOpenInBestPeelMatch = ::openInBestPeelMatch,
+            bestPeelMatchIcon = ::bestPeelMatchIcon,
             onToast = ::showToast,
         ).install(wv)
+    }
+
+    private fun bestPeelMatchIcon(url: String): Bitmap? {
+        val currentUuid = webappUuid ?: return null
+        return bestPeelMatch(url, currentUuid)?.resolveIcon()
+    }
+
+    private fun bestPeelMatch(url: String, currentUuid: String): WebApp? {
+        return DataManager.instance.activeWebsites
+            .filter { it.uuid != currentUuid }
+            .associateWith { domainAffinity(it.baseUrl, url) }
+            .maxByOrNull { it.value }
+            ?.takeIf { it.value > 1 }
+            ?.key
+    }
+
+    private fun openInBestPeelMatch(url: String) {
+        val currentUuid = webappUuid ?: return
+        val match = bestPeelMatch(url, currentUuid) ?: return
+        launchWebApp(match, url)
+    }
+
+    private fun openInPeel(url: String) {
+        val currentUuid = webappUuid ?: return
+        val apps = DataManager.instance.activeWebsites
+            .filter { it.uuid != currentUuid }
+            .sortedWith(compareByDescending<WebApp> { domainAffinity(it.baseUrl, url) }.thenBy { it.title })
+        if (apps.isEmpty()) return
+        val adapter = ListPickerAdapter(apps) { webapp, icon, name, detail ->
+            name.text = webapp.title
+            icon.setImageBitmap(webapp.resolveIcon())
+            detail.text = webapp.groupUuid?.let { DataManager.instance.getGroup(it)?.title }
+                ?.let { shortLabel(it) } ?: getString(R.string.none)
+            detail.visibility = View.VISIBLE
+        }
+        MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.open_in_peel)
+            .setAdapter(adapter) { _, position -> launchWebApp(apps[position], url) }
+            .show()
+    }
+
+    private fun launchWebApp(webapp: WebApp, url: String) {
+        val intent = WebViewLauncher.createWebViewIntent(webapp, this) ?: return
+        intent.data = url.toUri()
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        startActivity(intent)
     }
 
     private fun setupBackNavigation() {

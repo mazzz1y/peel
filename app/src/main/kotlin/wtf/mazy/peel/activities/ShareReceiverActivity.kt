@@ -11,6 +11,8 @@ import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.ui.ListPickerAdapter
 import wtf.mazy.peel.util.WebViewLauncher
+import wtf.mazy.peel.util.domainAffinity
+import wtf.mazy.peel.util.shortLabel
 
 class ShareReceiverActivity : AppCompatActivity() {
 
@@ -30,11 +32,9 @@ class ShareReceiverActivity : AppCompatActivity() {
             return
         }
 
-        val sharedHost = sharedUrl.toUri().host ?: ""
-        val sharedParts = sharedHost.lowercase().split('.').reversed()
         val sorted =
             apps.sortedWith(
-                compareByDescending<WebApp> { domainAffinity(it, sharedParts) }.thenBy { it.title })
+                compareByDescending<WebApp> { domainAffinity(it.baseUrl, sharedUrl) }.thenBy { it.title })
 
         showPickerDialog(sorted, sharedUrl)
     }
@@ -49,28 +49,14 @@ class ShareReceiverActivity : AppCompatActivity() {
         private val URL_PATTERN = Regex("https?://[^\\s)>\\]\"]+")
     }
 
-    private fun domainAffinity(webapp: WebApp, sharedParts: List<String>): Int {
-        val appHost = webapp.baseUrl.toUri().host ?: return 0
-        val appParts = appHost.lowercase().split('.').reversed()
-        var match = 0
-        for (i in 0 until minOf(sharedParts.size, appParts.size)) {
-            if (sharedParts[i] == appParts[i]) match++ else break
-        }
-        return match
-    }
-
     private fun showPickerDialog(apps: List<WebApp>, url: String) {
         val adapter =
             ListPickerAdapter(apps) { webapp, icon, name, detail ->
                 name.text = webapp.title
                 icon.setImageBitmap(webapp.resolveIcon())
-                val groupName = webapp.groupUuid?.let { DataManager.instance.getGroup(it)?.title }
-                if (groupName != null) {
-                    detail.text = groupName
-                    detail.visibility = View.VISIBLE
-                } else {
-                    detail.visibility = View.GONE
-                }
+                detail.text = webapp.groupUuid?.let { DataManager.instance.getGroup(it)?.title }
+                    ?.let { shortLabel(it) } ?: getString(R.string.none)
+                detail.visibility = View.VISIBLE
             }
 
         MaterialAlertDialogBuilder(this)

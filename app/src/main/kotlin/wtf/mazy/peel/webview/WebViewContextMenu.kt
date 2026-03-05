@@ -7,6 +7,7 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
@@ -14,11 +15,13 @@ import android.os.Handler
 import android.os.Looper
 import android.text.TextUtils
 import android.util.TypedValue
+import android.view.Gravity
 import android.view.View
 import android.webkit.CookieManager
 import android.webkit.MimeTypeMap
 import android.webkit.WebView
 import android.webkit.WebView.HitTestResult
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.content.ContextCompat
@@ -33,6 +36,9 @@ class WebViewContextMenu(
     private val getWebView: () -> WebView?,
     private val imageCache: ImageCache,
     private val onExternalIntent: (Uri) -> Unit,
+    private val onOpenInPeel: ((String) -> Unit)?,
+    private val onOpenInBestPeelMatch: ((String) -> Unit)?,
+    private val bestPeelMatchIcon: ((String) -> Bitmap?)?,
     private val onToast: (String) -> Unit,
 ) {
 
@@ -47,7 +53,12 @@ class WebViewContextMenu(
         return true
     }
 
-    private data class MenuAction(val label: String, val handler: () -> Unit)
+    private data class MenuAction(
+        val label: String,
+        val icon: Bitmap? = null,
+        val onIconClick: (() -> Unit)? = null,
+        val handler: () -> Unit,
+    )
 
     private data class HitInfo(
         val title: String?,
@@ -96,7 +107,13 @@ class WebViewContextMenu(
     }
 
     private fun linkActionsFor(url: String, title: String?) = buildList {
+        if (onOpenInPeel != null) {
+            val icon = bestPeelMatchIcon?.invoke(url)
+            val iconClick = if (icon != null) onOpenInBestPeelMatch?.let { { it(url) } } else null
+            add(MenuAction(str(R.string.open_in_peel), icon, iconClick) { onOpenInPeel(url) })
+        }
         add(MenuAction(str(R.string.context_menu_open_link)) { onExternalIntent(url.toUri()) })
+        add(MenuAction(str(R.string.context_menu_share_link)) { shareText(url, title) })
         add(MenuAction(str(R.string.context_menu_copy_link)) { copyToClipboard(url) })
         if (title != null) {
             add(MenuAction(str(R.string.context_menu_copy_link_text)) {
@@ -104,7 +121,6 @@ class WebViewContextMenu(
             })
         }
         add(MenuAction(str(R.string.context_menu_download_link)) { downloadUrl(url) })
-        add(MenuAction(str(R.string.context_menu_share_link)) { shareText(url, title) })
     }
 
     private fun imageActionsFor(url: String) = listOf(
@@ -115,6 +131,7 @@ class WebViewContextMenu(
 
     private fun showDialog(info: HitInfo) {
         var dialog: androidx.appcompat.app.AlertDialog? = null
+        fun dismiss(action: () -> Unit): () -> Unit = { dialog?.dismiss(); action() }
 
         val content = LinearLayout(activity).apply {
             orientation = LinearLayout.VERTICAL
@@ -124,7 +141,12 @@ class WebViewContextMenu(
             sections.forEachIndexed { i, actions ->
                 if (i > 0) addView(buildDivider())
                 actions.forEach { action ->
-                    addView(buildActionRow(action.label) { dialog?.dismiss(); action.handler() })
+                    addView(buildActionRow(
+                        action.label,
+                        action.icon,
+                        action.onIconClick?.let { dismiss(it) },
+                        dismiss(action.handler),
+                    ))
                 }
             }
         }
@@ -136,7 +158,7 @@ class WebViewContextMenu(
 
     private fun buildHeader(title: String?, url: String) = LinearLayout(activity).apply {
         orientation = LinearLayout.VERTICAL
-        setPadding(dpToPx(24f), dpToPx(20f), dpToPx(24f), dpToPx(14f))
+        setPadding(dpToPx(16f), dpToPx(20f), dpToPx(16f), dpToPx(14f))
         if (title != null) {
             addView(TextView(activity).apply {
                 text = title
@@ -163,15 +185,56 @@ class WebViewContextMenu(
         setBackgroundColor(resolveThemeColor(com.google.android.material.R.attr.colorOutlineVariant))
     }
 
-    private fun buildActionRow(label: String, onClick: () -> Unit) = TextView(activity).apply {
-        text = label
-        setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f)
-        setTextColor(resolveThemeColor(com.google.android.material.R.attr.colorOnSurface))
-        setPadding(dpToPx(24f), dpToPx(14f), dpToPx(24f), dpToPx(14f))
+    private fun buildActionRow(
+        label: String,
+        icon: Bitmap? = null,
+        onIconClick: (() -> Unit)? = null,
+        onClick: () -> Unit,
+    ): View {
         val outValue = TypedValue()
         activity.theme.resolveAttribute(android.R.attr.selectableItemBackground, outValue, true)
-        setBackgroundResource(outValue.resourceId)
-        setOnClickListener { onClick() }
+
+        if (icon == null || onIconClick == null) {
+            return TextView(activity).apply {
+                text = label
+                setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f)
+                setTextColor(resolveThemeColor(com.google.android.material.R.attr.colorOnSurface))
+                setPadding(dpToPx(16f), dpToPx(14f), dpToPx(16f), dpToPx(14f))
+                setBackgroundResource(outValue.resourceId)
+                setOnClickListener { onClick() }
+            }
+        }
+
+        return LinearLayout(activity).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+
+            addView(TextView(activity).apply {
+                text = label
+                setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f)
+                setTextColor(resolveThemeColor(com.google.android.material.R.attr.colorOnSurface))
+                setPadding(dpToPx(16f), dpToPx(14f), dpToPx(12f), dpToPx(14f))
+                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+                setBackgroundResource(outValue.resourceId)
+                setOnClickListener { onClick() }
+            })
+
+            val iconSize = dpToPx(24f)
+            val iconPad = dpToPx(16f)
+            addView(ImageView(activity).apply {
+                setImageBitmap(icon)
+                layoutParams = LinearLayout.LayoutParams(
+                    iconSize + iconPad * 2,
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                )
+                setPadding(iconPad, 0, iconPad, 0)
+                scaleType = ImageView.ScaleType.CENTER_INSIDE
+                isClickable = true
+                isFocusable = true
+                setBackgroundResource(outValue.resourceId)
+                setOnClickListener { onIconClick() }
+            })
+        }
     }
 
     private fun copyToClipboard(text: String, toastResId: Int = R.string.link_copied) {

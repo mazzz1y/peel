@@ -1,8 +1,10 @@
 package wtf.mazy.peel.util
 
+import android.net.Uri
 import android.webkit.URLUtil
 import android.webkit.WebView
 import java.net.URLDecoder
+import java.text.BreakIterator
 import java.util.regex.Pattern
 
 private val CHROME_VERSION_RE = Regex("""Chrome/([\d.]+)""")
@@ -20,6 +22,37 @@ fun displayUrl(url: String): String {
     val queryStart = url.indexOf('?')
     val clean = if (queryStart >= 0) url.substring(0, queryStart) else url
     return clean.trimEnd('/')
+}
+
+fun domainAffinity(appBaseUrl: String, targetUrl: String): Int {
+    val appHost = Uri.parse(appBaseUrl).host ?: return 0
+    val targetHost = Uri.parse(targetUrl).host ?: return 0
+    val appParts = appHost.lowercase().split('.').reversed()
+    val targetParts = targetHost.lowercase().split('.').reversed()
+    var match = 0
+    for (i in 0 until minOf(appParts.size, targetParts.size)) {
+        if (appParts[i] == targetParts[i]) match++ else break
+    }
+    return match
+}
+
+fun shortLabel(title: String): String =
+    leadingEmojis(title, 3) ?: title
+
+fun leadingEmojis(text: String, max: Int): String? {
+    val iter = BreakIterator.getCharacterInstance()
+    iter.setText(text)
+    var prev = 0
+    var count = 0
+    while (count < max) {
+        val end = iter.next()
+        if (end == BreakIterator.DONE) break
+        val segment = text.substring(prev, end)
+        if (segment.isBlank() || Character.isLetterOrDigit(segment.codePointAt(0))) break
+        prev = end
+        count++
+    }
+    return if (count > 0) text.substring(0, prev) else null
 }
 
 object Utility {
