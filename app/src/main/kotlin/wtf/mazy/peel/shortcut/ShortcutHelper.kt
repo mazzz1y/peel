@@ -84,9 +84,7 @@ object ShortcutHelper {
         val finalBitmap = createBitmap(iconSizePx, iconSizePx)
         val canvas = Canvas(finalBitmap)
 
-        val bgPaint = Paint(Paint.ANTI_ALIAS_FLAG)
-        bgPaint.color = Color.WHITE
-        canvas.drawRect(0f, 0f, iconSizePx.toFloat(), iconSizePx.toFloat(), bgPaint)
+        canvas.drawColor(Color.WHITE)
 
         val drawPaint = Paint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG)
         val left = ((iconSizePx - scaledWidth) / 2).toFloat()
