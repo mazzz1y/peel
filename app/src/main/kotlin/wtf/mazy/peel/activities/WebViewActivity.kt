@@ -404,10 +404,6 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         mediaPlaybackManager?.injectPolyfill()
     }
 
-    override fun onPageCommitVisible() {
-        hideLaunchOverlayIfNeeded()
-    }
-
     override fun onPageFullyLoaded() {
         hideLaunchOverlayIfNeeded()
         webView?.let { peelWebViewClient.extractDynamicBarColor(it) }

@@ -37,11 +37,6 @@ class PeelWebViewClient(private val host: WebViewClientHost) : WebViewClient() {
         super.onPageFinished(view, url)
     }
 
-    override fun onPageCommitVisible(view: WebView?, url: String?) {
-        super.onPageCommitVisible(view, url)
-        host.onPageCommitVisible()
-    }
-
     override fun doUpdateVisitedHistory(view: WebView?, url: String?, isReload: Boolean) {
         super.doUpdateVisitedHistory(view, url, isReload)
         if (view != null) host.navigationStartPoint.onVisitedHistoryUpdated(view, url, isReload)
