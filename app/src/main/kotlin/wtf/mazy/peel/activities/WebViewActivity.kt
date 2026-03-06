@@ -405,7 +405,18 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     }
 
     override fun onPageFullyLoaded() {
-        hideLaunchOverlayIfNeeded()
+        if (isLaunchOverlayVisible) {
+            val view = webView
+            if (view != null) {
+                view.postVisualStateCallback(0L, object : WebView.VisualStateCallback() {
+                    override fun onComplete(requestId: Long) {
+                        if (!isDestroyed) hideLaunchOverlayIfNeeded()
+                    }
+                })
+            } else {
+                hideLaunchOverlayIfNeeded()
+            }
+        }
         webView?.let { peelWebViewClient.extractDynamicBarColor(it) }
         mediaPlaybackManager?.injectObserver()
     }
