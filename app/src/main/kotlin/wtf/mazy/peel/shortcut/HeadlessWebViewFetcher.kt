@@ -310,8 +310,7 @@ class HeadlessWebViewFetcher(
                 val opts = BitmapFactory.Options().apply {
                     inPreferredConfig = Bitmap.Config.ARGB_8888
                 }
-                val bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.size, opts)
-                if (bmp != null && bmp.width >= MIN_ICON_WIDTH) bmp else null
+                BitmapFactory.decodeByteArray(bytes, 0, bytes.size, opts)
             } finally {
                 conn.disconnect()
             }
@@ -350,7 +349,6 @@ class HeadlessWebViewFetcher(
         private const val TIMEOUT_MS = 10_000L
         private const val RESOLVE_TIMEOUT_MS = 10_000L
         private const val CONNECTION_TIMEOUT_MS = 4_000
-        private const val MIN_ICON_WIDTH = 32
         private const val MAX_ICON_BYTES = 5 * 1024 * 1024
         private val MANIFEST_FALLBACK_PATHS =
             listOf("/manifest.webmanifest", "/manifest.json", "/site.webmanifest")
