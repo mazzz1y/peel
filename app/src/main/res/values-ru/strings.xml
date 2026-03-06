@@ -20,9 +20,10 @@
     <string name="fetch_icon_title">Загрузить с сайта</string>
     <string name="choose_icon">Выбрать иконку и название</string>
     <string name="manifest_start_url_title">Обновить URL?</string>
-    <string name="manifest_start_url_message">Манифест сайта предлагает другой стартовый URL:\n\n%1$s</string>
+    <string name="manifest_start_url_message">Манифест сайта предлагает другой стартовый URL:\n\n%1$s\n\nОбновить URL? Вы всегда можете изменить его позже в настройках приложения.</string>
     <string name="manifest_start_url_update">Обновить</string>
     <string name="manifest_start_url_keep">Оставить текущий</string>
+    <string name="redirect_url_message">Этот сайт перенаправляет на другой адрес:\n\n%1$s\n\nОбновить URL? Вы всегда можете изменить его позже в настройках приложения.</string>
     <string name="fetch_step_loading">Загрузка страницы…</string>
     <string name="fetch_step_downloading">Загрузка иконок…</string>
 

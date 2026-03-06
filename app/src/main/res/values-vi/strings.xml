@@ -20,9 +20,10 @@
     <string name="fetch_icon_title">Lấy từ trang web</string>
     <string name="choose_icon">Chọn biểu tượng và tiêu đề</string>
     <string name="manifest_start_url_title">Cập nhật URL?</string>
-    <string name="manifest_start_url_message">Tệp kê khai của trang web đề xuất URL bắt đầu khác:\n\n%1$s</string>
+    <string name="manifest_start_url_message">Tệp kê khai của trang web đề xuất URL bắt đầu khác:\n\n%1$s\n\nBạn có muốn cập nhật URL không? Bạn luôn có thể thay đổi trong cài đặt ứng dụng.</string>
     <string name="manifest_start_url_update">Cập nhật</string>
     <string name="manifest_start_url_keep">Giữ hiện tại</string>
+    <string name="redirect_url_message">Trang web này chuyển hướng đến một địa chỉ khác:\n\n%1$s\n\nBạn có muốn cập nhật URL không? Bạn luôn có thể thay đổi trong cài đặt ứng dụng.</string>
     <string name="fetch_step_loading">Đang tải trang…</string>
     <string name="fetch_step_downloading">Đang tải biểu tượng…</string>
 

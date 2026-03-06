@@ -169,9 +169,10 @@
     <string name="bioprompt_not_recognized">Nicht erkannt. Versuchen Sie es erneut.</string>
     <string name="choose_icon">Symbol und Titel auswählen</string>
     <string name="manifest_start_url_title">URL aktualisieren?</string>
-    <string name="manifest_start_url_message">Das Website-Manifest schlägt eine andere Start-URL vor:\n\n%1$s</string>
+    <string name="manifest_start_url_message">Das Website-Manifest schlägt eine andere Start-URL vor:\n\n%1$s\n\nMöchten Sie die URL aktualisieren? Sie können sie jederzeit in den App-Einstellungen ändern.</string>
     <string name="manifest_start_url_update">Aktualisieren</string>
     <string name="manifest_start_url_keep">Aktuelle beibehalten</string>
+    <string name="redirect_url_message">Diese Website leitet zu einer anderen Adresse weiter:\n\n%1$s\n\nMöchten Sie die URL aktualisieren? Sie können sie jederzeit in den App-Einstellungen ändern.</string>
     <string name="connection_error">Verbindungsfehler: %1$s</string>
     <string name="content">Inhalt</string>
     <string name="exit">Beenden</string>

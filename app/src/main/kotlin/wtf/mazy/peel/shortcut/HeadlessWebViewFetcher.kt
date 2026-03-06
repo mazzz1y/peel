@@ -14,6 +14,7 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.async
@@ -33,14 +34,21 @@ import wtf.mazy.peel.util.buildUserAgent
 import java.net.HttpURLConnection
 import java.net.URL
 
-data class FetchCandidate(val title: String?, val icon: Bitmap?, val source: String, val startUrl: String? = null)
+data class FetchCandidate(
+    val title: String?,
+    val icon: Bitmap?,
+    val source: String,
+    val startUrl: String? = null,
+)
+
+data class FetchResult(val candidates: List<FetchCandidate>, val redirectedUrl: String?)
 
 class HeadlessWebViewFetcher(
     context: Context,
     private val url: String,
     private val settings: WebAppSettings,
     private val onProgress: ((String) -> Unit)? = null,
-    private val onResult: (List<FetchCandidate>) -> Unit,
+    private val onResult: (FetchResult) -> Unit,
 ) {
     private val appContext = context.applicationContext
     private val webView = WebView(appContext)
@@ -50,6 +58,7 @@ class HeadlessWebViewFetcher(
     private lateinit var userAgent: String
     private var extracting = false
     private var finished = false
+    private var resolveJob: Job? = null
     private val timeoutRunnable = Runnable { tryExtract(force = true) }
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -88,7 +97,8 @@ class HeadlessWebViewFetcher(
 
         val headers = mutableMapOf<String, String>()
         settings.customHeaders?.forEach { (key, value) ->
-            if (key.equals("User-Agent", ignoreCase = true)) webView.settings.userAgentString = value
+            if (key.equals("User-Agent", ignoreCase = true)) webView.settings.userAgentString =
+                value
             else headers[key] = value
         }
         customHeaders = headers
@@ -136,21 +146,23 @@ class HeadlessWebViewFetcher(
                 return@evaluateJavascript
             }
             handler.removeCallbacksAndMessages(null)
-            scope.launch {
-                val candidates = try {
+            resolveJob?.cancel()
+            resolveJob = scope.launch {
+                val result = try {
                     withTimeout(RESOLVE_TIMEOUT_MS) { resolve(raw, webView.url ?: url) }
                 } catch (_: TimeoutCancellationException) {
-                    emptyList()
+                    FetchResult(emptyList(), null)
                 }
-                finish(candidates)
+                finish(result)
             }
         }
     }
 
-    private suspend fun resolve(raw: String?, pageUrl: String): List<FetchCandidate> =
+    private suspend fun resolve(raw: String?, pageUrl: String): FetchResult =
         withContext(Dispatchers.IO) {
             val json = parseJsResult(raw)
             val pageTitle = json?.optString("title")?.takeIf { it.isNotEmpty() }
+            val redirected = if (pageUrl.trimEnd('/') != url.trimEnd('/')) pageUrl else null
 
             val candidates = mutableListOf<FetchCandidate>()
 
@@ -181,7 +193,7 @@ class HeadlessWebViewFetcher(
             val bestTitle = candidates.firstOrNull { it.source == "PWA" }?.title ?: pageTitle
             if (bestTitle != null) candidates += FetchCandidate(bestTitle, null, "")
 
-            candidates.deduplicatedBySize()
+            FetchResult(candidates.deduplicatedBySize(), redirected)
         }
 
     private fun findManifestCandidate(
@@ -206,17 +218,25 @@ class HeadlessWebViewFetcher(
             val conn = openConnection(manifestUrl)
             try {
                 if (conn.responseCode != 200) return null
+                val finalUrl = conn.url.toString()
                 val manifest = JSONObject(conn.inputStream.bufferedReader().use { it.readText() })
                 val name = manifest.optString("name").takeIf { it.isNotEmpty() }
-                val icon = downloadBestManifestIcon(manifest, manifestUrl)
+                val icon = downloadBestManifestIcon(manifest, finalUrl)
                 val startUrl = manifest.optString("start_url").takeIf { it.isNotEmpty() }
-                    ?.let { URL(URL(manifestUrl), it).toString() }
-                if (name != null || icon != null) FetchCandidate(name ?: pageTitle, icon, "PWA", startUrl)
+                    ?.let { URL(URL(finalUrl), it).toString() }
+                if (name != null || icon != null) FetchCandidate(
+                    name ?: pageTitle,
+                    icon,
+                    "PWA",
+                    startUrl
+                )
                 else null
             } finally {
                 conn.disconnect()
             }
-        } catch (_: Exception) { null }
+        } catch (_: Exception) {
+            null
+        }
     }
 
     private fun downloadBestManifestIcon(manifest: JSONObject, baseUrl: String): Bitmap? {
@@ -281,9 +301,9 @@ class HeadlessWebViewFetcher(
                 if (contentType.contains("image/svg")) return null
                 if (
                     contentType.startsWith("text/") ||
-                        contentType.contains("html") ||
-                        contentType.contains("json") ||
-                        contentType.contains("xml")
+                    contentType.contains("html") ||
+                    contentType.contains("json") ||
+                    contentType.contains("xml")
                 ) return null
                 if (conn.contentLength > MAX_ICON_BYTES) return null
                 val bytes = conn.inputStream.use { it.readBytes() }
@@ -295,7 +315,9 @@ class HeadlessWebViewFetcher(
             } finally {
                 conn.disconnect()
             }
-        } catch (_: Exception) { null }
+        } catch (_: Exception) {
+            null
+        }
     }
 
     private fun openConnection(url: String): HttpURLConnection {
@@ -314,14 +336,14 @@ class HeadlessWebViewFetcher(
         handler.post { onProgress?.invoke(text) }
     }
 
-    private fun finish(candidates: List<FetchCandidate> = emptyList()) {
+    private fun finish(result: FetchResult = FetchResult(emptyList(), null)) {
         if (finished) return
         finished = true
         handler.removeCallbacksAndMessages(null)
         scope.cancel()
         webView.stopLoading()
         webView.destroy()
-        onResult(candidates)
+        onResult(result)
     }
 
     companion object {
@@ -351,7 +373,9 @@ class HeadlessWebViewFetcher(
             return try {
                 val decoded = JSONArray("[$raw]").optString(0)
                 if (decoded.isEmpty()) null else JSONObject(decoded)
-            } catch (_: Exception) { null }
+            } catch (_: Exception) {
+                null
+            }
         }
 
         private val EXTRACT_JS = """

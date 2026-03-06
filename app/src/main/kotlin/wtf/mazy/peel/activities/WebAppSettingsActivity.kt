@@ -29,6 +29,7 @@ import wtf.mazy.peel.model.SettingDefinition
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.model.WebAppGroup
 import wtf.mazy.peel.shortcut.FetchCandidate
+import wtf.mazy.peel.shortcut.FetchResult
 import wtf.mazy.peel.shortcut.HeadlessWebViewFetcher
 import wtf.mazy.peel.shortcut.LetterIconGenerator
 import wtf.mazy.peel.shortcut.ShortcutHelper
@@ -300,9 +301,9 @@ class WebAppSettingsActivity :
                                 )
 
                             SandboxFetchService.RESULT_DONE ->
-                                handleFetchCandidates(
+                                handleFetchResult(
                                     webapp,
-                                    SandboxFetchService.parseCandidates(resultData),
+                                    SandboxFetchService.parseResult(resultData),
                                     generation,
                                 )
                         }
@@ -324,37 +325,54 @@ class WebAppSettingsActivity :
                 url,
                 webapp.effectiveSettings,
                 onProgress = onProgress,
-                onResult = { if (generation == fetchGeneration) handleFetchCandidates(webapp, it, generation) },
+                onResult = { if (generation == fetchGeneration) handleFetchResult(webapp, it, generation) },
             )
             activeFetcher = fetcher
             fetcher.start()
         }
     }
 
-    private fun handleFetchCandidates(
+    private fun handleFetchResult(
         webapp: WebApp,
-        candidates: List<FetchCandidate>,
+        result: FetchResult,
         generation: Int,
     ) {
         if (generation != fetchGeneration) return
         if (isFinishing || isDestroyed) return
         activeFetcher = null
         activeFetchServiceIntent = null
+        val candidates = result.candidates
         if (candidates.isEmpty()) {
             dismissFetchProgress()
             showToast(this, getString(R.string.fetch_failed), Toast.LENGTH_SHORT)
             return
         }
         val startUrl = candidates.firstNotNullOfOrNull { it.startUrl }
+        val urlSuggestion = resolveUrlSuggestion(webapp.baseUrl, startUrl, result.redirectedUrl)
         val withIcon = candidates.filter { it.icon != null }
         if (!webapp.hasCustomIcon && webapp.title.isEmpty() && withIcon.size == 1) {
-            applyFetchResult(webapp, withIcon.first(), startUrl)
+            applyFetchResult(webapp, withIcon.first(), urlSuggestion)
             return
         }
-        showFetchPickerDialog(webapp, candidates, startUrl)
+        showFetchPickerDialog(webapp, candidates, urlSuggestion)
     }
 
-    private fun showFetchPickerDialog(webapp: WebApp, candidates: List<FetchCandidate>, startUrl: String?) {
+    private fun resolveUrlSuggestion(
+        baseUrl: String, startUrl: String?, redirectedUrl: String?,
+    ): Pair<String, Int>? {
+        val base = baseUrl.trimEnd('/')
+        if (startUrl != null && startUrl.trimEnd('/') != base)
+            return startUrl to R.string.manifest_start_url_message
+        if (redirectedUrl != null && redirectedUrl.trimEnd('/') != base)
+            return redirectedUrl to R.string.redirect_url_message
+        return null
+    }
+
+    private fun showFetchPickerDialog(
+        webapp: WebApp,
+        candidates: List<FetchCandidate>,
+        urlSuggestion: Pair<String, Int>?,
+    ) {
         dismissFetchProgress()
         val defaultIconSizePx = (resources.displayMetrics.density * 48).toInt()
         val colorSeed = webapp.letterIconSeed
@@ -378,11 +396,15 @@ class WebAppSettingsActivity :
 
         MaterialAlertDialogBuilder(this)
             .setTitle(R.string.choose_icon)
-            .setAdapter(adapter) { _, which -> applyFetchResult(webapp, candidates[which], startUrl) }
+            .setAdapter(adapter) { _, which -> applyFetchResult(webapp, candidates[which], urlSuggestion) }
             .show()
     }
 
-    private fun applyFetchResult(webapp: WebApp, candidate: FetchCandidate, startUrl: String?) {
+    private fun applyFetchResult(
+        webapp: WebApp,
+        candidate: FetchCandidate,
+        urlSuggestion: Pair<String, Int>?,
+    ) {
         dismissFetchProgress()
         if (!candidate.title.isNullOrEmpty()) {
             binding.txtWebAppName.setText(candidate.title)
@@ -394,24 +416,24 @@ class WebAppSettingsActivity :
             IconCache.evict(webapp)
         }
         iconEditor.refreshIcon()
-        startUrl?.let { promptStartUrl(webapp, it) }
+        urlSuggestion?.let { (url, messageResId) -> promptUrlUpdate(webapp, url, messageResId) }
     }
 
-    private fun promptStartUrl(webapp: WebApp, startUrl: String) {
-        if (startUrl.trimEnd('/') == webapp.baseUrl.trimEnd('/')) return
-        val text = getString(R.string.manifest_start_url_message, startUrl)
-        val urlStart = text.indexOf(startUrl)
+    private fun promptUrlUpdate(webapp: WebApp, suggestedUrl: String, messageResId: Int) {
+        if (suggestedUrl.trimEnd('/') == webapp.baseUrl.trimEnd('/')) return
+        val text = getString(messageResId, suggestedUrl)
+        val urlStart = text.indexOf(suggestedUrl)
         val message = SpannableString(text).apply {
             if (urlStart >= 0) {
-                setSpan(TypefaceSpan("monospace"), urlStart, urlStart + startUrl.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                setSpan(TypefaceSpan("monospace"), urlStart, urlStart + suggestedUrl.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             }
         }
         MaterialAlertDialogBuilder(this)
             .setTitle(R.string.manifest_start_url_title)
             .setMessage(message)
             .setPositiveButton(R.string.manifest_start_url_update) { _, _ ->
-                webapp.baseUrl = startUrl
-                binding.textBaseUrl.text = displayUrl(startUrl)
+                webapp.baseUrl = suggestedUrl
+                binding.textBaseUrl.text = displayUrl(suggestedUrl)
             }
             .setNegativeButton(R.string.manifest_start_url_keep, null)
             .show()

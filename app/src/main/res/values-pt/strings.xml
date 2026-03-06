@@ -20,9 +20,10 @@
     <string name="fetch_icon_title">Obter do site</string>
     <string name="choose_icon">Escolher ícone e título</string>
     <string name="manifest_start_url_title">Atualizar URL?</string>
-    <string name="manifest_start_url_message">O manifesto do site sugere um URL inicial diferente:\n\n%1$s</string>
+    <string name="manifest_start_url_message">O manifesto do site sugere um URL inicial diferente:\n\n%1$s\n\nDeseja atualizar o URL? Você pode alterá-lo a qualquer momento nas configurações do aplicativo.</string>
     <string name="manifest_start_url_update">Atualizar</string>
     <string name="manifest_start_url_keep">Manter atual</string>
+    <string name="redirect_url_message">Este site redireciona para um endereço diferente:\n\n%1$s\n\nDeseja atualizar o URL? Você pode alterá-lo a qualquer momento nas configurações do aplicativo.</string>
     <string name="fetch_step_loading">Carregando página…</string>
     <string name="fetch_step_downloading">Baixando ícones…</string>
 

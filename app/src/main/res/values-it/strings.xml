@@ -168,9 +168,10 @@
     <string name="bioprompt_not_recognized">Non riconosciuto. Riprova.</string>
     <string name="choose_icon">Scegli icona e titolo</string>
     <string name="manifest_start_url_title">Aggiornare URL?</string>
-    <string name="manifest_start_url_message">Il manifesto del sito suggerisce un URL di avvio diverso:\n\n%1$s</string>
+    <string name="manifest_start_url_message">Il manifesto del sito suggerisce un URL di avvio diverso:\n\n%1$s\n\nVuoi aggiornare l\'URL? Puoi sempre modificarlo nelle impostazioni dell\'app.</string>
     <string name="manifest_start_url_update">Aggiorna</string>
     <string name="manifest_start_url_keep">Mantieni attuale</string>
+    <string name="redirect_url_message">Questo sito reindirizza a un indirizzo diverso:\n\n%1$s\n\nVuoi aggiornare l\'URL? Puoi sempre modificarlo nelle impostazioni dell\'app.</string>
     <string name="connection_error">Errore di connessione: %1$s</string>
     <string name="content">Contenuto</string>
     <string name="exit">Esci</string>

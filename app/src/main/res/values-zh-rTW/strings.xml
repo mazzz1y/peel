@@ -20,9 +20,10 @@
     <string name="fetch_icon_title">從網站取得</string>
     <string name="choose_icon">選擇圖示和標題</string>
     <string name="manifest_start_url_title">更新網址？</string>
-    <string name="manifest_start_url_message">網站清單建議使用不同的起始網址：\n\n%1$s</string>
+    <string name="manifest_start_url_message">網站清單建議使用不同的起始網址：\n\n%1$s\n\n是否更新網址？您隨時可以在應用程式設定中變更。</string>
     <string name="manifest_start_url_update">更新</string>
     <string name="manifest_start_url_keep">保持目前</string>
+    <string name="redirect_url_message">此網站重新導向到其他地址：\n\n%1$s\n\n是否更新網址？您隨時可以在應用程式設定中變更。</string>
     <string name="fetch_step_loading">載入頁面…</string>
     <string name="fetch_step_downloading">下載圖示…</string>
 

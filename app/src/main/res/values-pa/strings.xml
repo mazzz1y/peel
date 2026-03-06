@@ -20,9 +20,10 @@
     <string name="fetch_icon_title">ਵੈੱਬਸਾਈਟ ਤੋਂ ਪ੍ਰਾਪਤ ਕਰੋ</string>
     <string name="choose_icon">ਆਈਕਨ ਅਤੇ ਸਿਰਲੇਖ ਚੁਣੋ</string>
     <string name="manifest_start_url_title">URL ਅੱਪਡੇਟ ਕਰੋ?</string>
-    <string name="manifest_start_url_message">ਵੈੱਬਸਾਈਟ ਮੈਨੀਫੈਸਟ ਇੱਕ ਵੱਖਰਾ ਸ਼ੁਰੂਆਤੀ URL ਸੁਝਾਉਂਦਾ ਹੈ:\n\n%1$s</string>
+    <string name="manifest_start_url_message">ਵੈੱਬਸਾਈਟ ਮੈਨੀਫੈਸਟ ਇੱਕ ਵੱਖਰਾ ਸ਼ੁਰੂਆਤੀ URL ਸੁਝਾਉਂਦਾ ਹੈ:\n\n%1$s\n\nਕੀ ਤੁਸੀਂ URL ਅੱਪਡੇਟ ਕਰਨਾ ਚਾਹੁੰਦੇ ਹੋ? ਤੁਸੀਂ ਇਸਨੂੰ ਬਾਅਦ ਵਿੱਚ ਐਪ ਸੈਟਿੰਗਾਂ ਵਿੱਚ ਕਦੇ ਵੀ ਬਦਲ ਸਕਦੇ ਹੋ।</string>
     <string name="manifest_start_url_update">ਅੱਪਡੇਟ ਕਰੋ</string>
     <string name="manifest_start_url_keep">ਮੌਜੂਦਾ ਰੱਖੋ</string>
+    <string name="redirect_url_message">ਇਹ ਵੈੱਬਸਾਈਟ ਇੱਕ ਵੱਖਰੇ ਪਤੇ ਤੇ ਰੀਡਾਇਰੈਕਟ ਕਰਦੀ ਹੈ:\n\n%1$s\n\nਕੀ ਤੁਸੀਂ URL ਅੱਪਡੇਟ ਕਰਨਾ ਚਾਹੁੰਦੇ ਹੋ? ਤੁਸੀਂ ਇਸਨੂੰ ਬਾਅਦ ਵਿੱਚ ਐਪ ਸੈਟਿੰਗਾਂ ਵਿੱਚ ਕਦੇ ਵੀ ਬਦਲ ਸਕਦੇ ਹੋ।</string>
     <string name="fetch_step_loading">ਪੰਨਾ ਲੋਡ ਹੋ ਰਿਹਾ ਹੈ…</string>
     <string name="fetch_step_downloading">ਆਈਕਨ ਡਾਊਨਲੋਡ ਹੋ ਰਹੇ ਹਨ…</string>
     <string name="web_app_settings">ਵੈੱਬ ਐਪ ਸੈਟਿੰਗਾਂ</string>

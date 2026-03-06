@@ -11,6 +11,7 @@ import kotlinx.serialization.json.Json
 import wtf.mazy.peel.model.SandboxManager
 import wtf.mazy.peel.model.WebAppSettings
 import wtf.mazy.peel.shortcut.FetchCandidate
+import wtf.mazy.peel.shortcut.FetchResult
 import wtf.mazy.peel.shortcut.HeadlessWebViewFetcher
 
 open class SandboxFetchService : Service() {
@@ -64,10 +65,10 @@ open class SandboxFetchService : Service() {
             onProgress = { text ->
                 receiver.send(RESULT_PROGRESS, Bundle().apply { putString(KEY_PROGRESS, text) })
             },
-            onResult = { candidates ->
+            onResult = { result ->
                 val bundle = Bundle()
-                val list = ArrayList<Bundle>(candidates.size)
-                for (c in candidates) {
+                val list = ArrayList<Bundle>(result.candidates.size)
+                for (c in result.candidates) {
                     val entry = Bundle()
                     if (c.title != null) entry.putString(KEY_TITLE, c.title)
                     entry.putString(KEY_SOURCE, c.source)
@@ -80,6 +81,7 @@ open class SandboxFetchService : Service() {
                     list.add(entry)
                 }
                 bundle.putParcelableArrayList(RESULT_CANDIDATES, list)
+                if (result.redirectedUrl != null) bundle.putString(KEY_REDIRECTED_URL, result.redirectedUrl)
                 receiver.send(RESULT_DONE, bundle)
                 stopSelf(startId)
             },
@@ -102,16 +104,18 @@ open class SandboxFetchService : Service() {
         const val KEY_ICON = "icon"
         const val KEY_SOURCE = "source"
         const val KEY_START_URL = "start_url"
+        const val KEY_REDIRECTED_URL = "redirected_url"
         const val KEY_PROGRESS = "progress"
 
-        fun parseCandidates(resultData: Bundle?): List<FetchCandidate> {
+        fun parseResult(resultData: Bundle?): FetchResult {
+            val redirectedUrl = resultData?.getString(KEY_REDIRECTED_URL)
             val list =
                 if (android.os.Build.VERSION.SDK_INT >= 33) {
                     resultData?.getParcelableArrayList(RESULT_CANDIDATES, Bundle::class.java)
                 } else {
                     @Suppress("DEPRECATION") resultData?.getParcelableArrayList(RESULT_CANDIDATES)
-                } ?: return emptyList()
-            return list.map { entry ->
+                } ?: return FetchResult(emptyList(), redirectedUrl)
+            val candidates = list.map { entry ->
                 val title = entry.getString(KEY_TITLE)
                 val source = entry.getString(KEY_SOURCE) ?: ""
                 val startUrl = entry.getString(KEY_START_URL)
@@ -122,6 +126,7 @@ open class SandboxFetchService : Service() {
                     }
                 FetchCandidate(title, icon, source, startUrl)
             }
+            return FetchResult(candidates, redirectedUrl)
         }
 
         fun createIntent(

@@ -25,8 +25,8 @@ fun displayUrl(url: String): String {
 }
 
 fun domainAffinity(appBaseUrl: String, targetUrl: String): Int {
-    val appHost = Uri.parse(appBaseUrl).host ?: return 0
-    val targetHost = Uri.parse(targetUrl).host ?: return 0
+    val appHost = Uri.parse(appBaseUrl).host?.removePrefix("www.") ?: return 0
+    val targetHost = Uri.parse(targetUrl).host?.removePrefix("www.") ?: return 0
     val appParts = appHost.lowercase().split('.').reversed()
     val targetParts = targetHost.lowercase().split('.').reversed()
     var match = 0

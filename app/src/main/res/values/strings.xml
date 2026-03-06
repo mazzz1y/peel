@@ -24,9 +24,10 @@
     <string name="fetch_step_downloading">Downloading icons…</string>
     <string name="icon_dimensions_source">%1$dx%2$d · %3$s</string>
     <string name="manifest_start_url_title">Update URL?</string>
-    <string name="manifest_start_url_message">The website manifest suggests a different start URL:\n\n%1$s</string>
+    <string name="manifest_start_url_message">The website manifest suggests a different start URL:\n\n%1$s\n\nWould you like to update the URL? You can always change it later in the app settings.</string>
     <string name="manifest_start_url_update">Update</string>
     <string name="manifest_start_url_keep">Keep current</string>
+    <string name="redirect_url_message">This website redirects to a different address:\n\n%1$s\n\nWould you like to update the URL? You can always change it later in the app settings.</string>
 
     <string name="web_app_settings">Web App Settings</string>
     <string name="do_not_load_images">Block images</string>
