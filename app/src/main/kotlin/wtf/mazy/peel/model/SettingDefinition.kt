@@ -116,7 +116,7 @@ object SettingRegistry {
                 SettingField(WebAppSettings::isAutoReload, false),
                 R.string.webapp_autoreload,
                 SettingCategory.GENERAL,
-                intField = SettingField(WebAppSettings::timeAutoReload, 0),
+                intField = SettingField(WebAppSettings::timeAutoReload, 60),
             ),
             // Appearance
             SettingDefinition.BooleanSetting(

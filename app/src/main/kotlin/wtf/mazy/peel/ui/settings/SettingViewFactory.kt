@@ -4,6 +4,7 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
+import android.view.inputmethod.EditorInfo
 import android.widget.Button
 import android.widget.ImageButton
 import android.widget.LinearLayout
@@ -159,18 +160,19 @@ class SettingViewFactory(
         val editText = view.findViewById<TextInputEditText>(R.id.editTextNumber)
 
         val intKey = setting.intField.key
-        val intDefault = setting.intField.defaultValue
+        val intDefault = setting.intField.defaultValue as? Int ?: 0
         textName.text = view.context.getString(setting.displayNameResId)
 
-        fun intDisplayText(value: Any?): String {
-            val n = value as? Int ?: return ""
-            return if (n > 0) n.toString() else ""
+        fun ensureIntDefault() {
+            val current = settings.getValue(intKey) as? Int ?: 0
+            if (current <= 0) settings.setValue(intKey, intDefault)
         }
 
         fun syncUi() {
             val boolVal = settings.getValue(setting.key) as? Boolean ?: false
             switch.isChecked = boolVal
-            editText.setText(intDisplayText(settings.getValue(intKey)))
+            ensureIntDefault()
+            editText.setText((settings.getValue(intKey) as? Int)?.toString() ?: "")
             layout.visibility = if (boolVal) View.VISIBLE else View.GONE
             updateUndoVisibility(btnUndo, setting, settings)
         }
@@ -199,22 +201,10 @@ class SettingViewFactory(
             if (listenersActive) {
                 settings.setValue(setting.key, isChecked)
                 listenersActive = false
-                if (isChecked) {
-                    val current = settings.getValue(intKey) as? Int ?: 0
-                    if (current <= 0) {
-                        settings.setValue(intKey, intDefault)
-                        editText.setText("")
-                    }
-                    layout.visibility = View.VISIBLE
-                    editText.post { editText.requestFocus() }
-                } else {
-                    val current = settings.getValue(intKey) as? Int
-                    if (current == null || current <= 0) {
-                        settings.setValue(intKey, intDefault)
-                        editText.setText("")
-                    }
-                    layout.visibility = View.GONE
-                }
+                ensureIntDefault()
+                editText.setText((settings.getValue(intKey) as? Int)?.toString() ?: "")
+                layout.visibility = if (isChecked) View.VISIBLE else View.GONE
+                if (isChecked) editText.post { editText.requestFocus() }
                 listenersActive = true
                 updateUndoVisibility(btnUndo, setting, settings)
             }
@@ -222,6 +212,21 @@ class SettingViewFactory(
 
         syncUi()
         editText.addTextChangedListener(textWatcher)
+        editText.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                editText.clearFocus()
+                true
+            } else false
+        }
+        editText.onFocusChangeListener =
+            View.OnFocusChangeListener { _, hasFocus ->
+                if (!hasFocus && listenersActive) {
+                    listenersActive = false
+                    ensureIntDefault()
+                    editText.setText((settings.getValue(intKey) as? Int)?.toString() ?: "")
+                    listenersActive = true
+                }
+            }
         switch.setOnCheckedChangeListener(switchListener)
         listenersActive = true
 
