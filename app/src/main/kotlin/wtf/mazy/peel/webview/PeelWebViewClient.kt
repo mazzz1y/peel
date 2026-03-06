@@ -103,8 +103,8 @@ class PeelWebViewClient(private val host: WebViewClientHost) : WebViewClient() {
         }
         handler.cancel()
 
-        val errorHost = error.url?.toUri()?.host
-        val baseHost = host.baseUrl.toUri().host
+        val errorHost = error.url?.toUri()?.host?.removePrefix("www.")
+        val baseHost = host.baseUrl.toUri().host?.removePrefix("www.")
         if (errorHost != null && errorHost != baseHost) return
 
         val reason =
@@ -121,7 +121,7 @@ class PeelWebViewClient(private val host: WebViewClientHost) : WebViewClient() {
 
     override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
         host.runOnUi { host.setDarkModeIfNeeded() }
-        var url = request.url.toString()
+        val url = request.url.toString()
         val settings = host.effectiveSettings
 
         if (!url.startsWith("http://") &&
@@ -144,7 +144,8 @@ class PeelWebViewClient(private val host: WebViewClientHost) : WebViewClient() {
                 host.finishActivity()
                 return true
             }
-            url = url.replaceFirst("http://", "https://")
+            host.loadURL(url.replaceFirst("http://", "https://"))
+            return true
         }
 
         if (settings.isOpenUrlExternal == true) {
@@ -153,8 +154,7 @@ class PeelWebViewClient(private val host: WebViewClientHost) : WebViewClient() {
                 return true
             }
         }
-        host.loadURL(url)
-        return true
+        return false
     }
 
     companion object {
