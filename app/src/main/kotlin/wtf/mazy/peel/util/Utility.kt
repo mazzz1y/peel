@@ -8,6 +8,8 @@ import java.text.BreakIterator
 import java.util.regex.Pattern
 
 private val CHROME_VERSION_RE = Regex("""Chrome/([\d.]+)""")
+private val COMMON_SECOND_LEVEL_DOMAINS = setOf("ac", "co", "com", "edu", "gov", "mil", "net", "org")
+private const val BRAND_MATCH_BONUS = 2
 
 fun WebView.buildUserAgent() {
     val raw = settings.userAgentString ?: ""
@@ -33,7 +35,19 @@ fun domainAffinity(appBaseUrl: String, targetUrl: String): Int {
     for (i in 0 until minOf(appParts.size, targetParts.size)) {
         if (appParts[i] == targetParts[i]) match++ else break
     }
-    return match
+    if (match > 0) return match
+    val appBrand = registrableLabel(appHost) ?: return 0
+    val targetBrand = registrableLabel(targetHost) ?: return 0
+    return if (appBrand == targetBrand) BRAND_MATCH_BONUS else 0
+}
+
+private fun registrableLabel(host: String): String? {
+    val parts = host.lowercase().split('.')
+    if (parts.size < 2) return null
+    val secondLevel = parts[parts.lastIndex - 1]
+    val isCompoundTld = parts.size >= 3 && secondLevel in COMMON_SECOND_LEVEL_DOMAINS
+    val labelIndex = if (isCompoundTld) parts.lastIndex - 2 else parts.lastIndex - 1
+    return parts.getOrNull(labelIndex)
 }
 
 fun shortLabel(title: String): String =

@@ -756,12 +756,14 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     }
 
     private fun bestPeelMatch(url: String, currentUuid: String): WebApp? {
-        return DataManager.instance.activeWebsites
+        val scores = DataManager.instance.activeWebsites
             .filter { it.uuid != currentUuid }
             .associateWith { domainAffinity(it.baseUrl, url) }
-            .maxByOrNull { it.value }
-            ?.takeIf { it.value > 1 }
-            ?.key
+        val topScore = scores.values.maxOrNull() ?: return null
+        if (topScore <= 1) return null
+        val topMatches = scores.filterValues { it == topScore }
+        if (topMatches.size != 1) return null
+        return topMatches.keys.first()
     }
 
     private fun openInBestPeelMatch(url: String) {
