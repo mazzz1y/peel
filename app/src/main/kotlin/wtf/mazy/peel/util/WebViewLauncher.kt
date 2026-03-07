@@ -1,6 +1,6 @@
 package wtf.mazy.peel.util
 
-import android.app.Activity
+import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
@@ -14,7 +14,7 @@ import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.ui.BiometricPromptHelper
 
 object WebViewLauncher {
-    fun startWebView(webapp: WebApp, c: Context) {
+    fun startWebView(webapp: WebApp, c: Context, url: String? = null) {
         try {
             if (webapp.effectiveSettings.isBiometricProtection == true) {
                 val error = BiometricPromptHelper.getBiometricError(c)
@@ -24,23 +24,26 @@ object WebViewLauncher {
                 }
             }
             val intent = createWebViewIntent(webapp, c) ?: return
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-            if (c !is Activity) {
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            }
+            if (url != null) intent.data = url.toUri()
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
             c.startActivity(intent)
         } catch (_: Exception) {
             showLaunchError(c)
         }
     }
 
-    private fun showBiometricError(c: Context, error: String) {
-        if (c is AppCompatActivity) {
-            NotificationUtils.showInfoSnackBar(c, error, Snackbar.LENGTH_LONG)
-        }
+    fun buildPendingIntent(webapp: WebApp, context: Context): PendingIntent? {
+        val intent = createWebViewIntent(webapp, context) ?: return null
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        return PendingIntent.getActivity(
+            context,
+            webapp.uuid.hashCode(),
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+        )
     }
 
-    fun createWebViewIntent(webapp: WebApp, c: Context?): Intent? {
+    internal fun createWebViewIntent(webapp: WebApp, c: Context?): Intent? {
         if (c == null) return null
 
         val sandboxId = resolveSandboxId(webapp)
@@ -55,12 +58,6 @@ object WebViewLauncher {
         return buildIntent(c, activityClass, webapp.uuid)
     }
 
-    /**
-     * Determines the sandbox identity for a webapp.
-     * - If the app has its own sandbox enabled, returns the app's UUID (dedicated sandbox).
-     * - If the app's group has sandbox enabled, returns the group's UUID (shared group sandbox).
-     * - Otherwise returns null (no sandbox, runs in main process).
-     */
     fun resolveSandboxId(webapp: WebApp): String? {
         if (webapp.isUseContainer) return webapp.uuid
         val group = webapp.groupUuid?.let { DataManager.instance.getGroup(it) }
@@ -68,11 +65,6 @@ object WebViewLauncher {
         return null
     }
 
-    /**
-     * Whether the sandbox for this webapp is ephemeral (wiped on start/stop).
-     * - App-level sandbox: uses app's ephemeral setting.
-     * - Group-level sandbox: uses group's ephemeral setting.
-     */
     fun isEphemeralSandbox(webapp: WebApp): Boolean {
         if (webapp.isUseContainer) return webapp.isEphemeralSandbox
         val group = webapp.groupUuid?.let { DataManager.instance.getGroup(it) }
@@ -84,6 +76,12 @@ object WebViewLauncher {
             putExtra(Const.INTENT_WEBAPP_UUID, uuid)
             data = "app://$uuid".toUri()
             action = Intent.ACTION_VIEW
+        }
+    }
+
+    private fun showBiometricError(c: Context, error: String) {
+        if (c is AppCompatActivity) {
+            NotificationUtils.showInfoSnackBar(c, error, Snackbar.LENGTH_LONG)
         }
     }
 

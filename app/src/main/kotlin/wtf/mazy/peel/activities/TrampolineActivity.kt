@@ -1,7 +1,6 @@
 package wtf.mazy.peel.activities
 
 import android.app.Activity
-import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
@@ -20,7 +19,8 @@ class TrampolineActivity : Activity() {
 
         val webappUuid = intent.getStringExtra(Const.INTENT_WEBAPP_UUID)
         if (webappUuid != null) {
-            launchWebApp(webappUuid)
+            val webapp = DataManager.instance.getWebApp(webappUuid)
+            if (webapp != null) WebViewLauncher.startWebView(webapp, this)
             finish()
             return
         }
@@ -32,13 +32,6 @@ class TrampolineActivity : Activity() {
         }
 
         finish()
-    }
-
-    private fun launchWebApp(uuid: String) {
-        val webapp = DataManager.instance.getWebApp(uuid) ?: return
-        val target = WebViewLauncher.createWebViewIntent(webapp, this) ?: return
-        target.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
-        startActivity(target)
     }
 
     private fun launchGroup(groupUuid: String) {

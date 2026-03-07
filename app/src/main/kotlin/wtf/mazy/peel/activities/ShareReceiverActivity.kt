@@ -4,7 +4,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.net.toUri
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.DataManager
@@ -61,16 +60,11 @@ class ShareReceiverActivity : AppCompatActivity() {
 
         MaterialAlertDialogBuilder(this)
             .setTitle(R.string.open_in_peel)
-            .setAdapter(adapter) { _, position -> launchWebApp(apps[position], url) }
+            .setAdapter(adapter) { _, position ->
+                WebViewLauncher.startWebView(apps[position], this, url)
+            }
             .setOnCancelListener { finish() }
             .setOnDismissListener { finish() }
             .show()
-    }
-
-    private fun launchWebApp(webapp: WebApp, url: String) {
-        val intent = WebViewLauncher.createWebViewIntent(webapp, this) ?: return
-        intent.data = url.toUri()
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-        startActivity(intent)
     }
 }

@@ -252,14 +252,7 @@ open class MediaPlaybackService : MediaSessionService() {
         uuid ?: return null
         DataManager.instance.loadAppData()
         val webapp = DataManager.instance.getWebApp(uuid) ?: return null
-        val intent = WebViewLauncher.createWebViewIntent(webapp, this) ?: return null
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
-        return PendingIntent.getActivity(
-            this,
-            uuid.hashCode(),
-            intent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
-        )
+        return WebViewLauncher.buildPendingIntent(webapp, this)
     }
 
     private fun createNotificationChannel() {

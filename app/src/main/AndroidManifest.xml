@@ -96,6 +96,7 @@
         <activity
             android:name=".activities.SandboxActivity0"
             android:configChanges="orientation|screenSize|smallestScreenSize|density|screenLayout|uiMode|keyboard|keyboardHidden|navigation"
+            android:documentLaunchMode="intoExisting"
             android:exported="false"
             android:icon="@mipmap/ic_launcher"
             android:launchMode="singleTask"
@@ -107,6 +108,7 @@
         <activity
             android:name=".activities.SandboxActivity1"
             android:configChanges="orientation|screenSize|smallestScreenSize|density|screenLayout|uiMode|keyboard|keyboardHidden|navigation"
+            android:documentLaunchMode="intoExisting"
             android:exported="false"
             android:icon="@mipmap/ic_launcher"
             android:launchMode="singleTask"
@@ -118,6 +120,7 @@
         <activity
             android:name=".activities.SandboxActivity2"
             android:configChanges="orientation|screenSize|smallestScreenSize|density|screenLayout|uiMode|keyboard|keyboardHidden|navigation"
+            android:documentLaunchMode="intoExisting"
             android:exported="false"
             android:icon="@mipmap/ic_launcher"
             android:launchMode="singleTask"
@@ -129,6 +132,7 @@
         <activity
             android:name=".activities.SandboxActivity3"
             android:configChanges="orientation|screenSize|smallestScreenSize|density|screenLayout|uiMode|keyboard|keyboardHidden|navigation"
+            android:documentLaunchMode="intoExisting"
             android:exported="false"
             android:icon="@mipmap/ic_launcher"
             android:launchMode="singleTask"
@@ -142,6 +146,7 @@
         <activity
             android:name=".activities.SandboxActivity4"
             android:configChanges="orientation|screenSize|smallestScreenSize|density|screenLayout|uiMode|keyboard|keyboardHidden|navigation"
+            android:documentLaunchMode="intoExisting"
             android:exported="false"
             android:icon="@mipmap/ic_launcher"
             android:launchMode="singleTask"
@@ -153,6 +158,7 @@
         <activity
             android:name=".activities.SandboxActivity5"
             android:configChanges="orientation|screenSize|smallestScreenSize|density|screenLayout|uiMode|keyboard|keyboardHidden|navigation"
+            android:documentLaunchMode="intoExisting"
             android:exported="false"
             android:icon="@mipmap/ic_launcher"
             android:launchMode="singleTask"
@@ -164,6 +170,7 @@
         <activity
             android:name=".activities.SandboxActivity6"
             android:configChanges="orientation|screenSize|smallestScreenSize|density|screenLayout|uiMode|keyboard|keyboardHidden|navigation"
+            android:documentLaunchMode="intoExisting"
             android:exported="false"
             android:icon="@mipmap/ic_launcher"
             android:launchMode="singleTask"
@@ -175,6 +182,7 @@
         <activity
             android:name=".activities.SandboxActivity7"
             android:configChanges="orientation|screenSize|smallestScreenSize|density|screenLayout|uiMode|keyboard|keyboardHidden|navigation"
+            android:documentLaunchMode="intoExisting"
             android:exported="false"
             android:icon="@mipmap/ic_launcher"
             android:launchMode="singleTask"
@@ -188,6 +196,7 @@
         <activity
             android:name=".activities.SandboxActivity8"
             android:configChanges="orientation|screenSize|smallestScreenSize|density|screenLayout|uiMode|keyboard|keyboardHidden|navigation"
+            android:documentLaunchMode="intoExisting"
             android:exported="false"
             android:icon="@mipmap/ic_launcher"
             android:launchMode="singleTask"
@@ -199,6 +208,7 @@
         <activity
             android:name=".activities.SandboxActivity9"
             android:configChanges="orientation|screenSize|smallestScreenSize|density|screenLayout|uiMode|keyboard|keyboardHidden|navigation"
+            android:documentLaunchMode="intoExisting"
             android:exported="false"
             android:icon="@mipmap/ic_launcher"
             android:launchMode="singleTask"
@@ -210,6 +220,7 @@
         <activity
             android:name=".activities.SandboxActivity10"
             android:configChanges="orientation|screenSize|smallestScreenSize|density|screenLayout|uiMode|keyboard|keyboardHidden|navigation"
+            android:documentLaunchMode="intoExisting"
             android:exported="false"
             android:icon="@mipmap/ic_launcher"
             android:launchMode="singleTask"
@@ -221,6 +232,7 @@
         <activity
             android:name=".activities.SandboxActivity11"
             android:configChanges="orientation|screenSize|smallestScreenSize|density|screenLayout|uiMode|keyboard|keyboardHidden|navigation"
+            android:documentLaunchMode="intoExisting"
             android:exported="false"
             android:icon="@mipmap/ic_launcher"
             android:launchMode="singleTask"
@@ -234,6 +246,7 @@
         <activity
             android:name=".activities.SandboxActivity12"
             android:configChanges="orientation|screenSize|smallestScreenSize|density|screenLayout|uiMode|keyboard|keyboardHidden|navigation"
+            android:documentLaunchMode="intoExisting"
             android:exported="false"
             android:icon="@mipmap/ic_launcher"
             android:launchMode="singleTask"
@@ -245,6 +258,7 @@
         <activity
             android:name=".activities.SandboxActivity13"
             android:configChanges="orientation|screenSize|smallestScreenSize|density|screenLayout|uiMode|keyboard|keyboardHidden|navigation"
+            android:documentLaunchMode="intoExisting"
             android:exported="false"
             android:icon="@mipmap/ic_launcher"
             android:launchMode="singleTask"
@@ -256,6 +270,7 @@
         <activity
             android:name=".activities.SandboxActivity14"
             android:configChanges="orientation|screenSize|smallestScreenSize|density|screenLayout|uiMode|keyboard|keyboardHidden|navigation"
+            android:documentLaunchMode="intoExisting"
             android:exported="false"
             android:icon="@mipmap/ic_launcher"
             android:launchMode="singleTask"
@@ -267,6 +282,7 @@
         <activity
             android:name=".activities.SandboxActivity15"
             android:configChanges="orientation|screenSize|smallestScreenSize|density|screenLayout|uiMode|keyboard|keyboardHidden|navigation"
+            android:documentLaunchMode="intoExisting"
             android:exported="false"
             android:icon="@mipmap/ic_launcher"
             android:launchMode="singleTask"

@@ -37,7 +37,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toDrawable
-import androidx.core.net.toUri
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import androidx.webkit.WebSettingsCompat
 import androidx.webkit.WebViewFeature
@@ -791,10 +790,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     }
 
     private fun launchWebApp(webapp: WebApp, url: String) {
-        val intent = WebViewLauncher.createWebViewIntent(webapp, this) ?: return
-        intent.data = url.toUri()
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-        startActivity(intent)
+        WebViewLauncher.startWebView(webapp, this, url)
     }
 
     private fun setupBackNavigation() {
