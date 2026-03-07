@@ -225,6 +225,11 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         reloadHandler = null
     }
 
+    override fun onStop() {
+        super.onStop()
+        clearBiometricUnlock()
+    }
+
     override fun onDestroy() {
         if (isScreenStateReceiverRegistered) {
             unregisterReceiver(screenStateReceiver)
@@ -882,6 +887,11 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     private fun setBiometricUnlocked() {
         val uuid = webappUuid ?: return
         unlockedBiometricWebapps.add(uuid)
+    }
+
+    private fun clearBiometricUnlock() {
+        val uuid = webappUuid ?: return
+        unlockedBiometricWebapps.remove(uuid)
     }
 
     private fun clearBiometricUnlocks() {
