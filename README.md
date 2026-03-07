@@ -2,8 +2,6 @@
   <img src=".github/icon.svg" width="96" height="96" alt="Peel Logo">
 </p>
 
-⚠️ **Alpha:** This project is in early development. Expect breaking changes and instability
-
 # Peel
 
 **Turn any website into a native-like Android app**
@@ -21,11 +19,13 @@ alt="Get it on Obtainium" align="center" height="54" />
 
 - Add websites as standalone apps with automatic icon and title fetching
 - Launch web apps directly from your home screen with adaptive icons
-- App grouping
+- App grouping with home screen group shortcuts
 - Per-group and per-app optional isolated sandbox processes with separate cookies and storage
 - Block third-party requests, manage cookies, enforce HTTPS, set custom headers, etc
 - Lock sensitive web apps behind fingerprint or face authentication, set flag secure to disallow screencasting and screenshots
 - Force dark theme on any website with optional scheduling
+- Background media playback with full MediaSession support (notification controls, seek, metadata)
+- Open links in other Peel apps via long-press context menu with domain-affinity matching
 - Set settings globally or override them per app
 - Export and import all web apps and settings with all properties and icons
 - Written in Kotlin with Modern Material 3 interface
