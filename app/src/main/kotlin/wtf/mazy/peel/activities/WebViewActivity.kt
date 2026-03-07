@@ -421,7 +421,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     }
 
     override fun onPageFullyLoaded() {
-        if (isLaunchOverlayVisible) {
+        if (isLaunchOverlayVisible && !biometricPromptActive) {
             val view = webView
             if (view != null) {
                 view.postVisualStateCallback(0L, object : WebView.VisualStateCallback() {
@@ -435,6 +435,14 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         }
         webView?.let { peelWebViewClient.extractDynamicBarColor(it) }
         mediaPlaybackManager?.injectObserver()
+    }
+
+    private fun armLaunchOverlay() {
+        webviewLaunchOverlay?.apply {
+            alpha = 1f
+            visibility = View.VISIBLE
+        }
+        isLaunchOverlayVisible = true
     }
 
     private fun hideLaunchOverlayIfNeeded() {
@@ -658,10 +666,8 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         webView = findViewById(R.id.webview)
         webviewLaunchOverlay = findViewById<View>(R.id.webviewLaunchOverlay).apply {
             setBackgroundColor(themeBackgroundColor)
-            alpha = 1f
-            visibility = View.VISIBLE
         }
-        isLaunchOverlayVisible = true
+        armLaunchOverlay()
         progressBar = findViewById(R.id.progressBar)
         swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout)
     }
@@ -837,14 +843,15 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     private fun showBiometricPrompt() {
         if (biometricPromptActive) return
         biometricPromptActive = true
-        val fullActivityView = findViewById<View>(R.id.webviewActivity)
-        fullActivityView.visibility = View.GONE
+
+        armLaunchOverlay()
+
         BiometricPromptHelper(this)
             .showPrompt(
                 {
                     setBiometricUnlocked()
                     biometricPromptActive = false
-                    fullActivityView.visibility = View.VISIBLE
+                    onPageFullyLoaded()
                 },
                 {
                     biometricPromptActive = false
