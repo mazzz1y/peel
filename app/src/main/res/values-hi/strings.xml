@@ -139,10 +139,8 @@
 
     <string name="undo">पूर्ववत</string>
     <string name="x_was_removed">%1$s हटा दिया गया।</string>
-    <string name="http_auth_title">लॉगिन (HTTP Auth)</string>
     <string name="username">उपयोगकर्ता नाम</string>
     <string name="password">पासवर्ड</string>
-    <string name="enter_http_auth_credentials">%2$s पर %1$s के लिए क्रेडेंशियल दर्ज करें:</string>
 
     <string name="app_info">जानकारी</string>
     <string name="gnu_license">यह सॉफ़्टवेयर GNU General Public License संस्करण 3 के तहत जारी है।\nhttps://www.gnu.org/licenses/gpl-3.0.txt</string>
@@ -175,6 +173,7 @@
     <string name="setting_safe_browsing">सुरक्षित ब्राउज़िंग</string>
     <string name="setting_always_https">केवल HTTPS</string>
     <string name="setting_custom_headers">कस्टम हेडर</string>
+    <string name="setting_basic_auth">HTTP प्राधिकरण</string>
     <string name="setting_dynamic_status_bar">डायनामिक स्टेटस बार</string>
     <string name="setting_floating_controls">फ़्लोटिंग नियंत्रण</string>
 

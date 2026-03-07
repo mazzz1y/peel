@@ -60,6 +60,11 @@ class SettingViewFactory(
                 inflate(R.layout.item_setting_header_map, container) {
                     setupHeaderMap(it, setting, settings)
                 }
+
+            is SettingDefinition.BooleanWithCredentialsSetting ->
+                inflate(R.layout.item_setting_boolean_credentials, container) {
+                    setupBooleanWithCredentials(it, setting, settings)
+                }
         }
     }
 
@@ -426,6 +431,76 @@ class SettingViewFactory(
 
         container.addView(entryView)
         if (initialKey.isEmpty()) editName.requestFocus()
+    }
+
+    private fun setupBooleanWithCredentials(
+        view: View,
+        setting: SettingDefinition.BooleanWithCredentialsSetting,
+        settings: WebAppSettings,
+    ) {
+        val textName = view.findViewById<TextView>(R.id.textSettingName)
+        val switch = view.findViewById<MaterialSwitch>(R.id.switchSetting)
+        val btnRemove = view.findViewById<ImageButton>(R.id.btnRemoveOverride)
+        val btnUndo = view.findViewById<ImageButton>(R.id.btnUndo)
+        val layout = view.findViewById<View>(R.id.layoutCredentials)
+        val editUsername = view.findViewById<TextInputEditText>(R.id.editUsername)
+        val editPassword = view.findViewById<TextInputEditText>(R.id.editPassword)
+
+        val usernameKey = setting.usernameField.key
+        val passwordKey = setting.passwordField.key
+        textName.text = view.context.getString(setting.displayNameResId)
+
+        fun syncUi() {
+            val boolVal = settings.getValue(setting.key) as? Boolean ?: false
+            switch.isChecked = boolVal
+            editUsername.setText(settings.getValue(usernameKey) as? String ?: "")
+            editPassword.setText(settings.getValue(passwordKey) as? String ?: "")
+            layout.visibility = if (boolVal) View.VISIBLE else View.GONE
+            updateUndoVisibility(btnUndo, setting, settings)
+        }
+
+        var listenersActive = false
+
+        val usernameWatcher = object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: Editable?) {
+                if (!listenersActive) return
+                settings.setValue(usernameKey, s?.toString() ?: "")
+                updateUndoVisibility(btnUndo, setting, settings)
+            }
+        }
+
+        val passwordWatcher = object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: Editable?) {
+                if (!listenersActive) return
+                settings.setValue(passwordKey, s?.toString() ?: "")
+                updateUndoVisibility(btnUndo, setting, settings)
+            }
+        }
+
+        val switchListener = { _: android.widget.CompoundButton?, isChecked: Boolean ->
+            if (listenersActive) {
+                settings.setValue(setting.key, isChecked)
+                layout.visibility = if (isChecked) View.VISIBLE else View.GONE
+                if (isChecked) editUsername.post { editUsername.requestFocus() }
+                updateUndoVisibility(btnUndo, setting, settings)
+            }
+        }
+
+        syncUi()
+        editUsername.addTextChangedListener(usernameWatcher)
+        editPassword.addTextChangedListener(passwordWatcher)
+        switch.setOnCheckedChangeListener(switchListener)
+        listenersActive = true
+
+        configureButtons(btnRemove, btnUndo, setting, settings) {
+            listenersActive = false
+            syncUi()
+            listenersActive = true
+        }
     }
 
     private fun configureButtons(

@@ -134,10 +134,8 @@
     <string name="webview_activity_launch_failed">ਵੈੱਬ ਐਪ ਸ਼ੁਰੂ ਨਹੀਂ ਹੋ ਸਕੀ।</string>
     <string name="undo">ਵਾਪਸ ਕਰੋ</string>
     <string name="x_was_removed">%1$s ਹਟਾ ਦਿੱਤਾ ਗਿਆ।</string>
-    <string name="http_auth_title">ਲੌਗਇਨ (HTTP Auth)</string>
     <string name="username">ਯੂਜ਼ਰ ਨਾਮ</string>
     <string name="password">ਪਾਸਵਰਡ</string>
-    <string name="enter_http_auth_credentials">%2$s \'ਤੇ %1$s ਲਈ ਕ੍ਰੈਡੈਂਸ਼ੀਅਲ ਦਿਓ:</string>
     <string name="app_info">ਜਾਣਕਾਰੀ</string>
     <string name="gnu_license">ਇਹ ਸਾਫ਼ਟਵੇਅਰ GNU General Public License ਸੰਸਕਰਣ 3 ਅਧੀਨ ਜਾਰੀ ਹੈ।\nhttps://www.gnu.org/licenses/gpl-3.0.txt</string>
     <string name="default_webapp_settings">ਡਿਫ਼ਾਲਟ ਸੈਟਿੰਗਾਂ</string>
@@ -165,6 +163,7 @@
     <string name="setting_safe_browsing">ਸੁਰੱਖਿਅਤ ਬ੍ਰਾਊਜ਼ਿੰਗ</string>
     <string name="setting_always_https">ਸਿਰਫ਼ HTTPS</string>
     <string name="setting_custom_headers">ਕਸਟਮ ਹੈਡਰ</string>
+    <string name="setting_basic_auth">HTTP ਅਧਿਕਾਰ</string>
     <string name="setting_dynamic_status_bar">ਡਾਇਨਾਮਿਕ ਸਟੇਟਸ ਬਾਰ</string>
     <string name="setting_floating_controls">ਫ਼ਲੋਟਿੰਗ ਕੰਟਰੋਲ</string>
     <string name="groups">ਗਰੁੱਪ</string>

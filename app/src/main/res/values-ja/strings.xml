@@ -139,10 +139,8 @@
 
     <string name="undo">元に戻す</string>
     <string name="x_was_removed">%1$sが削除されました。</string>
-    <string name="http_auth_title">ログイン（HTTP Auth）</string>
     <string name="username">ユーザー名</string>
     <string name="password">パスワード</string>
-    <string name="enter_http_auth_credentials">%2$sの%1$sの資格情報を入力してください：</string>
 
     <string name="app_info">このアプリについて</string>
     <string name="gnu_license">このソフトウェアはGNU General Public License バージョン3の下で公開されています。\nhttps://www.gnu.org/licenses/gpl-3.0.txt</string>
@@ -175,6 +173,7 @@
     <string name="setting_safe_browsing">セーフブラウジング</string>
     <string name="setting_always_https">HTTPSのみ</string>
     <string name="setting_custom_headers">カスタムヘッダー</string>
+    <string name="setting_basic_auth">HTTP 認証</string>
     <string name="setting_dynamic_status_bar">ダイナミックステータスバー</string>
     <string name="setting_floating_controls">フローティングコントロール</string>
 

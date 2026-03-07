@@ -96,10 +96,8 @@
 
     <string name="undo">Annulla</string>
     <string name="x_was_removed">%1$s è stato rimosso.</string>
-    <string name="http_auth_title">Accedi (HTTP Auth)</string>
     <string name="username">Nome utente</string>
     <string name="password">Password</string>
-    <string name="enter_http_auth_credentials">Insericsci le credenziali per %1$s su %2$s:</string>
 
     <string name="fetch_failed">Impossibile recuperare i dati dal sito web</string>
     <string name="fetch_icon_title">Recupera dal sito web</string>
@@ -147,6 +145,7 @@
     <string name="setting_safe_browsing">Navigazione sicura</string>
     <string name="setting_always_https">Sempre HTTPS</string>
     <string name="setting_custom_headers">Intestazioni personalizzate</string>
+    <string name="setting_basic_auth">Autorizzazione HTTP</string>
     <string name="setting_dynamic_status_bar">Colore dinamico della barra di stato</string>
 
     <string name="groups">Gruppi</string>

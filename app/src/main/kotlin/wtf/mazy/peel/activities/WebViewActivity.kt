@@ -5,7 +5,6 @@ import android.annotation.SuppressLint
 import android.app.ActivityManager
 import android.content.BroadcastReceiver
 import android.content.Context
-import android.content.DialogInterface
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
@@ -18,8 +17,8 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.TypedValue
-import android.view.LayoutInflater
 import android.view.View
+import android.widget.LinearLayout
 import android.view.WindowInsets
 import android.view.WindowInsetsController
 import android.view.WindowManager
@@ -44,8 +43,10 @@ import androidx.webkit.WebSettingsCompat
 import androidx.webkit.WebViewFeature
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
+import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import wtf.mazy.peel.R
-import wtf.mazy.peel.databinding.DialogHttpAuthBinding
+import wtf.mazy.peel.ui.dialog.buildInputDialog
 import wtf.mazy.peel.media.MediaJsBridge
 import wtf.mazy.peel.media.MediaPlaybackManager
 import wtf.mazy.peel.model.DataManager
@@ -292,21 +293,36 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         get() = window
 
     override fun showHttpAuthDialog(handler: HttpAuthHandler, host: String?, realm: String?) {
-        val localBinding = DialogHttpAuthBinding.inflate(LayoutInflater.from(this))
-        MaterialAlertDialogBuilder(this)
-            .setView(localBinding.root)
-            .setTitle(getString(R.string.http_auth_title))
-            .setMessage(getString(R.string.enter_http_auth_credentials, realm, host))
-            .setPositiveButton(getString(R.string.ok)) { _: DialogInterface?, _: Int ->
-                handler.proceed(
-                    localBinding.username.text.toString(),
-                    localBinding.password.text.toString(),
-                )
-            }
-            .setNegativeButton(getString(R.string.cancel)) { _: DialogInterface?, _: Int ->
-                handler.cancel()
-            }
-            .show()
+        var passwordInput: TextInputEditText? = null
+        val dp8 = (resources.displayMetrics.density * 8).toInt()
+        buildInputDialog(
+            titleRes = R.string.setting_basic_auth,
+            hintRes = R.string.username,
+            allowEmpty = true,
+            message = "Host: ${host ?: "-"}\nRealm: ${realm ?: "-"}",
+            onCancel = { handler.cancel() },
+            extraContent = { container ->
+                val passwordLayout = TextInputLayout(container.context).apply {
+                    hint = getString(R.string.password)
+                    endIconMode = TextInputLayout.END_ICON_PASSWORD_TOGGLE
+                    layoutParams = LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT,
+                    ).apply { topMargin = dp8 }
+                }
+                passwordInput = TextInputEditText(passwordLayout.context).apply {
+                    inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD
+                    isSingleLine = true
+                }
+                passwordLayout.addView(passwordInput)
+                container.addView(passwordLayout)
+            },
+        ) { usernameInput, _ ->
+            handler.proceed(
+                usernameInput.text.toString(),
+                passwordInput?.text?.toString().orEmpty(),
+            )
+        }
     }
 
     override val isForceDarkActive: Boolean

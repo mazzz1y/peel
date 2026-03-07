@@ -32,7 +32,9 @@ fun Activity.buildInputDialog(
     inputType: Int = InputType.TYPE_CLASS_TEXT,
     @StringRes positiveRes: Int = android.R.string.ok,
     allowEmpty: Boolean = false,
+    message: CharSequence? = null,
     extraContent: ((LinearLayout) -> Unit)? = null,
+    onCancel: (() -> Unit)? = null,
     onPositive: (TextInputEditText, View) -> Unit,
 ) {
     val container = LinearLayout(this).apply {
@@ -63,9 +65,14 @@ fun Activity.buildInputDialog(
     val builder = MaterialAlertDialogBuilder(this)
         .setView(container)
         .setPositiveButton(positiveRes) { _, _ -> onPositive(input, container) }
-        .setNegativeButton(android.R.string.cancel, null)
+        .setNegativeButton(android.R.string.cancel) { _, _ -> onCancel?.invoke() }
     if (titleRes != 0) builder.setTitle(titleRes)
+    if (message != null) builder.setMessage(message)
     val dialog = builder.create()
+
+    if (onCancel != null) {
+        dialog.setOnCancelListener { onCancel() }
+    }
 
     dialog.show()
 

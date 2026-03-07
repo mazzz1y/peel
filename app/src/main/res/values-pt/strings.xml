@@ -139,10 +139,8 @@
 
     <string name="undo">Desfazer</string>
     <string name="x_was_removed">%1$s foi removido.</string>
-    <string name="http_auth_title">Login (HTTP Auth)</string>
     <string name="username">Nome de usuário</string>
     <string name="password">Senha</string>
-    <string name="enter_http_auth_credentials">Insira as credenciais para %1$s em %2$s:</string>
 
     <string name="app_info">Sobre</string>
     <string name="gnu_license">Este software é distribuído sob a GNU General Public License — Versão 3.\nhttps://www.gnu.org/licenses/gpl-3.0.txt</string>
@@ -175,6 +173,7 @@
     <string name="setting_safe_browsing">Navegação segura</string>
     <string name="setting_always_https">Apenas HTTPS</string>
     <string name="setting_custom_headers">Cabeçalhos personalizados</string>
+    <string name="setting_basic_auth">Autorização HTTP</string>
     <string name="setting_dynamic_status_bar">Barra de status dinâmica</string>
     <string name="setting_floating_controls">Controles flutuantes</string>
 

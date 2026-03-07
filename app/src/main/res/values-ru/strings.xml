@@ -139,10 +139,8 @@
 
     <string name="undo">Отменить</string>
     <string name="x_was_removed">%1$s удалено.</string>
-    <string name="http_auth_title">Вход (HTTP Auth)</string>
     <string name="username">Имя пользователя</string>
     <string name="password">Пароль</string>
-    <string name="enter_http_auth_credentials">Введите учётные данные для %1$s на %2$s:</string>
 
     <string name="app_info">О приложении</string>
     <string name="gnu_license">Это программное обеспечение распространяется под лицензией GNU General Public License — версия 3.\nhttps://www.gnu.org/licenses/gpl-3.0.txt</string>
@@ -175,6 +173,7 @@
     <string name="setting_safe_browsing">Безопасный просмотр</string>
     <string name="setting_always_https">Только HTTPS</string>
     <string name="setting_custom_headers">Пользовательские HTTP заголовки</string>
+    <string name="setting_basic_auth">HTTP Авторизация</string>
     <string name="setting_dynamic_status_bar">Динамическая строка состояния</string>
     <string name="setting_floating_controls">Плавающие кнопки</string>
 

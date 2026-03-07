@@ -139,10 +139,8 @@
 
     <string name="undo">復原</string>
     <string name="x_was_removed">%1$s 已刪除。</string>
-    <string name="http_auth_title">登入（HTTP Auth）</string>
     <string name="username">使用者名稱</string>
     <string name="password">密碼</string>
-    <string name="enter_http_auth_credentials">請輸入 %1$s 在 %2$s 的憑據：</string>
 
     <string name="app_info">關於</string>
     <string name="gnu_license">本軟體基於 GNU 通用公共授權條款第 3 版發布。\nhttps://www.gnu.org/licenses/gpl-3.0.txt</string>
@@ -175,6 +173,7 @@
     <string name="setting_safe_browsing">安全瀏覽</string>
     <string name="setting_always_https">僅 HTTPS</string>
     <string name="setting_custom_headers">自訂標頭</string>
+    <string name="setting_basic_auth">HTTP 授權</string>
     <string name="setting_dynamic_status_bar">動態狀態列</string>
     <string name="setting_floating_controls">浮動控制項</string>
 

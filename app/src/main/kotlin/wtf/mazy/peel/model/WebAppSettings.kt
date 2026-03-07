@@ -38,6 +38,9 @@ data class WebAppSettings(
     var isSafeBrowsing: Boolean? = null,
     var isDynamicStatusBar: Boolean? = null,
     var isShowNotification: Boolean? = null,
+    var isUseBasicAuth: Boolean? = null,
+    var basicAuthUsername: String? = null,
+    var basicAuthPassword: String? = null,
 ) {
     companion object {
         const val PERMISSION_OFF = 0

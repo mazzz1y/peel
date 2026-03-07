@@ -97,10 +97,8 @@
 
     <string name="undo">Deshacer</string>
     <string name="x_was_removed">Se ha eliminado %1$s.</string>
-    <string name="http_auth_title">Iniciar sesión (HTTP Auth)</string>
     <string name="username">Nombre de usuario</string>
     <string name="password">Contraseña</string>
-    <string name="enter_http_auth_credentials">Introduce las credenciales para %1$s en %2$s:</string>
 
     <string name="fetch_failed">No se pudieron obtener datos del sitio web</string>
     <string name="fetch_icon_title">Obtener del sitio web</string>
@@ -147,6 +145,7 @@
     <string name="setting_safe_browsing">Navegación segura</string>
     <string name="setting_always_https">Siempre HTTPS</string>
     <string name="setting_custom_headers">Encabezados personalizados</string>
+    <string name="setting_basic_auth">Autorización HTTP</string>
     <string name="setting_dynamic_status_bar">Color dinámico de barra de estado</string>
 
     <string name="groups">Grupos</string>

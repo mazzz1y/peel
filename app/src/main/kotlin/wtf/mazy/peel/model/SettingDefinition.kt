@@ -61,6 +61,17 @@ sealed class SettingDefinition(
         @StringRes displayNameResId: Int,
         category: SettingCategory,
     ) : SettingDefinition(toggle, displayNameResId, category)
+
+    class BooleanWithCredentialsSetting(
+        toggle: SettingField,
+        @StringRes displayNameResId: Int,
+        category: SettingCategory,
+        val usernameField: SettingField,
+        val passwordField: SettingField,
+    ) : SettingDefinition(toggle, displayNameResId, category) {
+        override val allFields
+            get() = listOf(toggle, usernameField, passwordField)
+    }
 }
 
 enum class SettingCategory(@param:StringRes val displayNameResId: Int) {
@@ -234,6 +245,13 @@ object SettingRegistry {
                 SettingField(WebAppSettings::customHeaders, null),
                 R.string.setting_custom_headers,
                 SettingCategory.ADVANCED,
+            ),
+            SettingDefinition.BooleanWithCredentialsSetting(
+                SettingField(WebAppSettings::isUseBasicAuth, false),
+                R.string.setting_basic_auth,
+                SettingCategory.ADVANCED,
+                usernameField = SettingField(WebAppSettings::basicAuthUsername, ""),
+                passwordField = SettingField(WebAppSettings::basicAuthPassword, ""),
             ),
         )
 

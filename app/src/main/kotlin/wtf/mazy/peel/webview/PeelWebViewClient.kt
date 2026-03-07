@@ -17,8 +17,11 @@ import wtf.mazy.peel.R
 
 class PeelWebViewClient(private val host: WebViewClientHost) : WebViewClient() {
 
+    private val autoAuthAttempted = mutableSetOf<String>()
+
     override fun onPageStarted(view: WebView?, url: String?, favicon: android.graphics.Bitmap?) {
         super.onPageStarted(view, url, favicon)
+        autoAuthAttempted.clear()
         host.onPageStarted()
     }
 
@@ -28,6 +31,16 @@ class PeelWebViewClient(private val host: WebViewClientHost) : WebViewClient() {
         host: String?,
         realm: String?,
     ) {
+        val settings = this.host.effectiveSettings
+        if (settings.isUseBasicAuth == true) {
+            val username = settings.basicAuthUsername.orEmpty()
+            val password = settings.basicAuthPassword.orEmpty()
+            val challengeKey = "$host:$realm"
+            if (username.isNotEmpty() && autoAuthAttempted.add(challengeKey)) {
+                handler.proceed(username, password)
+                return
+            }
+        }
         this.host.showHttpAuthDialog(handler, host, realm)
     }
 

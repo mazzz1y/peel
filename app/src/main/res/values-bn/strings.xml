@@ -139,10 +139,8 @@
 
     <string name="undo">পূর্বাবস্থায়</string>
     <string name="x_was_removed">%1$s সরানো হয়েছে।</string>
-    <string name="http_auth_title">লগইন (HTTP Auth)</string>
     <string name="username">ব্যবহারকারীর নাম</string>
     <string name="password">পাসওয়ার্ড</string>
-    <string name="enter_http_auth_credentials">%2$s-এ %1$s-এর জন্য শংসাপত্র দিন:</string>
 
     <string name="app_info">সম্পর্কে</string>
     <string name="gnu_license">এই সফটওয়্যারটি GNU General Public License সংস্করণ 3 এর অধীনে প্রকাশিত।\nhttps://www.gnu.org/licenses/gpl-3.0.txt</string>
@@ -175,6 +173,7 @@
     <string name="setting_safe_browsing">নিরাপদ ব্রাউজিং</string>
     <string name="setting_always_https">শুধু HTTPS</string>
     <string name="setting_custom_headers">কাস্টম হেডার</string>
+    <string name="setting_basic_auth">HTTP অনুমোদন</string>
     <string name="setting_dynamic_status_bar">ডায়নামিক স্ট্যাটাস বার</string>
     <string name="setting_floating_controls">ভাসমান নিয়ন্ত্রণ</string>
 

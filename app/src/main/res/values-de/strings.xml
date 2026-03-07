@@ -98,10 +98,8 @@
 
     <string name="undo">Rückgängig</string>
     <string name="x_was_removed">%1$s wurde entfernt.</string>
-    <string name="http_auth_title">Anmelden (HTTP Auth)</string>
     <string name="username">Benutzername</string>
     <string name="password">Passwort</string>
-    <string name="enter_http_auth_credentials">Geben Sie die Zugangsdaten für %1$s bei %2$s ein:</string>
 
     <string name="fetch_failed">Daten konnten nicht von der Website abgerufen werden</string>
     <string name="fetch_icon_title">Von Website abrufen</string>
@@ -148,6 +146,7 @@
     <string name="setting_safe_browsing">Sicheres Surfen</string>
     <string name="setting_always_https">Immer HTTPS</string>
     <string name="setting_custom_headers">Benutzerdefinierte Header</string>
+    <string name="setting_basic_auth">HTTP-Autorisierung</string>
     <string name="setting_dynamic_status_bar">Dynamische Statusleistenfarbe</string>
 
     <string name="groups">Gruppen</string>

@@ -139,10 +139,8 @@
 
     <string name="undo">撤销</string>
     <string name="x_was_removed">%1$s 已删除。</string>
-    <string name="http_auth_title">登录（HTTP Auth）</string>
     <string name="username">用户名</string>
     <string name="password">密码</string>
-    <string name="enter_http_auth_credentials">请输入 %1$s 在 %2$s 的凭据：</string>
 
     <string name="app_info">关于</string>
     <string name="gnu_license">本软件基于 GNU 通用公共许可证第 3 版发布。\nhttps://www.gnu.org/licenses/gpl-3.0.txt</string>
@@ -175,6 +173,7 @@
     <string name="setting_safe_browsing">安全浏览</string>
     <string name="setting_always_https">仅 HTTPS</string>
     <string name="setting_custom_headers">自定义请求头</string>
+    <string name="setting_basic_auth">HTTP 授权</string>
     <string name="setting_dynamic_status_bar">动态状态栏</string>
     <string name="setting_floating_controls">浮动控件</string>
 

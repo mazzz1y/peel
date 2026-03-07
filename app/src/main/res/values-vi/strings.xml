@@ -139,10 +139,8 @@
 
     <string name="undo">Hoàn tác</string>
     <string name="x_was_removed">%1$s đã bị xóa.</string>
-    <string name="http_auth_title">Đăng nhập (HTTP Auth)</string>
     <string name="username">Tên người dùng</string>
     <string name="password">Mật khẩu</string>
-    <string name="enter_http_auth_credentials">Nhập thông tin đăng nhập cho %1$s tại %2$s:</string>
 
     <string name="app_info">Giới thiệu</string>
     <string name="gnu_license">Phần mềm này được phát hành theo GNU General Public License — Phiên bản 3.\nhttps://www.gnu.org/licenses/gpl-3.0.txt</string>
@@ -175,6 +173,7 @@
     <string name="setting_safe_browsing">Duyệt web an toàn</string>
     <string name="setting_always_https">Chỉ HTTPS</string>
     <string name="setting_custom_headers">Tiêu đề tùy chỉnh</string>
+    <string name="setting_basic_auth">Xác thực HTTP</string>
     <string name="setting_dynamic_status_bar">Thanh trạng thái động</string>
     <string name="setting_floating_controls">Điều khiển nổi</string>
 

@@ -25,7 +25,7 @@ class StringMapConverter {
 
 @Database(
     entities = [WebAppEntity::class, SandboxSlotEntity::class, WebAppGroupEntity::class],
-    version = 5,
+    version = 6,
     exportSchema = true,
 )
 @TypeConverters(StringMapConverter::class)
@@ -131,6 +131,17 @@ abstract class AppDatabase : RoomDatabase() {
                 }
             }
 
+        val MIGRATION_5_6 =
+            object : Migration(5, 6) {
+                override fun migrate(db: SupportSQLiteDatabase) {
+                    for (table in listOf("webapps", "webapp_groups")) {
+                        db.execSQL("ALTER TABLE $table ADD COLUMN isUseBasicAuth INTEGER DEFAULT NULL")
+                        db.execSQL("ALTER TABLE $table ADD COLUMN basicAuthUsername TEXT DEFAULT NULL")
+                        db.execSQL("ALTER TABLE $table ADD COLUMN basicAuthPassword TEXT DEFAULT NULL")
+                    }
+                }
+            }
+
         fun getInstance(context: Context): AppDatabase {
             return instance
                 ?: synchronized(this) { instance ?: buildDatabase(context).also { instance = it } }
@@ -142,7 +153,7 @@ abstract class AppDatabase : RoomDatabase() {
                 AppDatabase::class.java,
                 DATABASE_NAME,
             )
-                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
+                .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6)
                 .allowMainThreadQueries()
                 .build()
         }
