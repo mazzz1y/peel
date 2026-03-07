@@ -397,6 +397,9 @@ class WebAppSettingsActivity :
         MaterialAlertDialogBuilder(this)
             .setTitle(R.string.choose_icon)
             .setAdapter(adapter) { _, which -> applyFetchResult(webapp, candidates[which], urlSuggestion) }
+            .setOnCancelListener {
+                urlSuggestion?.let { (url, messageResId) -> promptUrlUpdate(webapp, url, messageResId) }
+            }
             .show()
     }
 
