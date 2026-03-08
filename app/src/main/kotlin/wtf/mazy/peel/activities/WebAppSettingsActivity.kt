@@ -36,7 +36,8 @@ import wtf.mazy.peel.shortcut.ShortcutHelper
 import wtf.mazy.peel.ui.IconEditorController
 import wtf.mazy.peel.ui.ListPickerAdapter
 import wtf.mazy.peel.ui.dialog.OverridePickerDialog
-import wtf.mazy.peel.ui.dialog.buildInputDialog
+import wtf.mazy.peel.ui.dialog.InputDialogConfig
+import wtf.mazy.peel.ui.dialog.showInputDialogRaw
 import wtf.mazy.peel.ui.settings.OverridePickerController
 import wtf.mazy.peel.ui.settings.SandboxSwitchController
 import wtf.mazy.peel.util.Const
@@ -135,29 +136,30 @@ class WebAppSettingsActivity :
 
     private fun showEditDialog(webapp: WebApp) {
         var urlInput: TextInputEditText? = null
-        buildInputDialog(
-            hintRes = R.string.name,
-            prefill = webapp.title,
-            positiveRes = R.string.save,
-            allowEmpty = false,
-            extraContent = { container ->
-                val urlLayout = TextInputLayout(container.context).apply {
-                    hint = getString(R.string.url)
-                    layoutParams = LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.MATCH_PARENT,
-                        LinearLayout.LayoutParams.WRAP_CONTENT,
-                    ).apply {
-                        topMargin = (resources.displayMetrics.density * 16).toInt()
+        showInputDialogRaw(
+            InputDialogConfig(
+                hintRes = R.string.name,
+                prefill = webapp.title,
+                positiveRes = R.string.save,
+                extraContent = { container ->
+                    val urlLayout = TextInputLayout(container.context).apply {
+                        hint = getString(R.string.url)
+                        layoutParams = LinearLayout.LayoutParams(
+                            LinearLayout.LayoutParams.MATCH_PARENT,
+                            LinearLayout.LayoutParams.WRAP_CONTENT,
+                        ).apply {
+                            topMargin = (resources.displayMetrics.density * 16).toInt()
+                        }
                     }
-                }
-                urlInput = TextInputEditText(urlLayout.context).apply {
-                    setText(webapp.baseUrl)
-                    inputType = android.text.InputType.TYPE_TEXT_VARIATION_URI
-                    isSingleLine = true
-                }
-                urlLayout.addView(urlInput)
-                container.addView(urlLayout)
-            },
+                    urlInput = TextInputEditText(urlLayout.context).apply {
+                        setText(webapp.baseUrl)
+                        inputType = android.text.InputType.TYPE_TEXT_VARIATION_URI
+                        isSingleLine = true
+                    }
+                    urlLayout.addView(urlInput)
+                    container.addView(urlLayout)
+                },
+            ),
         ) { nameInput, _ ->
             webapp.title = nameInput.text.toString().trim()
             webapp.baseUrl = urlInput?.text.toString().trim()

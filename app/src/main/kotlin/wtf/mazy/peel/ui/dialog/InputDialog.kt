@@ -11,30 +11,32 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 
+enum class InitialSelection { SELECT_ALL, CURSOR_AT_END }
+
+data class InputDialogConfig(
+    @StringRes val hintRes: Int,
+    @StringRes val titleRes: Int = 0,
+    val prefill: String = "",
+    @StringRes val positiveRes: Int = android.R.string.ok,
+    val inputType: Int = InputType.TYPE_CLASS_TEXT,
+    val initialSelection: InitialSelection = InitialSelection.SELECT_ALL,
+    val allowEmpty: Boolean = false,
+    val message: CharSequence? = null,
+    val extraContent: ((LinearLayout) -> Unit)? = null,
+    val onCancel: (() -> Unit)? = null,
+)
+
 fun Activity.showInputDialog(
-    @StringRes titleRes: Int = 0,
-    @StringRes hintRes: Int,
-    prefill: String = "",
-    inputType: Int = InputType.TYPE_CLASS_TEXT,
-    @StringRes positiveRes: Int = android.R.string.ok,
-    allowEmpty: Boolean = false,
+    config: InputDialogConfig,
     onResult: (String) -> Unit,
 ) {
-    buildInputDialog(titleRes, hintRes, prefill, inputType, positiveRes, allowEmpty) { input, _ ->
+    showInputDialogRaw(config) { input, _ ->
         onResult(input.text.toString().trim())
     }
 }
 
-fun Activity.buildInputDialog(
-    @StringRes titleRes: Int = 0,
-    @StringRes hintRes: Int,
-    prefill: String = "",
-    inputType: Int = InputType.TYPE_CLASS_TEXT,
-    @StringRes positiveRes: Int = android.R.string.ok,
-    allowEmpty: Boolean = false,
-    message: CharSequence? = null,
-    extraContent: ((LinearLayout) -> Unit)? = null,
-    onCancel: (() -> Unit)? = null,
+fun Activity.showInputDialogRaw(
+    config: InputDialogConfig,
     onPositive: (TextInputEditText, View) -> Unit,
 ) {
     val container = LinearLayout(this).apply {
@@ -46,39 +48,44 @@ fun Activity.buildInputDialog(
     }
 
     val inputLayout = TextInputLayout(container.context).apply {
-        hint = getString(hintRes)
+        hint = getString(config.hintRes)
         layoutParams = LinearLayout.LayoutParams(
             LinearLayout.LayoutParams.MATCH_PARENT,
             LinearLayout.LayoutParams.WRAP_CONTENT,
         )
     }
     val input = TextInputEditText(inputLayout.context).apply {
-        setText(prefill)
-        setInputType(inputType)
+        setText(config.prefill)
+        setInputType(config.inputType)
         isSingleLine = true
-        if (prefill.isNotEmpty()) selectAll()
+        if (config.prefill.isNotEmpty()) {
+            when (config.initialSelection) {
+                InitialSelection.SELECT_ALL -> selectAll()
+                InitialSelection.CURSOR_AT_END -> setSelection(config.prefill.length)
+            }
+        }
     }
     inputLayout.addView(input)
     container.addView(inputLayout)
-    extraContent?.invoke(container)
+    config.extraContent?.invoke(container)
 
     val builder = MaterialAlertDialogBuilder(this)
         .setView(container)
-        .setPositiveButton(positiveRes) { _, _ -> onPositive(input, container) }
-        .setNegativeButton(android.R.string.cancel) { _, _ -> onCancel?.invoke() }
-    if (titleRes != 0) builder.setTitle(titleRes)
-    if (message != null) builder.setMessage(message)
+        .setPositiveButton(config.positiveRes) { _, _ -> onPositive(input, container) }
+        .setNegativeButton(android.R.string.cancel) { _, _ -> config.onCancel?.invoke() }
+    if (config.titleRes != 0) builder.setTitle(config.titleRes)
+    if (config.message != null) builder.setMessage(config.message)
     val dialog = builder.create()
 
-    if (onCancel != null) {
-        dialog.setOnCancelListener { onCancel() }
+    if (config.onCancel != null) {
+        dialog.setOnCancelListener { config.onCancel.invoke() }
     }
 
     dialog.show()
 
-    if (!allowEmpty) {
+    if (!config.allowEmpty) {
         val okButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
-        okButton.isEnabled = prefill.isNotBlank()
+        okButton.isEnabled = config.prefill.isNotBlank()
         input.doAfterTextChanged { okButton.isEnabled = !it.isNullOrBlank() }
     }
 }

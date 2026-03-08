@@ -10,6 +10,7 @@ import wtf.mazy.peel.model.SettingDefinition
 import wtf.mazy.peel.model.WebAppGroup
 import wtf.mazy.peel.ui.IconEditorController
 import wtf.mazy.peel.ui.dialog.OverridePickerDialog
+import wtf.mazy.peel.ui.dialog.InputDialogConfig
 import wtf.mazy.peel.ui.dialog.showInputDialog
 import wtf.mazy.peel.ui.settings.OverridePickerController
 import wtf.mazy.peel.ui.settings.SandboxSwitchController
@@ -65,10 +66,11 @@ class GroupSettingsActivity :
 
     private fun showEditDialog(group: WebAppGroup) {
         showInputDialog(
-            hintRes = R.string.name,
-            prefill = group.title,
-            positiveRes = R.string.save,
-            allowEmpty = false,
+            InputDialogConfig(
+                hintRes = R.string.name,
+                prefill = group.title,
+                positiveRes = R.string.save,
+            ),
         ) { name ->
             group.title = name
             binding.txtGroupName.text = name

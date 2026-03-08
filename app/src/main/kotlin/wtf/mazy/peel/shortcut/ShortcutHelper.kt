@@ -19,6 +19,8 @@ import wtf.mazy.peel.activities.TrampolineActivity
 import wtf.mazy.peel.model.IconOwner
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.model.WebAppGroup
+import wtf.mazy.peel.ui.dialog.InitialSelection
+import wtf.mazy.peel.ui.dialog.InputDialogConfig
 import wtf.mazy.peel.ui.dialog.showInputDialog
 import wtf.mazy.peel.util.App
 import wtf.mazy.peel.util.Const
@@ -32,10 +34,13 @@ object ShortcutHelper {
         if (!ShortcutManagerCompat.isRequestPinShortcutSupported(activity)) return
 
         activity.showInputDialog(
-            titleRes = R.string.create_shortcut,
-            hintRes = R.string.name,
-            prefill = owner.title,
-            positiveRes = R.string.create,
+            InputDialogConfig(
+                titleRes = R.string.create_shortcut,
+                hintRes = R.string.name,
+                prefill = owner.title,
+                positiveRes = R.string.create,
+                initialSelection = InitialSelection.CURSOR_AT_END,
+            ),
         ) { name ->
             pinShortcut(owner, activity, name.ifEmpty { owner.title.ifEmpty { "Unknown" } })
         }

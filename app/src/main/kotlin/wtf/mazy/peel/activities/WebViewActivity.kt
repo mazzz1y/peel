@@ -45,7 +45,8 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import wtf.mazy.peel.R
-import wtf.mazy.peel.ui.dialog.buildInputDialog
+import wtf.mazy.peel.ui.dialog.InputDialogConfig
+import wtf.mazy.peel.ui.dialog.showInputDialogRaw
 import wtf.mazy.peel.media.MediaJsBridge
 import wtf.mazy.peel.media.MediaPlaybackManager
 import wtf.mazy.peel.model.DataManager
@@ -113,6 +114,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     private var navigationBarScrim: View? = null
     private var currentBarColor: Int? = null
     private var barColorAnimator: ValueAnimator? = null
+    private var suppressNextBarAnimation = false
 
     private var mediaPlaybackManager: MediaPlaybackManager? = null
     private var cachedSettings: WebAppSettings? = null
@@ -299,28 +301,30 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     override fun showHttpAuthDialog(handler: HttpAuthHandler, host: String?, realm: String?) {
         var passwordInput: TextInputEditText? = null
         val dp8 = (resources.displayMetrics.density * 8).toInt()
-        buildInputDialog(
-            titleRes = R.string.setting_basic_auth,
-            hintRes = R.string.username,
-            allowEmpty = true,
-            message = "Host: ${host ?: "-"}\nRealm: ${realm ?: "-"}",
-            onCancel = { handler.cancel() },
-            extraContent = { container ->
-                val passwordLayout = TextInputLayout(container.context).apply {
-                    hint = getString(R.string.password)
-                    endIconMode = TextInputLayout.END_ICON_PASSWORD_TOGGLE
-                    layoutParams = LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.MATCH_PARENT,
-                        LinearLayout.LayoutParams.WRAP_CONTENT,
-                    ).apply { topMargin = dp8 }
-                }
-                passwordInput = TextInputEditText(passwordLayout.context).apply {
-                    inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD
-                    isSingleLine = true
-                }
-                passwordLayout.addView(passwordInput)
-                container.addView(passwordLayout)
-            },
+        showInputDialogRaw(
+            InputDialogConfig(
+                titleRes = R.string.setting_basic_auth,
+                hintRes = R.string.username,
+                allowEmpty = true,
+                message = "Host: ${host ?: "-"}\nRealm: ${realm ?: "-"}",
+                onCancel = { handler.cancel() },
+                extraContent = { container ->
+                    val passwordLayout = TextInputLayout(container.context).apply {
+                        hint = getString(R.string.password)
+                        endIconMode = TextInputLayout.END_ICON_PASSWORD_TOGGLE
+                        layoutParams = LinearLayout.LayoutParams(
+                            LinearLayout.LayoutParams.MATCH_PARENT,
+                            LinearLayout.LayoutParams.WRAP_CONTENT,
+                        ).apply { topMargin = dp8 }
+                    }
+                    passwordInput = TextInputEditText(passwordLayout.context).apply {
+                        inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD
+                        isSingleLine = true
+                    }
+                    passwordLayout.addView(passwordInput)
+                    container.addView(passwordLayout)
+                },
+            ),
         ) { usernameInput, _ ->
             handler.proceed(
                 usernameInput.text.toString(),
@@ -405,6 +409,11 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     }
 
     override fun updateStatusBarColor(color: Int) {
+        if (isLaunchOverlayVisible || suppressNextBarAnimation) {
+            applyBarColor(color)
+            suppressNextBarAnimation = false
+            return
+        }
         val fromColor = currentBarColor ?: themeBackgroundColor
         if (fromColor == color) {
             applyBarColor(color)
@@ -447,6 +456,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
             visibility = View.VISIBLE
         }
         isLaunchOverlayVisible = true
+        suppressNextBarAnimation = true
     }
 
     private fun hideLaunchOverlayIfNeeded() {
