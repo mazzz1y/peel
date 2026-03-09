@@ -6,7 +6,7 @@ import androidx.biometric.BiometricPrompt
 import androidx.biometric.BiometricPrompt.PromptInfo
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
-import com.google.android.material.snackbar.Snackbar
+import android.widget.Toast
 import wtf.mazy.peel.R
 import wtf.mazy.peel.util.NotificationUtils
 
@@ -53,10 +53,10 @@ internal class BiometricPromptHelper(private val activity: FragmentActivity) {
 
                     override fun onAuthenticationFailed() {
                         super.onAuthenticationFailed()
-                        NotificationUtils.showInfoSnackBar(
+                        NotificationUtils.showToast(
                             activity,
                             activity.getString(R.string.bioprompt_not_recognized),
-                            Snackbar.LENGTH_SHORT,
+                            Toast.LENGTH_SHORT,
                         )
                     }
                 },

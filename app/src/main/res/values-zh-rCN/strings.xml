@@ -43,7 +43,7 @@
     <string name="security">安全</string>
     <string name="advanced">高级</string>
     <string name="appearance">外观</string>
-    <string name="import_failed">无法恢复备份。</string>
+    <string name="import_failed">无法恢复备份</string>
     <string name="import_success">已成功恢复包含 %1$d 个网页应用的备份。</string>
     <string name="import_mode_title">完整备份</string>
     <string name="import_mode_description">包含 %1$d 个应用和 %2$d 个分组。现有数据将被替换。启用合并模式可保留备份中未包含的应用。</string>
@@ -54,7 +54,7 @@
     <string name="import_destination_group">目标分组</string>
     <string name="import_target_none">无（其他）</string>
     <string name="import_mapping_empty">此文件中未找到应用。</string>
-    <string name="import_count_message">已导入 %1$d 个应用。</string>
+    <string name="import_count_message">已导入 %1$d 个应用</string>
 
     <string name="n_apps_selected">已选择 %1$d 个</string>
     <string name="share_no_selection">请至少选择一个应用</string>
@@ -64,15 +64,15 @@
     <string name="share_secrets_exclude">移除</string>
     <string name="remove_apps_title">移除应用</string>
     <string name="remove_apps_confirm">移除 %1$d 个已选应用？</string>
-    <string name="n_apps_removed">已移除 %1$d 个应用。</string>
+    <string name="n_apps_removed">已移除 %1$d 个应用</string>
 
-    <string name="export_share_failed">无法准备分享文件。</string>
-    <string name="backup_save_failed">无法保存备份。</string>
-    <string name="backup_saved">备份已保存。</string>
+    <string name="export_share_failed">无法准备分享文件</string>
+    <string name="backup_save_failed">无法保存备份</string>
+    <string name="backup_saved">备份已保存</string>
     <string name="preparing_export">正在准备…</string>
     <string name="importing">正在导入…</string>
-    <string name="webapp_not_found">此网页应用不再可用。</string>
-    <string name="no_filemanager">请安装文件管理器。</string>
+    <string name="webapp_not_found">此网页应用不再可用</string>
+    <string name="no_filemanager">请安装文件管理器</string>
     <string name="export_btn">导出</string>
     <string name="import_btn">导入</string>
     <string name="allow_location_access">位置</string>
@@ -142,7 +142,7 @@
     <string name="activate_two_finger_zoom">双指缩放</string>
     <string name="bioprompt_restricted_webapp">访问限制</string>
     <string name="enable_access_restriction">生物识别锁定</string>
-    <string name="bioprompt_not_recognized">未识别，请重试。</string>
+    <string name="bioprompt_not_recognized">未识别，请重试</string>
     <string name="allow_media_playback_in_background">后台播放</string>
     <string name="media_channel_name">媒体播放</string>
     <string name="media_channel_description">后台媒体播放控制</string>
@@ -155,7 +155,7 @@
     <string name="ok">确定</string>
     <string name="no_biometric_devices">您的设备不支持生物识别认证。</string>
     <string name="no_biometric_keys_enrolled">您的设备支持生物识别认证，但尚未设置。</string>
-    <string name="webview_activity_launch_failed">无法启动网页应用。</string>
+    <string name="webview_activity_launch_failed">无法启动网页应用</string>
 
     <string name="undo">撤销</string>
     <string name="x_was_removed">%1$s 已删除。</string>

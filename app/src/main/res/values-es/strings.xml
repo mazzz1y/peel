@@ -29,7 +29,7 @@
     <string name="allow_http">Permitir HTTP</string>
     <string name="https_only_blocked">Bloqueado: conexión no cifrada</string>
     <string name="ssl_error_blocked">Bloqueado: %1$s</string>
-    <string name="import_failed">La copia de seguridad no se ha podido restaurar.</string>
+    <string name="import_failed">La copia de seguridad no se ha podido restaurar</string>
     <string name="import_success">Copia de seguridad con %1$d aplicación(es) web ha sido restaurada con éxito.</string>
     <string name="import_mode_title">Copia completa</string>
     <string name="import_mode_description">Contiene %1$d app(s) y %2$d grupo(s). Los datos existentes serán reemplazados. Activa el modo combinar para conservar las apps que no están en la copia.</string>
@@ -40,7 +40,7 @@
     <string name="import_destination_group">Grupo de destino</string>
     <string name="import_target_none">Ninguno (Otros)</string>
     <string name="import_mapping_empty">No se encontraron apps en este archivo.</string>
-    <string name="import_count_message">%1$d app(s) importada(s).</string>
+    <string name="import_count_message">%1$d app(s) importada(s)</string>
 
     <string name="n_apps_selected">%1$d seleccionada(s)</string>
     <string name="share_no_selection">Selecciona al menos una app</string>
@@ -50,15 +50,15 @@
     <string name="share_secrets_exclude">Eliminar</string>
     <string name="remove_apps_title">Eliminar apps</string>
     <string name="remove_apps_confirm">¿Eliminar %1$d app(s) seleccionada(s)?</string>
-    <string name="n_apps_removed">%1$d app(s) eliminada(s).</string>
+    <string name="n_apps_removed">%1$d app(s) eliminada(s)</string>
 
-    <string name="export_share_failed">No se pudo preparar el archivo para compartir.</string>
-    <string name="backup_save_failed">No se pudo guardar la copia de seguridad.</string>
-    <string name="backup_saved">Copia de seguridad guardada.</string>
+    <string name="export_share_failed">No se pudo preparar el archivo para compartir</string>
+    <string name="backup_save_failed">No se pudo guardar la copia de seguridad</string>
+    <string name="backup_saved">Copia de seguridad guardada</string>
     <string name="preparing_export">Preparando…</string>
     <string name="importing">Importando…</string>
-    <string name="webapp_not_found">La aplicación web a la que intenta acceder ya no está disponible.</string>
-    <string name="no_filemanager">Por favor, instala un gestor de archivos.</string>
+    <string name="webapp_not_found">La aplicación web a la que intenta acceder ya no está disponible</string>
+    <string name="no_filemanager">Por favor, instala un gestor de archivos</string>
     <string name="allow_location_access">Permitir el acceso a la ubicación</string>
     <string name="allow_drm_content">Permitir contenidos DRM</string>
 
@@ -113,7 +113,7 @@
     <string name="ok">De Acuerdo</string>
     <string name="no_biometric_devices">Su dispositivo no admite la autenticación biométrica.</string>
     <string name="no_biometric_keys_enrolled">Su dispositivo admite la autenticación biométrica, pero aún no ha registrado ningún método.</string>
-    <string name="webview_activity_launch_failed">La Aplicación Web no pudo ser iniciada.</string>
+    <string name="webview_activity_launch_failed">La Aplicación Web no pudo ser iniciada</string>
 
     <string name="undo">Deshacer</string>
     <string name="x_was_removed">Se ha eliminado %1$s.</string>
@@ -184,7 +184,7 @@
     <string name="ungroup_apps_on_delete">Mover apps a \"Otro\"</string>
     <string name="setting_floating_controls">Controles flotantes</string>
 
-    <string name="bioprompt_not_recognized">No reconocido. Inténtelo de nuevo.</string>
+    <string name="bioprompt_not_recognized">No reconocido. Inténtelo de nuevo</string>
     <string name="choose_icon">Elegir icono y título</string>
     <string name="manifest_start_url_title">¿Actualizar URL?</string>
     <string name="manifest_start_url_message">El manifiesto del sitio sugiere una URL de inicio diferente:\n\n%1$s\n\n¿Desea actualizar la URL? Puede cambiarla en cualquier momento en los ajustes de la aplicación.</string>

@@ -17,7 +17,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.android.material.snackbar.Snackbar
+import android.widget.Toast
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.coroutines.Dispatchers
@@ -141,10 +141,10 @@ class MainActivity : AppCompatActivity(), SelectionModeHost {
                 try {
                     importLauncher.launch("*/*")
                 } catch (e: ActivityNotFoundException) {
-                    NotificationUtils.showInfoSnackBar(
+                    NotificationUtils.showToast(
                         this,
                         getString(R.string.no_filemanager),
-                        Snackbar.LENGTH_LONG,
+                        Toast.LENGTH_LONG,
                     )
                     Log.e("MainActivity", "No file manager available for import", e)
                 }
@@ -155,10 +155,10 @@ class MainActivity : AppCompatActivity(), SelectionModeHost {
                 try {
                     exportLauncher.launch(BackupManager.buildExportFilename())
                 } catch (e: ActivityNotFoundException) {
-                    NotificationUtils.showInfoSnackBar(
+                    NotificationUtils.showToast(
                         this,
                         getString(R.string.no_filemanager),
-                        Snackbar.LENGTH_LONG,
+                        Toast.LENGTH_LONG,
                     )
                     Log.e("MainActivity", "No file manager available for export", e)
                 }
@@ -341,20 +341,20 @@ class MainActivity : AppCompatActivity(), SelectionModeHost {
 
     private fun performShareSelected() {
         if (selectedUuids.isEmpty()) {
-            NotificationUtils.showInfoSnackBar(
+            NotificationUtils.showToast(
                 this,
                 getString(R.string.share_no_selection),
-                Snackbar.LENGTH_SHORT,
+                Toast.LENGTH_SHORT,
             )
             return
         }
 
         val webApps = resolveSelectedWebApps()
         if (webApps.isEmpty()) {
-            NotificationUtils.showInfoSnackBar(
+            NotificationUtils.showToast(
                 this,
                 getString(R.string.share_no_selection),
-                Snackbar.LENGTH_SHORT,
+                Toast.LENGTH_SHORT,
             )
             return
         }
@@ -493,10 +493,10 @@ class MainActivity : AppCompatActivity(), SelectionModeHost {
             DataManager.instance.getWebsites().size,
             ioTask = { BackupManager.exportFullBackup(uri) },
         ) { success ->
-            NotificationUtils.showInfoSnackBar(
+            NotificationUtils.showToast(
                 this,
                 getString(if (success) R.string.backup_saved else R.string.backup_save_failed),
-                Snackbar.LENGTH_SHORT,
+                Toast.LENGTH_SHORT,
             )
         }
     }
@@ -507,10 +507,10 @@ class MainActivity : AppCompatActivity(), SelectionModeHost {
             ioTask = { BackupManager.buildShareFile(webApps, includeSecrets) },
         ) { file ->
             if (file == null || !BackupManager.launchShareChooser(this, file)) {
-                NotificationUtils.showInfoSnackBar(
+                NotificationUtils.showToast(
                     this,
                     getString(R.string.export_share_failed),
-                    Snackbar.LENGTH_LONG,
+                    Toast.LENGTH_LONG,
                 )
             }
         }

@@ -10,7 +10,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.snackbar.Snackbar
+import android.widget.Toast
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -207,19 +207,19 @@ class ImportDialogHelper(
                 if (showLoader) loader.dismiss()
             }
             onImportComplete()
-            NotificationUtils.showInfoSnackBar(
+            NotificationUtils.showToast(
                 activity,
                 activity.getString(R.string.import_count_message, imported),
-                Snackbar.LENGTH_SHORT,
+                Toast.LENGTH_SHORT,
             )
         }
     }
 
     private fun showError() {
-        NotificationUtils.showInfoSnackBar(
+        NotificationUtils.showToast(
             activity,
             activity.getString(R.string.import_failed),
-            Snackbar.LENGTH_LONG,
+            Toast.LENGTH_LONG,
         )
     }
 

@@ -18,13 +18,6 @@ object NotificationUtils {
     }
 
     @JvmStatic
-    fun showInfoSnackBar(activity: Activity, msg: String, duration: Int) {
-        Snackbar.make(activity.findViewById(android.R.id.content), msg, duration)
-            .setAction(activity.getString(R.string.ok)) {}
-            .show()
-    }
-
-    @JvmStatic
     fun showUndoSnackBar(
         activity: Activity,
         message: String,

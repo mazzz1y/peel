@@ -43,7 +43,7 @@
     <string name="security">安全性</string>
     <string name="advanced">進階</string>
     <string name="appearance">外觀</string>
-    <string name="import_failed">無法還原備份。</string>
+    <string name="import_failed">無法還原備份</string>
     <string name="import_success">已成功還原包含 %1$d 個網頁應用程式的備份。</string>
     <string name="import_mode_title">完整備份</string>
     <string name="import_mode_description">包含 %1$d 個應用程式和 %2$d 個群組。現有資料將被取代。啟用合併模式可保留備份中未包含的應用程式。</string>
@@ -54,7 +54,7 @@
     <string name="import_destination_group">目標群組</string>
     <string name="import_target_none">無（其他）</string>
     <string name="import_mapping_empty">此檔案中未找到應用程式。</string>
-    <string name="import_count_message">已匯入 %1$d 個應用程式。</string>
+    <string name="import_count_message">已匯入 %1$d 個應用程式</string>
 
     <string name="n_apps_selected">已選取 %1$d 個</string>
     <string name="share_no_selection">請至少選取一個應用程式</string>
@@ -64,15 +64,15 @@
     <string name="share_secrets_exclude">移除</string>
     <string name="remove_apps_title">移除應用程式</string>
     <string name="remove_apps_confirm">移除 %1$d 個已選取的應用程式？</string>
-    <string name="n_apps_removed">已移除 %1$d 個應用程式。</string>
+    <string name="n_apps_removed">已移除 %1$d 個應用程式</string>
 
-    <string name="export_share_failed">無法準備分享檔案。</string>
-    <string name="backup_save_failed">無法儲存備份。</string>
-    <string name="backup_saved">備份已儲存。</string>
+    <string name="export_share_failed">無法準備分享檔案</string>
+    <string name="backup_save_failed">無法儲存備份</string>
+    <string name="backup_saved">備份已儲存</string>
     <string name="preparing_export">正在準備…</string>
     <string name="importing">正在匯入…</string>
-    <string name="webapp_not_found">此網頁應用程式已無法使用。</string>
-    <string name="no_filemanager">請安裝檔案管理員。</string>
+    <string name="webapp_not_found">此網頁應用程式已無法使用</string>
+    <string name="no_filemanager">請安裝檔案管理員</string>
     <string name="export_btn">匯出</string>
     <string name="import_btn">匯入</string>
     <string name="allow_location_access">位置</string>
@@ -142,7 +142,7 @@
     <string name="activate_two_finger_zoom">雙指縮放</string>
     <string name="bioprompt_restricted_webapp">存取限制</string>
     <string name="enable_access_restriction">生物辨識鎖定</string>
-    <string name="bioprompt_not_recognized">無法辨識，請重試。</string>
+    <string name="bioprompt_not_recognized">無法辨識，請重試</string>
     <string name="allow_media_playback_in_background">背景播放</string>
     <string name="media_channel_name">媒體播放</string>
     <string name="media_channel_description">背景媒體播放控制</string>
@@ -155,7 +155,7 @@
     <string name="ok">確定</string>
     <string name="no_biometric_devices">您的裝置不支援生物辨識驗證。</string>
     <string name="no_biometric_keys_enrolled">您的裝置支援生物辨識驗證，但尚未設定。</string>
-    <string name="webview_activity_launch_failed">無法啟動網頁應用程式。</string>
+    <string name="webview_activity_launch_failed">無法啟動網頁應用程式</string>
 
     <string name="undo">復原</string>
     <string name="x_was_removed">%1$s 已刪除。</string>

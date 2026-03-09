@@ -54,7 +54,7 @@ class PeelWebChromeClient(private val host: ChromeClientHost) : WebChromeClient(
         } catch (_: Exception) {
             host.filePathCallback = null
             callback?.onReceiveValue(null)
-            host.showSnackBar(host.getString(R.string.no_filemanager))
+            host.showToast(host.getString(R.string.no_filemanager))
         }
         return true
     }

@@ -41,7 +41,6 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import androidx.webkit.WebSettingsCompat
 import androidx.webkit.WebViewFeature
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import wtf.mazy.peel.R
@@ -60,7 +59,6 @@ import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.DateUtils.convertStringToCalendar
 import wtf.mazy.peel.util.DateUtils.isInInterval
 import wtf.mazy.peel.util.NotificationUtils
-import wtf.mazy.peel.util.NotificationUtils.showInfoSnackBar
 import wtf.mazy.peel.util.WebViewLauncher
 import wtf.mazy.peel.util.buildUserAgent
 import wtf.mazy.peel.util.domainAffinity
@@ -496,10 +494,6 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     override fun launchFilePicker(intent: Intent?): Boolean {
         filePickerLauncher?.launch(intent) ?: return false
         return true
-    }
-
-    override fun showSnackBar(message: String) {
-        showInfoSnackBar(this, message, Snackbar.LENGTH_LONG)
     }
 
     override fun hideSystemBars() {

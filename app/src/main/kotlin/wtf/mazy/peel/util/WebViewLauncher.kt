@@ -5,7 +5,7 @@ import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.net.toUri
-import com.google.android.material.snackbar.Snackbar
+import android.widget.Toast
 import wtf.mazy.peel.R
 import wtf.mazy.peel.activities.WebViewActivity
 import wtf.mazy.peel.model.DataManager
@@ -81,16 +81,16 @@ object WebViewLauncher {
 
     private fun showBiometricError(c: Context, error: String) {
         if (c is AppCompatActivity) {
-            NotificationUtils.showInfoSnackBar(c, error, Snackbar.LENGTH_LONG)
+            NotificationUtils.showToast(c, error, Toast.LENGTH_LONG)
         }
     }
 
     private fun showLaunchError(c: Context) {
         if (c is AppCompatActivity) {
-            NotificationUtils.showInfoSnackBar(
+            NotificationUtils.showToast(
                 c,
                 c.getString(R.string.webview_activity_launch_failed),
-                Snackbar.LENGTH_LONG,
+                Toast.LENGTH_LONG,
             )
         }
     }

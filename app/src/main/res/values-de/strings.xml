@@ -30,7 +30,7 @@
     <string name="allow_http">HTTP zulassen</string>
     <string name="https_only_blocked">Blockiert: unverschlüsselte Verbindung</string>
     <string name="ssl_error_blocked">Blockiert: %1$s</string>
-    <string name="import_failed">Die Sicherung konnte nicht wiederhergestellt werden.</string>
+    <string name="import_failed">Die Sicherung konnte nicht wiederhergestellt werden</string>
     <string name="import_success">Sicherung mit %1$d Web-App(s) wurde wiederhergestellt.</string>
     <string name="import_mode_title">Vollständiges Backup</string>
     <string name="import_mode_description">Enthält %1$d App(s) und %2$d Gruppe(n). Vorhandene Daten werden ersetzt. Aktiviere den Zusammenführungsmodus, um Apps zu behalten, die nicht im Backup enthalten sind.</string>
@@ -41,7 +41,7 @@
     <string name="import_destination_group">Zielgruppe</string>
     <string name="import_target_none">Keine (Sonstige)</string>
     <string name="import_mapping_empty">Keine Apps in dieser Datei gefunden.</string>
-    <string name="import_count_message">%1$d App(s) importiert.</string>
+    <string name="import_count_message">%1$d App(s) importiert</string>
 
     <string name="n_apps_selected">%1$d ausgewählt</string>
     <string name="share_no_selection">Wähle mindestens eine App</string>
@@ -51,15 +51,15 @@
     <string name="share_secrets_exclude">Entfernen</string>
     <string name="remove_apps_title">Apps entfernen</string>
     <string name="remove_apps_confirm">%1$d ausgewählte App(s) entfernen?</string>
-    <string name="n_apps_removed">%1$d App(s) entfernt.</string>
+    <string name="n_apps_removed">%1$d App(s) entfernt</string>
 
-    <string name="export_share_failed">Datei konnte nicht zum Teilen vorbereitet werden.</string>
-    <string name="backup_save_failed">Sicherung konnte nicht gespeichert werden.</string>
-    <string name="backup_saved">Sicherung gespeichert.</string>
+    <string name="export_share_failed">Datei konnte nicht zum Teilen vorbereitet werden</string>
+    <string name="backup_save_failed">Sicherung konnte nicht gespeichert werden</string>
+    <string name="backup_saved">Sicherung gespeichert</string>
     <string name="preparing_export">Wird vorbereitet…</string>
     <string name="importing">Wird importiert…</string>
-    <string name="webapp_not_found">Diese Web-App ist nicht mehr verfügbar.</string>
-    <string name="no_filemanager">Bitte installieren Sie einen Datei-Manager.</string>
+    <string name="webapp_not_found">Diese Web-App ist nicht mehr verfügbar</string>
+    <string name="no_filemanager">Bitte installieren Sie einen Datei-Manager</string>
     <string name="allow_location_access">Standortzugriff erlauben</string>
     <string name="allow_drm_content">DRM-Inhalte erlauben</string>
 
@@ -113,7 +113,7 @@
     <string name="ok">OK</string>
     <string name="no_biometric_devices">Ihr Gerät unterstützt keine biometrische Authentifizierung.</string>
     <string name="no_biometric_keys_enrolled">Ihr Gerät unterstützt biometrische Authentifizierung, aber bisher wurde keine Aktivierungsmethode festgelegt.</string>
-    <string name="webview_activity_launch_failed">Web-App konnte nicht gestartet werden.</string>
+    <string name="webview_activity_launch_failed">Web-App konnte nicht gestartet werden</string>
     <string name="file_download_failed">Download fehlgeschlagen.</string>
 
     <string name="undo">Rückgängig</string>
@@ -185,7 +185,7 @@
     <string name="ungroup_apps_on_delete">Apps zu „Andere" verschieben</string>
     <string name="setting_floating_controls">Schwebende Steuerung</string>
 
-    <string name="bioprompt_not_recognized">Nicht erkannt. Versuchen Sie es erneut.</string>
+    <string name="bioprompt_not_recognized">Nicht erkannt. Versuchen Sie es erneut</string>
     <string name="choose_icon">Symbol und Titel auswählen</string>
     <string name="manifest_start_url_title">URL aktualisieren?</string>
     <string name="manifest_start_url_message">Das Website-Manifest schlägt eine andere Start-URL vor:\n\n%1$s\n\nMöchten Sie die URL aktualisieren? Sie können sie jederzeit in den App-Einstellungen ändern.</string>

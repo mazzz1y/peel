@@ -42,7 +42,7 @@
     <string name="security">ਸੁਰੱਖਿਆ</string>
     <string name="advanced">ਐਡਵਾਂਸਡ</string>
     <string name="appearance">ਦਿੱਖ</string>
-    <string name="import_failed">ਬੈਕਅੱਪ ਬਹਾਲ ਨਹੀਂ ਹੋ ਸਕਿਆ।</string>
+    <string name="import_failed">ਬੈਕਅੱਪ ਬਹਾਲ ਨਹੀਂ ਹੋ ਸਕਿਆ</string>
     <string name="import_success">%1$d ਵੈੱਬ ਐਪਾਂ ਦਾ ਬੈਕਅੱਪ ਸਫਲਤਾਪੂਰਵਕ ਬਹਾਲ ਹੋਇਆ।</string>
     <string name="import_mode_title">ਪੂਰਾ ਬੈਕਅੱਪ</string>
     <string name="import_mode_description">%1$d ਐਪਾਂ ਅਤੇ %2$d ਸਮੂਹ ਸ਼ਾਮਲ ਹਨ। ਮੌਜੂਦਾ ਡੇਟਾ ਬਦਲ ਦਿੱਤਾ ਜਾਵੇਗਾ। ਬੈਕਅੱਪ ਵਿੱਚ ਸ਼ਾਮਲ ਨਾ ਕੀਤੀਆਂ ਐਪਾਂ ਰੱਖਣ ਲਈ ਮਰਜ ਮੋਡ ਚਾਲੂ ਕਰੋ।</string>
@@ -53,7 +53,7 @@
     <string name="import_destination_group">ਮੰਜ਼ਿਲ ਸਮੂਹ</string>
     <string name="import_target_none">ਕੋਈ ਨਹੀਂ (ਹੋਰ)</string>
     <string name="import_mapping_empty">ਇਸ ਫ਼ਾਈਲ ਵਿੱਚ ਕੋਈ ਐਪ ਨਹੀਂ ਮਿਲੀ।</string>
-    <string name="import_count_message">%1$d ਐਪਾਂ ਆਯਾਤ ਕੀਤੀਆਂ।</string>
+    <string name="import_count_message">%1$d ਐਪਾਂ ਆਯਾਤ ਕੀਤੀਆਂ</string>
 
     <string name="n_apps_selected">%1$d ਚੁਣੀਆਂ</string>
     <string name="share_no_selection">ਘੱਟੋ-ਘੱਟ ਇੱਕ ਐਪ ਚੁਣੋ</string>
@@ -63,15 +63,15 @@
     <string name="share_secrets_exclude">ਹਟਾਓ</string>
     <string name="remove_apps_title">ਐਪਾਂ ਹਟਾਓ</string>
     <string name="remove_apps_confirm">%1$d ਚੁਣੀਆਂ ਐਪਾਂ ਹਟਾਓ?</string>
-    <string name="n_apps_removed">%1$d ਐਪਾਂ ਹਟਾਈਆਂ।</string>
+    <string name="n_apps_removed">%1$d ਐਪਾਂ ਹਟਾਈਆਂ</string>
 
-    <string name="export_share_failed">ਸਾਂਝਾ ਕਰਨ ਲਈ ਫ਼ਾਈਲ ਤਿਆਰ ਨਹੀਂ ਹੋ ਸਕੀ।</string>
-    <string name="backup_save_failed">ਬੈਕਅੱਪ ਸੁਰੱਖਿਅਤ ਨਹੀਂ ਹੋ ਸਕਿਆ।</string>
-    <string name="backup_saved">ਬੈਕਅੱਪ ਸੁਰੱਖਿਅਤ ਹੋ ਗਿਆ।</string>
+    <string name="export_share_failed">ਸਾਂਝਾ ਕਰਨ ਲਈ ਫ਼ਾਈਲ ਤਿਆਰ ਨਹੀਂ ਹੋ ਸਕੀ</string>
+    <string name="backup_save_failed">ਬੈਕਅੱਪ ਸੁਰੱਖਿਅਤ ਨਹੀਂ ਹੋ ਸਕਿਆ</string>
+    <string name="backup_saved">ਬੈਕਅੱਪ ਸੁਰੱਖਿਅਤ ਹੋ ਗਿਆ</string>
     <string name="preparing_export">ਤਿਆਰ ਹੋ ਰਿਹਾ ਹੈ…</string>
     <string name="importing">ਇੰਪੋਰਟ ਹੋ ਰਿਹਾ ਹੈ…</string>
-    <string name="webapp_not_found">ਇਹ ਵੈੱਬ ਐਪ ਹੁਣ ਉਪਲਬਧ ਨਹੀਂ ਹੈ।</string>
-    <string name="no_filemanager">ਕਿਰਪਾ ਕਰਕੇ ਫ਼ਾਈਲ ਮੈਨੇਜਰ ਇੰਸਟਾਲ ਕਰੋ।</string>
+    <string name="webapp_not_found">ਇਹ ਵੈੱਬ ਐਪ ਹੁਣ ਉਪਲਬਧ ਨਹੀਂ ਹੈ</string>
+    <string name="no_filemanager">ਕਿਰਪਾ ਕਰਕੇ ਫ਼ਾਈਲ ਮੈਨੇਜਰ ਇੰਸਟਾਲ ਕਰੋ</string>
     <string name="export_btn">ਨਿਰਯਾਤ</string>
     <string name="import_btn">ਆਯਾਤ</string>
     <string name="allow_location_access">ਟਿਕਾਣਾ</string>
@@ -140,7 +140,7 @@
     <string name="activate_two_finger_zoom">ਪਿੰਚ ਜ਼ੂਮ</string>
     <string name="bioprompt_restricted_webapp">ਐਕਸੈਸ ਪਾਬੰਦੀ</string>
     <string name="enable_access_restriction">ਬਾਇਓਮੈਟ੍ਰਿਕ ਲਾਕ</string>
-    <string name="bioprompt_not_recognized">ਪਛਾਣ ਨਹੀਂ ਹੋਈ। ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ।</string>
+    <string name="bioprompt_not_recognized">ਪਛਾਣ ਨਹੀਂ ਹੋਈ। ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ</string>
     <string name="allow_media_playback_in_background">ਬੈਕਗ੍ਰਾਊਂਡ ਪਲੇਬੈਕ</string>
     <string name="media_channel_name">ਮੀਡੀਆ ਪਲੇਬੈਕ</string>
     <string name="media_channel_description">ਬੈਕਗ੍ਰਾਊਂਡ ਮੀਡੀਆ ਪਲੇਬੈਕ ਕੰਟਰੋਲ</string>
@@ -152,7 +152,7 @@
     <string name="ok">ਠੀਕ ਹੈ</string>
     <string name="no_biometric_devices">ਤੁਹਾਡੀ ਡਿਵਾਈਸ ਬਾਇਓਮੈਟ੍ਰਿਕ ਪ੍ਰਮਾਣੀਕਰਨ ਦਾ ਸਮਰਥਨ ਨਹੀਂ ਕਰਦੀ।</string>
     <string name="no_biometric_keys_enrolled">ਤੁਹਾਡੀ ਡਿਵਾਈਸ ਬਾਇਓਮੈਟ੍ਰਿਕਸ ਦਾ ਸਮਰਥਨ ਕਰਦੀ ਹੈ, ਪਰ ਕੋਈ ਤਰੀਕਾ ਸੈੱਟ ਨਹੀਂ ਹੈ।</string>
-    <string name="webview_activity_launch_failed">ਵੈੱਬ ਐਪ ਸ਼ੁਰੂ ਨਹੀਂ ਹੋ ਸਕੀ।</string>
+    <string name="webview_activity_launch_failed">ਵੈੱਬ ਐਪ ਸ਼ੁਰੂ ਨਹੀਂ ਹੋ ਸਕੀ</string>
     <string name="undo">ਵਾਪਸ ਕਰੋ</string>
     <string name="x_was_removed">%1$s ਹਟਾ ਦਿੱਤਾ ਗਿਆ।</string>
     <string name="username">ਯੂਜ਼ਰ ਨਾਮ</string>

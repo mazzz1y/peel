@@ -29,7 +29,7 @@
     <string name="allow_http">Consenti HTTP</string>
     <string name="https_only_blocked">Bloccato: connessione non crittografata</string>
     <string name="ssl_error_blocked">Bloccato: %1$s</string>
-    <string name="import_failed">Backup non ripristinabile.</string>
+    <string name="import_failed">Backup non ripristinabile</string>
     <string name="import_success">Il backup di %1$d Web App è stato ripristinato con successo.</string>
     <string name="import_mode_title">Backup completo</string>
     <string name="import_mode_description">Contiene %1$d app e %2$d gruppi. I dati esistenti verranno sostituiti. Attiva la modalità unione per conservare le app non incluse nel backup.</string>
@@ -40,7 +40,7 @@
     <string name="import_destination_group">Gruppo di destinazione</string>
     <string name="import_target_none">Nessuno (Altro)</string>
     <string name="import_mapping_empty">Nessuna app trovata in questo file.</string>
-    <string name="import_count_message">%1$d app importate.</string>
+    <string name="import_count_message">%1$d app importate</string>
 
     <string name="n_apps_selected">%1$d selezionate</string>
     <string name="share_no_selection">Seleziona almeno un\'app</string>
@@ -50,15 +50,15 @@
     <string name="share_secrets_exclude">Rimuovi</string>
     <string name="remove_apps_title">Rimuovi app</string>
     <string name="remove_apps_confirm">Rimuovere %1$d app selezionate?</string>
-    <string name="n_apps_removed">%1$d app rimosse.</string>
+    <string name="n_apps_removed">%1$d app rimosse</string>
 
-    <string name="export_share_failed">Impossibile preparare il file per la condivisione.</string>
-    <string name="backup_save_failed">Impossibile salvare il backup.</string>
-    <string name="backup_saved">Backup salvato.</string>
+    <string name="export_share_failed">Impossibile preparare il file per la condivisione</string>
+    <string name="backup_save_failed">Impossibile salvare il backup</string>
+    <string name="backup_saved">Backup salvato</string>
     <string name="preparing_export">Preparazione…</string>
     <string name="importing">Importazione…</string>
-    <string name="webapp_not_found">L\'applicazione Web che si sta cercando di aprire non è più disponibile.</string>
-    <string name="no_filemanager">Installate un gestore di file.</string>
+    <string name="webapp_not_found">L\'applicazione Web che si sta cercando di aprire non è più disponibile</string>
+    <string name="no_filemanager">Installate un gestore di file</string>
     <string name="allow_location_access">Consenti l\'accesso alla posizione</string>
     <string name="allow_drm_content">Consenti i contenuti DRM</string>
 
@@ -112,7 +112,7 @@
     <string name="ok">OK</string>
     <string name="no_biometric_devices">Il dispositivo non supporta l\'autenticazione biometrica.</string>
     <string name="no_biometric_keys_enrolled">Il dispositivo supporta l\'autenticazione biometrica, ma non è stato ancora registrato alcun metodo.</string>
-    <string name="webview_activity_launch_failed">Impossibile avviare la Web App.</string>
+    <string name="webview_activity_launch_failed">Impossibile avviare la Web App</string>
 
     <string name="undo">Annulla</string>
     <string name="x_was_removed">%1$s è stato rimosso.</string>
@@ -184,7 +184,7 @@
     <string name="ungroup_apps_on_delete">Sposta app in \"Altro\"</string>
     <string name="setting_floating_controls">Controlli flottanti</string>
 
-    <string name="bioprompt_not_recognized">Non riconosciuto. Riprova.</string>
+    <string name="bioprompt_not_recognized">Non riconosciuto. Riprova</string>
     <string name="choose_icon">Scegli icona e titolo</string>
     <string name="manifest_start_url_title">Aggiornare URL?</string>
     <string name="manifest_start_url_message">Il manifesto del sito suggerisce un URL di avvio diverso:\n\n%1$s\n\nVuoi aggiornare l\'URL? Puoi sempre modificarlo nelle impostazioni dell\'app.</string>

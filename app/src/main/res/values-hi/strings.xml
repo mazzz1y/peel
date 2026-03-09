@@ -43,7 +43,7 @@
     <string name="security">सुरक्षा</string>
     <string name="advanced">उन्नत</string>
     <string name="appearance">दिखावट</string>
-    <string name="import_failed">बैकअप पुनर्स्थापित नहीं हो सका।</string>
+    <string name="import_failed">बैकअप पुनर्स्थापित नहीं हो सका</string>
     <string name="import_success">%1$d वेब ऐप का बैकअप सफलतापूर्वक पुनर्स्थापित हुआ।</string>
     <string name="import_mode_title">पूर्ण बैकअप</string>
     <string name="import_mode_description">%1$d ऐप और %2$d समूह शामिल हैं। मौजूदा डेटा बदल दिया जाएगा। बैकअप में शामिल न किए गए ऐप्स रखने के लिए मर्ज मोड चालू करें।</string>
@@ -54,7 +54,7 @@
     <string name="import_destination_group">गंतव्य समूह</string>
     <string name="import_target_none">कोई नहीं (अन्य)</string>
     <string name="import_mapping_empty">इस फ़ाइल में कोई ऐप नहीं मिला।</string>
-    <string name="import_count_message">%1$d ऐप आयात किए गए।</string>
+    <string name="import_count_message">%1$d ऐप आयात किए गए</string>
 
     <string name="n_apps_selected">%1$d चयनित</string>
     <string name="share_no_selection">कम से कम एक ऐप चुनें</string>
@@ -64,15 +64,15 @@
     <string name="share_secrets_exclude">हटाएँ</string>
     <string name="remove_apps_title">ऐप्स हटाएँ</string>
     <string name="remove_apps_confirm">%1$d चयनित ऐप्स हटाएँ?</string>
-    <string name="n_apps_removed">%1$d ऐप हटाए गए।</string>
+    <string name="n_apps_removed">%1$d ऐप हटाए गए</string>
 
-    <string name="export_share_failed">साझा करने के लिए फ़ाइल तैयार नहीं हो सकी।</string>
-    <string name="backup_save_failed">बैकअप सहेजा नहीं जा सका।</string>
-    <string name="backup_saved">बैकअप सहेजा गया।</string>
+    <string name="export_share_failed">साझा करने के लिए फ़ाइल तैयार नहीं हो सकी</string>
+    <string name="backup_save_failed">बैकअप सहेजा नहीं जा सका</string>
+    <string name="backup_saved">बैकअप सहेजा गया</string>
     <string name="preparing_export">तैयार हो रहा है…</string>
     <string name="importing">आयात हो रहा है…</string>
-    <string name="webapp_not_found">यह वेब ऐप अब उपलब्ध नहीं है।</string>
-    <string name="no_filemanager">कृपया एक फ़ाइल प्रबंधक इंस्टॉल करें।</string>
+    <string name="webapp_not_found">यह वेब ऐप अब उपलब्ध नहीं है</string>
+    <string name="no_filemanager">कृपया एक फ़ाइल प्रबंधक इंस्टॉल करें</string>
     <string name="export_btn">निर्यात</string>
     <string name="import_btn">आयात</string>
     <string name="allow_location_access">स्थान</string>
@@ -142,7 +142,7 @@
     <string name="activate_two_finger_zoom">पिंच ज़ूम</string>
     <string name="bioprompt_restricted_webapp">एक्सेस प्रतिबंध</string>
     <string name="enable_access_restriction">बायोमेट्रिक लॉक</string>
-    <string name="bioprompt_not_recognized">पहचाना नहीं गया। पुनः प्रयास करें।</string>
+    <string name="bioprompt_not_recognized">पहचाना नहीं गया। पुनः प्रयास करें</string>
     <string name="allow_media_playback_in_background">बैकग्राउंड प्लेबैक</string>
     <string name="media_channel_name">मीडिया प्लेबैक</string>
     <string name="media_channel_description">बैकग्राउंड मीडिया प्लेबैक नियंत्रण</string>
@@ -155,7 +155,7 @@
     <string name="ok">ठीक</string>
     <string name="no_biometric_devices">आपका डिवाइस बायोमेट्रिक प्रमाणीकरण का समर्थन नहीं करता।</string>
     <string name="no_biometric_keys_enrolled">आपका डिवाइस बायोमेट्रिक्स का समर्थन करता है, लेकिन कोई विधि सेट नहीं है।</string>
-    <string name="webview_activity_launch_failed">वेब ऐप शुरू नहीं हो सका।</string>
+    <string name="webview_activity_launch_failed">वेब ऐप शुरू नहीं हो सका</string>
 
     <string name="undo">पूर्ववत</string>
     <string name="x_was_removed">%1$s हटा दिया गया।</string>

@@ -43,7 +43,7 @@
     <string name="security">Segurança</string>
     <string name="advanced">Avançado</string>
     <string name="appearance">Aparência</string>
-    <string name="import_failed">Não foi possível restaurar o backup.</string>
+    <string name="import_failed">Não foi possível restaurar o backup</string>
     <string name="import_success">Backup com %1$d Web App(s) restaurado com sucesso.</string>
     <string name="import_mode_title">Backup completo</string>
     <string name="import_mode_description">Contém %1$d app(s) e %2$d grupo(s). Os dados existentes serão substituídos. Ative o modo de mesclagem para manter apps não incluídos no backup.</string>
@@ -54,7 +54,7 @@
     <string name="import_destination_group">Grupo de destino</string>
     <string name="import_target_none">Nenhum (Outros)</string>
     <string name="import_mapping_empty">Nenhum app encontrado neste arquivo.</string>
-    <string name="import_count_message">%1$d app(s) importado(s).</string>
+    <string name="import_count_message">%1$d app(s) importado(s)</string>
 
     <string name="n_apps_selected">%1$d selecionado(s)</string>
     <string name="share_no_selection">Selecione pelo menos um app</string>
@@ -64,15 +64,15 @@
     <string name="share_secrets_exclude">Remover</string>
     <string name="remove_apps_title">Remover apps</string>
     <string name="remove_apps_confirm">Remover %1$d app(s) selecionado(s)?</string>
-    <string name="n_apps_removed">%1$d app(s) removido(s).</string>
+    <string name="n_apps_removed">%1$d app(s) removido(s)</string>
 
-    <string name="export_share_failed">Não foi possível preparar o arquivo para compartilhamento.</string>
-    <string name="backup_save_failed">Não foi possível salvar o backup.</string>
-    <string name="backup_saved">Backup salvo.</string>
+    <string name="export_share_failed">Não foi possível preparar o arquivo para compartilhamento</string>
+    <string name="backup_save_failed">Não foi possível salvar o backup</string>
+    <string name="backup_saved">Backup salvo</string>
     <string name="preparing_export">Preparando…</string>
     <string name="importing">Importando…</string>
-    <string name="webapp_not_found">Este Web App não está mais disponível.</string>
-    <string name="no_filemanager">Por favor, instale um gerenciador de arquivos.</string>
+    <string name="webapp_not_found">Este Web App não está mais disponível</string>
+    <string name="no_filemanager">Por favor, instale um gerenciador de arquivos</string>
     <string name="export_btn">Exportar</string>
     <string name="import_btn">Importar</string>
     <string name="allow_location_access">Localização</string>
@@ -142,7 +142,7 @@
     <string name="activate_two_finger_zoom">Zoom com pinça</string>
     <string name="bioprompt_restricted_webapp">Restrição de acesso</string>
     <string name="enable_access_restriction">Bloqueio biométrico</string>
-    <string name="bioprompt_not_recognized">Não reconhecido. Tente novamente.</string>
+    <string name="bioprompt_not_recognized">Não reconhecido. Tente novamente</string>
     <string name="allow_media_playback_in_background">Reprodução em segundo plano</string>
     <string name="media_channel_name">Reprodução de mídia</string>
     <string name="media_channel_description">Controles de reprodução de mídia em segundo plano</string>
@@ -155,7 +155,7 @@
     <string name="ok">OK</string>
     <string name="no_biometric_devices">Seu dispositivo não suporta autenticação biométrica.</string>
     <string name="no_biometric_keys_enrolled">Seu dispositivo suporta biometria, mas nenhum método foi configurado.</string>
-    <string name="webview_activity_launch_failed">Não foi possível iniciar o Web App.</string>
+    <string name="webview_activity_launch_failed">Não foi possível iniciar o Web App</string>
 
     <string name="undo">Desfazer</string>
     <string name="x_was_removed">%1$s foi removido.</string>

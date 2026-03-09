@@ -43,7 +43,7 @@
     <string name="security">セキュリティ</string>
     <string name="advanced">詳細</string>
     <string name="appearance">外観</string>
-    <string name="import_failed">バックアップを復元できませんでした。</string>
+    <string name="import_failed">バックアップを復元できませんでした</string>
     <string name="import_success">%1$d個のウェブアプリのバックアップが正常に復元されました。</string>
     <string name="import_mode_title">フルバックアップ</string>
     <string name="import_mode_description">%1$d個のアプリと%2$d個のグループが含まれています。既存のデータは置き換えられます。バックアップに含まれないアプリを残すにはマージモードを有効にしてください。</string>
@@ -54,7 +54,7 @@
     <string name="import_destination_group">インポート先グループ</string>
     <string name="import_target_none">なし（その他）</string>
     <string name="import_mapping_empty">このファイルにアプリが見つかりません。</string>
-    <string name="import_count_message">%1$d個のアプリをインポートしました。</string>
+    <string name="import_count_message">%1$d個のアプリをインポートしました</string>
 
     <string name="n_apps_selected">%1$d件選択</string>
     <string name="share_no_selection">アプリを1つ以上選択してください</string>
@@ -64,15 +64,15 @@
     <string name="share_secrets_exclude">削除</string>
     <string name="remove_apps_title">アプリを削除</string>
     <string name="remove_apps_confirm">選択した%1$d個のアプリを削除しますか？</string>
-    <string name="n_apps_removed">%1$d個のアプリを削除しました。</string>
+    <string name="n_apps_removed">%1$d個のアプリを削除しました</string>
 
-    <string name="export_share_failed">共有用のファイルを準備できませんでした。</string>
-    <string name="backup_save_failed">バックアップを保存できませんでした。</string>
-    <string name="backup_saved">バックアップを保存しました。</string>
+    <string name="export_share_failed">共有用のファイルを準備できませんでした</string>
+    <string name="backup_save_failed">バックアップを保存できませんでした</string>
+    <string name="backup_saved">バックアップを保存しました</string>
     <string name="preparing_export">準備中…</string>
     <string name="importing">インポート中…</string>
-    <string name="webapp_not_found">このウェブアプリは利用できなくなりました。</string>
-    <string name="no_filemanager">ファイルマネージャーをインストールしてください。</string>
+    <string name="webapp_not_found">このウェブアプリは利用できなくなりました</string>
+    <string name="no_filemanager">ファイルマネージャーをインストールしてください</string>
     <string name="export_btn">エクスポート</string>
     <string name="import_btn">インポート</string>
     <string name="allow_location_access">位置情報</string>
@@ -142,7 +142,7 @@
     <string name="activate_two_finger_zoom">ピンチズーム</string>
     <string name="bioprompt_restricted_webapp">アクセス制限</string>
     <string name="enable_access_restriction">生体認証ロック</string>
-    <string name="bioprompt_not_recognized">認識できませんでした。もう一度お試しください。</string>
+    <string name="bioprompt_not_recognized">認識できませんでした。もう一度お試しください</string>
     <string name="allow_media_playback_in_background">バックグラウンド再生</string>
     <string name="media_channel_name">メディア再生</string>
     <string name="media_channel_description">バックグラウンドメディア再生コントロール</string>
@@ -155,7 +155,7 @@
     <string name="ok">OK</string>
     <string name="no_biometric_devices">お使いのデバイスは生体認証に対応していません。</string>
     <string name="no_biometric_keys_enrolled">お使いのデバイスは生体認証に対応していますが、設定されていません。</string>
-    <string name="webview_activity_launch_failed">ウェブアプリを起動できませんでした。</string>
+    <string name="webview_activity_launch_failed">ウェブアプリを起動できませんでした</string>
 
     <string name="undo">元に戻す</string>
     <string name="x_was_removed">%1$sが削除されました。</string>

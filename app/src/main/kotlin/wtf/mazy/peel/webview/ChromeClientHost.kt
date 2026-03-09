@@ -23,7 +23,7 @@ interface ChromeClientHost {
 
     fun launchFilePicker(intent: Intent?): Boolean
 
-    fun showSnackBar(message: String)
+    fun showToast(message: String)
 
     val hostWindow: Window
 
