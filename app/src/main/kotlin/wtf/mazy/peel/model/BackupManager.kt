@@ -31,11 +31,15 @@ object BackupManager {
         return BackupArchiveCodec.readBackup(uri)
     }
 
-    fun buildFullBackupFile(): File? {
+    fun exportFullBackup(uri: Uri): Boolean {
         val dataManager = DataManager.instance
         dataManager.saveDefaultSettings()
         val websites = dataManager.getWebsites()
-        return BackupArchiveCodec.buildBackupFile(buildFullBackupData(dataManager, websites), websites, "backup")
+        return BackupArchiveCodec.writeBackupToUri(buildFullBackupData(dataManager, websites), websites, uri)
+    }
+
+    fun buildExportFilename(): String {
+        return BackupPolicy.buildFilename("backup")
     }
 
     fun buildShareFile(webApps: List<WebApp>, includeSecrets: Boolean): File? {

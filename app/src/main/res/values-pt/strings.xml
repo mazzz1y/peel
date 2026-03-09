@@ -67,6 +67,8 @@
     <string name="n_apps_removed">%1$d app(s) removido(s).</string>
 
     <string name="export_share_failed">Não foi possível preparar o arquivo para compartilhamento.</string>
+    <string name="backup_save_failed">Não foi possível salvar o backup.</string>
+    <string name="backup_saved">Backup salvo.</string>
     <string name="preparing_export">Preparando…</string>
     <string name="importing">Importando…</string>
     <string name="webapp_not_found">Este Web App não está mais disponível.</string>

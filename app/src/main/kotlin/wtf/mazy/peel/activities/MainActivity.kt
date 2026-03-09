@@ -36,7 +36,6 @@ import wtf.mazy.peel.ui.webapplist.SelectionModeHost
 import wtf.mazy.peel.ui.webapplist.WebAppListFragment
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.NotificationUtils
-import java.io.File
 
 class MainActivity : AppCompatActivity(), SelectionModeHost {
 
@@ -52,6 +51,11 @@ class MainActivity : AppCompatActivity(), SelectionModeHost {
     private var _selectionMode = false
     private val pendingExitRunnable = Runnable { exitSelectionMode() }
     private lateinit var exportLoader: LoadingDialogController
+
+    private val exportLauncher =
+        registerForActivityResult(ActivityResultContracts.CreateDocument(BackupManager.MIME_TYPE)) { uri ->
+            uri?.let { performFullBackupExport(it) }
+        }
 
     private val importDialogHelper = ImportDialogHelper(this) { setupViewPager() }
 
@@ -148,8 +152,15 @@ class MainActivity : AppCompatActivity(), SelectionModeHost {
             }
 
             R.id.action_export -> {
-                launchExport(DataManager.instance.getWebsites().size) {
-                    BackupManager.buildFullBackupFile()
+                try {
+                    exportLauncher.launch(BackupManager.buildExportFilename())
+                } catch (e: ActivityNotFoundException) {
+                    NotificationUtils.showInfoSnackBar(
+                        this,
+                        getString(R.string.no_filemanager),
+                        Snackbar.LENGTH_LONG,
+                    )
+                    Log.e("MainActivity", "No file manager available for export", e)
                 }
                 true
             }
@@ -354,16 +365,16 @@ class MainActivity : AppCompatActivity(), SelectionModeHost {
                 .setMessage(R.string.share_secrets_description)
                 .setPositiveButton(R.string.share_secrets_exclude) { _, _ ->
                     exitSelectionMode()
-                    launchExport(webApps.size) { BackupManager.buildShareFile(webApps, includeSecrets = false) }
+                    shareSelectedApps(webApps, includeSecrets = false)
                 }
                 .setNegativeButton(R.string.share_secrets_include) { _, _ ->
                     exitSelectionMode()
-                    launchExport(webApps.size) { BackupManager.buildShareFile(webApps, includeSecrets = true) }
+                    shareSelectedApps(webApps, includeSecrets = true)
                 }
                 .show()
         } else {
             exitSelectionMode()
-            launchExport(webApps.size) { BackupManager.buildShareFile(webApps, includeSecrets = true) }
+            shareSelectedApps(webApps, includeSecrets = true)
         }
     }
 
@@ -477,22 +488,48 @@ class MainActivity : AppCompatActivity(), SelectionModeHost {
         }
     }
 
-    private fun launchExport(elementCount: Int, buildFile: () -> File?) {
-        val showLoader = elementCount >= BackupManager.LOADER_THRESHOLD
-        if (showLoader) exportLoader.show(R.string.preparing_export)
-        lifecycleScope.launch {
-            val file = try {
-                withContext(Dispatchers.IO) { buildFile() }
-            } finally {
-                if (showLoader) exportLoader.dismiss()
-            }
-            if (file == null || !BackupManager.launchShareChooser(this@MainActivity, file)) {
+    private fun performFullBackupExport(uri: Uri) {
+        runWithLoader(
+            DataManager.instance.getWebsites().size,
+            ioTask = { BackupManager.exportFullBackup(uri) },
+        ) { success ->
+            NotificationUtils.showInfoSnackBar(
+                this,
+                getString(if (success) R.string.backup_saved else R.string.backup_save_failed),
+                Snackbar.LENGTH_SHORT,
+            )
+        }
+    }
+
+    private fun shareSelectedApps(webApps: List<WebApp>, includeSecrets: Boolean) {
+        runWithLoader(
+            webApps.size,
+            ioTask = { BackupManager.buildShareFile(webApps, includeSecrets) },
+        ) { file ->
+            if (file == null || !BackupManager.launchShareChooser(this, file)) {
                 NotificationUtils.showInfoSnackBar(
-                    this@MainActivity,
+                    this,
                     getString(R.string.export_share_failed),
                     Snackbar.LENGTH_LONG,
                 )
             }
+        }
+    }
+
+    private fun <T> runWithLoader(
+        elementCount: Int,
+        ioTask: () -> T,
+        onResult: (T) -> Unit,
+    ) {
+        val showLoader = elementCount >= BackupManager.LOADER_THRESHOLD
+        if (showLoader) exportLoader.show(R.string.preparing_export)
+        lifecycleScope.launch {
+            val result = try {
+                withContext(Dispatchers.IO) { ioTask() }
+            } finally {
+                if (showLoader) exportLoader.dismiss()
+            }
+            onResult(result)
         }
     }
 

@@ -67,6 +67,8 @@
     <string name="n_apps_removed">%1$d個のアプリを削除しました。</string>
 
     <string name="export_share_failed">共有用のファイルを準備できませんでした。</string>
+    <string name="backup_save_failed">バックアップを保存できませんでした。</string>
+    <string name="backup_saved">バックアップを保存しました。</string>
     <string name="preparing_export">準備中…</string>
     <string name="importing">インポート中…</string>
     <string name="webapp_not_found">このウェブアプリは利用できなくなりました。</string>

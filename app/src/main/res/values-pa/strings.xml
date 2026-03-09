@@ -66,6 +66,8 @@
     <string name="n_apps_removed">%1$d ਐਪਾਂ ਹਟਾਈਆਂ।</string>
 
     <string name="export_share_failed">ਸਾਂਝਾ ਕਰਨ ਲਈ ਫ਼ਾਈਲ ਤਿਆਰ ਨਹੀਂ ਹੋ ਸਕੀ।</string>
+    <string name="backup_save_failed">ਬੈਕਅੱਪ ਸੁਰੱਖਿਅਤ ਨਹੀਂ ਹੋ ਸਕਿਆ।</string>
+    <string name="backup_saved">ਬੈਕਅੱਪ ਸੁਰੱਖਿਅਤ ਹੋ ਗਿਆ।</string>
     <string name="preparing_export">ਤਿਆਰ ਹੋ ਰਿਹਾ ਹੈ…</string>
     <string name="importing">ਇੰਪੋਰਟ ਹੋ ਰਿਹਾ ਹੈ…</string>
     <string name="webapp_not_found">ਇਹ ਵੈੱਬ ਐਪ ਹੁਣ ਉਪਲਬਧ ਨਹੀਂ ਹੈ।</string>

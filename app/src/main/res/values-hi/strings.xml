@@ -67,6 +67,8 @@
     <string name="n_apps_removed">%1$d ऐप हटाए गए।</string>
 
     <string name="export_share_failed">साझा करने के लिए फ़ाइल तैयार नहीं हो सकी।</string>
+    <string name="backup_save_failed">बैकअप सहेजा नहीं जा सका।</string>
+    <string name="backup_saved">बैकअप सहेजा गया।</string>
     <string name="preparing_export">तैयार हो रहा है…</string>
     <string name="importing">आयात हो रहा है…</string>
     <string name="webapp_not_found">यह वेब ऐप अब उपलब्ध नहीं है।</string>

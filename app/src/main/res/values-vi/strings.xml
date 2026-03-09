@@ -67,6 +67,8 @@
     <string name="n_apps_removed">Đã xóa %1$d ứng dụng.</string>
 
     <string name="export_share_failed">Không thể chuẩn bị tệp để chia sẻ.</string>
+    <string name="backup_save_failed">Không thể lưu bản sao lưu.</string>
+    <string name="backup_saved">Đã lưu bản sao lưu.</string>
     <string name="preparing_export">Đang chuẩn bị…</string>
     <string name="importing">Đang nhập…</string>
     <string name="webapp_not_found">Ứng dụng web này không còn khả dụng.</string>

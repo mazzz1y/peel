@@ -67,6 +67,8 @@
     <string name="n_apps_removed">已移除 %1$d 個應用程式。</string>
 
     <string name="export_share_failed">無法準備分享檔案。</string>
+    <string name="backup_save_failed">無法儲存備份。</string>
+    <string name="backup_saved">備份已儲存。</string>
     <string name="preparing_export">正在準備…</string>
     <string name="importing">正在匯入…</string>
     <string name="webapp_not_found">此網頁應用程式已無法使用。</string>

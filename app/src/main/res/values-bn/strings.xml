@@ -67,6 +67,8 @@
     <string name="n_apps_removed">%1$dটি অ্যাপ সরানো হয়েছে।</string>
 
     <string name="export_share_failed">শেয়ারের জন্য ফাইল প্রস্তুত করা যায়নি।</string>
+    <string name="backup_save_failed">ব্যাকআপ সংরক্ষণ করা যায়নি।</string>
+    <string name="backup_saved">ব্যাকআপ সংরক্ষিত হয়েছে।</string>
     <string name="preparing_export">প্রস্তুত হচ্ছে…</string>
     <string name="importing">ইমপোর্ট হচ্ছে…</string>
     <string name="webapp_not_found">এই ওয়েব অ্যাপটি আর উপলব্ধ নেই।</string>

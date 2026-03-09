@@ -10,8 +10,6 @@ import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.util.App
 import java.io.File
 import java.io.FileOutputStream
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
@@ -28,6 +26,25 @@ object BackupArchiveCodec {
             }
         } catch (_: Exception) {
             null
+        }
+    }
+
+    fun writeBackupToUri(
+        backupData: BackupData,
+        websites: List<WebApp>,
+        uri: Uri,
+    ): Boolean {
+        return try {
+            val stream = App.appContext.contentResolver.openOutputStream(uri) ?: return false
+            stream.use { outputStream ->
+                ZipOutputStream(outputStream).use { zip ->
+                    writeDataJson(zip, backupData)
+                    websites.forEach { writeIconEntry(zip, it) }
+                }
+            }
+            true
+        } catch (_: Exception) {
+            false
         }
     }
 
@@ -115,7 +132,6 @@ object BackupArchiveCodec {
     }
 
     private fun buildFilename(prefix: String): String {
-        val timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"))
-        return "${prefix}_$timestamp.peel"
+        return BackupPolicy.buildFilename(prefix)
     }
 }
