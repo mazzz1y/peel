@@ -51,8 +51,11 @@ data class WebApp(var baseUrl: String, override val uuid: String = UUID.randomUU
         settings = other.settings.deepCopy()
     }
 
-    fun markInactive(activity: Activity) {
+    fun markInactiveOnly() {
         isActiveEntry = false
+    }
+
+    fun deleteShortcuts(activity: Activity) {
         ShortcutIconUtils.deleteShortcuts(listOf(uuid), activity)
     }
 

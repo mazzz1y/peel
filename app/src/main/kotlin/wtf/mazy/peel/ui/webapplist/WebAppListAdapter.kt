@@ -10,13 +10,13 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.widget.PopupMenu
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.snackbar.Snackbar
 import wtf.mazy.peel.R
 import wtf.mazy.peel.activities.WebAppSettingsActivity
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.shortcut.ShortcutHelper
 import wtf.mazy.peel.util.Const
+import wtf.mazy.peel.util.NotificationUtils
 import wtf.mazy.peel.util.WebViewLauncher.startWebView
 import wtf.mazy.peel.util.displayUrl
 import java.util.Collections
@@ -175,39 +175,25 @@ class WebAppListAdapter(
     private fun deleteWebApp(webapp: WebApp, position: Int) {
         if (position < 0 || position >= items.size) return
 
-        webapp.markInactive(activityOfFragment)
+        webapp.markInactiveOnly()
         items.removeAt(position)
         notifyItemRemoved(position)
 
-        val message = activityOfFragment.getString(R.string.x_was_removed, webapp.title)
-        val snackBar =
-            Snackbar.make(
-                activityOfFragment.findViewById(android.R.id.content),
-                message,
-                Snackbar.LENGTH_LONG,
-            )
-
-        var isUndone = false
-
-        snackBar.setAction(activityOfFragment.getString(R.string.undo)) {
-            isUndone = true
-            webapp.isActiveEntry = true
-            val insertPosition = minOf(position, items.size)
-            items.add(insertPosition, webapp)
-            notifyItemInserted(insertPosition)
-        }
-
-        snackBar.addCallback(
-            object : Snackbar.Callback() {
-                override fun onDismissed(transientBottomBar: Snackbar?, event: Int) {
-                    if (!isUndone) {
-                        webapp.cleanupWebAppData(activityOfFragment)
-                        DataManager.instance.removeWebApp(webapp)
-                    }
-                }
-            })
-
-        snackBar.show()
+        NotificationUtils.showUndoSnackBar(
+            activity = activityOfFragment,
+            message = activityOfFragment.getString(R.string.x_was_removed, webapp.title),
+            onUndo = {
+                webapp.isActiveEntry = true
+                val insertPosition = minOf(position, items.size)
+                items.add(insertPosition, webapp)
+                notifyItemInserted(insertPosition)
+            },
+            onCommit = {
+                webapp.deleteShortcuts(activityOfFragment)
+                webapp.cleanupWebAppData(activityOfFragment)
+                DataManager.instance.removeWebApp(webapp)
+            },
+        )
     }
 
     @SuppressLint("NotifyDataSetChanged")

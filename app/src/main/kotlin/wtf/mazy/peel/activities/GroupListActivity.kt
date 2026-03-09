@@ -26,6 +26,7 @@ import wtf.mazy.peel.shortcut.ShortcutHelper
 import wtf.mazy.peel.ui.dialog.showSandboxInputDialog
 import wtf.mazy.peel.ui.dragReorderCallback
 import wtf.mazy.peel.util.Const
+import wtf.mazy.peel.util.NotificationUtils
 import java.util.Collections
 
 class GroupListActivity : AppCompatActivity() {
@@ -100,6 +101,15 @@ class GroupListActivity : AppCompatActivity() {
         if (appsInGroup.isEmpty()) {
             DataManager.instance.removeGroup(group, ungroupApps = false)
             updateList()
+            NotificationUtils.showUndoSnackBar(
+                activity = this,
+                message = getString(R.string.x_was_removed, group.title),
+                onUndo = {
+                    DataManager.instance.addGroup(group)
+                    updateList()
+                },
+                onCommit = {},
+            )
             return
         }
 
