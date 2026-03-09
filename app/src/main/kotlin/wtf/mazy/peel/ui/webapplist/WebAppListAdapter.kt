@@ -1,15 +1,18 @@
 package wtf.mazy.peel.ui.webapplist
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AccelerateInterpolator
+import android.view.animation.DecelerateInterpolator
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.widget.PopupMenu
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.color.MaterialColors
 import wtf.mazy.peel.R
 import wtf.mazy.peel.activities.WebAppSettingsActivity
 import wtf.mazy.peel.model.DataManager
@@ -20,6 +23,7 @@ import wtf.mazy.peel.util.NotificationUtils
 import wtf.mazy.peel.util.WebViewLauncher.startWebView
 import wtf.mazy.peel.util.displayUrl
 import java.util.Collections
+import androidx.core.view.isVisible
 
 class WebAppListAdapter(
     private val activityOfFragment: Activity,
@@ -29,11 +33,17 @@ class WebAppListAdapter(
     var items: MutableList<WebApp> = mutableListOf()
         private set
 
-    /**
-     * null = show ALL apps. UNGROUPED_FILTER = show only apps with no group. Otherwise = show apps
-     * matching this group UUID.
-     */
     var groupFilter: String? = null
+
+    private val selectionHost = activityOfFragment as? SelectionModeHost
+
+    private val checkIconColor by lazy {
+        MaterialColors.getColor(
+            activityOfFragment.window.decorView,
+            androidx.appcompat.R.attr.colorPrimary,
+            0,
+        )
+    }
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val appIcon: ImageView = itemView.findViewById(R.id.appIcon)
@@ -55,16 +65,132 @@ class WebAppListAdapter(
         holder.titleView.text = item.title
         holder.urlView.text = displayUrl(item.baseUrl)
 
-        holder.appIcon.setImageBitmap(item.resolveIcon())
-
         holder.iconSandbox.visibility = if (item.isUseContainer) View.VISIBLE else View.GONE
         holder.iconEphemeral.visibility =
             if (item.isUseContainer && item.isEphemeralSandbox) View.VISIBLE else View.GONE
 
-        holder.itemView.setOnClickListener { openWebView(item) }
+        val selected = selectionHost?.isSelected(item.uuid) == true
+        applyIconState(holder.appIcon, item, selected)
+        applyModeState(holder, item)
+    }
 
+    override fun onBindViewHolder(holder: ViewHolder, position: Int, payloads: MutableList<Any>) {
+        if (payloads.isEmpty()) {
+            super.onBindViewHolder(holder, position, payloads)
+            return
+        }
+
+        val item = items[position]
+
+        if (PAYLOAD_SELECTION_TOGGLE in payloads) {
+            val selected = selectionHost?.isSelected(item.uuid) == true
+            animateIconSwap(holder.appIcon, item, selected)
+            animateModeTransition(holder, item)
+            return
+        }
+
+        if (PAYLOAD_MODE_CHANGE in payloads) {
+            animateModeTransition(holder, item)
+            return
+        }
+
+        super.onBindViewHolder(holder, position, payloads)
+    }
+
+    private fun applyModeState(holder: ViewHolder, item: WebApp) {
+        holder.menuButton.animate().cancel()
+        holder.iconSandbox.animate().cancel()
+        holder.iconEphemeral.animate().cancel()
+
+        if (selectionHost?.isInSelectionMode == true) {
+            holder.menuButton.alpha = 0f
+            holder.itemView.post {
+                visibleBadgeIcons(holder).forEach {
+                    it.translationX = badgeSlideDistance(holder.menuButton, it)
+                }
+            }
+            applySelectionListeners(holder, item)
+        } else {
+            holder.menuButton.alpha = 1f
+            holder.iconSandbox.translationX = 0f
+            holder.iconEphemeral.translationX = 0f
+            applyNormalListeners(holder, item)
+        }
+    }
+
+    private fun animateModeTransition(holder: ViewHolder, item: WebApp) {
+        if (selectionHost?.isInSelectionMode == true) {
+            holder.menuButton.animate().alpha(0f).setDuration(MENU_FADE_DURATION).start()
+            visibleBadgeIcons(holder).forEach {
+                it.animate()
+                    .translationX(badgeSlideDistance(holder.menuButton, it))
+                    .setDuration(MENU_FADE_DURATION)
+                    .start()
+            }
+            applySelectionListeners(holder, item)
+        } else {
+            holder.menuButton.animate().alpha(1f).setDuration(MENU_FADE_DURATION).start()
+            listOf(holder.iconSandbox, holder.iconEphemeral).forEach {
+                it.animate().translationX(0f).setDuration(MENU_FADE_DURATION).start()
+            }
+            applyNormalListeners(holder, item)
+        }
+    }
+
+    private fun applySelectionListeners(holder: ViewHolder, item: WebApp) {
+        val host = selectionHost ?: return
+        holder.itemView.setOnClickListener { host.toggleSelection(item.uuid) }
+        holder.appIcon.setOnClickListener { host.toggleSelection(item.uuid) }
+        holder.menuButton.setOnClickListener(null)
+        holder.menuButton.isClickable = false
+        holder.menuButton.isEnabled = false
+    }
+
+    private fun applyNormalListeners(holder: ViewHolder, item: WebApp) {
+        holder.menuButton.isEnabled = true
+        holder.itemView.setOnClickListener { startWebView(item, activityOfFragment) }
+        holder.appIcon.setOnClickListener {
+            selectionHost?.enterSelectionMode(item.uuid)
+        }
         holder.menuButton.setOnClickListener { view ->
             showPopupMenu(view, item, holder.bindingAdapterPosition)
+        }
+    }
+
+    private fun visibleBadgeIcons(holder: ViewHolder): List<ImageView> =
+        listOf(holder.iconSandbox, holder.iconEphemeral).filter { it.isVisible }
+
+    private fun badgeSlideDistance(menuButton: View, badgeIcon: View): Float =
+        (menuButton.width + badgeIcon.width) / 2f
+
+    private fun animateIconSwap(icon: ImageView, item: WebApp, selected: Boolean) {
+        icon.animate().cancel()
+        icon.animate()
+            .scaleX(0f)
+            .scaleY(0f)
+            .setDuration(ANIM_HALF_DURATION)
+            .setInterpolator(AccelerateInterpolator())
+            .withEndAction {
+                applyIconState(icon, item, selected)
+                icon.animate()
+                    .scaleX(1f)
+                    .scaleY(1f)
+                    .setDuration(ANIM_HALF_DURATION)
+                    .setInterpolator(DecelerateInterpolator())
+                    .start()
+            }
+            .start()
+    }
+
+    private fun applyIconState(icon: ImageView, item: WebApp, selected: Boolean) {
+        if (selected) {
+            icon.background = null
+            icon.setImageResource(R.drawable.ic_check_24)
+            icon.imageTintList = android.content.res.ColorStateList.valueOf(checkIconColor)
+        } else {
+            icon.imageTintList = null
+            icon.background = null
+            icon.setImageBitmap(item.resolveIcon())
         }
     }
 
@@ -135,14 +261,6 @@ class WebAppListAdapter(
         popup.show()
     }
 
-    companion object {
-        private const val MENU_GROUP_BASE = 10000
-    }
-
-    private fun openWebView(webapp: WebApp) {
-        startWebView(webapp, activityOfFragment)
-    }
-
     private fun openSettings(webapp: WebApp) {
         val intent = Intent(activityOfFragment, WebAppSettingsActivity::class.java)
         intent.putExtra(Const.INTENT_WEBAPP_UUID, webapp.uuid)
@@ -171,7 +289,6 @@ class WebAppListAdapter(
         notifyItemInserted(insertPosition)
     }
 
-    @SuppressLint("NotifyDataSetChanged")
     private fun deleteWebApp(webapp: WebApp, position: Int) {
         if (position < 0 || position >= items.size) return
 
@@ -196,16 +313,36 @@ class WebAppListAdapter(
         )
     }
 
-    @SuppressLint("NotifyDataSetChanged")
     fun updateWebAppList() {
-        items =
+        val newItems =
             when (groupFilter) {
                 null -> DataManager.instance.activeWebsites.toMutableList()
                 WebAppListFragment.UNGROUPED_FILTER ->
                     DataManager.instance.activeWebsitesForGroup(null).toMutableList()
-
                 else -> DataManager.instance.activeWebsitesForGroup(groupFilter).toMutableList()
             }
-        notifyDataSetChanged()
+        val diff = DiffUtil.calculateDiff(WebAppDiffCallback(items, newItems))
+        items = newItems
+        diff.dispatchUpdatesTo(this)
+    }
+
+    private class WebAppDiffCallback(
+        private val oldList: List<WebApp>,
+        private val newList: List<WebApp>,
+    ) : DiffUtil.Callback() {
+        override fun getOldListSize() = oldList.size
+        override fun getNewListSize() = newList.size
+        override fun areItemsTheSame(oldPos: Int, newPos: Int) =
+            oldList[oldPos].uuid == newList[newPos].uuid
+        override fun areContentsTheSame(oldPos: Int, newPos: Int) =
+            oldList[oldPos].uuid == newList[newPos].uuid
+    }
+
+    companion object {
+        private const val MENU_GROUP_BASE = 10000
+        private const val ANIM_HALF_DURATION = 100L
+        private const val MENU_FADE_DURATION = 150L
+        const val PAYLOAD_SELECTION_TOGGLE = "selection_toggle"
+        const val PAYLOAD_MODE_CHANGE = "mode_change"
     }
 }

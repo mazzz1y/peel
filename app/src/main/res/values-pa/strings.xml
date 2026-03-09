@@ -44,11 +44,30 @@
     <string name="appearance">ਦਿੱਖ</string>
     <string name="import_failed">ਬੈਕਅੱਪ ਬਹਾਲ ਨਹੀਂ ਹੋ ਸਕਿਆ।</string>
     <string name="import_success">%1$d ਵੈੱਬ ਐਪਾਂ ਦਾ ਬੈਕਅੱਪ ਸਫਲਤਾਪੂਰਵਕ ਬਹਾਲ ਹੋਇਆ।</string>
-    <string name="import_mode_title">ਆਯਾਤ ਮੋਡ</string>
-    <string name="import_mode_description">ਮੌਜੂਦਾ ਡੇਟਾ ਬਦਲ ਦਿੱਤਾ ਜਾਵੇਗਾ। ਬੈਕਅੱਪ ਵਿੱਚ ਸ਼ਾਮਲ ਨਾ ਕੀਤੀਆਂ ਐਪਾਂ ਰੱਖਣ ਲਈ ਮਰਜ ਮੋਡ ਚਾਲੂ ਕਰੋ।</string>
+    <string name="import_mode_title">ਪੂਰਾ ਬੈਕਅੱਪ</string>
+    <string name="import_mode_description">%1$d ਐਪਾਂ ਅਤੇ %2$d ਸਮੂਹ ਸ਼ਾਮਲ ਹਨ। ਮੌਜੂਦਾ ਡੇਟਾ ਬਦਲ ਦਿੱਤਾ ਜਾਵੇਗਾ। ਬੈਕਅੱਪ ਵਿੱਚ ਸ਼ਾਮਲ ਨਾ ਕੀਤੀਆਂ ਐਪਾਂ ਰੱਖਣ ਲਈ ਮਰਜ ਮੋਡ ਚਾਲੂ ਕਰੋ।</string>
     <string name="import_mode_merge_switch">ਮਰਜ ਮੋਡ</string>
-    <string name="export_failed">ਬੈਕਅੱਪ ਨਿਰਯਾਤ ਨਹੀਂ ਹੋ ਸਕਿਆ।</string>
-    <string name="export_success">ਬੈਕਅੱਪ ਬਣਾਇਆ ਗਿਆ।</string>
+    <string name="import_mapping_title">ਸਾਂਝੀਆਂ ਐਪਾਂ</string>
+    <string name="import_mapping_description">%1$d ਐਪਾਂ ਤੁਹਾਡੇ ਨਾਲ ਸਾਂਝੀਆਂ ਕੀਤੀਆਂ ਗਈਆਂ। ਮੰਜ਼ਿਲ ਸਮੂਹ ਚੁਣੋ ਅਤੇ ਆਯਾਤ ਕਰਨ ਲਈ ਐਪਾਂ ਚੁਣੋ।</string>
+    <string name="import_group_mode_new">ਨਵਾਂ ਸਮੂਹ ਬਣਾਓ</string>
+    <string name="import_destination_group">ਮੰਜ਼ਿਲ ਸਮੂਹ</string>
+    <string name="import_target_none">ਕੋਈ ਨਹੀਂ (ਹੋਰ)</string>
+    <string name="import_mapping_empty">ਇਸ ਫ਼ਾਈਲ ਵਿੱਚ ਕੋਈ ਐਪ ਨਹੀਂ ਮਿਲੀ।</string>
+    <string name="import_count_message">%1$d ਐਪਾਂ ਆਯਾਤ ਕੀਤੀਆਂ।</string>
+
+    <string name="n_apps_selected">%1$d ਚੁਣੀਆਂ</string>
+    <string name="share_no_selection">ਘੱਟੋ-ਘੱਟ ਇੱਕ ਐਪ ਚੁਣੋ</string>
+    <string name="share_secrets_title">ਗੁਪਤ ਜਾਣਕਾਰੀ ਮਿਲੀ</string>
+    <string name="share_secrets_description">ਚੁਣੀਆਂ ਐਪਾਂ ਵਿੱਚ ਕਸਟਮ ਹੈਡਰ ਜਾਂ ਅਧਿਕਾਰ ਪ੍ਰਮਾਣ ਪੱਤਰ ਵਰਗੀ ਗੁਪਤ ਜਾਣਕਾਰੀ ਹੈ। ਸਾਂਝੀ ਫ਼ਾਈਲ ਤੋਂ ਹਟਾਉਣਾ ਹੈ?</string>
+    <string name="share_secrets_include">ਰੱਖੋ</string>
+    <string name="share_secrets_exclude">ਹਟਾਓ</string>
+    <string name="remove_apps_title">ਐਪਾਂ ਹਟਾਓ</string>
+    <string name="remove_apps_confirm">%1$d ਚੁਣੀਆਂ ਐਪਾਂ ਹਟਾਓ?</string>
+    <string name="n_apps_removed">%1$d ਐਪਾਂ ਹਟਾਈਆਂ।</string>
+
+    <string name="export_share_failed">ਸਾਂਝਾ ਕਰਨ ਲਈ ਫ਼ਾਈਲ ਤਿਆਰ ਨਹੀਂ ਹੋ ਸਕੀ।</string>
+    <string name="preparing_export">ਤਿਆਰ ਹੋ ਰਿਹਾ ਹੈ…</string>
+    <string name="importing">ਇੰਪੋਰਟ ਹੋ ਰਿਹਾ ਹੈ…</string>
     <string name="webapp_not_found">ਇਹ ਵੈੱਬ ਐਪ ਹੁਣ ਉਪਲਬਧ ਨਹੀਂ ਹੈ।</string>
     <string name="no_filemanager">ਕਿਰਪਾ ਕਰਕੇ ਫ਼ਾਈਲ ਮੈਨੇਜਰ ਇੰਸਟਾਲ ਕਰੋ।</string>
     <string name="export_btn">ਨਿਰਯਾਤ</string>

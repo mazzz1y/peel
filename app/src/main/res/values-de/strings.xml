@@ -32,12 +32,30 @@
     <string name="ssl_error_blocked">Blockiert: %1$s</string>
     <string name="import_failed">Die Sicherung konnte nicht wiederhergestellt werden.</string>
     <string name="import_success">Sicherung mit %1$d Web-App(s) wurde wiederhergestellt.</string>
-    <string name="import_mode_title">Importmodus</string>
-    <string name="import_mode_description">Vorhandene Daten werden ersetzt. Aktiviere den Zusammenführungsmodus, um Apps zu behalten, die nicht im Backup enthalten sind.</string>
+    <string name="import_mode_title">Vollständiges Backup</string>
+    <string name="import_mode_description">Enthält %1$d App(s) und %2$d Gruppe(n). Vorhandene Daten werden ersetzt. Aktiviere den Zusammenführungsmodus, um Apps zu behalten, die nicht im Backup enthalten sind.</string>
     <string name="import_mode_merge_switch">Zusammenführungsmodus</string>
+    <string name="import_mapping_title">Geteilte Apps</string>
+    <string name="import_mapping_description">%1$d App(s) mit dir geteilt. Wähle eine Zielgruppe und die Apps zum Importieren.</string>
+    <string name="import_group_mode_new">Neue Gruppe erstellen</string>
+    <string name="import_destination_group">Zielgruppe</string>
+    <string name="import_target_none">Keine (Sonstige)</string>
+    <string name="import_mapping_empty">Keine Apps in dieser Datei gefunden.</string>
+    <string name="import_count_message">%1$d App(s) importiert.</string>
 
-    <string name="export_failed">Die Sicherung konnte nicht exportiert werden.</string>
-    <string name="export_success">Die Sicherung wurde erfolgreich erstellt.</string>
+    <string name="n_apps_selected">%1$d ausgewählt</string>
+    <string name="share_no_selection">Wähle mindestens eine App</string>
+    <string name="share_secrets_title">Geheimnisse erkannt</string>
+    <string name="share_secrets_description">Ausgewählte Apps enthalten Geheimnisse wie benutzerdefinierte Header oder Anmeldedaten. Aus der freigegebenen Datei entfernen?</string>
+    <string name="share_secrets_include">Behalten</string>
+    <string name="share_secrets_exclude">Entfernen</string>
+    <string name="remove_apps_title">Apps entfernen</string>
+    <string name="remove_apps_confirm">%1$d ausgewählte App(s) entfernen?</string>
+    <string name="n_apps_removed">%1$d App(s) entfernt.</string>
+
+    <string name="export_share_failed">Datei konnte nicht zum Teilen vorbereitet werden.</string>
+    <string name="preparing_export">Wird vorbereitet…</string>
+    <string name="importing">Wird importiert…</string>
     <string name="webapp_not_found">Diese Web-App ist nicht mehr verfügbar.</string>
     <string name="no_filemanager">Bitte installieren Sie einen Datei-Manager.</string>
     <string name="allow_location_access">Standortzugriff erlauben</string>

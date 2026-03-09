@@ -45,12 +45,30 @@
     <string name="appearance">চেহারা</string>
     <string name="import_failed">ব্যাকআপ পুনরুদ্ধার করা যায়নি।</string>
     <string name="import_success">%1$dটি ওয়েব অ্যাপের ব্যাকআপ সফলভাবে পুনরুদ্ধার হয়েছে।</string>
-    <string name="import_mode_title">আমদানি মোড</string>
-    <string name="import_mode_description">বিদ্যমান ডেটা প্রতিস্থাপিত হবে। ব্যাকআপে অন্তর্ভুক্ত নয় এমন অ্যাপ রাখতে মার্জ মোড চালু করুন।</string>
+    <string name="import_mode_title">সম্পূর্ণ ব্যাকআপ</string>
+    <string name="import_mode_description">%1$dটি অ্যাপ এবং %2$dটি গ্রুপ রয়েছে। বিদ্যমান ডেটা প্রতিস্থাপিত হবে। ব্যাকআপে অন্তর্ভুক্ত নয় এমন অ্যাপ রাখতে মার্জ মোড চালু করুন।</string>
     <string name="import_mode_merge_switch">মার্জ মোড</string>
+    <string name="import_mapping_title">শেয়ার করা অ্যাপ</string>
+    <string name="import_mapping_description">%1$dটি অ্যাপ আপনার সাথে শেয়ার করা হয়েছে। গন্তব্য গ্রুপ এবং আমদানি করার অ্যাপ নির্বাচন করুন।</string>
+    <string name="import_group_mode_new">নতুন গ্রুপ তৈরি করুন</string>
+    <string name="import_destination_group">গন্তব্য গ্রুপ</string>
+    <string name="import_target_none">কোনটি নয় (অন্যান্য)</string>
+    <string name="import_mapping_empty">এই ফাইলে কোনো অ্যাপ পাওয়া যায়নি।</string>
+    <string name="import_count_message">%1$dটি অ্যাপ আমদানি হয়েছে।</string>
 
-    <string name="export_failed">ব্যাকআপ রপ্তানি করা যায়নি।</string>
-    <string name="export_success">ব্যাকআপ তৈরি হয়েছে।</string>
+    <string name="n_apps_selected">%1$dটি নির্বাচিত</string>
+    <string name="share_no_selection">অন্তত একটি অ্যাপ নির্বাচন করুন</string>
+    <string name="share_secrets_title">গোপন তথ্য পাওয়া গেছে</string>
+    <string name="share_secrets_description">নির্বাচিত অ্যাপগুলিতে কাস্টম হেডার বা অনুমোদনের তথ্যের মতো গোপন তথ্য রয়েছে। শেয়ার করা ফাইল থেকে সরাবেন?</string>
+    <string name="share_secrets_include">রাখুন</string>
+    <string name="share_secrets_exclude">সরান</string>
+    <string name="remove_apps_title">অ্যাপ সরান</string>
+    <string name="remove_apps_confirm">%1$dটি নির্বাচিত অ্যাপ সরাবেন?</string>
+    <string name="n_apps_removed">%1$dটি অ্যাপ সরানো হয়েছে।</string>
+
+    <string name="export_share_failed">শেয়ারের জন্য ফাইল প্রস্তুত করা যায়নি।</string>
+    <string name="preparing_export">প্রস্তুত হচ্ছে…</string>
+    <string name="importing">ইমপোর্ট হচ্ছে…</string>
     <string name="webapp_not_found">এই ওয়েব অ্যাপটি আর উপলব্ধ নেই।</string>
     <string name="no_filemanager">অনুগ্রহ করে একটি ফাইল ম্যানেজার ইনস্টল করুন।</string>
     <string name="export_btn">রপ্তানি</string>

@@ -45,12 +45,30 @@
     <string name="appearance">Giao diện</string>
     <string name="import_failed">Không thể khôi phục bản sao lưu.</string>
     <string name="import_success">Đã khôi phục bản sao lưu với %1$d ứng dụng web.</string>
-    <string name="import_mode_title">Chế độ nhập</string>
-    <string name="import_mode_description">Dữ liệu hiện có sẽ bị thay thế. Bật chế độ gộp để giữ các ứng dụng không có trong bản sao lưu.</string>
+    <string name="import_mode_title">Sao lưu đầy đủ</string>
+    <string name="import_mode_description">Chứa %1$d ứng dụng và %2$d nhóm. Dữ liệu hiện có sẽ bị thay thế. Bật chế độ gộp để giữ các ứng dụng không có trong bản sao lưu.</string>
     <string name="import_mode_merge_switch">Chế độ gộp</string>
+    <string name="import_mapping_title">Ứng dụng được chia sẻ</string>
+    <string name="import_mapping_description">%1$d ứng dụng được chia sẻ với bạn. Chọn nhóm đích và ứng dụng cần nhập.</string>
+    <string name="import_group_mode_new">Tạo nhóm mới</string>
+    <string name="import_destination_group">Nhóm đích</string>
+    <string name="import_target_none">Không (Khác)</string>
+    <string name="import_mapping_empty">Không tìm thấy ứng dụng trong tệp này.</string>
+    <string name="import_count_message">Đã nhập %1$d ứng dụng.</string>
 
-    <string name="export_failed">Không thể xuất bản sao lưu.</string>
-    <string name="export_success">Đã tạo bản sao lưu.</string>
+    <string name="n_apps_selected">Đã chọn %1$d</string>
+    <string name="share_no_selection">Chọn ít nhất một ứng dụng</string>
+    <string name="share_secrets_title">Phát hiện bí mật</string>
+    <string name="share_secrets_description">Các ứng dụng đã chọn chứa bí mật như tiêu đề tùy chỉnh hoặc thông tin xác thực. Xóa chúng khỏi tệp chia sẻ?</string>
+    <string name="share_secrets_include">Giữ</string>
+    <string name="share_secrets_exclude">Xóa</string>
+    <string name="remove_apps_title">Xóa ứng dụng</string>
+    <string name="remove_apps_confirm">Xóa %1$d ứng dụng đã chọn?</string>
+    <string name="n_apps_removed">Đã xóa %1$d ứng dụng.</string>
+
+    <string name="export_share_failed">Không thể chuẩn bị tệp để chia sẻ.</string>
+    <string name="preparing_export">Đang chuẩn bị…</string>
+    <string name="importing">Đang nhập…</string>
     <string name="webapp_not_found">Ứng dụng web này không còn khả dụng.</string>
     <string name="no_filemanager">Vui lòng cài đặt trình quản lý tệp.</string>
     <string name="export_btn">Xuất</string>

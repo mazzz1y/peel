@@ -2,6 +2,7 @@ package wtf.mazy.peel.activities
 
 import android.content.ActivityNotFoundException
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
@@ -10,6 +11,8 @@ import android.view.View
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.PopupMenu
+import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -17,53 +20,51 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.BackupManager
 import wtf.mazy.peel.model.DataManager
-import wtf.mazy.peel.model.ImportMode
 import wtf.mazy.peel.model.SandboxManager
 import wtf.mazy.peel.model.WebApp
+import wtf.mazy.peel.ui.dialog.ImportDialogHelper
 import wtf.mazy.peel.ui.dialog.showSandboxInputDialog
+import wtf.mazy.peel.ui.common.LoadingDialogController
 import wtf.mazy.peel.ui.webapplist.GroupPagerAdapter
+import wtf.mazy.peel.ui.webapplist.SelectionModeHost
 import wtf.mazy.peel.ui.webapplist.WebAppListFragment
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.NotificationUtils
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+import java.io.File
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), SelectionModeHost {
+
+    private lateinit var toolbar: MaterialToolbar
+    private lateinit var fab: FloatingActionButton
     private var tabLayout: TabLayout? = null
     private var viewPager: ViewPager2? = null
     private var pagerAdapter: GroupPagerAdapter? = null
     private var lastGroupKeys: List<Pair<String, String>> = emptyList()
     private var lastShowUngrouped: Boolean = true
 
-    private val exportLauncher =
-        registerForActivityResult(ActivityResultContracts.CreateDocument("application/zip")) { uri
-            ->
-            uri?.let {
-                DataManager.instance.saveDefaultSettings()
-                if (!BackupManager.exportToZip(it)) {
-                    NotificationUtils.showInfoSnackBar(
-                        this,
-                        getString(R.string.export_failed),
-                        Snackbar.LENGTH_LONG,
-                    )
-                } else {
-                    NotificationUtils.showInfoSnackBar(
-                        this,
-                        getString(R.string.export_success),
-                        Snackbar.LENGTH_SHORT,
-                    )
-                }
-            }
-        }
+    private val selectedUuids = mutableSetOf<String>()
+    private var _selectionMode = false
+    private val pendingExitRunnable = Runnable { exitSelectionMode() }
+    private lateinit var exportLoader: LoadingDialogController
+
+    private val importDialogHelper = ImportDialogHelper(this) { setupViewPager() }
 
     private val importLauncher =
         registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
-            uri?.let { buildImportModeDialog(it) }
+            uri?.let { importDialogHelper.showForUri(it) }
         }
+
+    private val backPressCallback = object : androidx.activity.OnBackPressedCallback(false) {
+        override fun handleOnBackPressed() {
+            exitSelectionMode()
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.AppTheme)
@@ -72,14 +73,20 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         DataManager.instance.loadAppData()
 
+        toolbar = findViewById(R.id.toolbar)
+        fab = findViewById(R.id.fab)
         tabLayout = findViewById(R.id.tabLayout)
         viewPager = findViewById(R.id.viewPager)
+        exportLoader = LoadingDialogController(this)
 
-        val fab = findViewById<FloatingActionButton>(R.id.fab)
-        fab.setOnClickListener { buildAddWebsiteDialog() }
-        personalizeToolbar()
+        toolbar.setTitle(R.string.app_name)
+        setSupportActionBar(toolbar)
+
+        fab.setOnClickListener { onFabClicked() }
+        onBackPressedDispatcher.addCallback(this, backPressCallback)
 
         setupViewPager()
+        handleIncomingBackupIntent(intent)
     }
 
     override fun onResume() {
@@ -90,9 +97,9 @@ class MainActivity : AppCompatActivity() {
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
+        setIntent(intent)
         if (intent.getBooleanExtra(Const.INTENT_BACKUP_RESTORED, false)) {
             setupViewPager()
-            buildImportSuccessDialog()
             intent.putExtra(Const.INTENT_BACKUP_RESTORED, false)
             intent.putExtra(Const.INTENT_REFRESH_NEW_THEME, false)
         }
@@ -100,55 +107,13 @@ class MainActivity : AppCompatActivity() {
             refreshCurrentPages()
             intent.putExtra(Const.INTENT_WEBAPP_CHANGED, false)
         }
+        handleIncomingBackupIntent(intent)
     }
 
-    private fun setupViewPager() {
-        val groups = DataManager.instance.sortedGroups
-
-        if (groups.isEmpty()) {
-            tabLayout?.visibility = View.GONE
-            pagerAdapter = GroupPagerAdapter(this, emptyList(), showUngrouped = true)
-            viewPager?.adapter = pagerAdapter
-            viewPager?.isUserInputEnabled = false
-            lastGroupKeys = emptyList()
-            lastShowUngrouped = true
-        } else {
-            val hasUngrouped = DataManager.instance.activeWebsitesForGroup(null).isNotEmpty()
-            tabLayout?.visibility = View.VISIBLE
-            pagerAdapter = GroupPagerAdapter(this, groups, showUngrouped = hasUngrouped)
-            viewPager?.adapter = pagerAdapter
-            viewPager?.isUserInputEnabled = true
-            lastGroupKeys = groups.map { it.uuid to it.title }
-            lastShowUngrouped = hasUngrouped
-
-            TabLayoutMediator(tabLayout!!, viewPager!!) { tab, position ->
-                tab.text = pagerAdapter?.getPageTitle(position)
-            }
-                .attach()
-        }
-    }
-
-    fun refreshCurrentPages() {
-        val groups = DataManager.instance.sortedGroups
-        val newGroupKeys = groups.map { it.uuid to it.title }
-        val newShowUngrouped =
-            groups.isNotEmpty() && DataManager.instance.activeWebsitesForGroup(null).isNotEmpty()
-
-        if (lastGroupKeys != newGroupKeys || lastShowUngrouped != newShowUngrouped) {
-            setupViewPager()
-            return
-        }
-
-        for (i in 0 until (pagerAdapter?.itemCount ?: 0)) {
-            val fragment = supportFragmentManager.findFragmentByTag("f$i")
-            (fragment as? WebAppListFragment)?.updateWebAppList()
-        }
-    }
-
-    private fun personalizeToolbar() {
-        val toolbar = findViewById<MaterialToolbar>(R.id.toolbar)
-        toolbar.setTitle(R.string.app_name)
-        setSupportActionBar(toolbar)
+    override fun onDestroy() {
+        importDialogHelper.onHostDestroy()
+        exportLoader.dismiss()
+        super.onDestroy()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -183,17 +148,8 @@ class MainActivity : AppCompatActivity() {
             }
 
             R.id.action_export -> {
-                val sdf = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault())
-                val currentDateTime = sdf.format(Date())
-                try {
-                    exportLauncher.launch("Peel_$currentDateTime.zip")
-                } catch (e: ActivityNotFoundException) {
-                    NotificationUtils.showInfoSnackBar(
-                        this,
-                        getString(R.string.no_filemanager),
-                        Snackbar.LENGTH_LONG,
-                    )
-                    Log.e("MainActivity", "No file manager available for export", e)
+                launchExport(DataManager.instance.getWebsites().size) {
+                    BackupManager.buildFullBackupFile()
                 }
                 true
             }
@@ -210,6 +166,342 @@ class MainActivity : AppCompatActivity() {
 
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    fun refreshCurrentPages() {
+        val groups = DataManager.instance.sortedGroups
+        val newGroupKeys = groups.map { it.uuid to it.title }
+        val newShowUngrouped =
+            groups.isNotEmpty() && DataManager.instance.activeWebsitesForGroup(null).isNotEmpty()
+
+        if (lastGroupKeys != newGroupKeys || lastShowUngrouped != newShowUngrouped) {
+            setupViewPager()
+            return
+        }
+
+        for (i in 0 until (pagerAdapter?.itemCount ?: 0)) {
+            val fragment = supportFragmentManager.findFragmentByTag("f$i")
+            (fragment as? WebAppListFragment)?.updateWebAppList()
+        }
+    }
+
+    private fun forEachFragment(action: (WebAppListFragment) -> Unit) {
+        for (i in 0 until (pagerAdapter?.itemCount ?: 0)) {
+            val fragment = supportFragmentManager.findFragmentByTag("f$i")
+            (fragment as? WebAppListFragment)?.let(action)
+        }
+    }
+
+    private fun setupViewPager() {
+        val groups = DataManager.instance.sortedGroups
+
+        if (groups.isEmpty()) {
+            tabLayout?.visibility = View.GONE
+            pagerAdapter = GroupPagerAdapter(this, emptyList(), showUngrouped = true)
+            viewPager?.adapter = pagerAdapter
+            viewPager?.isUserInputEnabled = false
+            lastGroupKeys = emptyList()
+            lastShowUngrouped = true
+        } else {
+            val hasUngrouped = DataManager.instance.activeWebsitesForGroup(null).isNotEmpty()
+            tabLayout?.visibility = View.VISIBLE
+            pagerAdapter = GroupPagerAdapter(this, groups, showUngrouped = hasUngrouped)
+            viewPager?.adapter = pagerAdapter
+            viewPager?.isUserInputEnabled = true
+            lastGroupKeys = groups.map { it.uuid to it.title }
+            lastShowUngrouped = hasUngrouped
+
+            TabLayoutMediator(tabLayout!!, viewPager!!) { tab, position ->
+                tab.text = pagerAdapter?.getPageTitle(position)
+            }.attach()
+        }
+    }
+
+    override val isInSelectionMode: Boolean get() = _selectionMode
+
+    override fun isSelected(uuid: String) = uuid in selectedUuids
+
+    override fun enterSelectionMode(uuid: String) {
+        fab.removeCallbacks(pendingExitRunnable)
+        if (_selectionMode) {
+            toggleSelection(uuid)
+            return
+        }
+        _selectionMode = true
+        selectedUuids.clear()
+        selectedUuids.add(uuid)
+        backPressCallback.isEnabled = true
+
+        applySelectionToolbar()
+        animateFabSwap(R.drawable.ic_baseline_share_24)
+        forEachFragment { it.animateEnterSelection(uuid) }
+    }
+
+    override fun toggleSelection(uuid: String) {
+        if (uuid in selectedUuids) selectedUuids.remove(uuid) else selectedUuids.add(uuid)
+        if (selectedUuids.isEmpty()) {
+            forEachFragment { it.animateSelectionToggled(uuid) }
+            fab.postDelayed(pendingExitRunnable, EXIT_DELAY_MS)
+            return
+        }
+        toolbar.title = getString(R.string.n_apps_selected, selectedUuids.size)
+        forEachFragment { it.animateSelectionToggled(uuid) }
+    }
+
+    private fun exitSelectionMode() {
+        fab.removeCallbacks(pendingExitRunnable)
+        val previouslySelected = selectedUuids.toSet()
+        _selectionMode = false
+        selectedUuids.clear()
+        backPressCallback.isEnabled = false
+
+        applyNormalToolbar()
+        animateFabSwap(R.drawable.ic_add_24dp)
+        forEachFragment { it.animateExitSelection(previouslySelected) }
+    }
+
+    private fun applySelectionToolbar() {
+        crossfadeToolbar {
+            toolbar.menu.clear()
+            menuInflater.inflate(R.menu.menu_selection, toolbar.menu)
+            toolbar.setOnMenuItemClickListener { onSelectionMenuItemClicked(it) }
+            toolbar.setNavigationIcon(R.drawable.ic_baseline_arrow_back_24)
+            toolbar.setNavigationOnClickListener { exitSelectionMode() }
+            toolbar.title = getString(R.string.n_apps_selected, selectedUuids.size)
+        }
+    }
+
+    private fun applyNormalToolbar() {
+        crossfadeToolbar {
+            toolbar.menu.clear()
+            menuInflater.inflate(R.menu.menu_main, toolbar.menu)
+            toolbar.setOnMenuItemClickListener { onOptionsItemSelected(it) }
+            toolbar.navigationIcon = null
+            toolbar.setNavigationOnClickListener(null)
+            toolbar.setTitle(R.string.app_name)
+        }
+    }
+
+    private fun crossfadeToolbar(swap: () -> Unit) {
+        toolbar.animate().cancel()
+        toolbar.animate()
+            .alpha(0f)
+            .setDuration(TOOLBAR_FADE_DURATION)
+            .withEndAction {
+                swap()
+                toolbar.animate()
+                    .alpha(1f)
+                    .setDuration(TOOLBAR_FADE_DURATION)
+                    .start()
+            }
+            .start()
+    }
+
+    private fun animateFabSwap(iconRes: Int) {
+        fab.hide(object : FloatingActionButton.OnVisibilityChangedListener() {
+            override fun onHidden(fab: FloatingActionButton) {
+                fab.setImageResource(iconRes)
+                fab.show()
+            }
+        })
+    }
+
+    private fun onFabClicked() {
+        if (_selectionMode) {
+            performShareSelected()
+        } else {
+            buildAddWebsiteDialog()
+        }
+    }
+
+    private fun onSelectionMenuItemClicked(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.action_move_selected -> {
+                showMoveSelectedPopup()
+                true
+            }
+            R.id.action_delete_selected -> {
+                confirmDeleteSelected()
+                true
+            }
+            else -> false
+        }
+    }
+
+    private fun performShareSelected() {
+        if (selectedUuids.isEmpty()) {
+            NotificationUtils.showInfoSnackBar(
+                this,
+                getString(R.string.share_no_selection),
+                Snackbar.LENGTH_SHORT,
+            )
+            return
+        }
+
+        val webApps = resolveSelectedWebApps()
+        if (webApps.isEmpty()) {
+            NotificationUtils.showInfoSnackBar(
+                this,
+                getString(R.string.share_no_selection),
+                Snackbar.LENGTH_SHORT,
+            )
+            return
+        }
+
+        if (containsSecrets(webApps)) {
+            MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.share_secrets_title)
+                .setMessage(R.string.share_secrets_description)
+                .setPositiveButton(R.string.share_secrets_exclude) { _, _ ->
+                    exitSelectionMode()
+                    launchExport(webApps.size) { BackupManager.buildShareFile(webApps, includeSecrets = false) }
+                }
+                .setNegativeButton(R.string.share_secrets_include) { _, _ ->
+                    exitSelectionMode()
+                    launchExport(webApps.size) { BackupManager.buildShareFile(webApps, includeSecrets = true) }
+                }
+                .show()
+        } else {
+            exitSelectionMode()
+            launchExport(webApps.size) { BackupManager.buildShareFile(webApps, includeSecrets = true) }
+        }
+    }
+
+    private fun containsSecrets(webApps: List<WebApp>): Boolean {
+        return webApps.any { app ->
+            val settings = app.settings
+            settings.customHeaders?.any { (k, v) -> k.isNotBlank() || v.isNotBlank() } == true
+                || !settings.basicAuthUsername.isNullOrBlank()
+                || !settings.basicAuthPassword.isNullOrBlank()
+        }
+    }
+
+    private fun showMoveSelectedPopup() {
+        if (selectedUuids.isEmpty()) return
+
+        val anchor = toolbar.findViewById<View>(R.id.action_move_selected) ?: toolbar
+        val popup = PopupMenu(this, anchor)
+
+        val groups = DataManager.instance.sortedGroups
+        groups.forEachIndexed { index, group ->
+            popup.menu.add(0, MENU_MOVE_GROUP_BASE + index, index, group.title)
+        }
+        popup.menu.add(
+            0,
+            MENU_MOVE_GROUP_BASE + groups.size,
+            groups.size,
+            getString(R.string.none),
+        )
+
+        popup.setOnMenuItemClickListener { menuItem ->
+            val groupIndex = menuItem.itemId - MENU_MOVE_GROUP_BASE
+            if (groupIndex in 0..groups.size) {
+                val targetGroupUuid =
+                    if (groupIndex < groups.size) groups[groupIndex].uuid else null
+                performMoveSelected(targetGroupUuid)
+                true
+            } else {
+                false
+            }
+        }
+        popup.show()
+    }
+
+    private fun performMoveSelected(targetGroupUuid: String?) {
+        val webApps = resolveSelectedWebApps()
+        webApps.forEach { webapp ->
+            webapp.groupUuid = targetGroupUuid
+            DataManager.instance.replaceWebApp(webapp)
+        }
+        exitSelectionMode()
+        refreshCurrentPages()
+    }
+
+    private fun confirmDeleteSelected() {
+        if (selectedUuids.isEmpty()) return
+
+        MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.remove_apps_title)
+            .setMessage(getString(R.string.remove_apps_confirm, selectedUuids.size))
+            .setPositiveButton(R.string.delete) { _, _ -> performDeleteSelected() }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
+    }
+
+    private fun performDeleteSelected() {
+        val webApps = resolveSelectedWebApps()
+        val count = webApps.size
+
+        webApps.forEach { it.markInactiveOnly() }
+        exitSelectionMode()
+        refreshCurrentPages()
+
+        NotificationUtils.showUndoSnackBar(
+            activity = this,
+            message = getString(R.string.n_apps_removed, count),
+            onUndo = {
+                webApps.forEach { it.isActiveEntry = true }
+                refreshCurrentPages()
+            },
+            onCommit = {
+                webApps.forEach { webapp ->
+                    webapp.deleteShortcuts(this)
+                    webapp.cleanupWebAppData(this)
+                    DataManager.instance.removeWebApp(webapp)
+                }
+            },
+        )
+    }
+
+    private fun resolveSelectedWebApps(): List<WebApp> {
+        val byUuid = DataManager.instance.getWebsites().associateBy { it.uuid }
+        return selectedUuids.mapNotNull(byUuid::get)
+    }
+
+    private fun handleIncomingBackupIntent(intent: Intent?) {
+        val uri = extractBackupUri(intent) ?: return
+        intent?.action = null
+        intent?.data = null
+        intent?.removeExtra(Intent.EXTRA_STREAM)
+        importDialogHelper.showForUri(uri)
+    }
+
+    private fun extractBackupUri(intent: Intent?): Uri? {
+        if (intent == null) return null
+        return when (intent.action) {
+            Intent.ACTION_VIEW -> intent.data
+            Intent.ACTION_SEND -> {
+                @Suppress("DEPRECATION") intent.getParcelableExtra<Uri>(Intent.EXTRA_STREAM)
+            }
+            else -> null
+        }
+    }
+
+    private fun launchExport(elementCount: Int, buildFile: () -> File?) {
+        val showLoader = elementCount >= BackupManager.LOADER_THRESHOLD
+        if (showLoader) exportLoader.show(R.string.preparing_export)
+        lifecycleScope.launch {
+            val file = try {
+                withContext(Dispatchers.IO) { buildFile() }
+            } finally {
+                if (showLoader) exportLoader.dismiss()
+            }
+            if (file == null || !BackupManager.launchShareChooser(this@MainActivity, file)) {
+                NotificationUtils.showInfoSnackBar(
+                    this@MainActivity,
+                    getString(R.string.export_share_failed),
+                    Snackbar.LENGTH_LONG,
+                )
+            }
+        }
+    }
+
+    private fun buildAboutDialog() {
+        MaterialAlertDialogBuilder(this)
+            .setTitle(getString(R.string.app_name))
+            .setMessage(getString(R.string.gnu_license))
+            .setPositiveButton(R.string.ok, null)
+            .show()
     }
 
     private fun showClearDataConfirmDialog() {
@@ -279,55 +571,6 @@ class MainActivity : AppCompatActivity() {
         setupViewPager()
     }
 
-    private fun buildAboutDialog() {
-        MaterialAlertDialogBuilder(this)
-            .setTitle(getString(R.string.app_name))
-            .setMessage(getString(R.string.gnu_license))
-            .setPositiveButton(R.string.ok, null)
-            .show()
-    }
-
-    private fun buildImportModeDialog(uri: android.net.Uri) {
-        val dialogView = layoutInflater.inflate(R.layout.dialog_import_mode, null)
-        val switchMerge =
-            dialogView.findViewById<com.google.android.material.materialswitch.MaterialSwitch>(
-                R.id.switchMergeMode
-            )
-
-        MaterialAlertDialogBuilder(this)
-            .setTitle(getString(R.string.import_mode_title))
-            .setView(dialogView)
-            .setPositiveButton(R.string.ok) { _, _ ->
-                val mode = if (switchMerge.isChecked) ImportMode.MERGE else ImportMode.REPLACE
-                performImport(uri, mode)
-            }
-            .setNegativeButton(R.string.cancel, null)
-            .show()
-    }
-
-    private fun performImport(uri: android.net.Uri, mode: ImportMode) {
-        val success = BackupManager.importFromZip(uri, mode)
-        if (!success) {
-            NotificationUtils.showInfoSnackBar(
-                this,
-                getString(R.string.import_failed),
-                Snackbar.LENGTH_LONG,
-            )
-        } else {
-            setupViewPager()
-            buildImportSuccessDialog()
-        }
-    }
-
-    private fun buildImportSuccessDialog() {
-        MaterialAlertDialogBuilder(this)
-            .setMessage(
-                getString(R.string.import_success, DataManager.instance.activeWebsitesCount)
-            )
-            .setPositiveButton(R.string.ok, null)
-            .show()
-    }
-
     private fun buildAddWebsiteDialog() {
         showSandboxInputDialog(
             titleRes = R.string.add_webapp,
@@ -336,7 +579,8 @@ class MainActivity : AppCompatActivity() {
         ) { result ->
             val url = result.text
             val urlWithProtocol =
-                if (url.startsWith("https://") || url.startsWith("http://")) url else "https://$url"
+                if (url.startsWith("https://") || url.startsWith("http://")) url
+                else "https://$url"
             val newSite = WebApp(urlWithProtocol)
             newSite.order = DataManager.instance.incrementedOrder
             newSite.isUseContainer = result.sandbox
@@ -356,5 +600,11 @@ class MainActivity : AppCompatActivity() {
             settingsIntent.putExtra(Const.INTENT_AUTO_FETCH, true)
             startActivity(settingsIntent)
         }
+    }
+
+    companion object {
+        private const val MENU_MOVE_GROUP_BASE = 20000
+        private const val EXIT_DELAY_MS = 200L
+        private const val TOOLBAR_FADE_DURATION = 100L
     }
 }

@@ -45,12 +45,30 @@
     <string name="appearance">外観</string>
     <string name="import_failed">バックアップを復元できませんでした。</string>
     <string name="import_success">%1$d個のウェブアプリのバックアップが正常に復元されました。</string>
-    <string name="import_mode_title">インポートモード</string>
-    <string name="import_mode_description">既存のデータは置き換えられます。バックアップに含まれないアプリを残すにはマージモードを有効にしてください。</string>
+    <string name="import_mode_title">フルバックアップ</string>
+    <string name="import_mode_description">%1$d個のアプリと%2$d個のグループが含まれています。既存のデータは置き換えられます。バックアップに含まれないアプリを残すにはマージモードを有効にしてください。</string>
     <string name="import_mode_merge_switch">マージモード</string>
+    <string name="import_mapping_title">共有アプリ</string>
+    <string name="import_mapping_description">%1$d個のアプリが共有されました。インポート先のグループとアプリを選択してください。</string>
+    <string name="import_group_mode_new">新しいグループを作成</string>
+    <string name="import_destination_group">インポート先グループ</string>
+    <string name="import_target_none">なし（その他）</string>
+    <string name="import_mapping_empty">このファイルにアプリが見つかりません。</string>
+    <string name="import_count_message">%1$d個のアプリをインポートしました。</string>
 
-    <string name="export_failed">バックアップをエクスポートできませんでした。</string>
-    <string name="export_success">バックアップが作成されました。</string>
+    <string name="n_apps_selected">%1$d件選択</string>
+    <string name="share_no_selection">アプリを1つ以上選択してください</string>
+    <string name="share_secrets_title">機密情報を検出</string>
+    <string name="share_secrets_description">選択したアプリにはカスタムヘッダーや認証情報などの機密情報が含まれています。共有ファイルから削除しますか？</string>
+    <string name="share_secrets_include">保持</string>
+    <string name="share_secrets_exclude">削除</string>
+    <string name="remove_apps_title">アプリを削除</string>
+    <string name="remove_apps_confirm">選択した%1$d個のアプリを削除しますか？</string>
+    <string name="n_apps_removed">%1$d個のアプリを削除しました。</string>
+
+    <string name="export_share_failed">共有用のファイルを準備できませんでした。</string>
+    <string name="preparing_export">準備中…</string>
+    <string name="importing">インポート中…</string>
     <string name="webapp_not_found">このウェブアプリは利用できなくなりました。</string>
     <string name="no_filemanager">ファイルマネージャーをインストールしてください。</string>
     <string name="export_btn">エクスポート</string>

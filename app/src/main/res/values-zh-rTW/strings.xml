@@ -45,12 +45,30 @@
     <string name="appearance">外觀</string>
     <string name="import_failed">無法還原備份。</string>
     <string name="import_success">已成功還原包含 %1$d 個網頁應用程式的備份。</string>
-    <string name="import_mode_title">匯入模式</string>
-    <string name="import_mode_description">現有資料將被取代。啟用合併模式可保留備份中未包含的應用程式。</string>
+    <string name="import_mode_title">完整備份</string>
+    <string name="import_mode_description">包含 %1$d 個應用程式和 %2$d 個群組。現有資料將被取代。啟用合併模式可保留備份中未包含的應用程式。</string>
     <string name="import_mode_merge_switch">合併模式</string>
+    <string name="import_mapping_title">分享的應用程式</string>
+    <string name="import_mapping_description">%1$d 個應用程式已分享給你。選擇目標群組和要匯入的應用程式。</string>
+    <string name="import_group_mode_new">建立新群組</string>
+    <string name="import_destination_group">目標群組</string>
+    <string name="import_target_none">無（其他）</string>
+    <string name="import_mapping_empty">此檔案中未找到應用程式。</string>
+    <string name="import_count_message">已匯入 %1$d 個應用程式。</string>
 
-    <string name="export_failed">無法匯出備份。</string>
-    <string name="export_success">備份已建立。</string>
+    <string name="n_apps_selected">已選取 %1$d 個</string>
+    <string name="share_no_selection">請至少選取一個應用程式</string>
+    <string name="share_secrets_title">偵測到密鑰</string>
+    <string name="share_secrets_description">所選應用程式包含自訂標頭或授權憑證等密鑰。是否從共享檔案中移除？</string>
+    <string name="share_secrets_include">保留</string>
+    <string name="share_secrets_exclude">移除</string>
+    <string name="remove_apps_title">移除應用程式</string>
+    <string name="remove_apps_confirm">移除 %1$d 個已選取的應用程式？</string>
+    <string name="n_apps_removed">已移除 %1$d 個應用程式。</string>
+
+    <string name="export_share_failed">無法準備分享檔案。</string>
+    <string name="preparing_export">正在準備…</string>
+    <string name="importing">正在匯入…</string>
     <string name="webapp_not_found">此網頁應用程式已無法使用。</string>
     <string name="no_filemanager">請安裝檔案管理員。</string>
     <string name="export_btn">匯出</string>

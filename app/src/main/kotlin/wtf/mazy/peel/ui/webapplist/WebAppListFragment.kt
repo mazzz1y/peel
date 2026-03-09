@@ -19,13 +19,10 @@ class WebAppListFragment : Fragment(R.layout.fragment_web_app_list) {
     private lateinit var adapter: WebAppListAdapter
     private lateinit var list: RecyclerView
     private lateinit var emptyStateText: TextView
+    private var itemTouchHelper: ItemTouchHelper? = null
 
     private val dragScale = 1.05f
 
-    /**
-     * null = show ALL apps (the "All" tab). UNGROUPED_FILTER = show only ungrouped apps. Otherwise
-     * = show apps belonging to that group UUID.
-     */
     var groupFilter: String? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -34,9 +31,10 @@ class WebAppListFragment : Fragment(R.layout.fragment_web_app_list) {
         groupFilter = arguments?.getString(ARG_GROUP_FILTER)
 
         adapter =
-            WebAppListAdapter(requiredActivity()) {
-                (activity as? MainActivity)?.refreshCurrentPages()
-            }
+            WebAppListAdapter(
+                activityOfFragment = requiredActivity(),
+                onGroupChanged = { (activity as? MainActivity)?.refreshCurrentPages() },
+            )
         adapter.groupFilter = groupFilter
         adapter.updateWebAppList()
 
@@ -46,15 +44,44 @@ class WebAppListFragment : Fragment(R.layout.fragment_web_app_list) {
         list.layoutManager = LinearLayoutManager(requiredActivity())
         list.adapter = adapter
 
-        val itemTouchHelper = ItemTouchHelper(itemTouchCallback)
-        itemTouchHelper.attachToRecyclerView(list)
-
+        attachDragHelper()
         updateEmptyState()
     }
 
     fun updateWebAppList() {
         adapter.updateWebAppList()
+        updateDragEnabled()
         updateEmptyState()
+    }
+
+    fun animateEnterSelection(toggledUuid: String) {
+        val toggledPosition = adapter.items.indexOfFirst { it.uuid == toggledUuid }
+        for (i in 0 until adapter.items.size) {
+            if (i == toggledPosition) {
+                adapter.notifyItemChanged(i, WebAppListAdapter.PAYLOAD_SELECTION_TOGGLE)
+            } else {
+                adapter.notifyItemChanged(i, WebAppListAdapter.PAYLOAD_MODE_CHANGE)
+            }
+        }
+        updateDragEnabled()
+    }
+
+    fun animateSelectionToggled(uuid: String) {
+        val position = adapter.items.indexOfFirst { it.uuid == uuid }
+        if (position >= 0) {
+            adapter.notifyItemChanged(position, WebAppListAdapter.PAYLOAD_SELECTION_TOGGLE)
+        }
+    }
+
+    fun animateExitSelection(previouslySelected: Set<String>) {
+        for (i in 0 until adapter.items.size) {
+            val payload = if (adapter.items[i].uuid in previouslySelected)
+                WebAppListAdapter.PAYLOAD_SELECTION_TOGGLE
+            else
+                WebAppListAdapter.PAYLOAD_MODE_CHANGE
+            adapter.notifyItemChanged(i, payload)
+        }
+        updateDragEnabled()
     }
 
     private fun updateEmptyState() {
@@ -64,6 +91,20 @@ class WebAppListFragment : Fragment(R.layout.fragment_web_app_list) {
         } else {
             emptyStateText.visibility = View.GONE
             list.visibility = View.VISIBLE
+        }
+    }
+
+    private fun attachDragHelper() {
+        itemTouchHelper = ItemTouchHelper(itemTouchCallback)
+        itemTouchHelper?.attachToRecyclerView(list)
+    }
+
+    private fun updateDragEnabled() {
+        val selectionHost = activity as? SelectionModeHost
+        if (selectionHost?.isInSelectionMode == true) {
+            itemTouchHelper?.attachToRecyclerView(null)
+        } else {
+            itemTouchHelper?.attachToRecyclerView(list)
         }
     }
 
@@ -113,8 +154,6 @@ class WebAppListFragment : Fragment(R.layout.fragment_web_app_list) {
 
     companion object {
         const val ARG_GROUP_FILTER = "group_filter"
-
-        /** Sentinel value meaning "show only ungrouped apps". */
         const val UNGROUPED_FILTER = "__ungrouped__"
 
         fun newInstance(groupFilter: String?): WebAppListFragment {

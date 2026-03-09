@@ -43,8 +43,10 @@ fun WebAppEntity.toDomain(): WebApp {
     return webapp
 }
 
-fun WebAppSurrogate.toDomain(): WebApp {
-    val webapp = WebApp(baseUrl, uuid)
+fun WebAppSurrogate.toDomain(): WebApp = toDomain(uuid)
+
+fun WebAppSurrogate.toDomain(overrideUuid: String): WebApp {
+    val webapp = WebApp(baseUrl, overrideUuid)
     webapp.title = title
     webapp.isActiveEntry = isActiveEntry
     webapp.isUseContainer = isUseContainer

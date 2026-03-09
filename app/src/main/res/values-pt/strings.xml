@@ -45,12 +45,30 @@
     <string name="appearance">Aparência</string>
     <string name="import_failed">Não foi possível restaurar o backup.</string>
     <string name="import_success">Backup com %1$d Web App(s) restaurado com sucesso.</string>
-    <string name="import_mode_title">Modo de importação</string>
-    <string name="import_mode_description">Os dados existentes serão substituídos. Ative o modo de mesclagem para manter apps não incluídos no backup.</string>
+    <string name="import_mode_title">Backup completo</string>
+    <string name="import_mode_description">Contém %1$d app(s) e %2$d grupo(s). Os dados existentes serão substituídos. Ative o modo de mesclagem para manter apps não incluídos no backup.</string>
     <string name="import_mode_merge_switch">Modo de mesclagem</string>
+    <string name="import_mapping_title">Apps compartilhados</string>
+    <string name="import_mapping_description">%1$d app(s) compartilhado(s) com você. Escolha um grupo de destino e selecione os apps para importar.</string>
+    <string name="import_group_mode_new">Criar novo grupo</string>
+    <string name="import_destination_group">Grupo de destino</string>
+    <string name="import_target_none">Nenhum (Outros)</string>
+    <string name="import_mapping_empty">Nenhum app encontrado neste arquivo.</string>
+    <string name="import_count_message">%1$d app(s) importado(s).</string>
 
-    <string name="export_failed">Não foi possível exportar o backup.</string>
-    <string name="export_success">Backup criado.</string>
+    <string name="n_apps_selected">%1$d selecionado(s)</string>
+    <string name="share_no_selection">Selecione pelo menos um app</string>
+    <string name="share_secrets_title">Segredos detectados</string>
+    <string name="share_secrets_description">Os apps selecionados contêm segredos como cabeçalhos personalizados ou credenciais de autorização. Removê-los do arquivo compartilhado?</string>
+    <string name="share_secrets_include">Manter</string>
+    <string name="share_secrets_exclude">Remover</string>
+    <string name="remove_apps_title">Remover apps</string>
+    <string name="remove_apps_confirm">Remover %1$d app(s) selecionado(s)?</string>
+    <string name="n_apps_removed">%1$d app(s) removido(s).</string>
+
+    <string name="export_share_failed">Não foi possível preparar o arquivo para compartilhamento.</string>
+    <string name="preparing_export">Preparando…</string>
+    <string name="importing">Importando…</string>
     <string name="webapp_not_found">Este Web App não está mais disponível.</string>
     <string name="no_filemanager">Por favor, instale um gerenciador de arquivos.</string>
     <string name="export_btn">Exportar</string>

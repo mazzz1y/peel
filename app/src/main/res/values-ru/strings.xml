@@ -45,12 +45,30 @@
     <string name="appearance">Внешний вид</string>
     <string name="import_failed">Не удалось восстановить резервную копию.</string>
     <string name="import_success">Резервная копия с %1$d веб-приложением(ями) восстановлена.</string>
-    <string name="import_mode_title">Режим импорта</string>
-    <string name="import_mode_description">Существующие данные будут заменены. Включите режим слияния, чтобы сохранить приложения, не входящие в резервную копию.</string>
+    <string name="import_mode_title">Полная копия</string>
+    <string name="import_mode_description">Содержит %1$d приложение(ий) и %2$d группу(п). Существующие данные будут заменены. Включите режим слияния, чтобы сохранить приложения, не входящие в резервную копию.</string>
     <string name="import_mode_merge_switch">Режим слияния</string>
+    <string name="import_mapping_title">Общие приложения</string>
+    <string name="import_mapping_description">%1$d приложение(ий). Выберите группу назначения и приложения для импорта.</string>
+    <string name="import_group_mode_new">Создать группу</string>
+    <string name="import_destination_group">Группа назначения</string>
+    <string name="import_target_none">Без группы</string>
+    <string name="import_mapping_empty">В этом файле нет приложений.</string>
+    <string name="import_count_message">Импортировано %1$d приложение(ий).</string>
 
-    <string name="export_failed">Не удалось экспортировать резервную копию.</string>
-    <string name="export_success">Резервная копия создана.</string>
+    <string name="n_apps_selected">Выбрано: %1$d</string>
+    <string name="share_no_selection">Выберите хотя бы одно приложение</string>
+    <string name="share_secrets_title">Обнаружены секреты</string>
+    <string name="share_secrets_description">Выбранные приложения содержат секреты, такие как пользовательские заголовки или учётные данные авторизации. Удалить их из файла?</string>
+    <string name="share_secrets_include">Оставить</string>
+    <string name="share_secrets_exclude">Удалить</string>
+    <string name="remove_apps_title">Удалить приложения</string>
+    <string name="remove_apps_confirm">Удалить %1$d выбранных приложений?</string>
+    <string name="n_apps_removed">Удалено приложений: %1$d.</string>
+
+    <string name="export_share_failed">Не удалось подготовить файл для отправки.</string>
+    <string name="preparing_export">Подготовка…</string>
+    <string name="importing">Импорт…</string>
     <string name="webapp_not_found">Это веб-приложение больше недоступно.</string>
     <string name="no_filemanager">Пожалуйста, установите файловый менеджер.</string>
     <string name="export_btn">Экспорт</string>

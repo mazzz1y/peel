@@ -45,12 +45,30 @@
     <string name="appearance">दिखावट</string>
     <string name="import_failed">बैकअप पुनर्स्थापित नहीं हो सका।</string>
     <string name="import_success">%1$d वेब ऐप का बैकअप सफलतापूर्वक पुनर्स्थापित हुआ।</string>
-    <string name="import_mode_title">आयात मोड</string>
-    <string name="import_mode_description">मौजूदा डेटा बदल दिया जाएगा। बैकअप में शामिल न किए गए ऐप्स रखने के लिए मर्ज मोड चालू करें।</string>
+    <string name="import_mode_title">पूर्ण बैकअप</string>
+    <string name="import_mode_description">%1$d ऐप और %2$d समूह शामिल हैं। मौजूदा डेटा बदल दिया जाएगा। बैकअप में शामिल न किए गए ऐप्स रखने के लिए मर्ज मोड चालू करें।</string>
     <string name="import_mode_merge_switch">मर्ज मोड</string>
+    <string name="import_mapping_title">साझा किए गए ऐप्स</string>
+    <string name="import_mapping_description">%1$d ऐप आपके साथ साझा किए गए। गंतव्य समूह चुनें और आयात करने के लिए ऐप्स चुनें।</string>
+    <string name="import_group_mode_new">नया समूह बनाएँ</string>
+    <string name="import_destination_group">गंतव्य समूह</string>
+    <string name="import_target_none">कोई नहीं (अन्य)</string>
+    <string name="import_mapping_empty">इस फ़ाइल में कोई ऐप नहीं मिला।</string>
+    <string name="import_count_message">%1$d ऐप आयात किए गए।</string>
 
-    <string name="export_failed">बैकअप निर्यात नहीं हो सका।</string>
-    <string name="export_success">बैकअप बनाया गया।</string>
+    <string name="n_apps_selected">%1$d चयनित</string>
+    <string name="share_no_selection">कम से कम एक ऐप चुनें</string>
+    <string name="share_secrets_title">गोपनीय जानकारी पाई गई</string>
+    <string name="share_secrets_description">चयनित ऐप्स में कस्टम हेडर या प्रमाणीकरण क्रेडेंशियल जैसी गोपनीय जानकारी है। क्या इसे साझा फ़ाइल से हटाएँ?</string>
+    <string name="share_secrets_include">रखें</string>
+    <string name="share_secrets_exclude">हटाएँ</string>
+    <string name="remove_apps_title">ऐप्स हटाएँ</string>
+    <string name="remove_apps_confirm">%1$d चयनित ऐप्स हटाएँ?</string>
+    <string name="n_apps_removed">%1$d ऐप हटाए गए।</string>
+
+    <string name="export_share_failed">साझा करने के लिए फ़ाइल तैयार नहीं हो सकी।</string>
+    <string name="preparing_export">तैयार हो रहा है…</string>
+    <string name="importing">आयात हो रहा है…</string>
     <string name="webapp_not_found">यह वेब ऐप अब उपलब्ध नहीं है।</string>
     <string name="no_filemanager">कृपया एक फ़ाइल प्रबंधक इंस्टॉल करें।</string>
     <string name="export_btn">निर्यात</string>

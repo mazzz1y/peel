@@ -45,12 +45,30 @@
     <string name="appearance">外观</string>
     <string name="import_failed">无法恢复备份。</string>
     <string name="import_success">已成功恢复包含 %1$d 个网页应用的备份。</string>
-    <string name="import_mode_title">导入模式</string>
-    <string name="import_mode_description">现有数据将被替换。启用合并模式可保留备份中未包含的应用。</string>
+    <string name="import_mode_title">完整备份</string>
+    <string name="import_mode_description">包含 %1$d 个应用和 %2$d 个分组。现有数据将被替换。启用合并模式可保留备份中未包含的应用。</string>
     <string name="import_mode_merge_switch">合并模式</string>
+    <string name="import_mapping_title">共享的应用</string>
+    <string name="import_mapping_description">%1$d 个应用已分享给你。选择目标分组和要导入的应用。</string>
+    <string name="import_group_mode_new">创建新分组</string>
+    <string name="import_destination_group">目标分组</string>
+    <string name="import_target_none">无（其他）</string>
+    <string name="import_mapping_empty">此文件中未找到应用。</string>
+    <string name="import_count_message">已导入 %1$d 个应用。</string>
 
-    <string name="export_failed">无法导出备份。</string>
-    <string name="export_success">备份已创建。</string>
+    <string name="n_apps_selected">已选择 %1$d 个</string>
+    <string name="share_no_selection">请至少选择一个应用</string>
+    <string name="share_secrets_title">检测到密钥</string>
+    <string name="share_secrets_description">所选应用包含自定义标头或授权凭据等密钥。是否从共享文件中移除？</string>
+    <string name="share_secrets_include">保留</string>
+    <string name="share_secrets_exclude">移除</string>
+    <string name="remove_apps_title">移除应用</string>
+    <string name="remove_apps_confirm">移除 %1$d 个已选应用？</string>
+    <string name="n_apps_removed">已移除 %1$d 个应用。</string>
+
+    <string name="export_share_failed">无法准备分享文件。</string>
+    <string name="preparing_export">正在准备…</string>
+    <string name="importing">正在导入…</string>
     <string name="webapp_not_found">此网页应用不再可用。</string>
     <string name="no_filemanager">请安装文件管理器。</string>
     <string name="export_btn">导出</string>

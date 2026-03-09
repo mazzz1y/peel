@@ -12,7 +12,6 @@
         android:id="@+id/import_mode_message"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/import_mode_description"
         android:textAppearance="?attr/textAppearanceBodyMedium" />
 
     <com.google.android.material.materialswitch.MaterialSwitch
