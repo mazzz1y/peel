@@ -203,12 +203,12 @@
     <string name="group_sandbox">Общая песочница</string>
     <string name="groups_empty_state">Нет групп.\nНажмите +, чтобы создать первую группу.</string>
     <string name="group_empty">В этой группе нет приложений</string>
-    <string name="none">Прочее</string>
+    <string name="ungrouped">Без группы</string>
     <string name="open_in_peel">Открыть в Peel</string>
     <string name="move_to_group">Переместить в группу</string>
     <string name="delete_group_title">Удалить группу</string>
     <string name="delete_group_confirm">Удалить группу «%1$s»?</string>
-    <string name="ungroup_apps_on_delete">Переместить приложения в «Прочее»</string>
+    <string name="ungroup_apps_on_delete">Переместить приложения в «Без группы»</string>
 
     <plurals name="group_app_count">
         <item quantity="one">%d приложение</item>

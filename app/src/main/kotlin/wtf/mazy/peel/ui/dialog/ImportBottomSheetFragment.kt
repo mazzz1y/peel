@@ -83,6 +83,8 @@ class ImportBottomSheetFragment : BottomSheetDialogFragment() {
             groupLayout.visibility = View.GONE
         } else {
             selectedGroupUuid = groups[0].uuid
+            groupValues.add(null)
+            groupLabels.add(getString(R.string.ungrouped))
             groupValues.add(CREATE_GROUP_SENTINEL)
             groupLabels.add(getString(R.string.import_group_mode_new))
 
@@ -95,9 +97,8 @@ class ImportBottomSheetFragment : BottomSheetDialogFragment() {
                 val value = groupValues[position]
                 if (value == CREATE_GROUP_SENTINEL) {
                     dropdown.setText(
-                        selectedGroupUuid?.let { uuid ->
-                            groupLabels.getOrNull(groupValues.indexOf(uuid))
-                        } ?: groupLabels[0],
+                        groupLabels.getOrNull(groupValues.indexOf(selectedGroupUuid))
+                            ?: groupLabels[0],
                         false,
                     )
                     hostActivity.showSandboxInputDialog(
@@ -115,8 +116,8 @@ class ImportBottomSheetFragment : BottomSheetDialogFragment() {
                         DataManager.instance.addGroup(group)
                         selectedGroupUuid = group.uuid
 
-                        groupValues.add(groupValues.size - 1, group.uuid)
-                        groupLabels.add(groupLabels.size - 1, group.title)
+                        groupValues.add(groupValues.size - 2, group.uuid)
+                        groupLabels.add(groupLabels.size - 2, group.title)
                         dropdownAdapter.notifyDataSetChanged()
                         dropdownAdapter.filter.filter(null)
                         dropdown.setText(group.title, false)

@@ -203,12 +203,12 @@
     <string name="group_sandbox">साझा सैंडबॉक्स</string>
     <string name="groups_empty_state">कोई समूह नहीं।\nपहला समूह बनाने के लिए + दबाएं।</string>
     <string name="group_empty">इस समूह में कोई ऐप नहीं</string>
-    <string name="none">अन्य</string>
+    <string name="ungrouped">बिना समूह</string>
     <string name="open_in_peel">Peel में खोलें</string>
     <string name="move_to_group">समूह में ले जाएं</string>
     <string name="delete_group_title">समूह हटाएं</string>
     <string name="delete_group_confirm">समूह \"%1$s\" हटाएं?</string>
-    <string name="ungroup_apps_on_delete">ऐप्स \"अन्य\" में ले जाएं</string>
+    <string name="ungroup_apps_on_delete">ऐप्स \"बिना समूह\" में ले जाएं</string>
 
     <plurals name="group_app_count">
         <item quantity="one">%d ऐप</item>

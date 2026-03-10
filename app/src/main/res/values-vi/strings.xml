@@ -203,12 +203,12 @@
     <string name="group_sandbox">Sandbox chung</string>
     <string name="groups_empty_state">Chưa có nhóm.\nNhấn + để tạo nhóm đầu tiên.</string>
     <string name="group_empty">Không có ứng dụng trong nhóm này</string>
-    <string name="none">Khác</string>
+    <string name="ungrouped">Chưa phân nhóm</string>
     <string name="open_in_peel">Mở trong Peel</string>
     <string name="move_to_group">Chuyển vào nhóm</string>
     <string name="delete_group_title">Xóa nhóm</string>
     <string name="delete_group_confirm">Xóa nhóm \"%1$s\"?</string>
-    <string name="ungroup_apps_on_delete">Chuyển ứng dụng sang \"Khác\"</string>
+    <string name="ungroup_apps_on_delete">Chuyển ứng dụng sang \"Chưa phân nhóm\"</string>
 
     <plurals name="group_app_count">
         <item quantity="other">%d ứng dụng</item>

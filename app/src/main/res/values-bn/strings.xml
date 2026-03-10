@@ -203,12 +203,12 @@
     <string name="group_sandbox">শেয়ার্ড স্যান্ডবক্স</string>
     <string name="groups_empty_state">কোনো গ্রুপ নেই।\nপ্রথম গ্রুপ তৈরি করতে + চাপুন।</string>
     <string name="group_empty">এই গ্রুপে কোনো অ্যাপ নেই</string>
-    <string name="none">অন্যান্য</string>
+    <string name="ungrouped">গ্রুপবিহীন</string>
     <string name="open_in_peel">Peel-এ খুলুন</string>
     <string name="move_to_group">গ্রুপে সরান</string>
     <string name="delete_group_title">গ্রুপ মুছুন</string>
     <string name="delete_group_confirm">\"%1$s\" গ্রুপ মুছবেন?</string>
-    <string name="ungroup_apps_on_delete">অ্যাপ \"অন্যান্য\"-এ সরান</string>
+    <string name="ungroup_apps_on_delete">অ্যাপ \"গ্রুপবিহীন\"-এ সরান</string>
 
     <plurals name="group_app_count">
         <item quantity="one">%dটি অ্যাপ</item>

@@ -228,7 +228,7 @@ class WebAppListAdapter(
                 0,
                 MENU_GROUP_BASE + groups.size,
                 groups.size,
-                activityOfFragment.getString(R.string.none),
+                activityOfFragment.getString(R.string.ungrouped),
             )
         }
 

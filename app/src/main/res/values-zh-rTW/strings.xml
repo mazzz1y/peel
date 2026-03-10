@@ -203,12 +203,12 @@
     <string name="group_sandbox">共用沙盒</string>
     <string name="groups_empty_state">尚無群組。\n點擊 + 按鈕建立第一個群組。</string>
     <string name="group_empty">此群組中沒有應用程式</string>
-    <string name="none">其他</string>
+    <string name="ungrouped">未分組</string>
     <string name="open_in_peel">在 Peel 中開啟</string>
     <string name="move_to_group">移至群組</string>
     <string name="delete_group_title">刪除群組</string>
     <string name="delete_group_confirm">刪除群組「%1$s」？</string>
-    <string name="ungroup_apps_on_delete">將應用程式移至「其他」</string>
+    <string name="ungroup_apps_on_delete">將應用程式移至「未分組」</string>
 
     <plurals name="group_app_count">
         <item quantity="other">%d 個應用程式</item>

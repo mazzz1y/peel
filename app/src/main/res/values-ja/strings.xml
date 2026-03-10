@@ -203,12 +203,12 @@
     <string name="group_sandbox">共有サンドボックス</string>
     <string name="groups_empty_state">グループがありません。\n+をタップして最初のグループを作成してください。</string>
     <string name="group_empty">このグループにアプリはありません</string>
-    <string name="none">その他</string>
+    <string name="ungrouped">未分類</string>
     <string name="open_in_peel">Peelで開く</string>
     <string name="move_to_group">グループに移動</string>
     <string name="delete_group_title">グループを削除</string>
     <string name="delete_group_confirm">グループ「%1$s」を削除しますか？</string>
-    <string name="ungroup_apps_on_delete">アプリを「その他」に移動</string>
+    <string name="ungroup_apps_on_delete">アプリを「未分類」に移動</string>
 
     <plurals name="group_app_count">
         <item quantity="other">%d個のアプリ</item>

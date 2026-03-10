@@ -30,7 +30,7 @@ class GroupPagerAdapter(
     }
 
     fun getPageTitle(position: Int): String {
-        if (position >= groups.size) return activity.getString(R.string.none)
+        if (position >= groups.size) return activity.getString(R.string.ungrouped)
         return shortLabel(groups[position].title)
     }
 }

@@ -36,8 +36,8 @@ class SelectionModeController(
 
         if (!isSearchActive()) {
             applySelectionToolbar()
-            host.animateFabSwap(R.drawable.ic_baseline_share_24)
         }
+        host.animateFabSwap(R.drawable.ic_baseline_share_24)
         host.dispatchSelectionEntered(uuid)
     }
 
@@ -62,7 +62,9 @@ class SelectionModeController(
         selectedUuids.clear()
         host.updateBackPressEnabled()
 
-        if (!isSearchActive()) {
+        if (isSearchActive()) {
+            host.fab.hide()
+        } else {
             host.applyNormalToolbar()
             host.animateFabSwap(R.drawable.ic_add_24dp)
         }
@@ -155,7 +157,7 @@ class SelectionModeController(
             0,
             MENU_MOVE_GROUP_BASE + groups.size,
             groups.size,
-            host.hostActivity.getString(R.string.none),
+            host.hostActivity.getString(R.string.ungrouped),
         )
 
         popup.setOnMenuItemClickListener { menuItem ->

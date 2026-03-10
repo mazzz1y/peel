@@ -173,12 +173,12 @@
     <string name="group_name_hint">Nome del gruppo</string>
     <string name="group_sandbox">Sandbox condivisa</string>
     <string name="groups_empty_state">Nessun gruppo ancora.\nTocca il pulsante + per creare il tuo primo gruppo.</string>
-    <string name="none">Altro</string>
+    <string name="ungrouped">Senza gruppo</string>
     <string name="open_in_peel">Apri in Peel</string>
     <string name="move_to_group">Sposta nel gruppo</string>
     <string name="delete_group_title">Elimina gruppo</string>
     <string name="delete_group_confirm">Eliminare il gruppo \"%1$s\"?</string>
-    <string name="ungroup_apps_on_delete">Sposta app in \"Altro\"</string>
+    <string name="ungroup_apps_on_delete">Sposta app in \"Senza gruppo\"</string>
     <string name="setting_floating_controls">Controlli flottanti</string>
 
     <string name="bioprompt_not_recognized">Non riconosciuto. Riprova</string>

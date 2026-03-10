@@ -203,12 +203,12 @@
     <string name="group_sandbox">共享沙盒</string>
     <string name="groups_empty_state">暂无分组。\n点击 + 按钮创建第一个分组。</string>
     <string name="group_empty">此分组中没有应用</string>
-    <string name="none">其他</string>
+    <string name="ungrouped">未分组</string>
     <string name="open_in_peel">在 Peel 中打开</string>
     <string name="move_to_group">移至分组</string>
     <string name="delete_group_title">删除分组</string>
     <string name="delete_group_confirm">删除分组"%1$s"？</string>
-    <string name="ungroup_apps_on_delete">将应用移至「其他」</string>
+    <string name="ungroup_apps_on_delete">将应用移至「未分组」</string>
 
     <plurals name="group_app_count">
         <item quantity="other">%d 个应用</item>

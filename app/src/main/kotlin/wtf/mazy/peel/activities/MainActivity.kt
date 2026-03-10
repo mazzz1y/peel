@@ -319,6 +319,11 @@ class MainActivity :
     }
 
     override fun animateFabSwap(iconRes: Int) {
+        if (!fab.isOrWillBeShown) {
+            fab.setImageResource(iconRes)
+            fab.show()
+            return
+        }
         fab.hide(object : FloatingActionButton.OnVisibilityChangedListener() {
             override fun onHidden(fab: FloatingActionButton) {
                 fab.setImageResource(iconRes)

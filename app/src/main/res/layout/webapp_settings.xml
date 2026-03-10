@@ -143,7 +143,7 @@
                             android:maxLines="1"
                             android:paddingVertical="8dp"
                             android:paddingStart="8dp"
-                            android:text="@string/none"
+                            android:text="@string/ungrouped"
                             android:textColor="?attr/colorOnSurfaceVariant"
                             android:textSize="@dimen/settings_text_size" />
 

@@ -54,7 +54,7 @@ class ShareReceiverActivity : AppCompatActivity() {
                 name.text = webapp.title
                 icon.setImageBitmap(webapp.resolveIcon())
                 detail.text = webapp.groupUuid?.let { DataManager.instance.getGroup(it)?.title }
-                    ?.let { shortLabel(it) } ?: getString(R.string.none)
+                    ?.let { shortLabel(it) } ?: getString(R.string.ungrouped)
                 detail.visibility = View.VISIBLE
             }
 

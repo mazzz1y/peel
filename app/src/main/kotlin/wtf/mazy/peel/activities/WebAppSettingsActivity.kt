@@ -186,13 +186,13 @@ class WebAppSettingsActivity :
 
     private fun updateGroupLabel(webapp: WebApp) {
         val groupName = webapp.groupUuid?.let { DataManager.instance.getGroup(it)?.title }
-        binding.txtGroupName.text = groupName ?: getString(R.string.none)
+        binding.txtGroupName.text = groupName ?: getString(R.string.ungrouped)
     }
 
     private fun showGroupPicker(webapp: WebApp, groups: List<WebAppGroup>) {
         val popup = PopupMenu(this, binding.txtGroupName, Gravity.END)
         groups.forEachIndexed { index, group -> popup.menu.add(0, index, index, group.title) }
-        popup.menu.add(0, groups.size, groups.size, getString(R.string.none))
+        popup.menu.add(0, groups.size, groups.size, getString(R.string.ungrouped))
 
         popup.setOnMenuItemClickListener { item ->
             webapp.groupUuid = if (item.itemId < groups.size) groups[item.itemId].uuid else null
@@ -381,7 +381,7 @@ class WebAppSettingsActivity :
 
         val adapter =
             ListPickerAdapter(candidates) { candidate, iconView, nameView, detailView ->
-                val title = candidate.title ?: getString(R.string.none)
+                val title = candidate.title ?: candidate.source
                 nameView.text = title
                 val bmp = candidate.icon
                 if (bmp != null) {
