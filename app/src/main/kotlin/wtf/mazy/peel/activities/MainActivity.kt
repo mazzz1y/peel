@@ -93,6 +93,11 @@ class MainActivity :
         viewPager = findViewById(R.id.viewPager)
         exportLoader = LoadingDialogController(this)
 
+        findViewById<View>(android.R.id.content).addOnLayoutChangeListener {
+                _, left, _, right, _, oldLeft, _, oldRight, _ ->
+            if (right - left != oldRight - oldLeft) fab.requestLayout()
+        }
+
         searchController = SearchModeController(this)
         selectionController = SelectionModeController(this) { searchController.isActive }
         searchController.searchResultsList = findViewById(R.id.searchResultsList)

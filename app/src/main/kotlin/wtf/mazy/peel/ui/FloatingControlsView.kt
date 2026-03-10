@@ -58,6 +58,11 @@ class FloatingControlsView(
         setupTouchHandling()
         setupActions()
         placeInitial()
+        parent.addOnLayoutChangeListener { _, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
+            if (right - left != oldRight - oldLeft || bottom - top != oldBottom - oldTop) {
+                reapplyPosition()
+            }
+        }
     }
 
     fun remove() {
@@ -142,6 +147,20 @@ class FloatingControlsView(
             }
             moveTriggerTo(x, y)
         }
+    }
+
+    private fun reapplyPosition() {
+        val fracX = prefs.getFloat(KEY_X, -1f)
+        val fracY = prefs.getFloat(KEY_Y, -1f)
+        if (fracX >= 0f && fracY >= 0f) {
+            moveTriggerTo(fracX * parent.width, fracY * parent.height)
+        } else {
+            moveTriggerTo(
+                (parent.width - buttonSizePx - marginPx).toFloat(),
+                parent.height * 0.25f,
+            )
+        }
+        if (expanded) positionActions()
     }
 
     private fun savePosition() {

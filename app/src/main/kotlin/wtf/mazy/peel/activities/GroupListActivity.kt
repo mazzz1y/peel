@@ -59,8 +59,12 @@ class GroupListActivity : AppCompatActivity() {
         val itemTouchHelper = ItemTouchHelper(dragCallback)
         itemTouchHelper.attachToRecyclerView(list)
 
-        findViewById<FloatingActionButton>(R.id.fab_add_group).setOnClickListener {
-            showAddGroupDialog()
+        val fab = findViewById<FloatingActionButton>(R.id.fab_add_group)
+        fab.setOnClickListener { showAddGroupDialog() }
+
+        findViewById<View>(android.R.id.content).addOnLayoutChangeListener {
+                _, left, _, right, _, oldLeft, _, oldRight, _ ->
+            if (right - left != oldRight - oldLeft) fab.requestLayout()
         }
 
         updateList()
