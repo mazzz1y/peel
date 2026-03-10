@@ -42,11 +42,12 @@ class SearchModeController(
         host.tabLayout?.animate()?.alpha(0f)?.setDuration(Const.ANIM_DURATION_FAST)?.withEndAction {
             host.tabLayout?.visibility = View.GONE
         }?.start()
+        val hasItems = (searchAdapter?.itemCount ?: 0) > 0
+        val visibleView = if (hasItems) searchResultsList else searchEmptyState
         fadeOutThenIn(host.viewPager, {
             host.viewPager?.visibility = View.GONE
             updateEmptyState()
-            searchEmptyState?.alpha = 0f
-        }, searchResultsList, searchEmptyState)
+        }, visibleView)
 
         host.fab.hide()
         applySearchToolbar()
