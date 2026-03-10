@@ -322,14 +322,16 @@ class WebAppListAdapter(
         )
     }
 
+    private fun loadItems(): MutableList<WebApp> =
+        when (groupFilter) {
+            null -> DataManager.instance.activeWebsites.toMutableList()
+            WebAppListFragment.UNGROUPED_FILTER ->
+                DataManager.instance.activeWebsitesForGroup(null).toMutableList()
+            else -> DataManager.instance.activeWebsitesForGroup(groupFilter).toMutableList()
+        }
+
     fun updateWebAppList() {
-        var newItems =
-            when (groupFilter) {
-                null -> DataManager.instance.activeWebsites.toMutableList()
-                WebAppListFragment.UNGROUPED_FILTER ->
-                    DataManager.instance.activeWebsitesForGroup(null).toMutableList()
-                else -> DataManager.instance.activeWebsitesForGroup(groupFilter).toMutableList()
-            }
+        var newItems = loadItems()
         if (searchQuery.isNotBlank()) {
             val query = searchQuery.lowercase()
             val groupNames = DataManager.instance.sortedGroups.associate { it.uuid to it.title }
@@ -345,6 +347,12 @@ class WebAppListAdapter(
         val diff = DiffUtil.calculateDiff(WebAppDiffCallback(items, newItems))
         items = newItems
         diff.dispatchUpdatesTo(this)
+    }
+
+    fun forceFullRebind() {
+        items = loadItems()
+        @Suppress("NotifyDataSetChanged")
+        notifyDataSetChanged()
     }
 
     private class WebAppDiffCallback(

@@ -52,6 +52,12 @@ class WebAppListFragment : Fragment(R.layout.fragment_web_app_list) {
         updateEmptyState()
     }
 
+    fun refreshSelectionState() {
+        adapter.forceFullRebind()
+        updateDragEnabled()
+        updateEmptyState()
+    }
+
     fun animateEnterSelection(toggledUuid: String) {
         val toggledPosition = adapter.items.indexOfFirst { it.uuid == toggledUuid }
         for (i in 0 until adapter.items.size) {

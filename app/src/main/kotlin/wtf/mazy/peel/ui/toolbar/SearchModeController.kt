@@ -1,7 +1,7 @@
 package wtf.mazy.peel.ui.toolbar
 
-import android.view.ViewGroup
 import android.view.View
+import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.widget.TextView
 import androidx.appcompat.widget.SearchView
@@ -14,7 +14,6 @@ import wtf.mazy.peel.util.Const
 
 class SearchModeController(
     private val host: ToolbarModeHost,
-    private val exitOtherMode: () -> Unit,
 ) {
 
     val isActive: Boolean get() = _searchMode
@@ -27,7 +26,6 @@ class SearchModeController(
 
     fun enter() {
         if (_searchMode) return
-        exitOtherMode()
         _searchMode = true
         host.updateBackPressEnabled()
 
@@ -78,6 +76,8 @@ class SearchModeController(
             host.tabLayout?.visibility = View.VISIBLE
         }
 
+        host.onSearchModeExited()
+
         searchResultsList?.animate()?.alpha(0f)?.setDuration(Const.ANIM_DURATION_MEDIUM)?.withEndAction {
             searchResultsList?.visibility = View.GONE
             searchEmptyState?.visibility = View.GONE
@@ -88,15 +88,42 @@ class SearchModeController(
         if (showTabs) {
             host.tabLayout?.animate()?.alpha(1f)?.setDuration(Const.ANIM_DURATION_MEDIUM)?.start()
         }
-
-        host.applyNormalToolbar()
-        host.fab.show()
-        host.refreshCurrentPages()
     }
 
     fun onDataChanged() {
         searchAdapter?.updateWebAppList()
         updateEmptyState()
+    }
+
+    fun notifySelectionEntered(toggledUuid: String) {
+        val adapter = searchAdapter ?: return
+        val toggledPosition = adapter.items.indexOfFirst { it.uuid == toggledUuid }
+        for (i in 0 until adapter.items.size) {
+            val payload = if (i == toggledPosition)
+                WebAppListAdapter.PAYLOAD_SELECTION_TOGGLE
+            else
+                WebAppListAdapter.PAYLOAD_MODE_CHANGE
+            adapter.notifyItemChanged(i, payload)
+        }
+    }
+
+    fun notifySelectionToggled(uuid: String) {
+        val adapter = searchAdapter ?: return
+        val position = adapter.items.indexOfFirst { it.uuid == uuid }
+        if (position >= 0) {
+            adapter.notifyItemChanged(position, WebAppListAdapter.PAYLOAD_SELECTION_TOGGLE)
+        }
+    }
+
+    fun notifySelectionExited(previouslySelected: Set<String>) {
+        val adapter = searchAdapter ?: return
+        for (i in 0 until adapter.items.size) {
+            val payload = if (adapter.items[i].uuid in previouslySelected)
+                WebAppListAdapter.PAYLOAD_SELECTION_TOGGLE
+            else
+                WebAppListAdapter.PAYLOAD_MODE_CHANGE
+            adapter.notifyItemChanged(i, payload)
+        }
     }
 
     private fun applySearchToolbar() {

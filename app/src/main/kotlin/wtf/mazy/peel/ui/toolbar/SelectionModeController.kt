@@ -12,7 +12,7 @@ import wtf.mazy.peel.util.NotificationUtils
 
 class SelectionModeController(
     private val host: ToolbarModeHost,
-    private val exitOtherMode: () -> Unit,
+    private val isSearchActive: () -> Boolean,
 ) {
 
     val isActive: Boolean get() = _selectionMode
@@ -24,7 +24,6 @@ class SelectionModeController(
     fun isSelected(uuid: String) = uuid in selectedUuids
 
     fun enter(uuid: String) {
-        exitOtherMode()
         host.fab.removeCallbacks(pendingExitRunnable)
         if (_selectionMode) {
             toggle(uuid)
@@ -35,21 +34,25 @@ class SelectionModeController(
         selectedUuids.add(uuid)
         host.updateBackPressEnabled()
 
-        applySelectionToolbar()
-        host.animateFabSwap(R.drawable.ic_baseline_share_24)
-        host.forEachFragment { it.animateEnterSelection(uuid) }
+        if (!isSearchActive()) {
+            applySelectionToolbar()
+            host.animateFabSwap(R.drawable.ic_baseline_share_24)
+        }
+        host.dispatchSelectionEntered(uuid)
     }
 
     fun toggle(uuid: String) {
         if (uuid in selectedUuids) selectedUuids.remove(uuid) else selectedUuids.add(uuid)
         if (selectedUuids.isEmpty()) {
-            host.forEachFragment { it.animateSelectionToggled(uuid) }
+            host.dispatchSelectionToggled(uuid)
             host.fab.postDelayed(pendingExitRunnable, EXIT_DELAY_MS)
             return
         }
-        host.toolbar.title =
-            host.hostActivity.getString(R.string.n_apps_selected, selectedUuids.size)
-        host.forEachFragment { it.animateSelectionToggled(uuid) }
+        if (!isSearchActive()) {
+            host.toolbar.title =
+                host.hostActivity.getString(R.string.n_apps_selected, selectedUuids.size)
+        }
+        host.dispatchSelectionToggled(uuid)
     }
 
     fun exit() {
@@ -59,9 +62,15 @@ class SelectionModeController(
         selectedUuids.clear()
         host.updateBackPressEnabled()
 
-        host.applyNormalToolbar()
-        host.animateFabSwap(R.drawable.ic_add_24dp)
-        host.forEachFragment { it.animateExitSelection(previouslySelected) }
+        if (!isSearchActive()) {
+            host.applyNormalToolbar()
+            host.animateFabSwap(R.drawable.ic_add_24dp)
+        }
+        host.dispatchSelectionExited(previouslySelected)
+    }
+
+    fun reapplyToolbar() {
+        applySelectionToolbar()
     }
 
     fun onFabClicked() {

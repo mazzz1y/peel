@@ -7,7 +7,6 @@ import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.tabs.TabLayout
 import wtf.mazy.peel.model.WebApp
-import wtf.mazy.peel.ui.webapplist.WebAppListFragment
 
 interface ToolbarModeHost {
     val hostActivity: AppCompatActivity
@@ -20,9 +19,13 @@ interface ToolbarModeHost {
     fun animateFabSwap(iconRes: Int)
     fun applyNormalToolbar()
     fun refreshCurrentPages()
-    fun forEachFragment(action: (WebAppListFragment) -> Unit)
     fun shareApps(webApps: List<WebApp>, includeSecrets: Boolean)
     fun updateBackPressEnabled()
+
+    fun dispatchSelectionEntered(toggledUuid: String)
+    fun dispatchSelectionToggled(uuid: String)
+    fun dispatchSelectionExited(previouslySelected: Set<String>)
+    fun onSearchModeExited()
 
     fun removeSearchViewFromToolbar() {
         val tb = toolbar

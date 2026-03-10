@@ -93,8 +93,8 @@ class MainActivity :
         viewPager = findViewById(R.id.viewPager)
         exportLoader = LoadingDialogController(this)
 
-        selectionController = SelectionModeController(this) { searchController.exit() }
-        searchController = SearchModeController(this) { selectionController.exit() }
+        searchController = SearchModeController(this)
+        selectionController = SelectionModeController(this) { searchController.isActive }
         searchController.searchResultsList = findViewById(R.id.searchResultsList)
         searchController.searchEmptyState = findViewById(R.id.searchEmptyState)
 
@@ -215,7 +215,7 @@ class MainActivity :
         }
     }
 
-    override fun forEachFragment(action: (WebAppListFragment) -> Unit) {
+    private fun forEachFragment(action: (WebAppListFragment) -> Unit) {
         for (i in 0 until (pagerAdapter?.itemCount ?: 0)) {
             val fragment = supportFragmentManager.findFragmentByTag("f$i")
             (fragment as? WebAppListFragment)?.let(action)
@@ -254,6 +254,42 @@ class MainActivity :
     override fun enterSelectionMode(uuid: String) = selectionController.enter(uuid)
 
     override fun toggleSelection(uuid: String) = selectionController.toggle(uuid)
+
+    override fun dispatchSelectionEntered(toggledUuid: String) {
+        if (searchController.isActive) {
+            searchController.notifySelectionEntered(toggledUuid)
+        } else {
+            forEachFragment { it.animateEnterSelection(toggledUuid) }
+        }
+    }
+
+    override fun dispatchSelectionToggled(uuid: String) {
+        if (searchController.isActive) {
+            searchController.notifySelectionToggled(uuid)
+        } else {
+            forEachFragment { it.animateSelectionToggled(uuid) }
+        }
+    }
+
+    override fun dispatchSelectionExited(previouslySelected: Set<String>) {
+        if (searchController.isActive) {
+            searchController.notifySelectionExited(previouslySelected)
+        } else {
+            forEachFragment { it.animateExitSelection(previouslySelected) }
+        }
+    }
+
+    override fun onSearchModeExited() {
+        if (selectionController.isActive) {
+            selectionController.reapplyToolbar()
+            animateFabSwap(R.drawable.ic_baseline_share_24)
+            forEachFragment { it.refreshSelectionState() }
+        } else {
+            applyNormalToolbar()
+            animateFabSwap(R.drawable.ic_add_24dp)
+            refreshCurrentPages()
+        }
+    }
 
     override fun applyNormalToolbar() {
         crossfadeToolbar {
@@ -327,7 +363,7 @@ class MainActivity :
         return when (intent.action) {
             Intent.ACTION_VIEW -> intent.data
             Intent.ACTION_SEND -> {
-                @Suppress("DEPRECATION") intent.getParcelableExtra<Uri>(Intent.EXTRA_STREAM)
+                @Suppress("DEPRECATION") intent.getParcelableExtra(Intent.EXTRA_STREAM)
             }
             else -> null
         }
