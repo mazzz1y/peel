@@ -383,7 +383,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     }
 
     private fun sharedUrlFromIntent(): String? =
-        intent.data?.takeIf { it.scheme == "http" || it.scheme == "https" }?.toString()
+        intent.getStringExtra(Const.INTENT_TARGET_URL)
 
     override fun finishActivity() = finish()
 

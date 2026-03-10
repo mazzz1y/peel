@@ -24,7 +24,7 @@ object WebViewLauncher {
                 }
             }
             val intent = createWebViewIntent(webapp, c) ?: return
-            if (url != null) intent.data = url.toUri()
+            if (url != null) intent.putExtra(Const.INTENT_TARGET_URL, url)
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
             c.startActivity(intent)
         } catch (_: Exception) {
