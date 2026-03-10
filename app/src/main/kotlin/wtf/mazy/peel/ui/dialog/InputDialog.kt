@@ -14,10 +14,10 @@ import com.google.android.material.textfield.TextInputLayout
 enum class InitialSelection { SELECT_ALL, CURSOR_AT_END }
 
 data class InputDialogConfig(
-    @StringRes val hintRes: Int,
-    @StringRes val titleRes: Int = 0,
+    @param:StringRes val hintRes: Int,
+    @param:StringRes val titleRes: Int = 0,
     val prefill: String = "",
-    @StringRes val positiveRes: Int = android.R.string.ok,
+    @param:StringRes val positiveRes: Int = android.R.string.ok,
     val inputType: Int = InputType.TYPE_CLASS_TEXT,
     val initialSelection: InitialSelection = InitialSelection.SELECT_ALL,
     val allowEmpty: Boolean = false,

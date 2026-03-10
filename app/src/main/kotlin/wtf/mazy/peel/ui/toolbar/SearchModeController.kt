@@ -39,19 +39,14 @@ class SearchModeController(
         searchResultsList?.adapter = searchAdapter
         searchAdapter?.updateWebAppList()
 
-        searchResultsList?.alpha = 0f
-        searchResultsList?.visibility = View.VISIBLE
-        updateEmptyState()
-        searchEmptyState?.alpha = 0f
-
-        host.tabLayout?.animate()?.alpha(0f)?.setDuration(Const.ANIM_DURATION_MEDIUM)?.withEndAction {
+        host.tabLayout?.animate()?.alpha(0f)?.setDuration(Const.ANIM_DURATION_FAST)?.withEndAction {
             host.tabLayout?.visibility = View.GONE
         }?.start()
-        host.viewPager?.animate()?.alpha(0f)?.setDuration(Const.ANIM_DURATION_MEDIUM)?.withEndAction {
+        fadeOutThenIn(host.viewPager, {
             host.viewPager?.visibility = View.GONE
-        }?.start()
-        searchResultsList?.animate()?.alpha(1f)?.setDuration(Const.ANIM_DURATION_MEDIUM)?.start()
-        searchEmptyState?.animate()?.alpha(1f)?.setDuration(Const.ANIM_DURATION_MEDIUM)?.start()
+            updateEmptyState()
+            searchEmptyState?.alpha = 0f
+        }, searchResultsList, searchEmptyState)
 
         host.fab.hide()
         applySearchToolbar()
@@ -68,26 +63,31 @@ class SearchModeController(
             imm?.hideSoftInputFromWindow(focused.windowToken, 0)
         }
 
-        val showTabs = DataManager.instance.sortedGroups.isNotEmpty()
-        host.viewPager?.alpha = 0f
-        host.viewPager?.visibility = View.VISIBLE
-        if (showTabs) {
-            host.tabLayout?.alpha = 0f
-            host.tabLayout?.visibility = View.VISIBLE
-        }
-
         host.onSearchModeExited()
 
-        searchResultsList?.animate()?.alpha(0f)?.setDuration(Const.ANIM_DURATION_MEDIUM)?.withEndAction {
+        val showTabs = DataManager.instance.sortedGroups.isNotEmpty()
+        fadeOutThenIn(searchResultsList, {
             searchResultsList?.visibility = View.GONE
             searchEmptyState?.visibility = View.GONE
             searchAdapter = null
             searchResultsList?.adapter = null
+        }, host.viewPager, if (showTabs) host.tabLayout else null)
+    }
+
+    private fun fadeOutThenIn(
+        outView: View?,
+        onHidden: () -> Unit,
+        vararg inViews: View?,
+    ) {
+        outView?.animate()?.alpha(0f)?.setDuration(Const.ANIM_DURATION_FAST)?.withEndAction {
+            onHidden()
+            inViews.forEach { view ->
+                view ?: return@forEach
+                view.alpha = 0f
+                view.visibility = View.VISIBLE
+                view.animate().alpha(1f).setDuration(Const.ANIM_DURATION_FAST).start()
+            }
         }?.start()
-        host.viewPager?.animate()?.alpha(1f)?.setDuration(Const.ANIM_DURATION_MEDIUM)?.start()
-        if (showTabs) {
-            host.tabLayout?.animate()?.alpha(1f)?.setDuration(Const.ANIM_DURATION_MEDIUM)?.start()
-        }
     }
 
     fun onDataChanged() {
