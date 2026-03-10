@@ -276,6 +276,8 @@ class MainActivity : AppCompatActivity(), SelectionModeHost {
         crossfadeToolbar {
             toolbar.menu.clear()
             menuInflater.inflate(R.menu.menu_selection, toolbar.menu)
+            toolbar.menu.findItem(R.id.action_move_selected)?.isVisible =
+                DataManager.instance.sortedGroups.size > 1
             toolbar.setOnMenuItemClickListener { onSelectionMenuItemClicked(it) }
             toolbar.setNavigationIcon(R.drawable.ic_baseline_arrow_back_24)
             toolbar.setNavigationOnClickListener { exitSelectionMode() }
