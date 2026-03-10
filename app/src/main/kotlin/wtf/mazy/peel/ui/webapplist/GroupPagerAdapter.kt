@@ -7,16 +7,10 @@ import wtf.mazy.peel.R
 import wtf.mazy.peel.model.WebAppGroup
 import wtf.mazy.peel.util.shortLabel
 
-/**
- * ViewPager2 adapter for group tabs.
- *
- * Pages 0..N-1 are groups, filtered by group UUID. If [showUngrouped] is true, the last page shows
- * ungrouped apps labeled "Other".
- */
 class GroupPagerAdapter(
     private val activity: FragmentActivity,
-    private val groups: List<WebAppGroup>,
-    private val showUngrouped: Boolean,
+    val groups: List<WebAppGroup>,
+    val showUngrouped: Boolean,
 ) : FragmentStateAdapter(activity) {
 
     override fun getItemCount(): Int = groups.size + if (showUngrouped) 1 else 0

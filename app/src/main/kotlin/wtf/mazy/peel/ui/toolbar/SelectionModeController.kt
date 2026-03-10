@@ -16,6 +16,7 @@ class SelectionModeController(
 ) {
 
     val isActive: Boolean get() = _selectionMode
+    val selectedIds: Set<String> get() = selectedUuids
 
     private var _selectionMode = false
     private val selectedUuids = mutableSetOf<String>()

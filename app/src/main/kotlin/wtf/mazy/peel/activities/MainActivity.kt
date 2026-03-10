@@ -2,8 +2,14 @@ package wtf.mazy.peel.activities
 
 import android.content.ActivityNotFoundException
 import android.content.Intent
+import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.Typeface
 import android.net.Uri
 import android.os.Bundle
+import android.text.SpannableString
+import android.text.Spannable
+import android.text.style.ReplacementSpan
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
@@ -15,6 +21,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.appbar.MaterialToolbar
+import com.google.android.material.color.MaterialColors
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.tabs.TabLayout
@@ -266,6 +273,7 @@ class MainActivity :
         } else {
             forEachFragment { it.animateEnterSelection(toggledUuid) }
         }
+        updateTabSelectionDots()
     }
 
     override fun dispatchSelectionToggled(uuid: String) {
@@ -274,6 +282,7 @@ class MainActivity :
         } else {
             forEachFragment { it.animateSelectionToggled(uuid) }
         }
+        updateTabSelectionDots()
     }
 
     override fun dispatchSelectionExited(previouslySelected: Set<String>) {
@@ -282,6 +291,45 @@ class MainActivity :
         } else {
             forEachFragment { it.animateExitSelection(previouslySelected) }
         }
+        updateTabSelectionDots()
+    }
+
+    private fun updateTabSelectionDots() {
+        val tabs = tabLayout ?: return
+        val adapter = pagerAdapter ?: return
+        val selected = selectionController.selectedIds
+        if (selected.isEmpty()) {
+            for (i in 0 until tabs.tabCount) {
+                tabs.getTabAt(i)?.text = adapter.getPageTitle(i)
+            }
+            return
+        }
+        val appsByGroup = DataManager.instance.activeWebsites
+            .filter { it.uuid in selected }
+            .groupBy { it.groupUuid }
+        val badgeBg = MaterialColors.getColor(
+            window.decorView, androidx.appcompat.R.attr.colorPrimary, 0,
+        )
+        val badgeFg = MaterialColors.getColor(
+            window.decorView, com.google.android.material.R.attr.colorOnPrimary, 0,
+        )
+        for (i in 0 until tabs.tabCount) {
+            val groupUuid = if (i < adapter.groups.size) adapter.groups[i].uuid else null
+            val title = adapter.getPageTitle(i)
+            val count = appsByGroup[groupUuid]?.size ?: 0
+            tabs.getTabAt(i)?.text = if (count > 0) {
+                val badge = " $count"
+                SpannableString("$title$badge").apply {
+                    setSpan(
+                        BadgeSpan(count.toString(), badgeBg, badgeFg),
+                        title.length, length,
+                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE,
+                    )
+                }
+            } else {
+                title
+            }
+        }
     }
 
     override fun onSearchModeExited() {
@@ -289,6 +337,7 @@ class MainActivity :
             selectionController.reapplyToolbar()
             animateFabSwap(R.drawable.ic_baseline_share_24)
             forEachFragment { it.refreshSelectionState() }
+            updateTabSelectionDots()
         } else {
             applyNormalToolbar()
             animateFabSwap(R.drawable.ic_add_24dp)
@@ -509,6 +558,39 @@ class MainActivity :
             settingsIntent.putExtra(Const.INTENT_WEBAPP_UUID, newSite.uuid)
             settingsIntent.putExtra(Const.INTENT_AUTO_FETCH, true)
             startActivity(settingsIntent)
+        }
+    }
+
+    private class BadgeSpan(
+        private val label: String,
+        private val bgColor: Int,
+        private val fgColor: Int,
+    ) : ReplacementSpan() {
+
+        override fun getSize(paint: Paint, text: CharSequence, start: Int, end: Int, fm: Paint.FontMetricsInt?): Int {
+            val textSize = paint.textSize * 0.7f
+            val badgePaint = Paint(paint).apply { this.textSize = textSize; typeface = Typeface.DEFAULT_BOLD }
+            val textWidth = badgePaint.measureText(label)
+            val diameter = maxOf(textWidth + textSize * 0.6f, textSize * 1.3f)
+            return (diameter + textSize * 0.4f).toInt()
+        }
+
+        override fun draw(canvas: Canvas, text: CharSequence, start: Int, end: Int, x: Float, top: Int, y: Int, bottom: Int, paint: Paint) {
+            val textSize = paint.textSize * 0.7f
+            val badgePaint = Paint(paint).apply { this.textSize = textSize; typeface = Typeface.DEFAULT_BOLD }
+            val textWidth = badgePaint.measureText(label)
+            val diameter = maxOf(textWidth + textSize * 0.6f, textSize * 1.3f)
+            val radius = diameter / 2f
+            val centerX = x + textSize * 0.4f + radius
+            val centerY = (top + bottom) / 2f
+
+            paint.color = bgColor
+            canvas.drawCircle(centerX, centerY, radius, paint)
+
+            badgePaint.color = fgColor
+            val labelX = centerX - textWidth / 2f
+            val labelY = centerY - (badgePaint.descent() + badgePaint.ascent()) / 2f
+            canvas.drawText(label, labelX, labelY, badgePaint)
         }
     }
 }
