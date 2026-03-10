@@ -79,7 +79,6 @@
     <string name="allow_location_access">ਟਿਕਾਣਾ</string>
     <string name="allow_drm_content">DRM ਸਮੱਗਰੀ</string>
     <string name="file_download">ਫ਼ਾਈਲ ਡਾਊਨਲੋਡ ਹੋ ਰਹੀ ਹੈ…</string>
-    <string name="file_download_failed">ਫ਼ਾਈਲ ਡਾਊਨਲੋਡ ਅਸਫਲ।</string>
     <string name="icon_update">ਤਸਵੀਰ ਅੱਪਡੇਟ ਕਰੋ</string>
     <string name="icon_remove">ਤਸਵੀਰ ਹਟਾਓ</string>
     <string name="show_progress_bar_during_page_load">ਲੋਡਿੰਗ ਸੂਚਕ</string>
@@ -104,7 +103,6 @@
     <string name="block_all_third_party_requests">ਤੀਜੀ-ਧਿਰ ਬੇਨਤੀਆਂ ਬਲਾਕ ਕਰੋ</string>
     <string name="sandbox">ਸੈਂਡਬਾਕਸ</string>
     <string name="no_sandbox">ਸੈਂਡਬਾਕਸ ਨਾ ਵਰਤੋ</string>
-    <string name="all_sandboxes_used">ਸਾਰੇ ਸੈਂਡਬਾਕਸ ਵਰਤੋਂ ਵਿੱਚ ਹਨ।</string>
     <string name="enable_sandbox">ਸੈਂਡਬਾਕਸ ਚਾਲੂ ਕਰੋ</string>
     <string name="ephemeral_sandbox">ਅਸਥਾਈ ਸਟੋਰੇਜ</string>
     <string name="clear_sandbox_data">ਸੈਂਡਬਾਕਸ ਡੇਟਾ ਸਾਫ਼ ਕਰੋ</string>
@@ -132,7 +130,6 @@
     <string name="permission_prompt_location">%1$s ਨੂੰ ਟਿਕਾਣਾ ਐਕਸੈਸ ਦੀ ਇਜਾਜ਼ਤ ਦਿਓ?</string>
     <string name="create_shortcut">ਸ਼ਾਰਟਕੱਟ ਬਣਾਓ</string>
     <string name="create">ਬਣਾਓ</string>
-    <string name="shortcut_updated">ਸ਼ਾਰਟਕੱਟ ਅੱਪਡੇਟ ਹੋਇਆ।</string>
     <string name="back">ਪਿੱਛੇ</string>
     <string name="forward">ਅੱਗੇ</string>
     <string name="copy_url">URL ਕਾਪੀ ਕਰੋ</string>
@@ -171,11 +168,9 @@
     <string name="drag_to_reorder">ਕ੍ਰਮ ਬਦਲਣ ਲਈ ਖਿੱਚੋ</string>
     <string name="app_icon">ਐਪ ਆਈਕਨ</string>
     <string name="select_setting_to_override">ਸੈਟਿੰਗ ਚੁਣੋ</string>
-    <string name="override_picker_hint">ਇਸ ਵੈੱਬ ਐਪ ਲਈ ਕਸਟਮਾਈਜ਼ ਕਰਨ ਲਈ ਇੱਕ ਸੈਟਿੰਗ ਚੁਣੋ। ਇਹ ਗਲੋਬਲ ਡਿਫ਼ਾਲਟ ਦੀ ਬਜਾਏ ਆਪਣਾ ਮੁੱਲ ਵਰਤੇਗੀ।</string>
     <string name="add_override">ਓਵਰਰਾਈਡ ਸ਼ਾਮਲ ਕਰੋ</string>
     <string name="remove_override">ਓਵਰਰਾਈਡ ਹਟਾਓ</string>
     <string name="overridden_settings">ਓਵਰਰਾਈਡ ਕੀਤੀਆਂ ਸੈਟਿੰਗਾਂ</string>
-    <string name="no_overrides_message">ਇਹ ਵੈੱਬ ਐਪ ਸਾਰੀਆਂ ਗਲੋਬਲ ਸੈਟਿੰਗਾਂ ਵਰਤਦੀ ਹੈ। ਖਾਸ ਸੈਟਿੰਗਾਂ ਕਸਟਮਾਈਜ਼ ਕਰਨ ਲਈ \"ਓਵਰਰਾਈਡ ਸ਼ਾਮਲ ਕਰੋ\" ਦਬਾਓ।</string>
     <string name="header_name">ਨਾਮ</string>
     <string name="header_value">ਮੁੱਲ</string>
     <string name="add">ਸ਼ਾਮਲ ਕਰੋ</string>

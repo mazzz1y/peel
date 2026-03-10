@@ -11,7 +11,7 @@
     <string name="clear_cache_after_usage">Limpar cache ao sair</string>
     <string name="fetch_failed">Não foi possível obter dados do site</string>
     <string name="delete_question">Tem certeza que deseja remover este site?</string>
-    <string name="enter_valid_url">Por favor, insira um endereço web válido.</string>
+    <string name="enter_valid_url">Por favor, insira um endereço web válido</string>
     <string name="edit_webapp_settings">Configurações do Web App</string>
     <string name="add_webapp">Adicionar Web App</string>
     <string name="empty_state_message">Nenhum Web App.\nToque em + para adicionar o primeiro.</string>
@@ -29,11 +29,11 @@
 
     <string name="web_app_settings">Configurações do Web App</string>
     <string name="do_not_load_images">Bloquear imagens</string>
-    <string name="ssl_error_msg_line1">Esta página tem um problema com o certificado SSL.</string>
-    <string name="ssl_error_unknown_authority">A autoridade certificadora não é confiável.</string>
-    <string name="ssl_error_expired">O certificado expirou.</string>
-    <string name="ssl_error_id_mismatch">O certificado não corresponde ao nome do host.</string>
-    <string name="ssl_error_notyetvalid">O certificado ainda não é válido.</string>
+    <string name="ssl_error_msg_line1">Esta página tem um problema com o certificado SSL</string>
+    <string name="ssl_error_unknown_authority">A autoridade certificadora não é confiável</string>
+    <string name="ssl_error_expired">O certificado expirou</string>
+    <string name="ssl_error_id_mismatch">O certificado não corresponde ao nome do host</string>
+    <string name="ssl_error_notyetvalid">O certificado ainda não é válido</string>
     <string name="load_anyway">Carregar mesmo assim</string>
     <string name="https_only_blocked">Bloqueado: conexão não criptografada</string>
     <string name="ssl_error_blocked">Bloqueado: %1$s</string>
@@ -80,7 +80,6 @@
     <string name="allow_location_access">Localização</string>
     <string name="allow_drm_content">Conteúdo DRM</string>
     <string name="file_download">Baixando arquivo…</string>
-    <string name="file_download_failed">Falha ao baixar arquivo.</string>
     <string name="icon_update">Atualizar imagem</string>
     <string name="icon_remove">Remover imagem</string>
     <string name="show_progress_bar_during_page_load">Indicador de carregamento</string>
@@ -95,7 +94,7 @@
     <string name="dark_mode">Modo escuro</string>
     <string name="ssl_errors">Erros SSL</string>
     <string name="ignore_ssl_errors">Ignorar erros SSL</string>
-    <string name="webapp_already_deleted">Este Web App foi excluído. Você pode excluir este atalho.</string>
+    <string name="webapp_already_deleted">Este Web App foi excluído. Você pode excluir este atalho</string>
     <string name="override_global_settings">Substituir configurações globais</string>
     <string name="global_web_app_settings">Configurações globais do Web App</string>
     <string name="general">Geral</string>
@@ -105,7 +104,6 @@
     <string name="block_all_third_party_requests">Bloquear requisições de terceiros</string>
     <string name="sandbox">Sandbox</string>
     <string name="no_sandbox">Não usar sandbox</string>
-    <string name="all_sandboxes_used">Todas as sandboxes estão em uso.</string>
     <string name="enable_sandbox">Ativar sandbox</string>
     <string name="ephemeral_sandbox">Armazenamento temporário</string>
     <string name="clear_sandbox_data">Limpar dados da sandbox</string>
@@ -115,11 +113,11 @@
     <string name="clear_sandbox_storage">Incluir armazenamento da sandbox</string>
     <string name="factory_reset">Redefinição de fábrica</string>
     <string name="show_fullscreen">Modo tela cheia</string>
-    <string name="site_not_found">Não foi possível carregar a página.</string>
+    <string name="site_not_found">Não foi possível carregar a página</string>
     <string name="connection_error">Erro de conexão: %1$s</string>
     <string name="retry">Tentar novamente</string>
     <string name="exit">Sair</string>
-    <string name="icon_not_found">Não foi possível carregar o ícone.</string>
+    <string name="icon_not_found">Não foi possível carregar o ícone</string>
     <string name="keep_screen_awake">Manter tela ligada</string>
     <string name="allow_camera_access">Câmera</string>
     <string name="allow_microphone_access">Microfone</string>
@@ -134,7 +132,6 @@
 
     <string name="create_shortcut">Criar atalho</string>
     <string name="create">Criar</string>
-    <string name="shortcut_updated">Atalho atualizado.</string>
     <string name="back">Voltar</string>
     <string name="forward">Avançar</string>
     <string name="copy_url">Copiar URL</string>
@@ -155,12 +152,12 @@
     <string name="to_main_menu">Ir ao menu principal</string>
     <string name="cancel">Cancelar</string>
     <string name="ok">OK</string>
-    <string name="no_biometric_devices">Seu dispositivo não suporta autenticação biométrica.</string>
-    <string name="no_biometric_keys_enrolled">Seu dispositivo suporta biometria, mas nenhum método foi configurado.</string>
+    <string name="no_biometric_devices">Seu dispositivo não suporta autenticação biométrica</string>
+    <string name="no_biometric_keys_enrolled">Seu dispositivo suporta biometria, mas nenhum método foi configurado</string>
     <string name="webview_activity_launch_failed">Não foi possível iniciar o Web App</string>
 
     <string name="undo">Desfazer</string>
-    <string name="x_was_removed">%1$s foi removido.</string>
+    <string name="x_was_removed">%1$s foi removido</string>
     <string name="username">Nome de usuário</string>
     <string name="password">Senha</string>
 
@@ -178,11 +175,9 @@
     <string name="app_icon">Ícone do app</string>
 
     <string name="select_setting_to_override">Selecionar configuração</string>
-    <string name="override_picker_hint">Escolha uma configuração para personalizar para este Web App. Ele usará seu próprio valor em vez do padrão global.</string>
     <string name="add_override">Adicionar substituição</string>
     <string name="remove_override">Remover substituição</string>
     <string name="overridden_settings">Configurações substituídas</string>
-    <string name="no_overrides_message">Este Web App usa todas as configurações globais. Toque em \"Adicionar substituição\" para personalizar configurações específicas.</string>
 
     <string name="header_name">Nome</string>
     <string name="header_value">Valor</string>

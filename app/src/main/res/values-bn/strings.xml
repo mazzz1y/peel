@@ -80,7 +80,6 @@
     <string name="allow_location_access">অবস্থান</string>
     <string name="allow_drm_content">DRM বিষয়বস্তু</string>
     <string name="file_download">ফাইল ডাউনলোড হচ্ছে…</string>
-    <string name="file_download_failed">ফাইল ডাউনলোড ব্যর্থ।</string>
     <string name="icon_update">ছবি আপডেট করুন</string>
     <string name="icon_remove">ছবি সরান</string>
     <string name="show_progress_bar_during_page_load">লোডিং নির্দেশক</string>
@@ -105,7 +104,6 @@
     <string name="block_all_third_party_requests">তৃতীয় পক্ষের অনুরোধ ব্লক করুন</string>
     <string name="sandbox">স্যান্ডবক্স</string>
     <string name="no_sandbox">স্যান্ডবক্স ব্যবহার করবেন না</string>
-    <string name="all_sandboxes_used">সমস্ত স্যান্ডবক্স ব্যবহৃত হচ্ছে।</string>
     <string name="enable_sandbox">স্যান্ডবক্স সক্রিয় করুন</string>
     <string name="ephemeral_sandbox">অস্থায়ী সংরক্ষণ</string>
     <string name="clear_sandbox_data">স্যান্ডবক্স ডেটা মুছুন</string>
@@ -134,7 +132,6 @@
 
     <string name="create_shortcut">শর্টকাট তৈরি করুন</string>
     <string name="create">তৈরি করুন</string>
-    <string name="shortcut_updated">শর্টকাট আপডেট হয়েছে।</string>
     <string name="back">পেছনে</string>
     <string name="forward">সামনে</string>
     <string name="copy_url">URL কপি করুন</string>
@@ -178,11 +175,9 @@
     <string name="app_icon">অ্যাপ আইকন</string>
 
     <string name="select_setting_to_override">সেটিং নির্বাচন করুন</string>
-    <string name="override_picker_hint">এই ওয়েব অ্যাপের জন্য কাস্টমাইজ করতে একটি সেটিং বেছে নিন। এটি গ্লোবাল ডিফল্টের পরিবর্তে নিজস্ব মান ব্যবহার করবে।</string>
     <string name="add_override">ওভাররাইড যোগ করুন</string>
     <string name="remove_override">ওভাররাইড সরান</string>
     <string name="overridden_settings">ওভাররাইড করা সেটিংস</string>
-    <string name="no_overrides_message">এই ওয়েব অ্যাপ সব গ্লোবাল সেটিংস ব্যবহার করে। নির্দিষ্ট সেটিংস কাস্টমাইজ করতে \"ওভাররাইড যোগ করুন\" চাপুন।</string>
 
     <string name="header_name">নাম</string>
     <string name="header_value">মান</string>

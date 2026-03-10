@@ -11,7 +11,7 @@
     <string name="clear_cache_after_usage">Очищать кеш при выходе</string>
     <string name="fetch_failed">Не удалось получить данные с сайта</string>
     <string name="delete_question">Вы уверены, что хотите удалить этот сайт?</string>
-    <string name="enter_valid_url">Пожалуйста, введите корректный веб-адрес.</string>
+    <string name="enter_valid_url">Пожалуйста, введите корректный веб-адрес</string>
     <string name="edit_webapp_settings">Настройки веб-приложения</string>
     <string name="add_webapp">Добавить веб-приложение</string>
     <string name="empty_state_message">Нет веб-приложений.\nНажмите +, чтобы добавить первое.</string>
@@ -29,11 +29,11 @@
 
     <string name="web_app_settings">Настройки веб-приложения</string>
     <string name="do_not_load_images">Блокировать изображения</string>
-    <string name="ssl_error_msg_line1">У этой страницы проблема с SSL-сертификатом.</string>
-    <string name="ssl_error_unknown_authority">Центр сертификации не является доверенным.</string>
-    <string name="ssl_error_expired">Сертификат просрочен.</string>
-    <string name="ssl_error_id_mismatch">Сертификат не соответствует имени хоста.</string>
-    <string name="ssl_error_notyetvalid">Сертификат ещё не действителен.</string>
+    <string name="ssl_error_msg_line1">У этой страницы проблема с SSL-сертификатом</string>
+    <string name="ssl_error_unknown_authority">Центр сертификации не является доверенным</string>
+    <string name="ssl_error_expired">Сертификат просрочен</string>
+    <string name="ssl_error_id_mismatch">Сертификат не соответствует имени хоста</string>
+    <string name="ssl_error_notyetvalid">Сертификат ещё не действителен</string>
     <string name="load_anyway">Загрузить всё равно</string>
     <string name="https_only_blocked">Заблокировано: незашифрованное соединение</string>
     <string name="ssl_error_blocked">Заблокировано: %1$s</string>
@@ -80,7 +80,6 @@
     <string name="allow_location_access">Местоположение</string>
     <string name="allow_drm_content">DRM-контент</string>
     <string name="file_download">Файл загружается…</string>
-    <string name="file_download_failed">Не удалось загрузить файл.</string>
     <string name="icon_update">Обновить изображение</string>
     <string name="icon_remove">Удалить изображение</string>
     <string name="show_progress_bar_during_page_load">Индикатор загрузки</string>
@@ -95,7 +94,7 @@
     <string name="dark_mode">Тёмная тема</string>
     <string name="ssl_errors">Ошибки SSL</string>
     <string name="ignore_ssl_errors">Игнорировать ошибки SSL</string>
-    <string name="webapp_already_deleted">Это веб-приложение удалено. Вы можете удалить этот ярлык.</string>
+    <string name="webapp_already_deleted">Это веб-приложение удалено. Вы можете удалить этот ярлык</string>
     <string name="override_global_settings">Переопределить глобальные настройки</string>
     <string name="global_web_app_settings">Глобальные настройки веб-приложений</string>
     <string name="general">Основное</string>
@@ -105,7 +104,6 @@
     <string name="block_all_third_party_requests">Блокировать сторонние запросы</string>
     <string name="sandbox">Песочница</string>
     <string name="no_sandbox">Не использовать песочницу</string>
-    <string name="all_sandboxes_used">Все песочницы заняты.</string>
     <string name="enable_sandbox">Включить песочницу</string>
     <string name="ephemeral_sandbox">Временное хранилище</string>
     <string name="clear_sandbox_data">Очистить данные песочницы</string>
@@ -115,11 +113,11 @@
     <string name="clear_sandbox_storage">Включить хранилище песочницы</string>
     <string name="factory_reset">Сброс всех данных</string>
     <string name="show_fullscreen">Полноэкранный режим</string>
-    <string name="site_not_found">Не удалось загрузить страницу.</string>
+    <string name="site_not_found">Не удалось загрузить страницу</string>
     <string name="connection_error">Ошибка соединения: %1$s</string>
     <string name="retry">Повторить</string>
     <string name="exit">Выход</string>
-    <string name="icon_not_found">Не удалось загрузить иконку.</string>
+    <string name="icon_not_found">Не удалось загрузить иконку</string>
     <string name="keep_screen_awake">Не выключать экран</string>
     <string name="allow_camera_access">Камера</string>
     <string name="allow_microphone_access">Микрофон</string>
@@ -134,7 +132,6 @@
 
     <string name="create_shortcut">Создать ярлык</string>
     <string name="create">Создать</string>
-    <string name="shortcut_updated">Ярлык обновлён.</string>
     <string name="back">Назад</string>
     <string name="forward">Вперёд</string>
     <string name="copy_url">Копировать URL</string>
@@ -155,12 +152,12 @@
     <string name="to_main_menu">В главное меню</string>
     <string name="cancel">Отмена</string>
     <string name="ok">ОК</string>
-    <string name="no_biometric_devices">Ваше устройство не поддерживает биометрическую аутентификацию.</string>
-    <string name="no_biometric_keys_enrolled">Ваше устройство поддерживает биометрию, но ни один метод не настроен.</string>
+    <string name="no_biometric_devices">Ваше устройство не поддерживает биометрическую аутентификацию</string>
+    <string name="no_biometric_keys_enrolled">Ваше устройство поддерживает биометрию, но ни один метод не настроен</string>
     <string name="webview_activity_launch_failed">Не удалось запустить веб-приложение</string>
 
     <string name="undo">Отменить</string>
-    <string name="x_was_removed">%1$s удалено.</string>
+    <string name="x_was_removed">%1$s удалено</string>
     <string name="username">Имя пользователя</string>
     <string name="password">Пароль</string>
 
@@ -178,11 +175,9 @@
     <string name="app_icon">Иконка приложения</string>
 
     <string name="select_setting_to_override">Выберите настройку</string>
-    <string name="override_picker_hint">Выберите настройку, которую хотите изменить для этого веб-приложения. Она будет использовать собственное значение вместо глобального.</string>
     <string name="add_override">Добавить переопределение</string>
     <string name="remove_override">Удалить переопределение</string>
     <string name="overridden_settings">Переопределённые настройки</string>
-    <string name="no_overrides_message">Это веб-приложение использует все глобальные настройки. Нажмите «Добавить переопределение», чтобы изменить отдельные настройки.</string>
 
     <string name="header_name">Название</string>
     <string name="header_value">Значение</string>

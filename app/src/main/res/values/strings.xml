@@ -12,7 +12,7 @@
     <string name="url" translatable="false">URL</string>
     <string name="fetch_failed">Failed to fetch data from website</string>
     <string name="delete_question">Are you sure you want to remove this website?</string>
-    <string name="enter_valid_url">Please enter a valid web address.</string>
+    <string name="enter_valid_url">Please enter a valid web address</string>
     <string name="edit_webapp_settings">Edit Web App settings</string>
     <string name="add_webapp">Add Web App</string>
     <string name="empty_state_message">No web apps yet.\nTap the + button to add your first app.</string>
@@ -31,11 +31,11 @@
 
     <string name="web_app_settings">Web App Settings</string>
     <string name="do_not_load_images">Block images</string>
-    <string name="ssl_error_msg_line1">This page has a problem with its SSL certificate.</string>
-    <string name="ssl_error_unknown_authority">The certificate authority is not trusted.</string>
-    <string name="ssl_error_expired">The certificate has expired.</string>
-    <string name="ssl_error_id_mismatch">The certificate does not match the host name.</string>
-    <string name="ssl_error_notyetvalid">The certificate is not yet valid.</string>
+    <string name="ssl_error_msg_line1">This page has a problem with its SSL certificate</string>
+    <string name="ssl_error_unknown_authority">The certificate authority is not trusted</string>
+    <string name="ssl_error_expired">The certificate has expired</string>
+    <string name="ssl_error_id_mismatch">The certificate does not match the host name</string>
+    <string name="ssl_error_notyetvalid">The certificate is not yet valid</string>
     <string name="load_anyway">Load anyway</string>
     <string name="https_only_blocked">Blocked: unencrypted connection</string>
     <string name="ssl_error_blocked">Blocked: %1$s</string>
@@ -82,7 +82,6 @@
     <string name="allow_location_access">Location</string>
     <string name="allow_drm_content">DRM content</string>
     <string name="file_download">File is being downloaded…</string>
-    <string name="file_download_failed">Could not download file.</string>
     <string name="icon_update">Update image</string>
     <string name="icon_remove">Remove image</string>
     <string name="show_progress_bar_during_page_load">Loading indicator</string>
@@ -97,7 +96,7 @@
     <string name="dark_mode">Dark Mode</string>
     <string name="ssl_errors">SSL Errors</string>
     <string name="ignore_ssl_errors">Ignore SSL errors</string>
-    <string name="webapp_already_deleted">This Web App is no longer available. You can delete this shortcut.</string>
+    <string name="webapp_already_deleted">This Web App is no longer available. You can delete this shortcut</string>
     <string name="override_global_settings">Override global settings</string>
     <string name="global_web_app_settings">Global Web App Settings</string>
     <string name="general">General</string>
@@ -107,7 +106,6 @@
     <string name="block_all_third_party_requests">Block third-party requests</string>
     <string name="sandbox">Sandbox</string>
     <string name="no_sandbox">Do not use sandbox</string>
-    <string name="all_sandboxes_used">All sandboxes are currently in use.</string>
     <string name="enable_sandbox">Enable Sandbox</string>
     <string name="ephemeral_sandbox">Ephemeral storage</string>
     <string name="clear_sandbox_data">Clear sandbox data</string>
@@ -117,11 +115,11 @@
     <string name="clear_sandbox_storage">Include sandbox storage</string>
     <string name="factory_reset">Factory reset</string>
     <string name="show_fullscreen">Fullscreen mode</string>
-    <string name="site_not_found">Page could not be loaded.</string>
+    <string name="site_not_found">Page could not be loaded</string>
     <string name="connection_error">Connection error: %1$s</string>
     <string name="retry">Retry</string>
     <string name="exit">Exit</string>
-    <string name="icon_not_found">Icon could not be loaded.</string>
+    <string name="icon_not_found">Icon could not be loaded</string>
     <string name="keep_screen_awake">Keep screen on</string>
     <string name="allow_camera_access">Camera</string>
     <string name="allow_microphone_access">Microphone</string>
@@ -136,7 +134,6 @@
 
     <string name="create_shortcut">Create shortcut</string>
     <string name="create">Create</string>
-    <string name="shortcut_updated">Shortcut updated.</string>
     <string name="back">Back</string>
     <string name="forward">Forward</string>
     <string name="copy_url">Copy URL</string>
@@ -157,12 +154,12 @@
     <string name="to_main_menu">To Main Menu</string>
     <string name="cancel">Cancel</string>
     <string name="ok">OK</string>
-    <string name="no_biometric_devices">Your device does not support biometric authentication.</string>
-    <string name="no_biometric_keys_enrolled">Your device supports biometric authentication, but no method is enrolled.</string>
+    <string name="no_biometric_devices">Your device does not support biometric authentication</string>
+    <string name="no_biometric_keys_enrolled">Your device supports biometric authentication, but no method is enrolled</string>
     <string name="webview_activity_launch_failed">Web App could not be started</string>
 
     <string name="undo">Undo</string>
-    <string name="x_was_removed">%1$s was removed.</string>
+    <string name="x_was_removed">%1$s was removed</string>
     <string name="username">Username</string>
     <string name="password">Password</string>
 
@@ -180,11 +177,9 @@
     <string name="app_icon">App icon</string>
 
     <string name="select_setting_to_override">Select setting</string>
-    <string name="override_picker_hint">Choose a setting to customize for this web app. It will use its own value instead of the global default.</string>
     <string name="add_override">Add Override</string>
     <string name="remove_override">Remove Override</string>
     <string name="overridden_settings">Settings Override</string>
-    <string name="no_overrides_message">This web app uses all global settings. Tap "Add Override" to customize specific settings.</string>
 
     <string name="header_name">Name</string>
     <string name="header_value">Value</string>

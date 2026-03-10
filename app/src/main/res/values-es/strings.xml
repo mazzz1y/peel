@@ -9,7 +9,7 @@
     <string name="accept_third_party_cookies">Acceptar cookies de terceros</string>
     <string name="clear_cache_after_usage">Eliminar el cache después del uso</string>
     <string name="delete_question">¿Está seguro de que quiere eliminar este sitio web?</string>
-    <string name="enter_valid_url">Por favor, introduzca una dirección web válida.</string>
+    <string name="enter_valid_url">Por favor, introduzca una dirección web válida</string>
     <string name="edit_webapp_settings">Editar la configuración de la aplicación web</string>
     <string name="add_webapp">Añadir aplicación web</string>
     <string name="empty_state_message">No hay aplicaciones web todavía.\nToca el botón + para añadir tu primera aplicación.</string>
@@ -20,11 +20,11 @@
     <string name="app_info">Acerca de</string>
     <string name="web_app_settings">Configuración de la aplicación web</string>
     <string name="do_not_load_images">No cargar imágenes</string>
-    <string name="ssl_error_msg_line1">Esta página tiene un problema con su certificado SSL.</string>
-    <string name="ssl_error_unknown_authority">La autoridad de certificación no es de confianza.</string>
-    <string name="ssl_error_expired">El certificado ha caducado.</string>
-    <string name="ssl_error_id_mismatch">El certificado no coincide con el nombre del host.</string>
-    <string name="ssl_error_notyetvalid">El certificado aún no es válido.</string>
+    <string name="ssl_error_msg_line1">Esta página tiene un problema con su certificado SSL</string>
+    <string name="ssl_error_unknown_authority">La autoridad de certificación no es de confianza</string>
+    <string name="ssl_error_expired">El certificado ha caducado</string>
+    <string name="ssl_error_id_mismatch">El certificado no coincide con el nombre del host</string>
+    <string name="ssl_error_notyetvalid">El certificado aún no es válido</string>
     <string name="load_anyway">Cargar de todos modos</string>
     <string name="allow_http">Permitir HTTP</string>
     <string name="https_only_blocked">Bloqueado: conexión no cifrada</string>
@@ -65,7 +65,6 @@
     <string name="allow_drm_content">Permitir contenidos DRM</string>
 
     <string name="file_download">El archivo se está descargando...</string>
-    <string name="file_download_failed">Descarga fallida.</string>
     <string name="show_progress_bar_during_page_load">Mostrar la barra de progreso durante la carga de la página</string>
     <string name="webapp_autoreload">Recargar automáticamente la página</string>
     <string name="webapp_interval_for_reload">Intervalo en segundos</string>
@@ -78,26 +77,24 @@
     <string name="dark_mode">Modo oscuro</string>
     <string name="ssl_errors">Errores SSL</string>
     <string name="ignore_ssl_errors">Ignorar los errores de SSL</string>
-    <string name="webapp_already_deleted">Esta aplicación web ya no está disponible. Puede eliminar este acceso directo.</string>
+    <string name="webapp_already_deleted">Esta aplicación web ya no está disponible. Puede eliminar este acceso directo</string>
     <string name="override_global_settings">Anular la configuración general</string>
     <string name="global_web_app_settings">Configuración general de la aplicación web</string>
     <string name="general">General</string>
     <string name="backup">Copia de seguridad</string>
     <string name="block_all_third_party_requests">Bloquear solicitudes de terceros</string>
     <string name="sandbox">Sandbox</string>
-    <string name="no_sandbox">No usar la sandbox.</string>
-    <string name="all_sandboxes_used">Todas las sandboxes están en uso actualmente.</string>
+    <string name="no_sandbox">No usar la sandbox</string>
     <string name="enable_sandbox">Habilitar Sandbox</string>
     <string name="ephemeral_sandbox">Almacenamiento efímero</string>
     <string name="show_fullscreen">Pantalla completa (modo inmersivo)</string>
-    <string name="site_not_found">No se ha podido cargar la página.</string>
-    <string name="icon_not_found">No se ha podido cargar el icono.</string>
+    <string name="site_not_found">No se ha podido cargar la página</string>
+    <string name="icon_not_found">No se ha podido cargar el icono</string>
     <string name="keep_screen_awake">Mantener la pantalla despierta</string>
     <string name="allow_camera_access">Permitir el acceso a la cámara</string>
     <string name="allow_microphone_access">Permitir el acceso al micrófono</string>
     <string name="create_shortcut">Crear acceso directo</string>
     <string name="create">Crear</string>
-    <string name="shortcut_updated">Acceso directo actualizado.</string>
     <string name="back">Volver</string>
     <string name="forward">Avanzar</string>
     <string name="copy_url">Copiar URL</string>
@@ -113,12 +110,12 @@
     <string name="to_main_menu">Ir al menú principal</string>
     <string name="cancel">Cancelar</string>
     <string name="ok">De Acuerdo</string>
-    <string name="no_biometric_devices">Su dispositivo no admite la autenticación biométrica.</string>
-    <string name="no_biometric_keys_enrolled">Su dispositivo admite la autenticación biométrica, pero aún no ha registrado ningún método.</string>
+    <string name="no_biometric_devices">Su dispositivo no admite la autenticación biométrica</string>
+    <string name="no_biometric_keys_enrolled">Su dispositivo admite la autenticación biométrica, pero aún no ha registrado ningún método</string>
     <string name="webview_activity_launch_failed">La Aplicación Web no pudo ser iniciada</string>
 
     <string name="undo">Deshacer</string>
-    <string name="x_was_removed">Se ha eliminado %1$s.</string>
+    <string name="x_was_removed">Se ha eliminado %1$s</string>
     <string name="username">Nombre de usuario</string>
     <string name="password">Contraseña</string>
 
@@ -150,11 +147,9 @@
     <string name="drag_to_reorder">Arrastrar para reordenar</string>
     <string name="app_icon">Icono de la aplicación</string>
     <string name="select_setting_to_override">Seleccionar ajuste</string>
-    <string name="override_picker_hint">Elige una configuración para personalizar para esta aplicación web. Usará su propio valor en lugar del valor global predeterminado.</string>
     <string name="add_override">Añadir anulación</string>
     <string name="remove_override">Eliminar anulación</string>
     <string name="overridden_settings">Anulaciones de configuración</string>
-    <string name="no_overrides_message">Esta aplicación web usa todas las configuraciones globales. Toca \"Añadir anulación\" para personalizar configuraciones específicas.</string>
     <string name="header_name">Nombre</string>
     <string name="header_value">Valor</string>
     <string name="add">Añadir</string>

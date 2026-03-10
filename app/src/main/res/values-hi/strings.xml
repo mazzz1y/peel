@@ -80,7 +80,6 @@
     <string name="allow_location_access">स्थान</string>
     <string name="allow_drm_content">DRM सामग्री</string>
     <string name="file_download">फ़ाइल डाउनलोड हो रही है…</string>
-    <string name="file_download_failed">फ़ाइल डाउनलोड विफल।</string>
     <string name="icon_update">चित्र अपडेट करें</string>
     <string name="icon_remove">चित्र हटाएं</string>
     <string name="show_progress_bar_during_page_load">लोडिंग संकेतक</string>
@@ -105,7 +104,6 @@
     <string name="block_all_third_party_requests">तृतीय-पक्ष अनुरोध अवरोधित करें</string>
     <string name="sandbox">सैंडबॉक्स</string>
     <string name="no_sandbox">सैंडबॉक्स का उपयोग न करें</string>
-    <string name="all_sandboxes_used">सभी सैंडबॉक्स उपयोग में हैं।</string>
     <string name="enable_sandbox">सैंडबॉक्स सक्षम करें</string>
     <string name="ephemeral_sandbox">अस्थायी संग्रहण</string>
     <string name="clear_sandbox_data">सैंडबॉक्स डेटा साफ़ करें</string>
@@ -134,7 +132,6 @@
 
     <string name="create_shortcut">शॉर्टकट बनाएं</string>
     <string name="create">बनाएं</string>
-    <string name="shortcut_updated">शॉर्टकट अपडेट किया गया।</string>
     <string name="back">पीछे</string>
     <string name="forward">आगे</string>
     <string name="copy_url">URL कॉपी करें</string>
@@ -178,11 +175,9 @@
     <string name="app_icon">ऐप आइकन</string>
 
     <string name="select_setting_to_override">सेटिंग चुनें</string>
-    <string name="override_picker_hint">इस वेब ऐप के लिए कस्टमाइज़ करने हेतु एक सेटिंग चुनें। यह वैश्विक डिफ़ॉल्ट के बजाय अपना मान उपयोग करेगी।</string>
     <string name="add_override">ओवरराइड जोड़ें</string>
     <string name="remove_override">ओवरराइड हटाएं</string>
     <string name="overridden_settings">ओवरराइड की गई सेटिंग्स</string>
-    <string name="no_overrides_message">यह वेब ऐप सभी वैश्विक सेटिंग्स का उपयोग करता है। विशिष्ट सेटिंग्स कस्टमाइज़ करने के लिए \"ओवरराइड जोड़ें\" दबाएं।</string>
 
     <string name="header_name">नाम</string>
     <string name="header_value">मान</string>

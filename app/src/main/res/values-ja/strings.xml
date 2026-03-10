@@ -11,7 +11,7 @@
     <string name="clear_cache_after_usage">終了時にキャッシュを消去</string>
     <string name="fetch_failed">ウェブサイトからデータを取得できませんでした</string>
     <string name="delete_question">このウェブサイトを削除しますか？</string>
-    <string name="enter_valid_url">有効なウェブアドレスを入力してください。</string>
+    <string name="enter_valid_url">有効なウェブアドレスを入力してください</string>
     <string name="edit_webapp_settings">ウェブアプリ設定</string>
     <string name="add_webapp">ウェブアプリを追加</string>
     <string name="empty_state_message">ウェブアプリがありません。\n+ボタンをタップして最初のアプリを追加してください。</string>
@@ -29,11 +29,11 @@
 
     <string name="web_app_settings">ウェブアプリ設定</string>
     <string name="do_not_load_images">画像をブロック</string>
-    <string name="ssl_error_msg_line1">このページのSSL証明書に問題があります。</string>
-    <string name="ssl_error_unknown_authority">認証局が信頼されていません。</string>
-    <string name="ssl_error_expired">証明書の有効期限が切れています。</string>
-    <string name="ssl_error_id_mismatch">証明書がホスト名と一致しません。</string>
-    <string name="ssl_error_notyetvalid">証明書はまだ有効ではありません。</string>
+    <string name="ssl_error_msg_line1">このページのSSL証明書に問題があります</string>
+    <string name="ssl_error_unknown_authority">認証局が信頼されていません</string>
+    <string name="ssl_error_expired">証明書の有効期限が切れています</string>
+    <string name="ssl_error_id_mismatch">証明書がホスト名と一致しません</string>
+    <string name="ssl_error_notyetvalid">証明書はまだ有効ではありません</string>
     <string name="load_anyway">それでも読み込む</string>
     <string name="https_only_blocked">ブロック：暗号化されていない接続</string>
     <string name="ssl_error_blocked">ブロック：%1$s</string>
@@ -80,7 +80,6 @@
     <string name="allow_location_access">位置情報</string>
     <string name="allow_drm_content">DRMコンテンツ</string>
     <string name="file_download">ファイルをダウンロード中…</string>
-    <string name="file_download_failed">ファイルのダウンロードに失敗しました。</string>
     <string name="icon_update">画像を更新</string>
     <string name="icon_remove">画像を削除</string>
     <string name="show_progress_bar_during_page_load">読み込みインジケーター</string>
@@ -95,7 +94,7 @@
     <string name="dark_mode">ダークモード</string>
     <string name="ssl_errors">SSLエラー</string>
     <string name="ignore_ssl_errors">SSLエラーを無視</string>
-    <string name="webapp_already_deleted">このウェブアプリは削除されました。このショートカットを削除できます。</string>
+    <string name="webapp_already_deleted">このウェブアプリは削除されました。このショートカットを削除できます</string>
     <string name="override_global_settings">グローバル設定をオーバーライド</string>
     <string name="global_web_app_settings">グローバルウェブアプリ設定</string>
     <string name="general">一般</string>
@@ -105,7 +104,6 @@
     <string name="block_all_third_party_requests">サードパーティリクエストをブロック</string>
     <string name="sandbox">サンドボックス</string>
     <string name="no_sandbox">サンドボックスを使用しない</string>
-    <string name="all_sandboxes_used">すべてのサンドボックスが使用中です。</string>
     <string name="enable_sandbox">サンドボックスを有効化</string>
     <string name="ephemeral_sandbox">一時ストレージ</string>
     <string name="clear_sandbox_data">サンドボックスデータを消去</string>
@@ -115,11 +113,11 @@
     <string name="clear_sandbox_storage">サンドボックスストレージを含む</string>
     <string name="factory_reset">初期化</string>
     <string name="show_fullscreen">全画面モード</string>
-    <string name="site_not_found">ページを読み込めませんでした。</string>
+    <string name="site_not_found">ページを読み込めませんでした</string>
     <string name="connection_error">接続エラー：%1$s</string>
     <string name="retry">再試行</string>
     <string name="exit">終了</string>
-    <string name="icon_not_found">アイコンを読み込めませんでした。</string>
+    <string name="icon_not_found">アイコンを読み込めませんでした</string>
     <string name="keep_screen_awake">画面をオンに保つ</string>
     <string name="allow_camera_access">カメラ</string>
     <string name="allow_microphone_access">マイク</string>
@@ -134,7 +132,6 @@
 
     <string name="create_shortcut">ショートカットを作成</string>
     <string name="create">作成</string>
-    <string name="shortcut_updated">ショートカットが更新されました。</string>
     <string name="back">戻る</string>
     <string name="forward">進む</string>
     <string name="copy_url">URLをコピー</string>
@@ -155,12 +152,12 @@
     <string name="to_main_menu">メインメニューへ</string>
     <string name="cancel">キャンセル</string>
     <string name="ok">OK</string>
-    <string name="no_biometric_devices">お使いのデバイスは生体認証に対応していません。</string>
-    <string name="no_biometric_keys_enrolled">お使いのデバイスは生体認証に対応していますが、設定されていません。</string>
+    <string name="no_biometric_devices">お使いのデバイスは生体認証に対応していません</string>
+    <string name="no_biometric_keys_enrolled">お使いのデバイスは生体認証に対応していますが、設定されていません</string>
     <string name="webview_activity_launch_failed">ウェブアプリを起動できませんでした</string>
 
     <string name="undo">元に戻す</string>
-    <string name="x_was_removed">%1$sが削除されました。</string>
+    <string name="x_was_removed">%1$sが削除されました</string>
     <string name="username">ユーザー名</string>
     <string name="password">パスワード</string>
 
@@ -178,11 +175,9 @@
     <string name="app_icon">アプリアイコン</string>
 
     <string name="select_setting_to_override">設定を選択</string>
-    <string name="override_picker_hint">このウェブアプリ用にカスタマイズする設定を選択してください。グローバルデフォルトの代わりに独自の値が使用されます。</string>
     <string name="add_override">オーバーライドを追加</string>
     <string name="remove_override">オーバーライドを削除</string>
     <string name="overridden_settings">オーバーライド設定</string>
-    <string name="no_overrides_message">このウェブアプリはすべてのグローバル設定を使用しています。「オーバーライドを追加」をタップして特定の設定をカスタマイズしてください。</string>
 
     <string name="header_name">名前</string>
     <string name="header_value">値</string>
