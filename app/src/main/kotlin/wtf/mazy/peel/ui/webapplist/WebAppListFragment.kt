@@ -11,7 +11,6 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import wtf.mazy.peel.R
-import wtf.mazy.peel.activities.MainActivity
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.ui.dragReorderCallback
 
@@ -33,7 +32,6 @@ class WebAppListFragment : Fragment(R.layout.fragment_web_app_list) {
         adapter =
             WebAppListAdapter(
                 activityOfFragment = requiredActivity(),
-                onGroupChanged = { (activity as? MainActivity)?.refreshCurrentPages() },
             )
         adapter.groupFilter = groupFilter
         adapter.updateWebAppList()

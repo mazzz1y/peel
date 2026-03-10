@@ -19,7 +19,6 @@ import wtf.mazy.peel.util.NotificationUtils
 
 class ImportDialogHelper(
     private val activity: AppCompatActivity,
-    private val onImportComplete: () -> Unit,
 ) {
 
     private val loader = LoadingDialogController(activity)
@@ -73,7 +72,6 @@ class ImportDialogHelper(
                     if (!success) {
                         showError()
                     } else {
-                        onImportComplete()
                         showSuccessDialog()
                     }
                 }
@@ -84,13 +82,9 @@ class ImportDialogHelper(
 
     private fun showSharedImportDialog(parsed: ParsedBackup) {
         val sheet = ImportBottomSheetFragment()
-        sheet.configure(
-            parsed = parsed,
-            onDismissed = { onImportComplete() },
-            onImport = { selectedUuids, groupUuid ->
-                performSharedImport(parsed, selectedUuids, groupUuid)
-            },
-        )
+        sheet.configure(parsed) { selectedUuids, groupUuid ->
+            performSharedImport(parsed, selectedUuids, groupUuid)
+        }
         sheet.show(activity.supportFragmentManager, ImportBottomSheetFragment.TAG)
     }
 
@@ -111,7 +105,6 @@ class ImportDialogHelper(
             } finally {
                 if (showLoader) loader.dismiss()
             }
-            onImportComplete()
             NotificationUtils.showToast(
                 activity,
                 activity.getString(R.string.import_count_message, imported),

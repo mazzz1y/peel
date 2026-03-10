@@ -37,7 +37,7 @@ import wtf.mazy.peel.ui.webapplist.WebAppListFragment
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.NotificationUtils
 
-class MainActivity : AppCompatActivity(), SelectionModeHost {
+class MainActivity : AppCompatActivity(), SelectionModeHost, DataManager.DataChangeListener {
 
     private lateinit var toolbar: MaterialToolbar
     private lateinit var fab: FloatingActionButton
@@ -57,7 +57,7 @@ class MainActivity : AppCompatActivity(), SelectionModeHost {
             uri?.let { performFullBackupExport(it) }
         }
 
-    private val importDialogHelper = ImportDialogHelper(this) { refreshCurrentPages() }
+    private val importDialogHelper = ImportDialogHelper(this)
 
     private val importLauncher =
         registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
@@ -89,14 +89,18 @@ class MainActivity : AppCompatActivity(), SelectionModeHost {
         fab.setOnClickListener { onFabClicked() }
         onBackPressedDispatcher.addCallback(this, backPressCallback)
 
+        DataManager.instance.addListener(this)
         setupViewPager()
         handleIncomingBackupIntent(intent)
+    }
+
+    override fun onDataChanged() {
+        refreshCurrentPages()
     }
 
     override fun onResume() {
         super.onResume()
         DataManager.instance.loadAppData()
-        refreshCurrentPages()
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -107,14 +111,12 @@ class MainActivity : AppCompatActivity(), SelectionModeHost {
             intent.putExtra(Const.INTENT_BACKUP_RESTORED, false)
             intent.putExtra(Const.INTENT_REFRESH_NEW_THEME, false)
         }
-        if (intent.getBooleanExtra(Const.INTENT_WEBAPP_CHANGED, false)) {
-            refreshCurrentPages()
-            intent.putExtra(Const.INTENT_WEBAPP_CHANGED, false)
-        }
+        intent.putExtra(Const.INTENT_WEBAPP_CHANGED, false)
         handleIncomingBackupIntent(intent)
     }
 
     override fun onDestroy() {
+        DataManager.instance.removeListener(this)
         importDialogHelper.onHostDestroy()
         exportLoader.dismiss()
         super.onDestroy()
@@ -428,7 +430,6 @@ class MainActivity : AppCompatActivity(), SelectionModeHost {
             DataManager.instance.replaceWebApp(webapp)
         }
         exitSelectionMode()
-        refreshCurrentPages()
     }
 
     private fun confirmDeleteSelected() {
@@ -607,8 +608,6 @@ class MainActivity : AppCompatActivity(), SelectionModeHost {
             DataManager.instance.defaultSettings.also {
                 it.settings = wtf.mazy.peel.model.WebAppSettings.createWithDefaults()
             }
-
-        setupViewPager()
     }
 
     private fun buildAddWebsiteDialog() {
@@ -633,7 +632,6 @@ class MainActivity : AppCompatActivity(), SelectionModeHost {
             }
 
             DataManager.instance.addWebsite(newSite)
-            refreshCurrentPages()
 
             val settingsIntent = Intent(this, WebAppSettingsActivity::class.java)
             settingsIntent.putExtra(Const.INTENT_WEBAPP_UUID, newSite.uuid)

@@ -27,7 +27,6 @@ import androidx.core.view.isVisible
 
 class WebAppListAdapter(
     private val activityOfFragment: Activity,
-    private val onGroupChanged: () -> Unit = {},
 ) : RecyclerView.Adapter<WebAppListAdapter.ViewHolder>() {
 
     var items: MutableList<WebApp> = mutableListOf()
@@ -250,7 +249,6 @@ class WebAppListAdapter(
                         webapp.groupUuid =
                             if (groupIndex < groups.size) groups[groupIndex].uuid else null
                         DataManager.instance.replaceWebApp(webapp)
-                        onGroupChanged()
                         true
                     } else {
                         false

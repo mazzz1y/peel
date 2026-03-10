@@ -1,6 +1,5 @@
 package wtf.mazy.peel.ui.dialog
 
-import android.content.DialogInterface
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -23,19 +22,15 @@ class ImportBottomSheetFragment : BottomSheetDialogFragment() {
 
     private var parsed: ParsedBackup? = null
     private var onImport: ((selectedUuids: Set<String>, groupUuid: String?) -> Unit)? = null
-    private var onDismissed: (() -> Unit)? = null
 
     private var selectedGroupUuid: String? = null
     private var mappingAdapter: ImportMappingAdapter? = null
-    private var groupCreated = false
 
     fun configure(
         parsed: ParsedBackup,
-        onDismissed: () -> Unit,
         onImport: (selectedUuids: Set<String>, groupUuid: String?) -> Unit,
     ) {
         this.parsed = parsed
-        this.onDismissed = onDismissed
         this.onImport = onImport
     }
 
@@ -119,7 +114,6 @@ class ImportBottomSheetFragment : BottomSheetDialogFragment() {
                         group.isEphemeralSandbox = result.ephemeral
                         DataManager.instance.addGroup(group)
                         selectedGroupUuid = group.uuid
-                        groupCreated = true
 
                         groupValues.add(groupValues.size - 1, group.uuid)
                         groupLabels.add(groupLabels.size - 1, group.title)
@@ -162,11 +156,6 @@ class ImportBottomSheetFragment : BottomSheetDialogFragment() {
         behavior.halfExpandedRatio = 0.85f
         behavior.state = BottomSheetBehavior.STATE_HALF_EXPANDED
         behavior.skipCollapsed = true
-    }
-
-    override fun onDismiss(dialog: DialogInterface) {
-        super.onDismiss(dialog)
-        if (groupCreated) onDismissed?.invoke()
     }
 
     override fun onDestroyView() {

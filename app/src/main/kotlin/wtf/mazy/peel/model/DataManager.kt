@@ -1,6 +1,8 @@
 package wtf.mazy.peel.model
 
 import android.content.Context
+import android.os.Handler
+import android.os.Looper
 import wtf.mazy.peel.model.db.AppDatabase
 import wtf.mazy.peel.model.db.LegacySharedPrefsMigration
 import wtf.mazy.peel.model.db.WebAppDao
@@ -12,12 +14,39 @@ import wtf.mazy.peel.util.App
 import wtf.mazy.peel.util.Const
 
 class DataManager private constructor() {
+
+    fun interface DataChangeListener {
+        fun onDataChanged()
+    }
+
     private var websites: MutableList<WebApp> = mutableListOf()
     private var groups: MutableList<WebAppGroup> = mutableListOf()
     private lateinit var dao: WebAppDao
     private lateinit var groupDao: WebAppGroupDao
 
     private var _defaultSettings: WebApp = createDefaultSettings()
+
+    private val listeners = mutableListOf<DataChangeListener>()
+    private val mainHandler = Handler(Looper.getMainLooper())
+    private var pendingNotify: Runnable? = null
+
+    fun addListener(listener: DataChangeListener) {
+        listeners.add(listener)
+    }
+
+    fun removeListener(listener: DataChangeListener) {
+        listeners.remove(listener)
+    }
+
+    private fun notifyListeners() {
+        pendingNotify?.let { mainHandler.removeCallbacks(it) }
+        val runnable = Runnable {
+            pendingNotify = null
+            listeners.forEach { it.onDataChanged() }
+        }
+        pendingNotify = runnable
+        mainHandler.post(runnable)
+    }
 
     var defaultSettings: WebApp
         get() = _defaultSettings
@@ -54,6 +83,7 @@ class DataManager private constructor() {
             _defaultSettings = globalEntity.toDomain()
             ensureDefaultSettingsAreConcrete()
         }
+        notifyListeners()
     }
 
     fun saveWebAppData() {
@@ -67,11 +97,13 @@ class DataManager private constructor() {
     fun addWebsite(newSite: WebApp) {
         websites.add(newSite)
         dao.upsert(newSite.toEntity())
+        notifyListeners()
     }
 
     fun removeWebApp(webapp: WebApp) {
         websites.remove(webapp)
         dao.deleteByUuid(webapp.uuid)
+        notifyListeners()
     }
 
     fun importData(
@@ -115,6 +147,7 @@ class DataManager private constructor() {
         if (index >= 0) {
             websites[index] = webapp
             dao.upsert(webapp.toEntity())
+            notifyListeners()
         }
     }
 
@@ -149,6 +182,7 @@ class DataManager private constructor() {
     fun addGroup(group: WebAppGroup) {
         groups.add(group)
         groupDao.upsert(group.toEntity())
+        notifyListeners()
     }
 
     fun replaceGroup(group: WebAppGroup) {
@@ -156,6 +190,7 @@ class DataManager private constructor() {
         if (index >= 0) {
             groups[index] = group
             groupDao.upsert(group.toEntity())
+            notifyListeners()
         }
     }
 
@@ -174,6 +209,7 @@ class DataManager private constructor() {
         }
         groups.remove(group)
         groupDao.deleteByUuid(group.uuid)
+        notifyListeners()
     }
 
     fun saveGroupData() {
