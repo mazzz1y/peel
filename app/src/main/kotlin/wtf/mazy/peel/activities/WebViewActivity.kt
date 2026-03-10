@@ -18,7 +18,6 @@ import android.os.Handler
 import android.os.Looper
 import android.util.TypedValue
 import android.view.View
-import android.widget.LinearLayout
 import android.view.WindowInsets
 import android.view.WindowInsetsController
 import android.view.WindowManager
@@ -26,6 +25,7 @@ import android.webkit.CookieManager
 import android.webkit.HttpAuthHandler
 import android.webkit.ValueCallback
 import android.webkit.WebView
+import android.widget.LinearLayout
 import android.widget.ProgressBar
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
@@ -44,8 +44,6 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import wtf.mazy.peel.R
-import wtf.mazy.peel.ui.dialog.InputDialogConfig
-import wtf.mazy.peel.ui.dialog.showInputDialogRaw
 import wtf.mazy.peel.media.MediaJsBridge
 import wtf.mazy.peel.media.MediaPlaybackManager
 import wtf.mazy.peel.model.DataManager
@@ -55,6 +53,8 @@ import wtf.mazy.peel.model.WebAppSettings
 import wtf.mazy.peel.ui.BiometricPromptHelper
 import wtf.mazy.peel.ui.FloatingControlsView
 import wtf.mazy.peel.ui.ListPickerAdapter
+import wtf.mazy.peel.ui.dialog.InputDialogConfig
+import wtf.mazy.peel.ui.dialog.showInputDialogRaw
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.DateUtils.convertStringToCalendar
 import wtf.mazy.peel.util.DateUtils.isInInterval
@@ -88,6 +88,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     override var filePathCallback: ValueCallback<Array<Uri?>?>? = null
     private var filePickerLauncher: ActivityResultLauncher<Intent?>? = null
     private var pendingPermissionCallback: ((Boolean) -> Unit)? = null
+    private val mainHandler = Handler(Looper.getMainLooper())
     private val permissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { results ->
             val allGranted = results.isNotEmpty() && results.values.all { it }
@@ -107,6 +108,8 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     private var peelWebChromeClient: PeelWebChromeClient? = null
 
     private var biometricPromptActive = false
+    private var pageLoadHandled = false
+    private var pendingOverlayHideFallback: Runnable? = null
 
     private var statusBarScrim: View? = null
     private var navigationBarScrim: View? = null
@@ -230,6 +233,8 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     }
 
     override fun onDestroy() {
+        pendingOverlayHideFallback?.let { mainHandler.removeCallbacks(it) }
+        pendingOverlayHideFallback = null
         if (isScreenStateReceiverRegistered) {
             unregisterReceiver(screenStateReceiver)
             isScreenStateReceiverRegistered = false
@@ -316,7 +321,8 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
                         ).apply { topMargin = dp8 }
                     }
                     passwordInput = TextInputEditText(passwordLayout.context).apply {
-                        inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD
+                        inputType =
+                            android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD
                         isSingleLine = true
                     }
                     passwordLayout.addView(passwordInput)
@@ -427,25 +433,48 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     }
 
     override fun onPageStarted() {
+        pageLoadHandled = false
+        pendingOverlayHideFallback?.let { mainHandler.removeCallbacks(it) }
+        pendingOverlayHideFallback = null
         peelWebChromeClient?.clearPagePermissions()
         mediaPlaybackManager?.injectPolyfill()
     }
 
     override fun onPageFullyLoaded() {
-        if (isLaunchOverlayVisible && !biometricPromptActive) {
-            val view = webView
-            if (view != null) {
-                view.postVisualStateCallback(0L, object : WebView.VisualStateCallback() {
-                    override fun onComplete(requestId: Long) {
-                        if (!isDestroyed) hideLaunchOverlayIfNeeded()
-                    }
-                })
-            } else {
-                hideLaunchOverlayIfNeeded()
-            }
+        if (pageLoadHandled || biometricPromptActive) return
+        pageLoadHandled = true
+        if (isLaunchOverlayVisible) {
+            hideLaunchOverlayWhenReady()
         }
         webView?.let { peelWebViewClient.extractDynamicBarColor(it) }
         mediaPlaybackManager?.injectObserver()
+    }
+
+    private fun hideLaunchOverlayWhenReady() {
+        val view = webView
+        if (view == null) {
+            hideLaunchOverlayIfNeeded()
+            return
+        }
+
+        var overlayHidden = false
+        val fallback = Runnable {
+            if (overlayHidden || isDestroyed) return@Runnable
+            overlayHidden = true
+            hideLaunchOverlayIfNeeded()
+        }
+        pendingOverlayHideFallback = fallback
+        mainHandler.postDelayed(fallback, OVERLAY_HIDE_FALLBACK_MS)
+
+        view.postVisualStateCallback(0L, object : WebView.VisualStateCallback() {
+            override fun onComplete(requestId: Long) {
+                if (overlayHidden || isDestroyed) return
+                overlayHidden = true
+                pendingOverlayHideFallback?.let { mainHandler.removeCallbacks(it) }
+                pendingOverlayHideFallback = null
+                hideLaunchOverlayIfNeeded()
+            }
+        })
     }
 
     private fun armLaunchOverlay() {
@@ -460,9 +489,10 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     private fun hideLaunchOverlayIfNeeded() {
         if (!isLaunchOverlayVisible) return
         isLaunchOverlayVisible = false
-        webviewLaunchOverlay?.animate()?.alpha(0f)?.setDuration(UI_ANIMATION_DURATION_MS)?.withEndAction {
-            webviewLaunchOverlay?.visibility = View.GONE
-        }?.start()
+        webviewLaunchOverlay?.animate()?.alpha(0f)?.setDuration(UI_ANIMATION_DURATION_MS)
+            ?.withEndAction {
+                webviewLaunchOverlay?.visibility = View.GONE
+            }?.start()
     }
 
     private fun applyBarColor(color: Int) {
@@ -479,7 +509,8 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     override fun startExternalIntent(uri: Uri) {
         try {
             startActivity(Intent(Intent.ACTION_VIEW, uri))
-        } catch (_: Exception) {}
+        } catch (_: Exception) {
+        }
     }
 
     override val themeBackgroundColor: Int
@@ -781,7 +812,12 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         val currentUuid = webappUuid ?: return
         val apps = DataManager.instance.activeWebsites
             .filter { it.uuid != currentUuid }
-            .sortedWith(compareByDescending<WebApp> { domainAffinity(it.baseUrl, url) }.thenBy { it.title })
+            .sortedWith(compareByDescending<WebApp> {
+                domainAffinity(
+                    it.baseUrl,
+                    url
+                )
+            }.thenBy { it.title })
         if (apps.isEmpty()) return
         val adapter = ListPickerAdapter(apps) { webapp, icon, name, detail ->
             name.text = webapp.title
@@ -903,6 +939,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
 
     companion object {
         private const val UI_ANIMATION_DURATION_MS = 300L
+        private const val OVERLAY_HIDE_FALLBACK_MS = 800L
         private val unlockedBiometricWebapps = mutableSetOf<String>()
     }
 }

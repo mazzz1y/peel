@@ -13,6 +13,8 @@ interface WebViewClientHost {
 
     fun onPageStarted()
 
+    fun onPageFullyLoaded()
+
     fun showHttpAuthDialog(handler: HttpAuthHandler, host: String?, realm: String?)
 
     fun setDarkModeIfNeeded()
