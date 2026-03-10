@@ -2,6 +2,7 @@ package wtf.mazy.peel.model
 
 import android.app.Activity
 import wtf.mazy.peel.shortcut.ShortcutIconUtils
+import java.util.Objects
 import java.util.UUID
 
 data class WebApp(var baseUrl: String, override val uuid: String = UUID.randomUUID().toString()) :
@@ -63,4 +64,8 @@ data class WebApp(var baseUrl: String, override val uuid: String = UUID.randomUU
         SandboxManager.clearSandboxData(activity, uuid)
         deleteIcon()
     }
+
+    val contentFingerprint: Long
+        get() = Objects.hash(title, baseUrl, groupUuid, isUseContainer, isEphemeralSandbox, order)
+            .toLong() * 31 + iconFile.lastModified()
 }

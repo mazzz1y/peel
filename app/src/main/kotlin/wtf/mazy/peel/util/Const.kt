@@ -14,6 +14,6 @@ object Const {
 
     const val GLOBAL_WEBAPP_UUID: String = "00000000-0000-0000-0000-000000000000"
 
-    const val ANIM_DURATION_FAST = 100L
-    const val ANIM_DURATION_MEDIUM = 150L
+    const val ANIM_DURATION_FAST = 150L
+    const val ANIM_DURATION_MEDIUM = 250L
 }

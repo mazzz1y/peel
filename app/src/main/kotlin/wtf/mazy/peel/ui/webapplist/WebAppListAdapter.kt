@@ -364,7 +364,7 @@ class WebAppListAdapter(
         override fun areItemsTheSame(oldPos: Int, newPos: Int) =
             oldList[oldPos].uuid == newList[newPos].uuid
         override fun areContentsTheSame(oldPos: Int, newPos: Int) =
-            oldList[oldPos].uuid == newList[newPos].uuid
+            oldList[oldPos].contentFingerprint == newList[newPos].contentFingerprint
     }
 
     companion object {
