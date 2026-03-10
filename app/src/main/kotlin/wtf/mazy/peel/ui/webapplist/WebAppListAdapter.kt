@@ -34,6 +34,7 @@ class WebAppListAdapter(
 
     var groupFilter: String? = null
     var searchQuery: String = ""
+    var showGroupLabels: Boolean = false
 
     private val selectionHost = activityOfFragment as? SelectionModeHost
 
@@ -49,6 +50,7 @@ class WebAppListAdapter(
         val appIcon: ImageView = itemView.findViewById(R.id.appIcon)
         val titleView: TextView = itemView.findViewById(R.id.btnWebAppTitle)
         val urlView: TextView = itemView.findViewById(R.id.appUrl)
+        val groupLabel: TextView = itemView.findViewById(R.id.groupLabel)
         val menuButton: ImageView = itemView.findViewById(R.id.btnMenu)
         val iconSandbox: ImageView = itemView.findViewById(R.id.iconSandbox)
         val iconEphemeral: ImageView = itemView.findViewById(R.id.iconEphemeral)
@@ -64,6 +66,14 @@ class WebAppListAdapter(
         val item = items[position]
         holder.titleView.text = item.title
         holder.urlView.text = displayUrl(item.baseUrl)
+
+        if (showGroupLabels) {
+            val groupName = item.groupUuid?.let { DataManager.instance.getGroup(it)?.title }
+            holder.groupLabel.text = groupName
+            holder.groupLabel.visibility = if (groupName != null) View.VISIBLE else View.GONE
+        } else {
+            holder.groupLabel.visibility = View.GONE
+        }
 
         holder.iconSandbox.visibility = if (item.isUseContainer) View.VISIBLE else View.GONE
         holder.iconEphemeral.visibility =
@@ -120,18 +130,18 @@ class WebAppListAdapter(
 
     private fun animateModeTransition(holder: ViewHolder, item: WebApp) {
         if (selectionHost?.isInSelectionMode == true) {
-            holder.menuButton.animate().alpha(0f).setDuration(MENU_FADE_DURATION).start()
+            holder.menuButton.animate().alpha(0f).setDuration(Const.ANIM_DURATION_MEDIUM).start()
             visibleBadgeIcons(holder).forEach {
                 it.animate()
                     .translationX(badgeSlideDistance(holder.menuButton, it))
-                    .setDuration(MENU_FADE_DURATION)
+                    .setDuration(Const.ANIM_DURATION_MEDIUM)
                     .start()
             }
             applySelectionListeners(holder, item)
         } else {
-            holder.menuButton.animate().alpha(1f).setDuration(MENU_FADE_DURATION).start()
+            holder.menuButton.animate().alpha(1f).setDuration(Const.ANIM_DURATION_MEDIUM).start()
             listOf(holder.iconSandbox, holder.iconEphemeral).forEach {
-                it.animate().translationX(0f).setDuration(MENU_FADE_DURATION).start()
+                it.animate().translationX(0f).setDuration(Const.ANIM_DURATION_MEDIUM).start()
             }
             applyNormalListeners(holder, item)
         }
@@ -168,14 +178,14 @@ class WebAppListAdapter(
         icon.animate()
             .scaleX(0f)
             .scaleY(0f)
-            .setDuration(ANIM_HALF_DURATION)
+            .setDuration(Const.ANIM_DURATION_FAST)
             .setInterpolator(AccelerateInterpolator())
             .withEndAction {
                 applyIconState(icon, item, selected)
                 icon.animate()
                     .scaleX(1f)
                     .scaleY(1f)
-                    .setDuration(ANIM_HALF_DURATION)
+                    .setDuration(Const.ANIM_DURATION_FAST)
                     .setInterpolator(DecelerateInterpolator())
                     .start()
             }
@@ -351,8 +361,6 @@ class WebAppListAdapter(
 
     companion object {
         private const val MENU_GROUP_BASE = 10000
-        private const val ANIM_HALF_DURATION = 100L
-        private const val MENU_FADE_DURATION = 150L
         const val PAYLOAD_SELECTION_TOGGLE = "selection_toggle"
         const val PAYLOAD_MODE_CHANGE = "mode_change"
     }

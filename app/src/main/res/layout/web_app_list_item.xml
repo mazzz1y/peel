@@ -44,7 +44,8 @@
             app:layout_constraintBottom_toTopOf="@id/appUrl"
             app:layout_constraintEnd_toStartOf="@id/iconEphemeral"
             app:layout_constraintStart_toEndOf="@id/appIcon"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_chainStyle="packed" />
 
         <TextView
             android:id="@+id/appUrl"
@@ -56,10 +57,27 @@
             android:maxLines="1"
             android:textAppearance="@style/TextAppearance.Material3.BodySmall"
             android:textColor="?attr/colorOnSurfaceVariant"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/groupLabel"
             app:layout_constraintEnd_toStartOf="@id/iconEphemeral"
             app:layout_constraintStart_toEndOf="@id/appIcon"
             app:layout_constraintTop_toBottomOf="@id/btnWebAppTitle" />
+
+        <TextView
+            android:id="@+id/groupLabel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="2dp"
+            android:layout_marginEnd="8dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textAppearance="@style/TextAppearance.Material3.LabelSmall"
+            android:textColor="?attr/colorPrimary"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/iconEphemeral"
+            app:layout_constraintStart_toEndOf="@id/appIcon"
+            app:layout_constraintTop_toBottomOf="@id/appUrl" />
 
         <ImageView
             android:id="@+id/iconEphemeral"

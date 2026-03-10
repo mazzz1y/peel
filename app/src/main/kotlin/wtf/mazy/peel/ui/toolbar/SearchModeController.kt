@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.ui.webapplist.WebAppListAdapter
+import wtf.mazy.peel.util.Const
 
 class SearchModeController(
     private val host: ToolbarModeHost,
@@ -31,18 +32,30 @@ class SearchModeController(
         host.updateBackPressEnabled()
 
         val activity = host.hostActivity
-        searchAdapter = WebAppListAdapter(activity).apply { groupFilter = null }
+        searchAdapter = WebAppListAdapter(activity).apply {
+            groupFilter = null
+            showGroupLabels = true
+        }
         searchAdapter?.registerAdapterDataObserver(scrollToTopObserver)
         searchResultsList?.layoutManager = LinearLayoutManager(activity)
         searchResultsList?.adapter = searchAdapter
         searchAdapter?.updateWebAppList()
 
-        host.tabLayout?.visibility = View.GONE
-        host.viewPager?.visibility = View.GONE
+        searchResultsList?.alpha = 0f
         searchResultsList?.visibility = View.VISIBLE
         updateEmptyState()
-        host.fab.hide()
+        searchEmptyState?.alpha = 0f
 
+        host.tabLayout?.animate()?.alpha(0f)?.setDuration(Const.ANIM_DURATION_MEDIUM)?.withEndAction {
+            host.tabLayout?.visibility = View.GONE
+        }?.start()
+        host.viewPager?.animate()?.alpha(0f)?.setDuration(Const.ANIM_DURATION_MEDIUM)?.withEndAction {
+            host.viewPager?.visibility = View.GONE
+        }?.start()
+        searchResultsList?.animate()?.alpha(1f)?.setDuration(Const.ANIM_DURATION_MEDIUM)?.start()
+        searchEmptyState?.animate()?.alpha(1f)?.setDuration(Const.ANIM_DURATION_MEDIUM)?.start()
+
+        host.fab.hide()
         applySearchToolbar()
     }
 
@@ -57,15 +70,24 @@ class SearchModeController(
             imm?.hideSoftInputFromWindow(focused.windowToken, 0)
         }
 
-        searchResultsList?.visibility = View.GONE
-        searchEmptyState?.visibility = View.GONE
+        val showTabs = DataManager.instance.sortedGroups.isNotEmpty()
+        host.viewPager?.alpha = 0f
         host.viewPager?.visibility = View.VISIBLE
-        if (DataManager.instance.sortedGroups.isNotEmpty()) {
+        if (showTabs) {
+            host.tabLayout?.alpha = 0f
             host.tabLayout?.visibility = View.VISIBLE
         }
 
-        searchAdapter = null
-        searchResultsList?.adapter = null
+        searchResultsList?.animate()?.alpha(0f)?.setDuration(Const.ANIM_DURATION_MEDIUM)?.withEndAction {
+            searchResultsList?.visibility = View.GONE
+            searchEmptyState?.visibility = View.GONE
+            searchAdapter = null
+            searchResultsList?.adapter = null
+        }?.start()
+        host.viewPager?.animate()?.alpha(1f)?.setDuration(Const.ANIM_DURATION_MEDIUM)?.start()
+        if (showTabs) {
+            host.tabLayout?.animate()?.alpha(1f)?.setDuration(Const.ANIM_DURATION_MEDIUM)?.start()
+        }
 
         host.applyNormalToolbar()
         host.fab.show()
@@ -90,6 +112,7 @@ class SearchModeController(
                 queryHint = activity.getString(R.string.search)
                 isIconified = false
                 maxWidth = Int.MAX_VALUE
+                setOnCloseListener { true }
                 setOnQueryTextListener(
                     object : SearchView.OnQueryTextListener {
                         override fun onQueryTextSubmit(query: String?) = false

@@ -82,7 +82,7 @@ class SelectionModeController(
             host.toolbar.menu.clear()
             host.hostActivity.menuInflater.inflate(R.menu.menu_selection, host.toolbar.menu)
             host.toolbar.menu.findItem(R.id.action_move_selected)?.isVisible =
-                DataManager.instance.sortedGroups.size > 1
+                DataManager.instance.sortedGroups.isNotEmpty()
             host.toolbar.setOnMenuItemClickListener { onMenuItemClicked(it) }
             host.toolbar.setNavigationIcon(R.drawable.ic_baseline_arrow_back_24)
             host.toolbar.setNavigationOnClickListener { exit() }

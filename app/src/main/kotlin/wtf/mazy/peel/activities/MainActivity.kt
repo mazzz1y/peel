@@ -271,12 +271,12 @@ class MainActivity :
         toolbar.animate().cancel()
         toolbar.animate()
             .alpha(0f)
-            .setDuration(TOOLBAR_FADE_DURATION)
+            .setDuration(Const.ANIM_DURATION_FAST)
             .withEndAction {
                 swap()
                 toolbar.animate()
                     .alpha(1f)
-                    .setDuration(TOOLBAR_FADE_DURATION)
+                    .setDuration(Const.ANIM_DURATION_FAST)
                     .start()
             }
             .start()
@@ -464,9 +464,5 @@ class MainActivity :
             settingsIntent.putExtra(Const.INTENT_AUTO_FETCH, true)
             startActivity(settingsIntent)
         }
-    }
-
-    companion object {
-        private const val TOOLBAR_FADE_DURATION = 100L
     }
 }
