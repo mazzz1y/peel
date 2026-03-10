@@ -57,7 +57,7 @@ class MainActivity : AppCompatActivity(), SelectionModeHost {
             uri?.let { performFullBackupExport(it) }
         }
 
-    private val importDialogHelper = ImportDialogHelper(this) { setupViewPager() }
+    private val importDialogHelper = ImportDialogHelper(this) { refreshCurrentPages() }
 
     private val importLauncher =
         registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
@@ -183,7 +183,8 @@ class MainActivity : AppCompatActivity(), SelectionModeHost {
         val groups = DataManager.instance.sortedGroups
         val newGroupKeys = groups.map { it.uuid to it.title }
         val newShowUngrouped =
-            groups.isNotEmpty() && DataManager.instance.activeWebsitesForGroup(null).isNotEmpty()
+            if (groups.isEmpty()) true
+            else DataManager.instance.activeWebsitesForGroup(null).isNotEmpty()
 
         if (lastGroupKeys != newGroupKeys || lastShowUngrouped != newShowUngrouped) {
             setupViewPager()
