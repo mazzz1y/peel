@@ -49,10 +49,12 @@
     <string name="import_mode_description">%1$dটি অ্যাপ এবং %2$dটি গ্রুপ রয়েছে। বিদ্যমান ডেটা প্রতিস্থাপিত হবে। ব্যাকআপে অন্তর্ভুক্ত নয় এমন অ্যাপ রাখতে মার্জ মোড চালু করুন।</string>
     <string name="import_mode_merge_switch">মার্জ মোড</string>
     <string name="import_mapping_title">শেয়ার করা অ্যাপ</string>
-    <string name="import_mapping_description">%1$dটি অ্যাপ আপনার সাথে শেয়ার করা হয়েছে। গন্তব্য গ্রুপ এবং আমদানি করার অ্যাপ নির্বাচন করুন।</string>
+    <string name="import_mapping_description">%1$dটি অ্যাপ আপনার সাথে শেয়ার করা হয়েছে। গন্তব্য গ্রুপ এবং আমদানি করার অ্যাপ নির্বাচন করুন:</string>
+    <string name="import_mapping_description_no_groups">%1$dটি অ্যাপ আপনার সাথে শেয়ার করা হয়েছে। আমদানির জন্য অ্যাপ নির্বাচন করুন:</string>
+    <string name="import_mapping_description_single">একটি অ্যাপ আপনার সাথে শেয়ার করা হয়েছে, গন্তব্য গ্রুপ নির্বাচন করুন:</string>
+    <string name="import_mapping_description_single_no_groups">একটি অ্যাপ আপনার সাথে শেয়ার করা হয়েছে:</string>
     <string name="import_group_mode_new">নতুন গ্রুপ তৈরি করুন</string>
     <string name="import_destination_group">গন্তব্য গ্রুপ</string>
-    <string name="import_target_none">কোনটি নয় (অন্যান্য)</string>
     <string name="import_mapping_empty">এই ফাইলে কোনো অ্যাপ পাওয়া যায়নি।</string>
     <string name="import_count_message">%1$dটি অ্যাপ আমদানি হয়েছে</string>
 

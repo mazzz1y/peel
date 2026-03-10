@@ -49,10 +49,12 @@
     <string name="import_mode_description">包含 %1$d 個應用程式和 %2$d 個群組。現有資料將被取代。啟用合併模式可保留備份中未包含的應用程式。</string>
     <string name="import_mode_merge_switch">合併模式</string>
     <string name="import_mapping_title">分享的應用程式</string>
-    <string name="import_mapping_description">%1$d 個應用程式已分享給你。選擇目標群組和要匯入的應用程式。</string>
+    <string name="import_mapping_description">%1$d 個應用程式已分享給你。選擇目標群組和要匯入的應用程式：</string>
+    <string name="import_mapping_description_no_groups">%1$d 個應用程式已分享給你。選取要匯入的應用程式：</string>
+    <string name="import_mapping_description_single">收到一個共享應用程式，選擇目標群組：</string>
+    <string name="import_mapping_description_single_no_groups">收到一個共享應用程式：</string>
     <string name="import_group_mode_new">建立新群組</string>
     <string name="import_destination_group">目標群組</string>
-    <string name="import_target_none">無（其他）</string>
     <string name="import_mapping_empty">此檔案中未找到應用程式。</string>
     <string name="import_count_message">已匯入 %1$d 個應用程式</string>
 

@@ -16,6 +16,7 @@ class ImportMappingAdapter(
     private val items: List<WebAppSurrogate>,
     private val icons: Map<String, Bitmap>,
     val selectedUuids: MutableSet<String>,
+    private val showSwitches: Boolean = true,
 ) : RecyclerView.Adapter<ImportMappingAdapter.ViewHolder>() {
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -52,11 +53,16 @@ class ImportMappingAdapter(
 
         holder.switch.setOnCheckedChangeListener(null)
         holder.switch.isChecked = item.uuid in selectedUuids
-        holder.switch.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) selectedUuids.add(item.uuid) else selectedUuids.remove(item.uuid)
+        if (showSwitches) {
+            holder.switch.visibility = View.VISIBLE
+            holder.switch.setOnCheckedChangeListener { _, isChecked ->
+                if (isChecked) selectedUuids.add(item.uuid) else selectedUuids.remove(item.uuid)
+            }
+            holder.itemView.setOnClickListener { holder.switch.toggle() }
+        } else {
+            holder.switch.visibility = View.GONE
+            holder.itemView.setOnClickListener(null)
         }
-
-        holder.itemView.setOnClickListener { holder.switch.toggle() }
     }
 
     override fun getItemCount(): Int = items.size

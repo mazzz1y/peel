@@ -51,10 +51,12 @@
     <string name="import_mode_description">Contains %1$d app(s) and %2$d group(s). Existing data will be replaced. Enable merge mode to keep apps not included in the backup.</string>
     <string name="import_mode_merge_switch">Merge mode</string>
     <string name="import_mapping_title">Shared Apps</string>
-    <string name="import_mapping_description">%1$d app(s) shared with you. Choose a destination group and select which apps to import.</string>
+    <string name="import_mapping_description">%1$d app(s) shared with you. Choose a destination group and select which apps to import:</string>
+    <string name="import_mapping_description_no_groups">%1$d app(s) shared with you. Select which apps to import:</string>
+    <string name="import_mapping_description_single">An app was shared with you, choose a destination group:</string>
+    <string name="import_mapping_description_single_no_groups">An app was shared with you:</string>
     <string name="import_group_mode_new">Create new group</string>
     <string name="import_destination_group">Destination group</string>
-    <string name="import_target_none">None (Other)</string>
     <string name="import_mapping_empty">No apps found in this file.</string>
     <string name="import_count_message">Imported %1$d app(s)</string>
 

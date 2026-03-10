@@ -35,10 +35,12 @@
     <string name="import_mode_description">Contiene %1$d app e %2$d gruppi. I dati esistenti verranno sostituiti. Attiva la modalità unione per conservare le app non incluse nel backup.</string>
     <string name="import_mode_merge_switch">Modalità unione</string>
     <string name="import_mapping_title">App condivise</string>
-    <string name="import_mapping_description">%1$d app condivise con te. Scegli un gruppo di destinazione e seleziona le app da importare.</string>
+    <string name="import_mapping_description">%1$d app condivise con te. Scegli un gruppo di destinazione e seleziona le app da importare:</string>
+    <string name="import_mapping_description_no_groups">%1$d app condivise con te. Seleziona le app da importare:</string>
+    <string name="import_mapping_description_single">Un\'app è stata condivisa con te, scegli un gruppo di destinazione:</string>
+    <string name="import_mapping_description_single_no_groups">Un\'app è stata condivisa con te:</string>
     <string name="import_group_mode_new">Crea nuovo gruppo</string>
     <string name="import_destination_group">Gruppo di destinazione</string>
-    <string name="import_target_none">Nessuno (Altro)</string>
     <string name="import_mapping_empty">Nessuna app trovata in questo file.</string>
     <string name="import_count_message">%1$d app importate</string>
 

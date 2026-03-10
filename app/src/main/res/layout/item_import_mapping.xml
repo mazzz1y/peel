@@ -4,7 +4,8 @@
     android:layout_height="wrap_content"
     android:gravity="center_vertical"
     android:orientation="horizontal"
-    android:paddingVertical="8dp">
+    android:paddingVertical="8dp"
+    android:paddingEnd="8dp">
 
     <ImageView
         android:id="@+id/app_icon"

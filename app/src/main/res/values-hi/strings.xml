@@ -49,10 +49,12 @@
     <string name="import_mode_description">%1$d ऐप और %2$d समूह शामिल हैं। मौजूदा डेटा बदल दिया जाएगा। बैकअप में शामिल न किए गए ऐप्स रखने के लिए मर्ज मोड चालू करें।</string>
     <string name="import_mode_merge_switch">मर्ज मोड</string>
     <string name="import_mapping_title">साझा किए गए ऐप्स</string>
-    <string name="import_mapping_description">%1$d ऐप आपके साथ साझा किए गए। गंतव्य समूह चुनें और आयात करने के लिए ऐप्स चुनें।</string>
+    <string name="import_mapping_description">%1$d ऐप आपके साथ साझा किए गए। गंतव्य समूह चुनें और आयात करने के लिए ऐप्स चुनें:</string>
+    <string name="import_mapping_description_no_groups">%1$d ऐप आपके साथ साझा किए गए। आयात करने के लिए ऐप चुनें:</string>
+    <string name="import_mapping_description_single">एक ऐप आपके साथ साझा किया गया, गंतव्य समूह चुनें:</string>
+    <string name="import_mapping_description_single_no_groups">एक ऐप आपके साथ साझा किया गया:</string>
     <string name="import_group_mode_new">नया समूह बनाएँ</string>
     <string name="import_destination_group">गंतव्य समूह</string>
-    <string name="import_target_none">कोई नहीं (अन्य)</string>
     <string name="import_mapping_empty">इस फ़ाइल में कोई ऐप नहीं मिला।</string>
     <string name="import_count_message">%1$d ऐप आयात किए गए</string>
 

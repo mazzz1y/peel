@@ -96,76 +96,86 @@ class ImportDialogHelper(
 
         val dialogView = activity.layoutInflater.inflate(R.layout.dialog_import_mapping, null)
         val descriptionView = dialogView.findViewById<TextView>(R.id.import_mapping_description)
+        val groupLayout = dialogView.findViewById<View>(R.id.destination_group_layout)
         val dropdown =
             dialogView.findViewById<AutoCompleteTextView>(R.id.destination_group_dropdown)
         val recycler = dialogView.findViewById<RecyclerView>(R.id.import_app_list)
         val emptyView = dialogView.findViewById<View>(R.id.import_mapping_empty)
 
-        descriptionView.text = activity.getString(
-            R.string.import_mapping_description,
-            websites.size,
-        )
-
         val groups = DataManager.instance.sortedGroups
-        val groupValues = mutableListOf<String?>(null)
-        val groupLabels =
-            mutableListOf(activity.getString(R.string.import_target_none))
+        val hasGroups = groups.isNotEmpty()
+        val singleApp = websites.size == 1
+        val groupValues = mutableListOf<String?>()
+        val groupLabels = mutableListOf<String>()
         groups.forEach { group ->
             groupValues.add(group.uuid)
             groupLabels.add(group.title)
         }
-        groupValues.add(CREATE_GROUP_SENTINEL)
-        groupLabels.add(activity.getString(R.string.import_group_mode_new))
-
-        val dropdownAdapter =
-            ArrayAdapter(activity, android.R.layout.simple_list_item_1, groupLabels)
-        dropdown.setAdapter(dropdownAdapter)
-        dropdown.setText(groupLabels[0], false)
 
         var selectedGroupUuid: String? = null
 
-        dropdown.setOnItemClickListener { _, _, position, _ ->
-            val value = groupValues[position]
-            if (value == CREATE_GROUP_SENTINEL) {
-                dropdown.setText(
-                    selectedGroupUuid?.let { uuid ->
-                        groupLabels.getOrNull(groupValues.indexOf(uuid))
-                    } ?: groupLabels[0],
-                    false,
-                )
-                activity.showSandboxInputDialog(
-                    titleRes = R.string.add_group,
-                    hintRes = R.string.group_name_hint,
-                ) { result ->
-                    val title = result.text.trim()
-                    if (title.isEmpty()) return@showSandboxInputDialog
-                    val group = WebAppGroup(
-                        title = title,
-                        order = DataManager.instance.getGroups().size,
-                    )
-                    group.isUseContainer = result.sandbox
-                    group.isEphemeralSandbox = result.ephemeral
-                    DataManager.instance.addGroup(group)
-                    selectedGroupUuid = group.uuid
+        if (!hasGroups) {
+            groupLayout.visibility = View.GONE
+        } else {
+            selectedGroupUuid = groups[0].uuid
+            groupValues.add(CREATE_GROUP_SENTINEL)
+            groupLabels.add(activity.getString(R.string.import_group_mode_new))
 
-                    groupValues.add(groupValues.size - 1, group.uuid)
-                    groupLabels.add(groupLabels.size - 1, group.title)
-                    dropdownAdapter.clear()
-                    dropdownAdapter.addAll(groupLabels)
-                    dropdownAdapter.filter.filter(null)
-                    dropdown.setText(group.title, false)
+            val dropdownAdapter =
+                ArrayAdapter(activity, android.R.layout.simple_list_item_1, groupLabels)
+            dropdown.setAdapter(dropdownAdapter)
+            dropdown.setText(groupLabels[0], false)
+
+            dropdown.setOnItemClickListener { _, _, position, _ ->
+                val value = groupValues[position]
+                if (value == CREATE_GROUP_SENTINEL) {
+                    dropdown.setText(
+                        selectedGroupUuid?.let { uuid ->
+                            groupLabels.getOrNull(groupValues.indexOf(uuid))
+                        } ?: groupLabels[0],
+                        false,
+                    )
+                    activity.showSandboxInputDialog(
+                        titleRes = R.string.add_group,
+                        hintRes = R.string.group_name_hint,
+                    ) { result ->
+                        val title = result.text.trim()
+                        if (title.isEmpty()) return@showSandboxInputDialog
+                        val group = WebAppGroup(
+                            title = title,
+                            order = DataManager.instance.getGroups().size,
+                        )
+                        group.isUseContainer = result.sandbox
+                        group.isEphemeralSandbox = result.ephemeral
+                        DataManager.instance.addGroup(group)
+                        selectedGroupUuid = group.uuid
+
+                        groupValues.add(groupValues.size - 1, group.uuid)
+                        groupLabels.add(groupLabels.size - 1, group.title)
+                        dropdownAdapter.notifyDataSetChanged()
+                        dropdownAdapter.filter.filter(null)
+                        dropdown.setText(group.title, false)
+                    }
+                    return@setOnItemClickListener
                 }
-                return@setOnItemClickListener
+                selectedGroupUuid = value
             }
-            selectedGroupUuid = value
         }
 
+        val descriptionRes = when {
+            hasGroups && !singleApp -> R.string.import_mapping_description
+            hasGroups && singleApp -> R.string.import_mapping_description_single
+            !hasGroups && !singleApp -> R.string.import_mapping_description_no_groups
+            else -> R.string.import_mapping_description_single_no_groups
+        }
+        descriptionView.text = activity.getString(descriptionRes, websites.size)
+
         val selectedUuids = websites.mapTo(mutableSetOf()) { it.uuid }
-        val adapter = ImportMappingAdapter(websites, icons, selectedUuids)
+        val adapter = ImportMappingAdapter(websites, icons, selectedUuids, showSwitches = !singleApp)
         recycler.layoutManager = LinearLayoutManager(activity)
         recycler.adapter = adapter
 
-        val maxListHeight = (activity.resources.displayMetrics.heightPixels * 0.4f).toInt()
+        val maxListHeight = (activity.resources.displayMetrics.heightPixels * 0.55f).toInt()
         recycler.post {
             if (recycler.height > maxListHeight) {
                 recycler.layoutParams =

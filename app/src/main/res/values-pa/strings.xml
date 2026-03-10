@@ -48,10 +48,12 @@
     <string name="import_mode_description">%1$d ਐਪਾਂ ਅਤੇ %2$d ਸਮੂਹ ਸ਼ਾਮਲ ਹਨ। ਮੌਜੂਦਾ ਡੇਟਾ ਬਦਲ ਦਿੱਤਾ ਜਾਵੇਗਾ। ਬੈਕਅੱਪ ਵਿੱਚ ਸ਼ਾਮਲ ਨਾ ਕੀਤੀਆਂ ਐਪਾਂ ਰੱਖਣ ਲਈ ਮਰਜ ਮੋਡ ਚਾਲੂ ਕਰੋ।</string>
     <string name="import_mode_merge_switch">ਮਰਜ ਮੋਡ</string>
     <string name="import_mapping_title">ਸਾਂਝੀਆਂ ਐਪਾਂ</string>
-    <string name="import_mapping_description">%1$d ਐਪਾਂ ਤੁਹਾਡੇ ਨਾਲ ਸਾਂਝੀਆਂ ਕੀਤੀਆਂ ਗਈਆਂ। ਮੰਜ਼ਿਲ ਸਮੂਹ ਚੁਣੋ ਅਤੇ ਆਯਾਤ ਕਰਨ ਲਈ ਐਪਾਂ ਚੁਣੋ।</string>
+    <string name="import_mapping_description">%1$d ਐਪਾਂ ਤੁਹਾਡੇ ਨਾਲ ਸਾਂਝੀਆਂ ਕੀਤੀਆਂ ਗਈਆਂ। ਮੰਜ਼ਿਲ ਸਮੂਹ ਚੁਣੋ ਅਤੇ ਆਯਾਤ ਕਰਨ ਲਈ ਐਪਾਂ ਚੁਣੋ:</string>
+    <string name="import_mapping_description_no_groups">%1$d ਐਪਾਂ ਤੁਹਾਡੇ ਨਾਲ ਸਾਂਝੀਆਂ ਕੀਤੀਆਂ ਗਈਆਂ। ਆਯਾਤ ਲਈ ਐਪਾਂ ਚੁਣੋ:</string>
+    <string name="import_mapping_description_single">ਇੱਕ ਐਪ ਤੁਹਾਡੇ ਨਾਲ ਸਾਂਝੀ ਕੀਤੀ ਗਈ, ਮੰਜ਼ਿਲ ਸਮੂਹ ਚੁਣੋ:</string>
+    <string name="import_mapping_description_single_no_groups">ਇੱਕ ਐਪ ਤੁਹਾਡੇ ਨਾਲ ਸਾਂਝੀ ਕੀਤੀ ਗਈ:</string>
     <string name="import_group_mode_new">ਨਵਾਂ ਸਮੂਹ ਬਣਾਓ</string>
     <string name="import_destination_group">ਮੰਜ਼ਿਲ ਸਮੂਹ</string>
-    <string name="import_target_none">ਕੋਈ ਨਹੀਂ (ਹੋਰ)</string>
     <string name="import_mapping_empty">ਇਸ ਫ਼ਾਈਲ ਵਿੱਚ ਕੋਈ ਐਪ ਨਹੀਂ ਮਿਲੀ।</string>
     <string name="import_count_message">%1$d ਐਪਾਂ ਆਯਾਤ ਕੀਤੀਆਂ</string>
 

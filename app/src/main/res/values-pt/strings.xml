@@ -49,10 +49,12 @@
     <string name="import_mode_description">Contém %1$d app(s) e %2$d grupo(s). Os dados existentes serão substituídos. Ative o modo de mesclagem para manter apps não incluídos no backup.</string>
     <string name="import_mode_merge_switch">Modo de mesclagem</string>
     <string name="import_mapping_title">Apps compartilhados</string>
-    <string name="import_mapping_description">%1$d app(s) compartilhado(s) com você. Escolha um grupo de destino e selecione os apps para importar.</string>
+    <string name="import_mapping_description">%1$d app(s) compartilhado(s) com você. Escolha um grupo de destino e selecione os apps para importar:</string>
+    <string name="import_mapping_description_no_groups">%1$d app(s) compartilhado(s) com você. Selecione os apps para importar:</string>
+    <string name="import_mapping_description_single">Um app foi compartilhado com você, escolha um grupo de destino:</string>
+    <string name="import_mapping_description_single_no_groups">Um app foi compartilhado com você:</string>
     <string name="import_group_mode_new">Criar novo grupo</string>
     <string name="import_destination_group">Grupo de destino</string>
-    <string name="import_target_none">Nenhum (Outros)</string>
     <string name="import_mapping_empty">Nenhum app encontrado neste arquivo.</string>
     <string name="import_count_message">%1$d app(s) importado(s)</string>
 

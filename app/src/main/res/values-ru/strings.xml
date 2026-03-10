@@ -49,10 +49,12 @@
     <string name="import_mode_description">Содержит %1$d приложение(ий) и %2$d группу(п). Существующие данные будут заменены. Включите режим слияния, чтобы сохранить приложения, не входящие в резервную копию.</string>
     <string name="import_mode_merge_switch">Режим слияния</string>
     <string name="import_mapping_title">Импорт приложений</string>
-    <string name="import_mapping_description">Вам отправили %1$d приложение(ий). Выберите группу и приложения для импорта.</string>
+    <string name="import_mapping_description">Вам отправили %1$d приложение(ий). Выберите группу и приложения для импорта:</string>
+    <string name="import_mapping_description_no_groups">Вам отправили %1$d приложение(ий). Выберите приложения для импорта:</string>
+    <string name="import_mapping_description_single">Вам отправили приложение, выберите группу назначения:</string>
+    <string name="import_mapping_description_single_no_groups">Вам отправили приложение:</string>
     <string name="import_group_mode_new">Создать группу</string>
     <string name="import_destination_group">Группа назначения</string>
-    <string name="import_target_none">Без группы (Прочее)</string>
     <string name="import_mapping_empty">В этом файле нет приложений.</string>
     <string name="import_count_message">Импортировано %1$d приложение(ий)</string>
 

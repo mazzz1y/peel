@@ -49,10 +49,12 @@
     <string name="import_mode_description">%1$d個のアプリと%2$d個のグループが含まれています。既存のデータは置き換えられます。バックアップに含まれないアプリを残すにはマージモードを有効にしてください。</string>
     <string name="import_mode_merge_switch">マージモード</string>
     <string name="import_mapping_title">共有アプリ</string>
-    <string name="import_mapping_description">%1$d個のアプリが共有されました。インポート先のグループとアプリを選択してください。</string>
+    <string name="import_mapping_description">%1$d個のアプリが共有されました。インポート先のグループとアプリを選択してください：</string>
+    <string name="import_mapping_description_no_groups">%1$d個のアプリが共有されました。インポートするアプリを選択してください：</string>
+    <string name="import_mapping_description_single">アプリが共有されました。インポート先のグループを選択してください：</string>
+    <string name="import_mapping_description_single_no_groups">アプリが共有されました：</string>
     <string name="import_group_mode_new">新しいグループを作成</string>
     <string name="import_destination_group">インポート先グループ</string>
-    <string name="import_target_none">なし（その他）</string>
     <string name="import_mapping_empty">このファイルにアプリが見つかりません。</string>
     <string name="import_count_message">%1$d個のアプリをインポートしました</string>
 

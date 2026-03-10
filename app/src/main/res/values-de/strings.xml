@@ -36,10 +36,12 @@
     <string name="import_mode_description">Enthält %1$d App(s) und %2$d Gruppe(n). Vorhandene Daten werden ersetzt. Aktiviere den Zusammenführungsmodus, um Apps zu behalten, die nicht im Backup enthalten sind.</string>
     <string name="import_mode_merge_switch">Zusammenführungsmodus</string>
     <string name="import_mapping_title">Geteilte Apps</string>
-    <string name="import_mapping_description">%1$d App(s) mit dir geteilt. Wähle eine Zielgruppe und die Apps zum Importieren.</string>
+    <string name="import_mapping_description">%1$d App(s) mit dir geteilt. Wähle eine Zielgruppe und die Apps zum Importieren:</string>
+    <string name="import_mapping_description_no_groups">%1$d App(s) mit dir geteilt. Wähle die Apps zum Importieren:</string>
+    <string name="import_mapping_description_single">Eine App wurde mit dir geteilt, wähle eine Zielgruppe:</string>
+    <string name="import_mapping_description_single_no_groups">Eine App wurde mit dir geteilt:</string>
     <string name="import_group_mode_new">Neue Gruppe erstellen</string>
     <string name="import_destination_group">Zielgruppe</string>
-    <string name="import_target_none">Keine (Sonstige)</string>
     <string name="import_mapping_empty">Keine Apps in dieser Datei gefunden.</string>
     <string name="import_count_message">%1$d App(s) importiert</string>
 

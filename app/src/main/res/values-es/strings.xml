@@ -35,10 +35,12 @@
     <string name="import_mode_description">Contiene %1$d app(s) y %2$d grupo(s). Los datos existentes serán reemplazados. Activa el modo combinar para conservar las apps que no están en la copia.</string>
     <string name="import_mode_merge_switch">Modo combinar</string>
     <string name="import_mapping_title">Apps compartidas</string>
-    <string name="import_mapping_description">%1$d app(s) compartida(s) contigo. Elige un grupo de destino y selecciona las apps a importar.</string>
+    <string name="import_mapping_description">%1$d app(s) compartida(s) contigo. Elige un grupo de destino y selecciona las apps a importar:</string>
+    <string name="import_mapping_description_no_groups">%1$d app(s) compartida(s) contigo. Selecciona las apps a importar:</string>
+    <string name="import_mapping_description_single">Una app fue compartida contigo, elige un grupo de destino:</string>
+    <string name="import_mapping_description_single_no_groups">Una app fue compartida contigo:</string>
     <string name="import_group_mode_new">Crear nuevo grupo</string>
     <string name="import_destination_group">Grupo de destino</string>
-    <string name="import_target_none">Ninguno (Otros)</string>
     <string name="import_mapping_empty">No se encontraron apps en este archivo.</string>
     <string name="import_count_message">%1$d app(s) importada(s)</string>
 

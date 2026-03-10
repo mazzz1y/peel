@@ -49,10 +49,12 @@
     <string name="import_mode_description">包含 %1$d 个应用和 %2$d 个分组。现有数据将被替换。启用合并模式可保留备份中未包含的应用。</string>
     <string name="import_mode_merge_switch">合并模式</string>
     <string name="import_mapping_title">共享的应用</string>
-    <string name="import_mapping_description">%1$d 个应用已分享给你。选择目标分组和要导入的应用。</string>
+    <string name="import_mapping_description">%1$d 个应用已分享给你。选择目标分组和要导入的应用：</string>
+    <string name="import_mapping_description_no_groups">%1$d 个应用已分享给你。选择要导入的应用：</string>
+    <string name="import_mapping_description_single">收到一个共享应用，选择目标分组：</string>
+    <string name="import_mapping_description_single_no_groups">收到一个共享应用：</string>
     <string name="import_group_mode_new">创建新分组</string>
     <string name="import_destination_group">目标分组</string>
-    <string name="import_target_none">无（其他）</string>
     <string name="import_mapping_empty">此文件中未找到应用。</string>
     <string name="import_count_message">已导入 %1$d 个应用</string>
 
