@@ -226,4 +226,6 @@
     <string name="text_copied">文字已複製</string>
     <string name="image_copied">圖片已複製</string>
     <string name="image_download_failed">圖片下載失敗</string>
+    <string name="search">搜尋</string>
+    <string name="no_search_results">未找到應用程式</string>
 </resources>

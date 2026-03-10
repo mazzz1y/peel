@@ -229,4 +229,6 @@
     <string name="text_copied">Текст скопирован</string>
     <string name="image_copied">Изображение скопировано</string>
     <string name="image_download_failed">Не удалось скачать изображение</string>
+    <string name="search">Поиск</string>
+    <string name="no_search_results">Приложения не найдены</string>
 </resources>

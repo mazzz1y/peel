@@ -226,4 +226,6 @@
     <string name="text_copied">Đã sao chép văn bản</string>
     <string name="image_copied">Đã sao chép hình ảnh</string>
     <string name="image_download_failed">Tải hình ảnh thất bại</string>
+    <string name="search">Tìm kiếm</string>
+    <string name="no_search_results">Không tìm thấy ứng dụng</string>
 </resources>

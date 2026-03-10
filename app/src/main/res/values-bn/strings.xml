@@ -227,4 +227,6 @@
     <string name="text_copied">লেখা কপি হয়েছে</string>
     <string name="image_copied">ছবি কপি হয়েছে</string>
     <string name="image_download_failed">ছবি ডাউনলোড ব্যর্থ হয়েছে</string>
+    <string name="search">অনুসন্ধান</string>
+    <string name="no_search_results">কোনো অ্যাপ পাওয়া যায়নি</string>
 </resources>

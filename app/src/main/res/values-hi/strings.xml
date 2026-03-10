@@ -227,4 +227,6 @@
     <string name="text_copied">टेक्स्ट कॉपी हुआ</string>
     <string name="image_copied">छवि कॉपी हुई</string>
     <string name="image_download_failed">छवि डाउनलोड विफल</string>
+    <string name="search">खोजें</string>
+    <string name="no_search_results">कोई ऐप नहीं मिला</string>
 </resources>

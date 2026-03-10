@@ -222,4 +222,6 @@
     <string name="text_copied">Testo copiato</string>
     <string name="image_copied">Immagine copiata</string>
     <string name="image_download_failed">Download immagine fallito</string>
+    <string name="search">Cerca</string>
+    <string name="no_search_results">Nessuna app trovata</string>
 </resources>

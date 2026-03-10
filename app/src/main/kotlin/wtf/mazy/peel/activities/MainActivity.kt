@@ -8,16 +8,15 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.PopupMenu
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import android.widget.Toast
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.coroutines.Dispatchers
@@ -28,29 +27,37 @@ import wtf.mazy.peel.model.BackupManager
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.SandboxManager
 import wtf.mazy.peel.model.WebApp
+import wtf.mazy.peel.ui.common.LoadingDialogController
 import wtf.mazy.peel.ui.dialog.ImportDialogHelper
 import wtf.mazy.peel.ui.dialog.showSandboxInputDialog
-import wtf.mazy.peel.ui.common.LoadingDialogController
+import wtf.mazy.peel.ui.toolbar.SearchModeController
+import wtf.mazy.peel.ui.toolbar.SelectionModeController
+import wtf.mazy.peel.ui.toolbar.ToolbarModeHost
 import wtf.mazy.peel.ui.webapplist.GroupPagerAdapter
 import wtf.mazy.peel.ui.webapplist.SelectionModeHost
 import wtf.mazy.peel.ui.webapplist.WebAppListFragment
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.NotificationUtils
 
-class MainActivity : AppCompatActivity(), SelectionModeHost, DataManager.DataChangeListener {
+class MainActivity :
+    AppCompatActivity(),
+    ToolbarModeHost,
+    SelectionModeHost,
+    DataManager.DataChangeListener {
 
-    private lateinit var toolbar: MaterialToolbar
-    private lateinit var fab: FloatingActionButton
-    private var tabLayout: TabLayout? = null
-    private var viewPager: ViewPager2? = null
+    override lateinit var toolbar: MaterialToolbar
+    override lateinit var fab: FloatingActionButton
+    override var tabLayout: TabLayout? = null
+    override var viewPager: ViewPager2? = null
+    override val hostActivity: AppCompatActivity get() = this
+
     private var pagerAdapter: GroupPagerAdapter? = null
     private var lastGroupKeys: List<Pair<String, String>> = emptyList()
     private var lastShowUngrouped: Boolean = true
-
-    private val selectedUuids = mutableSetOf<String>()
-    private var _selectionMode = false
-    private val pendingExitRunnable = Runnable { exitSelectionMode() }
     private lateinit var exportLoader: LoadingDialogController
+
+    private lateinit var searchController: SearchModeController
+    private lateinit var selectionController: SelectionModeController
 
     private val exportLauncher =
         registerForActivityResult(ActivityResultContracts.CreateDocument(BackupManager.MIME_TYPE)) { uri ->
@@ -66,7 +73,10 @@ class MainActivity : AppCompatActivity(), SelectionModeHost, DataManager.DataCha
 
     private val backPressCallback = object : androidx.activity.OnBackPressedCallback(false) {
         override fun handleOnBackPressed() {
-            exitSelectionMode()
+            when {
+                searchController.isActive -> searchController.exit()
+                selectionController.isActive -> selectionController.exit()
+            }
         }
     }
 
@@ -83,6 +93,11 @@ class MainActivity : AppCompatActivity(), SelectionModeHost, DataManager.DataCha
         viewPager = findViewById(R.id.viewPager)
         exportLoader = LoadingDialogController(this)
 
+        selectionController = SelectionModeController(this) { searchController.exit() }
+        searchController = SearchModeController(this) { selectionController.exit() }
+        searchController.searchResultsList = findViewById(R.id.searchResultsList)
+        searchController.searchEmptyState = findViewById(R.id.searchEmptyState)
+
         toolbar.setTitle(R.string.app_name)
         setSupportActionBar(toolbar)
 
@@ -95,7 +110,11 @@ class MainActivity : AppCompatActivity(), SelectionModeHost, DataManager.DataCha
     }
 
     override fun onDataChanged() {
-        refreshCurrentPages()
+        if (searchController.isActive) {
+            searchController.onDataChanged()
+        } else {
+            refreshCurrentPages()
+        }
     }
 
     override fun onResume() {
@@ -129,6 +148,11 @@ class MainActivity : AppCompatActivity(), SelectionModeHost, DataManager.DataCha
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
+            R.id.action_search -> {
+                searchController.enter()
+                true
+            }
+
             R.id.action_groups -> {
                 startActivity(Intent(this, GroupListActivity::class.java))
                 true
@@ -143,11 +167,7 @@ class MainActivity : AppCompatActivity(), SelectionModeHost, DataManager.DataCha
                 try {
                     importLauncher.launch("*/*")
                 } catch (e: ActivityNotFoundException) {
-                    NotificationUtils.showToast(
-                        this,
-                        getString(R.string.no_filemanager),
-                        Toast.LENGTH_LONG,
-                    )
+                    NotificationUtils.showToast(this, getString(R.string.no_filemanager), Toast.LENGTH_LONG)
                     Log.e("MainActivity", "No file manager available for import", e)
                 }
                 true
@@ -157,11 +177,7 @@ class MainActivity : AppCompatActivity(), SelectionModeHost, DataManager.DataCha
                 try {
                     exportLauncher.launch(BackupManager.buildExportFilename())
                 } catch (e: ActivityNotFoundException) {
-                    NotificationUtils.showToast(
-                        this,
-                        getString(R.string.no_filemanager),
-                        Toast.LENGTH_LONG,
-                    )
+                    NotificationUtils.showToast(this, getString(R.string.no_filemanager), Toast.LENGTH_LONG)
                     Log.e("MainActivity", "No file manager available for export", e)
                 }
                 true
@@ -181,7 +197,7 @@ class MainActivity : AppCompatActivity(), SelectionModeHost, DataManager.DataCha
         }
     }
 
-    fun refreshCurrentPages() {
+    override fun refreshCurrentPages() {
         val groups = DataManager.instance.sortedGroups
         val newGroupKeys = groups.map { it.uuid to it.title }
         val newShowUngrouped =
@@ -199,7 +215,7 @@ class MainActivity : AppCompatActivity(), SelectionModeHost, DataManager.DataCha
         }
     }
 
-    private fun forEachFragment(action: (WebAppListFragment) -> Unit) {
+    override fun forEachFragment(action: (WebAppListFragment) -> Unit) {
         for (i in 0 until (pagerAdapter?.itemCount ?: 0)) {
             val fragment = supportFragmentManager.findFragmentByTag("f$i")
             (fragment as? WebAppListFragment)?.let(action)
@@ -231,64 +247,17 @@ class MainActivity : AppCompatActivity(), SelectionModeHost, DataManager.DataCha
         }
     }
 
-    override val isInSelectionMode: Boolean get() = _selectionMode
+    override val isInSelectionMode: Boolean get() = selectionController.isActive
 
-    override fun isSelected(uuid: String) = uuid in selectedUuids
+    override fun isSelected(uuid: String) = selectionController.isSelected(uuid)
 
-    override fun enterSelectionMode(uuid: String) {
-        fab.removeCallbacks(pendingExitRunnable)
-        if (_selectionMode) {
-            toggleSelection(uuid)
-            return
-        }
-        _selectionMode = true
-        selectedUuids.clear()
-        selectedUuids.add(uuid)
-        backPressCallback.isEnabled = true
+    override fun enterSelectionMode(uuid: String) = selectionController.enter(uuid)
 
-        applySelectionToolbar()
-        animateFabSwap(R.drawable.ic_baseline_share_24)
-        forEachFragment { it.animateEnterSelection(uuid) }
-    }
+    override fun toggleSelection(uuid: String) = selectionController.toggle(uuid)
 
-    override fun toggleSelection(uuid: String) {
-        if (uuid in selectedUuids) selectedUuids.remove(uuid) else selectedUuids.add(uuid)
-        if (selectedUuids.isEmpty()) {
-            forEachFragment { it.animateSelectionToggled(uuid) }
-            fab.postDelayed(pendingExitRunnable, EXIT_DELAY_MS)
-            return
-        }
-        toolbar.title = getString(R.string.n_apps_selected, selectedUuids.size)
-        forEachFragment { it.animateSelectionToggled(uuid) }
-    }
-
-    private fun exitSelectionMode() {
-        fab.removeCallbacks(pendingExitRunnable)
-        val previouslySelected = selectedUuids.toSet()
-        _selectionMode = false
-        selectedUuids.clear()
-        backPressCallback.isEnabled = false
-
-        applyNormalToolbar()
-        animateFabSwap(R.drawable.ic_add_24dp)
-        forEachFragment { it.animateExitSelection(previouslySelected) }
-    }
-
-    private fun applySelectionToolbar() {
+    override fun applyNormalToolbar() {
         crossfadeToolbar {
-            toolbar.menu.clear()
-            menuInflater.inflate(R.menu.menu_selection, toolbar.menu)
-            toolbar.menu.findItem(R.id.action_move_selected)?.isVisible =
-                DataManager.instance.sortedGroups.size > 1
-            toolbar.setOnMenuItemClickListener { onSelectionMenuItemClicked(it) }
-            toolbar.setNavigationIcon(R.drawable.ic_baseline_arrow_back_24)
-            toolbar.setNavigationOnClickListener { exitSelectionMode() }
-            toolbar.title = getString(R.string.n_apps_selected, selectedUuids.size)
-        }
-    }
-
-    private fun applyNormalToolbar() {
-        crossfadeToolbar {
+            removeSearchViewFromToolbar()
             toolbar.menu.clear()
             menuInflater.inflate(R.menu.menu_main, toolbar.menu)
             toolbar.setOnMenuItemClickListener { onOptionsItemSelected(it) }
@@ -298,7 +267,7 @@ class MainActivity : AppCompatActivity(), SelectionModeHost, DataManager.DataCha
         }
     }
 
-    private fun crossfadeToolbar(swap: () -> Unit) {
+    override fun crossfadeToolbar(swap: () -> Unit) {
         toolbar.animate().cancel()
         toolbar.animate()
             .alpha(0f)
@@ -313,7 +282,7 @@ class MainActivity : AppCompatActivity(), SelectionModeHost, DataManager.DataCha
             .start()
     }
 
-    private fun animateFabSwap(iconRes: Int) {
+    override fun animateFabSwap(iconRes: Int) {
         fab.hide(object : FloatingActionButton.OnVisibilityChangedListener() {
             override fun onHidden(fab: FloatingActionButton) {
                 fab.setImageResource(iconRes)
@@ -322,155 +291,27 @@ class MainActivity : AppCompatActivity(), SelectionModeHost, DataManager.DataCha
         })
     }
 
+    override fun updateBackPressEnabled() {
+        backPressCallback.isEnabled = searchController.isActive || selectionController.isActive
+    }
+
+    override fun shareApps(webApps: List<WebApp>, includeSecrets: Boolean) {
+        runWithLoader(
+            webApps.size,
+            ioTask = { BackupManager.buildShareFile(webApps, includeSecrets) },
+        ) { file ->
+            if (file == null || !BackupManager.launchShareChooser(this, file)) {
+                NotificationUtils.showToast(this, getString(R.string.export_share_failed), Toast.LENGTH_LONG)
+            }
+        }
+    }
+
     private fun onFabClicked() {
-        if (_selectionMode) {
-            performShareSelected()
+        if (selectionController.isActive) {
+            selectionController.onFabClicked()
         } else {
             buildAddWebsiteDialog()
         }
-    }
-
-    private fun onSelectionMenuItemClicked(item: MenuItem): Boolean {
-        return when (item.itemId) {
-            R.id.action_move_selected -> {
-                showMoveSelectedPopup()
-                true
-            }
-            R.id.action_delete_selected -> {
-                confirmDeleteSelected()
-                true
-            }
-            else -> false
-        }
-    }
-
-    private fun performShareSelected() {
-        if (selectedUuids.isEmpty()) {
-            NotificationUtils.showToast(
-                this,
-                getString(R.string.share_no_selection),
-                Toast.LENGTH_SHORT,
-            )
-            return
-        }
-
-        val webApps = resolveSelectedWebApps()
-        if (webApps.isEmpty()) {
-            NotificationUtils.showToast(
-                this,
-                getString(R.string.share_no_selection),
-                Toast.LENGTH_SHORT,
-            )
-            return
-        }
-
-        if (containsSecrets(webApps)) {
-            MaterialAlertDialogBuilder(this)
-                .setTitle(R.string.share_secrets_title)
-                .setMessage(R.string.share_secrets_description)
-                .setPositiveButton(R.string.share_secrets_exclude) { _, _ ->
-                    exitSelectionMode()
-                    shareSelectedApps(webApps, includeSecrets = false)
-                }
-                .setNegativeButton(R.string.share_secrets_include) { _, _ ->
-                    exitSelectionMode()
-                    shareSelectedApps(webApps, includeSecrets = true)
-                }
-                .show()
-        } else {
-            exitSelectionMode()
-            shareSelectedApps(webApps, includeSecrets = true)
-        }
-    }
-
-    private fun containsSecrets(webApps: List<WebApp>): Boolean {
-        return webApps.any { app ->
-            val settings = app.settings
-            settings.customHeaders?.any { (k, v) -> k.isNotBlank() || v.isNotBlank() } == true
-                || !settings.basicAuthUsername.isNullOrBlank()
-                || !settings.basicAuthPassword.isNullOrBlank()
-        }
-    }
-
-    private fun showMoveSelectedPopup() {
-        if (selectedUuids.isEmpty()) return
-
-        val anchor = toolbar.findViewById<View>(R.id.action_move_selected) ?: toolbar
-        val popup = PopupMenu(this, anchor)
-
-        val groups = DataManager.instance.sortedGroups
-        groups.forEachIndexed { index, group ->
-            popup.menu.add(0, MENU_MOVE_GROUP_BASE + index, index, group.title)
-        }
-        popup.menu.add(
-            0,
-            MENU_MOVE_GROUP_BASE + groups.size,
-            groups.size,
-            getString(R.string.none),
-        )
-
-        popup.setOnMenuItemClickListener { menuItem ->
-            val groupIndex = menuItem.itemId - MENU_MOVE_GROUP_BASE
-            if (groupIndex in 0..groups.size) {
-                val targetGroupUuid =
-                    if (groupIndex < groups.size) groups[groupIndex].uuid else null
-                performMoveSelected(targetGroupUuid)
-                true
-            } else {
-                false
-            }
-        }
-        popup.show()
-    }
-
-    private fun performMoveSelected(targetGroupUuid: String?) {
-        val webApps = resolveSelectedWebApps()
-        webApps.forEach { webapp ->
-            webapp.groupUuid = targetGroupUuid
-            DataManager.instance.replaceWebApp(webapp)
-        }
-        exitSelectionMode()
-    }
-
-    private fun confirmDeleteSelected() {
-        if (selectedUuids.isEmpty()) return
-
-        MaterialAlertDialogBuilder(this)
-            .setTitle(R.string.remove_apps_title)
-            .setMessage(getString(R.string.remove_apps_confirm, selectedUuids.size))
-            .setPositiveButton(R.string.delete) { _, _ -> performDeleteSelected() }
-            .setNegativeButton(R.string.cancel, null)
-            .show()
-    }
-
-    private fun performDeleteSelected() {
-        val webApps = resolveSelectedWebApps()
-        val count = webApps.size
-
-        webApps.forEach { it.markInactiveOnly() }
-        exitSelectionMode()
-        refreshCurrentPages()
-
-        NotificationUtils.showUndoSnackBar(
-            activity = this,
-            message = getString(R.string.n_apps_removed, count),
-            onUndo = {
-                webApps.forEach { it.isActiveEntry = true }
-                refreshCurrentPages()
-            },
-            onCommit = {
-                webApps.forEach { webapp ->
-                    webapp.deleteShortcuts(this)
-                    webapp.cleanupWebAppData(this)
-                    DataManager.instance.removeWebApp(webapp)
-                }
-            },
-        )
-    }
-
-    private fun resolveSelectedWebApps(): List<WebApp> {
-        val byUuid = DataManager.instance.getWebsites().associateBy { it.uuid }
-        return selectedUuids.mapNotNull(byUuid::get)
     }
 
     private fun handleIncomingBackupIntent(intent: Intent?) {
@@ -502,21 +343,6 @@ class MainActivity : AppCompatActivity(), SelectionModeHost, DataManager.DataCha
                 getString(if (success) R.string.backup_saved else R.string.backup_save_failed),
                 Toast.LENGTH_SHORT,
             )
-        }
-    }
-
-    private fun shareSelectedApps(webApps: List<WebApp>, includeSecrets: Boolean) {
-        runWithLoader(
-            webApps.size,
-            ioTask = { BackupManager.buildShareFile(webApps, includeSecrets) },
-        ) { file ->
-            if (file == null || !BackupManager.launchShareChooser(this, file)) {
-                NotificationUtils.showToast(
-                    this,
-                    getString(R.string.export_share_failed),
-                    Toast.LENGTH_LONG,
-                )
-            }
         }
     }
 
@@ -641,8 +467,6 @@ class MainActivity : AppCompatActivity(), SelectionModeHost, DataManager.DataCha
     }
 
     companion object {
-        private const val MENU_MOVE_GROUP_BASE = 20000
-        private const val EXIT_DELAY_MS = 200L
         private const val TOOLBAR_FADE_DURATION = 100L
     }
 }

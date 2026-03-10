@@ -223,4 +223,6 @@
     <string name="text_copied">Text kopiert</string>
     <string name="image_copied">Bild kopiert</string>
     <string name="image_download_failed">Bild konnte nicht heruntergeladen werden</string>
+    <string name="search">Suchen</string>
+    <string name="no_search_results">Keine Apps gefunden</string>
 </resources>

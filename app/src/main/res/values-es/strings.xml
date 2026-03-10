@@ -222,4 +222,6 @@
     <string name="text_copied">Texto copiado</string>
     <string name="image_copied">Imagen copiada</string>
     <string name="image_download_failed">Error al descargar la imagen</string>
+    <string name="search">Buscar</string>
+    <string name="no_search_results">No se encontraron apps</string>
 </resources>

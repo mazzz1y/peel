@@ -226,4 +226,6 @@
     <string name="text_copied">テキストをコピーしました</string>
     <string name="image_copied">画像をコピーしました</string>
     <string name="image_download_failed">画像のダウンロードに失敗しました</string>
+    <string name="search">検索</string>
+    <string name="no_search_results">アプリが見つかりません</string>
 </resources>

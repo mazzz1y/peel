@@ -216,4 +216,6 @@
     <string name="text_copied">ਟੈਕਸਟ ਕਾਪੀ ਹੋਇਆ</string>
     <string name="image_copied">ਚਿੱਤਰ ਕਾਪੀ ਹੋਇਆ</string>
     <string name="image_download_failed">ਚਿੱਤਰ ਡਾਊਨਲੋਡ ਅਸਫਲ</string>
+    <string name="search">ਖੋਜੋ</string>
+    <string name="no_search_results">ਕੋਈ ਐਪ ਨਹੀਂ ਮਿਲੀ</string>
 </resources>

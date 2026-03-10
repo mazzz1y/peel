@@ -228,4 +228,6 @@
         <item quantity="one">%d app</item>
         <item quantity="other">%d apps</item>
     </plurals>
+    <string name="search">Search</string>
+    <string name="no_search_results">No apps found</string>
 </resources>

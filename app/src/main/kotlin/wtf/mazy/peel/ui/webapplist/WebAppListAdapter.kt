@@ -33,6 +33,7 @@ class WebAppListAdapter(
         private set
 
     var groupFilter: String? = null
+    var searchQuery: String = ""
 
     private val selectionHost = activityOfFragment as? SelectionModeHost
 
@@ -312,13 +313,25 @@ class WebAppListAdapter(
     }
 
     fun updateWebAppList() {
-        val newItems =
+        var newItems =
             when (groupFilter) {
                 null -> DataManager.instance.activeWebsites.toMutableList()
                 WebAppListFragment.UNGROUPED_FILTER ->
                     DataManager.instance.activeWebsitesForGroup(null).toMutableList()
                 else -> DataManager.instance.activeWebsitesForGroup(groupFilter).toMutableList()
             }
+        if (searchQuery.isNotBlank()) {
+            val query = searchQuery.lowercase()
+            val groupNames = DataManager.instance.sortedGroups.associate { it.uuid to it.title }
+            newItems =
+                newItems
+                    .filter { app ->
+                        app.title.lowercase().contains(query) ||
+                            app.baseUrl.lowercase().contains(query) ||
+                            groupNames[app.groupUuid]?.lowercase()?.contains(query) == true
+                    }
+                    .toMutableList()
+        }
         val diff = DiffUtil.calculateDiff(WebAppDiffCallback(items, newItems))
         items = newItems
         diff.dispatchUpdatesTo(this)
