@@ -153,6 +153,7 @@ class ImportBottomSheetFragment : BottomSheetDialogFragment() {
         bottomSheet.layoutParams.height = ViewGroup.LayoutParams.MATCH_PARENT
         bottomSheet.requestLayout()
         val behavior = BottomSheetBehavior.from(bottomSheet)
+        behavior.isDraggable = false
         behavior.isFitToContents = false
         behavior.halfExpandedRatio = 0.85f
         behavior.state = BottomSheetBehavior.STATE_HALF_EXPANDED
