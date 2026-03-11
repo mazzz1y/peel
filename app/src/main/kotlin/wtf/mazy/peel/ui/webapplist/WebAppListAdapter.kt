@@ -163,7 +163,7 @@ class WebAppListAdapter(
             selectionHost?.enterSelectionMode(item.uuid)
         }
         holder.menuButton.setOnClickListener { view ->
-            showPopupMenu(view, item, holder.bindingAdapterPosition)
+            showPopupMenu(view, item)
         }
     }
 
@@ -211,7 +211,7 @@ class WebAppListAdapter(
         notifyItemMoved(from, to)
     }
 
-    private fun showPopupMenu(view: View, webapp: WebApp, position: Int) {
+    private fun showPopupMenu(view: View, webapp: WebApp) {
         val popup = PopupMenu(activityOfFragment, view)
         popup.menuInflater.inflate(R.menu.webapp_item_menu, popup.menu)
 
@@ -245,21 +245,21 @@ class WebAppListAdapter(
                 }
 
                 R.id.action_clone -> {
-                    cloneWebApp(webapp, position)
+                    cloneWebApp(webapp)
                     true
                 }
 
                 R.id.action_delete -> {
-                    deleteWebApp(webapp, position)
+                    deleteWebApp(webapp)
                     true
                 }
 
                 else -> {
                     val groupIndex = menuItem.itemId - MENU_GROUP_BASE
                     if (groupIndex in 0..groups.size) {
-                        webapp.groupUuid =
+                        val targetGroupUuid =
                             if (groupIndex < groups.size) groups[groupIndex].uuid else null
-                        DataManager.instance.replaceWebApp(webapp)
+                        DataManager.instance.moveWebAppsToGroup(listOf(webapp.uuid), targetGroupUuid)
                         true
                     } else {
                         false
@@ -276,7 +276,7 @@ class WebAppListAdapter(
         activityOfFragment.startActivity(intent)
     }
 
-    private fun cloneWebApp(webapp: WebApp, position: Int) {
+    private fun cloneWebApp(webapp: WebApp) {
         val clonedWebApp = WebApp(webapp.baseUrl)
         clonedWebApp.title = webapp.title
         clonedWebApp.settings = webapp.settings.deepCopy()
@@ -293,31 +293,21 @@ class WebAppListAdapter(
         }
 
         DataManager.instance.addWebsite(clonedWebApp)
-        val insertPosition = position + 1
-        items.add(insertPosition, clonedWebApp)
-        notifyItemInserted(insertPosition)
     }
 
-    private fun deleteWebApp(webapp: WebApp, position: Int) {
-        if (position < 0 || position >= items.size) return
-
-        webapp.markInactiveOnly()
-        items.removeAt(position)
-        notifyItemRemoved(position)
+    private fun deleteWebApp(webapp: WebApp) {
+        val uuid = webapp.uuid
+        val title = webapp.title
+        DataManager.instance.softDeleteWebApps(listOf(uuid))
 
         NotificationUtils.showUndoSnackBar(
             activity = activityOfFragment,
-            message = activityOfFragment.getString(R.string.x_was_removed, webapp.title),
+            message = activityOfFragment.getString(R.string.x_was_removed, title),
             onUndo = {
-                webapp.isActiveEntry = true
-                val insertPosition = minOf(position, items.size)
-                items.add(insertPosition, webapp)
-                notifyItemInserted(insertPosition)
+                DataManager.instance.restoreWebApps(listOf(uuid))
             },
             onCommit = {
-                webapp.deleteShortcuts(activityOfFragment)
-                webapp.cleanupWebAppData(activityOfFragment)
-                DataManager.instance.removeWebApp(webapp)
+                DataManager.instance.commitDeleteWebApps(listOf(uuid), activityOfFragment)
             },
         )
     }

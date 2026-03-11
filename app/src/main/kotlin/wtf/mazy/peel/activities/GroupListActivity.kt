@@ -20,6 +20,8 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.materialswitch.MaterialSwitch
 import wtf.mazy.peel.R
+import wtf.mazy.peel.model.DataEvent
+import wtf.mazy.peel.model.DataEventListener
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.WebAppGroup
 import wtf.mazy.peel.shortcut.ShortcutHelper
@@ -29,7 +31,7 @@ import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.NotificationUtils
 import java.util.Collections
 
-class GroupListActivity : AppCompatActivity() {
+class GroupListActivity : AppCompatActivity(), DataEventListener {
 
     private lateinit var adapter: GroupListAdapter
     private lateinit var list: RecyclerView
@@ -67,12 +69,16 @@ class GroupListActivity : AppCompatActivity() {
             if (right - left != oldRight - oldLeft) fab.requestLayout()
         }
 
+        DataManager.instance.addListener(this)
         updateList()
     }
 
-    override fun onResume() {
-        super.onResume()
-        DataManager.instance.loadAppData()
+    override fun onDestroy() {
+        DataManager.instance.removeListener(this)
+        super.onDestroy()
+    }
+
+    override fun onDataEvent(event: DataEvent) {
         updateList()
     }
 
@@ -96,7 +102,6 @@ class GroupListActivity : AppCompatActivity() {
             group.isUseContainer = result.sandbox
             group.isEphemeralSandbox = result.ephemeral
             DataManager.instance.addGroup(group)
-            updateList()
         }
     }
 
@@ -104,13 +109,11 @@ class GroupListActivity : AppCompatActivity() {
         val appsInGroup = DataManager.instance.activeWebsitesForGroup(group.uuid)
         if (appsInGroup.isEmpty()) {
             DataManager.instance.removeGroup(group, ungroupApps = false)
-            updateList()
             NotificationUtils.showUndoSnackBar(
                 activity = this,
                 message = getString(R.string.x_was_removed, group.title),
                 onUndo = {
                     DataManager.instance.addGroup(group)
-                    updateList()
                 },
                 onCommit = {},
             )
@@ -128,10 +131,11 @@ class GroupListActivity : AppCompatActivity() {
             .setView(dialogView)
             .setPositiveButton(R.string.delete) { _, _ ->
                 if (!switchUngroup.isChecked) {
-                    appsInGroup.forEach { it.cleanupWebAppData(this) }
+                    appsInGroup.forEach {
+                        DataManager.instance.cleanupAndRemoveWebApp(it.uuid, this)
+                    }
                 }
                 DataManager.instance.removeGroup(group, ungroupApps = switchUngroup.isChecked)
-                updateList()
             }
             .setNegativeButton(R.string.cancel, null)
             .show()
@@ -139,15 +143,11 @@ class GroupListActivity : AppCompatActivity() {
 
     private val dragCallback =
         dragReorderCallback(
-            onMove = { from, to -> adapter.moveItem(from, to) }, onDrop = ::saveOrder
+            onMove = { from, to -> adapter.moveItem(from, to) },
+            onDrop = {
+                DataManager.instance.reorderGroups(adapter.items.map { it.uuid })
+            },
         )
-
-    private fun saveOrder() {
-        for ((i, group) in adapter.items.withIndex()) {
-            DataManager.instance.getGroup(group.uuid)?.order = i
-        }
-        DataManager.instance.saveGroupData()
-    }
 
     inner class GroupListAdapter : RecyclerView.Adapter<GroupListAdapter.ViewHolder>() {
         var items: MutableList<WebAppGroup> = mutableListOf()

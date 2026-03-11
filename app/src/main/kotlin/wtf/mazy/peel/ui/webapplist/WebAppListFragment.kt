@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import wtf.mazy.peel.R
+import wtf.mazy.peel.activities.MainActivity
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.ui.dragReorderCallback
 
@@ -44,6 +45,13 @@ class WebAppListFragment : Fragment(R.layout.fragment_web_app_list) {
 
         attachDragHelper()
         updateEmptyState()
+
+        (activity as? MainActivity)?.registerFragment(groupFilter, this)
+    }
+
+    override fun onDestroyView() {
+        (activity as? MainActivity)?.unregisterFragment(groupFilter)
+        super.onDestroyView()
     }
 
     fun updateWebAppList() {
@@ -119,7 +127,9 @@ class WebAppListFragment : Fragment(R.layout.fragment_web_app_list) {
     private val itemTouchCallback =
         dragReorderCallback(
             onMove = { from, to -> adapter.moveItem(from, to) },
-            onDrop = ::saveCurrentDisplayedOrderOfWebAppsToDisk,
+            onDrop = {
+                DataManager.instance.reorderWebApps(adapter.items.map { it.uuid })
+            },
             onPickUp = ::animatePickedUp,
             onRelease = ::animateDropped,
         )
@@ -146,14 +156,6 @@ class WebAppListFragment : Fragment(R.layout.fragment_web_app_list) {
             duration = 150
             start()
         }
-    }
-
-    private fun saveCurrentDisplayedOrderOfWebAppsToDisk() {
-        for ((i, webapp) in adapter.items.withIndex()) {
-            val foundWebApp = DataManager.instance.getWebsites().find { it.uuid == webapp.uuid }
-            foundWebApp?.order = i
-        }
-        DataManager.instance.saveWebAppData()
     }
 
     companion object {

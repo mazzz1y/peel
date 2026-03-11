@@ -166,22 +166,14 @@ class SelectionModeController(
             if (groupIndex in 0..groups.size) {
                 val targetGroupUuid =
                     if (groupIndex < groups.size) groups[groupIndex].uuid else null
-                performMoveSelected(targetGroupUuid)
+                DataManager.instance.moveWebAppsToGroup(selectedUuids.toList(), targetGroupUuid)
+                exit()
                 true
             } else {
                 false
             }
         }
         popup.show()
-    }
-
-    private fun performMoveSelected(targetGroupUuid: String?) {
-        val webApps = resolveSelectedWebApps()
-        webApps.forEach { webapp ->
-            webapp.groupUuid = targetGroupUuid
-            DataManager.instance.replaceWebApp(webapp)
-        }
-        exit()
     }
 
     private fun confirmDeleteSelected() {
@@ -198,26 +190,20 @@ class SelectionModeController(
 
     private fun performDeleteSelected() {
         val activity = host.hostActivity
-        val webApps = resolveSelectedWebApps()
-        val count = webApps.size
+        val uuids = selectedUuids.toList()
+        val count = uuids.size
 
-        webApps.forEach { it.markInactiveOnly() }
+        DataManager.instance.softDeleteWebApps(uuids)
         exit()
-        host.refreshCurrentPages()
 
         NotificationUtils.showUndoSnackBar(
             activity = activity,
             message = activity.getString(R.string.n_apps_removed, count),
             onUndo = {
-                webApps.forEach { it.isActiveEntry = true }
-                host.refreshCurrentPages()
+                DataManager.instance.restoreWebApps(uuids)
             },
             onCommit = {
-                webApps.forEach { webapp ->
-                    webapp.deleteShortcuts(activity)
-                    webapp.cleanupWebAppData(activity)
-                    DataManager.instance.removeWebApp(webapp)
-                }
+                DataManager.instance.commitDeleteWebApps(uuids, activity)
             },
         )
     }

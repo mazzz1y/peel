@@ -19,17 +19,6 @@ data class WebApp(var baseUrl: String, override val uuid: String = UUID.randomUU
 
     var settings = WebAppSettings()
 
-    val effectiveSettings: WebAppSettings
-        get() {
-            val globalSettings = DataManager.instance.defaultSettings.settings
-            val groupSettings = groupUuid?.let { DataManager.instance.getGroup(it)?.settings }
-            return if (groupSettings != null) {
-                settings.getEffective(groupSettings, globalSettings)
-            } else {
-                settings.getEffective(globalSettings)
-            }
-        }
-
     init {
         title =
             baseUrl
@@ -45,15 +34,12 @@ data class WebApp(var baseUrl: String, override val uuid: String = UUID.randomUU
 
     constructor(other: WebApp) : this(other.baseUrl, other.uuid) {
         title = other.title
+        isActiveEntry = other.isActiveEntry
         isUseContainer = other.isUseContainer
         isEphemeralSandbox = other.isEphemeralSandbox
         order = other.order
         groupUuid = other.groupUuid
         settings = other.settings.deepCopy()
-    }
-
-    fun markInactiveOnly() {
-        isActiveEntry = false
     }
 
     fun deleteShortcuts(activity: Activity) {
@@ -65,7 +51,6 @@ data class WebApp(var baseUrl: String, override val uuid: String = UUID.randomUU
         deleteIcon()
     }
 
-    val contentFingerprint: Long
+    val contentFingerprint: Int
         get() = Objects.hash(title, baseUrl, groupUuid, isUseContainer, isEphemeralSandbox, order)
-            .toLong() * 31 + iconFile.lastModified()
 }

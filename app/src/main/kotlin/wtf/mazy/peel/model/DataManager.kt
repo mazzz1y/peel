@@ -1,5 +1,6 @@
 package wtf.mazy.peel.model
 
+import android.app.Activity
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
@@ -15,10 +16,6 @@ import wtf.mazy.peel.util.Const
 
 class DataManager private constructor() {
 
-    fun interface DataChangeListener {
-        fun onDataChanged()
-    }
-
     private var websites: MutableList<WebApp> = mutableListOf()
     private var groups: MutableList<WebAppGroup> = mutableListOf()
     private lateinit var dao: WebAppDao
@@ -26,33 +23,38 @@ class DataManager private constructor() {
 
     private var _defaultSettings: WebApp = createDefaultSettings()
 
-    private val listeners = mutableListOf<DataChangeListener>()
+    private val listeners = mutableListOf<DataEventListener>()
     private val mainHandler = Handler(Looper.getMainLooper())
-    private var pendingNotify: Runnable? = null
+    private val pendingEvents = mutableSetOf<DataEvent>()
 
-    fun addListener(listener: DataChangeListener) {
+    fun addListener(listener: DataEventListener) {
         listeners.add(listener)
     }
 
-    fun removeListener(listener: DataChangeListener) {
+    fun removeListener(listener: DataEventListener) {
         listeners.remove(listener)
     }
 
-    private fun notifyListeners() {
-        pendingNotify?.let { mainHandler.removeCallbacks(it) }
-        val runnable = Runnable {
-            pendingNotify = null
-            listeners.forEach { it.onDataChanged() }
+    private fun notify(event: DataEvent) {
+        val wasEmpty = pendingEvents.isEmpty()
+        pendingEvents.add(event)
+        if (wasEmpty) {
+            mainHandler.post {
+                val batch = pendingEvents.toSet()
+                pendingEvents.clear()
+                for (e in batch) {
+                    listeners.forEach { it.onDataEvent(e) }
+                }
+            }
         }
-        pendingNotify = runnable
-        mainHandler.post(runnable)
     }
 
     var defaultSettings: WebApp
-        get() = _defaultSettings
+        get() = WebApp(_defaultSettings)
         set(value) {
-            _defaultSettings = value
+            _defaultSettings = WebApp(value)
             saveDefaultSettings()
+            notify(DataEvent.SettingsChanged)
         }
 
     private fun createDefaultSettings(): WebApp {
@@ -83,11 +85,7 @@ class DataManager private constructor() {
             _defaultSettings = globalEntity.toDomain()
             ensureDefaultSettingsAreConcrete()
         }
-        notifyListeners()
-    }
-
-    fun saveWebAppData() {
-        dao.replaceAllWebApps(websites.map { it.toEntity() })
+        notify(DataEvent.FullReload)
     }
 
     fun saveDefaultSettings() {
@@ -95,15 +93,71 @@ class DataManager private constructor() {
     }
 
     fun addWebsite(newSite: WebApp) {
-        websites.add(newSite)
+        websites.add(WebApp(newSite))
         dao.upsert(newSite.toEntity())
-        notifyListeners()
+        notify(DataEvent.WebAppsChanged(DataEvent.WebAppsChanged.Reason.ADDED))
     }
 
-    fun removeWebApp(webapp: WebApp) {
-        websites.remove(webapp)
-        dao.deleteByUuid(webapp.uuid)
-        notifyListeners()
+    fun removeWebApp(uuid: String) {
+        val index = websites.indexOfFirst { it.uuid == uuid }
+        if (index >= 0) {
+            websites.removeAt(index)
+            dao.deleteByUuid(uuid)
+            notify(DataEvent.WebAppsChanged(DataEvent.WebAppsChanged.Reason.REMOVED))
+        }
+    }
+
+    fun cleanupAndRemoveWebApp(uuid: String, activity: Activity) {
+        val webapp = websites.find { it.uuid == uuid } ?: return
+        webapp.deleteShortcuts(activity)
+        webapp.cleanupWebAppData(activity)
+        removeWebApp(uuid)
+    }
+
+    fun replaceWebApp(webapp: WebApp) {
+        val index = websites.indexOfFirst { it.uuid == webapp.uuid }
+        if (index >= 0) {
+            websites[index] = WebApp(webapp)
+            dao.upsert(webapp.toEntity())
+            notify(DataEvent.WebAppsChanged(DataEvent.WebAppsChanged.Reason.UPDATED))
+        }
+    }
+
+    fun moveWebAppsToGroup(uuids: List<String>, groupUuid: String?) {
+        uuids.forEach { uuid ->
+            val index = websites.indexOfFirst { it.uuid == uuid }
+            if (index >= 0) {
+                websites[index].groupUuid = groupUuid
+                dao.upsert(websites[index].toEntity())
+            }
+        }
+        notify(DataEvent.WebAppsChanged(DataEvent.WebAppsChanged.Reason.UPDATED))
+    }
+
+    fun reorderWebApps(orderedUuids: List<String>) {
+        val byUuid = websites.associateBy { it.uuid }
+        orderedUuids.forEachIndexed { index, uuid ->
+            byUuid[uuid]?.order = index
+        }
+        dao.upsertAll(websites.map { it.toEntity() })
+    }
+
+    fun softDeleteWebApps(uuids: List<String>) {
+        uuids.forEach { uuid ->
+            websites.find { it.uuid == uuid }?.isActiveEntry = false
+        }
+        notify(DataEvent.WebAppsChanged(DataEvent.WebAppsChanged.Reason.REMOVED))
+    }
+
+    fun restoreWebApps(uuids: List<String>) {
+        uuids.forEach { uuid ->
+            websites.find { it.uuid == uuid }?.isActiveEntry = true
+        }
+        notify(DataEvent.WebAppsChanged(DataEvent.WebAppsChanged.Reason.ADDED))
+    }
+
+    fun commitDeleteWebApps(uuids: List<String>, activity: Activity) {
+        uuids.forEach { uuid -> cleanupAndRemoveWebApp(uuid, activity) }
     }
 
     fun importData(
@@ -124,7 +178,7 @@ class DataManager private constructor() {
         websites = importedWebApps.toMutableList()
         groups = importedGroups.toMutableList()
         _defaultSettings.settings = globalSettings
-        saveWebAppData()
+        replaceAllWebAppData()
         saveDefaultSettings()
         saveGroupData()
         loadAppData()
@@ -142,27 +196,20 @@ class DataManager private constructor() {
         loadAppData()
     }
 
-    fun replaceWebApp(webapp: WebApp) {
-        val index = websites.indexOfFirst { it.uuid == webapp.uuid }
-        if (index >= 0) {
-            websites[index] = webapp
-            dao.upsert(webapp.toEntity())
-            notifyListeners()
-        }
-    }
+    fun getWebApp(uuid: String): WebApp? =
+        websites.find { it.uuid == uuid }?.let { WebApp(it) }
 
-    fun getWebApp(uuid: String): WebApp? = websites.find { it.uuid == uuid }
-
-    fun getWebsites(): List<WebApp> = websites
+    fun getWebsites(): List<WebApp> =
+        websites.map { WebApp(it) }
 
     val activeWebsites: List<WebApp>
-        get() = websites.filter { it.isActiveEntry }.sortedBy { it.order }
+        get() = websites.filter { it.isActiveEntry }.sortedBy { it.order }.map { WebApp(it) }
 
-    fun activeWebsitesForGroup(groupUuid: String?): List<WebApp> {
-        return websites
+    fun activeWebsitesForGroup(groupUuid: String?): List<WebApp> =
+        websites
             .filter { it.isActiveEntry && it.groupUuid == groupUuid }
             .sortedBy { it.order }
-    }
+            .map { WebApp(it) }
 
     val activeWebsitesCount: Int
         get() = websites.count { it.isActiveEntry }
@@ -170,27 +217,27 @@ class DataManager private constructor() {
     val incrementedOrder: Int
         get() = activeWebsitesCount + 1
 
-    // Group management
-
-    fun getGroups(): List<WebAppGroup> = groups
+    fun getGroups(): List<WebAppGroup> =
+        groups.map { WebAppGroup(it) }
 
     val sortedGroups: List<WebAppGroup>
-        get() = groups.sortedBy { it.order }
+        get() = groups.sortedBy { it.order }.map { WebAppGroup(it) }
 
-    fun getGroup(uuid: String): WebAppGroup? = groups.find { it.uuid == uuid }
+    fun getGroup(uuid: String): WebAppGroup? =
+        groups.find { it.uuid == uuid }?.let { WebAppGroup(it) }
 
     fun addGroup(group: WebAppGroup) {
-        groups.add(group)
+        groups.add(WebAppGroup(group))
         groupDao.upsert(group.toEntity())
-        notifyListeners()
+        notify(DataEvent.GroupsChanged(DataEvent.GroupsChanged.Reason.ADDED))
     }
 
     fun replaceGroup(group: WebAppGroup) {
         val index = groups.indexOfFirst { it.uuid == group.uuid }
         if (index >= 0) {
-            groups[index] = group
+            groups[index] = WebAppGroup(group)
             groupDao.upsert(group.toEntity())
-            notifyListeners()
+            notify(DataEvent.GroupsChanged(DataEvent.GroupsChanged.Reason.UPDATED))
         }
     }
 
@@ -207,22 +254,47 @@ class DataManager private constructor() {
                 dao.deleteByUuid(webapp.uuid)
             }
         }
-        groups.remove(group)
+        groups.removeAll { it.uuid == group.uuid }
         groupDao.deleteByUuid(group.uuid)
-        notifyListeners()
+        notify(DataEvent.GroupsChanged(DataEvent.GroupsChanged.Reason.REMOVED))
     }
 
-    fun saveGroupData() {
+    fun reorderGroups(orderedUuids: List<String>) {
+        val byUuid = groups.associateBy { it.uuid }
+        orderedUuids.forEachIndexed { index, uuid ->
+            byUuid[uuid]?.order = index
+        }
+        groupDao.replaceAll(groups.map { it.toEntity() })
+    }
+
+    fun resolveEffectiveSettings(webapp: WebApp): WebAppSettings {
+        val globalSettings = _defaultSettings.settings
+        val groupSettings = webapp.groupUuid?.let { uuid ->
+            groups.find { it.uuid == uuid }?.settings
+        }
+        return if (groupSettings != null) {
+            webapp.settings.getEffective(groupSettings, globalSettings)
+        } else {
+            webapp.settings.getEffective(globalSettings)
+        }
+    }
+
+    private fun replaceAllWebAppData() {
+        dao.replaceAllWebApps(websites.map { it.toEntity() })
+    }
+
+    private fun saveGroupData() {
         groupDao.replaceAll(groups.map { it.toEntity() })
     }
 
     private fun removeStaleShortcuts(oldWebApps: List<WebApp>, newWebApps: List<WebApp>) {
-        val staleUuids =
-            newWebApps
-                .filter { newApp ->
-                    oldWebApps.any { it.uuid == newApp.uuid && it.baseUrl != newApp.baseUrl }
-                }
-                .map { it.uuid }
+        val oldUrlByUuid = oldWebApps.associate { it.uuid to it.baseUrl }
+        val staleUuids = newWebApps
+            .filter { newApp ->
+                val oldUrl = oldUrlByUuid[newApp.uuid]
+                oldUrl != null && oldUrl != newApp.baseUrl
+            }
+            .map { it.uuid }
         if (staleUuids.isNotEmpty()) {
             ShortcutIconUtils.deleteShortcuts(staleUuids, App.appContext)
         }

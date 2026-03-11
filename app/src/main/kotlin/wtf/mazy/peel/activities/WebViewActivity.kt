@@ -155,7 +155,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
             }
         }
 
-        cachedSettings = webapp.effectiveSettings
+        cachedSettings = DataManager.instance.resolveEffectiveSettings(webapp)
         applyTaskSnapshotProtection()
         setupWebView()
         ContextCompat.registerReceiver(
@@ -176,7 +176,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     override fun onResume() {
         super.onResume()
         if (SandboxManager.currentSlotId != null) DataManager.instance.loadAppData()
-        cachedSettings = webapp.effectiveSettings
+        cachedSettings = DataManager.instance.resolveEffectiveSettings(webapp)
         webView?.onResume()
         webView?.resumeTimers()
         mediaPlaybackManager?.setBackground(false)
@@ -275,7 +275,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
 
         if (DataManager.instance.getWebApp(newUuid) == null) return
         webappUuid = newUuid
-        cachedSettings = webapp.effectiveSettings
+        cachedSettings = DataManager.instance.resolveEffectiveSettings(webapp)
         applyTaskSnapshotProtection()
         loadURL(sharedUrlFromIntent() ?: webapp.baseUrl)
     }
@@ -284,7 +284,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         get() = webapp.title
 
     override val effectiveSettings: WebAppSettings
-        get() = cachedSettings ?: webapp.effectiveSettings
+        get() = cachedSettings ?: DataManager.instance.resolveEffectiveSettings(webapp)
 
     override val baseUrl: String
         get() = webapp.baseUrl

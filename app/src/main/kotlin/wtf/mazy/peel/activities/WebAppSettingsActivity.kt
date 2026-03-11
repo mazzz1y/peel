@@ -316,7 +316,7 @@ class WebAppSettingsActivity :
                 slotId,
                 sandboxId,
                 url,
-                webapp.effectiveSettings,
+                DataManager.instance.resolveEffectiveSettings(webapp),
                 receiver,
             )
             activeFetchServiceIntent = intent
@@ -325,7 +325,7 @@ class WebAppSettingsActivity :
             val fetcher = HeadlessWebViewFetcher(
                 this,
                 url,
-                webapp.effectiveSettings,
+                DataManager.instance.resolveEffectiveSettings(webapp),
                 onProgress = onProgress,
                 onResult = { if (generation == fetchGeneration) handleFetchResult(webapp, it, generation) },
             )

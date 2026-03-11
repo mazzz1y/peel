@@ -16,7 +16,7 @@ import wtf.mazy.peel.ui.BiometricPromptHelper
 object WebViewLauncher {
     fun startWebView(webapp: WebApp, c: Context, url: String? = null) {
         try {
-            if (webapp.effectiveSettings.isBiometricProtection == true) {
+            if (DataManager.instance.resolveEffectiveSettings(webapp).isBiometricProtection == true) {
                 val error = BiometricPromptHelper.getBiometricError(c)
                 if (error != null) {
                     showBiometricError(c, error)

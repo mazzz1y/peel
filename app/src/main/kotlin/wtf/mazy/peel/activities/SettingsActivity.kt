@@ -14,16 +14,19 @@ import wtf.mazy.peel.ui.settings.SettingViewFactory
 
 class SettingsActivity : ToolbarBaseActivity<GlobalSettingsBinding>() {
 
+    private lateinit var editableSettings: wtf.mazy.peel.model.WebApp
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setToolbarTitle(getString(R.string.global_settings))
+        editableSettings = DataManager.instance.defaultSettings
         setupDefaultSettingsUI()
         setupKeyboardPadding(binding.scrollView)
     }
 
     override fun onPause() {
         super.onPause()
-        DataManager.instance.saveDefaultSettings()
+        DataManager.instance.defaultSettings = editableSettings
     }
 
     override fun inflateBinding(layoutInflater: LayoutInflater): GlobalSettingsBinding {
@@ -31,7 +34,7 @@ class SettingsActivity : ToolbarBaseActivity<GlobalSettingsBinding>() {
     }
 
     private fun setupDefaultSettingsUI() {
-        val settings = DataManager.instance.defaultSettings.settings
+        val settings = editableSettings.settings
         val container = binding.linearLayoutGlobalSettings
         val factory =
             SettingViewFactory(layoutInflater, SettingViewFactory.ButtonStrategy.GlobalDefaults())

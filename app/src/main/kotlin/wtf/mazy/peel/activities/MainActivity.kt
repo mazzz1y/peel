@@ -31,9 +31,12 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.BackupManager
+import wtf.mazy.peel.model.DataEvent
+import wtf.mazy.peel.model.DataEventListener
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.SandboxManager
 import wtf.mazy.peel.model.WebApp
+import wtf.mazy.peel.model.WebAppSettings
 import wtf.mazy.peel.ui.common.LoadingDialogController
 import wtf.mazy.peel.ui.dialog.ImportDialogHelper
 import wtf.mazy.peel.ui.dialog.showSandboxInputDialog
@@ -50,7 +53,7 @@ class MainActivity :
     AppCompatActivity(),
     ToolbarModeHost,
     SelectionModeHost,
-    DataManager.DataChangeListener {
+    DataEventListener {
 
     override lateinit var toolbar: MaterialToolbar
     override lateinit var fab: FloatingActionButton
@@ -65,6 +68,8 @@ class MainActivity :
 
     private lateinit var searchController: SearchModeController
     private lateinit var selectionController: SelectionModeController
+
+    private val fragmentRegistry = mutableMapOf<String?, WebAppListFragment>()
 
     private val exportLauncher =
         registerForActivityResult(ActivityResultContracts.CreateDocument(BackupManager.MIME_TYPE)) { uri ->
@@ -92,7 +97,6 @@ class MainActivity :
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        DataManager.instance.loadAppData()
 
         toolbar = findViewById(R.id.toolbar)
         fab = findViewById(R.id.fab)
@@ -121,17 +125,12 @@ class MainActivity :
         handleIncomingBackupIntent(intent)
     }
 
-    override fun onDataChanged() {
+    override fun onDataEvent(event: DataEvent) {
         if (searchController.isActive) {
             searchController.onDataChanged()
         } else {
             refreshCurrentPages()
         }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        DataManager.instance.loadAppData()
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -221,17 +220,19 @@ class MainActivity :
             return
         }
 
-        for (i in 0 until (pagerAdapter?.itemCount ?: 0)) {
-            val fragment = supportFragmentManager.findFragmentByTag("f$i")
-            (fragment as? WebAppListFragment)?.updateWebAppList()
-        }
+        fragmentRegistry.values.forEach { it.updateWebAppList() }
+    }
+
+    fun registerFragment(groupFilter: String?, fragment: WebAppListFragment) {
+        fragmentRegistry[groupFilter] = fragment
+    }
+
+    fun unregisterFragment(groupFilter: String?) {
+        fragmentRegistry.remove(groupFilter)
     }
 
     private fun forEachFragment(action: (WebAppListFragment) -> Unit) {
-        for (i in 0 until (pagerAdapter?.itemCount ?: 0)) {
-            val fragment = supportFragmentManager.findFragmentByTag("f$i")
-            (fragment as? WebAppListFragment)?.let(action)
-        }
+        fragmentRegistry.values.forEach(action)
     }
 
     private fun setupViewPager() {
@@ -516,18 +517,17 @@ class MainActivity :
         SandboxManager.clearNonSandboxData(this)
         SandboxManager.clearAllSandboxData(this)
 
-        DataManager.instance.getWebsites().toList().forEach { webapp ->
-            webapp.cleanupWebAppData(this)
-            DataManager.instance.removeWebApp(webapp)
+        DataManager.instance.getWebsites().forEach { webapp ->
+            DataManager.instance.cleanupAndRemoveWebApp(webapp.uuid, this)
         }
-        DataManager.instance.getGroups().toList().forEach { group ->
+        DataManager.instance.getGroups().forEach { group ->
             SandboxManager.wipeSandboxStorage(group.uuid)
             DataManager.instance.removeGroup(group, ungroupApps = false)
         }
 
         DataManager.instance.defaultSettings =
             DataManager.instance.defaultSettings.also {
-                it.settings = wtf.mazy.peel.model.WebAppSettings.createWithDefaults()
+                it.settings = WebAppSettings.createWithDefaults()
             }
     }
 
