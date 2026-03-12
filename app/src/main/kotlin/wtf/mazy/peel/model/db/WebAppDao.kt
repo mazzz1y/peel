@@ -17,6 +17,9 @@ interface WebAppDao {
     @Query("SELECT * FROM webapps WHERE uuid = '${Const.GLOBAL_WEBAPP_UUID}' LIMIT 1")
     fun getGlobalSettings(): WebAppEntity?
 
+    @Query("SELECT * FROM webapps WHERE uuid = :uuid LIMIT 1")
+    fun getByUuid(uuid: String): WebAppEntity?
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertAll(entities: List<WebAppEntity>)
 

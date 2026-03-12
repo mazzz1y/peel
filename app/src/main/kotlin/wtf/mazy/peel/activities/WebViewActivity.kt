@@ -134,7 +134,9 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         super.onCreate(savedInstanceState)
 
         webappUuid = intent.getStringExtra(Const.INTENT_WEBAPP_UUID)
-        if (SandboxManager.currentSlotId != null) DataManager.instance.loadAppData()
+        if (SandboxManager.currentSlotId != null && webappUuid != null) {
+            DataManager.instance.ensureWebAppLoaded(webappUuid!!)
+        }
         if (webappUuid == null || DataManager.instance.getWebApp(webappUuid!!) == null) {
             NotificationUtils.showToast(this, getString(R.string.webapp_not_found))
             finishAndRemoveTask()
@@ -175,7 +177,9 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
 
     override fun onResume() {
         super.onResume()
-        if (SandboxManager.currentSlotId != null) DataManager.instance.loadAppData()
+        if (SandboxManager.currentSlotId != null && webappUuid != null) {
+            DataManager.instance.ensureWebAppLoaded(webappUuid!!, forceReload = true)
+        }
         cachedSettings = DataManager.instance.resolveEffectiveSettings(webapp)
         webView?.onResume()
         webView?.resumeTimers()

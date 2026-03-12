@@ -5,7 +5,6 @@ import android.content.Context
 import android.os.Handler
 import android.os.Looper
 import wtf.mazy.peel.model.db.AppDatabase
-import wtf.mazy.peel.model.db.LegacySharedPrefsMigration
 import wtf.mazy.peel.model.db.WebAppDao
 import wtf.mazy.peel.model.db.WebAppGroupDao
 import wtf.mazy.peel.model.db.toDomain
@@ -67,10 +66,46 @@ class DataManager private constructor() {
         val db = AppDatabase.getInstance(context)
         dao = db.webAppDao()
         groupDao = db.webAppGroupDao()
-        @Suppress("DEPRECATION")
-        LegacySharedPrefsMigration.migrate(context, dao, db.sandboxSlotDao())
         if (dao.getGlobalSettings() == null) saveDefaultSettings()
         loadAppData()
+    }
+
+    fun initializeForSandbox(context: Context) {
+        val db = AppDatabase.getInstance(context)
+        dao = db.webAppDao()
+        groupDao = db.webAppGroupDao()
+        val globalEntity = dao.getGlobalSettings()
+        if (globalEntity != null) {
+            _defaultSettings = globalEntity.toDomain()
+            ensureDefaultSettingsAreConcrete()
+        }
+    }
+
+    fun ensureWebAppLoaded(uuid: String, forceReload: Boolean = false) {
+        if (!forceReload && websites.any { it.uuid == uuid }) return
+        val entity = dao.getByUuid(uuid) ?: return
+        val webApp = entity.toDomain()
+        val existingIndex = websites.indexOfFirst { it.uuid == uuid }
+        if (existingIndex >= 0) {
+            websites[existingIndex] = webApp
+        } else {
+            websites.add(webApp)
+        }
+
+        val groupUuid = webApp.groupUuid
+        if (groupUuid != null) {
+            val groupEntity = groupDao.getByUuid(groupUuid)
+            if (groupEntity != null) {
+                val index = groups.indexOfFirst { it.uuid == groupUuid }
+                if (index >= 0) groups[index] = groupEntity.toDomain() else groups.add(groupEntity.toDomain())
+            }
+        }
+
+        val globalEntity = dao.getGlobalSettings()
+        if (globalEntity != null) {
+            _defaultSettings = globalEntity.toDomain()
+            ensureDefaultSettingsAreConcrete()
+        }
     }
 
     fun loadAppData() {
@@ -197,7 +232,10 @@ class DataManager private constructor() {
     }
 
     fun getWebApp(uuid: String): WebApp? =
-        websites.find { it.uuid == uuid }?.let { WebApp(it) }
+        run {
+            ensureWebAppLoaded(uuid)
+            websites.find { it.uuid == uuid }?.let { WebApp(it) }
+        }
 
     fun getWebsites(): List<WebApp> =
         websites.map { WebApp(it) }

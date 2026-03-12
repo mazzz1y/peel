@@ -11,7 +11,11 @@ class App : Application() {
     override fun onCreate() {
         super.onCreate()
         appContext = applicationContext
-        DataManager.instance.initialize(applicationContext)
+        if (SandboxManager.currentSlotId != null) {
+            DataManager.instance.initializeForSandbox(applicationContext)
+        } else {
+            DataManager.instance.initialize(applicationContext)
+        }
         SandboxManager.initialize(AppDatabase.getInstance(applicationContext).sandboxSlotDao())
     }
 

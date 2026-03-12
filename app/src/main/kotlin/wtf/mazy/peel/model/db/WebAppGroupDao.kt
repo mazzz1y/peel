@@ -13,6 +13,9 @@ interface WebAppGroupDao {
     @Query("SELECT * FROM webapp_groups ORDER BY `order`")
     fun getAllGroups(): List<WebAppGroupEntity>
 
+    @Query("SELECT * FROM webapp_groups WHERE uuid = :uuid LIMIT 1")
+    fun getByUuid(uuid: String): WebAppGroupEntity?
+
     @Upsert
     fun upsert(group: WebAppGroupEntity)
 
