@@ -7,8 +7,8 @@ import android.graphics.Paint
 import android.graphics.Typeface
 import android.net.Uri
 import android.os.Bundle
-import android.text.SpannableString
 import android.text.Spannable
+import android.text.SpannableString
 import android.text.style.ReplacementSpan
 import android.util.Log
 import android.view.Menu
@@ -102,8 +102,7 @@ class MainActivity :
         viewPager = findViewById(R.id.viewPager)
         exportLoader = LoadingDialogController(this)
 
-        findViewById<View>(android.R.id.content).addOnLayoutChangeListener {
-                _, left, _, right, _, oldLeft, _, oldRight, _ ->
+        findViewById<View>(android.R.id.content).addOnLayoutChangeListener { _, left, _, right, _, oldLeft, _, oldRight, _ ->
             if (right - left != oldRight - oldLeft) fab.requestLayout()
         }
 
@@ -177,7 +176,11 @@ class MainActivity :
                 try {
                     importLauncher.launch("*/*")
                 } catch (e: ActivityNotFoundException) {
-                    NotificationUtils.showToast(this, getString(R.string.no_filemanager), Toast.LENGTH_LONG)
+                    NotificationUtils.showToast(
+                        this,
+                        getString(R.string.no_filemanager),
+                        Toast.LENGTH_LONG
+                    )
                     Log.e("MainActivity", "No file manager available for import", e)
                 }
                 true
@@ -187,7 +190,11 @@ class MainActivity :
                 try {
                     exportLauncher.launch(BackupManager.buildExportFilename())
                 } catch (e: ActivityNotFoundException) {
-                    NotificationUtils.showToast(this, getString(R.string.no_filemanager), Toast.LENGTH_LONG)
+                    NotificationUtils.showToast(
+                        this,
+                        getString(R.string.no_filemanager),
+                        Toast.LENGTH_LONG
+                    )
                     Log.e("MainActivity", "No file manager available for export", e)
                 }
                 true
@@ -399,7 +406,11 @@ class MainActivity :
             ioTask = { BackupManager.buildShareFile(webApps, includeSecrets) },
         ) { file ->
             if (file == null || !BackupManager.launchShareChooser(this, file)) {
-                NotificationUtils.showToast(this, getString(R.string.export_share_failed), Toast.LENGTH_LONG)
+                NotificationUtils.showToast(
+                    this,
+                    getString(R.string.export_share_failed),
+                    Toast.LENGTH_LONG
+                )
             }
         }
     }
@@ -427,6 +438,7 @@ class MainActivity :
             Intent.ACTION_SEND -> {
                 @Suppress("DEPRECATION") intent.getParcelableExtra(Intent.EXTRA_STREAM)
             }
+
             else -> null
         }
     }
@@ -560,17 +572,35 @@ class MainActivity :
         private val fgColor: Int,
     ) : ReplacementSpan() {
 
-        override fun getSize(paint: Paint, text: CharSequence, start: Int, end: Int, fm: Paint.FontMetricsInt?): Int {
+        override fun getSize(
+            paint: Paint,
+            text: CharSequence,
+            start: Int,
+            end: Int,
+            fm: Paint.FontMetricsInt?
+        ): Int {
             val textSize = paint.textSize * 0.7f
-            val badgePaint = Paint(paint).apply { this.textSize = textSize; typeface = Typeface.DEFAULT_BOLD }
+            val badgePaint =
+                Paint(paint).apply { this.textSize = textSize; typeface = Typeface.DEFAULT_BOLD }
             val textWidth = badgePaint.measureText(label)
             val diameter = maxOf(textWidth + textSize * 0.6f, textSize * 1.3f)
             return (diameter + textSize * 0.4f).toInt()
         }
 
-        override fun draw(canvas: Canvas, text: CharSequence, start: Int, end: Int, x: Float, top: Int, y: Int, bottom: Int, paint: Paint) {
+        override fun draw(
+            canvas: Canvas,
+            text: CharSequence,
+            start: Int,
+            end: Int,
+            x: Float,
+            top: Int,
+            y: Int,
+            bottom: Int,
+            paint: Paint
+        ) {
             val textSize = paint.textSize * 0.7f
-            val badgePaint = Paint(paint).apply { this.textSize = textSize; typeface = Typeface.DEFAULT_BOLD }
+            val badgePaint =
+                Paint(paint).apply { this.textSize = textSize; typeface = Typeface.DEFAULT_BOLD }
             val textWidth = badgePaint.measureText(label)
             val diameter = maxOf(textWidth + textSize * 0.6f, textSize * 1.3f)
             val radius = diameter / 2f

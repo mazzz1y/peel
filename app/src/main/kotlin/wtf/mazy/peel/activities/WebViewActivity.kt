@@ -29,13 +29,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toDrawable
+import androidx.lifecycle.lifecycleScope
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import androidx.webkit.WebSettingsCompat
 import androidx.webkit.WebViewFeature
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
-import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import wtf.mazy.peel.R
 import wtf.mazy.peel.media.MediaJsBridge
@@ -459,7 +459,11 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     }
 
     override fun updateStatusBarColor(color: Int) {
-        systemBarController.update(color, launchOverlayController.isVisible, UI_ANIMATION_DURATION_MS)
+        systemBarController.update(
+            color,
+            launchOverlayController.isVisible,
+            UI_ANIMATION_DURATION_MS
+        )
     }
 
     override fun onPageStarted() {
@@ -551,7 +555,9 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         applyWindowFlags(settings)
         setupPullToRefresh(settings)
         webView?.buildUserAgent()
-        if (settings.isShowFullscreen == true) systemBarController.hide() else systemBarController.show(false)
+        if (settings.isShowFullscreen == true) systemBarController.hide() else systemBarController.show(
+            false
+        )
         configureWebViewSettings(settings)
         setDarkModeIfNeeded()
         configureCookies(settings)

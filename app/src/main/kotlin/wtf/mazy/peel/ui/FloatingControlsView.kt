@@ -38,7 +38,7 @@ private class FloatingButtonPrefs(webappUuid: String, parent: FrameLayout) {
 
 class FloatingControlsView(
     private val parent: FrameLayout,
-    private val webappUuid: String,
+    webappUuid: String,
     private val getWebView: () -> WebView?,
     private val onHome: () -> Unit,
 ) {
@@ -166,8 +166,7 @@ class FloatingControlsView(
     }
 
     private fun applyPosition() {
-        val (x, y) = buttonPrefs.load()
-            ?.let { (fx, fy) -> fx * parent.width to fy * parent.height }
+        val (x, y) = buttonPrefs.load()?.let { (fx, fy) -> fx * parent.width to fy * parent.height }
             ?: ((parent.width - buttonSizePx - marginPx).toFloat() to parent.height * 0.25f)
         moveTriggerTo(x, y)
     }
@@ -225,8 +224,7 @@ class FloatingControlsView(
     private fun collapse() {
         expanded = false
         actionButtons.forEach { btn ->
-            btn.animate().alpha(0f).setDuration(150)
-                .withEndAction { btn.visibility = View.GONE }
+            btn.animate().alpha(0f).setDuration(150).withEndAction { btn.visibility = View.GONE }
                 .start()
         }
         trigger.animate().rotation(0f).setDuration(150).start()

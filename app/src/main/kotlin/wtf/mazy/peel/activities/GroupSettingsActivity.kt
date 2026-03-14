@@ -8,14 +8,14 @@ import kotlinx.coroutines.launch
 import wtf.mazy.peel.R
 import wtf.mazy.peel.databinding.GroupSettingsBinding
 import wtf.mazy.peel.model.DataManager
+import wtf.mazy.peel.model.SandboxManager
 import wtf.mazy.peel.model.SettingDefinition
 import wtf.mazy.peel.model.WebAppGroup
 import wtf.mazy.peel.ui.IconEditorController
-import wtf.mazy.peel.ui.dialog.OverridePickerDialog
 import wtf.mazy.peel.ui.dialog.InputDialogConfig
+import wtf.mazy.peel.ui.dialog.OverridePickerDialog
 import wtf.mazy.peel.ui.dialog.showInputDialog
 import wtf.mazy.peel.ui.settings.OverridePickerController
-import wtf.mazy.peel.model.SandboxManager
 import wtf.mazy.peel.ui.settings.SandboxSwitchController
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.NotificationUtils.showToast

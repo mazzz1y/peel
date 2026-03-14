@@ -36,7 +36,12 @@ class ShareReceiverActivity : AppCompatActivity() {
 
             val sorted =
                 apps.sortedWith(
-                    compareByDescending<WebApp> { domainAffinity(it.baseUrl, sharedUrl) }.thenBy { it.title })
+                    compareByDescending<WebApp> {
+                        domainAffinity(
+                            it.baseUrl,
+                            sharedUrl
+                        )
+                    }.thenBy { it.title })
 
             showPickerDialog(sorted, sharedUrl)
         }

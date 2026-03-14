@@ -14,9 +14,9 @@ import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
-import androidx.lifecycle.lifecycleScope
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.PopupMenu
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.progressindicator.CircularProgressIndicator
 import com.google.android.material.textfield.TextInputEditText
@@ -39,8 +39,8 @@ import wtf.mazy.peel.shortcut.LetterIconGenerator
 import wtf.mazy.peel.shortcut.ShortcutHelper
 import wtf.mazy.peel.ui.IconEditorController
 import wtf.mazy.peel.ui.ListPickerAdapter
-import wtf.mazy.peel.ui.dialog.OverridePickerDialog
 import wtf.mazy.peel.ui.dialog.InputDialogConfig
+import wtf.mazy.peel.ui.dialog.OverridePickerDialog
 import wtf.mazy.peel.ui.dialog.showInputDialogRaw
 import wtf.mazy.peel.ui.settings.OverridePickerController
 import wtf.mazy.peel.ui.settings.SandboxSwitchController
@@ -335,7 +335,13 @@ class WebAppSettingsActivity :
                 url,
                 DataManager.instance.resolveEffectiveSettings(webapp),
                 onProgress = onProgress,
-                onResult = { if (generation == fetchGeneration) handleFetchResult(webapp, it, generation) },
+                onResult = {
+                    if (generation == fetchGeneration) handleFetchResult(
+                        webapp,
+                        it,
+                        generation
+                    )
+                },
             )
             activeFetcher = fetcher
             fetcher.start()
@@ -394,7 +400,12 @@ class WebAppSettingsActivity :
                 val bmp = candidate.icon
                 if (bmp != null) {
                     iconView.setImageBitmap(bmp)
-                    detailView.text = getString(R.string.icon_dimensions_source, bmp.width, bmp.height, candidate.source)
+                    detailView.text = getString(
+                        R.string.icon_dimensions_source,
+                        bmp.width,
+                        bmp.height,
+                        candidate.source
+                    )
                     detailView.visibility = View.VISIBLE
                 } else {
                     iconView.setImageBitmap(
@@ -406,9 +417,21 @@ class WebAppSettingsActivity :
 
         MaterialAlertDialogBuilder(this)
             .setTitle(R.string.choose_icon)
-            .setAdapter(adapter) { _, which -> applyFetchResult(webapp, candidates[which], urlSuggestion) }
+            .setAdapter(adapter) { _, which ->
+                applyFetchResult(
+                    webapp,
+                    candidates[which],
+                    urlSuggestion
+                )
+            }
             .setOnCancelListener {
-                urlSuggestion?.let { (url, messageResId) -> promptUrlUpdate(webapp, url, messageResId) }
+                urlSuggestion?.let { (url, messageResId) ->
+                    promptUrlUpdate(
+                        webapp,
+                        url,
+                        messageResId
+                    )
+                }
             }
             .show()
     }
@@ -438,7 +461,12 @@ class WebAppSettingsActivity :
         val urlStart = text.indexOf(suggestedUrl)
         val message = SpannableString(text).apply {
             if (urlStart >= 0) {
-                setSpan(TypefaceSpan("monospace"), urlStart, urlStart + suggestedUrl.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                setSpan(
+                    TypefaceSpan("monospace"),
+                    urlStart,
+                    urlStart + suggestedUrl.length,
+                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
             }
         }
         MaterialAlertDialogBuilder(this)

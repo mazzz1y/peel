@@ -8,10 +8,10 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.launch
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.coroutines.launch
 import wtf.mazy.peel.R
 import wtf.mazy.peel.activities.MainActivity
 import wtf.mazy.peel.model.DataManager

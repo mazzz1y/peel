@@ -214,12 +214,22 @@ class PeelWebChromeClient(private val host: ChromeClientHost) : WebChromeClient(
             webkitPermission in pageDenied -> {}
             state == WebAppSettings.PERMISSION_ON || webkitPermission in pageGranted ->
                 pending.add(
-                    PendingPermission(androidPermissions, webkitPermission, promptResId, skipInAppDialog = true)
+                    PendingPermission(
+                        androidPermissions,
+                        webkitPermission,
+                        promptResId,
+                        skipInAppDialog = true
+                    )
                 )
 
             state == WebAppSettings.PERMISSION_ASK ->
                 pending.add(
-                    PendingPermission(androidPermissions, webkitPermission, promptResId, skipInAppDialog = false)
+                    PendingPermission(
+                        androidPermissions,
+                        webkitPermission,
+                        promptResId,
+                        skipInAppDialog = false
+                    )
                 )
         }
     }
@@ -284,6 +294,7 @@ class PeelWebChromeClient(private val host: ChromeClientHost) : WebChromeClient(
                     pageGranted.add(p.webkitPermission)
                     granted.add(p.webkitPermission)
                 }
+
                 PermissionResult.DENY -> pageDenied.add(p.webkitPermission)
             }
             onDone()

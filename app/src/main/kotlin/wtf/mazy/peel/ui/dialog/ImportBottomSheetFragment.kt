@@ -8,12 +8,12 @@ import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.TextView
 import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.launch
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import kotlinx.coroutines.launch
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.ParsedBackup
@@ -24,7 +24,8 @@ class ImportBottomSheetFragment : BottomSheetDialogFragment() {
 
     private var parsed: ParsedBackup? = null
     private var onImport: ((selectedUuids: Set<String>, groupUuid: String?) -> Unit)? = null
-    private var onGroupImport: ((selectedUuids: Set<String>, selectedGroupUuids: Set<String>) -> Unit)? = null
+    private var onGroupImport: ((selectedUuids: Set<String>, selectedGroupUuids: Set<String>) -> Unit)? =
+        null
     private var groupShareMode = false
 
     private var selectedGroupUuid: String? = null

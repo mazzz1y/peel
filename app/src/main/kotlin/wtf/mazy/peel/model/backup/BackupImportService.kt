@@ -13,7 +13,8 @@ object BackupImportService {
 
     suspend fun importFullBackup(parsed: ParsedBackup, mode: ImportMode): BackupResult {
         if (parsed.backupData.payloadType != BackupPolicy.PAYLOAD_FULL) return BackupResult.InvalidPayload
-        val globalSettings = parsed.backupData.globalSettings ?: return BackupResult.MissingGlobalSettings
+        val globalSettings =
+            parsed.backupData.globalSettings ?: return BackupResult.MissingGlobalSettings
         return try {
             applyFullImport(parsed, globalSettings, mode)
             BackupResult.Success
@@ -76,7 +77,12 @@ object BackupImportService {
             )
             dataManager.addGroup(importedGroup)
             groupUuidMap[originalGroupUuid] = importedGroup.uuid
-            parsed.icons[originalGroupUuid]?.let { BackupArchiveCodec.saveIcon(importedGroup.uuid, it) }
+            parsed.icons[originalGroupUuid]?.let {
+                BackupArchiveCodec.saveIcon(
+                    importedGroup.uuid,
+                    it
+                )
+            }
         }
 
         if (groupUuidMap.isEmpty()) return 0

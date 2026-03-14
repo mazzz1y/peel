@@ -269,7 +269,10 @@ class WebAppListAdapter(
                         val targetGroupUuid =
                             if (groupIndex < groups.size) groups[groupIndex].uuid else null
                         activity.lifecycleScope.launch {
-                            DataManager.instance.moveWebAppsToGroup(listOf(webapp.uuid), targetGroupUuid)
+                            DataManager.instance.moveWebAppsToGroup(
+                                listOf(webapp.uuid),
+                                targetGroupUuid
+                            )
                         }
                         true
                     } else {
@@ -310,7 +313,10 @@ class WebAppListAdapter(
 
     private fun shareWebApp(webapp: WebApp) {
         val shareHost = activity as? ToolbarModeHost ?: return
-        ShareSecretsDialog.confirmForWebApps(shareHost.hostActivity, listOf(webapp)) { includeSecrets ->
+        ShareSecretsDialog.confirmForWebApps(
+            shareHost.hostActivity,
+            listOf(webapp)
+        ) { includeSecrets ->
             shareHost.shareApps(listOf(webapp), includeSecrets)
         }
     }
@@ -343,6 +349,7 @@ class WebAppListAdapter(
             null -> DataManager.instance.activeWebsites.toMutableList()
             WebAppListFragment.UNGROUPED_FILTER ->
                 DataManager.instance.activeWebsitesForGroup(null).toMutableList()
+
             else -> DataManager.instance.activeWebsitesForGroup(groupFilter).toMutableList()
         }
 
@@ -355,8 +362,8 @@ class WebAppListAdapter(
                 newItems
                     .filter { app ->
                         app.title.lowercase().contains(query) ||
-                            app.baseUrl.lowercase().contains(query) ||
-                            groupNames[app.groupUuid]?.lowercase()?.contains(query) == true
+                                app.baseUrl.lowercase().contains(query) ||
+                                groupNames[app.groupUuid]?.lowercase()?.contains(query) == true
                     }
                     .toMutableList()
         }
@@ -379,6 +386,7 @@ class WebAppListAdapter(
         override fun getNewListSize() = newList.size
         override fun areItemsTheSame(oldPos: Int, newPos: Int) =
             oldList[oldPos].uuid == newList[newPos].uuid
+
         override fun areContentsTheSame(oldPos: Int, newPos: Int) =
             oldList[oldPos].contentFingerprint == newList[newPos].contentFingerprint
     }

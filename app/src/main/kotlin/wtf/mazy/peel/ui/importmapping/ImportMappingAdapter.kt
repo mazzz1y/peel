@@ -103,12 +103,14 @@ class ImportMappingAdapter(
                 if (isChecked) {
                     selectedUuids.add(item.uuid)
                     if (row.sectionUuid.isNotEmpty()) {
-                        selectedAppsByGroup.getOrPut(row.sectionUuid) { mutableSetOf() }.add(item.uuid)
+                        selectedAppsByGroup.getOrPut(row.sectionUuid) { mutableSetOf() }
+                            .add(item.uuid)
                     }
                 } else {
                     selectedUuids.remove(item.uuid)
                     if (row.sectionUuid.isNotEmpty()) {
-                        selectedAppsByGroup.getOrPut(row.sectionUuid) { mutableSetOf() }.remove(item.uuid)
+                        selectedAppsByGroup.getOrPut(row.sectionUuid) { mutableSetOf() }
+                            .remove(item.uuid)
                     }
                 }
             }

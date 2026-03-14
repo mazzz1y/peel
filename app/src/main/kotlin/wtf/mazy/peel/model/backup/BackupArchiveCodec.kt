@@ -114,7 +114,8 @@ object BackupArchiveCodec {
                 }
 
                 entry.name.startsWith(BackupPolicy.ICONS_PREFIX) && entry.name.endsWith(".png") -> {
-                    val appUuid = entry.name.removePrefix(BackupPolicy.ICONS_PREFIX).removeSuffix(".png")
+                    val appUuid =
+                        entry.name.removePrefix(BackupPolicy.ICONS_PREFIX).removeSuffix(".png")
                     val bytes = zip.readBytes()
                     val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
                     if (bitmap != null) icons[appUuid] = bitmap

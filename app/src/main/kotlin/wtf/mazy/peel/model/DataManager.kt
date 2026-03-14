@@ -23,8 +23,16 @@ class DataManager private constructor() {
     private sealed interface Action {
         val done: CompletableDeferred<Unit>
 
-        data class InitializeFull(override val done: CompletableDeferred<Unit>, val context: Context) : Action
-        data class InitializeSandbox(override val done: CompletableDeferred<Unit>, val context: Context) : Action
+        data class InitializeFull(
+            override val done: CompletableDeferred<Unit>,
+            val context: Context
+        ) : Action
+
+        data class InitializeSandbox(
+            override val done: CompletableDeferred<Unit>,
+            val context: Context
+        ) : Action
+
         data class EnsureWebAppLoaded(
             override val done: CompletableDeferred<Unit>,
             val uuid: String,
@@ -33,19 +41,41 @@ class DataManager private constructor() {
 
         data class ReloadAll(override val done: CompletableDeferred<Unit>) : Action
         data class PersistDefaultSettings(override val done: CompletableDeferred<Unit>) : Action
-        data class SetDefaultSettings(override val done: CompletableDeferred<Unit>, val value: WebApp) : Action
-        data class AddWebsite(override val done: CompletableDeferred<Unit>, val site: WebApp) : Action
-        data class RemoveWebsite(override val done: CompletableDeferred<Unit>, val uuid: String) : Action
-        data class ReplaceWebsite(override val done: CompletableDeferred<Unit>, val site: WebApp) : Action
+        data class SetDefaultSettings(
+            override val done: CompletableDeferred<Unit>,
+            val value: WebApp
+        ) : Action
+
+        data class AddWebsite(override val done: CompletableDeferred<Unit>, val site: WebApp) :
+            Action
+
+        data class RemoveWebsite(override val done: CompletableDeferred<Unit>, val uuid: String) :
+            Action
+
+        data class ReplaceWebsite(override val done: CompletableDeferred<Unit>, val site: WebApp) :
+            Action
+
         data class MoveWebAppsToGroup(
             override val done: CompletableDeferred<Unit>,
             val uuids: List<String>,
             val groupUuid: String?,
         ) : Action
 
-        data class ReorderWebApps(override val done: CompletableDeferred<Unit>, val orderedUuids: List<String>) : Action
-        data class SoftDeleteWebApps(override val done: CompletableDeferred<Unit>, val uuids: List<String>) : Action
-        data class RestoreWebApps(override val done: CompletableDeferred<Unit>, val uuids: List<String>) : Action
+        data class ReorderWebApps(
+            override val done: CompletableDeferred<Unit>,
+            val orderedUuids: List<String>
+        ) : Action
+
+        data class SoftDeleteWebApps(
+            override val done: CompletableDeferred<Unit>,
+            val uuids: List<String>
+        ) : Action
+
+        data class RestoreWebApps(
+            override val done: CompletableDeferred<Unit>,
+            val uuids: List<String>
+        ) : Action
+
         data class ImportData(
             override val done: CompletableDeferred<Unit>,
             val importedWebApps: List<WebApp>,
@@ -60,15 +90,24 @@ class DataManager private constructor() {
             val importedGroups: List<WebAppGroup>,
         ) : Action
 
-        data class AddGroup(override val done: CompletableDeferred<Unit>, val group: WebAppGroup) : Action
-        data class ReplaceGroup(override val done: CompletableDeferred<Unit>, val group: WebAppGroup) : Action
+        data class AddGroup(override val done: CompletableDeferred<Unit>, val group: WebAppGroup) :
+            Action
+
+        data class ReplaceGroup(
+            override val done: CompletableDeferred<Unit>,
+            val group: WebAppGroup
+        ) : Action
+
         data class RemoveGroup(
             override val done: CompletableDeferred<Unit>,
             val group: WebAppGroup,
             val ungroupApps: Boolean,
         ) : Action
 
-        data class ReorderGroups(override val done: CompletableDeferred<Unit>, val orderedUuids: List<String>) : Action
+        data class ReorderGroups(
+            override val done: CompletableDeferred<Unit>,
+            val orderedUuids: List<String>
+        ) : Action
     }
 
     private val repository = DataRepository()
@@ -76,7 +115,8 @@ class DataManager private constructor() {
     private val scope = CoroutineScope(SupervisorJob() + dispatcher)
     private val actions = Channel<Action>(Channel.UNLIMITED)
 
-    private val _state = MutableStateFlow(DataState(emptyList(), emptyList(), createDefaultSettings()))
+    private val _state =
+        MutableStateFlow(DataState(emptyList(), emptyList(), createDefaultSettings()))
     val state: StateFlow<DataState> = _state.asStateFlow()
     private val _isReady = MutableStateFlow(false)
     val isReady: StateFlow<Boolean> = _isReady.asStateFlow()
@@ -214,7 +254,8 @@ class DataManager private constructor() {
     fun getWebsites(): List<WebApp> = currentState.websites.map { WebApp(it) }
 
     val activeWebsites: List<WebApp>
-        get() = currentState.websites.filter { it.isActiveEntry }.sortedBy { it.order }.map { WebApp(it) }
+        get() = currentState.websites.filter { it.isActiveEntry }.sortedBy { it.order }
+            .map { WebApp(it) }
 
     fun activeWebsitesForGroup(groupUuid: String?): List<WebApp> {
         return currentState.websites
@@ -259,8 +300,12 @@ class DataManager private constructor() {
 
     fun resolveEffectiveSettings(webapp: WebApp): WebAppSettings {
         val globalSettings = currentState.defaultSettings.settings
-        val groupSettings = webapp.groupUuid?.let { uuid -> currentState.groups.find { it.uuid == uuid }?.settings }
-        return if (groupSettings != null) webapp.settings.getEffective(groupSettings, globalSettings)
+        val groupSettings =
+            webapp.groupUuid?.let { uuid -> currentState.groups.find { it.uuid == uuid }?.settings }
+        return if (groupSettings != null) webapp.settings.getEffective(
+            groupSettings,
+            globalSettings
+        )
         else webapp.settings.getEffective(globalSettings)
     }
 
@@ -277,8 +322,9 @@ class DataManager private constructor() {
 
             is Action.InitializeSandbox -> {
                 repository.initialize(action.context)
-                val loadedDefault = repository.getGlobalSettings()?.let(::ensureDefaultSettingsConcrete)
-                    ?: ensureDefaultSettingsConcrete(currentState.defaultSettings)
+                val loadedDefault =
+                    repository.getGlobalSettings()?.let(::ensureDefaultSettingsConcrete)
+                        ?: ensureDefaultSettingsConcrete(currentState.defaultSettings)
                 updateState(
                     DataReducer.withDefaultSettings(
                         defaultSettings = loadedDefault,
@@ -293,8 +339,9 @@ class DataManager private constructor() {
                 if (!action.forceReload && currentState.websites.any { it.uuid == action.uuid }) return
                 val loadedWebApp = repository.getWebApp(action.uuid) ?: return
                 val loadedGroup = loadedWebApp.groupUuid?.let(repository::getGroup)
-                val loadedDefault = repository.getGlobalSettings()?.let(::ensureDefaultSettingsConcrete)
-                    ?: currentState.defaultSettings
+                val loadedDefault =
+                    repository.getGlobalSettings()?.let(::ensureDefaultSettingsConcrete)
+                        ?: currentState.defaultSettings
 
                 val nextWebsites = currentState.websites
                     .filterNot { it.uuid == loadedWebApp.uuid }
@@ -335,14 +382,24 @@ class DataManager private constructor() {
             is Action.AddWebsite -> {
                 if (!repository.isInitialized) return
                 repository.upsertWebApp(action.site)
-                updateState(DataReducer.withWebsites(currentState.websites + WebApp(action.site), emit = true))
+                updateState(
+                    DataReducer.withWebsites(
+                        currentState.websites + WebApp(action.site),
+                        emit = true
+                    )
+                )
             }
 
             is Action.RemoveWebsite -> {
                 if (!repository.isInitialized) return
                 if (currentState.websites.none { it.uuid == action.uuid }) return
                 repository.deleteWebApp(action.uuid)
-                updateState(DataReducer.withWebsites(currentState.websites.filterNot { it.uuid == action.uuid }, emit = true))
+                updateState(
+                    DataReducer.withWebsites(
+                        currentState.websites.filterNot { it.uuid == action.uuid },
+                        emit = true
+                    )
+                )
             }
 
             is Action.ReplaceWebsite -> {
@@ -355,7 +412,12 @@ class DataManager private constructor() {
             is Action.MoveWebAppsToGroup -> {
                 if (!repository.isInitialized) return
                 val uuids = action.uuids.toSet()
-                val mutation = DataReducer.movingWebsitesToGroup(currentState, uuids, action.groupUuid, emit = true)
+                val mutation = DataReducer.movingWebsitesToGroup(
+                    currentState,
+                    uuids,
+                    action.groupUuid,
+                    emit = true
+                )
                 val nextWebsites = mutation.websites ?: return
                 repository.upsertWebApps(nextWebsites.filter { it.uuid in uuids })
                 updateState(mutation)
@@ -363,7 +425,8 @@ class DataManager private constructor() {
 
             is Action.ReorderWebApps -> {
                 if (!repository.isInitialized) return
-                val mutation = DataReducer.reorderingWebsites(currentState, action.orderedUuids, emit = true)
+                val mutation =
+                    DataReducer.reorderingWebsites(currentState, action.orderedUuids, emit = true)
                 val nextWebsites = mutation.websites ?: return
                 repository.upsertWebApps(nextWebsites)
                 updateState(mutation)
@@ -371,7 +434,12 @@ class DataManager private constructor() {
 
             is Action.SoftDeleteWebApps -> {
                 val uuids = action.uuids.toSet()
-                val mutation = DataReducer.markingWebsitesActive(currentState, uuids, isActive = false, emit = true)
+                val mutation = DataReducer.markingWebsitesActive(
+                    currentState,
+                    uuids,
+                    isActive = false,
+                    emit = true
+                )
                 val nextWebsites = mutation.websites ?: return
                 if (repository.isInitialized) {
                     repository.upsertWebApps(nextWebsites.filter { it.uuid in uuids })
@@ -381,7 +449,12 @@ class DataManager private constructor() {
 
             is Action.RestoreWebApps -> {
                 val uuids = action.uuids.toSet()
-                val mutation = DataReducer.markingWebsitesActive(currentState, uuids, isActive = true, emit = true)
+                val mutation = DataReducer.markingWebsitesActive(
+                    currentState,
+                    uuids,
+                    isActive = true,
+                    emit = true
+                )
                 val nextWebsites = mutation.websites ?: return
                 if (repository.isInitialized) {
                     repository.upsertWebApps(nextWebsites.filter { it.uuid in uuids })
@@ -430,7 +503,12 @@ class DataManager private constructor() {
             is Action.AddGroup -> {
                 if (!repository.isInitialized) return
                 repository.upsertGroup(action.group)
-                updateState(DataReducer.withGroups(currentState.groups + WebAppGroup(action.group), emit = true))
+                updateState(
+                    DataReducer.withGroups(
+                        currentState.groups + WebAppGroup(action.group),
+                        emit = true
+                    )
+                )
             }
 
             is Action.ReplaceGroup -> {
@@ -455,7 +533,8 @@ class DataManager private constructor() {
                     currentState.websites.filterNot { it.groupUuid == groupUuid }.map { WebApp(it) }
                 }
                 repository.deleteGroup(groupUuid)
-                val nextGroups = currentState.groups.filterNot { it.uuid == groupUuid }.map { WebAppGroup(it) }
+                val nextGroups =
+                    currentState.groups.filterNot { it.uuid == groupUuid }.map { WebAppGroup(it) }
                 updateState(
                     DataReducer.withLoadedData(
                         websites = nextWebsites,
@@ -468,7 +547,8 @@ class DataManager private constructor() {
 
             is Action.ReorderGroups -> {
                 if (!repository.isInitialized) return
-                val mutation = DataReducer.reorderingGroups(currentState, action.orderedUuids, emit = true)
+                val mutation =
+                    DataReducer.reorderingGroups(currentState, action.orderedUuids, emit = true)
                 val nextGroups = mutation.groups ?: return
                 repository.replaceAllGroups(nextGroups)
                 updateState(mutation)
@@ -502,7 +582,8 @@ class DataManager private constructor() {
 
     private fun ensureDefaultSettingsConcrete(source: WebApp): WebApp {
         val settingsOwner = WebApp(source)
-        val hadNulls = WebAppSettings.DEFAULTS.keys.any { settingsOwner.settings.getValue(it) == null }
+        val hadNulls =
+            WebAppSettings.DEFAULTS.keys.any { settingsOwner.settings.getValue(it) == null }
         settingsOwner.settings.ensureAllConcrete()
         if (hadNulls && repository.isInitialized) {
             repository.persistGlobalSettings(settingsOwner)

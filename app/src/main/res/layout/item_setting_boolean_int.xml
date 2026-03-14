@@ -37,8 +37,8 @@
             android:layout_gravity="center_vertical"
             android:layout_marginEnd="12dp"
             android:translationY="-3dp"
-            app:boxCollapsedPaddingTop="0dp"
-            android:visibility="gone">
+            android:visibility="gone"
+            app:boxCollapsedPaddingTop="0dp">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/editTextNumber"
@@ -46,13 +46,13 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:imeOptions="actionDone"
-                android:inputType="number"
                 android:includeFontPadding="false"
+                android:inputType="number"
                 android:maxLines="1"
                 android:minHeight="34dp"
                 android:paddingStart="6dp"
-                android:paddingEnd="6dp"
                 android:paddingTop="0dp"
+                android:paddingEnd="6dp"
                 android:paddingBottom="0dp"
                 android:textSize="14sp" />
         </com.google.android.material.textfield.TextInputLayout>

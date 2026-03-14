@@ -2,12 +2,12 @@ package wtf.mazy.peel.model
 
 import android.app.Activity
 import android.net.Uri
-import wtf.mazy.peel.model.db.toSurrogate
 import wtf.mazy.peel.model.backup.BackupArchiveCodec
 import wtf.mazy.peel.model.backup.BackupImportService
 import wtf.mazy.peel.model.backup.BackupPolicy
 import wtf.mazy.peel.model.backup.BackupResult
 import wtf.mazy.peel.model.backup.BackupShareLauncher
+import wtf.mazy.peel.model.db.toSurrogate
 import java.io.File
 
 enum class ImportMode {
@@ -36,7 +36,11 @@ object BackupManager {
         val dataManager = DataManager.instance
         dataManager.persistDefaultSettings()
         val websites = dataManager.getWebsites()
-        return BackupArchiveCodec.writeBackupToUri(buildFullBackupData(dataManager, websites), websites, uri)
+        return BackupArchiveCodec.writeBackupToUri(
+            buildFullBackupData(dataManager, websites),
+            websites,
+            uri
+        )
     }
 
     fun buildExportFilename(): String {
@@ -55,7 +59,11 @@ object BackupManager {
         return BackupArchiveCodec.buildBackupFile(backupData, webApps, "share")
     }
 
-    fun buildGroupShareFile(groups: List<WebAppGroup>, webApps: List<WebApp>, includeSecrets: Boolean): File? {
+    fun buildGroupShareFile(
+        groups: List<WebAppGroup>,
+        webApps: List<WebApp>,
+        includeSecrets: Boolean
+    ): File? {
         val safeGroups = groups.map { group ->
             val surrogate = group.toSurrogate()
             if (includeSecrets) surrogate else surrogate.copy(settings = surrogate.settings.withoutSecrets())

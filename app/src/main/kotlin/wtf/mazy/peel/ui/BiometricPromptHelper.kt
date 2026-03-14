@@ -1,12 +1,12 @@
 package wtf.mazy.peel.ui
 
 import android.content.Context
+import android.widget.Toast
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.biometric.BiometricPrompt.PromptInfo
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
-import android.widget.Toast
 import wtf.mazy.peel.R
 import wtf.mazy.peel.util.NotificationUtils
 

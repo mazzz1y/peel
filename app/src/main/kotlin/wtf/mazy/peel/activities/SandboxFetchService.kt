@@ -81,7 +81,10 @@ open class SandboxFetchService : Service() {
                     list.add(entry)
                 }
                 bundle.putParcelableArrayList(RESULT_CANDIDATES, list)
-                if (result.redirectedUrl != null) bundle.putString(KEY_REDIRECTED_URL, result.redirectedUrl)
+                if (result.redirectedUrl != null) bundle.putString(
+                    KEY_REDIRECTED_URL,
+                    result.redirectedUrl
+                )
                 receiver.send(RESULT_DONE, bundle)
                 stopSelf(startId)
             },

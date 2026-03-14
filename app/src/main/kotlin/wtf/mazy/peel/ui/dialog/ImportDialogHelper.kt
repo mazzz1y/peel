@@ -2,9 +2,9 @@ package wtf.mazy.peel.ui.dialog
 
 import android.net.Uri
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import android.widget.Toast
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.BackupManager
 import wtf.mazy.peel.model.DataManager

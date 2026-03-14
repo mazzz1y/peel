@@ -85,8 +85,14 @@ class SelectionModeController(
 
     fun onMenuItemClicked(item: MenuItem): Boolean {
         return when (item.itemId) {
-            R.id.action_move_selected -> { showMoveSelectedPopup(); true }
-            R.id.action_delete_selected -> { confirmDeleteSelected(); true }
+            R.id.action_move_selected -> {
+                showMoveSelectedPopup(); true
+            }
+
+            R.id.action_delete_selected -> {
+                confirmDeleteSelected(); true
+            }
+
             else -> false
         }
     }
@@ -109,13 +115,21 @@ class SelectionModeController(
     private fun performShareSelected() {
         val activity = host.hostActivity
         if (selectedUuids.isEmpty()) {
-            NotificationUtils.showToast(activity, activity.getString(R.string.share_no_selection), Toast.LENGTH_SHORT)
+            NotificationUtils.showToast(
+                activity,
+                activity.getString(R.string.share_no_selection),
+                Toast.LENGTH_SHORT
+            )
             return
         }
 
         val webApps = resolveSelectedWebApps()
         if (webApps.isEmpty()) {
-            NotificationUtils.showToast(activity, activity.getString(R.string.share_no_selection), Toast.LENGTH_SHORT)
+            NotificationUtils.showToast(
+                activity,
+                activity.getString(R.string.share_no_selection),
+                Toast.LENGTH_SHORT
+            )
             return
         }
 

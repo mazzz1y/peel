@@ -3,8 +3,8 @@ package wtf.mazy.peel.model
 object ShareSecretsPolicy {
     fun hasSecrets(settings: WebAppSettings): Boolean {
         return settings.customHeaders?.any { (k, v) -> k.isNotBlank() || v.isNotBlank() } == true
-            || !settings.basicAuthUsername.isNullOrBlank()
-            || !settings.basicAuthPassword.isNullOrBlank()
+                || !settings.basicAuthUsername.isNullOrBlank()
+                || !settings.basicAuthPassword.isNullOrBlank()
     }
 
     fun hasSecretsInWebApps(webApps: List<WebApp>): Boolean {

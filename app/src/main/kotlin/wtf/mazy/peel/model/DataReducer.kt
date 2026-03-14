@@ -69,18 +69,26 @@ object DataReducer {
     ): StateMutation {
         return StateMutation(
             websites = state.websites.map { site ->
-                if (site.uuid in uuids) WebApp(site).apply { this.groupUuid = groupUuid } else WebApp(site)
+                if (site.uuid in uuids) WebApp(site).apply {
+                    this.groupUuid = groupUuid
+                } else WebApp(site)
             },
             emit = emit,
         )
     }
 
-    fun reorderingWebsites(state: DataState, orderedUuids: List<String>, emit: Boolean = true): StateMutation {
+    fun reorderingWebsites(
+        state: DataState,
+        orderedUuids: List<String>,
+        emit: Boolean = true
+    ): StateMutation {
         val orderMap = orderedUuids.withIndex().associate { it.value to it.index }
         return StateMutation(
             websites = state.websites.map { site ->
                 val targetOrder = orderMap[site.uuid]
-                if (targetOrder != null) WebApp(site).apply { order = targetOrder } else WebApp(site)
+                if (targetOrder != null) WebApp(site).apply {
+                    order = targetOrder
+                } else WebApp(site)
             },
             emit = emit,
         )
@@ -94,7 +102,9 @@ object DataReducer {
     ): StateMutation {
         return StateMutation(
             websites = state.websites.map { site ->
-                if (site.uuid in uuids) WebApp(site).apply { isActiveEntry = isActive } else WebApp(site)
+                if (site.uuid in uuids) WebApp(site).apply { isActiveEntry = isActive } else WebApp(
+                    site
+                )
             },
             emit = emit,
         )
@@ -109,12 +119,18 @@ object DataReducer {
         )
     }
 
-    fun reorderingGroups(state: DataState, orderedUuids: List<String>, emit: Boolean = true): StateMutation {
+    fun reorderingGroups(
+        state: DataState,
+        orderedUuids: List<String>,
+        emit: Boolean = true
+    ): StateMutation {
         val orderMap = orderedUuids.withIndex().associate { it.value to it.index }
         return StateMutation(
             groups = state.groups.map { group ->
                 val targetOrder = orderMap[group.uuid]
-                if (targetOrder != null) WebAppGroup(group).apply { order = targetOrder } else WebAppGroup(group)
+                if (targetOrder != null) WebAppGroup(group).apply {
+                    order = targetOrder
+                } else WebAppGroup(group)
             },
             emit = emit,
         )

@@ -22,20 +22,20 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.MaterialToolbar
+import com.google.android.material.color.MaterialColors
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.materialswitch.MaterialSwitch
-import com.google.android.material.color.MaterialColors
 import kotlinx.coroutines.launch
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.BackupManager
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.model.WebAppGroup
+import wtf.mazy.peel.shortcut.ShortcutHelper
 import wtf.mazy.peel.ui.common.LoadingDialogController
 import wtf.mazy.peel.ui.common.ShareSecretsDialog
 import wtf.mazy.peel.ui.common.runWithLoader
-import wtf.mazy.peel.shortcut.ShortcutHelper
 import wtf.mazy.peel.ui.dialog.showSandboxInputDialog
 import wtf.mazy.peel.ui.dragReorderCallback
 import wtf.mazy.peel.util.Const
@@ -93,8 +93,7 @@ class GroupListActivity : AppCompatActivity() {
             }
         }
 
-        findViewById<View>(android.R.id.content).addOnLayoutChangeListener {
-                _, left, _, right, _, oldLeft, _, oldRight, _ ->
+        findViewById<View>(android.R.id.content).addOnLayoutChangeListener { _, left, _, right, _, oldLeft, _, oldRight, _ ->
             if (right - left != oldRight - oldLeft) fab.requestLayout()
         }
 
@@ -103,7 +102,8 @@ class GroupListActivity : AppCompatActivity() {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 DataManager.instance.state.collect {
                     if (selectedGroupUuids.isNotEmpty()) {
-                        val valid = DataManager.instance.getGroups().mapTo(mutableSetOf()) { it.uuid }
+                        val valid =
+                            DataManager.instance.getGroups().mapTo(mutableSetOf()) { it.uuid }
                         selectedGroupUuids.retainAll(valid)
                         if (isInSelectionMode && selectedGroupUuids.isEmpty()) exitSelectionMode()
                         if (isInSelectionMode) updateSelectionTitle()
@@ -135,7 +135,8 @@ class GroupListActivity : AppCompatActivity() {
             titleRes = R.string.add_group,
             hintRes = R.string.group_name_hint,
         ) { result ->
-            val group = WebAppGroup(title = result.text, order = DataManager.instance.getGroups().size)
+            val group =
+                WebAppGroup(title = result.text, order = DataManager.instance.getGroups().size)
             group.isUseContainer = result.sandbox
             group.isEphemeralSandbox = result.ephemeral
             lifecycleScope.launch {
@@ -176,7 +177,10 @@ class GroupListActivity : AppCompatActivity() {
                 lifecycleScope.launch {
                     if (!switchUngroup.isChecked) {
                         appsInGroup.forEach {
-                            DataManager.instance.cleanupAndRemoveWebApp(it.uuid, this@GroupListActivity)
+                            DataManager.instance.cleanupAndRemoveWebApp(
+                                it.uuid,
+                                this@GroupListActivity
+                            )
                         }
                     }
                     DataManager.instance.removeGroup(group, ungroupApps = switchUngroup.isChecked)
@@ -233,7 +237,9 @@ class GroupListActivity : AppCompatActivity() {
 
     private fun toggleSelection(uuid: String) {
         val previouslySelected = selectedGroupUuids.toSet()
-        if (uuid in selectedGroupUuids) selectedGroupUuids.remove(uuid) else selectedGroupUuids.add(uuid)
+        if (uuid in selectedGroupUuids) selectedGroupUuids.remove(uuid) else selectedGroupUuids.add(
+            uuid
+        )
         if (selectedGroupUuids.isEmpty()) {
             exitSelectionMode(previouslySelected)
             return
@@ -267,12 +273,22 @@ class GroupListActivity : AppCompatActivity() {
 
     private fun shareSelectedGroups() {
         if (selectedGroupUuids.isEmpty()) {
-            NotificationUtils.showToast(this, getString(R.string.share_no_selection), Toast.LENGTH_SHORT)
+            NotificationUtils.showToast(
+                this,
+                getString(R.string.share_no_selection),
+                Toast.LENGTH_SHORT
+            )
             return
         }
-        val selectedGroups = DataManager.instance.getGroups().filter { it.uuid in selectedGroupUuids }
-        val webApps = selectedGroups.flatMap { DataManager.instance.activeWebsitesForGroup(it.uuid) }
-        ShareSecretsDialog.confirmForGroupsAndApps(this, selectedGroups, webApps) { includeSecrets ->
+        val selectedGroups =
+            DataManager.instance.getGroups().filter { it.uuid in selectedGroupUuids }
+        val webApps =
+            selectedGroups.flatMap { DataManager.instance.activeWebsitesForGroup(it.uuid) }
+        ShareSecretsDialog.confirmForGroupsAndApps(
+            this,
+            selectedGroups,
+            webApps
+        ) { includeSecrets ->
             buildAndLaunchGroupShare(selectedGroups, webApps, includeSecrets)
         }
     }
@@ -373,7 +389,8 @@ class GroupListActivity : AppCompatActivity() {
 
         private fun animateModeTransition(holder: ViewHolder, group: WebAppGroup) {
             if (isInSelectionMode) {
-                holder.menuButton.animate().alpha(0f).setDuration(Const.ANIM_DURATION_MEDIUM).start()
+                holder.menuButton.animate().alpha(0f).setDuration(Const.ANIM_DURATION_MEDIUM)
+                    .start()
                 visibleBadgeIcons(holder).forEach {
                     it.animate()
                         .translationX(badgeSlideDistance(holder.menuButton, it))
@@ -382,7 +399,8 @@ class GroupListActivity : AppCompatActivity() {
                 }
                 applySelectionListeners(holder, group)
             } else {
-                holder.menuButton.animate().alpha(1f).setDuration(Const.ANIM_DURATION_MEDIUM).start()
+                holder.menuButton.animate().alpha(1f).setDuration(Const.ANIM_DURATION_MEDIUM)
+                    .start()
                 listOf(holder.iconSandbox, holder.iconEphemeral).forEach {
                     it.animate().translationX(0f).setDuration(Const.ANIM_DURATION_MEDIUM).start()
                 }
@@ -410,7 +428,10 @@ class GroupListActivity : AppCompatActivity() {
         }
 
         private fun visibleBadgeIcons(holder: ViewHolder): List<ImageView> =
-            listOf(holder.iconSandbox, holder.iconEphemeral).filter { it.visibility == View.VISIBLE }
+            listOf(
+                holder.iconSandbox,
+                holder.iconEphemeral
+            ).filter { it.visibility == View.VISIBLE }
 
         private fun badgeSlideDistance(menuButton: View, badgeIcon: View): Float =
             (menuButton.width + badgeIcon.width) / 2f

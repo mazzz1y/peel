@@ -8,7 +8,8 @@ import java.text.BreakIterator
 import java.util.regex.Pattern
 
 private val CHROME_VERSION_RE = Regex("""Chrome/([\d.]+)""")
-private val COMMON_SECOND_LEVEL_DOMAINS = setOf("ac", "co", "com", "edu", "gov", "mil", "net", "org")
+private val COMMON_SECOND_LEVEL_DOMAINS =
+    setOf("ac", "co", "com", "edu", "gov", "mil", "net", "org")
 private const val BRAND_MATCH_BONUS = 2
 
 fun WebView.buildUserAgent() {

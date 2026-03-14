@@ -61,8 +61,8 @@ class TrampolineActivity : AppCompatActivity() {
         }
 
         MaterialAlertDialogBuilder(this).setTitle(title).setAdapter(adapter) { _, position ->
-                WebViewLauncher.startWebView(apps[position], this)
-                finish()
-            }.setOnCancelListener { finish() }.setOnDismissListener { finish() }.show()
+            WebViewLauncher.startWebView(apps[position], this)
+            finish()
+        }.setOnCancelListener { finish() }.setOnDismissListener { finish() }.show()
     }
 }

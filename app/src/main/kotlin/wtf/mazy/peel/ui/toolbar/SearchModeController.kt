@@ -175,9 +175,20 @@ class SearchModeController(
     }
 
     private val scrollToTopObserver = object : RecyclerView.AdapterDataObserver() {
-        override fun onChanged() { searchResultsList?.scrollToPosition(0) }
-        override fun onItemRangeInserted(positionStart: Int, itemCount: Int) { searchResultsList?.scrollToPosition(0) }
-        override fun onItemRangeRemoved(positionStart: Int, itemCount: Int) { searchResultsList?.scrollToPosition(0) }
-        override fun onItemRangeMoved(fromPosition: Int, toPosition: Int, itemCount: Int) { searchResultsList?.scrollToPosition(0) }
+        override fun onChanged() {
+            searchResultsList?.scrollToPosition(0)
+        }
+
+        override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
+            searchResultsList?.scrollToPosition(0)
+        }
+
+        override fun onItemRangeRemoved(positionStart: Int, itemCount: Int) {
+            searchResultsList?.scrollToPosition(0)
+        }
+
+        override fun onItemRangeMoved(fromPosition: Int, toPosition: Int, itemCount: Int) {
+            searchResultsList?.scrollToPosition(0)
+        }
     }
 }

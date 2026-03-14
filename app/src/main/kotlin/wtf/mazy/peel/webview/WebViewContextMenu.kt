@@ -80,13 +80,19 @@ class WebViewContextMenu(
                 webView.requestFocusNodeHref(msg)
                 msg.data
             }
+
             else -> null
         }
         val title = nodeHref?.getString("title")?.takeIf { it.isNotBlank() }
 
         return when (hit.type) {
             HitTestResult.SRC_ANCHOR_TYPE ->
-                HitInfo(title?.takeIf { it != extra }, extra, linkActionsFor(extra, title), emptyList())
+                HitInfo(
+                    title?.takeIf { it != extra },
+                    extra,
+                    linkActionsFor(extra, title),
+                    emptyList()
+                )
 
             HitTestResult.IMAGE_TYPE ->
                 HitInfo(null, extra, emptyList(), imageActionsFor(extra))
@@ -141,12 +147,14 @@ class WebViewContextMenu(
             sections.forEachIndexed { i, actions ->
                 if (i > 0) addView(buildDivider())
                 actions.forEach { action ->
-                    addView(buildActionRow(
-                        action.label,
-                        action.icon,
-                        action.onIconClick?.let { dismiss(it) },
-                        dismiss(action.handler),
-                    ))
+                    addView(
+                        buildActionRow(
+                            action.label,
+                            action.icon,
+                            action.onIconClick?.let { dismiss(it) },
+                            dismiss(action.handler),
+                        )
+                    )
                 }
             }
         }
@@ -214,7 +222,8 @@ class WebViewContextMenu(
                 setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f)
                 setTextColor(resolveThemeColor(com.google.android.material.R.attr.colorOnSurface))
                 setPadding(dpToPx(16f), dpToPx(14f), dpToPx(12f), dpToPx(14f))
-                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+                layoutParams =
+                    LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
                 setBackgroundResource(outValue.resourceId)
                 setOnClickListener { onClick() }
             })

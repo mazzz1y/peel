@@ -5,8 +5,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.lifecycle.lifecycleScope
 import androidx.core.content.withStyledAttributes
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext

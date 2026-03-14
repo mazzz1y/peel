@@ -183,7 +183,8 @@ class PeelWebViewClient(private val host: WebViewClientHost) : WebViewClient() {
                 val color = normalized.toColorInt()
                 if (Color.alpha(color) == 0) return null
                 return color
-            } catch (_: IllegalArgumentException) {}
+            } catch (_: IllegalArgumentException) {
+            }
             rgbRegex.find(raw)?.let { match ->
                 val r = match.groupValues[1].toIntOrNull() ?: return null
                 val g = match.groupValues[2].toIntOrNull() ?: return null

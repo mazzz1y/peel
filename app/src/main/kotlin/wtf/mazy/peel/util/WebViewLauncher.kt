@@ -3,9 +3,9 @@ package wtf.mazy.peel.util
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.net.toUri
-import android.widget.Toast
 import wtf.mazy.peel.R
 import wtf.mazy.peel.activities.WebViewActivity
 import wtf.mazy.peel.model.DataManager
