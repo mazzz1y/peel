@@ -231,4 +231,7 @@
     <string name="image_download_failed">Не удалось скачать изображение</string>
     <string name="search">Поиск</string>
     <string name="no_search_results">Приложения не найдены</string>
+    <string name="import_group_share_description">Группа «%1$s» с %2$d приложением(ями) была отправлена вам. Нажмите на группу, чтобы развернуть и выбрать приложения для импорта:</string>
+    <string name="import_group_share_description_multi">%1$d групп(ы) с %2$d приложением(ями) были отправлены вам. Нажмите на каждую группу, чтобы развернуть и выбрать приложения для импорта:</string>
+    <string name="n_groups_selected">Выбрано групп: %1$d</string>
 </resources>

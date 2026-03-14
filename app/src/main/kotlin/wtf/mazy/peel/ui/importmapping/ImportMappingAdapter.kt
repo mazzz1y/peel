@@ -76,7 +76,6 @@ class ImportMappingAdapter(
 
         val row = rows.getOrNull(position) as? Row.AppItem ?: return
         val item = row.app
-        val isGroupEnabled = groupSections.isEmpty() || row.sectionUuid in selectedGroupUuids
 
         holder.name.text = item.title.ifBlank { item.baseUrl }
         holder.url.text = item.baseUrl
@@ -96,7 +95,6 @@ class ImportMappingAdapter(
 
         holder.switch.setOnCheckedChangeListener(null)
         holder.switch.isChecked = item.uuid in selectedUuids
-        holder.switch.isEnabled = isGroupEnabled
         if (showSwitches) {
             holder.switch.visibility = View.VISIBLE
             holder.switch.setOnCheckedChangeListener { _, isChecked ->
@@ -105,6 +103,10 @@ class ImportMappingAdapter(
                     if (row.sectionUuid.isNotEmpty()) {
                         selectedAppsByGroup.getOrPut(row.sectionUuid) { mutableSetOf() }
                             .add(item.uuid)
+                        if (row.sectionUuid !in selectedGroupUuids) {
+                            selectedGroupUuids.add(row.sectionUuid)
+                            notifyDataSetChanged()
+                        }
                     }
                 } else {
                     selectedUuids.remove(item.uuid)
@@ -114,9 +116,7 @@ class ImportMappingAdapter(
                     }
                 }
             }
-            holder.itemView.setOnClickListener {
-                if (isGroupEnabled) holder.switch.toggle()
-            }
+            holder.itemView.setOnClickListener { holder.switch.toggle() }
         } else {
             holder.switch.visibility = View.GONE
             holder.itemView.setOnClickListener(null)

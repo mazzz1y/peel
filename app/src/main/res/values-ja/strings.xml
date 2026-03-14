@@ -228,4 +228,7 @@
     <string name="image_download_failed">画像のダウンロードに失敗しました</string>
     <string name="search">検索</string>
     <string name="no_search_results">アプリが見つかりません</string>
+    <string name="import_group_share_description">グループ「%1$s」（%2$d個のアプリ）が共有されました。グループをタップして展開し、インポートするアプリを選択してください：</string>
+    <string name="import_group_share_description_multi">%1$d個のグループ（%2$d個のアプリ）が共有されました。各グループをタップして展開し、インポートするアプリを選択してください：</string>
+    <string name="n_groups_selected">%1$d個のグループを選択</string>
 </resources>

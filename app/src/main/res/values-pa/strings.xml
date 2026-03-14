@@ -218,4 +218,7 @@
     <string name="image_download_failed">ਚਿੱਤਰ ਡਾਊਨਲੋਡ ਅਸਫਲ</string>
     <string name="search">ਖੋਜੋ</string>
     <string name="no_search_results">ਕੋਈ ਐਪ ਨਹੀਂ ਮਿਲੀ</string>
+    <string name="import_group_share_description">ਗਰੁੱਪ «%1$s» ਜਿਸ ਵਿੱਚ %2$d ਐਪ ਹਨ, ਤੁਹਾਡੇ ਨਾਲ ਸਾਂਝਾ ਕੀਤਾ ਗਿਆ। ਗਰੁੱਪ ਤੇ ਟੈਪ ਕਰੋ ਅਤੇ ਆਯਾਤ ਕਰਨ ਲਈ ਐਪ ਚੁਣੋ:</string>
+    <string name="import_group_share_description_multi">%1$d ਗਰੁੱਪ ਜਿਨ੍ਹਾਂ ਵਿੱਚ %2$d ਐਪ ਹਨ, ਤੁਹਾਡੇ ਨਾਲ ਸਾਂਝੇ ਕੀਤੇ ਗਏ। ਹਰ ਗਰੁੱਪ ਤੇ ਟੈਪ ਕਰੋ ਅਤੇ ਆਯਾਤ ਕਰਨ ਲਈ ਐਪ ਚੁਣੋ:</string>
+    <string name="n_groups_selected">%1$d ਗਰੁੱਪ ਚੁਣੇ ਗਏ</string>
 </resources>

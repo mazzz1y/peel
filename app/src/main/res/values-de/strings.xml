@@ -225,4 +225,7 @@
     <string name="image_download_failed">Bild konnte nicht heruntergeladen werden</string>
     <string name="search">Suchen</string>
     <string name="no_search_results">Keine Apps gefunden</string>
+    <string name="import_group_share_description">Die Gruppe „%1$s" mit %2$d App(s) wurde mit dir geteilt. Tippe auf die Gruppe, um sie zu erweitern und Apps zum Importieren auszuwählen:</string>
+    <string name="import_group_share_description_multi">%1$d Gruppen mit %2$d App(s) wurden mit dir geteilt. Tippe auf jede Gruppe, um sie zu erweitern und Apps zum Importieren auszuwählen:</string>
+    <string name="n_groups_selected">%1$d Gruppe(n) ausgewählt</string>
 </resources>

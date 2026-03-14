@@ -228,4 +228,7 @@
     <string name="image_download_failed">圖片下載失敗</string>
     <string name="search">搜尋</string>
     <string name="no_search_results">未找到應用程式</string>
+    <string name="import_group_share_description">群組「%1$s」包含 %2$d 個應用程式已與你共享。點擊群組展開並選擇要匯入的應用程式：</string>
+    <string name="import_group_share_description_multi">%1$d 個群組包含 %2$d 個應用程式已與你共享。點擊各群組展開並選擇要匯入的應用程式：</string>
+    <string name="n_groups_selected">已選擇 %1$d 個群組</string>
 </resources>

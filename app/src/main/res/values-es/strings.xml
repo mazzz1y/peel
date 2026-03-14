@@ -224,4 +224,7 @@
     <string name="image_download_failed">Error al descargar la imagen</string>
     <string name="search">Buscar</string>
     <string name="no_search_results">No se encontraron apps</string>
+    <string name="import_group_share_description">El grupo «%1$s» con %2$d app(s) se compartió contigo. Toca el grupo para expandirlo y elegir las apps a importar:</string>
+    <string name="import_group_share_description_multi">%1$d grupos con %2$d app(s) se compartieron contigo. Toca cada grupo para expandirlo y elegir las apps a importar:</string>
+    <string name="n_groups_selected">%1$d grupo(s) seleccionado(s)</string>
 </resources>

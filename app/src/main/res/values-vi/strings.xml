@@ -228,4 +228,7 @@
     <string name="image_download_failed">Tải hình ảnh thất bại</string>
     <string name="search">Tìm kiếm</string>
     <string name="no_search_results">Không tìm thấy ứng dụng</string>
+    <string name="import_group_share_description">Nhóm «%1$s» với %2$d ứng dụng đã được chia sẻ với bạn. Nhấn vào nhóm để mở rộng và chọn ứng dụng để nhập:</string>
+    <string name="import_group_share_description_multi">%1$d nhóm với %2$d ứng dụng đã được chia sẻ với bạn. Nhấn vào từng nhóm để mở rộng và chọn ứng dụng để nhập:</string>
+    <string name="n_groups_selected">Đã chọn %1$d nhóm</string>
 </resources>
