@@ -1,12 +1,8 @@
 package wtf.mazy.peel.activities
 
-import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.app.ActivityManager
-import android.content.BroadcastReceiver
-import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.Bitmap
@@ -18,8 +14,6 @@ import android.os.Handler
 import android.os.Looper
 import android.util.TypedValue
 import android.view.View
-import android.view.WindowInsets
-import android.view.WindowInsetsController
 import android.view.WindowManager
 import android.webkit.CookieManager
 import android.webkit.HttpAuthHandler
@@ -50,11 +44,14 @@ import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.SandboxManager
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.model.WebAppSettings
-import wtf.mazy.peel.ui.BiometricPromptHelper
 import wtf.mazy.peel.ui.FloatingControlsView
 import wtf.mazy.peel.ui.ListPickerAdapter
 import wtf.mazy.peel.ui.dialog.InputDialogConfig
 import wtf.mazy.peel.ui.dialog.showInputDialogRaw
+import wtf.mazy.peel.ui.webview.AutoReloadController
+import wtf.mazy.peel.ui.webview.BiometricUnlockController
+import wtf.mazy.peel.ui.webview.LaunchOverlayController
+import wtf.mazy.peel.ui.webview.SystemBarController
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.DateUtils.convertStringToCalendar
 import wtf.mazy.peel.util.DateUtils.isInInterval
@@ -81,8 +78,6 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
 
     private var progressBar: ProgressBar? = null
     private var swipeRefreshLayout: SwipeRefreshLayout? = null
-    private var webviewLaunchOverlay: View? = null
-    private var isLaunchOverlayVisible = false
     override var currentlyReloading = true
     private var customHeaders: Map<String, String>? = null
     override var filePathCallback: ValueCallback<Array<Uri?>?>? = null
@@ -104,7 +99,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
             pendingPermissionCallback?.invoke(allGranted)
             pendingPermissionCallback = null
         }
-    private var autoReloadRunnable: Runnable? = null
+
     private lateinit var _navigationStartPoint: NavigationStartPoint
     override val navigationStartPoint: NavigationStartPoint
         get() = _navigationStartPoint
@@ -124,29 +119,41 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     private lateinit var peelWebViewClient: PeelWebViewClient
     private var peelWebChromeClient: PeelWebChromeClient? = null
 
-    private var biometricPromptActive = false
     private var pageLoadHandled = false
-    private var pendingOverlayHideFallback: Runnable? = null
-
-    private var statusBarScrim: View? = null
-    private var navigationBarScrim: View? = null
-    private var currentBarColor: Int? = null
-    private var barColorAnimator: ValueAnimator? = null
-    private var suppressNextBarAnimation = false
-
     private var mediaPlaybackManager: MediaPlaybackManager? = null
     private var cachedSettings: WebAppSettings? = null
     private var isStartupComplete = false
     private var ephemeralSandboxId: String? = null
-    private var isScreenStateReceiverRegistered = false
-    private val screenStateReceiver =
-        object : BroadcastReceiver() {
-            override fun onReceive(context: Context?, intent: Intent?) {
-                if (intent?.action == Intent.ACTION_SCREEN_OFF) {
-                    clearBiometricUnlocks()
-                }
-            }
-        }
+
+    private val systemBarController by lazy {
+        SystemBarController(window, ::themeBackgroundColor)
+    }
+
+    private val launchOverlayController = LaunchOverlayController(
+        mainHandler = mainHandler,
+        isDestroyed = { isDestroyed },
+        animationDurationMs = UI_ANIMATION_DURATION_MS,
+        fallbackDelayMs = OVERLAY_HIDE_FALLBACK_MS,
+    )
+
+    private val biometricController by lazy {
+        BiometricUnlockController(
+            activity = this,
+            getWebappUuid = { webappUuid },
+            onSuccess = {
+                onPageFullyLoaded()
+            },
+            onFailure = { finish() },
+        )
+    }
+
+    private val autoReloadController = AutoReloadController(
+        mainHandler = mainHandler,
+        onReload = {
+            currentlyReloading = true
+            webView?.reload()
+        },
+    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
@@ -184,17 +191,10 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         cachedSettings = DataManager.instance.resolveEffectiveSettings(webapp)
         applyTaskSnapshotProtection()
         setupWebView()
-        ContextCompat.registerReceiver(
-            this,
-            screenStateReceiver,
-            IntentFilter(Intent.ACTION_SCREEN_OFF),
-            ContextCompat.RECEIVER_NOT_EXPORTED,
-        )
-        isScreenStateReceiverRegistered = true
-
-        if (effectiveSettings.isBiometricProtection == true && !isBiometricUnlocked()) {
-            showBiometricPrompt()
-        }
+        biometricController.registerReceiver()
+        biometricController.showPromptIfNeeded(
+            effectiveSettings.isBiometricProtection == true,
+        ) { launchOverlayController.arm { systemBarController.suppressNextAnimation = true } }
 
         setupBackNavigation()
         isStartupComplete = true
@@ -229,13 +229,11 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
             )
         }
 
-        if (effectiveSettings.isBiometricProtection == true && !isBiometricUnlocked()) {
-            showBiometricPrompt()
-        }
+        biometricController.showPromptIfNeeded(
+            effectiveSettings.isBiometricProtection == true,
+        ) { launchOverlayController.arm { systemBarController.suppressNextAnimation = true } }
 
-        if (effectiveSettings.isAutoReload == true) {
-            scheduleAutoReload()
-        }
+        autoReloadController.start(effectiveSettings)
     }
 
     override fun onPause() {
@@ -259,24 +257,18 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
 
         if (settings.isClearCache == true) webView?.clearCache(true)
 
-        autoReloadRunnable?.let { mainHandler.removeCallbacks(it) }
-        autoReloadRunnable = null
+        autoReloadController.stop()
     }
 
     override fun onStop() {
         super.onStop()
-        clearBiometricUnlock()
+        biometricController.onStop()
     }
 
     override fun onDestroy() {
-        pendingOverlayHideFallback?.let { mainHandler.removeCallbacks(it) }
-        pendingOverlayHideFallback = null
-        if (isScreenStateReceiverRegistered) {
-            unregisterReceiver(screenStateReceiver)
-            isScreenStateReceiverRegistered = false
-        }
-        barColorAnimator?.cancel()
-        barColorAnimator = null
+        launchOverlayController.release()
+        biometricController.unregisterReceiver()
+        systemBarController.release()
         mediaPlaybackManager?.release()
         mediaPlaybackManager = null
         webView?.destroy()
@@ -327,10 +319,8 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         cachedSettings = DataManager.instance.resolveEffectiveSettings(webapp)
         customHeaders = buildCustomHeaders(effectiveSettings)
         pageLoadHandled = false
-        biometricPromptActive = false
-        barColorAnimator?.cancel()
-        barColorAnimator = null
-        suppressNextBarAnimation = true
+        biometricController.resetForSwap()
+        systemBarController.resetForSwap()
         mediaPlaybackManager?.release()
         mediaPlaybackManager = null
         setupMediaPlayback(effectiveSettings)
@@ -446,9 +436,6 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         webView?.loadUrl(finalUrl, customHeaders ?: emptyMap())
     }
 
-    private fun sharedUrlFromIntent(): String? =
-        intent.getStringExtra(Const.INTENT_TARGET_URL)
-
     override fun finishActivity() = finish()
 
     override fun showToast(message: String) {
@@ -456,7 +443,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     }
 
     override fun showConnectionError(description: String, url: String) {
-        if (isLaunchOverlayVisible) {
+        if (launchOverlayController.isVisible) {
             showToast(getString(R.string.connection_error, description))
             finish()
             return
@@ -471,97 +458,24 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     }
 
     override fun updateStatusBarColor(color: Int) {
-        if (isLaunchOverlayVisible || suppressNextBarAnimation) {
-            applyBarColor(color)
-            suppressNextBarAnimation = false
-            return
-        }
-        val fromColor = currentBarColor ?: themeBackgroundColor
-        if (fromColor == color) {
-            applyBarColor(color)
-            return
-        }
-        barColorAnimator?.cancel()
-        barColorAnimator =
-            ValueAnimator.ofArgb(fromColor, color).apply {
-                duration = UI_ANIMATION_DURATION_MS
-                addUpdateListener { applyBarColor(it.animatedValue as Int) }
-                start()
-            }
+        systemBarController.update(color, launchOverlayController.isVisible, UI_ANIMATION_DURATION_MS)
     }
 
     override fun onPageStarted() {
         pageLoadHandled = false
-        pendingOverlayHideFallback?.let { mainHandler.removeCallbacks(it) }
-        pendingOverlayHideFallback = null
+        launchOverlayController.release()
         peelWebChromeClient?.clearPagePermissions()
         mediaPlaybackManager?.injectPolyfill()
     }
 
     override fun onPageFullyLoaded() {
-        if (pageLoadHandled || biometricPromptActive) return
+        if (pageLoadHandled || biometricController.isPromptActive) return
         pageLoadHandled = true
-        if (isLaunchOverlayVisible) {
-            hideLaunchOverlayWhenReady()
+        if (launchOverlayController.isVisible) {
+            launchOverlayController.hideWhenReady(webView)
         }
         webView?.let { peelWebViewClient.extractDynamicBarColor(it) }
         mediaPlaybackManager?.injectObserver()
-    }
-
-    private fun hideLaunchOverlayWhenReady() {
-        val view = webView
-        if (view == null) {
-            hideLaunchOverlayIfNeeded()
-            return
-        }
-
-        var overlayHidden = false
-        val fallback = Runnable {
-            if (overlayHidden || isDestroyed) return@Runnable
-            overlayHidden = true
-            hideLaunchOverlayIfNeeded()
-        }
-        pendingOverlayHideFallback = fallback
-        mainHandler.postDelayed(fallback, OVERLAY_HIDE_FALLBACK_MS)
-
-        view.postVisualStateCallback(0L, object : WebView.VisualStateCallback() {
-            override fun onComplete(requestId: Long) {
-                if (overlayHidden || isDestroyed) return
-                overlayHidden = true
-                pendingOverlayHideFallback?.let { mainHandler.removeCallbacks(it) }
-                pendingOverlayHideFallback = null
-                hideLaunchOverlayIfNeeded()
-            }
-        })
-    }
-
-    private fun armLaunchOverlay() {
-        webviewLaunchOverlay?.apply {
-            alpha = 1f
-            visibility = View.VISIBLE
-        }
-        isLaunchOverlayVisible = true
-        suppressNextBarAnimation = true
-    }
-
-    private fun hideLaunchOverlayIfNeeded() {
-        if (!isLaunchOverlayVisible) return
-        isLaunchOverlayVisible = false
-        webviewLaunchOverlay?.animate()?.alpha(0f)?.setDuration(UI_ANIMATION_DURATION_MS)
-            ?.withEndAction {
-                webviewLaunchOverlay?.visibility = View.GONE
-            }?.start()
-    }
-
-    private fun applyBarColor(color: Int) {
-        currentBarColor = color
-        statusBarScrim?.setBackgroundColor(color)
-        navigationBarScrim?.setBackgroundColor(color)
-        val isLight = androidx.core.graphics.ColorUtils.calculateLuminance(color) > 0.5
-        androidx.core.view.WindowInsetsControllerCompat(window, window.decorView).apply {
-            isAppearanceLightStatusBars = isLight
-            isAppearanceLightNavigationBars = isLight
-        }
     }
 
     override fun startExternalIntent(uri: Uri) {
@@ -586,40 +500,11 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     }
 
     override fun hideSystemBars() {
-        statusBarScrim?.visibility = View.GONE
-        navigationBarScrim?.visibility = View.GONE
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            @Suppress("DEPRECATION") window.setDecorFitsSystemWindows(false)
-            window.insetsController?.apply {
-                hide(WindowInsets.Type.statusBars() or WindowInsets.Type.navigationBars())
-                systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-            }
-        } else {
-            @Suppress("DEPRECATION")
-            window.decorView.systemUiVisibility =
-                (View.SYSTEM_UI_FLAG_FULLSCREEN or
-                        View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
-                        View.SYSTEM_UI_FLAG_IMMERSIVE or
-                        View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
-                        View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
-                        View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION)
-        }
+        systemBarController.hide()
     }
 
     override fun showSystemBars() {
-        if (effectiveSettings.isShowFullscreen == true) return
-        statusBarScrim?.visibility = View.VISIBLE
-        navigationBarScrim?.visibility = View.VISIBLE
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            @Suppress("DEPRECATION") window.setDecorFitsSystemWindows(true)
-            window.insetsController?.apply {
-                show(WindowInsets.Type.statusBars() or WindowInsets.Type.navigationBars())
-                systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-            }
-        } else {
-            @Suppress("DEPRECATION")
-            window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
-        }
+        systemBarController.show(effectiveSettings.isShowFullscreen == true)
     }
 
     override fun requestOsPermissions(
@@ -652,21 +537,20 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
             .show()
     }
 
-    private fun extractUris(intent: Intent?): Array<Uri?>? =
-        intent?.data?.let { arrayOf(it) }
-            ?: intent?.clipData?.let { clip -> Array(clip.itemCount) { clip.getItemAt(it).uri } }
-
     @SuppressLint("ClickableViewAccessibility")
     private fun setupWebView() {
         val settings = effectiveSettings
         window.setBackgroundDrawable(themeBackgroundColor.toDrawable())
         setContentView(R.layout.full_webview)
         bindViews()
-        setupSystemBarScrims()
+        systemBarController.attach(
+            rootView = findViewById(R.id.webview_root),
+            applyDynamicColor = settings.isDynamicStatusBar == true,
+        )
         applyWindowFlags(settings)
         setupPullToRefresh(settings)
         webView?.buildUserAgent()
-        if (settings.isShowFullscreen == true) hideSystemBars() else showSystemBars()
+        if (settings.isShowFullscreen == true) systemBarController.hide() else systemBarController.show(false)
         configureWebViewSettings(settings)
         setDarkModeIfNeeded()
         configureCookies(settings)
@@ -694,29 +578,6 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         mediaPlaybackManager = manager
     }
 
-    private fun setupSystemBarScrims() {
-        statusBarScrim = findViewById(R.id.statusBarScrim)
-        navigationBarScrim = findViewById(R.id.navigationBarScrim)
-        if (effectiveSettings.isDynamicStatusBar == true) {
-            applyBarColor(themeBackgroundColor)
-        }
-        androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(
-            findViewById(R.id.webview_root)
-        ) { _, insets ->
-            val systemInsets =
-                insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars())
-            statusBarScrim?.apply {
-                layoutParams.height = systemInsets.top
-                requestLayout()
-            }
-            navigationBarScrim?.apply {
-                layoutParams.height = systemInsets.bottom
-                requestLayout()
-            }
-            insets
-        }
-    }
-
     private fun applyWindowFlags(settings: WebAppSettings) {
         if (settings.isShowFullscreen == true) {
             findViewById<View>(R.id.webview_root)?.fitsSystemWindows = false
@@ -734,10 +595,9 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         findViewById<View>(R.id.webview_root)?.setBackgroundColor(themeBackgroundColor)
         findViewById<View>(R.id.webviewActivity)?.setBackgroundColor(themeBackgroundColor)
         webView = findViewById(R.id.webview)
-        webviewLaunchOverlay = findViewById<View>(R.id.webviewLaunchOverlay).apply {
-            setBackgroundColor(themeBackgroundColor)
-        }
-        armLaunchOverlay()
+        val overlay = findViewById<View>(R.id.webviewLaunchOverlay)
+        launchOverlayController.attach(overlay, themeBackgroundColor)
+        launchOverlayController.arm { systemBarController.suppressNextAnimation = true }
         progressBar = findViewById(R.id.progressBar)
         swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout)
     }
@@ -892,6 +752,13 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         return if (navigationStartPoint.canGoBackFrom(currentIndex)) 1 else 0
     }
 
+    private fun sharedUrlFromIntent(): String? =
+        intent.getStringExtra(Const.INTENT_TARGET_URL)
+
+    private fun extractUris(intent: Intent?): Array<Uri?>? =
+        intent?.data?.let { arrayOf(it) }
+            ?: intent?.clipData?.let { clip -> Array(clip.itemCount) { clip.getItemAt(it).uri } }
+
     private fun buildCustomHeaders(settings: WebAppSettings): Map<String, String> {
         val extraHeaders = mutableMapOf("DNT" to "1", "X-REQUESTED-WITH" to "")
         settings.customHeaders?.forEach { (key, value) ->
@@ -914,60 +781,8 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         setTaskDescription(ActivityManager.TaskDescription(webapp.title, webapp.resolveIcon()))
     }
 
-    private fun showBiometricPrompt() {
-        if (biometricPromptActive) return
-        biometricPromptActive = true
-
-        armLaunchOverlay()
-
-        BiometricPromptHelper(this)
-            .showPrompt(
-                {
-                    setBiometricUnlocked()
-                    biometricPromptActive = false
-                    onPageFullyLoaded()
-                },
-                {
-                    biometricPromptActive = false
-                    finish()
-                },
-                getString(R.string.bioprompt_restricted_webapp),
-            )
-    }
-
-    private fun scheduleAutoReload() {
-        val interval = effectiveSettings.timeAutoReload?.coerceAtLeast(1) ?: return
-        val runnable = Runnable {
-            currentlyReloading = true
-            webView?.reload()
-            scheduleAutoReload()
-        }
-        autoReloadRunnable = runnable
-        mainHandler.postDelayed(runnable, interval * 1000L)
-    }
-
-    private fun isBiometricUnlocked(): Boolean {
-        val uuid = webappUuid ?: return false
-        return unlockedBiometricWebapps.contains(uuid)
-    }
-
-    private fun setBiometricUnlocked() {
-        val uuid = webappUuid ?: return
-        unlockedBiometricWebapps.add(uuid)
-    }
-
-    private fun clearBiometricUnlock() {
-        val uuid = webappUuid ?: return
-        unlockedBiometricWebapps.remove(uuid)
-    }
-
-    private fun clearBiometricUnlocks() {
-        unlockedBiometricWebapps.clear()
-    }
-
     companion object {
         private const val UI_ANIMATION_DURATION_MS = 300L
         private const val OVERLAY_HIDE_FALLBACK_MS = 800L
-        private val unlockedBiometricWebapps = mutableSetOf<String>()
     }
 }
