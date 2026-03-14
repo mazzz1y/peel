@@ -183,7 +183,7 @@ object SandboxManager {
 
         val parentDir = App.appContext.filesDir.parentFile ?: return
         parentDir.listFiles()?.forEach { file ->
-            if (file.isDirectory && file.name.startsWith("app_webview_")) {
+            if (file.isDirectory && (file.name.startsWith("app_webview_") || file.name.startsWith("cache_"))) {
                 file.deleteRecursively()
             }
         }

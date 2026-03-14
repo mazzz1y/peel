@@ -82,7 +82,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     private var progressBar: ProgressBar? = null
     private var swipeRefreshLayout: SwipeRefreshLayout? = null
     private var webviewLaunchOverlay: View? = null
-    private var isLaunchOverlayVisible = true
+    private var isLaunchOverlayVisible = false
     override var currentlyReloading = true
     private var customHeaders: Map<String, String>? = null
     override var filePathCallback: ValueCallback<Array<Uri?>?>? = null
@@ -104,8 +104,10 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
             pendingPermissionCallback?.invoke(allGranted)
             pendingPermissionCallback = null
         }
-    private var reloadHandler: Handler? = null
-    override val navigationStartPoint by lazy { NavigationStartPoint(webapp.baseUrl) }
+    private var autoReloadRunnable: Runnable? = null
+    private lateinit var _navigationStartPoint: NavigationStartPoint
+    override val navigationStartPoint: NavigationStartPoint
+        get() = _navigationStartPoint
 
     private val webapp: WebApp
         get() = DataManager.instance.getWebApp(webappUuid!!)!!
@@ -135,6 +137,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     private var mediaPlaybackManager: MediaPlaybackManager? = null
     private var cachedSettings: WebAppSettings? = null
     private var isStartupComplete = false
+    private var ephemeralSandboxId: String? = null
     private var isScreenStateReceiverRegistered = false
     private val screenStateReceiver =
         object : BroadcastReceiver() {
@@ -150,11 +153,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         super.onCreate(savedInstanceState)
 
         webappUuid = intent.getStringExtra(Const.INTENT_WEBAPP_UUID)
-        lifecycleScope.launch {
-            val uuid = webappUuid
-            if (SandboxManager.currentSlotId != null && uuid != null) {
-                DataManager.instance.ensureWebAppLoaded(uuid)
-            }
+        runAfterWebAppLoaded(webappUuid, forceReload = false) {
             continueStartupAfterDataReady()
         }
     }
@@ -176,10 +175,12 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
                 return
             }
             if (WebViewLauncher.isEphemeralSandbox(webapp)) {
+                ephemeralSandboxId = sandboxId
                 SandboxManager.wipeSandboxStorage(sandboxId)
             }
         }
 
+        _navigationStartPoint = NavigationStartPoint(webapp.baseUrl)
         cachedSettings = DataManager.instance.resolveEffectiveSettings(webapp)
         applyTaskSnapshotProtection()
         setupWebView()
@@ -202,13 +203,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     override fun onResume() {
         super.onResume()
         val uuid = webappUuid ?: return
-        if (SandboxManager.currentSlotId != null) {
-            lifecycleScope.launch {
-                DataManager.instance.ensureWebAppLoaded(uuid, forceReload = true)
-                if (isFinishing || isDestroyed) return@launch
-                applyResumedState()
-            }
-        } else {
+        runAfterWebAppLoaded(uuid, forceReload = true) {
             applyResumedState()
         }
     }
@@ -239,7 +234,6 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         }
 
         if (effectiveSettings.isAutoReload == true) {
-            reloadHandler = Handler(Looper.getMainLooper())
             scheduleAutoReload()
         }
     }
@@ -247,11 +241,11 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     override fun onPause() {
         super.onPause()
         if (!isStartupComplete) return
-        val bgMedia = effectiveSettings.isAllowMediaPlaybackInBackground == true
+        val settings = effectiveSettings
         floatingControls?.remove()
         floatingControls = null
 
-        if (bgMedia) {
+        if (settings.isAllowMediaPlaybackInBackground == true) {
             mediaPlaybackManager?.setBackground(true)
         } else {
             webView?.evaluateJavascript(
@@ -263,10 +257,10 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
             webView?.pauseTimers()
         }
 
-        if (effectiveSettings.isClearCache == true) webView?.clearCache(true)
+        if (settings.isClearCache == true) webView?.clearCache(true)
 
-        reloadHandler?.removeCallbacksAndMessages(null)
-        reloadHandler = null
+        autoReloadRunnable?.let { mainHandler.removeCallbacks(it) }
+        autoReloadRunnable = null
     }
 
     override fun onStop() {
@@ -288,13 +282,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         webView?.destroy()
         webView = null
         if (isFinishing) {
-            val app = webappUuid?.let { DataManager.instance.getWebApp(it) }
-            if (app != null) {
-                val sandboxId = WebViewLauncher.resolveSandboxId(app)
-                if (sandboxId != null && WebViewLauncher.isEphemeralSandbox(app)) {
-                    SandboxManager.wipeSandboxStorage(sandboxId)
-                }
-            }
+            ephemeralSandboxId?.let { SandboxManager.wipeSandboxStorage(it) }
         }
         super.onDestroy()
     }
@@ -315,21 +303,37 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
             return
         }
 
-        if (SandboxManager.currentSlotId != null) {
-            lifecycleScope.launch {
-                DataManager.instance.ensureWebAppLoaded(newUuid, forceReload = true)
-                applyLoadedWebAppIntent(newUuid)
-            }
-            return
+        runAfterWebAppLoaded(newUuid, forceReload = true) {
+            applyLoadedWebAppIntent(newUuid)
         }
-        applyLoadedWebAppIntent(newUuid)
+    }
+
+    private fun runAfterWebAppLoaded(uuid: String?, forceReload: Boolean, action: () -> Unit) {
+        if (SandboxManager.currentSlotId != null && uuid != null) {
+            lifecycleScope.launch {
+                DataManager.instance.ensureWebAppLoaded(uuid, forceReload = forceReload)
+                if (!isFinishing && !isDestroyed) action()
+            }
+        } else {
+            action()
+        }
     }
 
     private fun applyLoadedWebAppIntent(newUuid: String) {
         if (isFinishing || isDestroyed) return
         if (DataManager.instance.getWebApp(newUuid) == null) return
         webappUuid = newUuid
+        _navigationStartPoint = NavigationStartPoint(webapp.baseUrl)
         cachedSettings = DataManager.instance.resolveEffectiveSettings(webapp)
+        customHeaders = buildCustomHeaders(effectiveSettings)
+        pageLoadHandled = false
+        biometricPromptActive = false
+        barColorAnimator?.cancel()
+        barColorAnimator = null
+        suppressNextBarAnimation = true
+        mediaPlaybackManager?.release()
+        mediaPlaybackManager = null
+        setupMediaPlayback(effectiveSettings)
         applyTaskSnapshotProtection()
         loadURL(sharedUrlFromIntent() ?: webapp.baseUrl)
     }
@@ -657,9 +661,9 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         val settings = effectiveSettings
         window.setBackgroundDrawable(themeBackgroundColor.toDrawable())
         setContentView(R.layout.full_webview)
+        bindViews()
         setupSystemBarScrims()
         applyWindowFlags(settings)
-        bindViews()
         setupPullToRefresh(settings)
         webView?.buildUserAgent()
         if (settings.isShowFullscreen == true) hideSystemBars() else showSystemBars()
@@ -932,16 +936,14 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     }
 
     private fun scheduleAutoReload() {
-        val handler = reloadHandler ?: return
         val interval = effectiveSettings.timeAutoReload?.coerceAtLeast(1) ?: return
-        handler.postDelayed(
-            {
-                currentlyReloading = true
-                webView?.reload()
-                scheduleAutoReload()
-            },
-            interval * 1000L,
-        )
+        val runnable = Runnable {
+            currentlyReloading = true
+            webView?.reload()
+            scheduleAutoReload()
+        }
+        autoReloadRunnable = runnable
+        mainHandler.postDelayed(runnable, interval * 1000L)
     }
 
     private fun isBiometricUnlocked(): Boolean {

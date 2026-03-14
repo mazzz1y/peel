@@ -15,6 +15,7 @@ import wtf.mazy.peel.ui.dialog.OverridePickerDialog
 import wtf.mazy.peel.ui.dialog.InputDialogConfig
 import wtf.mazy.peel.ui.dialog.showInputDialog
 import wtf.mazy.peel.ui.settings.OverridePickerController
+import wtf.mazy.peel.model.SandboxManager
 import wtf.mazy.peel.ui.settings.SandboxSwitchController
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.NotificationUtils.showToast
@@ -91,6 +92,7 @@ class GroupSettingsActivity :
             binding.switchEphemeralSandbox,
             binding.ephemeralSandboxRow,
             binding.btnClearSandbox,
+            onReleaseSandbox = { SandboxManager.releaseSandbox(this, group.uuid) },
             memberUuids = {
                 DataManager.instance.activeWebsitesForGroup(group.uuid).map { it.uuid }
             },
