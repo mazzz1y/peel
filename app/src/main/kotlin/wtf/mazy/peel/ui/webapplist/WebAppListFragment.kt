@@ -7,6 +7,8 @@ import android.view.View
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -32,7 +34,7 @@ class WebAppListFragment : Fragment(R.layout.fragment_web_app_list) {
 
         adapter =
             WebAppListAdapter(
-                activityOfFragment = requiredActivity(),
+                activity = requiredActivity(),
             )
         adapter.groupFilter = groupFilter
         adapter.updateWebAppList()
@@ -128,7 +130,9 @@ class WebAppListFragment : Fragment(R.layout.fragment_web_app_list) {
         dragReorderCallback(
             onMove = { from, to -> adapter.moveItem(from, to) },
             onDrop = {
-                DataManager.instance.reorderWebApps(adapter.items.map { it.uuid })
+                viewLifecycleOwner.lifecycleScope.launch {
+                    DataManager.instance.reorderWebApps(adapter.items.map { it.uuid })
+                }
             },
             onPickUp = ::animatePickedUp,
             onRelease = ::animateDropped,

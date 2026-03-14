@@ -5,6 +5,7 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import kotlinx.serialization.json.Json
 import wtf.mazy.peel.model.BackupData
+import wtf.mazy.peel.model.IconOwner
 import wtf.mazy.peel.model.ParsedBackup
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.util.App
@@ -52,6 +53,7 @@ object BackupArchiveCodec {
         backupData: BackupData,
         websites: List<WebApp>,
         prefix: String,
+        extraIconOwners: List<IconOwner> = emptyList(),
     ): File? {
         return try {
             val filename = buildFilename(prefix)
@@ -62,6 +64,7 @@ object BackupArchiveCodec {
                 ZipOutputStream(outputStream).use { zip ->
                     writeDataJson(zip, backupData)
                     websites.forEach { writeIconEntry(zip, it) }
+                    extraIconOwners.forEach { writeIconEntry(zip, it) }
                 }
             }
             file
@@ -87,11 +90,11 @@ object BackupArchiveCodec {
         zip.closeEntry()
     }
 
-    private fun writeIconEntry(zip: ZipOutputStream, webApp: WebApp) {
-        if (!webApp.hasCustomIcon) return
+    private fun writeIconEntry(zip: ZipOutputStream, iconOwner: IconOwner) {
+        if (!iconOwner.hasCustomIcon) return
         try {
-            val bitmap = BitmapFactory.decodeFile(webApp.iconFile.absolutePath) ?: return
-            zip.putNextEntry(ZipEntry("${BackupPolicy.ICONS_PREFIX}${webApp.uuid}.png"))
+            val bitmap = BitmapFactory.decodeFile(iconOwner.iconFile.absolutePath) ?: return
+            zip.putNextEntry(ZipEntry("${BackupPolicy.ICONS_PREFIX}${iconOwner.uuid}.png"))
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, zip)
             zip.closeEntry()
             bitmap.recycle()

@@ -7,6 +7,8 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.TextView
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.MaterialToolbar
@@ -22,6 +24,8 @@ class ImportBottomSheetFragment : BottomSheetDialogFragment() {
 
     private var parsed: ParsedBackup? = null
     private var onImport: ((selectedUuids: Set<String>, groupUuid: String?) -> Unit)? = null
+    private var onGroupImport: ((selectedUuids: Set<String>, selectedGroupUuids: Set<String>) -> Unit)? = null
+    private var groupShareMode = false
 
     private var selectedGroupUuid: String? = null
     private var mappingAdapter: ImportMappingAdapter? = null
@@ -30,8 +34,20 @@ class ImportBottomSheetFragment : BottomSheetDialogFragment() {
         parsed: ParsedBackup,
         onImport: (selectedUuids: Set<String>, groupUuid: String?) -> Unit,
     ) {
+        groupShareMode = false
         this.parsed = parsed
         this.onImport = onImport
+        this.onGroupImport = null
+    }
+
+    fun configureGroupShare(
+        parsed: ParsedBackup,
+        onImport: (selectedUuids: Set<String>, selectedGroupUuids: Set<String>) -> Unit,
+    ) {
+        groupShareMode = true
+        this.parsed = parsed
+        this.onImport = null
+        this.onGroupImport = onImport
     }
 
     override fun onCreateView(
@@ -64,7 +80,12 @@ class ImportBottomSheetFragment : BottomSheetDialogFragment() {
         toolbar.setOnMenuItemClickListener { item ->
             if (item.itemId == R.id.action_import) {
                 val adapter = mappingAdapter ?: return@setOnMenuItemClickListener false
-                onImport?.invoke(adapter.selectedUuids.toSet(), selectedGroupUuid)
+                val selectedUuids = adapter.selectedUuids.toSet()
+                if (groupShareMode) {
+                    onGroupImport?.invoke(selectedUuids, adapter.selectedGroupUuids.toSet())
+                } else {
+                    onImport?.invoke(selectedUuids, selectedGroupUuid)
+                }
                 dismissAllowingStateLoss()
                 true
             } else false
@@ -79,7 +100,9 @@ class ImportBottomSheetFragment : BottomSheetDialogFragment() {
             groupLabels.add(group.title)
         }
 
-        if (!hasGroups) {
+        if (groupShareMode) {
+            groupLayout.visibility = View.GONE
+        } else if (!hasGroups) {
             groupLayout.visibility = View.GONE
         } else {
             selectedGroupUuid = groups[0].uuid
@@ -113,14 +136,16 @@ class ImportBottomSheetFragment : BottomSheetDialogFragment() {
                         )
                         group.isUseContainer = result.sandbox
                         group.isEphemeralSandbox = result.ephemeral
-                        DataManager.instance.addGroup(group)
-                        selectedGroupUuid = group.uuid
+                        viewLifecycleOwner.lifecycleScope.launch {
+                            DataManager.instance.addGroup(group)
+                            selectedGroupUuid = group.uuid
 
-                        groupValues.add(groupValues.size - 2, group.uuid)
-                        groupLabels.add(groupLabels.size - 2, group.title)
-                        dropdownAdapter.notifyDataSetChanged()
-                        dropdownAdapter.filter.filter(null)
-                        dropdown.setText(group.title, false)
+                            groupValues.add(groupValues.size - 2, group.uuid)
+                            groupLabels.add(groupLabels.size - 2, group.title)
+                            dropdownAdapter.notifyDataSetChanged()
+                            dropdownAdapter.filter.filter(null)
+                            dropdown.setText(group.title, false)
+                        }
                     }
                     return@setOnItemClickListener
                 }
@@ -129,15 +154,52 @@ class ImportBottomSheetFragment : BottomSheetDialogFragment() {
         }
 
         val descriptionRes = when {
+            groupShareMode -> R.string.import_group_share_description
             hasGroups && !singleApp -> R.string.import_mapping_description
             hasGroups && singleApp -> R.string.import_mapping_description_single
             !hasGroups && !singleApp -> R.string.import_mapping_description_no_groups
             else -> R.string.import_mapping_description_single_no_groups
         }
-        descriptionView.text = getString(descriptionRes, websites.size)
+        if (groupShareMode) {
+            val groupsCount = backup.backupData.groups.size
+            if (groupsCount > 1) {
+                descriptionView.text = getString(
+                    R.string.import_group_share_description_multi,
+                    groupsCount,
+                    websites.size,
+                )
+            } else {
+                val groupName = backup.backupData.groups.firstOrNull()?.title?.ifBlank {
+                    getString(R.string.group)
+                } ?: getString(R.string.group)
+                descriptionView.text = getString(descriptionRes, groupName, websites.size)
+            }
+        } else {
+            descriptionView.text = getString(descriptionRes, websites.size)
+        }
 
         val selectedUuids = websites.mapTo(mutableSetOf()) { it.uuid }
-        mappingAdapter = ImportMappingAdapter(websites, icons, selectedUuids, showSwitches = !singleApp)
+        val selectedGroupUuids = mutableSetOf<String>()
+        val groupSections = if (groupShareMode) {
+            backup.backupData.groups.map { group ->
+                selectedGroupUuids.add(group.uuid)
+                ImportMappingAdapter.GroupSection(
+                    uuid = group.uuid,
+                    title = group.title.ifBlank { getString(R.string.group) },
+                    apps = websites.filter { it.groupUuid == group.uuid },
+                )
+            }
+        } else {
+            emptyList()
+        }
+        mappingAdapter = ImportMappingAdapter(
+            items = websites,
+            icons = icons,
+            selectedUuids = selectedUuids,
+            showSwitches = groupShareMode || !singleApp,
+            groupSections = groupSections,
+            selectedGroupUuids = selectedGroupUuids,
+        )
         recycler.layoutManager = LinearLayoutManager(hostActivity)
         recycler.adapter = mappingAdapter
 
@@ -162,6 +224,8 @@ class ImportBottomSheetFragment : BottomSheetDialogFragment() {
 
     override fun onDestroyView() {
         mappingAdapter = null
+        onGroupImport = null
+        onImport = null
         super.onDestroyView()
     }
 

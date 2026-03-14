@@ -43,6 +43,8 @@ import androidx.webkit.WebViewFeature
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 import wtf.mazy.peel.R
 import wtf.mazy.peel.media.MediaJsBridge
 import wtf.mazy.peel.media.MediaPlaybackManager
@@ -134,9 +136,17 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         super.onCreate(savedInstanceState)
 
         webappUuid = intent.getStringExtra(Const.INTENT_WEBAPP_UUID)
-        if (SandboxManager.currentSlotId != null && webappUuid != null) {
-            DataManager.instance.ensureWebAppLoaded(webappUuid!!)
+        lifecycleScope.launch {
+            val uuid = webappUuid
+            if (SandboxManager.currentSlotId != null && uuid != null) {
+                DataManager.instance.ensureWebAppLoaded(uuid)
+            }
+            continueStartupAfterDataReady()
         }
+    }
+
+    private fun continueStartupAfterDataReady() {
+        if (isFinishing || isDestroyed) return
         if (webappUuid == null || DataManager.instance.getWebApp(webappUuid!!) == null) {
             NotificationUtils.showToast(this, getString(R.string.webapp_not_found))
             finishAndRemoveTask()
@@ -177,9 +187,21 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
 
     override fun onResume() {
         super.onResume()
-        if (SandboxManager.currentSlotId != null && webappUuid != null) {
-            DataManager.instance.ensureWebAppLoaded(webappUuid!!, forceReload = true)
+        val uuid = webappUuid ?: return
+        if (SandboxManager.currentSlotId != null) {
+            lifecycleScope.launch {
+                DataManager.instance.ensureWebAppLoaded(uuid, forceReload = true)
+                if (isFinishing || isDestroyed) return@launch
+                applyResumedState()
+            }
+        } else {
+            applyResumedState()
         }
+    }
+
+    private fun applyResumedState() {
+        val uuid = webappUuid ?: return
+        if (DataManager.instance.getWebApp(uuid) == null) return
         cachedSettings = DataManager.instance.resolveEffectiveSettings(webapp)
         webView?.onResume()
         webView?.resumeTimers()
@@ -277,6 +299,18 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
             return
         }
 
+        if (SandboxManager.currentSlotId != null) {
+            lifecycleScope.launch {
+                DataManager.instance.ensureWebAppLoaded(newUuid, forceReload = true)
+                applyLoadedWebAppIntent(newUuid)
+            }
+            return
+        }
+        applyLoadedWebAppIntent(newUuid)
+    }
+
+    private fun applyLoadedWebAppIntent(newUuid: String) {
+        if (isFinishing || isDestroyed) return
         if (DataManager.instance.getWebApp(newUuid) == null) return
         webappUuid = newUuid
         cachedSettings = DataManager.instance.resolveEffectiveSettings(webapp)

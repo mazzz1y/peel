@@ -5,15 +5,19 @@
         android:orderInCategory="10"
         android:title="@string/create_shortcut" />
     <item
-        android:id="@+id/action_clone"
+        android:id="@+id/action_share"
         android:orderInCategory="30"
+        android:title="@string/share" />
+    <item
+        android:id="@+id/action_clone"
+        android:orderInCategory="40"
         android:title="@string/clone" />
     <item
         android:id="@+id/action_settings"
-        android:orderInCategory="40"
+        android:orderInCategory="50"
         android:title="@string/settings" />
     <item
         android:id="@+id/action_delete"
-        android:orderInCategory="50"
+        android:orderInCategory="60"
         android:title="@string/delete" />
 </menu>

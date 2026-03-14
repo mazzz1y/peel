@@ -5,7 +5,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.lifecycle.lifecycleScope
 import androidx.core.content.withStyledAttributes
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import wtf.mazy.peel.R
 import wtf.mazy.peel.databinding.GlobalSettingsBinding
 import wtf.mazy.peel.model.DataManager
@@ -26,7 +30,11 @@ class SettingsActivity : ToolbarBaseActivity<GlobalSettingsBinding>() {
 
     override fun onPause() {
         super.onPause()
-        DataManager.instance.defaultSettings = editableSettings
+        lifecycleScope.launch {
+            withContext(NonCancellable) {
+                DataManager.instance.setDefaultSettings(editableSettings)
+            }
+        }
     }
 
     override fun inflateBinding(layoutInflater: LayoutInflater): GlobalSettingsBinding {

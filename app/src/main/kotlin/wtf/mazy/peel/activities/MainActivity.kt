@@ -18,7 +18,9 @@ import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.color.MaterialColors
@@ -26,18 +28,15 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.BackupManager
-import wtf.mazy.peel.model.DataEvent
-import wtf.mazy.peel.model.DataEventListener
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.SandboxManager
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.model.WebAppSettings
 import wtf.mazy.peel.ui.common.LoadingDialogController
+import wtf.mazy.peel.ui.common.runWithLoader
 import wtf.mazy.peel.ui.dialog.ImportDialogHelper
 import wtf.mazy.peel.ui.dialog.showSandboxInputDialog
 import wtf.mazy.peel.ui.toolbar.SearchModeController
@@ -52,8 +51,7 @@ import wtf.mazy.peel.util.NotificationUtils
 class MainActivity :
     AppCompatActivity(),
     ToolbarModeHost,
-    SelectionModeHost,
-    DataEventListener {
+    SelectionModeHost {
 
     override lateinit var toolbar: MaterialToolbar
     override lateinit var fab: FloatingActionButton
@@ -120,17 +118,19 @@ class MainActivity :
         fab.setOnClickListener { onFabClicked() }
         onBackPressedDispatcher.addCallback(this, backPressCallback)
 
-        DataManager.instance.addListener(this)
         setupViewPager()
-        handleIncomingBackupIntent(intent)
-    }
-
-    override fun onDataEvent(event: DataEvent) {
-        if (searchController.isActive) {
-            searchController.onDataChanged()
-        } else {
-            refreshCurrentPages()
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                DataManager.instance.state.collect {
+                    if (searchController.isActive) {
+                        searchController.onDataChanged()
+                    } else {
+                        refreshCurrentPages()
+                    }
+                }
+            }
         }
+        handleIncomingBackupIntent(intent)
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -146,7 +146,6 @@ class MainActivity :
     }
 
     override fun onDestroy() {
-        DataManager.instance.removeListener(this)
         importDialogHelper.onHostDestroy()
         exportLoader.dismiss()
         super.onDestroy()
@@ -393,7 +392,10 @@ class MainActivity :
 
     override fun shareApps(webApps: List<WebApp>, includeSecrets: Boolean) {
         runWithLoader(
-            webApps.size,
+            activity = this,
+            loader = exportLoader,
+            showLoader = webApps.size >= BackupManager.LOADER_THRESHOLD,
+            loadingRes = R.string.preparing_export,
             ioTask = { BackupManager.buildShareFile(webApps, includeSecrets) },
         ) { file ->
             if (file == null || !BackupManager.launchShareChooser(this, file)) {
@@ -431,7 +433,10 @@ class MainActivity :
 
     private fun performFullBackupExport(uri: Uri) {
         runWithLoader(
-            DataManager.instance.getWebsites().size,
+            activity = this,
+            loader = exportLoader,
+            showLoader = DataManager.instance.getWebsites().size >= BackupManager.LOADER_THRESHOLD,
+            loadingRes = R.string.preparing_export,
             ioTask = { BackupManager.exportFullBackup(uri) },
         ) { success ->
             NotificationUtils.showToast(
@@ -439,23 +444,6 @@ class MainActivity :
                 getString(if (success) R.string.backup_saved else R.string.backup_save_failed),
                 Toast.LENGTH_SHORT,
             )
-        }
-    }
-
-    private fun <T> runWithLoader(
-        elementCount: Int,
-        ioTask: () -> T,
-        onResult: (T) -> Unit,
-    ) {
-        val showLoader = elementCount >= BackupManager.LOADER_THRESHOLD
-        if (showLoader) exportLoader.show(R.string.preparing_export)
-        lifecycleScope.launch {
-            val result = try {
-                withContext(Dispatchers.IO) { ioTask() }
-            } finally {
-                if (showLoader) exportLoader.dismiss()
-            }
-            onResult(result)
         }
     }
 
@@ -517,18 +505,21 @@ class MainActivity :
         SandboxManager.clearNonSandboxData(this)
         SandboxManager.clearAllSandboxData(this)
 
-        DataManager.instance.getWebsites().forEach { webapp ->
-            DataManager.instance.cleanupAndRemoveWebApp(webapp.uuid, this)
-        }
-        DataManager.instance.getGroups().forEach { group ->
-            SandboxManager.wipeSandboxStorage(group.uuid)
-            DataManager.instance.removeGroup(group, ungroupApps = false)
-        }
-
-        DataManager.instance.defaultSettings =
-            DataManager.instance.defaultSettings.also {
-                it.settings = WebAppSettings.createWithDefaults()
+        lifecycleScope.launch {
+            DataManager.instance.getWebsites().forEach { webapp ->
+                DataManager.instance.cleanupAndRemoveWebApp(webapp.uuid, this@MainActivity)
             }
+            DataManager.instance.getGroups().forEach { group ->
+                SandboxManager.wipeSandboxStorage(group.uuid)
+                DataManager.instance.removeGroup(group, ungroupApps = false)
+            }
+
+            DataManager.instance.setDefaultSettings(
+                DataManager.instance.defaultSettings.also {
+                    it.settings = WebAppSettings.createWithDefaults()
+                }
+            )
+        }
     }
 
     private fun buildAddWebsiteDialog() {
@@ -552,12 +543,14 @@ class MainActivity :
                 newSite.groupUuid = groups[currentPage].uuid
             }
 
-            DataManager.instance.addWebsite(newSite)
+            lifecycleScope.launch {
+                DataManager.instance.addWebsite(newSite)
 
-            val settingsIntent = Intent(this, WebAppSettingsActivity::class.java)
-            settingsIntent.putExtra(Const.INTENT_WEBAPP_UUID, newSite.uuid)
-            settingsIntent.putExtra(Const.INTENT_AUTO_FETCH, true)
-            startActivity(settingsIntent)
+                val settingsIntent = Intent(this@MainActivity, WebAppSettingsActivity::class.java)
+                settingsIntent.putExtra(Const.INTENT_WEBAPP_UUID, newSite.uuid)
+                settingsIntent.putExtra(Const.INTENT_AUTO_FETCH, true)
+                startActivity(settingsIntent)
+            }
         }
     }
 

@@ -4,10 +4,13 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.widget.PopupMenu
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import kotlinx.coroutines.launch
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.WebApp
+import wtf.mazy.peel.ui.common.ShareSecretsDialog
 import wtf.mazy.peel.util.NotificationUtils
 
 class SelectionModeController(
@@ -116,31 +119,9 @@ class SelectionModeController(
             return
         }
 
-        if (containsSecrets(webApps)) {
-            MaterialAlertDialogBuilder(activity)
-                .setTitle(R.string.share_secrets_title)
-                .setMessage(R.string.share_secrets_description)
-                .setPositiveButton(R.string.share_secrets_exclude) { _, _ ->
-                    exit()
-                    host.shareApps(webApps, includeSecrets = false)
-                }
-                .setNegativeButton(R.string.share_secrets_include) { _, _ ->
-                    exit()
-                    host.shareApps(webApps, includeSecrets = true)
-                }
-                .show()
-        } else {
+        ShareSecretsDialog.confirmForWebApps(activity, webApps) { includeSecrets ->
             exit()
-            host.shareApps(webApps, includeSecrets = true)
-        }
-    }
-
-    private fun containsSecrets(webApps: List<WebApp>): Boolean {
-        return webApps.any { app ->
-            val settings = app.settings
-            settings.customHeaders?.any { (k, v) -> k.isNotBlank() || v.isNotBlank() } == true
-                || !settings.basicAuthUsername.isNullOrBlank()
-                || !settings.basicAuthPassword.isNullOrBlank()
+            host.shareApps(webApps, includeSecrets)
         }
     }
 
@@ -166,8 +147,11 @@ class SelectionModeController(
             if (groupIndex in 0..groups.size) {
                 val targetGroupUuid =
                     if (groupIndex < groups.size) groups[groupIndex].uuid else null
-                DataManager.instance.moveWebAppsToGroup(selectedUuids.toList(), targetGroupUuid)
+                val uuids = selectedUuids.toList()
                 exit()
+                host.hostActivity.lifecycleScope.launch {
+                    DataManager.instance.moveWebAppsToGroup(uuids, targetGroupUuid)
+                }
                 true
             } else {
                 false
@@ -192,18 +176,24 @@ class SelectionModeController(
         val activity = host.hostActivity
         val uuids = selectedUuids.toList()
         val count = uuids.size
-
-        DataManager.instance.softDeleteWebApps(uuids)
         exit()
+
+        activity.lifecycleScope.launch {
+            DataManager.instance.softDeleteWebApps(uuids)
+        }
 
         NotificationUtils.showUndoSnackBar(
             activity = activity,
             message = activity.getString(R.string.n_apps_removed, count),
             onUndo = {
-                DataManager.instance.restoreWebApps(uuids)
+                activity.lifecycleScope.launch {
+                    DataManager.instance.restoreWebApps(uuids)
+                }
             },
             onCommit = {
-                DataManager.instance.commitDeleteWebApps(uuids, activity)
+                activity.lifecycleScope.launch {
+                    DataManager.instance.commitDeleteWebApps(uuids, activity)
+                }
             },
         )
     }

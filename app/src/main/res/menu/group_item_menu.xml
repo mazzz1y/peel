@@ -4,6 +4,9 @@
         android:id="@+id/action_create_shortcut"
         android:title="@string/create_shortcut" />
     <item
+        android:id="@+id/action_share_group"
+        android:title="@string/share" />
+    <item
         android:id="@+id/action_edit"
         android:title="@string/edit_group" />
     <item

@@ -3,6 +3,8 @@ package wtf.mazy.peel.activities
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.widget.Toast
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 import wtf.mazy.peel.R
 import wtf.mazy.peel.databinding.GroupSettingsBinding
 import wtf.mazy.peel.model.DataManager
@@ -56,7 +58,9 @@ class GroupSettingsActivity :
             if (it.title.isBlank()) {
                 it.title = originalGroup?.title ?: ""
             }
-            DataManager.instance.replaceGroup(it)
+            lifecycleScope.launch {
+                DataManager.instance.replaceGroup(it)
+            }
         }
     }
 

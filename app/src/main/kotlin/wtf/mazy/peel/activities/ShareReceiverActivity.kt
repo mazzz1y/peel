@@ -4,7 +4,9 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import kotlinx.coroutines.launch
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.WebApp
@@ -24,18 +26,20 @@ class ShareReceiverActivity : AppCompatActivity() {
                     finish()
                     return
                 }
-        DataManager.instance.loadAppData()
-        val apps = DataManager.instance.activeWebsites
-        if (apps.isEmpty()) {
-            finish()
-            return
+        lifecycleScope.launch {
+            DataManager.instance.loadAppData()
+            val apps = DataManager.instance.activeWebsites
+            if (apps.isEmpty()) {
+                finish()
+                return@launch
+            }
+
+            val sorted =
+                apps.sortedWith(
+                    compareByDescending<WebApp> { domainAffinity(it.baseUrl, sharedUrl) }.thenBy { it.title })
+
+            showPickerDialog(sorted, sharedUrl)
         }
-
-        val sorted =
-            apps.sortedWith(
-                compareByDescending<WebApp> { domainAffinity(it.baseUrl, sharedUrl) }.thenBy { it.title })
-
-        showPickerDialog(sorted, sharedUrl)
     }
 
     private fun extractUrl(): String? {

@@ -1,10 +1,12 @@
 package wtf.mazy.peel.activities
 
-import android.app.Activity
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import kotlinx.coroutines.launch
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.WebApp
@@ -12,26 +14,30 @@ import wtf.mazy.peel.ui.ListPickerAdapter
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.WebViewLauncher
 
-class TrampolineActivity : Activity() {
+class TrampolineActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val webappUuid = intent.getStringExtra(Const.INTENT_WEBAPP_UUID)
-        if (webappUuid != null) {
-            val webapp = DataManager.instance.getWebApp(webappUuid)
-            if (webapp != null) WebViewLauncher.startWebView(webapp, this)
+        lifecycleScope.launch {
+            DataManager.instance.awaitReady()
+
+            val webappUuid = intent.getStringExtra(Const.INTENT_WEBAPP_UUID)
+            if (webappUuid != null) {
+                val webapp = DataManager.instance.getWebApp(webappUuid)
+                if (webapp != null) WebViewLauncher.startWebView(webapp, this@TrampolineActivity)
+                finish()
+                return@launch
+            }
+
+            val groupUuid = intent.getStringExtra(Const.INTENT_GROUP_UUID)
+            if (groupUuid != null) {
+                launchGroup(groupUuid)
+                return@launch
+            }
+
             finish()
-            return
         }
-
-        val groupUuid = intent.getStringExtra(Const.INTENT_GROUP_UUID)
-        if (groupUuid != null) {
-            launchGroup(groupUuid)
-            return
-        }
-
-        finish()
     }
 
     private fun launchGroup(groupUuid: String) {

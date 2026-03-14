@@ -3,18 +3,15 @@ package wtf.mazy.peel.ui.dialog
 import android.net.Uri
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import android.widget.Toast
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.BackupManager
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.ImportMode
 import wtf.mazy.peel.model.ParsedBackup
 import wtf.mazy.peel.ui.common.LoadingDialogController
+import wtf.mazy.peel.ui.common.runWithLoader
 import wtf.mazy.peel.util.NotificationUtils
 
 class ImportDialogHelper(
@@ -24,14 +21,20 @@ class ImportDialogHelper(
     private val loader = LoadingDialogController(activity)
 
     fun showForUri(uri: Uri) {
-        activity.lifecycleScope.launch {
-            val parsed = withContext(Dispatchers.IO) { BackupManager.readBackup(uri) }
+        runWithLoader(
+            activity = activity,
+            loader = loader,
+            showLoader = true,
+            loadingRes = R.string.importing,
+            ioTask = { BackupManager.readBackup(uri) },
+        ) { parsed ->
             if (parsed == null) {
                 showError()
-                return@launch
+                return@runWithLoader
             }
             when (parsed.backupData.payloadType) {
                 BackupManager.PAYLOAD_FULL -> showFullBackupDialog(parsed)
+                BackupManager.PAYLOAD_GROUP_SHARE -> showGroupShareImportDialog(parsed)
                 else -> showSharedImportDialog(parsed)
             }
         }
@@ -59,16 +62,13 @@ class ImportDialogHelper(
             .setView(dialogView)
             .setPositiveButton(R.string.import_btn) { _, _ ->
                 val mode = if (switchMerge.isChecked) ImportMode.MERGE else ImportMode.REPLACE
-                val showLoader = parsed.backupData.websites.size >= BackupManager.LOADER_THRESHOLD
-                if (showLoader) loader.show(R.string.importing)
-                activity.lifecycleScope.launch {
-                    val success = try {
-                        withContext(Dispatchers.IO) {
-                            BackupManager.importFullBackup(parsed, mode)
-                        }
-                    } finally {
-                        if (showLoader) loader.dismiss()
-                    }
+                runWithLoader(
+                    activity = activity,
+                    loader = loader,
+                    showLoader = parsed.backupData.websites.size >= BackupManager.LOADER_THRESHOLD,
+                    loadingRes = R.string.importing,
+                    ioTask = { BackupManager.importFullBackup(parsed, mode) },
+                ) { success ->
                     if (!success) {
                         showError()
                     } else {
@@ -88,6 +88,14 @@ class ImportDialogHelper(
         sheet.show(activity.supportFragmentManager, ImportBottomSheetFragment.TAG)
     }
 
+    private fun showGroupShareImportDialog(parsed: ParsedBackup) {
+        val sheet = ImportBottomSheetFragment()
+        sheet.configureGroupShare(parsed) { selectedUuids, selectedGroupUuids ->
+            performGroupSharedImport(parsed, selectedUuids, selectedGroupUuids)
+        }
+        sheet.show(activity.supportFragmentManager, ImportBottomSheetFragment.TAG)
+    }
+
     private fun performSharedImport(
         parsed: ParsedBackup,
         selectedUuids: Set<String>,
@@ -95,16 +103,36 @@ class ImportDialogHelper(
     ) {
         if (selectedUuids.isEmpty()) return
 
-        val showLoader = selectedUuids.size >= BackupManager.LOADER_THRESHOLD
-        if (showLoader) loader.show(R.string.importing)
-        activity.lifecycleScope.launch {
-            val imported = try {
-                withContext(Dispatchers.IO) {
-                    BackupManager.importShared(parsed, selectedUuids, destinationGroupUuid)
-                }
-            } finally {
-                if (showLoader) loader.dismiss()
-            }
+        runWithLoader(
+            activity = activity,
+            loader = loader,
+            showLoader = selectedUuids.size >= BackupManager.LOADER_THRESHOLD,
+            loadingRes = R.string.importing,
+            ioTask = { BackupManager.importShared(parsed, selectedUuids, destinationGroupUuid) },
+        ) { imported ->
+            NotificationUtils.showToast(
+                activity,
+                activity.getString(R.string.import_count_message, imported),
+                Toast.LENGTH_SHORT,
+            )
+        }
+    }
+
+    private fun performGroupSharedImport(
+        parsed: ParsedBackup,
+        selectedUuids: Set<String>,
+        selectedGroupUuids: Set<String>,
+    ) {
+        if (selectedGroupUuids.isEmpty()) return
+
+        val importSize = selectedUuids.size + selectedGroupUuids.size
+        runWithLoader(
+            activity = activity,
+            loader = loader,
+            showLoader = importSize >= BackupManager.LOADER_THRESHOLD,
+            loadingRes = R.string.importing,
+            ioTask = { BackupManager.importGroupShared(parsed, selectedUuids, selectedGroupUuids) },
+        ) { imported ->
             NotificationUtils.showToast(
                 activity,
                 activity.getString(R.string.import_count_message, imported),

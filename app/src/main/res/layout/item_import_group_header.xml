@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:gravity="center_vertical"
@@ -8,7 +9,7 @@
     android:paddingEnd="8dp">
 
     <ImageView
-        android:id="@+id/app_icon"
+        android:id="@+id/group_icon"
         android:layout_width="36dp"
         android:layout_height="36dp"
         android:importantForAccessibility="no"
@@ -22,7 +23,7 @@
         android:orientation="vertical">
 
         <TextView
-            android:id="@+id/app_name"
+            android:id="@+id/group_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ellipsize="end"
@@ -30,7 +31,7 @@
             android:textAppearance="?attr/textAppearanceBodyLarge" />
 
         <TextView
-            android:id="@+id/app_url"
+            android:id="@+id/group_count"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ellipsize="end"
@@ -39,11 +40,19 @@
             android:textColor="?attr/colorOnSurfaceVariant" />
     </LinearLayout>
 
+    <ImageView
+        android:id="@+id/group_expand"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:importantForAccessibility="no"
+        android:padding="6dp"
+        android:src="@drawable/ic_expand_more_24dp" />
+
     <com.google.android.material.materialswitch.MaterialSwitch
-        android:id="@+id/app_switch"
+        android:id="@+id/group_switch"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:checked="true" />
+        app:useMaterialThemeColors="true" />
 
 </LinearLayout>

@@ -1,6 +1,5 @@
 package wtf.mazy.peel.ui.webapplist
 
-import android.app.Activity
 import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
@@ -10,23 +9,28 @@ import android.view.animation.DecelerateInterpolator
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.widget.PopupMenu
+import androidx.core.view.isVisible
+import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.color.MaterialColors
+import kotlinx.coroutines.launch
 import wtf.mazy.peel.R
 import wtf.mazy.peel.activities.WebAppSettingsActivity
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.shortcut.ShortcutHelper
+import wtf.mazy.peel.ui.common.ShareSecretsDialog
+import wtf.mazy.peel.ui.toolbar.ToolbarModeHost
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.NotificationUtils
 import wtf.mazy.peel.util.WebViewLauncher.startWebView
 import wtf.mazy.peel.util.displayUrl
 import java.util.Collections
-import androidx.core.view.isVisible
 
 class WebAppListAdapter(
-    private val activityOfFragment: Activity,
+    private val activity: FragmentActivity,
 ) : RecyclerView.Adapter<WebAppListAdapter.ViewHolder>() {
 
     var items: MutableList<WebApp> = mutableListOf()
@@ -36,11 +40,11 @@ class WebAppListAdapter(
     var searchQuery: String = ""
     var showGroupLabels: Boolean = false
 
-    private val selectionHost = activityOfFragment as? SelectionModeHost
+    private val selectionHost = activity as? SelectionModeHost
 
     private val checkIconColor by lazy {
         MaterialColors.getColor(
-            activityOfFragment.window.decorView,
+            activity.window.decorView,
             androidx.appcompat.R.attr.colorPrimary,
             0,
         )
@@ -158,7 +162,7 @@ class WebAppListAdapter(
 
     private fun applyNormalListeners(holder: ViewHolder, item: WebApp) {
         holder.menuButton.isEnabled = true
-        holder.itemView.setOnClickListener { startWebView(item, activityOfFragment) }
+        holder.itemView.setOnClickListener { startWebView(item, activity) }
         holder.appIcon.setOnClickListener {
             selectionHost?.enterSelectionMode(item.uuid)
         }
@@ -212,14 +216,14 @@ class WebAppListAdapter(
     }
 
     private fun showPopupMenu(view: View, webapp: WebApp) {
-        val popup = PopupMenu(activityOfFragment, view)
+        val popup = PopupMenu(activity, view)
         popup.menuInflater.inflate(R.menu.webapp_item_menu, popup.menu)
 
         val groups = DataManager.instance.sortedGroups
         if (groups.isNotEmpty()) {
             val subMenu =
                 popup.menu.addSubMenu(
-                    0, 0, 20, activityOfFragment.getString(R.string.move_to_group)
+                    0, 0, 20, activity.getString(R.string.move_to_group)
                 )
             groups.forEachIndexed { index, group ->
                 subMenu.add(0, MENU_GROUP_BASE + index, index, group.title)
@@ -228,7 +232,7 @@ class WebAppListAdapter(
                 0,
                 MENU_GROUP_BASE + groups.size,
                 groups.size,
-                activityOfFragment.getString(R.string.ungrouped),
+                activity.getString(R.string.ungrouped),
             )
         }
 
@@ -240,7 +244,12 @@ class WebAppListAdapter(
                 }
 
                 R.id.action_add_to_home -> {
-                    ShortcutHelper.createShortcut(webapp, activityOfFragment)
+                    ShortcutHelper.createShortcut(webapp, activity)
+                    true
+                }
+
+                R.id.action_share -> {
+                    shareWebApp(webapp)
                     true
                 }
 
@@ -259,7 +268,9 @@ class WebAppListAdapter(
                     if (groupIndex in 0..groups.size) {
                         val targetGroupUuid =
                             if (groupIndex < groups.size) groups[groupIndex].uuid else null
-                        DataManager.instance.moveWebAppsToGroup(listOf(webapp.uuid), targetGroupUuid)
+                        activity.lifecycleScope.launch {
+                            DataManager.instance.moveWebAppsToGroup(listOf(webapp.uuid), targetGroupUuid)
+                        }
                         true
                     } else {
                         false
@@ -271,9 +282,9 @@ class WebAppListAdapter(
     }
 
     private fun openSettings(webapp: WebApp) {
-        val intent = Intent(activityOfFragment, WebAppSettingsActivity::class.java)
+        val intent = Intent(activity, WebAppSettingsActivity::class.java)
         intent.putExtra(Const.INTENT_WEBAPP_UUID, webapp.uuid)
-        activityOfFragment.startActivity(intent)
+        activity.startActivity(intent)
     }
 
     private fun cloneWebApp(webapp: WebApp) {
@@ -292,22 +303,37 @@ class WebAppListAdapter(
             }
         }
 
-        DataManager.instance.addWebsite(clonedWebApp)
+        activity.lifecycleScope.launch {
+            DataManager.instance.addWebsite(clonedWebApp)
+        }
+    }
+
+    private fun shareWebApp(webapp: WebApp) {
+        val shareHost = activity as? ToolbarModeHost ?: return
+        ShareSecretsDialog.confirmForWebApps(shareHost.hostActivity, listOf(webapp)) { includeSecrets ->
+            shareHost.shareApps(listOf(webapp), includeSecrets)
+        }
     }
 
     private fun deleteWebApp(webapp: WebApp) {
         val uuid = webapp.uuid
         val title = webapp.title
-        DataManager.instance.softDeleteWebApps(listOf(uuid))
+        activity.lifecycleScope.launch {
+            DataManager.instance.softDeleteWebApps(listOf(uuid))
+        }
 
         NotificationUtils.showUndoSnackBar(
-            activity = activityOfFragment,
-            message = activityOfFragment.getString(R.string.x_was_removed, title),
+            activity = activity,
+            message = activity.getString(R.string.x_was_removed, title),
             onUndo = {
-                DataManager.instance.restoreWebApps(listOf(uuid))
+                activity.lifecycleScope.launch {
+                    DataManager.instance.restoreWebApps(listOf(uuid))
+                }
             },
             onCommit = {
-                DataManager.instance.commitDeleteWebApps(listOf(uuid), activityOfFragment)
+                activity.lifecycleScope.launch {
+                    DataManager.instance.commitDeleteWebApps(listOf(uuid), activity)
+                }
             },
         )
     }

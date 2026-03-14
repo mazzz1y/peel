@@ -141,8 +141,10 @@ open class MediaPlaybackService : MediaSessionService() {
         generation = intent.getIntExtra(EXTRA_GENERATION, 0)
         val iconBytes = intent.getByteArrayExtra(EXTRA_ICON)
         appIcon = iconBytes?.let { BitmapFactory.decodeByteArray(it, 0, it.size) }
-        buildContentIntent(intent.getStringExtra(EXTRA_WEBAPP_UUID))?.let {
-            session?.setSessionActivity(it)
+        scope.launch {
+            buildContentIntent(intent.getStringExtra(EXTRA_WEBAPP_UUID))?.let {
+                session?.setSessionActivity(it)
+            }
         }
 
         trackTitle = intent.getStringExtra(EXTRA_TRACK_TITLE)?.takeIf { it.isNotEmpty() }
@@ -248,9 +250,11 @@ open class MediaPlaybackService : MediaSessionService() {
         wifiLock = null
     }
 
-    private fun buildContentIntent(uuid: String?): PendingIntent? {
+    private suspend fun buildContentIntent(uuid: String?): PendingIntent? {
         uuid ?: return null
-        DataManager.instance.loadAppData()
+        if (DataManager.instance.getWebApp(uuid) == null) {
+            DataManager.instance.loadAppData()
+        }
         val webapp = DataManager.instance.getWebApp(uuid) ?: return null
         return WebViewLauncher.buildPendingIntent(webapp, this)
     }

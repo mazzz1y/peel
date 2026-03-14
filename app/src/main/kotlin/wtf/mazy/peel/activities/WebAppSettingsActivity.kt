@@ -14,12 +14,16 @@ import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.lifecycle.lifecycleScope
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.PopupMenu
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.progressindicator.CircularProgressIndicator
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import wtf.mazy.peel.R
 import wtf.mazy.peel.databinding.WebappSettingsBinding
 import wtf.mazy.peel.model.DataManager
@@ -111,11 +115,15 @@ class WebAppSettingsActivity :
     override fun onPause() {
         super.onPause()
         modifiedWebapp?.let { webapp ->
-            if (isEditingDefaults) {
-                DataManager.instance.defaultSettings = webapp
-            } else {
-                DataManager.instance.replaceWebApp(webapp)
-                ShortcutHelper.updatePinnedShortcut(webapp, this)
+            lifecycleScope.launch {
+                withContext(NonCancellable) {
+                    if (isEditingDefaults) {
+                        DataManager.instance.setDefaultSettings(webapp)
+                    } else {
+                        DataManager.instance.replaceWebApp(webapp)
+                        ShortcutHelper.updatePinnedShortcut(webapp, this@WebAppSettingsActivity)
+                    }
+                }
             }
         }
     }

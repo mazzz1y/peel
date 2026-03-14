@@ -24,6 +24,7 @@ object BackupManager {
 
     const val PAYLOAD_FULL = BackupPolicy.PAYLOAD_FULL
     const val PAYLOAD_APP_SHARE = BackupPolicy.PAYLOAD_APP_SHARE
+    const val PAYLOAD_GROUP_SHARE = BackupPolicy.PAYLOAD_GROUP_SHARE
     const val MIME_TYPE = BackupPolicy.MIME_TYPE
     const val LOADER_THRESHOLD = BackupPolicy.LOADER_THRESHOLD
 
@@ -31,9 +32,9 @@ object BackupManager {
         return BackupArchiveCodec.readBackup(uri)
     }
 
-    fun exportFullBackup(uri: Uri): Boolean {
+    suspend fun exportFullBackup(uri: Uri): Boolean {
         val dataManager = DataManager.instance
-        dataManager.saveDefaultSettings()
+        dataManager.persistDefaultSettings()
         val websites = dataManager.getWebsites()
         return BackupArchiveCodec.writeBackupToUri(buildFullBackupData(dataManager, websites), websites, uri)
     }
@@ -54,23 +55,53 @@ object BackupManager {
         return BackupArchiveCodec.buildBackupFile(backupData, webApps, "share")
     }
 
+    fun buildGroupShareFile(groups: List<WebAppGroup>, webApps: List<WebApp>, includeSecrets: Boolean): File? {
+        val safeGroups = groups.map { group ->
+            val surrogate = group.toSurrogate()
+            if (includeSecrets) surrogate else surrogate.copy(settings = surrogate.settings.withoutSecrets())
+        }
+        val backupData = BackupData(
+            version = BackupPolicy.BACKUP_VERSION,
+            payloadType = PAYLOAD_GROUP_SHARE,
+            websites = webApps.map { webApp ->
+                val surrogate = webApp.toSurrogate()
+                if (includeSecrets) surrogate else surrogate.copy(settings = surrogate.settings.withoutSecrets())
+            },
+            groups = safeGroups,
+        )
+        return BackupArchiveCodec.buildBackupFile(
+            backupData = backupData,
+            websites = webApps,
+            prefix = "group_share",
+            extraIconOwners = groups,
+        )
+    }
+
     fun launchShareChooser(activity: Activity, file: File): Boolean {
         return BackupShareLauncher.launchShareChooser(activity, file)
     }
 
-    fun importFullBackup(parsed: ParsedBackup, mode: ImportMode): Boolean {
+    suspend fun importFullBackup(parsed: ParsedBackup, mode: ImportMode): Boolean {
         return when (BackupImportService.importFullBackup(parsed, mode)) {
             BackupResult.Success -> true
             else -> false
         }
     }
 
-    fun importShared(
+    suspend fun importShared(
         parsed: ParsedBackup,
         selectedUuids: Set<String>,
         destinationGroupUuid: String?,
     ): Int {
         return BackupImportService.importShared(parsed, selectedUuids, destinationGroupUuid)
+    }
+
+    suspend fun importGroupShared(
+        parsed: ParsedBackup,
+        selectedUuids: Set<String>,
+        selectedGroupUuids: Set<String>,
+    ): Int {
+        return BackupImportService.importGroupShared(parsed, selectedUuids, selectedGroupUuids)
     }
 
     private fun buildFullBackupData(
