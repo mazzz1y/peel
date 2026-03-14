@@ -221,6 +221,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         if (effectiveSettings.isShowNotification == true && floatingControls == null) {
             floatingControls = FloatingControlsView(
                 parent = findViewById(R.id.webview_root),
+                webappUuid = uuid,
                 getWebView = { webView },
                 onHome = {
                     webView?.let { navigationStartPoint.reset(it) }

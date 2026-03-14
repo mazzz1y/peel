@@ -8,18 +8,41 @@ import android.view.View
 import android.webkit.WebView
 import android.widget.FrameLayout
 import android.widget.ImageButton
+import androidx.core.content.edit
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import wtf.mazy.peel.R
-import androidx.core.content.edit
+
+private class FloatingButtonPrefs(webappUuid: String, parent: FrameLayout) {
+    private val prefs: SharedPreferences =
+        parent.context.getSharedPreferences("${webappUuid}_floating_controls", 0)
+
+    fun load(): Pair<Float, Float>? {
+        val x = prefs.getFloat(KEY_X, -1f)
+        val y = prefs.getFloat(KEY_Y, -1f)
+        return if (x >= 0f && y >= 0f) x to y else null
+    }
+
+    fun save(fracX: Float, fracY: Float) {
+        prefs.edit {
+            putFloat(KEY_X, fracX)
+            putFloat(KEY_Y, fracY)
+        }
+    }
+
+    private companion object {
+        const val KEY_X = "x"
+        const val KEY_Y = "y"
+    }
+}
 
 class FloatingControlsView(
     private val parent: FrameLayout,
+    private val webappUuid: String,
     private val getWebView: () -> WebView?,
     private val onHome: () -> Unit,
 ) {
-    private val prefs: SharedPreferences =
-        parent.context.getSharedPreferences(PREFS_NAME, 0)
+    private val buttonPrefs = FloatingButtonPrefs(webappUuid, parent)
     private val density = parent.resources.displayMetrics.density
     private val buttonSizePx = (40 * density).toInt()
     private val gapPx = (8 * density).toInt()
@@ -34,11 +57,13 @@ class FloatingControlsView(
     )
     private val allViews = actionButtons + trigger
 
-    private val layoutChangeListener = View.OnLayoutChangeListener { _, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
-        if (right - left != oldRight - oldLeft || bottom - top != oldBottom - oldTop) {
-            reapplyPosition()
+    private val layoutChangeListener =
+        View.OnLayoutChangeListener { _, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
+            if (right - left != oldRight - oldLeft || bottom - top != oldBottom - oldTop) {
+                applyPosition()
+                if (expanded) positionActions()
+            }
         }
-    }
 
     private var expanded = false
     private var expandDown = false
@@ -63,11 +88,12 @@ class FloatingControlsView(
         parent.addView(trigger)
         setupTouchHandling()
         setupActions()
-        placeInitial()
+        trigger.post { applyPosition() }
         parent.addOnLayoutChangeListener(layoutChangeListener)
     }
 
     fun remove() {
+        savePosition()
         parent.removeOnLayoutChangeListener(layoutChangeListener)
         allViews.forEach { parent.removeView(it) }
     }
@@ -139,49 +165,24 @@ class FloatingControlsView(
         actionButtons[2].setOnClickListener { collapse(); getWebView()?.reload() }
     }
 
-    private fun placeInitial() {
-        trigger.post {
-            val savedFracX = prefs.getFloat(KEY_X, -1f)
-            val savedFracY = prefs.getFloat(KEY_Y, -1f)
-            val (x, y) = if (savedFracX >= 0f && savedFracY >= 0f) {
-                savedFracX * parent.width to savedFracY * parent.height
-            } else {
-                (parent.width - buttonSizePx - marginPx).toFloat() to parent.height * 0.25f
-            }
-            moveTriggerTo(x, y)
-        }
-    }
-
-    private fun reapplyPosition() {
-        val fracX = prefs.getFloat(KEY_X, -1f)
-        val fracY = prefs.getFloat(KEY_Y, -1f)
-        if (fracX >= 0f && fracY >= 0f) {
-            moveTriggerTo(fracX * parent.width, fracY * parent.height)
-        } else {
-            moveTriggerTo(
-                (parent.width - buttonSizePx - marginPx).toFloat(),
-                parent.height * 0.25f,
-            )
-        }
-        if (expanded) positionActions()
+    private fun applyPosition() {
+        val (x, y) = buttonPrefs.load()
+            ?.let { (fx, fy) -> fx * parent.width to fy * parent.height }
+            ?: ((parent.width - buttonSizePx - marginPx).toFloat() to parent.height * 0.25f)
+        moveTriggerTo(x, y)
     }
 
     private fun savePosition() {
         if (parent.width <= 0 || parent.height <= 0) return
-        prefs.edit {
-            putFloat(KEY_X, trigger.x / parent.width)
-                .putFloat(KEY_Y, trigger.y / parent.height)
-        }
+        buttonPrefs.save(trigger.x / parent.width, trigger.y / parent.height)
     }
 
     private fun moveTriggerTo(x: Float, y: Float) {
-        val clampedX = x.coerceIn(0f, (parent.width - buttonSizePx).toFloat())
-        val clampedY = y.coerceIn(
+        trigger.x = x.coerceIn(0f, (parent.width - buttonSizePx).toFloat())
+        trigger.y = y.coerceIn(
             statusInsetTop.toFloat(),
-            (parent.height - navInsetBottom - buttonSizePx).toFloat()
+            (parent.height - navInsetBottom - buttonSizePx).toFloat(),
         )
-        trigger.x = clampedX
-        trigger.y = clampedY
     }
 
     private fun toggle() {
@@ -229,11 +230,5 @@ class FloatingControlsView(
                 .start()
         }
         trigger.animate().rotation(0f).setDuration(150).start()
-    }
-
-    companion object {
-        private const val PREFS_NAME = "floating_controls"
-        private const val KEY_X = "x"
-        private const val KEY_Y = "y"
     }
 }

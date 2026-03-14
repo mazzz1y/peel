@@ -399,7 +399,10 @@ class DataManager private constructor() {
 
                 val importedAppUuids = action.importedWebApps.mapTo(mutableSetOf()) { it.uuid }
                 oldWebsites.filter { it.uuid !in importedAppUuids }
-                    .forEach { SandboxManager.clearSandboxData(App.appContext, it.uuid) }
+                    .forEach {
+                        SandboxManager.clearSandboxData(App.appContext, it.uuid)
+                        deleteAppPrefs(App.appContext, it.uuid)
+                    }
 
                 val nextDefault = WebApp(currentState.defaultSettings).apply {
                     settings = action.globalSettings.deepCopy()

@@ -1,9 +1,16 @@
 package wtf.mazy.peel.model
 
 import android.app.Activity
+import android.content.Context
 import wtf.mazy.peel.shortcut.ShortcutIconUtils
+import java.io.File
 import java.util.Objects
 import java.util.UUID
+
+internal fun deleteAppPrefs(context: Context, uuid: String) {
+    val prefsDir = File(context.applicationInfo.dataDir, "shared_prefs")
+    prefsDir.listFiles { f -> f.name.startsWith(uuid) }?.forEach { it.delete() }
+}
 
 data class WebApp(var baseUrl: String, override val uuid: String = UUID.randomUUID().toString()) :
     IconOwner, SandboxOwner {
@@ -49,6 +56,7 @@ data class WebApp(var baseUrl: String, override val uuid: String = UUID.randomUU
     fun cleanupWebAppData(activity: Activity) {
         SandboxManager.clearSandboxData(activity, uuid)
         deleteIcon()
+        deleteAppPrefs(activity, uuid)
     }
 
     val contentFingerprint: Int
