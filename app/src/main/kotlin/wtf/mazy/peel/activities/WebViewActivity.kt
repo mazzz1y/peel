@@ -29,8 +29,6 @@ import android.widget.LinearLayout
 import android.widget.ProgressBar
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.result.ActivityResultCallback
-import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import androidx.appcompat.app.AppCompatActivity
@@ -88,7 +86,16 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     override var currentlyReloading = true
     private var customHeaders: Map<String, String>? = null
     override var filePathCallback: ValueCallback<Array<Uri?>?>? = null
-    private var filePickerLauncher: ActivityResultLauncher<Intent?>? = null
+    private val filePickerLauncher =
+        registerForActivityResult(StartActivityForResult()) { result ->
+            val callback = filePathCallback ?: return@registerForActivityResult
+            if (result?.resultCode == RESULT_OK) {
+                callback.onReceiveValue(extractUris(result.data))
+            } else {
+                callback.onReceiveValue(null)
+            }
+            filePathCallback = null
+        }
     private var pendingPermissionCallback: ((Boolean) -> Unit)? = null
     private val mainHandler = Handler(Looper.getMainLooper())
     private val permissionLauncher =
@@ -104,7 +111,13 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         get() = DataManager.instance.getWebApp(webappUuid!!)!!
 
     private var floatingControls: FloatingControlsView? = null
-    private lateinit var downloadHandler: DownloadHandler
+    private val downloadHandler = DownloadHandler(
+        activity = this,
+        getWebView = { webView },
+        getBaseUrl = { webapp.baseUrl },
+        getProgressBar = { progressBar },
+        onDownloadComplete = {},
+    )
     private lateinit var imageCache: ImageCache
     private lateinit var peelWebViewClient: PeelWebViewClient
     private var peelWebChromeClient: PeelWebChromeClient? = null
@@ -121,6 +134,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
 
     private var mediaPlaybackManager: MediaPlaybackManager? = null
     private var cachedSettings: WebAppSettings? = null
+    private var isStartupComplete = false
     private var isScreenStateReceiverRegistered = false
     private val screenStateReceiver =
         object : BroadcastReceiver() {
@@ -153,8 +167,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
             return
         }
 
-        initFilePickerLauncher()
-        initDownloadHandler()
+        imageCache = ImageCache(cacheDir = cacheDir, getWebView = { webView })
 
         val sandboxId = WebViewLauncher.resolveSandboxId(webapp)
         if (sandboxId != null) {
@@ -183,6 +196,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         }
 
         setupBackNavigation()
+        isStartupComplete = true
     }
 
     override fun onResume() {
@@ -200,6 +214,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     }
 
     private fun applyResumedState() {
+        if (!isStartupComplete) return
         val uuid = webappUuid ?: return
         if (DataManager.instance.getWebApp(uuid) == null) return
         cachedSettings = DataManager.instance.resolveEffectiveSettings(webapp)
@@ -231,6 +246,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
 
     override fun onPause() {
         super.onPause()
+        if (!isStartupComplete) return
         val bgMedia = effectiveSettings.isAllowMediaPlaybackInBackground == true
         floatingControls?.remove()
         floatingControls = null
@@ -561,7 +577,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     override fun runOnUi(action: Runnable) = runOnUiThread(action)
 
     override fun launchFilePicker(intent: Intent?): Boolean {
-        filePickerLauncher?.launch(intent) ?: return false
+        filePickerLauncher.launch(intent)
         return true
     }
 
@@ -632,37 +648,9 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
             .show()
     }
 
-    private fun initFilePickerLauncher() {
-        filePickerLauncher =
-            registerForActivityResult(
-                StartActivityForResult(),
-                ActivityResultCallback { result ->
-                    val callback = filePathCallback ?: return@ActivityResultCallback
-                    if (result?.resultCode == RESULT_OK) {
-                        callback.onReceiveValue(extractUris(result.data))
-                    } else {
-                        callback.onReceiveValue(null)
-                    }
-                    filePathCallback = null
-                },
-            )
-    }
-
     private fun extractUris(intent: Intent?): Array<Uri?>? =
         intent?.data?.let { arrayOf(it) }
             ?: intent?.clipData?.let { clip -> Array(clip.itemCount) { clip.getItemAt(it).uri } }
-
-    private fun initDownloadHandler() {
-        imageCache = ImageCache(cacheDir = cacheDir, getWebView = { webView })
-        downloadHandler =
-            DownloadHandler(
-                activity = this,
-                getWebView = { webView },
-                getBaseUrl = { webapp.baseUrl },
-                getProgressBar = { progressBar },
-                onDownloadComplete = {},
-            )
-    }
 
     @SuppressLint("ClickableViewAccessibility")
     private fun setupWebView() {

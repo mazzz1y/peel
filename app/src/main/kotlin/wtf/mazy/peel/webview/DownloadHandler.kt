@@ -63,7 +63,7 @@ class DownloadHandler(
 
         val fileName = getFileNameFromDownload(dlUrl, contentDisposition, mimeType)
         request.setMimeType(mimeType)
-        request.addRequestHeader("cookie", CookieManager.getInstance().getCookie(dlUrl))
+        CookieManager.getInstance().getCookie(dlUrl)?.let { request.addRequestHeader("cookie", it) }
         request.addRequestHeader("User-Agent", userAgent)
         request.setTitle(fileName)
         request.setNotificationVisibility(

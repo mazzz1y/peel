@@ -24,6 +24,7 @@ class App : Application() {
     override fun onCreate() {
         super.onCreate()
         appContext = applicationContext
+        SandboxManager.initialize(AppDatabase.getInstance(applicationContext).sandboxSlotDao())
         appScope.launch {
             if (SandboxManager.currentSlotId != null) {
                 DataManager.instance.initializeForSandbox(applicationContext)
@@ -31,7 +32,6 @@ class App : Application() {
                 DataManager.instance.initialize(applicationContext)
             }
         }
-        SandboxManager.initialize(AppDatabase.getInstance(applicationContext).sandboxSlotDao())
     }
 
     companion object {

@@ -34,6 +34,12 @@ class FloatingControlsView(
     )
     private val allViews = actionButtons + trigger
 
+    private val layoutChangeListener = View.OnLayoutChangeListener { _, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
+        if (right - left != oldRight - oldLeft || bottom - top != oldBottom - oldTop) {
+            reapplyPosition()
+        }
+    }
+
     private var expanded = false
     private var expandDown = false
     private var isDragging = false
@@ -58,14 +64,11 @@ class FloatingControlsView(
         setupTouchHandling()
         setupActions()
         placeInitial()
-        parent.addOnLayoutChangeListener { _, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
-            if (right - left != oldRight - oldLeft || bottom - top != oldBottom - oldTop) {
-                reapplyPosition()
-            }
-        }
+        parent.addOnLayoutChangeListener(layoutChangeListener)
     }
 
     fun remove() {
+        parent.removeOnLayoutChangeListener(layoutChangeListener)
         allViews.forEach { parent.removeView(it) }
     }
 

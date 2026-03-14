@@ -77,7 +77,7 @@ object SandboxManager {
         }
 
         val evictSlot = findIdleSlot(am, aliveSlots) ?: 0
-        finishSandboxTasks(am, slots[evictSlot])
+        slots[evictSlot]?.let { finishSandboxTasks(am, it) }
         killSandboxProcess(am, evictSlot)
         writeSlotMapping(evictSlot, sandboxId)
         return evictSlot
