@@ -178,6 +178,11 @@ object SettingRegistry {
                 R.string.allow_location_access,
                 SettingCategory.PERMISSIONS,
             ),
+            SettingDefinition.TriStateSetting(
+                SettingField(WebAppSettings::isAppLinksPermission, WebAppSettings.PERMISSION_OFF),
+                R.string.open_app_links,
+                SettingCategory.PERMISSIONS,
+            ),
             // Content
             SettingDefinition.BooleanSetting(
                 SettingField(WebAppSettings::isAllowCookies, true),

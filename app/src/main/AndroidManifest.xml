@@ -35,6 +35,13 @@
         android:name="android.permission.REQUEST_INSTALL_PACKAGES"
         tools:ignore="RequestInstallPackagesPolicy" />
 
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <category android:name="android.intent.category.BROWSABLE" />
+        </intent>
+    </queries>
+
     <application
         android:name="wtf.mazy.peel.util.App"
         android:allowBackup="true"

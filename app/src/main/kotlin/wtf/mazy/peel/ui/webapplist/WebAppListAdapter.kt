@@ -7,8 +7,8 @@ import android.view.ViewGroup
 import android.view.animation.AccelerateInterpolator
 import android.view.animation.DecelerateInterpolator
 import android.widget.ImageView
+import android.widget.PopupMenu
 import android.widget.TextView
-import androidx.appcompat.widget.PopupMenu
 import androidx.core.view.isVisible
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope

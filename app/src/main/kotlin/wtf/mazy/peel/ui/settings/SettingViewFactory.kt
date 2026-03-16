@@ -2,15 +2,16 @@ package wtf.mazy.peel.ui.settings
 
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.Button
 import android.widget.ImageButton
 import android.widget.LinearLayout
+import android.widget.PopupMenu
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import com.google.android.material.button.MaterialButtonToggleGroup
 import com.google.android.material.materialswitch.MaterialSwitch
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.timepicker.MaterialTimePicker
@@ -42,8 +43,8 @@ class SettingViewFactory(
                 }
 
             is SettingDefinition.TriStateSetting ->
-                inflate(R.layout.item_setting_tristate, container) {
-                    setupTriState(it, setting, settings)
+                inflate(R.layout.item_setting_dropdown, container) {
+                    setupDropdown(it, setting, settings)
                 }
 
             is SettingDefinition.BooleanWithIntSetting ->
@@ -105,51 +106,55 @@ class SettingViewFactory(
         switch.setOnCheckedChangeListener(switchListener)
     }
 
-    private fun setupTriState(
+    private fun setupDropdown(
         view: View,
         setting: SettingDefinition.TriStateSetting,
         settings: WebAppSettings,
     ) {
+        val context = view.context
         val textName = view.findViewById<TextView>(R.id.textSettingName)
-        val toggleGroup = view.findViewById<MaterialButtonToggleGroup>(R.id.toggleGroup)
+        val txtValue = view.findViewById<TextView>(R.id.txtDropdownValue)
         val btnRemove = view.findViewById<ImageButton>(R.id.btnRemoveOverride)
         val btnUndo = view.findViewById<ImageButton>(R.id.btnUndo)
 
-        textName.text = view.context.getString(setting.displayNameResId)
+        textName.text = context.getString(setting.displayNameResId)
 
-        fun checkedIdForValue(value: Int): Int =
-            when (value) {
-                WebAppSettings.PERMISSION_ASK -> R.id.btnAsk
-                WebAppSettings.PERMISSION_ON -> R.id.btnAllow
-                else -> R.id.btnDeny
-            }
+        val labels = arrayOf(
+            context.getString(R.string.permission_deny),
+            context.getString(R.string.permission_ask),
+            context.getString(R.string.permission_allow),
+        )
+        val values = intArrayOf(
+            WebAppSettings.PERMISSION_OFF,
+            WebAppSettings.PERMISSION_ASK,
+            WebAppSettings.PERMISSION_ON,
+        )
 
-        fun valueForCheckedId(id: Int): Int =
-            when (id) {
-                R.id.btnAsk -> WebAppSettings.PERMISSION_ASK
-                R.id.btnAllow -> WebAppSettings.PERMISSION_ON
-                else -> WebAppSettings.PERMISSION_OFF
-            }
+        fun labelForValue(value: Int): String =
+            labels[values.indexOf(value).coerceAtLeast(0)]
 
-        val current = settings.getValue(setting.key) as? Int ?: WebAppSettings.PERMISSION_OFF
-        toggleGroup.check(checkedIdForValue(current))
-
-        val listener =
-            MaterialButtonToggleGroup.OnButtonCheckedListener { _, checkedId, isChecked ->
-                if (isChecked) {
-                    settings.setValue(setting.key, valueForCheckedId(checkedId))
-                    updateUndoVisibility(btnUndo, setting, settings)
-                }
-            }
-
-        configureButtons(btnRemove, btnUndo, setting, settings) {
-            toggleGroup.removeOnButtonCheckedListener(listener)
-            val newValue = settings.getValue(setting.key) as? Int ?: WebAppSettings.PERMISSION_OFF
-            toggleGroup.check(checkedIdForValue(newValue))
-            toggleGroup.addOnButtonCheckedListener(listener)
+        fun syncUi() {
+            val current = settings.getValue(setting.key) as? Int ?: WebAppSettings.PERMISSION_OFF
+            txtValue.text = labelForValue(current)
         }
 
-        toggleGroup.addOnButtonCheckedListener(listener)
+        syncUi()
+
+        txtValue.setOnClickListener { anchor ->
+            val popup = PopupMenu(context, anchor, Gravity.END)
+            labels.forEachIndexed { index, label -> popup.menu.add(0, index, index, label) }
+            popup.setOnMenuItemClickListener { item ->
+                settings.setValue(setting.key, values[item.itemId])
+                syncUi()
+                updateUndoVisibility(btnUndo, setting, settings)
+                true
+            }
+            popup.show()
+        }
+
+        configureButtons(btnRemove, btnUndo, setting, settings) {
+            syncUi()
+        }
     }
 
     private fun setupBooleanWithInt(

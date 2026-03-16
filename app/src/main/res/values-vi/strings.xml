@@ -129,6 +129,10 @@
     <string name="permission_prompt_camera">Cho phép %1$s truy cập camera?</string>
     <string name="permission_prompt_microphone">Cho phép %1$s truy cập micro?</string>
     <string name="permission_prompt_location">Cho phép %1$s truy cập vị trí?</string>
+    <string name="open_app_links">Mở liên kết trong ứng dụng bên ngoài</string>
+    <string name="permission_prompt_open_app">Mở liên kết này trong ứng dụng bên ngoài?\n\n%1$s</string>
+    <string name="permission_prompt_open_in_app">Mở trong %1$s?</string>
+    <string name="no_app_found">Không tìm thấy ứng dụng cho liên kết này</string>
 
     <string name="create_shortcut">Tạo lối tắt</string>
     <string name="create">Tạo</string>

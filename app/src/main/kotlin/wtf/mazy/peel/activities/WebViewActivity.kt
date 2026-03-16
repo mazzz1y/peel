@@ -2,6 +2,7 @@ package wtf.mazy.peel.activities
 
 import android.annotation.SuppressLint
 import android.app.ActivityManager
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Configuration
@@ -70,6 +71,7 @@ import wtf.mazy.peel.webview.PermissionResult
 import wtf.mazy.peel.webview.WebViewClientHost
 import wtf.mazy.peel.webview.WebViewContextMenu
 import java.util.Calendar
+import androidx.core.net.toUri
 
 open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClientHost {
     override var webappUuid: String? = null
@@ -124,6 +126,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     private var cachedSettings: WebAppSettings? = null
     private var isStartupComplete = false
     private var ephemeralSandboxId: String? = null
+
     @Volatile
     private var cachedPeelApps: List<WebApp> = emptyList()
 
@@ -489,11 +492,45 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         mediaPlaybackManager?.injectObserver()
     }
 
-    override fun startExternalIntent(uri: Uri) {
-        try {
-            startActivity(Intent(Intent.ACTION_VIEW, uri))
+    private fun buildIntentForUrl(url: String): Intent? {
+        return try {
+            if (url.startsWith("intent://") || url.startsWith("intent:")) {
+                Intent.parseUri(url, Intent.URI_INTENT_SCHEME)
+            } else {
+                Intent(Intent.ACTION_VIEW, url.toUri())
+            }
         } catch (_: Exception) {
+            null
         }
+    }
+
+    override fun startExternalIntent(uri: Uri) {
+        val url = uri.toString()
+        val intent = buildIntentForUrl(url)
+        if (intent == null) {
+            showToast(getString(R.string.no_app_found))
+            return
+        }
+        try {
+            startActivity(intent)
+        } catch (_: ActivityNotFoundException) {
+            val fallback = buildIntentForUrl(url)
+                ?.getStringExtra("browser_fallback_url")
+            if (fallback != null) {
+                loadURL(fallback)
+            } else {
+                showToast(getString(R.string.no_app_found))
+            }
+        } catch (_: Exception) {
+            showToast(getString(R.string.no_app_found))
+        }
+    }
+
+    override fun resolveAppLabel(url: String): String? {
+        val intent = buildIntentForUrl(url) ?: return null
+        val resolveInfos = packageManager.queryIntentActivities(intent, 0)
+        if (resolveInfos.size != 1) return null
+        return resolveInfos[0].loadLabel(packageManager).toString()
     }
 
     override val themeBackgroundColor: Int
@@ -532,7 +569,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         }
     }
 
-    override fun showPermissionDialog(message: String, onResult: (PermissionResult) -> Unit) {
+    override fun showPermissionDialog(message: CharSequence, onResult: (PermissionResult) -> Unit) {
         MaterialAlertDialogBuilder(this)
             .setMessage(message)
             .setCancelable(false)

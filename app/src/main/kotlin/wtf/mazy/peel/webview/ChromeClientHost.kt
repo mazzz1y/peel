@@ -35,7 +35,7 @@ interface ChromeClientHost {
 
     fun hasPermissions(vararg permissions: String): Boolean
 
-    fun showPermissionDialog(message: String, onResult: (PermissionResult) -> Unit)
+    fun showPermissionDialog(message: CharSequence, onResult: (PermissionResult) -> Unit)
 
     fun getString(resId: Int): String
 

@@ -25,7 +25,7 @@ class StringMapConverter {
 
 @Database(
     entities = [WebAppEntity::class, SandboxSlotEntity::class, WebAppGroupEntity::class],
-    version = 6,
+    version = 7,
     exportSchema = true,
 )
 @TypeConverters(StringMapConverter::class)
@@ -142,6 +142,15 @@ abstract class AppDatabase : RoomDatabase() {
                 }
             }
 
+        val MIGRATION_6_7 =
+            object : Migration(6, 7) {
+                override fun migrate(db: SupportSQLiteDatabase) {
+                    for (table in listOf("webapps", "webapp_groups")) {
+                        db.execSQL("ALTER TABLE $table ADD COLUMN isAppLinksPermission INTEGER DEFAULT NULL")
+                    }
+                }
+            }
+
         fun getInstance(context: Context): AppDatabase {
             return instance
                 ?: synchronized(this) { instance ?: buildDatabase(context).also { instance = it } }
@@ -158,7 +167,8 @@ abstract class AppDatabase : RoomDatabase() {
                     MIGRATION_2_3,
                     MIGRATION_3_4,
                     MIGRATION_4_5,
-                    MIGRATION_5_6
+                    MIGRATION_5_6,
+                    MIGRATION_6_7,
                 )
                 .allowMainThreadQueries()
                 .build()

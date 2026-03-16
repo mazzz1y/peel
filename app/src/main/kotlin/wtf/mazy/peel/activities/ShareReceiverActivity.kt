@@ -31,7 +31,10 @@ class ShareReceiverActivity : AppCompatActivity() {
             DataManager.instance.loadAppData()
             val apps = DataManager.instance.activeWebsites
             if (apps.isEmpty()) {
-                NotificationUtils.showToast(this@ShareReceiverActivity, getString(R.string.no_web_apps_available))
+                NotificationUtils.showToast(
+                    this@ShareReceiverActivity,
+                    getString(R.string.no_web_apps_available)
+                )
                 finish()
                 return@launch
             }

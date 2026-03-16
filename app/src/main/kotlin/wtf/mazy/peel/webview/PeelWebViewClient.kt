@@ -4,6 +4,9 @@ import android.annotation.SuppressLint
 import android.graphics.Color
 import android.net.Uri
 import android.net.http.SslError
+import android.text.SpannableString
+import android.text.Spanned
+import android.text.style.TypefaceSpan
 import android.webkit.HttpAuthHandler
 import android.webkit.SslErrorHandler
 import android.webkit.WebResourceError
@@ -14,14 +17,17 @@ import android.webkit.WebViewClient
 import androidx.core.graphics.toColorInt
 import androidx.core.net.toUri
 import wtf.mazy.peel.R
+import wtf.mazy.peel.model.WebAppSettings
 
 class PeelWebViewClient(private val host: WebViewClientHost) : WebViewClient() {
 
     private val autoAuthAttempted = mutableSetOf<String>()
+    private var appLinkDialogShowing = false
 
     override fun onPageStarted(view: WebView?, url: String?, favicon: android.graphics.Bitmap?) {
         super.onPageStarted(view, url, favicon)
         autoAuthAttempted.clear()
+        appLinkDialogShowing = false
         host.onPageStarted()
     }
 
@@ -136,13 +142,12 @@ class PeelWebViewClient(private val host: WebViewClientHost) : WebViewClient() {
         if (!url.startsWith("http://") &&
             !url.startsWith("https://") &&
             !url.startsWith("file://") &&
-            !url.startsWith("about:")
+            !url.startsWith("about:") &&
+            !url.startsWith("blob:") &&
+            !url.startsWith("data:")
         ) {
-            if (request.isForMainFrame && request.hasGesture()) {
-                try {
-                    host.startExternalIntent(url.toUri())
-                } catch (_: Exception) {
-                }
+            if (request.isForMainFrame) {
+                handleAppLink(url, settings)
             }
             return true
         }
@@ -164,6 +169,44 @@ class PeelWebViewClient(private val host: WebViewClientHost) : WebViewClient() {
             }
         }
         return false
+    }
+
+    private fun handleAppLink(url: String, settings: WebAppSettings) {
+        val state = settings.isAppLinksPermission
+
+        when (state) {
+            WebAppSettings.PERMISSION_ON -> launchAppLink(url)
+            WebAppSettings.PERMISSION_ASK -> {
+                if (appLinkDialogShowing) return
+                appLinkDialogShowing = true
+                host.showPermissionDialog(buildAppLinkPrompt(url)) { result ->
+                    appLinkDialogShowing = false
+                    if (result == PermissionResult.ALLOW) launchAppLink(url)
+                }
+            }
+        }
+    }
+
+    private fun buildAppLinkPrompt(url: String): CharSequence {
+        val appLabel = host.resolveAppLabel(url)
+        if (appLabel != null) {
+            return host.getString(R.string.permission_prompt_open_in_app, appLabel)
+        }
+        val text = host.getString(R.string.permission_prompt_open_app, url)
+        val urlStart = text.indexOf(url)
+        if (urlStart < 0) return text
+        return SpannableString(text).apply {
+            setSpan(
+                TypefaceSpan("monospace"),
+                urlStart,
+                urlStart + url.length,
+                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE,
+            )
+        }
+    }
+
+    private fun launchAppLink(url: String) {
+        host.startExternalIntent(url.toUri())
     }
 
     companion object {

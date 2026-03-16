@@ -130,16 +130,19 @@
                             android:textColor="?attr/colorOnSurface"
                             android:textSize="@dimen/settings_text_size" />
 
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            android:layout_weight="1" />
+
                         <TextView
                             android:id="@+id/txtGroupName"
-                            android:layout_width="0dp"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_weight="1"
                             android:background="?attr/selectableItemBackground"
                             android:drawableEnd="@drawable/ic_expand_more_24dp"
                             android:drawablePadding="4dp"
                             android:ellipsize="end"
-                            android:gravity="end"
                             android:maxLines="1"
                             android:paddingVertical="8dp"
                             android:paddingStart="8dp"

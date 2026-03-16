@@ -31,6 +31,10 @@ interface WebViewClientHost {
 
     fun startExternalIntent(uri: Uri)
 
+    fun resolveAppLabel(url: String): String?
+
+    fun showPermissionDialog(message: CharSequence, onResult: (PermissionResult) -> Unit)
+
     val themeBackgroundColor: Int
 
     fun runOnUi(action: Runnable)
