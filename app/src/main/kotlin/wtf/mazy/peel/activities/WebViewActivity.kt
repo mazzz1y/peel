@@ -124,6 +124,8 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     private var cachedSettings: WebAppSettings? = null
     private var isStartupComplete = false
     private var ephemeralSandboxId: String? = null
+    @Volatile
+    private var cachedPeelApps: List<WebApp> = emptyList()
 
     private val systemBarController by lazy {
         SystemBarController(window, ::themeBackgroundColor)
@@ -160,7 +162,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         super.onCreate(savedInstanceState)
 
         webappUuid = intent.getStringExtra(Const.INTENT_WEBAPP_UUID)
-        runAfterWebAppLoaded(webappUuid, forceReload = false) {
+        ensureDataReady(webappUuid, forceReload = false) {
             continueStartupAfterDataReady()
         }
     }
@@ -203,7 +205,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     override fun onResume() {
         super.onResume()
         val uuid = webappUuid ?: return
-        runAfterWebAppLoaded(uuid, forceReload = true) {
+        ensureDataReady(uuid, forceReload = true) {
             applyResumedState()
         }
     }
@@ -296,19 +298,23 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
             return
         }
 
-        runAfterWebAppLoaded(newUuid, forceReload = true) {
+        ensureDataReady(newUuid, forceReload = true) {
             applyLoadedWebAppIntent(newUuid)
         }
     }
 
-    private fun runAfterWebAppLoaded(uuid: String?, forceReload: Boolean, action: () -> Unit) {
+    private fun ensureDataReady(uuid: String?, forceReload: Boolean, action: () -> Unit) {
         if (SandboxManager.currentSlotId != null && uuid != null) {
             lifecycleScope.launch {
                 DataManager.instance.ensureWebAppLoaded(uuid, forceReload = forceReload)
+                cachedPeelApps = DataManager.instance.queryAllWebApps()
                 if (!isFinishing && !isDestroyed) action()
             }
         } else {
             action()
+            lifecycleScope.launch {
+                cachedPeelApps = DataManager.instance.queryAllWebApps()
+            }
         }
     }
 
@@ -688,8 +694,15 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         return bestPeelMatch(url, currentUuid)?.resolveIcon()
     }
 
-    private fun bestPeelMatch(url: String, currentUuid: String): WebApp? {
-        val scores = DataManager.instance.activeWebsites
+    private fun bestPeelMatch(url: String, currentUuid: String): WebApp? =
+        bestPeelMatchFrom(cachedPeelApps, url, currentUuid)
+
+    private fun bestPeelMatchFrom(
+        apps: List<WebApp>,
+        url: String,
+        currentUuid: String,
+    ): WebApp? {
+        val scores = apps
             .filter { it.uuid != currentUuid }
             .associateWith { domainAffinity(it.baseUrl, url) }
         val topScore = scores.values.maxOrNull() ?: return null
@@ -701,32 +714,44 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
 
     private fun openInBestPeelMatch(url: String) {
         val currentUuid = webappUuid ?: return
-        val match = bestPeelMatch(url, currentUuid) ?: return
-        launchWebApp(match, url)
+        lifecycleScope.launch {
+            val apps = DataManager.instance.queryAllWebApps()
+            val match = bestPeelMatchFrom(apps, url, currentUuid) ?: return@launch
+            launchWebApp(match, url)
+        }
     }
 
     private fun openInPeel(url: String) {
         val currentUuid = webappUuid ?: return
-        val apps = DataManager.instance.activeWebsites
-            .filter { it.uuid != currentUuid }
-            .sortedWith(compareByDescending<WebApp> {
-                domainAffinity(
-                    it.baseUrl,
-                    url
-                )
-            }.thenBy { it.title })
-        if (apps.isEmpty()) return
-        val adapter = ListPickerAdapter(apps) { webapp, icon, name, detail ->
-            name.text = webapp.title
-            icon.setImageBitmap(webapp.resolveIcon())
-            detail.text = webapp.groupUuid?.let { DataManager.instance.getGroup(it)?.title }
-                ?.let { shortLabel(it) } ?: getString(R.string.ungrouped)
-            detail.visibility = View.VISIBLE
+        lifecycleScope.launch {
+            val allApps = DataManager.instance.queryAllWebApps()
+            val apps = allApps
+                .filter { it.uuid != currentUuid }
+                .sortedWith(compareByDescending<WebApp> {
+                    domainAffinity(it.baseUrl, url)
+                }.thenBy { it.title })
+            if (apps.isEmpty()) return@launch
+
+            val hasGroups = apps.any { it.groupUuid != null }
+            val groupTitles = if (hasGroups) {
+                apps.mapNotNull { it.groupUuid }.distinct()
+                    .associateWith { DataManager.instance.queryGroup(it)?.title }
+            } else emptyMap()
+
+            val adapter = ListPickerAdapter(apps) { webapp, icon, name, detail ->
+                name.text = webapp.title
+                icon.setImageBitmap(webapp.resolveIcon())
+                if (hasGroups) {
+                    detail.text = webapp.groupUuid?.let { groupTitles[it] }
+                        ?.let { shortLabel(it) } ?: getString(R.string.ungrouped)
+                    detail.visibility = View.VISIBLE
+                }
+            }
+            MaterialAlertDialogBuilder(this@WebViewActivity)
+                .setTitle(R.string.open_in_peel)
+                .setAdapter(adapter) { _, position -> launchWebApp(apps[position], url) }
+                .show()
         }
-        MaterialAlertDialogBuilder(this)
-            .setTitle(R.string.open_in_peel)
-            .setAdapter(adapter) { _, position -> launchWebApp(apps[position], url) }
-            .show()
     }
 
     private fun launchWebApp(webapp: WebApp, url: String) {

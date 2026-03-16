@@ -58,13 +58,16 @@ class ShareReceiverActivity : AppCompatActivity() {
     }
 
     private fun showPickerDialog(apps: List<WebApp>, url: String) {
+        val hasGroups = DataManager.instance.getGroups().isNotEmpty()
         val adapter =
             ListPickerAdapter(apps) { webapp, icon, name, detail ->
                 name.text = webapp.title
                 icon.setImageBitmap(webapp.resolveIcon())
-                detail.text = webapp.groupUuid?.let { DataManager.instance.getGroup(it)?.title }
-                    ?.let { shortLabel(it) } ?: getString(R.string.ungrouped)
-                detail.visibility = View.VISIBLE
+                if (hasGroups) {
+                    detail.text = webapp.groupUuid?.let { DataManager.instance.getGroup(it)?.title }
+                        ?.let { shortLabel(it) } ?: getString(R.string.ungrouped)
+                    detail.visibility = View.VISIBLE
+                }
             }
 
         MaterialAlertDialogBuilder(this)

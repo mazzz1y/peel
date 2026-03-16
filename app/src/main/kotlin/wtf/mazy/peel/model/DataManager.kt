@@ -12,7 +12,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import wtf.mazy.peel.shortcut.ShortcutIconUtils
 import wtf.mazy.peel.util.App
 import wtf.mazy.peel.util.Const
@@ -267,6 +269,16 @@ class DataManager private constructor() {
     val activeWebsitesCount: Int
         get() = currentState.websites.count { it.isActiveEntry }
 
+    suspend fun queryAllWebApps(): List<WebApp> {
+        awaitReady()
+        return withContext(Dispatchers.IO) { repository.getAllWebApps() }
+    }
+
+    suspend fun queryGroup(uuid: String): WebAppGroup? {
+        awaitReady()
+        return withContext(Dispatchers.IO) { repository.getGroup(uuid) }
+    }
+
     val incrementedOrder: Int
         get() = activeWebsitesCount + 1
 
@@ -440,10 +452,6 @@ class DataManager private constructor() {
                     isActive = false,
                     emit = true
                 )
-                val nextWebsites = mutation.websites ?: return
-                if (repository.isInitialized) {
-                    repository.upsertWebApps(nextWebsites.filter { it.uuid in uuids })
-                }
                 updateState(mutation)
             }
 
@@ -455,10 +463,6 @@ class DataManager private constructor() {
                     isActive = true,
                     emit = true
                 )
-                val nextWebsites = mutation.websites ?: return
-                if (repository.isInitialized) {
-                    repository.upsertWebApps(nextWebsites.filter { it.uuid in uuids })
-                }
                 updateState(mutation)
             }
 
