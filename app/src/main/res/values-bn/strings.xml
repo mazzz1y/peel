@@ -205,6 +205,7 @@
     <string name="group_empty">এই গ্রুপে কোনো অ্যাপ নেই</string>
     <string name="ungrouped">গ্রুপবিহীন</string>
     <string name="open_in_peel">Peel-এ খুলুন</string>
+    <string name="no_web_apps_available">কোনো ওয়েব অ্যাপ উপলব্ধ নেই</string>
     <string name="move_to_group">গ্রুপে সরান</string>
     <string name="delete_group_title">গ্রুপ মুছুন</string>
     <string name="delete_group_confirm">\"%1$s\" গ্রুপ মুছবেন?</string>

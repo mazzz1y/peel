@@ -205,6 +205,7 @@
     <string name="group_empty">このグループにアプリはありません</string>
     <string name="ungrouped">未分類</string>
     <string name="open_in_peel">Peelで開く</string>
+    <string name="no_web_apps_available">利用可能なウェブアプリがありません</string>
     <string name="move_to_group">グループに移動</string>
     <string name="delete_group_title">グループを削除</string>
     <string name="delete_group_confirm">グループ「%1$s」を削除しますか？</string>

@@ -730,7 +730,10 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
                 .sortedWith(compareByDescending<WebApp> {
                     domainAffinity(it.baseUrl, url)
                 }.thenBy { it.title })
-            if (apps.isEmpty()) return@launch
+            if (apps.isEmpty()) {
+                showToast(getString(R.string.no_web_apps_available))
+                return@launch
+            }
 
             val hasGroups = apps.any { it.groupUuid != null }
             val groupTitles = if (hasGroups) {

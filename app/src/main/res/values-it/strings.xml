@@ -175,6 +175,7 @@
     <string name="groups_empty_state">Nessun gruppo ancora.\nTocca il pulsante + per creare il tuo primo gruppo.</string>
     <string name="ungrouped">Senza gruppo</string>
     <string name="open_in_peel">Apri in Peel</string>
+    <string name="no_web_apps_available">Nessuna applicazione web disponibile</string>
     <string name="move_to_group">Sposta nel gruppo</string>
     <string name="delete_group_title">Elimina gruppo</string>
     <string name="delete_group_confirm">Eliminare il gruppo \"%1$s\"?</string>

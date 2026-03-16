@@ -195,6 +195,7 @@
     <string name="group_empty">ਇਸ ਗਰੁੱਪ ਵਿੱਚ ਕੋਈ ਐਪ ਨਹੀਂ</string>
     <string name="ungrouped">ਬਿਨਾ ਗਰੁੱਪ</string>
     <string name="open_in_peel">Peel ਵਿੱਚ ਖੋਲ੍ਹੋ</string>
+    <string name="no_web_apps_available">ਕੋਈ ਵੈੱਬ ਐਪ ਉਪਲਬਧ ਨਹੀਂ ਹੈ</string>
     <string name="move_to_group">ਗਰੁੱਪ ਵਿੱਚ ਭੇਜੋ</string>
     <string name="delete_group_title">ਗਰੁੱਪ ਮਿਟਾਓ</string>
     <string name="delete_group_confirm">ਗਰੁੱਪ \"%1$s\" ਮਿਟਾਓ?</string>

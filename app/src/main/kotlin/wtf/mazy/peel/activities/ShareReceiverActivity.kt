@@ -11,6 +11,7 @@ import wtf.mazy.peel.R
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.ui.ListPickerAdapter
+import wtf.mazy.peel.util.NotificationUtils
 import wtf.mazy.peel.util.WebViewLauncher
 import wtf.mazy.peel.util.domainAffinity
 import wtf.mazy.peel.util.shortLabel
@@ -30,6 +31,7 @@ class ShareReceiverActivity : AppCompatActivity() {
             DataManager.instance.loadAppData()
             val apps = DataManager.instance.activeWebsites
             if (apps.isEmpty()) {
+                NotificationUtils.showToast(this@ShareReceiverActivity, getString(R.string.no_web_apps_available))
                 finish()
                 return@launch
             }

@@ -205,6 +205,7 @@
     <string name="group_empty">此群組中沒有應用程式</string>
     <string name="ungrouped">未分組</string>
     <string name="open_in_peel">在 Peel 中開啟</string>
+    <string name="no_web_apps_available">沒有可用的網頁應用程式</string>
     <string name="move_to_group">移至群組</string>
     <string name="delete_group_title">刪除群組</string>
     <string name="delete_group_confirm">刪除群組「%1$s」？</string>

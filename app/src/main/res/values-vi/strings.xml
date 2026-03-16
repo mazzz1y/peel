@@ -205,6 +205,7 @@
     <string name="group_empty">Không có ứng dụng trong nhóm này</string>
     <string name="ungrouped">Chưa phân nhóm</string>
     <string name="open_in_peel">Mở trong Peel</string>
+    <string name="no_web_apps_available">Không có ứng dụng web nào</string>
     <string name="move_to_group">Chuyển vào nhóm</string>
     <string name="delete_group_title">Xóa nhóm</string>
     <string name="delete_group_confirm">Xóa nhóm \"%1$s\"?</string>
