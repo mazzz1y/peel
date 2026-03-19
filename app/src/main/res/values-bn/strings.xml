@@ -131,7 +131,6 @@
     <string name="permission_prompt_location">%1$s-কে অবস্থান অ্যাক্সেসের অনুমতি দেবেন?</string>
     <string name="open_app_links">বাহ্যিক অ্যাপে লিংক খুলুন</string>
     <string name="permission_prompt_open_app">এই লিংকটি একটি বাহ্যিক অ্যাপে খুলবেন?\n\n%1$s</string>
-    <string name="permission_prompt_open_in_app">%1$s-এ খুলবেন?</string>
     <string name="no_app_found">এই লিংকের জন্য কোনো অ্যাপ পাওয়া যায়নি</string>
 
     <string name="create_shortcut">শর্টকাট তৈরি করুন</string>

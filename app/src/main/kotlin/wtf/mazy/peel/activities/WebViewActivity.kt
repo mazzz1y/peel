@@ -526,12 +526,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         }
     }
 
-    override fun resolveAppLabel(url: String): String? {
-        val intent = buildIntentForUrl(url) ?: return null
-        val resolveInfos = packageManager.queryIntentActivities(intent, 0)
-        if (resolveInfos.size != 1) return null
-        return resolveInfos[0].loadLabel(packageManager).toString()
-    }
+
 
     override val themeBackgroundColor: Int
         get() {

@@ -131,7 +131,6 @@
     <string name="permission_prompt_location">Разрешить %1$s доступ к местоположению?</string>
     <string name="open_app_links">Открывать ссылки во внешних приложениях</string>
     <string name="permission_prompt_open_app">Открыть эту ссылку во внешнем приложении?\n\n%1$s</string>
-    <string name="permission_prompt_open_in_app">Открыть в %1$s?</string>
     <string name="no_app_found">Приложение для этой ссылки не найдено</string>
 
     <string name="create_shortcut">Создать ярлык</string>

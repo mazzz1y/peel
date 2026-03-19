@@ -205,7 +205,6 @@
     <string name="permission_prompt_location">%1$s Zugriff auf den Standort erlauben?</string>
     <string name="open_app_links">Links in externen Apps öffnen</string>
     <string name="permission_prompt_open_app">Diesen Link in einer externen App öffnen?\n\n%1$s</string>
-    <string name="permission_prompt_open_in_app">In %1$s öffnen?</string>
     <string name="no_app_found">Keine App für diesen Link gefunden</string>
     <string name="permission_prompt_microphone">%1$s Zugriff auf das Mikrofon erlauben?</string>
     <string name="retry">Erneut versuchen</string>

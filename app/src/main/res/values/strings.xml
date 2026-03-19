@@ -136,7 +136,6 @@
     <string name="permission_prompt_location">Allow %1$s to access your location?</string>
     <string name="open_app_links">Open links in external apps</string>
     <string name="permission_prompt_open_app">Open this link in an external app?\n\n%1$s</string>
-    <string name="permission_prompt_open_in_app">Open in %1$s?</string>
     <string name="no_app_found">No app found to handle this link</string>
 
     <string name="create_shortcut">Create shortcut</string>

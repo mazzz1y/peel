@@ -131,7 +131,6 @@
     <string name="permission_prompt_location">%1$s को स्थान एक्सेस की अनुमति दें?</string>
     <string name="open_app_links">बाहरी ऐप्स में लिंक खोलें</string>
     <string name="permission_prompt_open_app">इस लिंक को बाहरी ऐप में खोलें?\n\n%1$s</string>
-    <string name="permission_prompt_open_in_app">%1$s में खोलें?</string>
     <string name="no_app_found">इस लिंक के लिए कोई ऐप नहीं मिला</string>
 
     <string name="create_shortcut">शॉर्टकट बनाएं</string>

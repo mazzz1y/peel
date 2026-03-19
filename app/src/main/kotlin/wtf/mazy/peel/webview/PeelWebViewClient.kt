@@ -188,10 +188,6 @@ class PeelWebViewClient(private val host: WebViewClientHost) : WebViewClient() {
     }
 
     private fun buildAppLinkPrompt(url: String): CharSequence {
-        val appLabel = host.resolveAppLabel(url)
-        if (appLabel != null) {
-            return host.getString(R.string.permission_prompt_open_in_app, appLabel)
-        }
         val text = host.getString(R.string.permission_prompt_open_app, url)
         val urlStart = text.indexOf(url)
         if (urlStart < 0) return text
