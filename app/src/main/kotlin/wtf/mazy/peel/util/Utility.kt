@@ -1,6 +1,5 @@
 package wtf.mazy.peel.util
 
-import android.net.Uri
 import android.webkit.URLUtil
 import android.webkit.WebView
 import java.net.URLDecoder
@@ -8,9 +7,6 @@ import java.text.BreakIterator
 import java.util.regex.Pattern
 
 private val CHROME_VERSION_RE = Regex("""Chrome/([\d.]+)""")
-private val COMMON_SECOND_LEVEL_DOMAINS =
-    setOf("ac", "co", "com", "edu", "gov", "mil", "net", "org")
-private const val BRAND_MATCH_BONUS = 2
 
 fun WebView.buildUserAgent() {
     val raw = settings.userAgentString ?: ""
@@ -27,29 +23,6 @@ fun displayUrl(url: String): String {
     return clean.trimEnd('/')
 }
 
-fun domainAffinity(appBaseUrl: String, targetUrl: String): Int {
-    val appHost = Uri.parse(appBaseUrl).host?.removePrefix("www.") ?: return 0
-    val targetHost = Uri.parse(targetUrl).host?.removePrefix("www.") ?: return 0
-    val appParts = appHost.lowercase().split('.').reversed()
-    val targetParts = targetHost.lowercase().split('.').reversed()
-    var match = 0
-    for (i in 0 until minOf(appParts.size, targetParts.size)) {
-        if (appParts[i] == targetParts[i]) match++ else break
-    }
-    if (match > 0) return match
-    val appBrand = registrableLabel(appHost) ?: return 0
-    val targetBrand = registrableLabel(targetHost) ?: return 0
-    return if (appBrand == targetBrand) BRAND_MATCH_BONUS else 0
-}
-
-private fun registrableLabel(host: String): String? {
-    val parts = host.lowercase().split('.')
-    if (parts.size < 2) return null
-    val secondLevel = parts[parts.lastIndex - 1]
-    val isCompoundTld = parts.size >= 3 && secondLevel in COMMON_SECOND_LEVEL_DOMAINS
-    val labelIndex = if (isCompoundTld) parts.lastIndex - 2 else parts.lastIndex - 1
-    return parts.getOrNull(labelIndex)
-}
 
 fun shortLabel(title: String): String =
     leadingEmojis(title, 3) ?: title

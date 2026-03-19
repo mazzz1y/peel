@@ -13,7 +13,7 @@ import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.ui.ListPickerAdapter
 import wtf.mazy.peel.util.NotificationUtils
 import wtf.mazy.peel.util.WebViewLauncher
-import wtf.mazy.peel.util.domainAffinity
+import wtf.mazy.peel.util.HostIdentity
 import wtf.mazy.peel.util.shortLabel
 
 class ShareReceiverActivity : AppCompatActivity() {
@@ -42,10 +42,7 @@ class ShareReceiverActivity : AppCompatActivity() {
             val sorted =
                 apps.sortedWith(
                     compareByDescending<WebApp> {
-                        domainAffinity(
-                            it.baseUrl,
-                            sharedUrl
-                        )
+                        HostIdentity.affinity(it.baseUrl, sharedUrl)
                     }.thenBy { it.title })
 
             showPickerDialog(sorted, sharedUrl)

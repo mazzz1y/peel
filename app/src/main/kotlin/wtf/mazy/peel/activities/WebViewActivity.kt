@@ -59,7 +59,7 @@ import wtf.mazy.peel.util.DateUtils.isInInterval
 import wtf.mazy.peel.util.NotificationUtils
 import wtf.mazy.peel.util.WebViewLauncher
 import wtf.mazy.peel.util.buildUserAgent
-import wtf.mazy.peel.util.domainAffinity
+import wtf.mazy.peel.util.HostIdentity
 import wtf.mazy.peel.util.shortLabel
 import wtf.mazy.peel.webview.ChromeClientHost
 import wtf.mazy.peel.webview.DownloadHandler
@@ -736,9 +736,9 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     ): WebApp? {
         val scores = apps
             .filter { it.uuid != currentUuid }
-            .associateWith { domainAffinity(it.baseUrl, url) }
+            .associateWith { HostIdentity.affinity(it.baseUrl, url) }
         val topScore = scores.values.maxOrNull() ?: return null
-        if (topScore <= 1) return null
+        if (topScore <= HostIdentity.TLD_ONLY) return null
         val topMatches = scores.filterValues { it == topScore }
         if (topMatches.size != 1) return null
         return topMatches.keys.first()
@@ -760,7 +760,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
             val apps = allApps
                 .filter { it.uuid != currentUuid }
                 .sortedWith(compareByDescending<WebApp> {
-                    domainAffinity(it.baseUrl, url)
+                    HostIdentity.affinity(it.baseUrl, url)
                 }.thenBy { it.title })
             if (apps.isEmpty()) {
                 showToast(getString(R.string.no_web_apps_available))
