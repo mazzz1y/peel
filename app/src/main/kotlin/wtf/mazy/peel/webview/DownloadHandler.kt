@@ -161,7 +161,10 @@ class DownloadHandler(
                 Manifest.permission.READ_EXTERNAL_STORAGE,
             )
             if (!perms.all {
-                    ContextCompat.checkSelfPermission(activity, it) == PackageManager.PERMISSION_GRANTED
+                    ContextCompat.checkSelfPermission(
+                        activity,
+                        it
+                    ) == PackageManager.PERMISSION_GRANTED
                 }) {
                 pendingAction = { enqueue(request, url) }
                 storagePermissionLauncher.launch(perms)

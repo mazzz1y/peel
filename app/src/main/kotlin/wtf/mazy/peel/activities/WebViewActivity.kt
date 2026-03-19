@@ -30,6 +30,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toDrawable
+import androidx.core.net.toUri
 import androidx.lifecycle.lifecycleScope
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import androidx.webkit.WebSettingsCompat
@@ -56,10 +57,10 @@ import wtf.mazy.peel.ui.webview.SystemBarController
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.DateUtils.convertStringToCalendar
 import wtf.mazy.peel.util.DateUtils.isInInterval
+import wtf.mazy.peel.util.HostIdentity
 import wtf.mazy.peel.util.NotificationUtils
 import wtf.mazy.peel.util.WebViewLauncher
 import wtf.mazy.peel.util.buildUserAgent
-import wtf.mazy.peel.util.HostIdentity
 import wtf.mazy.peel.util.shortLabel
 import wtf.mazy.peel.webview.ChromeClientHost
 import wtf.mazy.peel.webview.DownloadHandler
@@ -71,7 +72,6 @@ import wtf.mazy.peel.webview.PermissionResult
 import wtf.mazy.peel.webview.WebViewClientHost
 import wtf.mazy.peel.webview.WebViewContextMenu
 import java.util.Calendar
-import androidx.core.net.toUri
 
 open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClientHost {
     override var webappUuid: String? = null
@@ -457,11 +457,14 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
             finish()
             return
         }
+        val canGoBack = getBackSteps() > 0
         MaterialAlertDialogBuilder(this)
             .setTitle(R.string.site_not_found)
             .setMessage(getString(R.string.connection_error, description))
             .setPositiveButton(R.string.retry) { _, _ -> loadURL(url) }
-            .setNegativeButton(R.string.exit) { _, _ -> finish() }
+            .setNegativeButton(if (canGoBack) R.string.back else R.string.exit) { _, _ ->
+                if (canGoBack) webView?.goBackOrForward(-getBackSteps()) else finish()
+            }
             .setCancelable(false)
             .show()
     }
@@ -524,7 +527,6 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
             showToast(getString(R.string.no_app_found))
         }
     }
-
 
 
     override val themeBackgroundColor: Int
