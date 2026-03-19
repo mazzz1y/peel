@@ -80,6 +80,7 @@
     <string name="allow_location_access">位置</string>
     <string name="allow_drm_content">DRM 内容</string>
     <string name="file_download">文件下载中…</string>
+    <string name="permission_prompt_download">下载此文件？\n\n%1$s</string>
     <string name="icon_update">更新图片</string>
     <string name="icon_remove">删除图片</string>
     <string name="show_progress_bar_during_page_load">加载指示器</string>
@@ -230,6 +231,7 @@
     <string name="text_copied">文字已复制</string>
     <string name="image_copied">图片已复制</string>
     <string name="image_download_failed">图片下载失败</string>
+    <string name="download_failed">下载失败</string>
     <string name="search">搜索</string>
     <string name="no_search_results">未找到应用</string>
     <string name="import_group_share_description">分组「%1$s」包含 %2$d 个应用已与你共享。点击分组展开并选择要导入的应用：</string>

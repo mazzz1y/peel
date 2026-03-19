@@ -80,6 +80,7 @@
     <string name="allow_location_access">Vị trí</string>
     <string name="allow_drm_content">Nội dung DRM</string>
     <string name="file_download">Đang tải tệp…</string>
+    <string name="permission_prompt_download">Tải tệp này?\n\n%1$s</string>
     <string name="icon_update">Cập nhật hình ảnh</string>
     <string name="icon_remove">Xóa hình ảnh</string>
     <string name="show_progress_bar_during_page_load">Chỉ báo tải</string>
@@ -230,6 +231,7 @@
     <string name="text_copied">Đã sao chép văn bản</string>
     <string name="image_copied">Đã sao chép hình ảnh</string>
     <string name="image_download_failed">Tải hình ảnh thất bại</string>
+    <string name="download_failed">Tải xuống thất bại</string>
     <string name="search">Tìm kiếm</string>
     <string name="no_search_results">Không tìm thấy ứng dụng</string>
     <string name="import_group_share_description">Nhóm «%1$s» với %2$d ứng dụng đã được chia sẻ với bạn. Nhấn vào nhóm để mở rộng và chọn ứng dụng để nhập:</string>

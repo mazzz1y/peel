@@ -80,6 +80,7 @@
     <string name="allow_location_access">स्थान</string>
     <string name="allow_drm_content">DRM सामग्री</string>
     <string name="file_download">फ़ाइल डाउनलोड हो रही है…</string>
+    <string name="permission_prompt_download">इस फ़ाइल को डाउनलोड करें?\n\n%1$s</string>
     <string name="icon_update">चित्र अपडेट करें</string>
     <string name="icon_remove">चित्र हटाएं</string>
     <string name="show_progress_bar_during_page_load">लोडिंग संकेतक</string>
@@ -231,6 +232,7 @@
     <string name="text_copied">टेक्स्ट कॉपी हुआ</string>
     <string name="image_copied">छवि कॉपी हुई</string>
     <string name="image_download_failed">छवि डाउनलोड विफल</string>
+    <string name="download_failed">डाउनलोड विफल</string>
     <string name="search">खोजें</string>
     <string name="no_search_results">कोई ऐप नहीं मिला</string>
     <string name="import_group_share_description">ग्रुप «%1$s» जिसमें %2$d ऐप हैं, आपके साथ साझा किया गया। ग्रुप पर टैप करके विस्तार करें और आयात करने के लिए ऐप चुनें:</string>

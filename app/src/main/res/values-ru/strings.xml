@@ -80,6 +80,7 @@
     <string name="allow_location_access">Местоположение</string>
     <string name="allow_drm_content">DRM-контент</string>
     <string name="file_download">Файл загружается…</string>
+    <string name="permission_prompt_download">Скачать этот файл?\n\n%1$s</string>
     <string name="icon_update">Обновить изображение</string>
     <string name="icon_remove">Удалить изображение</string>
     <string name="show_progress_bar_during_page_load">Индикатор загрузки</string>
@@ -233,6 +234,7 @@
     <string name="text_copied">Текст скопирован</string>
     <string name="image_copied">Изображение скопировано</string>
     <string name="image_download_failed">Не удалось скачать изображение</string>
+    <string name="download_failed">Не удалось скачать файл</string>
     <string name="search">Поиск</string>
     <string name="no_search_results">Приложения не найдены</string>
     <string name="import_group_share_description">Группа «%1$s» с %2$d приложением(ями) была отправлена вам. Нажмите на группу, чтобы развернуть и выбрать приложения для импорта:</string>

@@ -80,6 +80,7 @@
     <string name="allow_location_access">位置情報</string>
     <string name="allow_drm_content">DRMコンテンツ</string>
     <string name="file_download">ファイルをダウンロード中…</string>
+    <string name="permission_prompt_download">このファイルをダウンロードしますか？\n\n%1$s</string>
     <string name="icon_update">画像を更新</string>
     <string name="icon_remove">画像を削除</string>
     <string name="show_progress_bar_during_page_load">読み込みインジケーター</string>
@@ -230,6 +231,7 @@
     <string name="text_copied">テキストをコピーしました</string>
     <string name="image_copied">画像をコピーしました</string>
     <string name="image_download_failed">画像のダウンロードに失敗しました</string>
+    <string name="download_failed">ダウンロードに失敗しました</string>
     <string name="search">検索</string>
     <string name="no_search_results">アプリが見つかりません</string>
     <string name="import_group_share_description">グループ「%1$s」（%2$d個のアプリ）が共有されました。グループをタップして展開し、インポートするアプリを選択してください：</string>

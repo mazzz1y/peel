@@ -80,6 +80,7 @@
     <string name="allow_location_access">অবস্থান</string>
     <string name="allow_drm_content">DRM বিষয়বস্তু</string>
     <string name="file_download">ফাইল ডাউনলোড হচ্ছে…</string>
+    <string name="permission_prompt_download">এই ফাইলটি ডাউনলোড করবেন?\n\n%1$s</string>
     <string name="icon_update">ছবি আপডেট করুন</string>
     <string name="icon_remove">ছবি সরান</string>
     <string name="show_progress_bar_during_page_load">লোডিং নির্দেশক</string>
@@ -231,6 +232,7 @@
     <string name="text_copied">লেখা কপি হয়েছে</string>
     <string name="image_copied">ছবি কপি হয়েছে</string>
     <string name="image_download_failed">ছবি ডাউনলোড ব্যর্থ হয়েছে</string>
+    <string name="download_failed">ডাউনলোড ব্যর্থ হয়েছে</string>
     <string name="search">অনুসন্ধান</string>
     <string name="no_search_results">কোনো অ্যাপ পাওয়া যায়নি</string>
     <string name="import_group_share_description">গ্রুপ «%1$s» যাতে %2$d টি অ্যাপ আছে, আপনার সাথে শেয়ার করা হয়েছে। গ্রুপে ট্যাপ করে প্রসারিত করুন এবং আমদানি করতে অ্যাপ বেছে নিন:</string>

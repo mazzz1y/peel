@@ -65,6 +65,7 @@
     <string name="allow_drm_content">Permitir contenidos DRM</string>
 
     <string name="file_download">El archivo se está descargando...</string>
+    <string name="permission_prompt_download">¿Descargar este archivo?\n\n%1$s</string>
     <string name="show_progress_bar_during_page_load">Mostrar la barra de progreso durante la carga de la página</string>
     <string name="webapp_autoreload">Recargar automáticamente la página</string>
     <string name="webapp_interval_for_reload">Intervalo en segundos</string>
@@ -226,6 +227,7 @@
     <string name="text_copied">Texto copiado</string>
     <string name="image_copied">Imagen copiada</string>
     <string name="image_download_failed">Error al descargar la imagen</string>
+    <string name="download_failed">Error en la descarga</string>
     <string name="search">Buscar</string>
     <string name="no_search_results">No se encontraron apps</string>
     <string name="import_group_share_description">El grupo «%1$s» con %2$d app(s) se compartió contigo. Toca el grupo para expandirlo y elegir las apps a importar:</string>

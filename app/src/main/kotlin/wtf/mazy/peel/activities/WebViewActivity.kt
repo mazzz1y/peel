@@ -63,7 +63,7 @@ import wtf.mazy.peel.util.domainAffinity
 import wtf.mazy.peel.util.shortLabel
 import wtf.mazy.peel.webview.ChromeClientHost
 import wtf.mazy.peel.webview.DownloadHandler
-import wtf.mazy.peel.webview.ImageCache
+import wtf.mazy.peel.webview.FileFetcher
 import wtf.mazy.peel.webview.NavigationStartPoint
 import wtf.mazy.peel.webview.PeelWebChromeClient
 import wtf.mazy.peel.webview.PeelWebViewClient
@@ -110,14 +110,11 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         get() = DataManager.instance.getWebApp(webappUuid!!)!!
 
     private var floatingControls: FloatingControlsView? = null
+    private lateinit var fileFetcher: FileFetcher
     private val downloadHandler = DownloadHandler(
         activity = this,
         getWebView = { webView },
-        getBaseUrl = { webapp.baseUrl },
-        getProgressBar = { progressBar },
-        onDownloadComplete = {},
     )
-    private lateinit var imageCache: ImageCache
     private lateinit var peelWebViewClient: PeelWebViewClient
     private var peelWebChromeClient: PeelWebChromeClient? = null
 
@@ -178,7 +175,9 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
             return
         }
 
-        imageCache = ImageCache(cacheDir = cacheDir, getWebView = { webView })
+        fileFetcher = FileFetcher(cacheDir = cacheDir, getWebView = { webView })
+        downloadHandler.fileFetcher = fileFetcher
+        downloadHandler.getBaseUrl = { webapp.baseUrl }
 
         val sandboxId = WebViewLauncher.resolveSandboxId(webapp)
         if (sandboxId != null) {
@@ -712,7 +711,8 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         WebViewContextMenu(
             activity = this,
             getWebView = { webView },
-            imageCache = imageCache,
+            fileFetcher = fileFetcher,
+            downloadHandler = downloadHandler,
             onExternalIntent = ::startExternalIntent,
             onOpenInPeel = ::openInPeel,
             onOpenInBestPeelMatch = ::openInBestPeelMatch,

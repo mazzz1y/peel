@@ -80,6 +80,7 @@
     <string name="allow_location_access">位置</string>
     <string name="allow_drm_content">DRM 內容</string>
     <string name="file_download">檔案下載中…</string>
+    <string name="permission_prompt_download">下載此檔案？\n\n%1$s</string>
     <string name="icon_update">更新圖片</string>
     <string name="icon_remove">刪除圖片</string>
     <string name="show_progress_bar_during_page_load">載入指示器</string>
@@ -230,6 +231,7 @@
     <string name="text_copied">文字已複製</string>
     <string name="image_copied">圖片已複製</string>
     <string name="image_download_failed">圖片下載失敗</string>
+    <string name="download_failed">下載失敗</string>
     <string name="search">搜尋</string>
     <string name="no_search_results">未找到應用程式</string>
     <string name="import_group_share_description">群組「%1$s」包含 %2$d 個應用程式已與你共享。點擊群組展開並選擇要匯入的應用程式：</string>

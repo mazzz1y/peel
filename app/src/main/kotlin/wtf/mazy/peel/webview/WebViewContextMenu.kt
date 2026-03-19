@@ -1,30 +1,23 @@
 package wtf.mazy.peel.webview
 
-import android.Manifest
-import android.app.DownloadManager
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.net.Uri
-import android.os.Build
-import android.os.Environment
 import android.os.Handler
 import android.os.Looper
 import android.text.TextUtils
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
-import android.webkit.CookieManager
 import android.webkit.MimeTypeMap
 import android.webkit.WebView
 import android.webkit.WebView.HitTestResult
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.net.toUri
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -34,7 +27,8 @@ import java.io.File
 class WebViewContextMenu(
     private val activity: Context,
     private val getWebView: () -> WebView?,
-    private val imageCache: ImageCache,
+    private val fileFetcher: FileFetcher,
+    private val downloadHandler: DownloadHandler,
     private val onExternalIntent: (Uri) -> Unit,
     private val onOpenInPeel: ((String) -> Unit)?,
     private val onOpenInBestPeelMatch: ((String) -> Unit)?,
@@ -262,40 +256,11 @@ class WebViewContextMenu(
     }
 
     private fun downloadUrl(url: String) {
-        if (!hasStoragePermission()) return
-        if (url.startsWith("blob:") || url.startsWith("data:")) {
-            withImageFile(url) { file ->
-                val target = File(
-                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
-                    file.name,
-                )
-                file.copyTo(target, overwrite = true)
-                onToast(str(R.string.file_download))
-            }
-            return
-        }
-        val uri = url.toUri()
-        val fileName = uri.lastPathSegment ?: "download"
-        val request = DownloadManager.Request(uri).apply {
-            CookieManager.getInstance().getCookie(url)?.let { addRequestHeader("cookie", it) }
-            addRequestHeader("User-Agent", getWebView()?.settings?.userAgentString ?: "")
-            setTitle(fileName)
-            setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
-            setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName)
-        }
-        (activity.getSystemService(Context.DOWNLOAD_SERVICE) as? DownloadManager)?.enqueue(request)
-        onToast(str(R.string.file_download))
-    }
-
-    private fun hasStoragePermission(): Boolean {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) return true
-        return ContextCompat.checkSelfPermission(
-            activity, Manifest.permission.WRITE_EXTERNAL_STORAGE,
-        ) == PackageManager.PERMISSION_GRANTED
+        downloadHandler.downloadUrl(url)
     }
 
     private fun withImageFile(url: String, action: (File) -> Unit) {
-        imageCache.fetch(url, null) { file ->
+        fileFetcher.fetch(url, null) { file ->
             if (file != null) action(file)
             else onToast(str(R.string.image_download_failed))
         }

@@ -79,6 +79,7 @@
     <string name="allow_location_access">ਟਿਕਾਣਾ</string>
     <string name="allow_drm_content">DRM ਸਮੱਗਰੀ</string>
     <string name="file_download">ਫ਼ਾਈਲ ਡਾਊਨਲੋਡ ਹੋ ਰਹੀ ਹੈ…</string>
+    <string name="permission_prompt_download">ਇਹ ਫ਼ਾਈਲ ਡਾਊਨਲੋਡ ਕਰੋ?\n\n%1$s</string>
     <string name="icon_update">ਤਸਵੀਰ ਅੱਪਡੇਟ ਕਰੋ</string>
     <string name="icon_remove">ਤਸਵੀਰ ਹਟਾਓ</string>
     <string name="show_progress_bar_during_page_load">ਲੋਡਿੰਗ ਸੂਚਕ</string>
@@ -220,6 +221,7 @@
     <string name="text_copied">ਟੈਕਸਟ ਕਾਪੀ ਹੋਇਆ</string>
     <string name="image_copied">ਚਿੱਤਰ ਕਾਪੀ ਹੋਇਆ</string>
     <string name="image_download_failed">ਚਿੱਤਰ ਡਾਊਨਲੋਡ ਅਸਫਲ</string>
+    <string name="download_failed">ਡਾਊਨਲੋਡ ਅਸਫਲ</string>
     <string name="search">ਖੋਜੋ</string>
     <string name="no_search_results">ਕੋਈ ਐਪ ਨਹੀਂ ਮਿਲੀ</string>
     <string name="import_group_share_description">ਗਰੁੱਪ «%1$s» ਜਿਸ ਵਿੱਚ %2$d ਐਪ ਹਨ, ਤੁਹਾਡੇ ਨਾਲ ਸਾਂਝਾ ਕੀਤਾ ਗਿਆ। ਗਰੁੱਪ ਤੇ ਟੈਪ ਕਰੋ ਅਤੇ ਆਯਾਤ ਕਰਨ ਲਈ ਐਪ ਚੁਣੋ:</string>

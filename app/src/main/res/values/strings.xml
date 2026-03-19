@@ -85,6 +85,7 @@
     <string name="allow_location_access">Location</string>
     <string name="allow_drm_content">DRM content</string>
     <string name="file_download">File is being downloaded…</string>
+    <string name="permission_prompt_download">Download this file?\n\n%1$s</string>
     <string name="icon_update">Update image</string>
     <string name="icon_remove">Remove image</string>
     <string name="show_progress_bar_during_page_load">Loading indicator</string>
@@ -205,6 +206,7 @@
     <string name="text_copied">Text copied</string>
     <string name="image_copied">Image copied</string>
     <string name="image_download_failed">Failed to download image</string>
+    <string name="download_failed">Download failed</string>
     <string name="setting_pull_to_refresh">Pull to refresh</string>
     <string name="setting_disable_screenshots">Block screenshots</string>
     <string name="setting_safe_browsing">Safe browsing</string>

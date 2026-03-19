@@ -11,7 +11,7 @@ import java.net.HttpURLConnection
 import java.net.URL
 import kotlin.concurrent.thread
 
-class ImageCache(
+class FileFetcher(
     private val cacheDir: File,
     private val getWebView: () -> WebView?,
 ) {
@@ -75,8 +75,8 @@ class ImageCache(
             val contentType = conn.contentType?.substringBefore(";")?.trim()
             val ext = contentType?.let {
                 MimeTypeMap.getSingleton().getExtensionFromMimeType(it)
-            } ?: MimeTypeMap.getFileExtensionFromUrl(url).ifEmpty { "jpg" }
-            val name = fileName ?: "image_${System.currentTimeMillis()}.$ext"
+            } ?: MimeTypeMap.getFileExtensionFromUrl(url).ifEmpty { "bin" }
+            val name = fileName ?: "file_${System.currentTimeMillis()}.$ext"
             val file = File(dir, name)
             conn.inputStream.use { input -> file.outputStream().use { input.copyTo(it) } }
             file
@@ -95,7 +95,7 @@ class ImageCache(
         val base64Data = dataUrl.substring(headerEnd + 1)
         val mime = header.removePrefix("data:").removeSuffix(";base64")
         val ext = MimeTypeMap.getSingleton().getExtensionFromMimeType(mime) ?: "bin"
-        val name = fileName ?: "image_${System.currentTimeMillis()}.$ext"
+        val name = fileName ?: "file_${System.currentTimeMillis()}.$ext"
         val file = File(prepareDir(), name)
         return try {
             file.writeBytes(Base64.decode(base64Data, Base64.DEFAULT))
@@ -113,7 +113,7 @@ class ImageCache(
     }
 
     companion object {
-        private const val CACHE_DIR = "shared_images"
+        private const val CACHE_DIR = "shared_files"
         private const val STALE_MS = 5 * 60 * 1000L
     }
 }

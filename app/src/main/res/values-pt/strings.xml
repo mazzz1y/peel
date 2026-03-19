@@ -80,6 +80,7 @@
     <string name="allow_location_access">Localização</string>
     <string name="allow_drm_content">Conteúdo DRM</string>
     <string name="file_download">Baixando arquivo…</string>
+    <string name="permission_prompt_download">Baixar este arquivo?\n\n%1$s</string>
     <string name="icon_update">Atualizar imagem</string>
     <string name="icon_remove">Remover imagem</string>
     <string name="show_progress_bar_during_page_load">Indicador de carregamento</string>
@@ -231,6 +232,7 @@
     <string name="text_copied">Texto copiado</string>
     <string name="image_copied">Imagem copiada</string>
     <string name="image_download_failed">Falha ao baixar imagem</string>
+    <string name="download_failed">Falha no download</string>
     <string name="search">Pesquisar</string>
     <string name="no_search_results">Nenhum app encontrado</string>
     <string name="import_group_share_description">O grupo «%1$s» com %2$d app(s) foi compartilhado com você. Toque no grupo para expandir e escolher os apps a importar:</string>
