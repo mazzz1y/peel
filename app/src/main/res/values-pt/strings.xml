@@ -92,9 +92,7 @@
     <string name="color_scheme_auto">Automático</string>
     <string name="color_scheme_light">Claro</string>
     <string name="color_scheme_dark">Escuro</string>
-    <string name="setting_algorithmic_darkening">Escurecer conteúdo web</string>
-    <string name="end">Fim</string>
-    <string name="begin">Início</string>
+    <string name="setting_force_dark_theme">Forçar tema escuro</string>
     <string name="ssl_errors">Erros SSL</string>
     <string name="ignore_ssl_errors">Ignorar erros SSL</string>
     <string name="webapp_already_deleted">Este Web App foi excluído. Você pode excluir este atalho</string>

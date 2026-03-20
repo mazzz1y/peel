@@ -92,9 +92,7 @@
     <string name="color_scheme_auto">自動</string>
     <string name="color_scheme_light">ライト</string>
     <string name="color_scheme_dark">ダーク</string>
-    <string name="setting_algorithmic_darkening">Webコンテンツを暗くする</string>
-    <string name="end">終了</string>
-    <string name="begin">開始</string>
+    <string name="setting_force_dark_theme">ダークテーマを強制</string>
     <string name="ssl_errors">SSLエラー</string>
     <string name="ignore_ssl_errors">SSLエラーを無視</string>
     <string name="webapp_already_deleted">このウェブアプリは削除されました。このショートカットを削除できます</string>

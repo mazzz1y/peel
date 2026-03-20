@@ -92,9 +92,7 @@
     <string name="color_scheme_auto">自动</string>
     <string name="color_scheme_light">浅色</string>
     <string name="color_scheme_dark">深色</string>
-    <string name="setting_algorithmic_darkening">暗化网页内容</string>
-    <string name="end">结束</string>
-    <string name="begin">开始</string>
+    <string name="setting_force_dark_theme">强制深色主题</string>
     <string name="ssl_errors">SSL 错误</string>
     <string name="ignore_ssl_errors">忽略 SSL 错误</string>
     <string name="webapp_already_deleted">此网页应用已删除。您可以删除此快捷方式</string>

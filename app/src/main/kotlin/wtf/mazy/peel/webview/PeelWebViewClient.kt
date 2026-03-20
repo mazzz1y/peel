@@ -70,7 +70,7 @@ class PeelWebViewClient(private val host: WebViewClientHost) : WebViewClient() {
 
     fun extractDynamicBarColor(view: WebView) {
         if (host.effectiveSettings.isDynamicStatusBar != true) return
-        if (host.isDarkSchemeActive) {
+        if (host.isDarkSchemeActive && host.effectiveSettings.isAlgorithmicDarkening == true) {
             host.updateStatusBarColor(host.themeBackgroundColor)
             return
         }

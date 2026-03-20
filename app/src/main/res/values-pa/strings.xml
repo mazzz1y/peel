@@ -91,9 +91,7 @@
     <string name="color_scheme_auto">ਆਟੋ</string>
     <string name="color_scheme_light">ਹਲਕਾ</string>
     <string name="color_scheme_dark">ਗੂੜ੍ਹਾ</string>
-    <string name="setting_algorithmic_darkening">ਵੈੱਬ ਸਮੱਗਰੀ ਨੂੰ ਗੂੜ੍ਹਾ ਕਰੋ</string>
-    <string name="end">ਅੰਤ</string>
-    <string name="begin">ਸ਼ੁਰੂ</string>
+    <string name="setting_force_dark_theme">ਡਾਰਕ ਥੀਮ ਲਾਗੂ ਕਰੋ</string>
     <string name="ssl_errors">SSL ਗਲਤੀਆਂ</string>
     <string name="ignore_ssl_errors">SSL ਗਲਤੀਆਂ ਅਣਡਿੱਠ ਕਰੋ</string>
     <string name="webapp_already_deleted">ਇਹ ਵੈੱਬ ਐਪ ਮਿਟਾ ਦਿੱਤੀ ਗਈ ਹੈ। ਤੁਸੀਂ ਇਹ ਸ਼ਾਰਟਕੱਟ ਮਿਟਾ ਸਕਦੇ ਹੋ।</string>

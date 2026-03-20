@@ -33,6 +33,9 @@ sealed class SettingDefinition(
         toggle: SettingField,
         @StringRes displayNameResId: Int,
         category: SettingCategory,
+        val valueOff: Int = 0,
+        val valueMid: Int = 1,
+        val valueOn: Int = 2,
         @StringRes val labelOff: Int = R.string.permission_deny,
         @StringRes val labelMid: Int = R.string.permission_ask,
         @StringRes val labelOn: Int = R.string.permission_allow,
@@ -142,7 +145,7 @@ object SettingRegistry {
             ),
             SettingDefinition.BooleanSetting(
                 SettingField(WebAppSettings::isAlgorithmicDarkening, false),
-                R.string.setting_algorithmic_darkening,
+                R.string.setting_force_dark_theme,
                 SettingCategory.APPEARANCE,
             ),
             SettingDefinition.BooleanSetting(

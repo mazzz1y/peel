@@ -92,9 +92,7 @@
     <string name="color_scheme_auto">自動</string>
     <string name="color_scheme_light">淺色</string>
     <string name="color_scheme_dark">深色</string>
-    <string name="setting_algorithmic_darkening">暗化網頁內容</string>
-    <string name="end">結束</string>
-    <string name="begin">開始</string>
+    <string name="setting_force_dark_theme">強制深色主題</string>
     <string name="ssl_errors">SSL 錯誤</string>
     <string name="ignore_ssl_errors">忽略 SSL 錯誤</string>
     <string name="webapp_already_deleted">此網頁應用程式已刪除。您可以刪除此捷徑</string>

@@ -92,9 +92,7 @@
     <string name="color_scheme_auto">Авто</string>
     <string name="color_scheme_light">Светлая</string>
     <string name="color_scheme_dark">Тёмная</string>
-    <string name="setting_algorithmic_darkening">Затемнять содержимое</string>
-    <string name="end">Конец</string>
-    <string name="begin">Начало</string>
+    <string name="setting_force_dark_theme">Принудительная тёмная тема</string>
     <string name="ssl_errors">Ошибки SSL</string>
     <string name="ignore_ssl_errors">Игнорировать ошибки SSL</string>
     <string name="webapp_already_deleted">Это веб-приложение удалено. Вы можете удалить этот ярлык</string>

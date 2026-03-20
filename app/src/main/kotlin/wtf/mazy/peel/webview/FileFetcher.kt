@@ -1,5 +1,6 @@
 package wtf.mazy.peel.webview
 
+import android.net.Uri
 import android.os.Handler
 import android.os.Looper
 import android.util.Base64
@@ -9,7 +10,6 @@ import android.webkit.WebView
 import java.io.File
 import java.net.HttpURLConnection
 import java.net.URL
-import java.net.URLDecoder
 import kotlin.concurrent.thread
 
 class FileFetcher(
@@ -27,11 +27,11 @@ class FileFetcher(
 
     private fun fetchBlob(url: String, fileName: String?, onResult: (File?) -> Unit) {
         val webView = getWebView() ?: run { onResult(null); return }
-        val escapedUrl = url.replace("'", "\\'")
+        val safeUrl = org.json.JSONObject.quote(url)
         val js = """
             (async function() {
                 try {
-                    var r = await fetch('$escapedUrl');
+                    var r = await fetch($safeUrl);
                     var b = await r.blob();
                     return await new Promise(function(ok) {
                         var rd = new FileReader();
@@ -103,7 +103,7 @@ class FileFetcher(
             val bytes = if (isBase64) {
                 Base64.decode(payload, Base64.DEFAULT)
             } else {
-                URLDecoder.decode(payload, "UTF-8").toByteArray()
+                Uri.decode(payload).toByteArray()
             }
             file.writeBytes(bytes)
             file

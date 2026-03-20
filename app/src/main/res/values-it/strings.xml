@@ -75,9 +75,7 @@
     <string name="color_scheme_auto">Automatico</string>
     <string name="color_scheme_light">Chiaro</string>
     <string name="color_scheme_dark">Scuro</string>
-    <string name="setting_algorithmic_darkening">Scurisci contenuto web</string>
-    <string name="end">Fine</string>
-    <string name="begin">Inizio</string>
+    <string name="setting_force_dark_theme">Forza tema scuro</string>
     <string name="ssl_errors">Errori SSL</string>
     <string name="ignore_ssl_errors">Ignorare errori SSL</string>
     <string name="webapp_already_deleted">Questa Web App non è più disponibile. È possibile eliminare questo collegamento</string>

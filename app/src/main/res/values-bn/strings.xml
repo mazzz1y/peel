@@ -92,9 +92,7 @@
     <string name="color_scheme_auto">স্বয়ংক্রিয়</string>
     <string name="color_scheme_light">হালকা</string>
     <string name="color_scheme_dark">গাঢ়</string>
-    <string name="setting_algorithmic_darkening">ওয়েব বিষয়বস্তু অন্ধকার করুন</string>
-    <string name="end">শেষ</string>
-    <string name="begin">শুরু</string>
+    <string name="setting_force_dark_theme">ডার্ক থিম বাধ্যতামূলক করুন</string>
     <string name="ssl_errors">SSL ত্রুটি</string>
     <string name="ignore_ssl_errors">SSL ত্রুটি উপেক্ষা করুন</string>
     <string name="webapp_already_deleted">এই ওয়েব অ্যাপটি মুছে ফেলা হয়েছে। আপনি এই শর্টকাটটি মুছতে পারেন।</string>

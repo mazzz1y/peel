@@ -397,7 +397,13 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     }
 
     override val isDarkSchemeActive: Boolean
-        get() = getDelegate().localNightMode == AppCompatDelegate.MODE_NIGHT_YES
+        get() {
+            val mode = getDelegate().localNightMode
+            if (mode == AppCompatDelegate.MODE_NIGHT_YES) return true
+            if (mode == AppCompatDelegate.MODE_NIGHT_NO) return false
+            val uiMode = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
+            return uiMode == Configuration.UI_MODE_NIGHT_YES
+        }
 
     @SuppressLint("RequiresFeature")
     override fun applyColorScheme() {
@@ -412,8 +418,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         }
         getDelegate().localNightMode = nightMode
 
-        val isDark = nightMode == AppCompatDelegate.MODE_NIGHT_YES
-        currentWebView.setBackgroundColor(if (isDark) Color.BLACK else Color.WHITE)
+        currentWebView.setBackgroundColor(if (isDarkSchemeActive) Color.BLACK else Color.WHITE)
 
         val darkenContent = settings.isAlgorithmicDarkening == true
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {

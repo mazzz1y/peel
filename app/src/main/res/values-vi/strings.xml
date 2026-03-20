@@ -92,9 +92,7 @@
     <string name="color_scheme_auto">Tự động</string>
     <string name="color_scheme_light">Sáng</string>
     <string name="color_scheme_dark">Tối</string>
-    <string name="setting_algorithmic_darkening">Làm tối nội dung web</string>
-    <string name="end">Kết thúc</string>
-    <string name="begin">Bắt đầu</string>
+    <string name="setting_force_dark_theme">Buộc giao diện tối</string>
     <string name="ssl_errors">Lỗi SSL</string>
     <string name="ignore_ssl_errors">Bỏ qua lỗi SSL</string>
     <string name="webapp_already_deleted">Ứng dụng web này đã bị xóa. Bạn có thể xóa lối tắt này</string>

@@ -115,16 +115,16 @@ class SettingViewFactory(
             context.getString(setting.labelOn),
         )
         val values = intArrayOf(
-            WebAppSettings.PERMISSION_OFF,
-            WebAppSettings.PERMISSION_ASK,
-            WebAppSettings.PERMISSION_ON,
+            setting.valueOff,
+            setting.valueMid,
+            setting.valueOn,
         )
 
         fun labelForValue(value: Int): String =
             labels[values.indexOf(value).coerceAtLeast(0)]
 
         fun syncUi() {
-            val current = settings.getValue(setting.key) as? Int ?: WebAppSettings.PERMISSION_OFF
+            val current = settings.getValue(setting.key) as? Int ?: setting.valueOff
             txtValue.text = labelForValue(current)
         }
 
