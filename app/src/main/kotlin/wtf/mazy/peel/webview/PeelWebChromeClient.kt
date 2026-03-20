@@ -150,49 +150,54 @@ class PeelWebChromeClient(private val host: ChromeClientHost) : WebChromeClient(
         origin: String?,
         callback: GeolocationPermissions.Callback?,
     ) {
-        val state = host.effectiveSettings.isAllowLocationAccess
-        when (state) {
-            WebAppSettings.PERMISSION_ON -> grantLocation(origin, callback)
-            WebAppSettings.PERMISSION_ASK -> {
-                when (GEOLOCATION_KEY) {
-                    in pageDenied ->
-                        callback?.invoke(origin, false, false)
-
-                    in pageGranted ->
-                        grantLocation(origin, callback)
-
-                    else -> {
-                        host.showPermissionDialog(
-                            host.getString(R.string.permission_prompt_location, trimmedName)
-                        ) { result ->
-                            when (result) {
-                                PermissionResult.ALLOW -> {
-                                    pageGranted.add(GEOLOCATION_KEY)
-                                    grantLocation(origin, callback)
-                                }
-
-                                PermissionResult.DENY -> {
-                                    pageDenied.add(GEOLOCATION_KEY)
-                                    callback?.invoke(origin, false, false)
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            else -> callback?.invoke(origin, false, false)
+        val pending = mutableListOf<PendingPermission>()
+        handleTriState(
+            host.effectiveSettings.isAllowLocationAccess,
+            listOf(
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION,
+            ),
+            GEOLOCATION_KEY,
+            R.string.permission_prompt_location,
+            pending,
+        )
+        resolveSinglePermission(pending.firstOrNull()) { granted ->
+            callback?.invoke(origin, granted, false)
         }
     }
 
-    private fun grantLocation(origin: String?, callback: GeolocationPermissions.Callback?) {
-        val permissions =
-            listOf(
-                Manifest.permission.ACCESS_COARSE_LOCATION,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            )
-        ensureOsPermission(permissions) { granted ->
-            callback?.invoke(origin, granted, false)
+    private fun resolveSinglePermission(
+        permission: PendingPermission?,
+        onResult: (Boolean) -> Unit,
+    ) {
+        if (permission == null) {
+            onResult(false)
+            return
+        }
+        if (permission.skipInAppDialog) {
+            ensureOsPermission(permission.androidPermissions, onResult)
+            return
+        }
+        ensureOsPermission(permission.androidPermissions) { osGranted ->
+            if (!osGranted) {
+                onResult(false)
+                return@ensureOsPermission
+            }
+            host.showPermissionDialog(
+                host.getString(permission.promptResId, trimmedName)
+            ) { result ->
+                when (result) {
+                    PermissionResult.ALLOW -> {
+                        pageGranted.add(permission.webkitPermission)
+                        onResult(true)
+                    }
+
+                    PermissionResult.DENY -> {
+                        pageDenied.add(permission.webkitPermission)
+                        onResult(false)
+                    }
+                }
+            }
         }
     }
 
