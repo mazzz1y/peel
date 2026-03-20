@@ -10,6 +10,7 @@ import android.text.SpannableString
 import android.text.Spanned
 import android.text.style.TypefaceSpan
 import android.webkit.CookieManager
+import android.webkit.WebSettings
 import android.webkit.WebView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -87,7 +88,9 @@ class DownloadHandler(
             if (url.startsWith("blob:") || url.startsWith("data:")) {
                 downloadViaFetcher(url, fileName)
             } else {
-                val ua = userAgent ?: getWebView()?.settings?.userAgentString ?: ""
+                val ua = userAgent
+                ?: getWebView()?.settings?.userAgentString
+                ?: WebSettings.getDefaultUserAgent(activity)
                 enqueueHttpDownload(url, ua, mimeType, fileName)
             }
         }
@@ -142,7 +145,7 @@ class DownloadHandler(
         val request = try {
             DownloadManager.Request(url.toUri())
         } catch (_: Exception) {
-            showToast(activity, activity.getString(R.string.file_download))
+            showToast(activity, activity.getString(R.string.download_failed))
             return
         }
 
