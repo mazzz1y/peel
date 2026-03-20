@@ -223,6 +223,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         cachedSettings = DataManager.instance.resolveEffectiveSettings(webapp)
         webView?.onResume()
         webView?.resumeTimers()
+        configureCookies(effectiveSettings)
         mediaPlaybackManager?.setBackground(false)
         if (webView != null) setDarkModeIfNeeded()
 
