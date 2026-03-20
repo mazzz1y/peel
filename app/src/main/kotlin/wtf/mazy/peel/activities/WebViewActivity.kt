@@ -161,6 +161,10 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
 
+        val initialColor = themeBackgroundColor
+        window.statusBarColor = initialColor
+        window.navigationBarColor = initialColor
+
         webappUuid = intent.getStringExtra(Const.INTENT_WEBAPP_UUID)
         ensureDataReady(webappUuid, forceReload = false) {
             continueStartupAfterDataReady()
