@@ -9,6 +9,7 @@ import android.webkit.WebView
 import java.io.File
 import java.net.HttpURLConnection
 import java.net.URL
+import java.net.URLDecoder
 import kotlin.concurrent.thread
 
 class FileFetcher(
@@ -92,13 +93,19 @@ class FileFetcher(
         val headerEnd = dataUrl.indexOf(",")
         if (headerEnd < 0) return null
         val header = dataUrl.take(headerEnd)
-        val base64Data = dataUrl.substring(headerEnd + 1)
-        val mime = header.removePrefix("data:").removeSuffix(";base64")
+        val payload = dataUrl.substring(headerEnd + 1)
+        val isBase64 = header.contains(";base64")
+        val mime = header.removePrefix("data:").replace(";base64", "")
         val ext = MimeTypeMap.getSingleton().getExtensionFromMimeType(mime) ?: "bin"
         val name = fileName ?: "file_${System.currentTimeMillis()}.$ext"
         val file = File(prepareDir(), name)
         return try {
-            file.writeBytes(Base64.decode(base64Data, Base64.DEFAULT))
+            val bytes = if (isBase64) {
+                Base64.decode(payload, Base64.DEFAULT)
+            } else {
+                URLDecoder.decode(payload, "UTF-8").toByteArray()
+            }
+            file.writeBytes(bytes)
             file
         } catch (_: Exception) {
             file.delete()
