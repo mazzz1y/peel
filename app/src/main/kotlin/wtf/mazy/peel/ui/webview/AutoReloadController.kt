@@ -10,6 +10,7 @@ class AutoReloadController(
     private var pendingRunnable: Runnable? = null
 
     fun start(settings: WebAppSettings) {
+        stop()
         if (settings.isAutoReload != true) return
         val interval = settings.timeAutoReload?.coerceAtLeast(1) ?: return
         val runnable = Runnable {
