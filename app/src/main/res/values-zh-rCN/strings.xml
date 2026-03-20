@@ -88,11 +88,13 @@
     <string name="webapp_interval_for_reload">间隔（秒）</string>
     <string name="webapp_autoreload_switch">定期刷新页面</string>
     <string name="name">名称</string>
-    <string name="force_dark_mode">深色模式</string>
+    <string name="setting_color_scheme">配色方案</string>
+    <string name="color_scheme_auto">自动</string>
+    <string name="color_scheme_light">浅色</string>
+    <string name="color_scheme_dark">深色</string>
+    <string name="setting_algorithmic_darkening">暗化网页内容</string>
     <string name="end">结束</string>
     <string name="begin">开始</string>
-    <string name="limit_dark_mode_to_time_span">深色模式时间段</string>
-    <string name="dark_mode">深色模式</string>
     <string name="ssl_errors">SSL 错误</string>
     <string name="ignore_ssl_errors">忽略 SSL 错误</string>
     <string name="webapp_already_deleted">此网页应用已删除。您可以删除此快捷方式</string>

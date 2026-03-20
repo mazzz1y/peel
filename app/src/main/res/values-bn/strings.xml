@@ -88,11 +88,13 @@
     <string name="webapp_interval_for_reload">ব্যবধান (সেকেন্ড)</string>
     <string name="webapp_autoreload_switch">নিয়মিত পৃষ্ঠা রিফ্রেশ করুন</string>
     <string name="name">নাম</string>
-    <string name="force_dark_mode">ডার্ক মোড</string>
+    <string name="setting_color_scheme">রঙের স্কিম</string>
+    <string name="color_scheme_auto">স্বয়ংক্রিয়</string>
+    <string name="color_scheme_light">হালকা</string>
+    <string name="color_scheme_dark">গাঢ়</string>
+    <string name="setting_algorithmic_darkening">ওয়েব বিষয়বস্তু অন্ধকার করুন</string>
     <string name="end">শেষ</string>
     <string name="begin">শুরু</string>
-    <string name="limit_dark_mode_to_time_span">ডার্ক মোড সময়সূচি</string>
-    <string name="dark_mode">ডার্ক মোড</string>
     <string name="ssl_errors">SSL ত্রুটি</string>
     <string name="ignore_ssl_errors">SSL ত্রুটি উপেক্ষা করুন</string>
     <string name="webapp_already_deleted">এই ওয়েব অ্যাপটি মুছে ফেলা হয়েছে। আপনি এই শর্টকাটটি মুছতে পারেন।</string>

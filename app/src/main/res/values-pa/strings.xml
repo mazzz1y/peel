@@ -87,11 +87,13 @@
     <string name="webapp_interval_for_reload">ਅੰਤਰਾਲ (ਸਕਿੰਟ)</string>
     <string name="webapp_autoreload_switch">ਨਿਯਮਿਤ ਤੌਰ \'ਤੇ ਪੰਨਾ ਤਾਜ਼ਾ ਕਰੋ</string>
     <string name="name">ਨਾਮ</string>
-    <string name="force_dark_mode">ਡਾਰਕ ਮੋਡ</string>
+    <string name="setting_color_scheme">ਰੰਗ ਸਕੀਮ</string>
+    <string name="color_scheme_auto">ਆਟੋ</string>
+    <string name="color_scheme_light">ਹਲਕਾ</string>
+    <string name="color_scheme_dark">ਗੂੜ੍ਹਾ</string>
+    <string name="setting_algorithmic_darkening">ਵੈੱਬ ਸਮੱਗਰੀ ਨੂੰ ਗੂੜ੍ਹਾ ਕਰੋ</string>
     <string name="end">ਅੰਤ</string>
     <string name="begin">ਸ਼ੁਰੂ</string>
-    <string name="limit_dark_mode_to_time_span">ਡਾਰਕ ਮੋਡ ਸਮਾਂ-ਸੂਚੀ</string>
-    <string name="dark_mode">ਡਾਰਕ ਮੋਡ</string>
     <string name="ssl_errors">SSL ਗਲਤੀਆਂ</string>
     <string name="ignore_ssl_errors">SSL ਗਲਤੀਆਂ ਅਣਡਿੱਠ ਕਰੋ</string>
     <string name="webapp_already_deleted">ਇਹ ਵੈੱਬ ਐਪ ਮਿਟਾ ਦਿੱਤੀ ਗਈ ਹੈ। ਤੁਸੀਂ ਇਹ ਸ਼ਾਰਟਕੱਟ ਮਿਟਾ ਸਕਦੇ ਹੋ।</string>

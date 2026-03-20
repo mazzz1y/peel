@@ -33,6 +33,9 @@ sealed class SettingDefinition(
         toggle: SettingField,
         @StringRes displayNameResId: Int,
         category: SettingCategory,
+        @StringRes val labelOff: Int = R.string.permission_deny,
+        @StringRes val labelMid: Int = R.string.permission_ask,
+        @StringRes val labelOn: Int = R.string.permission_allow,
     ) : SettingDefinition(toggle, displayNameResId, category)
 
     class BooleanWithIntSetting(
@@ -43,17 +46,6 @@ sealed class SettingDefinition(
     ) : SettingDefinition(toggle, displayNameResId, category) {
         override val allFields
             get() = listOf(toggle, intField)
-    }
-
-    class TimeRangeSetting(
-        toggle: SettingField,
-        @StringRes displayNameResId: Int,
-        category: SettingCategory,
-        val start: SettingField,
-        val end: SettingField,
-    ) : SettingDefinition(toggle, displayNameResId, category) {
-        override val allFields
-            get() = listOf(toggle, start, end)
     }
 
     class StringMapSetting(
@@ -140,17 +132,18 @@ object SettingRegistry {
                 R.string.show_fullscreen,
                 SettingCategory.APPEARANCE,
             ),
-            SettingDefinition.BooleanSetting(
-                SettingField(WebAppSettings::isForceDarkMode, false),
-                R.string.force_dark_mode,
+            SettingDefinition.TriStateSetting(
+                SettingField(WebAppSettings::colorScheme, WebAppSettings.COLOR_SCHEME_AUTO),
+                R.string.setting_color_scheme,
                 SettingCategory.APPEARANCE,
+                labelOff = R.string.color_scheme_auto,
+                labelMid = R.string.color_scheme_light,
+                labelOn = R.string.color_scheme_dark,
             ),
-            SettingDefinition.TimeRangeSetting(
-                SettingField(WebAppSettings::isUseTimespanDarkMode, false),
-                R.string.limit_dark_mode_to_time_span,
+            SettingDefinition.BooleanSetting(
+                SettingField(WebAppSettings::isAlgorithmicDarkening, false),
+                R.string.setting_algorithmic_darkening,
                 SettingCategory.APPEARANCE,
-                start = SettingField(WebAppSettings::timespanDarkModeBegin, "22:00"),
-                end = SettingField(WebAppSettings::timespanDarkModeEnd, "06:00"),
             ),
             SettingDefinition.BooleanSetting(
                 SettingField(WebAppSettings::isEnableZooming, false),

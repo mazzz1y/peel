@@ -70,7 +70,7 @@ class PeelWebViewClient(private val host: WebViewClientHost) : WebViewClient() {
 
     fun extractDynamicBarColor(view: WebView) {
         if (host.effectiveSettings.isDynamicStatusBar != true) return
-        if (host.isForceDarkActive) {
+        if (host.isDarkSchemeActive) {
             host.updateStatusBarColor(host.themeBackgroundColor)
             return
         }
@@ -142,7 +142,7 @@ class PeelWebViewClient(private val host: WebViewClientHost) : WebViewClient() {
     }
 
     override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
-        host.runOnUi { host.setDarkModeIfNeeded() }
+        host.runOnUi { host.applyColorScheme() }
         val url = request.url.toString()
         val settings = host.effectiveSettings
 

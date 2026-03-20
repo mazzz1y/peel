@@ -71,11 +71,13 @@
     <string name="webapp_interval_for_reload">Intervalo en segundos</string>
     <string name="webapp_autoreload_switch">Actualizar la página regularmente</string>
     <string name="name">Nombre</string>
-    <string name="force_dark_mode">Forzar el modo oscuro</string>
+    <string name="setting_color_scheme">Esquema de colores</string>
+    <string name="color_scheme_auto">Automático</string>
+    <string name="color_scheme_light">Claro</string>
+    <string name="color_scheme_dark">Oscuro</string>
+    <string name="setting_algorithmic_darkening">Oscurecer contenido web</string>
     <string name="end">Final</string>
     <string name="begin">Inicio</string>
-    <string name="limit_dark_mode_to_time_span">Limitar el modo oscuro a un intervalo de tiempo</string>
-    <string name="dark_mode">Modo oscuro</string>
     <string name="ssl_errors">Errores SSL</string>
     <string name="ignore_ssl_errors">Ignorar los errores de SSL</string>
     <string name="webapp_already_deleted">Esta aplicación web ya no está disponible. Puede eliminar este acceso directo</string>

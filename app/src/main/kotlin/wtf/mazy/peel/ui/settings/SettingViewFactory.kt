@@ -6,20 +6,15 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.inputmethod.EditorInfo
-import android.widget.Button
 import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.PopupMenu
 import android.widget.TextView
-import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.materialswitch.MaterialSwitch
 import com.google.android.material.textfield.TextInputEditText
-import com.google.android.material.timepicker.MaterialTimePicker
-import com.google.android.material.timepicker.TimeFormat
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.SettingDefinition
 import wtf.mazy.peel.model.WebAppSettings
-import java.util.Locale
 
 class SettingViewFactory(
     private val inflater: LayoutInflater,
@@ -50,11 +45,6 @@ class SettingViewFactory(
             is SettingDefinition.BooleanWithIntSetting ->
                 inflate(R.layout.item_setting_boolean_int, container) {
                     setupBooleanWithInt(it, setting, settings)
-                }
-
-            is SettingDefinition.TimeRangeSetting ->
-                inflate(R.layout.item_setting_time_range, container) {
-                    setupTimeRange(it, setting, settings)
                 }
 
             is SettingDefinition.StringMapSetting ->
@@ -120,9 +110,9 @@ class SettingViewFactory(
         textName.text = context.getString(setting.displayNameResId)
 
         val labels = arrayOf(
-            context.getString(R.string.permission_deny),
-            context.getString(R.string.permission_ask),
-            context.getString(R.string.permission_allow),
+            context.getString(setting.labelOff),
+            context.getString(setting.labelMid),
+            context.getString(setting.labelOn),
         )
         val values = intArrayOf(
             WebAppSettings.PERMISSION_OFF,
@@ -248,84 +238,7 @@ class SettingViewFactory(
         }
     }
 
-    private fun setupTimeRange(
-        view: View,
-        setting: SettingDefinition.TimeRangeSetting,
-        settings: WebAppSettings,
-    ) {
-        val textName = view.findViewById<TextView>(R.id.textSettingName)
-        val switch = view.findViewById<MaterialSwitch>(R.id.switchSetting)
-        val btnRemove = view.findViewById<ImageButton>(R.id.btnRemoveOverride)
-        val btnUndo = view.findViewById<ImageButton>(R.id.btnUndo)
-        val layout = view.findViewById<View>(R.id.layoutTimeRange)
-        val btnStart = view.findViewById<Button>(R.id.btnTimeStart)
-        val btnEnd = view.findViewById<Button>(R.id.btnTimeEnd)
 
-        val startKey = setting.start.key
-        val endKey = setting.end.key
-
-        textName.text = view.context.getString(setting.displayNameResId)
-        val boolValue = settings.getValue(setting.key) as? Boolean ?: false
-        val startTime = settings.getValue(startKey) as? String
-        val endTime = settings.getValue(endKey) as? String
-
-        switch.isChecked = boolValue
-        btnStart.text = startTime ?: "00:00"
-        btnEnd.text = endTime ?: "00:00"
-        layout.visibility = if (boolValue) View.VISIBLE else View.GONE
-
-        val switchListener = { _: android.widget.CompoundButton?, isChecked: Boolean ->
-            settings.setValue(setting.key, isChecked)
-            layout.visibility = if (isChecked) View.VISIBLE else View.GONE
-            updateUndoVisibility(btnUndo, setting, settings)
-        }
-
-        configureButtons(btnRemove, btnUndo, setting, settings) {
-            switch.setOnCheckedChangeListener(null)
-
-            val newBool = settings.getValue(setting.key) as? Boolean ?: false
-            val newStart = settings.getValue(startKey) as? String
-            val newEnd = settings.getValue(endKey) as? String
-            switch.isChecked = newBool
-            btnStart.text = newStart ?: "00:00"
-            btnEnd.text = newEnd ?: "00:00"
-            layout.visibility = if (newBool) View.VISIBLE else View.GONE
-
-            switch.setOnCheckedChangeListener(switchListener)
-        }
-
-        switch.setOnCheckedChangeListener(switchListener)
-
-        val activity = view.context as? AppCompatActivity ?: return
-
-        btnStart.setOnClickListener {
-            val parts = btnStart.text.toString().split(":")
-            showMaterialTimePicker(
-                activity,
-                parts.getOrNull(0)?.toIntOrNull() ?: 0,
-                parts.getOrNull(1)?.toIntOrNull() ?: 0,
-            ) { h, m ->
-                val time = String.format(Locale.ROOT, "%02d:%02d", h, m)
-                btnStart.text = time
-                settings.setValue(startKey, time)
-                updateUndoVisibility(btnUndo, setting, settings)
-            }
-        }
-
-        btnEnd.setOnClickListener {
-            val parts = btnEnd.text.toString().split(":")
-            showMaterialTimePicker(
-                activity,
-                parts.getOrNull(0)?.toIntOrNull() ?: 0,
-                parts.getOrNull(1)?.toIntOrNull() ?: 0,
-            ) { h, m ->
-                val time = String.format(Locale.ROOT, "%02d:%02d", h, m)
-                btnEnd.text = time
-                settings.setValue(endKey, time)
-                updateUndoVisibility(btnUndo, setting, settings)
-            }
-        }
-    }
 
     private fun setupHeaderMap(
         view: View,
@@ -553,19 +466,4 @@ class SettingViewFactory(
         setting.allFields.forEach { field -> settings.setValue(field.key, field.defaultValue) }
     }
 
-    private fun showMaterialTimePicker(
-        activity: AppCompatActivity,
-        hour: Int,
-        minute: Int,
-        onTimeSelected: (Int, Int) -> Unit,
-    ) {
-        val picker =
-            MaterialTimePicker.Builder()
-                .setTimeFormat(TimeFormat.CLOCK_24H)
-                .setHour(hour)
-                .setMinute(minute)
-                .build()
-        picker.addOnPositiveButtonClickListener { onTimeSelected(picker.hour, picker.minute) }
-        picker.show(activity.supportFragmentManager, "time_picker")
-    }
 }

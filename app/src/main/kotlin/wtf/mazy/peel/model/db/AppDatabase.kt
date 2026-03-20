@@ -25,7 +25,7 @@ class StringMapConverter {
 
 @Database(
     entities = [WebAppEntity::class, SandboxSlotEntity::class, WebAppGroupEntity::class],
-    version = 7,
+    version = 8,
     exportSchema = true,
 )
 @TypeConverters(StringMapConverter::class)
@@ -151,6 +151,23 @@ abstract class AppDatabase : RoomDatabase() {
                 }
             }
 
+        val MIGRATION_7_8 =
+            object : Migration(7, 8) {
+                override fun migrate(db: SupportSQLiteDatabase) {
+                    for (table in listOf("webapps", "webapp_groups")) {
+                        db.execSQL(
+                            "ALTER TABLE $table ADD COLUMN colorScheme INTEGER DEFAULT NULL"
+                        )
+                        db.execSQL(
+                            "ALTER TABLE $table ADD COLUMN isAlgorithmicDarkening INTEGER DEFAULT NULL"
+                        )
+                        db.execSQL(
+                            "UPDATE $table SET colorScheme = 2, isAlgorithmicDarkening = 1 WHERE isForceDarkMode = 1"
+                        )
+                    }
+                }
+            }
+
         fun getInstance(context: Context): AppDatabase {
             return instance
                 ?: synchronized(this) { instance ?: buildDatabase(context).also { instance = it } }
@@ -169,6 +186,7 @@ abstract class AppDatabase : RoomDatabase() {
                     MIGRATION_4_5,
                     MIGRATION_5_6,
                     MIGRATION_6_7,
+                    MIGRATION_7_8,
                 )
                 .allowMainThreadQueries()
                 .build()

@@ -93,11 +93,11 @@
     <string name="webapp_interval_for_reload">Interval in seconds</string>
     <string name="webapp_autoreload_switch">Refresh page regularly</string>
     <string name="name">Name</string>
-    <string name="force_dark_mode">Dark mode</string>
-    <string name="end">End</string>
-    <string name="begin">Begin</string>
-    <string name="limit_dark_mode_to_time_span">Dark mode schedule</string>
-    <string name="dark_mode">Dark Mode</string>
+    <string name="setting_color_scheme">Color scheme</string>
+    <string name="color_scheme_auto">Auto</string>
+    <string name="color_scheme_light">Light</string>
+    <string name="color_scheme_dark">Dark</string>
+    <string name="setting_algorithmic_darkening">Darken web content</string>
     <string name="ssl_errors">SSL Errors</string>
     <string name="ignore_ssl_errors">Ignore SSL errors</string>
     <string name="webapp_already_deleted">This Web App is no longer available. You can delete this shortcut</string>

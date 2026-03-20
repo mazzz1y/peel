@@ -55,8 +55,6 @@ import wtf.mazy.peel.ui.webview.BiometricUnlockController
 import wtf.mazy.peel.ui.webview.LaunchOverlayController
 import wtf.mazy.peel.ui.webview.SystemBarController
 import wtf.mazy.peel.util.Const
-import wtf.mazy.peel.util.DateUtils.convertStringToCalendar
-import wtf.mazy.peel.util.DateUtils.isInInterval
 import wtf.mazy.peel.util.HostIdentity
 import wtf.mazy.peel.util.NotificationUtils
 import wtf.mazy.peel.util.WebViewLauncher
@@ -71,7 +69,6 @@ import wtf.mazy.peel.webview.PeelWebViewClient
 import wtf.mazy.peel.webview.PermissionResult
 import wtf.mazy.peel.webview.WebViewClientHost
 import wtf.mazy.peel.webview.WebViewContextMenu
-import java.util.Calendar
 
 open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClientHost {
     override var webappUuid: String? = null
@@ -225,7 +222,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         webView?.resumeTimers()
         configureCookies(effectiveSettings)
         mediaPlaybackManager?.setBackground(false)
-        if (webView != null) setDarkModeIfNeeded()
+        if (webView != null) applyColorScheme()
 
         if (effectiveSettings.isShowNotification == true && floatingControls == null) {
             floatingControls = FloatingControlsView(
@@ -291,7 +288,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
-        setDarkModeIfNeeded()
+        applyColorScheme()
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -399,45 +396,34 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         }
     }
 
-    override val isForceDarkActive: Boolean
+    override val isDarkSchemeActive: Boolean
         get() = getDelegate().localNightMode == AppCompatDelegate.MODE_NIGHT_YES
 
     @SuppressLint("RequiresFeature")
-    override fun setDarkModeIfNeeded() {
+    override fun applyColorScheme() {
+        val currentWebView = webView ?: return
         val settings = effectiveSettings
-        val isInDarkModeTimespan =
-            if (settings.isUseTimespanDarkMode == true) {
-                val begin = convertStringToCalendar(settings.timespanDarkModeBegin)
-                val end = convertStringToCalendar(settings.timespanDarkModeEnd)
-                if (begin != null && end != null) isInInterval(begin, Calendar.getInstance(), end)
-                else false
-            } else false
+        val scheme = settings.colorScheme ?: WebAppSettings.COLOR_SCHEME_AUTO
 
-        val needsForcedDarkMode =
-            isInDarkModeTimespan ||
-                    (settings.isUseTimespanDarkMode != true && settings.isForceDarkMode == true)
+        val nightMode = when (scheme) {
+            WebAppSettings.COLOR_SCHEME_LIGHT -> AppCompatDelegate.MODE_NIGHT_NO
+            WebAppSettings.COLOR_SCHEME_DARK -> AppCompatDelegate.MODE_NIGHT_YES
+            else -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
+        }
+        getDelegate().localNightMode = nightMode
 
+        val isDark = nightMode == AppCompatDelegate.MODE_NIGHT_YES
+        currentWebView.setBackgroundColor(if (isDark) Color.BLACK else Color.WHITE)
+
+        val darkenContent = settings.isAlgorithmicDarkening == true
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            val isAlgorithmicDarkeningSupported =
-                WebViewFeature.isFeatureSupported(WebViewFeature.ALGORITHMIC_DARKENING)
-            val currentWebView = webView ?: return
-
-            if (needsForcedDarkMode) {
-                currentWebView.setBackgroundColor(Color.BLACK)
+            @Suppress("DEPRECATION")
+            currentWebView.isForceDarkAllowed = darkenContent
+            if (WebViewFeature.isFeatureSupported(WebViewFeature.ALGORITHMIC_DARKENING)) {
                 @Suppress("DEPRECATION")
-                currentWebView.isForceDarkAllowed = true
-                getDelegate().localNightMode = AppCompatDelegate.MODE_NIGHT_YES
-                if (isAlgorithmicDarkeningSupported) {
-                    @Suppress("DEPRECATION")
-                    WebSettingsCompat.setAlgorithmicDarkeningAllowed(currentWebView.settings, true)
-                }
-            } else {
-                currentWebView.setBackgroundColor(Color.WHITE)
-                getDelegate().localNightMode = AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
-                if (isAlgorithmicDarkeningSupported) {
-                    @Suppress("DEPRECATION")
-                    WebSettingsCompat.setAlgorithmicDarkeningAllowed(currentWebView.settings, false)
-                }
+                WebSettingsCompat.setAlgorithmicDarkeningAllowed(
+                    currentWebView.settings, darkenContent
+                )
             }
         }
     }
@@ -602,7 +588,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
             false
         )
         configureWebViewSettings(settings)
-        setDarkModeIfNeeded()
+        applyColorScheme()
         configureCookies(settings)
         configureZoom(settings)
 

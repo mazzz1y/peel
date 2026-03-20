@@ -71,11 +71,13 @@
     <string name="webapp_interval_for_reload">Intervallo in secondi</string>
     <string name="webapp_autoreload_switch">Aggiornare regolarmente la pagina</string>
     <string name="name">Nome</string>
-    <string name="force_dark_mode">Forza Tema scuro</string>
+    <string name="setting_color_scheme">Combinazione colori</string>
+    <string name="color_scheme_auto">Automatico</string>
+    <string name="color_scheme_light">Chiaro</string>
+    <string name="color_scheme_dark">Scuro</string>
+    <string name="setting_algorithmic_darkening">Scurisci contenuto web</string>
     <string name="end">Fine</string>
     <string name="begin">Inizio</string>
-    <string name="limit_dark_mode_to_time_span">Limita il tema scuro all\'intervallo di tempo</string>
-    <string name="dark_mode">Tema Scuro</string>
     <string name="ssl_errors">Errori SSL</string>
     <string name="ignore_ssl_errors">Ignorare errori SSL</string>
     <string name="webapp_already_deleted">Questa Web App non è più disponibile. È possibile eliminare questo collegamento</string>

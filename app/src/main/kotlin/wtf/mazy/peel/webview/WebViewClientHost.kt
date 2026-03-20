@@ -6,7 +6,7 @@ import wtf.mazy.peel.model.WebAppSettings
 
 interface WebViewClientHost {
     val effectiveSettings: WebAppSettings
-    val isForceDarkActive: Boolean
+    val isDarkSchemeActive: Boolean
     val baseUrl: String
     val webappUuid: String?
     val navigationStartPoint: NavigationStartPoint
@@ -17,7 +17,7 @@ interface WebViewClientHost {
 
     fun showHttpAuthDialog(handler: HttpAuthHandler, host: String?, realm: String?)
 
-    fun setDarkModeIfNeeded()
+    fun applyColorScheme()
 
     fun loadURL(url: String)
 

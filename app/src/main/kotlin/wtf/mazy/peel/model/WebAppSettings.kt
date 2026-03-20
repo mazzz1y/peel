@@ -17,10 +17,8 @@ data class WebAppSettings(
     var customHeaders: MutableMap<String, String>? = null,
     var isAutoReload: Boolean? = null,
     var timeAutoReload: Int? = null,
-    var isForceDarkMode: Boolean? = null,
-    var isUseTimespanDarkMode: Boolean? = null,
-    var timespanDarkModeBegin: String? = null,
-    var timespanDarkModeEnd: String? = null,
+    var colorScheme: Int? = null,
+    var isAlgorithmicDarkening: Boolean? = null,
     var isIgnoreSslErrors: Boolean? = null,
     var isBlockThirdPartyRequests: Boolean? = null,
     var isDrmAllowed: Boolean? = null,
@@ -47,6 +45,10 @@ data class WebAppSettings(
         const val PERMISSION_OFF = 0
         const val PERMISSION_ASK = 1
         const val PERMISSION_ON = 2
+
+        const val COLOR_SCHEME_AUTO = 0
+        const val COLOR_SCHEME_LIGHT = 1
+        const val COLOR_SCHEME_DARK = 2
 
         @Suppress("UNCHECKED_CAST")
         private val PROPERTY_MAP: Map<String, KMutableProperty1<WebAppSettings, Any?>> by lazy {

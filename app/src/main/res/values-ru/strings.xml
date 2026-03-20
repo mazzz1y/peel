@@ -88,11 +88,13 @@
     <string name="webapp_interval_for_reload">Интервал в секундах</string>
     <string name="webapp_autoreload_switch">Обновлять страницу регулярно</string>
     <string name="name">Название</string>
-    <string name="force_dark_mode">Тёмная тема</string>
+    <string name="setting_color_scheme">Цветовая схема</string>
+    <string name="color_scheme_auto">Авто</string>
+    <string name="color_scheme_light">Светлая</string>
+    <string name="color_scheme_dark">Тёмная</string>
+    <string name="setting_algorithmic_darkening">Затемнять содержимое</string>
     <string name="end">Конец</string>
     <string name="begin">Начало</string>
-    <string name="limit_dark_mode_to_time_span">Расписание тёмной темы</string>
-    <string name="dark_mode">Тёмная тема</string>
     <string name="ssl_errors">Ошибки SSL</string>
     <string name="ignore_ssl_errors">Игнорировать ошибки SSL</string>
     <string name="webapp_already_deleted">Это веб-приложение удалено. Вы можете удалить этот ярлык</string>
