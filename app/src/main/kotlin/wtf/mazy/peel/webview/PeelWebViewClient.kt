@@ -23,11 +23,13 @@ class PeelWebViewClient(private val host: WebViewClientHost) : WebViewClient() {
 
     private val autoAuthAttempted = mutableSetOf<String>()
     private var appLinkDialogShowing = false
+    private var mainFrameError = false
 
     override fun onPageStarted(view: WebView?, url: String?, favicon: android.graphics.Bitmap?) {
         super.onPageStarted(view, url, favicon)
         autoAuthAttempted.clear()
         appLinkDialogShowing = false
+        mainFrameError = false
         host.onPageStarted()
     }
 
@@ -51,8 +53,12 @@ class PeelWebViewClient(private val host: WebViewClientHost) : WebViewClient() {
     }
 
     override fun onPageFinished(view: WebView?, url: String) {
-        if (view != null) extractDynamicBarColor(view)
         host.navigationStartPoint.onPageFinished()
+        if (mainFrameError) {
+            super.onPageFinished(view, url)
+            return
+        }
+        if (view != null) extractDynamicBarColor(view)
         host.onPageFullyLoaded()
         super.onPageFinished(view, url)
     }
@@ -82,6 +88,7 @@ class PeelWebViewClient(private val host: WebViewClientHost) : WebViewClient() {
     ) {
         super.onReceivedError(view, request, error)
         if (request?.isForMainFrame != true) return
+        mainFrameError = true
         val description = error?.description?.toString() ?: "Unknown error"
         val url = request.url?.toString() ?: host.baseUrl
         host.showConnectionError(description, url)
