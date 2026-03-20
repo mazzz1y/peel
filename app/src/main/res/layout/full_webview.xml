@@ -59,14 +59,6 @@
             android:indeterminate="false"
             tools:ignore="UnusedAttribute" />
 
-        <TextView
-            android:id="@+id/anchorCenterScreen"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:padding="0dp"
-            android:text="" />
-
     </FrameLayout>
 
 </FrameLayout>

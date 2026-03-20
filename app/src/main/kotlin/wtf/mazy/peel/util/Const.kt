@@ -8,8 +8,6 @@ object Const {
     const val INTENT_TARGET_URL: String = "target_url"
     const val INTENT_GROUP_UUID: String = "groupUUID"
     const val INTENT_BACKUP_RESTORED: String = "backup_restored"
-    const val INTENT_WEBAPP_CHANGED: String = "webapp_changed"
-    const val INTENT_REFRESH_NEW_THEME: String = "theme_changed"
     const val INTENT_AUTO_FETCH: String = "auto_fetch"
 
     const val GLOBAL_WEBAPP_UUID: String = "00000000-0000-0000-0000-000000000000"

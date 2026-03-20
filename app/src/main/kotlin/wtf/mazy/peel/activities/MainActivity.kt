@@ -138,9 +138,7 @@ class MainActivity :
         if (intent.getBooleanExtra(Const.INTENT_BACKUP_RESTORED, false)) {
             setupViewPager()
             intent.putExtra(Const.INTENT_BACKUP_RESTORED, false)
-            intent.putExtra(Const.INTENT_REFRESH_NEW_THEME, false)
         }
-        intent.putExtra(Const.INTENT_WEBAPP_CHANGED, false)
         handleIncomingBackupIntent(intent)
     }
 

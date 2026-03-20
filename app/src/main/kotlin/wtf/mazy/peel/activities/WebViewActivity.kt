@@ -586,7 +586,6 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
             .show()
     }
 
-    @SuppressLint("ClickableViewAccessibility")
     private fun setupWebView() {
         val settings = effectiveSettings
         window.setBackgroundDrawable(themeBackgroundColor.toDrawable())
