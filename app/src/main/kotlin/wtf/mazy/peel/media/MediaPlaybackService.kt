@@ -53,6 +53,7 @@ open class MediaPlaybackService : MediaSessionService() {
 
     private var appTitle = ""
     private var appIcon: Bitmap? = null
+    private var webappUuid: String? = null
 
     private var trackTitle: String? = null
     private var trackArtist: String? = null
@@ -139,10 +140,11 @@ open class MediaPlaybackService : MediaSessionService() {
     private fun handleStart(intent: Intent) {
         appTitle = intent.getStringExtra(EXTRA_TITLE) ?: ""
         generation = intent.getIntExtra(EXTRA_GENERATION, 0)
+        webappUuid = intent.getStringExtra(EXTRA_WEBAPP_UUID)
         val iconBytes = intent.getByteArrayExtra(EXTRA_ICON)
         appIcon = iconBytes?.let { BitmapFactory.decodeByteArray(it, 0, it.size) }
         scope.launch {
-            buildContentIntent(intent.getStringExtra(EXTRA_WEBAPP_UUID))?.let {
+            buildContentIntent(webappUuid)?.let {
                 session?.setSessionActivity(it)
             }
         }
@@ -279,6 +281,7 @@ open class MediaPlaybackService : MediaSessionService() {
             Intent(action).apply {
                 setPackage(packageName)
                 putExtra(EXTRA_GENERATION, generation)
+                putExtra(EXTRA_WEBAPP_UUID, webappUuid)
                 extras?.extras?.let { putExtras(it) }
             })
     }

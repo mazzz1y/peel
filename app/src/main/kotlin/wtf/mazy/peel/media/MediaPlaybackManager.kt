@@ -11,13 +11,15 @@ import android.webkit.WebView
 import androidx.core.content.ContextCompat
 import java.util.Locale
 
-class MediaPlaybackManager(private val context: Context) : MediaJsBridge.Listener {
+class MediaPlaybackManager(context: Context) : MediaJsBridge.Listener {
 
+    private val context: Context = context.applicationContext
     private var webView: WebView? = null
     private var title: String = ""
     private var icon: Bitmap? = null
     private var webappUuid: String = ""
     private var serviceStarted = false
+    private var receiverRegistered = false
 
     private var lastTitle: String? = null
     private var lastArtist: String? = null
@@ -32,6 +34,8 @@ class MediaPlaybackManager(private val context: Context) : MediaJsBridge.Listene
     private val receiver =
         object : BroadcastReceiver() {
             override fun onReceive(ctx: Context?, intent: Intent) {
+                val uuid = intent.getStringExtra(MediaPlaybackService.EXTRA_WEBAPP_UUID)
+                if (uuid != null && uuid != webappUuid) return
                 val gen = intent.getIntExtra(MediaPlaybackService.EXTRA_GENERATION, -1)
                 if (gen != -1 && gen != generation) return
                 when (intent.action) {
@@ -69,7 +73,7 @@ class MediaPlaybackManager(private val context: Context) : MediaJsBridge.Listene
         this.title = title
         this.icon = icon
         this.webappUuid = webappUuid
-        registerReceiver()
+        if (!receiverRegistered) registerReceiver()
     }
 
     fun injectPolyfill() {
@@ -203,9 +207,12 @@ class MediaPlaybackManager(private val context: Context) : MediaJsBridge.Listene
         ContextCompat.registerReceiver(
             context, receiver, filter, ContextCompat.RECEIVER_NOT_EXPORTED
         )
+        receiverRegistered = true
     }
 
     private fun unregisterReceiver() {
+        if (!receiverRegistered) return
+        receiverRegistered = false
         try {
             context.unregisterReceiver(receiver)
         } catch (_: IllegalArgumentException) {
