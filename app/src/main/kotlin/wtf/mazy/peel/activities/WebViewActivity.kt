@@ -819,7 +819,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
             ?: intent?.clipData?.let { clip -> Array(clip.itemCount) { clip.getItemAt(it).uri } }
 
     private fun buildCustomHeaders(settings: WebAppSettings): Map<String, String> {
-        val extraHeaders = mutableMapOf<String, String>()
+        val extraHeaders = mutableMapOf("X-Requested-With" to "")
         settings.customHeaders?.forEach { (key, value) ->
             if (key.equals("User-Agent", ignoreCase = true)) {
                 webView?.settings?.userAgentString = value
