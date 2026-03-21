@@ -140,13 +140,8 @@ open class SandboxFetchService : Service() {
             settings: WebAppSettings,
             receiver: ResultReceiver,
         ): Intent {
-            val className = "wtf.mazy.peel.activities.SandboxFetchService$slotId"
             val serviceClass =
-                try {
-                    Class.forName(className)
-                } catch (_: ClassNotFoundException) {
-                    SandboxFetchService::class.java
-                }
+                Class.forName("wtf.mazy.peel.activities.SandboxFetchService$slotId")
             return Intent(context, serviceClass).apply {
                 putExtra(EXTRA_SANDBOX_ID, sandboxId)
                 putExtra(EXTRA_URL, url)

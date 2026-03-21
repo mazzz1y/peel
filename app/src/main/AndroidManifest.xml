@@ -113,22 +113,6 @@
             android:taskAffinity=""
             android:theme="@style/AppTheme.Trampoline" />
 
-        <!-- Main WebViewActivity (no sandbox, shared process) -->
-        <activity
-            android:name=".activities.WebViewActivity"
-            android:configChanges="orientation|screenSize|smallestScreenSize|density|screenLayout|uiMode|keyboard|keyboardHidden|navigation"
-            android:documentLaunchMode="intoExisting"
-            android:exported="false"
-            android:icon="@mipmap/ic_launcher"
-            android:launchMode="singleTask"
-            android:parentActivityName=".activities.MainActivity"
-            android:roundIcon="@mipmap/ic_launcher"
-            android:taskAffinity=""
-            android:theme="@style/AppTheme.WebView"
-            android:windowSoftInputMode="adjustResize" />
-
-        <!-- Sandbox activities: 4 slots x 4 activities per slot -->
-
         <!-- Slot 0 -->
         <activity
             android:name=".activities.SandboxActivity0"
@@ -329,15 +313,6 @@
             android:theme="@style/AppTheme.WebView"
             android:windowSoftInputMode="adjustResize" />
 
-        <service
-            android:name=".media.MediaPlaybackService"
-            android:exported="true"
-            android:foregroundServiceType="mediaPlayback"
-            android:permission="android.permission.FOREGROUND_SERVICE">
-            <intent-filter>
-                <action android:name="androidx.media3.session.MediaSessionService" />
-            </intent-filter>
-        </service>
         <service
             android:name=".media.MediaPlaybackService0"
             android:exported="true"

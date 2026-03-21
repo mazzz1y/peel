@@ -158,10 +158,6 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
 
-        val initialColor = themeBackgroundColor
-        window.statusBarColor = initialColor
-        window.navigationBarColor = initialColor
-
         webappUuid = intent.getStringExtra(Const.INTENT_WEBAPP_UUID)
         ensureDataReady(webappUuid, forceReload = false) {
             continueStartupAfterDataReady()
@@ -181,15 +177,13 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         downloadHandler.getBaseUrl = { webapp.baseUrl }
 
         val sandboxId = WebViewLauncher.resolveSandboxId(webapp)
-        if (sandboxId != null) {
-            if (!SandboxManager.initDataDirectorySuffix(sandboxId)) {
-                finishAndRemoveTask()
-                return
-            }
-            if (WebViewLauncher.isEphemeralSandbox(webapp)) {
-                ephemeralSandboxId = sandboxId
-                SandboxManager.wipeSandboxStorage(sandboxId)
-            }
+        if (!SandboxManager.initDataDirectorySuffix(sandboxId)) {
+            finishAndRemoveTask()
+            return
+        }
+        if (WebViewLauncher.isEphemeralSandbox(webapp)) {
+            ephemeralSandboxId = sandboxId
+            SandboxManager.wipeSandboxStorage(sandboxId)
         }
 
         _navigationStartPoint = NavigationStartPoint(webapp.baseUrl)
@@ -308,17 +302,11 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     }
 
     private fun ensureDataReady(uuid: String?, forceReload: Boolean, action: () -> Unit) {
-        if (SandboxManager.currentSlotId != null && uuid != null) {
-            lifecycleScope.launch {
-                DataManager.instance.ensureWebAppLoaded(uuid, forceReload = forceReload)
-                cachedPeelApps = DataManager.instance.queryAllWebApps()
-                if (!isFinishing && !isDestroyed) action()
-            }
-        } else {
-            action()
-            lifecycleScope.launch {
-                cachedPeelApps = DataManager.instance.queryAllWebApps()
-            }
+        if (uuid == null) { action(); return }
+        lifecycleScope.launch {
+            DataManager.instance.ensureWebAppLoaded(uuid, forceReload = forceReload)
+            cachedPeelApps = DataManager.instance.queryAllWebApps()
+            if (!isFinishing && !isDestroyed) action()
         }
     }
 
@@ -824,7 +812,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
             ?: intent?.clipData?.let { clip -> Array(clip.itemCount) { clip.getItemAt(it).uri } }
 
     private fun buildCustomHeaders(settings: WebAppSettings): Map<String, String> {
-        val extraHeaders = mutableMapOf("DNT" to "1", "X-REQUESTED-WITH" to "")
+        val extraHeaders = mutableMapOf<String, String>()
         settings.customHeaders?.forEach { (key, value) ->
             if (key.equals("User-Agent", ignoreCase = true)) {
                 webView?.settings?.userAgentString = value

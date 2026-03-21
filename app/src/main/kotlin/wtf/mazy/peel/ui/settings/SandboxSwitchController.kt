@@ -18,7 +18,6 @@ class SandboxSwitchController(
     private val ephemeralRow: View,
     private val btnClear: View,
     private val onReleaseSandbox: (() -> Unit)? = null,
-    private val memberUuids: (() -> List<String>)? = null,
 ) {
     fun setup() {
         updateEphemeralVisibility()
@@ -109,8 +108,7 @@ class SandboxSwitchController(
     }
 
     private fun clearSandboxData() {
-        val extras = memberUuids?.invoke() ?: emptyList()
-        if (SandboxManager.clearSandboxData(activity, owner.uuid, extras)) {
+        if (SandboxManager.clearSandboxData(activity, owner.uuid)) {
             showToast(activity, activity.getString(R.string.clear_sandbox_data), Toast.LENGTH_SHORT)
         }
         updateClearButtonVisibility()

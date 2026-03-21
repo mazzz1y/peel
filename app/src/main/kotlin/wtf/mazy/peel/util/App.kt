@@ -25,6 +25,10 @@ class App : Application() {
         super.onCreate()
         appContext = applicationContext
         SandboxManager.initialize(AppDatabase.getInstance(applicationContext).sandboxSlotDao())
+        if (SandboxManager.currentSlotId == null) {
+            @Suppress("DEPRECATION")
+            SandboxManager.migrateDefaultWebViewDir()
+        }
         appScope.launch {
             if (SandboxManager.currentSlotId != null) {
                 DataManager.instance.initializeForSandbox(applicationContext)

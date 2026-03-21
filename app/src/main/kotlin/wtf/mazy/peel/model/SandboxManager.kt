@@ -4,9 +4,6 @@ import android.app.ActivityManager
 import android.app.Application
 import android.content.Context
 import android.os.Process
-import android.webkit.CookieManager
-import android.webkit.WebStorage
-import android.webkit.WebViewDatabase
 import wtf.mazy.peel.model.db.SandboxSlotDao
 import wtf.mazy.peel.model.db.SandboxSlotEntity
 import wtf.mazy.peel.util.App
@@ -14,6 +11,8 @@ import wtf.mazy.peel.util.Const
 import java.io.File
 
 object SandboxManager {
+    const val DEFAULT_SANDBOX_ID = "9b649bac-d22c-4a4e-a8c2-1737f39d6b02"
+
     private const val NUM_SLOTS = 4
     private const val ACTIVITIES_PER_SLOT = 4
     private const val SANDBOX_CLASS_PREFIX = "wtf.mazy.peel.activities.SandboxActivity"
@@ -77,7 +76,7 @@ object SandboxManager {
         }
 
         val evictSlot = findIdleSlot(am, aliveSlots) ?: 0
-        slots[evictSlot]?.let { finishSandboxTasks(am, it) }
+        finishTasksInSlot(am, evictSlot)
         killSandboxProcess(am, evictSlot)
         writeSlotMapping(evictSlot, sandboxId)
         return evictSlot
@@ -148,9 +147,9 @@ object SandboxManager {
 
     fun releaseSandbox(context: Context, uuid: String) {
         val am = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
-        finishSandboxTasks(am, uuid)
         for (i in 0 until NUM_SLOTS) {
             if (readSlotMapping(i) == uuid) {
+                finishTasksInSlot(am, i)
                 killSandboxProcess(am, i)
                 return
             }
@@ -160,13 +159,11 @@ object SandboxManager {
     fun clearSandboxData(
         context: Context,
         uuid: String,
-        alsoFinishUuids: List<String> = emptyList(),
     ): Boolean {
         val am = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
-        finishSandboxTasks(am, uuid)
-        alsoFinishUuids.forEach { finishSandboxTasks(am, it) }
         for (i in 0 until NUM_SLOTS) {
             if (readSlotMapping(i) == uuid) {
+                finishTasksInSlot(am, i)
                 killSandboxProcess(am, i)
                 clearSlotMapping(i)
                 break
@@ -177,7 +174,7 @@ object SandboxManager {
 
     fun clearAllSandboxData(context: Context) {
         val am = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
-        finishSandboxTasks(am)
+        finishAllSandboxTasks(am)
         killAllSandboxProcesses(am)
         dao.clearAll()
 
@@ -189,13 +186,26 @@ object SandboxManager {
         }
     }
 
-    fun clearNonSandboxData(context: Context) {
-        clearWebViewData(context)
-
-        val dataDir = File(App.appContext.filesDir.parent, "app_webview")
-        if (dataDir.exists()) dataDir.deleteRecursively()
-
+    fun clearNonSandboxData() {
+        wipeSandboxStorage(DEFAULT_SANDBOX_ID)
+        clearLegacyWebViewDir()
         App.appContext.cacheDir?.deleteRecursively()
+    }
+
+    @Deprecated("Remove after all installations have migrated to DEFAULT_SANDBOX_ID")
+    fun migrateDefaultWebViewDir() {
+        val parent = App.appContext.filesDir.parentFile ?: return
+        val oldDir = File(parent, "app_webview")
+        val newDir = getSandboxDataDir(DEFAULT_SANDBOX_ID)
+        if (oldDir.exists() && !newDir.exists()) {
+            oldDir.renameTo(newDir)
+        }
+    }
+
+    @Deprecated("Remove after all installations have migrated to DEFAULT_SANDBOX_ID")
+    private fun clearLegacyWebViewDir() {
+        val legacyDir = File(App.appContext.filesDir.parent, "app_webview")
+        if (legacyDir.exists()) legacyDir.deleteRecursively()
     }
 
     fun wipeSandboxStorage(uuid: String): Boolean {
@@ -212,12 +222,21 @@ object SandboxManager {
         return File(App.appContext.filesDir.parent, "app_webview_$uuid")
     }
 
-    fun finishSandboxTasks(am: ActivityManager, uuid: String? = null) {
+    fun finishAllSandboxTasks(am: ActivityManager) {
         am.appTasks?.forEach { task ->
-            val taskUuid = task.taskInfo.baseIntent.getStringExtra(Const.INTENT_WEBAPP_UUID)
-            if (taskUuid != null && (uuid == null || taskUuid == uuid)) {
+            if (task.taskInfo.baseActivity?.className?.startsWith(SANDBOX_CLASS_PREFIX) == true) {
                 task.finishAndRemoveTask()
             }
+        }
+    }
+
+    private fun finishTasksInSlot(am: ActivityManager, slotId: Int) {
+        val base = slotId * ACTIVITIES_PER_SLOT
+        val range = base until base + ACTIVITIES_PER_SLOT
+        am.appTasks?.forEach { task ->
+            val className = task.taskInfo.baseActivity?.className ?: return@forEach
+            val index = className.removePrefix(SANDBOX_CLASS_PREFIX).toIntOrNull() ?: return@forEach
+            if (index in range) task.finishAndRemoveTask()
         }
     }
 
@@ -245,15 +264,5 @@ object SandboxManager {
 
     private fun clearSlotMapping(slotId: Int) {
         dao.clear(slotId)
-    }
-
-    private fun clearWebViewData(context: Context) {
-        try {
-            CookieManager.getInstance().removeAllCookies(null)
-            CookieManager.getInstance().flush()
-            WebStorage.getInstance().deleteAllData()
-            @Suppress("DEPRECATION") WebViewDatabase.getInstance(context).clearFormData()
-        } catch (_: Exception) {
-        }
     }
 }

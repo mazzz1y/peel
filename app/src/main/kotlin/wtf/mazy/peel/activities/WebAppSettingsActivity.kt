@@ -34,7 +34,6 @@ import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.model.WebAppGroup
 import wtf.mazy.peel.shortcut.FetchCandidate
 import wtf.mazy.peel.shortcut.FetchResult
-import wtf.mazy.peel.shortcut.HeadlessWebViewFetcher
 import wtf.mazy.peel.shortcut.LetterIconGenerator
 import wtf.mazy.peel.shortcut.ShortcutHelper
 import wtf.mazy.peel.ui.IconEditorController
@@ -58,7 +57,6 @@ class WebAppSettingsActivity :
     private lateinit var iconEditor: IconEditorController
     private var fetchDialog: AlertDialog? = null
     private var fetchDialogText: TextView? = null
-    private var activeFetcher: HeadlessWebViewFetcher? = null
     private var activeFetchServiceIntent: Intent? = null
     private var fetchGeneration: Int = 0
 
@@ -273,8 +271,6 @@ class WebAppSettingsActivity :
 
     private fun cancelActiveFetch() {
         fetchGeneration += 1
-        activeFetcher?.cancel()
-        activeFetcher = null
         activeFetchServiceIntent?.let { stopService(it) }
         activeFetchServiceIntent = null
     }
@@ -298,54 +294,36 @@ class WebAppSettingsActivity :
         val onProgress: (String) -> Unit = { fetchDialogText?.text = it }
 
         val sandboxId = WebViewLauncher.resolveSandboxId(webapp)
-        if (sandboxId != null) {
-            val slotId = SandboxManager.resolveSlotId(this, sandboxId)
-            val receiver =
-                object : ResultReceiver(Handler(mainLooper)) {
-                    override fun onReceiveResult(resultCode: Int, resultData: Bundle?) {
-                        if (generation != fetchGeneration) return
-                        when (resultCode) {
-                            SandboxFetchService.RESULT_PROGRESS ->
-                                onProgress(
-                                    resultData?.getString(SandboxFetchService.KEY_PROGRESS) ?: ""
-                                )
+        val slotId = SandboxManager.resolveSlotId(this, sandboxId)
+        val receiver =
+            object : ResultReceiver(Handler(mainLooper)) {
+                override fun onReceiveResult(resultCode: Int, resultData: Bundle?) {
+                    if (generation != fetchGeneration) return
+                    when (resultCode) {
+                        SandboxFetchService.RESULT_PROGRESS ->
+                            onProgress(
+                                resultData?.getString(SandboxFetchService.KEY_PROGRESS) ?: ""
+                            )
 
-                            SandboxFetchService.RESULT_DONE ->
-                                handleFetchResult(
-                                    webapp,
-                                    SandboxFetchService.parseResult(resultData),
-                                    generation,
-                                )
-                        }
+                        SandboxFetchService.RESULT_DONE ->
+                            handleFetchResult(
+                                webapp,
+                                SandboxFetchService.parseResult(resultData),
+                                generation,
+                            )
                     }
                 }
-            val intent = SandboxFetchService.createIntent(
-                this,
-                slotId,
-                sandboxId,
-                url,
-                DataManager.instance.resolveEffectiveSettings(webapp),
-                receiver,
-            )
-            activeFetchServiceIntent = intent
-            startService(intent)
-        } else {
-            val fetcher = HeadlessWebViewFetcher(
-                this,
-                url,
-                DataManager.instance.resolveEffectiveSettings(webapp),
-                onProgress = onProgress,
-                onResult = {
-                    if (generation == fetchGeneration) handleFetchResult(
-                        webapp,
-                        it,
-                        generation
-                    )
-                },
-            )
-            activeFetcher = fetcher
-            fetcher.start()
-        }
+            }
+        val intent = SandboxFetchService.createIntent(
+            this,
+            slotId,
+            sandboxId,
+            url,
+            DataManager.instance.resolveEffectiveSettings(webapp),
+            receiver,
+        )
+        activeFetchServiceIntent = intent
+        startService(intent)
     }
 
     private fun handleFetchResult(
@@ -355,7 +333,6 @@ class WebAppSettingsActivity :
     ) {
         if (generation != fetchGeneration) return
         if (isFinishing || isDestroyed) return
-        activeFetcher = null
         activeFetchServiceIntent = null
         val candidates = result.candidates
         if (candidates.isEmpty()) {

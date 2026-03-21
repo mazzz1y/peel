@@ -93,9 +93,6 @@ class GroupSettingsActivity :
             binding.ephemeralSandboxRow,
             binding.btnClearSandbox,
             onReleaseSandbox = { SandboxManager.releaseSandbox(this, group.uuid) },
-            memberUuids = {
-                DataManager.instance.activeWebsitesForGroup(group.uuid).map { it.uuid }
-            },
         )
             .setup()
     }

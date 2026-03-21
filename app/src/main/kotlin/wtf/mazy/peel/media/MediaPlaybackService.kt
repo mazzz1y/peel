@@ -453,7 +453,7 @@ open class MediaPlaybackService : MediaSessionService() {
                 1 -> MediaPlaybackService1::class.java
                 2 -> MediaPlaybackService2::class.java
                 3 -> MediaPlaybackService3::class.java
-                else -> MediaPlaybackService::class.java
+                else -> throw IllegalStateException("Media playback requires a sandbox process")
             }
 
         private fun bitmapToBytes(bmp: Bitmap): ByteArray {

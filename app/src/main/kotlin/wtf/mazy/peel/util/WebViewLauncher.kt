@@ -7,7 +7,6 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.net.toUri
 import wtf.mazy.peel.R
-import wtf.mazy.peel.activities.WebViewActivity
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.SandboxManager
 import wtf.mazy.peel.model.WebApp
@@ -45,30 +44,23 @@ object WebViewLauncher {
 
     internal fun createWebViewIntent(webapp: WebApp, c: Context?): Intent? {
         if (c == null) return null
-
         val sandboxId = resolveSandboxId(webapp)
-
         val activityClass =
-            if (sandboxId != null) {
-                SandboxManager.resolveActivityClass(c, sandboxId, webapp.uuid) ?: return null
-            } else {
-                WebViewActivity::class.java
-            }
-
+            SandboxManager.resolveActivityClass(c, sandboxId, webapp.uuid) ?: return null
         return buildIntent(c, activityClass, webapp.uuid)
     }
 
-    fun resolveSandboxId(webapp: WebApp): String? {
+    fun resolveSandboxId(webapp: WebApp): String {
         if (webapp.isUseContainer) return webapp.uuid
         val group = webapp.groupUuid?.let { DataManager.instance.getGroup(it) }
         if (group != null && group.isUseContainer) return group.uuid
-        return null
+        return SandboxManager.DEFAULT_SANDBOX_ID
     }
 
     fun isEphemeralSandbox(webapp: WebApp): Boolean {
         if (webapp.isUseContainer) return webapp.isEphemeralSandbox
         val group = webapp.groupUuid?.let { DataManager.instance.getGroup(it) }
-        return group?.isEphemeralSandbox == true
+        return group?.isUseContainer == true && group.isEphemeralSandbox
     }
 
     private fun buildIntent(c: Context, activityClass: Class<*>, uuid: String): Intent {

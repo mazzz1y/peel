@@ -505,14 +505,14 @@ class MainActivity :
     }
 
     private fun clearBrowsingData(includeSandbox: Boolean) {
-        SandboxManager.clearNonSandboxData(this)
+        SandboxManager.clearNonSandboxData()
         if (includeSandbox) {
             SandboxManager.clearAllSandboxData(this)
         }
     }
 
     private fun performFactoryReset() {
-        SandboxManager.clearNonSandboxData(this)
+        SandboxManager.clearNonSandboxData()
         SandboxManager.clearAllSandboxData(this)
 
         lifecycleScope.launch {
@@ -520,7 +520,6 @@ class MainActivity :
                 DataManager.instance.cleanupAndRemoveWebApp(webapp.uuid, this@MainActivity)
             }
             DataManager.instance.getGroups().forEach { group ->
-                SandboxManager.wipeSandboxStorage(group.uuid)
                 DataManager.instance.removeGroup(group, ungroupApps = false)
             }
 
