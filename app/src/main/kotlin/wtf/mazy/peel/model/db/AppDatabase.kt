@@ -25,7 +25,7 @@ class StringMapConverter {
 
 @Database(
     entities = [WebAppEntity::class, SandboxSlotEntity::class, WebAppGroupEntity::class],
-    version = 8,
+    version = 9,
     exportSchema = true,
 )
 @TypeConverters(StringMapConverter::class)
@@ -151,20 +151,157 @@ abstract class AppDatabase : RoomDatabase() {
                 }
             }
 
-        val MIGRATION_7_8 =
-            object : Migration(7, 8) {
+        private val SETTINGS_COLS =
+            """
+            isOpenUrlExternal INTEGER,
+            isAllowCookies INTEGER,
+            isAllowThirdPartyCookies INTEGER,
+            isAllowJs INTEGER,
+            isRequestDesktop INTEGER,
+            isClearCache INTEGER,
+            isBlockImages INTEGER,
+            isAlwaysHttps INTEGER,
+            isAllowLocationAccess INTEGER,
+            customHeaders TEXT,
+            isAutoReload INTEGER,
+            timeAutoReload INTEGER,
+            colorScheme INTEGER,
+            isAlgorithmicDarkening INTEGER,
+            isIgnoreSslErrors INTEGER,
+            isBlockThirdPartyRequests INTEGER,
+            isDrmAllowed INTEGER,
+            isShowFullscreen INTEGER,
+            isKeepAwake INTEGER,
+            isCameraPermission INTEGER,
+            isMicrophonePermission INTEGER,
+            isEnableZooming INTEGER,
+            isBiometricProtection INTEGER,
+            isAllowMediaPlaybackInBackground INTEGER,
+            isLongClickShare INTEGER,
+            isShowProgressbar INTEGER,
+            isDisableScreenshots INTEGER,
+            isPullToRefresh INTEGER,
+            isSafeBrowsing INTEGER,
+            isDynamicStatusBar INTEGER,
+            isShowNotification INTEGER,
+            isAppLinksPermission INTEGER,
+            isUseBasicAuth INTEGER,
+            basicAuthUsername TEXT,
+            basicAuthPassword TEXT
+            """.trimIndent()
+
+        private val SETTINGS_COL_NAMES =
+            listOf(
+                "isOpenUrlExternal",
+                "isAllowCookies",
+                "isAllowThirdPartyCookies",
+                "isAllowJs",
+                "isRequestDesktop",
+                "isClearCache",
+                "isBlockImages",
+                "isAlwaysHttps",
+                "isAllowLocationAccess",
+                "customHeaders",
+                "isAutoReload",
+                "timeAutoReload",
+                "colorScheme",
+                "isAlgorithmicDarkening",
+                "isIgnoreSslErrors",
+                "isBlockThirdPartyRequests",
+                "isDrmAllowed",
+                "isShowFullscreen",
+                "isKeepAwake",
+                "isCameraPermission",
+                "isMicrophonePermission",
+                "isEnableZooming",
+                "isBiometricProtection",
+                "isAllowMediaPlaybackInBackground",
+                "isLongClickShare",
+                "isShowProgressbar",
+                "isDisableScreenshots",
+                "isPullToRefresh",
+                "isSafeBrowsing",
+                "isDynamicStatusBar",
+                "isShowNotification",
+                "isAppLinksPermission",
+                "isUseBasicAuth",
+                "basicAuthUsername",
+                "basicAuthPassword",
+            ).joinToString(", ")
+
+        private fun recreateTablesV9(db: SupportSQLiteDatabase) {
+            db.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS webapps_new (
+                    uuid TEXT NOT NULL PRIMARY KEY,
+                    baseUrl TEXT NOT NULL,
+                    title TEXT NOT NULL,
+                    isActiveEntry INTEGER NOT NULL,
+                    isUseContainer INTEGER NOT NULL,
+                    isEphemeralSandbox INTEGER NOT NULL,
+                    `order` INTEGER NOT NULL,
+                    groupUuid TEXT,
+                    $SETTINGS_COLS
+                )
+                """
+            )
+            db.execSQL(
+                """
+                INSERT INTO webapps_new (
+                    uuid, baseUrl, title, isActiveEntry, isUseContainer,
+                    isEphemeralSandbox, `order`, groupUuid, $SETTINGS_COL_NAMES
+                )
+                SELECT uuid, baseUrl, title, isActiveEntry, isUseContainer,
+                    isEphemeralSandbox, `order`, groupUuid, $SETTINGS_COL_NAMES
+                FROM webapps
+                """
+            )
+            db.execSQL("DROP TABLE webapps")
+            db.execSQL("ALTER TABLE webapps_new RENAME TO webapps")
+
+            db.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS webapp_groups_new (
+                    uuid TEXT NOT NULL PRIMARY KEY,
+                    title TEXT NOT NULL,
+                    `order` INTEGER NOT NULL,
+                    isUseContainer INTEGER NOT NULL,
+                    isEphemeralSandbox INTEGER NOT NULL,
+                    $SETTINGS_COLS
+                )
+                """
+            )
+            db.execSQL(
+                """
+                INSERT INTO webapp_groups_new (
+                    uuid, title, `order`, isUseContainer, isEphemeralSandbox,
+                    $SETTINGS_COL_NAMES
+                )
+                SELECT uuid, title, `order`, isUseContainer, isEphemeralSandbox,
+                    $SETTINGS_COL_NAMES
+                FROM webapp_groups
+                """
+            )
+            db.execSQL("DROP TABLE webapp_groups")
+            db.execSQL("ALTER TABLE webapp_groups_new RENAME TO webapp_groups")
+        }
+
+        val MIGRATION_7_9 =
+            object : Migration(7, 9) {
                 override fun migrate(db: SupportSQLiteDatabase) {
                     for (table in listOf("webapps", "webapp_groups")) {
-                        db.execSQL(
-                            "ALTER TABLE $table ADD COLUMN colorScheme INTEGER DEFAULT NULL"
-                        )
-                        db.execSQL(
-                            "ALTER TABLE $table ADD COLUMN isAlgorithmicDarkening INTEGER DEFAULT NULL"
-                        )
-                        db.execSQL(
-                            "UPDATE $table SET colorScheme = 2, isAlgorithmicDarkening = 1 WHERE isForceDarkMode = 1"
-                        )
+                        db.execSQL("ALTER TABLE $table ADD COLUMN colorScheme INTEGER DEFAULT NULL")
+                        db.execSQL("ALTER TABLE $table ADD COLUMN isAlgorithmicDarkening INTEGER DEFAULT NULL")
+                        db.execSQL("UPDATE $table SET colorScheme = 2, isAlgorithmicDarkening = 1 WHERE isForceDarkMode = 1")
                     }
+                    recreateTablesV9(db)
+                }
+            }
+
+        val MIGRATION_8_9 =
+            object : Migration(8, 9) {
+                override fun migrate(db: SupportSQLiteDatabase) {
+                    recreateTablesV9(db)
                 }
             }
 
@@ -186,7 +323,8 @@ abstract class AppDatabase : RoomDatabase() {
                     MIGRATION_4_5,
                     MIGRATION_5_6,
                     MIGRATION_6_7,
-                    MIGRATION_7_8,
+                    MIGRATION_7_9,
+                    MIGRATION_8_9,
                 )
                 .allowMainThreadQueries()
                 .build()
