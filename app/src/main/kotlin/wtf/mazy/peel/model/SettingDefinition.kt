@@ -94,7 +94,7 @@ object SettingRegistry {
                 SettingCategory.GENERAL,
             ),
             SettingDefinition.BooleanSetting(
-                SettingField(WebAppSettings::isOpenUrlExternal, false),
+                SettingField(WebAppSettings::isOpenUrlExternal, true),
                 R.string.open_external_links_in_browser_app,
                 SettingCategory.GENERAL,
             ),
@@ -125,16 +125,6 @@ object SettingRegistry {
                 intField = SettingField(WebAppSettings::timeAutoReload, 60),
             ),
             // Appearance
-            SettingDefinition.BooleanSetting(
-                SettingField(WebAppSettings::isShowProgressbar, true),
-                R.string.show_progress_bar_during_page_load,
-                SettingCategory.APPEARANCE,
-            ),
-            SettingDefinition.BooleanSetting(
-                SettingField(WebAppSettings::isShowFullscreen, false),
-                R.string.show_fullscreen,
-                SettingCategory.APPEARANCE,
-            ),
             SettingDefinition.TriStateSetting(
                 SettingField(WebAppSettings::colorScheme, WebAppSettings.COLOR_SCHEME_AUTO),
                 R.string.setting_color_scheme,
@@ -149,33 +139,43 @@ object SettingRegistry {
                 SettingCategory.APPEARANCE,
             ),
             SettingDefinition.BooleanSetting(
+                SettingField(WebAppSettings::isDynamicStatusBar, true),
+                R.string.setting_dynamic_status_bar,
+                SettingCategory.APPEARANCE,
+            ),
+            SettingDefinition.BooleanSetting(
+                SettingField(WebAppSettings::isShowProgressbar, true),
+                R.string.show_progress_bar_during_page_load,
+                SettingCategory.APPEARANCE,
+            ),
+            SettingDefinition.BooleanSetting(
+                SettingField(WebAppSettings::isShowFullscreen, false),
+                R.string.show_fullscreen,
+                SettingCategory.APPEARANCE,
+            ),
+            SettingDefinition.BooleanSetting(
                 SettingField(WebAppSettings::isEnableZooming, false),
                 R.string.activate_two_finger_zoom,
                 SettingCategory.APPEARANCE,
             ),
-            SettingDefinition.BooleanSetting(
-                SettingField(WebAppSettings::isDynamicStatusBar, false),
-                R.string.setting_dynamic_status_bar,
-                SettingCategory.APPEARANCE,
-            ),
             // Permissions
             SettingDefinition.TriStateSetting(
-                SettingField(WebAppSettings::isCameraPermission, WebAppSettings.PERMISSION_OFF),
+                SettingField(WebAppSettings::isCameraPermission, WebAppSettings.PERMISSION_ASK),
                 R.string.allow_camera_access,
                 SettingCategory.PERMISSIONS,
             ),
             SettingDefinition.TriStateSetting(
-                SettingField(WebAppSettings::isMicrophonePermission, WebAppSettings.PERMISSION_OFF),
+                SettingField(WebAppSettings::isMicrophonePermission, WebAppSettings.PERMISSION_ASK),
                 R.string.allow_microphone_access,
                 SettingCategory.PERMISSIONS,
             ),
             SettingDefinition.TriStateSetting(
-                SettingField(WebAppSettings::isAllowLocationAccess, WebAppSettings.PERMISSION_OFF),
+                SettingField(WebAppSettings::isAllowLocationAccess, WebAppSettings.PERMISSION_ASK),
                 R.string.allow_location_access,
                 SettingCategory.PERMISSIONS,
             ),
             SettingDefinition.TriStateSetting(
-                SettingField(WebAppSettings::isAppLinksPermission, WebAppSettings.PERMISSION_OFF),
+                SettingField(WebAppSettings::isAppLinksPermission, WebAppSettings.PERMISSION_ASK),
                 R.string.open_app_links,
                 SettingCategory.PERMISSIONS,
             ),
