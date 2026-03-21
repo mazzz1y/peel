@@ -472,9 +472,12 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         if (pageLoadHandled || biometricController.isPromptActive) return
         pageLoadHandled = true
         if (launchOverlayController.isVisible) {
-            launchOverlayController.hideWhenReady(webView)
+            launchOverlayController.hideWhenReady(webView) {
+                webView?.let { peelWebViewClient.extractDynamicBarColor(it) }
+            }
+        } else {
+            webView?.let { peelWebViewClient.extractDynamicBarColor(it) }
         }
-        webView?.let { peelWebViewClient.extractDynamicBarColor(it) }
         mediaPlaybackManager?.injectObserver()
     }
 

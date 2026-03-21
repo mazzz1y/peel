@@ -58,7 +58,6 @@ class PeelWebViewClient(private val host: WebViewClientHost) : WebViewClient() {
             super.onPageFinished(view, url)
             return
         }
-        if (view != null) extractDynamicBarColor(view)
         host.onPageFullyLoaded()
         super.onPageFinished(view, url)
     }

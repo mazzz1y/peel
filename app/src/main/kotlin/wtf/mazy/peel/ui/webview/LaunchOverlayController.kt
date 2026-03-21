@@ -29,9 +29,9 @@ class LaunchOverlayController(
         onArm()
     }
 
-    fun hideWhenReady(webView: WebView?) {
+    fun hideWhenReady(webView: WebView?, onHiding: (() -> Unit)? = null) {
         if (webView == null) {
-            hideIfNeeded()
+            hideIfNeeded(onHiding)
             return
         }
 
@@ -39,7 +39,7 @@ class LaunchOverlayController(
         val fallback = Runnable {
             if (hidden || isDestroyed()) return@Runnable
             hidden = true
-            hideIfNeeded()
+            hideIfNeeded(onHiding)
         }
         pendingFallback = fallback
         mainHandler.postDelayed(fallback, fallbackDelayMs)
@@ -50,7 +50,7 @@ class LaunchOverlayController(
                 hidden = true
                 pendingFallback?.let { mainHandler.removeCallbacks(it) }
                 pendingFallback = null
-                hideIfNeeded()
+                hideIfNeeded(onHiding)
             }
         })
     }
@@ -60,11 +60,12 @@ class LaunchOverlayController(
         pendingFallback = null
     }
 
-    private fun hideIfNeeded() {
+    private fun hideIfNeeded(onHiding: (() -> Unit)? = null) {
         if (!isVisible) return
-        isVisible = false
+        onHiding?.invoke()
         overlayView?.animate()?.alpha(0f)?.setDuration(animationDurationMs)
             ?.withEndAction {
+                isVisible = false
                 overlayView?.visibility = View.GONE
             }?.start()
     }
