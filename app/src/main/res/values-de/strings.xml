@@ -78,7 +78,6 @@
     <string name="color_scheme_dark">Dunkel</string>
     <string name="setting_force_dark_theme">Dunkles Design erzwingen</string>
     <string name="ssl_errors">SSL-Fehler</string>
-    <string name="ignore_ssl_errors">SSL-Fehler ignorieren</string>
     <string name="webapp_already_deleted">Diese Web-App wurde gelöscht. Sie können diese Verknüpfung löschen</string>
     <string name="override_global_settings">Globale Einstellungen überschreiben</string>
     <string name="global_web_app_settings">Globale Web-App-Einstellungen</string>

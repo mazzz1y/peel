@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<full-backup-content>
+    <include domain="database" path="peel.db" />
+    <include domain="file" path="icons" />
+    <include domain="sharedpref" path="." />
+</full-backup-content>

@@ -38,14 +38,14 @@
     <application
         android:name="wtf.mazy.peel.util.App"
         android:allowBackup="true"
-        android:fullBackupContent="true"
+        android:fullBackupContent="@xml/backup_rules"
+        android:dataExtractionRules="@xml/data_extraction_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:resizeableActivity="true"
         android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
-        android:usesCleartextTraffic="true"
-        tools:ignore="DataExtractionRules">
+        android:usesCleartextTraffic="true">
 
         <provider
             android:name="androidx.core.content.FileProvider"

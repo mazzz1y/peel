@@ -481,7 +481,11 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     private fun buildIntentForUrl(url: String): Intent? {
         return try {
             if (url.startsWith("intent://") || url.startsWith("intent:")) {
-                Intent.parseUri(url, Intent.URI_INTENT_SCHEME)
+                Intent.parseUri(url, Intent.URI_INTENT_SCHEME).apply {
+                    selector = null
+                    addCategory(Intent.CATEGORY_BROWSABLE)
+                    component = null
+                }
             } else {
                 Intent(Intent.ACTION_VIEW, url.toUri())
             }
@@ -502,7 +506,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         } catch (_: ActivityNotFoundException) {
             val fallback = buildIntentForUrl(url)
                 ?.getStringExtra("browser_fallback_url")
-            if (fallback != null) {
+            if (fallback != null && (fallback.startsWith("https://") || fallback.startsWith("http://"))) {
                 loadURL(fallback)
             } else {
                 showToast(getString(R.string.no_app_found))

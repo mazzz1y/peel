@@ -119,10 +119,6 @@ class PeelWebViewClient(private val host: WebViewClientHost) : WebViewClient() {
 
     @SuppressLint("WebViewClientOnReceivedSslError")
     override fun onReceivedSslError(view: WebView?, handler: SslErrorHandler, error: SslError) {
-        if (host.effectiveSettings.isIgnoreSslErrors == true) {
-            handler.proceed()
-            return
-        }
         handler.cancel()
 
         val errorHost = error.url?.toUri()?.host?.removePrefix("www.")
@@ -145,6 +141,10 @@ class PeelWebViewClient(private val host: WebViewClientHost) : WebViewClient() {
         host.runOnUi { host.applyColorScheme() }
         val url = request.url.toString()
         val settings = host.effectiveSettings
+
+        if (url.startsWith("data:") && request.isForMainFrame) {
+            return true
+        }
 
         if (!url.startsWith("http://") &&
             !url.startsWith("https://") &&
@@ -214,8 +214,8 @@ class PeelWebViewClient(private val host: WebViewClientHost) : WebViewClient() {
 
     companion object {
         fun isHostMatch(requestUri: Uri, baseUri: Uri): Boolean {
-            val requestHost = requestUri.host?.removePrefix("www.") ?: return true
-            val baseHost = baseUri.host?.removePrefix("www.") ?: return true
+            val requestHost = requestUri.host?.removePrefix("www.") ?: return false
+            val baseHost = baseUri.host?.removePrefix("www.") ?: return false
             return requestHost == baseHost || requestHost.endsWith(".$baseHost")
         }
 

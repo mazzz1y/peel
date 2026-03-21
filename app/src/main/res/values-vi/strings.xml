@@ -94,7 +94,6 @@
     <string name="color_scheme_dark">Tối</string>
     <string name="setting_force_dark_theme">Buộc giao diện tối</string>
     <string name="ssl_errors">Lỗi SSL</string>
-    <string name="ignore_ssl_errors">Bỏ qua lỗi SSL</string>
     <string name="webapp_already_deleted">Ứng dụng web này đã bị xóa. Bạn có thể xóa lối tắt này</string>
     <string name="override_global_settings">Ghi đè cài đặt toàn cục</string>
     <string name="global_web_app_settings">Cài đặt toàn cục ứng dụng web</string>

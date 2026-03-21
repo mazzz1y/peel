@@ -77,7 +77,6 @@
     <string name="color_scheme_dark">Oscuro</string>
     <string name="setting_force_dark_theme">Forzar tema oscuro</string>
     <string name="ssl_errors">Errores SSL</string>
-    <string name="ignore_ssl_errors">Ignorar los errores de SSL</string>
     <string name="webapp_already_deleted">Esta aplicación web ya no está disponible. Puede eliminar este acceso directo</string>
     <string name="override_global_settings">Anular la configuración general</string>
     <string name="global_web_app_settings">Configuración general de la aplicación web</string>

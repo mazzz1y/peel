@@ -216,11 +216,7 @@ object SettingRegistry {
                 R.string.setting_always_https,
                 SettingCategory.SECURITY,
             ),
-            SettingDefinition.BooleanSetting(
-                SettingField(WebAppSettings::isIgnoreSslErrors, false),
-                R.string.ignore_ssl_errors,
-                SettingCategory.SECURITY,
-            ),
+
             SettingDefinition.BooleanSetting(
                 SettingField(WebAppSettings::isSafeBrowsing, true),
                 R.string.setting_safe_browsing,

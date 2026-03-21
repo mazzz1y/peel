@@ -94,7 +94,6 @@
     <string name="color_scheme_dark">Escuro</string>
     <string name="setting_force_dark_theme">Forçar tema escuro</string>
     <string name="ssl_errors">Erros SSL</string>
-    <string name="ignore_ssl_errors">Ignorar erros SSL</string>
     <string name="webapp_already_deleted">Este Web App foi excluído. Você pode excluir este atalho</string>
     <string name="override_global_settings">Substituir configurações globais</string>
     <string name="global_web_app_settings">Configurações globais do Web App</string>

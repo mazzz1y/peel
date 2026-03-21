@@ -94,7 +94,6 @@
     <string name="color_scheme_dark">深色</string>
     <string name="setting_force_dark_theme">強制深色主題</string>
     <string name="ssl_errors">SSL 錯誤</string>
-    <string name="ignore_ssl_errors">忽略 SSL 錯誤</string>
     <string name="webapp_already_deleted">此網頁應用程式已刪除。您可以刪除此捷徑</string>
     <string name="override_global_settings">覆寫全域設定</string>
     <string name="global_web_app_settings">全域網頁應用程式設定</string>

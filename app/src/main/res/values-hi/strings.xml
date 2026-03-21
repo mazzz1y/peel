@@ -94,7 +94,6 @@
     <string name="color_scheme_dark">गहरा</string>
     <string name="setting_force_dark_theme">डार्क थीम लागू करें</string>
     <string name="ssl_errors">SSL त्रुटियां</string>
-    <string name="ignore_ssl_errors">SSL त्रुटियां अनदेखा करें</string>
     <string name="webapp_already_deleted">यह वेब ऐप हटा दिया गया है। आप यह शॉर्टकट हटा सकते हैं।</string>
     <string name="override_global_settings">वैश्विक सेटिंग्स ओवरराइड करें</string>
     <string name="global_web_app_settings">वैश्विक वेब ऐप सेटिंग्स</string>

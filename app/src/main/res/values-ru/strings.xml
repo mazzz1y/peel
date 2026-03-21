@@ -94,7 +94,6 @@
     <string name="color_scheme_dark">Тёмная</string>
     <string name="setting_force_dark_theme">Принудительная тёмная тема</string>
     <string name="ssl_errors">Ошибки SSL</string>
-    <string name="ignore_ssl_errors">Игнорировать ошибки SSL</string>
     <string name="webapp_already_deleted">Это веб-приложение удалено. Вы можете удалить этот ярлык</string>
     <string name="override_global_settings">Переопределить глобальные настройки</string>
     <string name="global_web_app_settings">Глобальные настройки веб-приложений</string>

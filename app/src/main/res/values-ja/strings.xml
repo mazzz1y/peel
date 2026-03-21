@@ -94,7 +94,6 @@
     <string name="color_scheme_dark">ダーク</string>
     <string name="setting_force_dark_theme">ダークテーマを強制</string>
     <string name="ssl_errors">SSLエラー</string>
-    <string name="ignore_ssl_errors">SSLエラーを無視</string>
     <string name="webapp_already_deleted">このウェブアプリは削除されました。このショートカットを削除できます</string>
     <string name="override_global_settings">グローバル設定をオーバーライド</string>
     <string name="global_web_app_settings">グローバルウェブアプリ設定</string>
