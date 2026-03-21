@@ -140,7 +140,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
             activity = this,
             getWebappUuid = { webappUuid },
             onSuccess = {
-                onPageFullyLoaded()
+                launchOverlayController.hideWhenReady(webView)
             },
             onFailure = { finish() },
         )
