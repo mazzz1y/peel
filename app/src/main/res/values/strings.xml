@@ -206,6 +206,7 @@
     <string name="image_copied">Image copied</string>
     <string name="image_download_failed">Failed to download image</string>
     <string name="download_failed">Download failed</string>
+    <string name="download_too_large">File is too large to download</string>
     <string name="setting_pull_to_refresh">Pull to refresh</string>
     <string name="setting_disable_screenshots">Block screenshots</string>
     <string name="setting_safe_browsing">Safe browsing</string>

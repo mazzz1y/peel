@@ -324,6 +324,11 @@ class WebAppListAdapter(
     private fun deleteWebApp(webapp: WebApp) {
         val uuid = webapp.uuid
         val title = webapp.title
+        val position = items.indexOfFirst { it.uuid == uuid }
+        if (position >= 0) {
+            items.removeAt(position)
+            notifyItemRemoved(position)
+        }
         activity.lifecycleScope.launch {
             DataManager.instance.softDeleteWebApps(listOf(uuid))
         }
@@ -334,6 +339,7 @@ class WebAppListAdapter(
             onUndo = {
                 activity.lifecycleScope.launch {
                     DataManager.instance.restoreWebApps(listOf(uuid))
+                    updateWebAppList()
                 }
             },
             onCommit = {

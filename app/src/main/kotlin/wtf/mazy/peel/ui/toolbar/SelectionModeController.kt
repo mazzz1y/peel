@@ -194,6 +194,7 @@ class SelectionModeController(
 
         activity.lifecycleScope.launch {
             DataManager.instance.softDeleteWebApps(uuids)
+            host.refreshCurrentPages()
         }
 
         NotificationUtils.showUndoSnackBar(
@@ -202,6 +203,7 @@ class SelectionModeController(
             onUndo = {
                 activity.lifecycleScope.launch {
                     DataManager.instance.restoreWebApps(uuids)
+                    host.refreshCurrentPages()
                 }
             },
             onCommit = {

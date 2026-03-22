@@ -239,7 +239,6 @@ class SettingViewFactory(
     }
 
 
-
     private fun setupHeaderMap(
         view: View,
         setting: SettingDefinition.StringMapSetting,

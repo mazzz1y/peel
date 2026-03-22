@@ -175,6 +175,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         fileFetcher = FileFetcher(cacheDir = cacheDir, getWebView = { webView })
         downloadHandler.fileFetcher = fileFetcher
         downloadHandler.getBaseUrl = { webapp.baseUrl }
+        downloadHandler.getCustomHeaders = { customHeaders ?: emptyMap() }
 
         val sandboxId = WebViewLauncher.resolveSandboxId(webapp)
         if (!SandboxManager.initDataDirectorySuffix(sandboxId)) {
@@ -307,7 +308,9 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     }
 
     private fun ensureDataReady(uuid: String?, forceReload: Boolean, action: () -> Unit) {
-        if (uuid == null) { action(); return }
+        if (uuid == null) {
+            action(); return
+        }
         lifecycleScope.launch {
             DataManager.instance.ensureWebAppLoaded(uuid, forceReload = forceReload)
             cachedPeelApps = DataManager.instance.queryAllWebApps()
@@ -470,6 +473,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         pageLoadHandled = false
         peelWebChromeClient?.clearPagePermissions()
         mediaPlaybackManager?.injectPolyfill()
+        webView?.let { downloadHandler.onPageStarted(it) }
     }
 
     override fun onPageFullyLoaded() {
