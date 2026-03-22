@@ -211,6 +211,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         if (!isStartupComplete) return
         val uuid = webappUuid ?: return
         if (DataManager.instance.getWebApp(uuid) == null) return
+        SandboxManager.currentSlotId?.let { SandboxManager.touchSlot(it) }
         cachedSettings = DataManager.instance.resolveEffectiveSettings(webapp)
         webView?.onResume()
         webView?.resumeTimers()
@@ -233,6 +234,10 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         biometricController.showPromptIfNeeded(
             effectiveSettings.isBiometricProtection == true,
         ) { launchOverlayController.arm { systemBarController.suppressNextAnimation = true } }
+
+        if (launchOverlayController.isVisible && !biometricController.isPromptActive && pageLoadHandled) {
+            launchOverlayController.hideWhenReady(webView)
+        }
 
         autoReloadController.start(effectiveSettings)
     }
@@ -463,7 +468,6 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
 
     override fun onPageStarted() {
         pageLoadHandled = false
-        launchOverlayController.release()
         peelWebChromeClient?.clearPagePermissions()
         mediaPlaybackManager?.injectPolyfill()
     }

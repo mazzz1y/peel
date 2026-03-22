@@ -19,6 +19,9 @@ object SandboxManager {
     private const val SANDBOX_PROCESS_SUFFIX = ":sandbox_"
 
     private lateinit var dao: SandboxSlotDao
+    private val lruDir by lazy {
+        File(App.appContext.cacheDir, "sandbox_lru").apply { mkdirs() }
+    }
 
     var activeSuffix: String? = null
         private set
@@ -65,20 +68,25 @@ object SandboxManager {
         val aliveSlots = aliveSlotSet(am)
 
         for (i in 0 until NUM_SLOTS) {
-            if (slots[i] == sandboxId && i in aliveSlots) return i
+            if (slots[i] == sandboxId && i in aliveSlots) {
+                touchSlot(i)
+                return i
+            }
         }
 
         for (i in 0 until NUM_SLOTS) {
             if (i !in aliveSlots) {
                 writeSlotMapping(i, sandboxId)
+                touchSlot(i)
                 return i
             }
         }
 
-        val evictSlot = findIdleSlot(am, aliveSlots) ?: 0
+        val evictSlot = pickEvictionSlot(am, aliveSlots)
         finishTasksInSlot(am, evictSlot)
         killSandboxProcess(am, evictSlot)
         writeSlotMapping(evictSlot, sandboxId)
+        touchSlot(evictSlot)
         return evictSlot
     }
 
@@ -135,14 +143,20 @@ object SandboxManager {
         return result
     }
 
-    private fun findIdleSlot(am: ActivityManager, aliveSlots: Set<Int>): Int? {
+    private fun pickEvictionSlot(am: ActivityManager, aliveSlots: Set<Int>): Int {
         val slotsWithTasks = mutableSetOf<Int>()
         am.appTasks?.forEach { task ->
             val className = task.taskInfo.baseActivity?.className ?: return@forEach
             val index = className.removePrefix(SANDBOX_CLASS_PREFIX).toIntOrNull() ?: return@forEach
             slotsWithTasks.add(index / ACTIVITIES_PER_SLOT)
         }
-        return (0 until NUM_SLOTS).firstOrNull { it !in slotsWithTasks && it in aliveSlots }
+        aliveSlots.firstOrNull { it !in slotsWithTasks }?.let { return it }
+        return aliveSlots.minByOrNull { File(lruDir, it.toString()).lastModified() } ?: 0
+    }
+
+    fun touchSlot(slotId: Int) {
+        lruDir.mkdirs()
+        File(lruDir, slotId.toString()).writeText("")
     }
 
     fun releaseSandbox(context: Context, uuid: String) {

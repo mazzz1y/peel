@@ -35,6 +35,7 @@ class LaunchOverlayController(
             return
         }
 
+        release()
         var hidden = false
         val fallback = Runnable {
             if (hidden || isDestroyed()) return@Runnable
@@ -62,10 +63,10 @@ class LaunchOverlayController(
 
     private fun hideIfNeeded(onHiding: (() -> Unit)? = null) {
         if (!isVisible) return
+        isVisible = false
         onHiding?.invoke()
         overlayView?.animate()?.alpha(0f)?.setDuration(animationDurationMs)
             ?.withEndAction {
-                isVisible = false
                 overlayView?.visibility = View.GONE
             }?.start()
     }
