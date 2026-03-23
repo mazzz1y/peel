@@ -59,7 +59,8 @@ class WebViewContextMenu(
     private fun resolveHitInfo(element: GeckoSession.ContentDelegate.ContextElement): HitInfo? {
         val linkUrl = element.linkUri
         val imageUrl = element.srcUri
-        val title = element.title?.takeIf { it.isNotBlank() }
+        val title = (element.linkText?.takeIf { it.isNotBlank() } ?: element.title)
+            ?.takeIf { it.isNotBlank() }
 
         return when {
             linkUrl != null && imageUrl != null -> HitInfo(
@@ -98,11 +99,10 @@ class WebViewContextMenu(
                 copyToClipboard(title, R.string.text_copied)
             })
         }
-        add(MenuAction(str(R.string.context_menu_download_link)) { downloadUrl(url) })
     }
 
     private fun imageActionsFor(url: String) = listOf(
-        MenuAction(str(R.string.context_menu_download_image)) { downloadUrl(url) },
+        MenuAction(str(R.string.context_menu_download_image)) { downloadHandler.downloadUrl(url) },
         MenuAction(str(R.string.context_menu_share_image)) { shareImage(url) },
     )
 
@@ -232,16 +232,8 @@ class WebViewContextMenu(
         activity.startActivity(Intent.createChooser(intent, null))
     }
 
-    private fun downloadUrl(url: String) {
-        downloadHandler.downloadUrl(url)
-    }
-
     private fun shareImage(url: String) {
-        val intent = Intent(Intent.ACTION_SEND).apply {
-            type = "text/plain"
-            putExtra(Intent.EXTRA_TEXT, url)
-        }
-        activity.startActivity(Intent.createChooser(intent, null))
+        downloadHandler.shareImage(url)
     }
 
     private fun str(resId: Int): String = activity.getString(resId)

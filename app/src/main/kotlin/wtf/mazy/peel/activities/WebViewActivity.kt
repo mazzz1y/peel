@@ -78,6 +78,7 @@ class WebViewActivity : AppCompatActivity(), SessionHost {
     private var customHeaders: Map<String, String>? = null
     override var filePathCallback: ((Array<Uri>?) -> Unit)? = null
     override var canGoBack = false
+    override var currentUrl = ""
 
     private val filePickerLauncher =
         registerForActivityResult(StartActivityForResult()) { result ->
@@ -180,6 +181,11 @@ class WebViewActivity : AppCompatActivity(), SessionHost {
         isStartupComplete = true
     }
 
+    override fun onStart() {
+        super.onStart()
+        geckoSession?.setActive(true)
+    }
+
     override fun onResume() {
         super.onResume()
         val uuid = webappUuid ?: return
@@ -193,7 +199,6 @@ class WebViewActivity : AppCompatActivity(), SessionHost {
         val uuid = webappUuid ?: return
         if (DataManager.instance.getWebApp(uuid) == null) return
         cachedSettings = DataManager.instance.resolveEffectiveSettings(webapp)
-        geckoSession?.setActive(true)
         mediaPlaybackManager?.setBackground(false)
         applyColorScheme()
 
@@ -206,6 +211,7 @@ class WebViewActivity : AppCompatActivity(), SessionHost {
                     _navigationStartPoint.reset()
                     loadURL(webapp.baseUrl)
                 },
+                getCurrentUrl = { currentUrl },
             )
         }
 
@@ -223,9 +229,15 @@ class WebViewActivity : AppCompatActivity(), SessionHost {
     override fun onPause() {
         super.onPause()
         if (!isStartupComplete) return
-        val settings = effectiveSettings
         floatingControls?.remove()
         floatingControls = null
+        autoReloadController.stop()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        if (!isStartupComplete) { biometricController.onStop(); return }
+        val settings = effectiveSettings
 
         if (settings.isAllowMediaPlaybackInBackground == true) {
             mediaPlaybackManager?.setBackground(true)
@@ -238,11 +250,6 @@ class WebViewActivity : AppCompatActivity(), SessionHost {
             runtime.storageController.clearData(org.mozilla.geckoview.StorageController.ClearFlags.ALL_CACHES)
         }
 
-        autoReloadController.stop()
-    }
-
-    override fun onStop() {
-        super.onStop()
         biometricController.onStop()
     }
 
@@ -556,6 +563,7 @@ class WebViewActivity : AppCompatActivity(), SessionHost {
     }
 
     private fun setupGeckoView() {
+        currentUrl = webapp.baseUrl
         val settings = effectiveSettings
         window.setBackgroundDrawable(themeBackgroundColor.toDrawable())
         setContentView(R.layout.full_webview)
@@ -572,8 +580,7 @@ class WebViewActivity : AppCompatActivity(), SessionHost {
 
         downloadHandler = DownloadHandler(
             activity = this,
-            getSession = { geckoSession },
-            getBaseUrl = { webapp.baseUrl },
+            getRuntime = { GeckoRuntimeProvider.getRuntime(this) },
         )
 
         val session = createSession(settings)

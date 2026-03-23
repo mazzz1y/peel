@@ -41,6 +41,7 @@ class FloatingControlsView(
     webappUuid: String,
     private val getSession: () -> GeckoSession?,
     private val onHome: () -> Unit,
+    private val getCurrentUrl: () -> String,
 ) {
     private val buttonPrefs = FloatingButtonPrefs(webappUuid, parent)
     private val density = parent.resources.displayMetrics.density
@@ -155,7 +156,7 @@ class FloatingControlsView(
                 Intent.createChooser(
                     Intent(Intent.ACTION_SEND).apply {
                         type = "text/plain"
-                        putExtra(Intent.EXTRA_TEXT, "")
+                        putExtra(Intent.EXTRA_TEXT, getCurrentUrl())
                     },
                     null,
                 ),

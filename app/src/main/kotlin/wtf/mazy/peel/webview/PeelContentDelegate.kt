@@ -65,6 +65,7 @@ class PeelContentDelegate(
     }
 
     override fun onExternalResponse(session: GeckoSession, response: WebResponse) {
+        Log.d(TAG, "onExternalResponse: uri=${response.uri}")
         onDownload(response)
     }
 

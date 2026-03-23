@@ -18,6 +18,7 @@ interface SessionHost {
     val webappUuid: String?
     val webAppName: String
     var canGoBack: Boolean
+    var currentUrl: String
 
     var currentlyReloading: Boolean
     val hostProgressBar: ProgressBar?
