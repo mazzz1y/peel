@@ -13,7 +13,7 @@ import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.ui.ListPickerAdapter
 import wtf.mazy.peel.util.HostIdentity
 import wtf.mazy.peel.util.NotificationUtils
-import wtf.mazy.peel.util.WebViewLauncher
+import wtf.mazy.peel.util.BrowserLauncher
 import wtf.mazy.peel.util.shortLabel
 
 class ShareReceiverActivity : AppCompatActivity() {
@@ -75,7 +75,7 @@ class ShareReceiverActivity : AppCompatActivity() {
         MaterialAlertDialogBuilder(this)
             .setTitle(R.string.open_in_peel)
             .setAdapter(adapter) { _, position ->
-                WebViewLauncher.startWebView(apps[position], this, url)
+                BrowserLauncher.launch(apps[position], this, url)
             }
             .setOnCancelListener { finish() }
             .setOnDismissListener { finish() }

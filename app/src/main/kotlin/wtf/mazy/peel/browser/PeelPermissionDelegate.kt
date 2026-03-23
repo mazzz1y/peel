@@ -1,4 +1,4 @@
-package wtf.mazy.peel.webview
+package wtf.mazy.peel.browser
 
 import android.Manifest
 import org.mozilla.geckoview.GeckoResult

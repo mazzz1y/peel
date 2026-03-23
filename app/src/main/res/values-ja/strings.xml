@@ -157,7 +157,7 @@
     <string name="ok">OK</string>
     <string name="no_biometric_devices">お使いのデバイスは生体認証に対応していません</string>
     <string name="no_biometric_keys_enrolled">お使いのデバイスは生体認証に対応していますが、設定されていません</string>
-    <string name="webview_activity_launch_failed">ウェブアプリを起動できませんでした</string>
+    <string name="browser_launch_failed">ウェブアプリを起動できませんでした</string>
 
     <string name="undo">元に戻す</string>
     <string name="x_was_removed">%1$sが削除されました</string>

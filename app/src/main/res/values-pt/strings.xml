@@ -157,7 +157,7 @@
     <string name="ok">OK</string>
     <string name="no_biometric_devices">Seu dispositivo não suporta autenticação biométrica</string>
     <string name="no_biometric_keys_enrolled">Seu dispositivo suporta biometria, mas nenhum método foi configurado</string>
-    <string name="webview_activity_launch_failed">Não foi possível iniciar o Web App</string>
+    <string name="browser_launch_failed">Não foi possível iniciar o Web App</string>
 
     <string name="undo">Desfazer</string>
     <string name="x_was_removed">%1$s foi removido</string>

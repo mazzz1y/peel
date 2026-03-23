@@ -112,7 +112,7 @@
     <string name="ok">De Acuerdo</string>
     <string name="no_biometric_devices">Su dispositivo no admite la autenticación biométrica</string>
     <string name="no_biometric_keys_enrolled">Su dispositivo admite la autenticación biométrica, pero aún no ha registrado ningún método</string>
-    <string name="webview_activity_launch_failed">La Aplicación Web no pudo ser iniciada</string>
+    <string name="browser_launch_failed">La Aplicación Web no pudo ser iniciada</string>
 
     <string name="undo">Deshacer</string>
     <string name="x_was_removed">Se ha eliminado %1$s</string>

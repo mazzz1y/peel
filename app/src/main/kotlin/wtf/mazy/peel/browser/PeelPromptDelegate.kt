@@ -1,4 +1,4 @@
-package wtf.mazy.peel.webview
+package wtf.mazy.peel.browser
 
 import android.content.Intent
 import android.net.Uri

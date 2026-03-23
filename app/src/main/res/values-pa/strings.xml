@@ -154,7 +154,7 @@
     <string name="ok">ਠੀਕ ਹੈ</string>
     <string name="no_biometric_devices">ਤੁਹਾਡੀ ਡਿਵਾਈਸ ਬਾਇਓਮੈਟ੍ਰਿਕ ਪ੍ਰਮਾਣੀਕਰਨ ਦਾ ਸਮਰਥਨ ਨਹੀਂ ਕਰਦੀ।</string>
     <string name="no_biometric_keys_enrolled">ਤੁਹਾਡੀ ਡਿਵਾਈਸ ਬਾਇਓਮੈਟ੍ਰਿਕਸ ਦਾ ਸਮਰਥਨ ਕਰਦੀ ਹੈ, ਪਰ ਕੋਈ ਤਰੀਕਾ ਸੈੱਟ ਨਹੀਂ ਹੈ।</string>
-    <string name="webview_activity_launch_failed">ਵੈੱਬ ਐਪ ਸ਼ੁਰੂ ਨਹੀਂ ਹੋ ਸਕੀ</string>
+    <string name="browser_launch_failed">ਵੈੱਬ ਐਪ ਸ਼ੁਰੂ ਨਹੀਂ ਹੋ ਸਕੀ</string>
     <string name="undo">ਵਾਪਸ ਕਰੋ</string>
     <string name="x_was_removed">%1$s ਹਟਾ ਦਿੱਤਾ ਗਿਆ।</string>
     <string name="username">ਯੂਜ਼ਰ ਨਾਮ</string>

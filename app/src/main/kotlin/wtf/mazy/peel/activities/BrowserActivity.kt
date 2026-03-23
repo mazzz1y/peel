@@ -46,27 +46,27 @@ import wtf.mazy.peel.ui.FloatingControlsView
 import wtf.mazy.peel.ui.ListPickerAdapter
 import wtf.mazy.peel.ui.dialog.InputDialogConfig
 import wtf.mazy.peel.ui.dialog.showInputDialogRaw
-import wtf.mazy.peel.ui.webview.AutoReloadController
-import wtf.mazy.peel.ui.webview.BiometricUnlockController
-import wtf.mazy.peel.ui.webview.LaunchOverlayController
-import wtf.mazy.peel.ui.webview.SystemBarController
+import wtf.mazy.peel.ui.browser.AutoReloadController
+import wtf.mazy.peel.ui.browser.BiometricUnlockController
+import wtf.mazy.peel.ui.browser.LaunchOverlayController
+import wtf.mazy.peel.ui.browser.SystemBarController
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.HostIdentity
 import wtf.mazy.peel.util.NotificationUtils
-import wtf.mazy.peel.util.WebViewLauncher
+import wtf.mazy.peel.util.BrowserLauncher
 import wtf.mazy.peel.util.shortLabel
-import wtf.mazy.peel.webview.DownloadHandler
-import wtf.mazy.peel.webview.NavigationStartPoint
-import wtf.mazy.peel.webview.PeelContentDelegate
-import wtf.mazy.peel.webview.PeelNavigationDelegate
-import wtf.mazy.peel.webview.PeelPermissionDelegate
-import wtf.mazy.peel.webview.PeelProgressDelegate
-import wtf.mazy.peel.webview.PeelPromptDelegate
-import wtf.mazy.peel.webview.PermissionResult
-import wtf.mazy.peel.webview.SessionHost
-import wtf.mazy.peel.webview.WebViewContextMenu
+import wtf.mazy.peel.browser.BrowserContextMenu
+import wtf.mazy.peel.browser.DownloadHandler
+import wtf.mazy.peel.browser.NavigationStartPoint
+import wtf.mazy.peel.browser.PeelContentDelegate
+import wtf.mazy.peel.browser.PeelNavigationDelegate
+import wtf.mazy.peel.browser.PeelPermissionDelegate
+import wtf.mazy.peel.browser.PeelProgressDelegate
+import wtf.mazy.peel.browser.PeelPromptDelegate
+import wtf.mazy.peel.browser.PermissionResult
+import wtf.mazy.peel.browser.SessionHost
 
-class WebViewActivity : AppCompatActivity(), SessionHost {
+class BrowserActivity : AppCompatActivity(), SessionHost {
     override var webappUuid: String? = null
 
     private var geckoView: NestedGeckoView? = null
@@ -109,7 +109,7 @@ class WebViewActivity : AppCompatActivity(), SessionHost {
     private lateinit var navigationDelegate: PeelNavigationDelegate
     private lateinit var permissionDelegate: PeelPermissionDelegate
     private lateinit var promptDelegate: PeelPromptDelegate
-    private var contextMenu: WebViewContextMenu? = null
+    private var contextMenu: BrowserContextMenu? = null
 
     private var pageLoadHandled = false
     private var mediaPlaybackManager: MediaPlaybackManager? = null
@@ -204,7 +204,7 @@ class WebViewActivity : AppCompatActivity(), SessionHost {
 
         if (effectiveSettings.isShowNotification == true && floatingControls == null) {
             floatingControls = FloatingControlsView(
-                parent = findViewById(R.id.webview_root),
+                parent = findViewById(R.id.browser_root),
                 webappUuid = uuid,
                 getSession = { geckoSession },
                 onHome = {
@@ -566,10 +566,10 @@ class WebViewActivity : AppCompatActivity(), SessionHost {
         currentUrl = webapp.baseUrl
         val settings = effectiveSettings
         window.setBackgroundDrawable(themeBackgroundColor.toDrawable())
-        setContentView(R.layout.full_webview)
+        setContentView(R.layout.activity_browser)
         bindViews()
         systemBarController.attach(
-            rootView = findViewById(R.id.webview_root),
+            rootView = findViewById(R.id.browser_root),
             applyDynamicColor = settings.isDynamicStatusBar == true,
         )
         applyWindowFlags(settings)
@@ -666,7 +666,7 @@ class WebViewActivity : AppCompatActivity(), SessionHost {
     }
 
     private fun setupContextMenu(settings: WebAppSettings) {
-        contextMenu = WebViewContextMenu(
+        contextMenu = BrowserContextMenu(
             activity = this,
             downloadHandler = downloadHandler,
             onExternalIntent = ::startExternalIntent,
@@ -687,10 +687,10 @@ class WebViewActivity : AppCompatActivity(), SessionHost {
     }
 
     private fun bindViews() {
-        findViewById<View>(R.id.webview_root)?.setBackgroundColor(themeBackgroundColor)
-        findViewById<View>(R.id.webviewActivity)?.setBackgroundColor(themeBackgroundColor)
+        findViewById<View>(R.id.browser_root)?.setBackgroundColor(themeBackgroundColor)
+        findViewById<View>(R.id.browserContent)?.setBackgroundColor(themeBackgroundColor)
         geckoView = findViewById(R.id.geckoview)
-        val overlay = findViewById<View>(R.id.webviewLaunchOverlay)
+        val overlay = findViewById<View>(R.id.launchOverlay)
         launchOverlayController.attach(overlay, themeBackgroundColor)
         launchOverlayController.arm { systemBarController.suppressNextAnimation = true }
         progressBar = findViewById(R.id.progressBar)
@@ -772,7 +772,7 @@ class WebViewActivity : AppCompatActivity(), SessionHost {
                     detail.visibility = View.VISIBLE
                 }
             }
-            MaterialAlertDialogBuilder(this@WebViewActivity)
+            MaterialAlertDialogBuilder(this@BrowserActivity)
                 .setTitle(R.string.open_in_peel)
                 .setAdapter(adapter) { _, position -> launchWebApp(apps[position], url) }
                 .show()
@@ -780,7 +780,7 @@ class WebViewActivity : AppCompatActivity(), SessionHost {
     }
 
     private fun launchWebApp(webapp: WebApp, url: String) {
-        WebViewLauncher.startWebView(webapp, this, url)
+        BrowserLauncher.launch(webapp, this, url)
     }
 
     private fun setupBackNavigation() {
@@ -827,7 +827,7 @@ class WebViewActivity : AppCompatActivity(), SessionHost {
         private const val UI_ANIMATION_DURATION_MS = 300L
         private const val OVERLAY_HIDE_FALLBACK_MS = 800L
 
-        private val liveInstances = mutableSetOf<WebViewActivity>()
+        private val liveInstances = mutableSetOf<BrowserActivity>()
 
         fun finishByUuid(uuid: String) {
             liveInstances.filter { it.webappUuid == uuid }.forEach { it.finish() }

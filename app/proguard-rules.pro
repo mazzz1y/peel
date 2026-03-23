@@ -5,11 +5,6 @@
 # For more details, see
 #   http://developer.android.com/guide/developing/tools/proguard.html
 
-# Keep WebView JavaScript interfaces
--keepclassmembers class * {
-    @android.webkit.JavascriptInterface <methods>;
-}
-
 # Keep data binding classes (only generated binding classes for this app)
 -keep class wtf.mazy.peel.databinding.** { *; }
 -keep class androidx.databinding.ViewDataBinding { *; }
@@ -19,9 +14,8 @@
 -keep class wtf.mazy.peel.model.** { *; }
 -keepclassmembers class wtf.mazy.peel.model.** { *; }
 
-# Keep WebView Activity variants (critical for sandbox functionality!)
--keep class wtf.mazy.peel.activities.__WebViewActivity_* { *; }
--keep class wtf.mazy.peel.activities.WebViewActivity { *; }
+# Keep BrowserActivity
+-keep class wtf.mazy.peel.activities.BrowserActivity { *; }
 
 # Keep all activities
 -keep class * extends androidx.appcompat.app.AppCompatActivity { *; }
@@ -85,6 +79,4 @@
 -keep class androidx.biometric.BiometricPrompt { *; }
 -keep class androidx.biometric.BiometricManager { *; }
 
-# WebKit
--keep class androidx.webkit.WebViewCompat { *; }
--keep class androidx.webkit.WebSettingsCompat { *; }
+

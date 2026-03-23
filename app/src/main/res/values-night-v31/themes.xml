@@ -6,5 +6,5 @@
         <item name="android:windowBackground">@drawable/launch_screen</item>
     </style>
 
-    <style name="AppTheme.WebView" />
+    <style name="AppTheme.Browser" />
 </resources>

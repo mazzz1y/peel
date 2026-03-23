@@ -157,7 +157,7 @@
     <string name="ok">确定</string>
     <string name="no_biometric_devices">您的设备不支持生物识别认证</string>
     <string name="no_biometric_keys_enrolled">您的设备支持生物识别认证，但尚未设置</string>
-    <string name="webview_activity_launch_failed">无法启动网页应用</string>
+    <string name="browser_launch_failed">无法启动网页应用</string>
 
     <string name="undo">撤销</string>
     <string name="x_was_removed">%1$s 已删除</string>

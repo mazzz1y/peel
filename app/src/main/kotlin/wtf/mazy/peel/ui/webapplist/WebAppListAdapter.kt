@@ -25,7 +25,7 @@ import wtf.mazy.peel.ui.common.ShareSecretsDialog
 import wtf.mazy.peel.ui.toolbar.ToolbarModeHost
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.NotificationUtils
-import wtf.mazy.peel.util.WebViewLauncher.startWebView
+import wtf.mazy.peel.util.BrowserLauncher.launch
 import wtf.mazy.peel.util.displayUrl
 import java.util.Collections
 
@@ -163,7 +163,7 @@ class WebAppListAdapter(
 
     private fun applyNormalListeners(holder: ViewHolder, item: WebApp) {
         holder.menuButton.isEnabled = true
-        holder.itemView.setOnClickListener { startWebView(item, activity) }
+        holder.itemView.setOnClickListener { launch(item, activity) }
         holder.appIcon.setOnClickListener {
             selectionHost?.enterSelectionMode(item.uuid)
         }

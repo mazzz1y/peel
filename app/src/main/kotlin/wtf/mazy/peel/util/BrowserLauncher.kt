@@ -7,13 +7,13 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.net.toUri
 import wtf.mazy.peel.R
-import wtf.mazy.peel.activities.WebViewActivity
+import wtf.mazy.peel.activities.BrowserActivity
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.ui.BiometricPromptHelper
 
-object WebViewLauncher {
-    fun startWebView(webapp: WebApp, c: Context, url: String? = null) {
+object BrowserLauncher {
+    fun launch(webapp: WebApp, c: Context, url: String? = null) {
         try {
             if (DataManager.instance.resolveEffectiveSettings(webapp).isBiometricProtection == true) {
                 val error = BiometricPromptHelper.getBiometricError(c)
@@ -22,7 +22,7 @@ object WebViewLauncher {
                     return
                 }
             }
-            val intent = createWebViewIntent(webapp, c) ?: return
+            val intent = createIntent(webapp, c) ?: return
             if (url != null) intent.putExtra(Const.INTENT_TARGET_URL, url)
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
             c.startActivity(intent)
@@ -32,7 +32,7 @@ object WebViewLauncher {
     }
 
     fun buildPendingIntent(webapp: WebApp, context: Context): PendingIntent? {
-        val intent = createWebViewIntent(webapp, context) ?: return null
+        val intent = createIntent(webapp, context) ?: return null
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
         return PendingIntent.getActivity(
             context,
@@ -42,9 +42,9 @@ object WebViewLauncher {
         )
     }
 
-    internal fun createWebViewIntent(webapp: WebApp, c: Context?): Intent? {
+    internal fun createIntent(webapp: WebApp, c: Context?): Intent? {
         if (c == null) return null
-        return Intent(c, WebViewActivity::class.java).apply {
+        return Intent(c, BrowserActivity::class.java).apply {
             putExtra(Const.INTENT_WEBAPP_UUID, webapp.uuid)
             data = "app://${webapp.uuid}".toUri()
             action = Intent.ACTION_VIEW
@@ -61,7 +61,7 @@ object WebViewLauncher {
         if (c is AppCompatActivity) {
             NotificationUtils.showToast(
                 c,
-                c.getString(R.string.webview_activity_launch_failed),
+                c.getString(R.string.browser_launch_failed),
                 Toast.LENGTH_LONG,
             )
         }

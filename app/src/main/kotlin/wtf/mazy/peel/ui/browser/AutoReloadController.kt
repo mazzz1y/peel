@@ -1,4 +1,4 @@
-package wtf.mazy.peel.ui.webview
+package wtf.mazy.peel.ui.browser
 
 import android.os.Handler
 import wtf.mazy.peel.model.WebAppSettings

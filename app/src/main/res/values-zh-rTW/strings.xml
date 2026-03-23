@@ -157,7 +157,7 @@
     <string name="ok">確定</string>
     <string name="no_biometric_devices">您的裝置不支援生物辨識驗證</string>
     <string name="no_biometric_keys_enrolled">您的裝置支援生物辨識驗證，但尚未設定</string>
-    <string name="webview_activity_launch_failed">無法啟動網頁應用程式</string>
+    <string name="browser_launch_failed">無法啟動網頁應用程式</string>
 
     <string name="undo">復原</string>
     <string name="x_was_removed">%1$s 已刪除</string>

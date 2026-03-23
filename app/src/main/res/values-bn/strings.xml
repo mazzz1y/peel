@@ -157,7 +157,7 @@
     <string name="ok">ঠিক আছে</string>
     <string name="no_biometric_devices">আপনার ডিভাইস বায়োমেট্রিক প্রমাণীকরণ সমর্থন করে না।</string>
     <string name="no_biometric_keys_enrolled">আপনার ডিভাইস বায়োমেট্রিক্স সমর্থন করে, কিন্তু কোনো পদ্ধতি সেট করা হয়নি।</string>
-    <string name="webview_activity_launch_failed">ওয়েব অ্যাপ শুরু করা যায়নি</string>
+    <string name="browser_launch_failed">ওয়েব অ্যাপ শুরু করা যায়নি</string>
 
     <string name="undo">পূর্বাবস্থায়</string>
     <string name="x_was_removed">%1$s সরানো হয়েছে।</string>

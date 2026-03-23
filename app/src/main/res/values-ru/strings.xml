@@ -157,7 +157,7 @@
     <string name="ok">ОК</string>
     <string name="no_biometric_devices">Ваше устройство не поддерживает биометрическую аутентификацию</string>
     <string name="no_biometric_keys_enrolled">Ваше устройство поддерживает биометрию, но ни один метод не настроен</string>
-    <string name="webview_activity_launch_failed">Не удалось запустить веб-приложение</string>
+    <string name="browser_launch_failed">Не удалось запустить веб-приложение</string>
 
     <string name="undo">Отменить</string>
     <string name="x_was_removed">%1$s удалено</string>

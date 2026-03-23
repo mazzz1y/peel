@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/webview_root"
+    android:id="@+id/browser_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -22,7 +22,7 @@
         android:outlineProvider="none" />
 
     <FrameLayout
-        android:id="@+id/webviewActivity"
+        android:id="@+id/browserContent"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -42,7 +42,7 @@
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
         <View
-            android:id="@+id/webviewLaunchOverlay"
+            android:id="@+id/launchOverlay"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 

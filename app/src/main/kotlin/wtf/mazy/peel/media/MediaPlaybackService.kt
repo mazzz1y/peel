@@ -32,7 +32,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.DataManager
-import wtf.mazy.peel.util.WebViewLauncher
+import wtf.mazy.peel.util.BrowserLauncher
 import java.io.ByteArrayOutputStream
 
 @OptIn(UnstableApi::class)
@@ -224,7 +224,7 @@ open class MediaPlaybackService : MediaSessionService() {
             DataManager.instance.loadAppData()
         }
         val webapp = DataManager.instance.getWebApp(uuid) ?: return null
-        return WebViewLauncher.buildPendingIntent(webapp, this)
+        return BrowserLauncher.buildPendingIntent(webapp, this)
     }
 
     private fun createNotificationChannel() {

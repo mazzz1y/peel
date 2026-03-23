@@ -1,4 +1,4 @@
-package wtf.mazy.peel.ui.webview
+package wtf.mazy.peel.ui.browser
 
 import android.content.BroadcastReceiver
 import android.content.Context

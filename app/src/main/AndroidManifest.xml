@@ -114,7 +114,7 @@
             android:theme="@style/AppTheme.Trampoline" />
 
         <activity
-            android:name=".activities.WebViewActivity"
+            android:name=".activities.BrowserActivity"
             android:configChanges="orientation|screenSize|smallestScreenSize|density|screenLayout|uiMode|keyboard|keyboardHidden|navigation"
             android:documentLaunchMode="intoExisting"
             android:exported="false"
@@ -122,7 +122,7 @@
             android:launchMode="singleTask"
             android:roundIcon="@mipmap/ic_launcher"
             android:taskAffinity=""
-            android:theme="@style/AppTheme.WebView"
+            android:theme="@style/AppTheme.Browser"
             android:windowSoftInputMode="adjustResize" />
 
         <service

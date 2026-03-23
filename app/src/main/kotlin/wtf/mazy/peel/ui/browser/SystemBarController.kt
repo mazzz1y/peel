@@ -1,4 +1,4 @@
-package wtf.mazy.peel.ui.webview
+package wtf.mazy.peel.ui.browser
 
 import android.animation.ValueAnimator
 import android.view.View
@@ -24,7 +24,7 @@ class SystemBarController(
     fun attach(rootView: View, applyDynamicColor: Boolean) {
         statusBarScrim = rootView.findViewById(R.id.statusBarScrim)
         navigationBarScrim = rootView.findViewById(R.id.navigationBarScrim)
-        contentView = rootView.findViewById(R.id.webviewActivity)
+        contentView = rootView.findViewById(R.id.browserContent)
         if (applyDynamicColor) {
             applyColor(getThemeColor())
         }

@@ -157,7 +157,7 @@
     <string name="ok">ठीक</string>
     <string name="no_biometric_devices">आपका डिवाइस बायोमेट्रिक प्रमाणीकरण का समर्थन नहीं करता।</string>
     <string name="no_biometric_keys_enrolled">आपका डिवाइस बायोमेट्रिक्स का समर्थन करता है, लेकिन कोई विधि सेट नहीं है।</string>
-    <string name="webview_activity_launch_failed">वेब ऐप शुरू नहीं हो सका</string>
+    <string name="browser_launch_failed">वेब ऐप शुरू नहीं हो सका</string>
 
     <string name="undo">पूर्ववत</string>
     <string name="x_was_removed">%1$s हटा दिया गया।</string>

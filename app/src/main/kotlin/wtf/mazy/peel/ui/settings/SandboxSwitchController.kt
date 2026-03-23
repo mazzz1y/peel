@@ -6,7 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.materialswitch.MaterialSwitch
 import wtf.mazy.peel.R
-import wtf.mazy.peel.activities.WebViewActivity
+import wtf.mazy.peel.activities.BrowserActivity
 import wtf.mazy.peel.model.SandboxManager
 import wtf.mazy.peel.model.SandboxOwner
 import wtf.mazy.peel.util.NotificationUtils.showToast
@@ -99,7 +99,7 @@ class SandboxSwitchController(
     }
 
     private fun clearSandboxData() {
-        WebViewActivity.finishByUuid(owner.uuid)
+        BrowserActivity.finishByUuid(owner.uuid)
         if (SandboxManager.clearSandboxData(activity, owner.uuid)) {
             showToast(activity, activity.getString(R.string.clear_sandbox_data), Toast.LENGTH_SHORT)
         }

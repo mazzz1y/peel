@@ -157,7 +157,7 @@
     <string name="ok">OK</string>
     <string name="no_biometric_devices">Thiết bị của bạn không hỗ trợ xác thực sinh trắc học</string>
     <string name="no_biometric_keys_enrolled">Thiết bị hỗ trợ sinh trắc học nhưng chưa được thiết lập</string>
-    <string name="webview_activity_launch_failed">Không thể khởi chạy ứng dụng web</string>
+    <string name="browser_launch_failed">Không thể khởi chạy ứng dụng web</string>
 
     <string name="undo">Hoàn tác</string>
     <string name="x_was_removed">%1$s đã bị xóa</string>

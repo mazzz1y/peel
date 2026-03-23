@@ -513,7 +513,7 @@ class MainActivity :
     }
 
     private fun clearBrowsingData(includeSandbox: Boolean) {
-        WebViewActivity.finishAll()
+        BrowserActivity.finishAll()
         SandboxManager.clearNonSandboxData()
         if (includeSandbox) {
             SandboxManager.clearAllSandboxData(this)
@@ -521,7 +521,7 @@ class MainActivity :
     }
 
     private fun performFactoryReset() {
-        WebViewActivity.finishAll()
+        BrowserActivity.finishAll()
         SandboxManager.clearNonSandboxData()
         SandboxManager.clearAllSandboxData(this)
 

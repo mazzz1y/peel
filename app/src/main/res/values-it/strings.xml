@@ -112,7 +112,7 @@
     <string name="ok">OK</string>
     <string name="no_biometric_devices">Il dispositivo non supporta l\'autenticazione biometrica</string>
     <string name="no_biometric_keys_enrolled">Il dispositivo supporta l\'autenticazione biometrica, ma non è stato ancora registrato alcun metodo</string>
-    <string name="webview_activity_launch_failed">Impossibile avviare la Web App</string>
+    <string name="browser_launch_failed">Impossibile avviare la Web App</string>
 
     <string name="undo">Annulla</string>
     <string name="x_was_removed">%1$s è stato rimosso</string>

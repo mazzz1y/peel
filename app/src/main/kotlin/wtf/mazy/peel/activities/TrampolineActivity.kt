@@ -12,7 +12,7 @@ import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.ui.ListPickerAdapter
 import wtf.mazy.peel.util.Const
-import wtf.mazy.peel.util.WebViewLauncher
+import wtf.mazy.peel.util.BrowserLauncher
 
 class TrampolineActivity : AppCompatActivity() {
 
@@ -25,7 +25,7 @@ class TrampolineActivity : AppCompatActivity() {
             val webappUuid = intent.getStringExtra(Const.INTENT_WEBAPP_UUID)
             if (webappUuid != null) {
                 val webapp = DataManager.instance.getWebApp(webappUuid)
-                if (webapp != null) WebViewLauncher.startWebView(webapp, this@TrampolineActivity)
+                if (webapp != null) BrowserLauncher.launch(webapp, this@TrampolineActivity)
                 finish()
                 return@launch
             }
@@ -61,7 +61,7 @@ class TrampolineActivity : AppCompatActivity() {
         }
 
         MaterialAlertDialogBuilder(this).setTitle(title).setAdapter(adapter) { _, position ->
-            WebViewLauncher.startWebView(apps[position], this)
+            BrowserLauncher.launch(apps[position], this)
             finish()
         }.setOnCancelListener { finish() }.setOnDismissListener { finish() }.show()
     }

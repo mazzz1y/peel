@@ -69,7 +69,7 @@
         <item name="android:backgroundDimEnabled">false</item>
     </style>
 
-    <style name="AppTheme.WebView" />
+    <style name="AppTheme.Browser" />
 
     <!-- Circle image style -->
     <style name="ShapeAppearance.App.CircleImageView" parent="">

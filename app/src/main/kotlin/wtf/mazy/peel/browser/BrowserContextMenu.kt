@@ -1,4 +1,4 @@
-package wtf.mazy.peel.webview
+package wtf.mazy.peel.browser
 
 import android.content.ClipData
 import android.content.ClipboardManager
@@ -10,7 +10,6 @@ import android.text.TextUtils
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
-import android.webkit.MimeTypeMap
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -19,7 +18,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import org.mozilla.geckoview.GeckoSession
 import wtf.mazy.peel.R
 
-class WebViewContextMenu(
+class BrowserContextMenu(
     private val activity: Context,
     private val downloadHandler: DownloadHandler,
     private val onExternalIntent: (Uri) -> Unit,
