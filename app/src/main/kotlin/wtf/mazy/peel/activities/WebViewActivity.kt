@@ -584,17 +584,18 @@ class WebViewActivity : AppCompatActivity(), SessionHost {
         promptDelegate = PeelPromptDelegate(this)
 
         session.navigationDelegate = navigationDelegate
-        session.progressDelegate = PeelProgressDelegate(this)
         if (settings.isLongClickShare == true) setupContextMenu(settings)
         val contextMenuCallback: ((GeckoSession, Int, Int, GeckoSession.ContentDelegate.ContextElement) -> Unit)? =
             if (contextMenu != null) {
                 { s: GeckoSession, x: Int, y: Int, el: GeckoSession.ContentDelegate.ContextElement -> contextMenu?.onContextMenu(s, x, y, el) }
             } else null
-        session.contentDelegate = PeelContentDelegate(
+        val contentDelegate = PeelContentDelegate(
             host = this,
             onDownload = { response -> downloadHandler.onExternalResponse(response) },
             onContextMenu = contextMenuCallback,
         )
+        session.contentDelegate = contentDelegate
+        session.progressDelegate = PeelProgressDelegate(this)
         session.permissionDelegate = permissionDelegate
         session.promptDelegate = promptDelegate
 
@@ -603,8 +604,14 @@ class WebViewActivity : AppCompatActivity(), SessionHost {
         session.setActive(true)
         geckoView?.setSession(session)
 
-        loadURL(sharedUrlFromIntent() ?: webapp.baseUrl)
-        setupMediaPlayback(settings)
+        lifecycleScope.launch {
+            if (settings.isDynamicStatusBar == true) {
+                val ext = GeckoRuntimeProvider.ensureThemeColorExtension(applicationContext)
+                if (ext != null) contentDelegate.setupThemeColorExtension(ext, session)
+            }
+            loadURL(sharedUrlFromIntent() ?: webapp.baseUrl)
+            setupMediaPlayback(settings)
+        }
     }
 
     private fun createSession(settings: WebAppSettings): GeckoSession {

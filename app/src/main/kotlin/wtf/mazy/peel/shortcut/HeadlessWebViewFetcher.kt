@@ -5,7 +5,6 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
@@ -72,21 +71,16 @@ class HeadlessFetcher(
         if (loadUrl.startsWith("http://") && settings.isAlwaysHttps == true)
             loadUrl = loadUrl.replaceFirst("http://", "https://")
 
-        Log.d(TAG, "start url=$loadUrl contextId=$contextId private=$usePrivateMode")
-
         scope.launch {
             val result = try {
                 withTimeout(TIMEOUT_MS) { doFetch(loadUrl) }
-            } catch (e: TimeoutCancellationException) {
-                Log.d(TAG, "timeout reached")
+            } catch (_: TimeoutCancellationException) {
                 FetchResult(emptyList(), null)
-            } catch (e: Exception) {
-                Log.d(TAG, "doFetch exception: $e")
+            } catch (_: Exception) {
                 FetchResult(emptyList(), null)
             } finally {
                 teardown()
             }
-            Log.d(TAG, "finish candidates=${result.candidates.size} redirect=${result.redirectedUrl}")
             finish(result)
         }
     }
@@ -124,14 +118,12 @@ class HeadlessFetcher(
                 perms: MutableList<GeckoSession.PermissionDelegate.ContentPermission>,
                 hasUserGesture: Boolean,
             ) {
-                Log.d(TAG, "onLocationChange: $url")
                 if (url != null && !url.startsWith("about:")) capturedUrl = url
             }
         }
 
         session.progressDelegate = object : GeckoSession.ProgressDelegate {
             override fun onPageStop(session: GeckoSession, success: Boolean) {
-                Log.d(TAG, "onPageStop: success=$success url=$capturedUrl")
                 if (capturedUrl != null) pageLoaded.complete(Unit)
             }
         }
@@ -139,21 +131,16 @@ class HeadlessFetcher(
         session.contentDelegate = object : GeckoSession.ContentDelegate {
             override fun onTitleChange(session: GeckoSession, title: String?) {
                 if (title != null && title.startsWith(DATA_PREFIX)) {
-                    Log.d(TAG, "onTitleChange: data payload (${title.length} chars)")
                     try {
                         jsData.complete(JSONObject(title.removePrefix(DATA_PREFIX)))
-                    } catch (e: Exception) {
-                        Log.d(TAG, "onTitleChange: parse error: $e")
-                    }
+                    } catch (_: Exception) {}
                 } else if (!title.isNullOrEmpty()) {
-                    Log.d(TAG, "onTitleChange: $title")
                     capturedTitle = title
                 }
             }
         }
 
         postProgress(appContext.getString(R.string.fetch_step_loading))
-        Log.d(TAG, "opening session, loading $loadUrl")
         session.open(GeckoRuntimeProvider.getRuntime(appContext))
         attachView(session)
         session.setActive(true)
@@ -170,12 +157,9 @@ class HeadlessFetcher(
         }
 
         pageLoaded.await()
-        Log.d(TAG, "page loaded, injecting extraction script")
-
         session.loadUri(EXTRACT_PAGE_INFO_JS)
 
         val info = withTimeoutOrNull(JS_WAIT_MS) { jsData.await() }
-        Log.d(TAG, "jsData=${info != null} title=$capturedTitle")
 
         postProgress(appContext.getString(R.string.fetch_step_downloading))
 
@@ -219,7 +203,6 @@ class HeadlessFetcher(
         val bestTitle = candidates.firstOrNull { it.source == "PWA" }?.title ?: pageTitle
         if (bestTitle != null) candidates += FetchCandidate(bestTitle, null, "")
 
-        Log.d(TAG, "resolve: ${candidates.size} candidates (${candidates.map { "${it.source}:${it.icon != null}" }})")
         return FetchResult(candidates.deduplicatedBySize(), redirected)
     }
 
@@ -234,7 +217,6 @@ class HeadlessFetcher(
         val icon = downloadBestManifestIcon(m, baseUrl)
         val startUrl = m.optString("start_url").takeIf { it.isNotEmpty() }
             ?.let { resolveUrl(baseUrl, it) }
-        Log.d(TAG, "resolveManifest: name=$name icon=${icon != null} startUrl=$startUrl")
         if (name == null && icon == null) return null
         return FetchCandidate(name ?: pageTitle, icon, "PWA", startUrl)
     }
@@ -255,7 +237,6 @@ class HeadlessFetcher(
             if (rel.contains("apple-touch-icon")) touchIcons += width to href
             else linkIcons += width to href
         }
-        Log.d(TAG, "resolvePageIcons: touch=${touchIcons.size} link=${linkIcons.size}")
         val result = mutableListOf<FetchCandidate>()
         downloadLargest(touchIcons)?.let { result += FetchCandidate(pageTitle, it, "Apple") }
         downloadLargest(linkIcons)?.let { result += FetchCandidate(pageTitle, it, "HTML") }
@@ -264,9 +245,7 @@ class HeadlessFetcher(
 
     private fun resolveFavicon(pageUrl: String, pageTitle: String?): FetchCandidate? {
         val faviconUrl = "${originOf(pageUrl)}/favicon.ico"
-        val bmp = downloadBitmap(faviconUrl)
-        Log.d(TAG, "resolveFavicon: $faviconUrl -> ${bmp != null}")
-        if (bmp == null) return null
+        val bmp = downloadBitmap(faviconUrl) ?: return null
         return FetchCandidate(pageTitle, bmp, "Favicon")
     }
 
@@ -278,7 +257,6 @@ class HeadlessFetcher(
                 scope.ensureActive()
                 val resolved = resolveUrl(base, path)
                 if (tried.add(resolved)) {
-                    Log.d(TAG, "probeManifest: trying $resolved")
                     tryFetchManifest(resolved)?.let { return it }
                 }
             }
@@ -288,7 +266,6 @@ class HeadlessFetcher(
                 scope.ensureActive()
                 val atOrigin = "${originOf(base)}$path"
                 if (tried.add(atOrigin)) {
-                    Log.d(TAG, "probeManifest: trying $atOrigin")
                     tryFetchManifest(atOrigin)?.let { return it }
                 }
             }
@@ -301,7 +278,6 @@ class HeadlessFetcher(
             val conn = openConnection(manifestUrl)
             try {
                 val code = conn.responseCode
-                Log.d(TAG, "tryFetchManifest: $manifestUrl -> $code")
                 if (code != 200) return null
                 if (conn.contentType?.lowercase().orEmpty().contains("html")) return null
                 val json = JSONObject(conn.inputStream.bufferedReader().use { it.readText() })
@@ -309,8 +285,7 @@ class HeadlessFetcher(
             } finally {
                 conn.disconnect()
             }
-        } catch (e: Exception) {
-            Log.d(TAG, "tryFetchManifest: $manifestUrl error: $e")
+        } catch (_: Exception) {
             null
         }
     }
@@ -329,14 +304,12 @@ class HeadlessFetcher(
             if (purpose.isEmpty() || purpose.contains("any")) any += width to resolved
             else other += width to resolved
         }
-        Log.d(TAG, "downloadBestManifestIcon: any=${any.size} other=${other.size}")
         return downloadLargest(any) ?: downloadLargest(other)
     }
 
     private fun downloadLargest(icons: List<Pair<Int, String>>): Bitmap? {
-        for ((w, iconUrl) in icons.sortedByDescending { it.first }) {
+        for ((_, iconUrl) in icons.sortedByDescending { it.first }) {
             scope.ensureActive()
-            Log.d(TAG, "downloadLargest: trying ${w}px $iconUrl")
             downloadBitmap(iconUrl)?.let { return it }
         }
         return null
@@ -346,11 +319,7 @@ class HeadlessFetcher(
         return try {
             val conn = openConnection(url)
             try {
-                val code = conn.responseCode
-                if (code != 200) {
-                    Log.d(TAG, "downloadBitmap: $url -> $code")
-                    return null
-                }
+                if (conn.responseCode != 200) return null
                 val ct = conn.contentType?.lowercase().orEmpty()
                 if (ct.contains("image/svg")) return null
                 if (ct.startsWith("text/") || ct.contains("html") ||
@@ -365,8 +334,7 @@ class HeadlessFetcher(
             } finally {
                 conn.disconnect()
             }
-        } catch (e: Exception) {
-            Log.d(TAG, "downloadBitmap: $url error: $e")
+        } catch (_: Exception) {
             null
         }
     }
@@ -411,7 +379,6 @@ class HeadlessFetcher(
     }
 
     companion object {
-        private const val TAG = "PeelFetch"
         private const val TIMEOUT_MS = 20_000L
         private const val JS_WAIT_MS = 3_000L
         private const val CONNECTION_TIMEOUT_MS = 4_000

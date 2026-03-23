@@ -1,0 +1,22 @@
+{
+  "manifest_version": 2,
+  "name": "Theme Color",
+  "version": "5",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "theme-color@peel.mazy.wtf"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "permissions": [
+    "geckoViewAddons",
+    "nativeMessaging",
+    "nativeMessagingFromContent"
+  ]
+}
