@@ -22,6 +22,8 @@ interface ToolbarModeHost {
     fun shareApps(webApps: List<WebApp>, includeSecrets: Boolean)
     fun updateBackPressEnabled()
 
+    fun addPendingDeletes(uuids: Collection<String>)
+    fun clearPendingDeletes(uuids: Collection<String>)
     fun dispatchSelectionEntered(toggledUuid: String)
     fun dispatchSelectionToggled(uuid: String)
     fun dispatchSelectionExited(previouslySelected: Set<String>)

@@ -18,7 +18,6 @@ data class WebApp(var baseUrl: String, override val uuid: String = UUID.randomUU
     override val letterIconSeed: String
         get() = baseUrl
 
-    var isActiveEntry = true
     override var isUseContainer = false
     override var isEphemeralSandbox = false
     var order = 0
@@ -41,7 +40,6 @@ data class WebApp(var baseUrl: String, override val uuid: String = UUID.randomUU
 
     constructor(other: WebApp) : this(other.baseUrl, other.uuid) {
         title = other.title
-        isActiveEntry = other.isActiveEntry
         isUseContainer = other.isUseContainer
         isEphemeralSandbox = other.isEphemeralSandbox
         order = other.order

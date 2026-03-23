@@ -44,7 +44,6 @@ object BackupImportService {
             val webApp = surrogate.toDomain(targetUuid)
             webApp.groupUuid = destinationGroupUuid
             webApp.order = nextOrder++
-            webApp.isActiveEntry = true
 
             dataManager.addWebsite(webApp)
             parsed.icons[surrogate.uuid]?.let { BackupArchiveCodec.saveIcon(webApp.uuid, it) }
@@ -102,7 +101,6 @@ object BackupImportService {
             val webApp = surrogate.toDomain(targetUuid)
             webApp.groupUuid = surrogate.groupUuid?.let(groupUuidMap::get) ?: defaultGroupUuid
             webApp.order = nextOrder++
-            webApp.isActiveEntry = true
 
             dataManager.addWebsite(webApp)
             parsed.icons[surrogate.uuid]?.let { BackupArchiveCodec.saveIcon(webApp.uuid, it) }

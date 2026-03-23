@@ -68,16 +68,6 @@ class DataManager private constructor() {
             val orderedUuids: List<String>
         ) : Action
 
-        data class SoftDeleteWebApps(
-            override val done: CompletableDeferred<Unit>,
-            val uuids: List<String>
-        ) : Action
-
-        data class RestoreWebApps(
-            override val done: CompletableDeferred<Unit>,
-            val uuids: List<String>
-        ) : Action
-
         data class ImportData(
             override val done: CompletableDeferred<Unit>,
             val importedWebApps: List<WebApp>,
@@ -204,17 +194,7 @@ class DataManager private constructor() {
         enqueueAndAwait(Action.ReorderWebApps(CompletableDeferred(), orderedUuids))
     }
 
-    suspend fun softDeleteWebApps(uuids: List<String>) {
-        awaitReady()
-        enqueueAndAwait(Action.SoftDeleteWebApps(CompletableDeferred(), uuids))
-    }
-
-    suspend fun restoreWebApps(uuids: List<String>) {
-        awaitReady()
-        enqueueAndAwait(Action.RestoreWebApps(CompletableDeferred(), uuids))
-    }
-
-    suspend fun commitDeleteWebApps(uuids: List<String>, activity: Activity) {
+    suspend fun deleteWebApps(uuids: List<String>, activity: Activity) {
         uuids.forEach { cleanupAndRemoveWebApp(it, activity) }
     }
 
@@ -256,18 +236,17 @@ class DataManager private constructor() {
     fun getWebsites(): List<WebApp> = currentState.websites.map { WebApp(it) }
 
     val activeWebsites: List<WebApp>
-        get() = currentState.websites.filter { it.isActiveEntry }.sortedBy { it.order }
-            .map { WebApp(it) }
+        get() = currentState.websites.sortedBy { it.order }.map { WebApp(it) }
 
     fun activeWebsitesForGroup(groupUuid: String?): List<WebApp> {
         return currentState.websites
-            .filter { it.isActiveEntry && it.groupUuid == groupUuid }
+            .filter { it.groupUuid == groupUuid }
             .sortedBy { it.order }
             .map { WebApp(it) }
     }
 
     val activeWebsitesCount: Int
-        get() = currentState.websites.count { it.isActiveEntry }
+        get() = currentState.websites.size
 
     suspend fun queryAllWebApps(): List<WebApp> {
         awaitReady()
@@ -441,28 +420,6 @@ class DataManager private constructor() {
                     DataReducer.reorderingWebsites(currentState, action.orderedUuids, emit = true)
                 val nextWebsites = mutation.websites ?: return
                 repository.upsertWebApps(nextWebsites)
-                updateState(mutation)
-            }
-
-            is Action.SoftDeleteWebApps -> {
-                val uuids = action.uuids.toSet()
-                val mutation = DataReducer.markingWebsitesActive(
-                    currentState,
-                    uuids,
-                    isActive = false,
-                    emit = true
-                )
-                updateState(mutation)
-            }
-
-            is Action.RestoreWebApps -> {
-                val uuids = action.uuids.toSet()
-                val mutation = DataReducer.markingWebsitesActive(
-                    currentState,
-                    uuids,
-                    isActive = true,
-                    emit = true
-                )
                 updateState(mutation)
             }
 

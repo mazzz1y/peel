@@ -56,6 +56,14 @@ class WebAppListFragment : Fragment(R.layout.fragment_web_app_list) {
         super.onDestroyView()
     }
 
+    fun addPendingDeletes(uuids: Collection<String>) {
+        adapter.pendingDeleteUuids.addAll(uuids)
+    }
+
+    fun clearPendingDeletes(uuids: Collection<String>) {
+        adapter.pendingDeleteUuids.removeAll(uuids.toSet())
+    }
+
     fun updateWebAppList() {
         adapter.updateWebAppList()
         updateDragEnabled()

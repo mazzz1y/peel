@@ -25,7 +25,7 @@ class StringMapConverter {
 
 @Database(
     entities = [WebAppEntity::class, SandboxSlotEntity::class, WebAppGroupEntity::class],
-    version = 9,
+    version = 10,
     exportSchema = true,
 )
 @TypeConverters(StringMapConverter::class)
@@ -305,6 +305,39 @@ abstract class AppDatabase : RoomDatabase() {
                 }
             }
 
+        val MIGRATION_9_10 =
+            object : Migration(9, 10) {
+                override fun migrate(db: SupportSQLiteDatabase) {
+                    db.execSQL(
+                        """
+                        CREATE TABLE IF NOT EXISTS webapps_new (
+                            uuid TEXT NOT NULL PRIMARY KEY,
+                            baseUrl TEXT NOT NULL,
+                            title TEXT NOT NULL,
+                            isUseContainer INTEGER NOT NULL,
+                            isEphemeralSandbox INTEGER NOT NULL,
+                            `order` INTEGER NOT NULL,
+                            groupUuid TEXT,
+                            $SETTINGS_COLS
+                        )
+                        """
+                    )
+                    db.execSQL(
+                        """
+                        INSERT INTO webapps_new (
+                            uuid, baseUrl, title, isUseContainer,
+                            isEphemeralSandbox, `order`, groupUuid, $SETTINGS_COL_NAMES
+                        )
+                        SELECT uuid, baseUrl, title, isUseContainer,
+                            isEphemeralSandbox, `order`, groupUuid, $SETTINGS_COL_NAMES
+                        FROM webapps
+                        """
+                    )
+                    db.execSQL("DROP TABLE webapps")
+                    db.execSQL("ALTER TABLE webapps_new RENAME TO webapps")
+                }
+            }
+
         fun getInstance(context: Context): AppDatabase {
             return instance
                 ?: synchronized(this) { instance ?: buildDatabase(context).also { instance = it } }
@@ -325,6 +358,7 @@ abstract class AppDatabase : RoomDatabase() {
                     MIGRATION_6_7,
                     MIGRATION_7_9,
                     MIGRATION_8_9,
+                    MIGRATION_9_10,
                 )
                 .allowMainThreadQueries()
                 .build()

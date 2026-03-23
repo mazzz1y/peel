@@ -290,6 +290,14 @@ class MainActivity :
         updateTabSelectionDots()
     }
 
+    override fun addPendingDeletes(uuids: Collection<String>) {
+        forEachFragment { it.addPendingDeletes(uuids) }
+    }
+
+    override fun clearPendingDeletes(uuids: Collection<String>) {
+        forEachFragment { it.clearPendingDeletes(uuids) }
+    }
+
     override fun dispatchSelectionExited(previouslySelected: Set<String>) {
         if (searchController.isActive) {
             searchController.notifySelectionExited(previouslySelected)

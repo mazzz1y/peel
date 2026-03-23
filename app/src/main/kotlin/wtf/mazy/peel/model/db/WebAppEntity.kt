@@ -10,7 +10,6 @@ data class WebAppEntity(
     @PrimaryKey val uuid: String,
     val baseUrl: String,
     val title: String,
-    val isActiveEntry: Boolean,
     val isUseContainer: Boolean,
     val isEphemeralSandbox: Boolean,
     val order: Int,

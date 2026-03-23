@@ -192,23 +192,20 @@ class SelectionModeController(
         val count = uuids.size
         exit()
 
-        activity.lifecycleScope.launch {
-            DataManager.instance.softDeleteWebApps(uuids)
-            host.refreshCurrentPages()
-        }
+        host.addPendingDeletes(uuids)
+        host.refreshCurrentPages()
 
         NotificationUtils.showUndoSnackBar(
             activity = activity,
             message = activity.getString(R.string.n_apps_removed, count),
             onUndo = {
-                activity.lifecycleScope.launch {
-                    DataManager.instance.restoreWebApps(uuids)
-                    host.refreshCurrentPages()
-                }
+                host.clearPendingDeletes(uuids)
+                host.refreshCurrentPages()
             },
             onCommit = {
+                host.clearPendingDeletes(uuids)
                 activity.lifecycleScope.launch {
-                    DataManager.instance.commitDeleteWebApps(uuids, activity)
+                    DataManager.instance.deleteWebApps(uuids, activity)
                 }
             },
         )

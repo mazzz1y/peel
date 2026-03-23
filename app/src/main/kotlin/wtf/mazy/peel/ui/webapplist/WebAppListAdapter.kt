@@ -39,6 +39,7 @@ class WebAppListAdapter(
     var groupFilter: String? = null
     var searchQuery: String = ""
     var showGroupLabels: Boolean = false
+    val pendingDeleteUuids = mutableSetOf<String>()
 
     private val selectionHost = activity as? SelectionModeHost
 
@@ -324,40 +325,35 @@ class WebAppListAdapter(
     private fun deleteWebApp(webapp: WebApp) {
         val uuid = webapp.uuid
         val title = webapp.title
-        val position = items.indexOfFirst { it.uuid == uuid }
-        if (position >= 0) {
-            items.removeAt(position)
-            notifyItemRemoved(position)
-        }
-        activity.lifecycleScope.launch {
-            DataManager.instance.softDeleteWebApps(listOf(uuid))
-        }
+        pendingDeleteUuids.add(uuid)
+        updateWebAppList()
 
         NotificationUtils.showUndoSnackBar(
             activity = activity,
             message = activity.getString(R.string.x_was_removed, title),
             onUndo = {
-                activity.lifecycleScope.launch {
-                    DataManager.instance.restoreWebApps(listOf(uuid))
-                    updateWebAppList()
-                }
+                pendingDeleteUuids.remove(uuid)
+                updateWebAppList()
             },
             onCommit = {
+                pendingDeleteUuids.remove(uuid)
                 activity.lifecycleScope.launch {
-                    DataManager.instance.commitDeleteWebApps(listOf(uuid), activity)
+                    DataManager.instance.deleteWebApps(listOf(uuid), activity)
                 }
             },
         )
     }
 
-    private fun loadItems(): MutableList<WebApp> =
-        when (groupFilter) {
-            null -> DataManager.instance.activeWebsites.toMutableList()
+    private fun loadItems(): MutableList<WebApp> {
+        val all = when (groupFilter) {
+            null -> DataManager.instance.activeWebsites
             WebAppListFragment.UNGROUPED_FILTER ->
-                DataManager.instance.activeWebsitesForGroup(null).toMutableList()
-
-            else -> DataManager.instance.activeWebsitesForGroup(groupFilter).toMutableList()
+                DataManager.instance.activeWebsitesForGroup(null)
+            else -> DataManager.instance.activeWebsitesForGroup(groupFilter)
         }
+        return if (pendingDeleteUuids.isEmpty()) all.toMutableList()
+        else all.filterNot { it.uuid in pendingDeleteUuids }.toMutableList()
+    }
 
     fun updateWebAppList() {
         var newItems = loadItems()

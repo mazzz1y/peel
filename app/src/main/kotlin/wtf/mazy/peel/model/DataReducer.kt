@@ -94,22 +94,6 @@ object DataReducer {
         )
     }
 
-    fun markingWebsitesActive(
-        state: DataState,
-        uuids: Set<String>,
-        isActive: Boolean,
-        emit: Boolean = true,
-    ): StateMutation {
-        return StateMutation(
-            websites = state.websites.map { site ->
-                if (site.uuid in uuids) WebApp(site).apply { isActiveEntry = isActive } else WebApp(
-                    site
-                )
-            },
-            emit = emit,
-        )
-    }
-
     fun replacingGroup(state: DataState, group: WebAppGroup, emit: Boolean = true): StateMutation {
         return StateMutation(
             groups = state.groups.map { current ->
