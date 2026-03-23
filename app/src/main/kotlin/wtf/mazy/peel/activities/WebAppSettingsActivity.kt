@@ -1,10 +1,7 @@
 package wtf.mazy.peel.activities
 
 import android.annotation.SuppressLint
-import android.content.Intent
 import android.os.Bundle
-import android.os.Handler
-import android.os.ResultReceiver
 import android.text.SpannableString
 import android.text.Spanned
 import android.text.style.TypefaceSpan
@@ -34,6 +31,7 @@ import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.model.WebAppGroup
 import wtf.mazy.peel.shortcut.FetchCandidate
 import wtf.mazy.peel.shortcut.FetchResult
+import wtf.mazy.peel.shortcut.HeadlessWebViewFetcher
 import wtf.mazy.peel.shortcut.LetterIconGenerator
 import wtf.mazy.peel.shortcut.ShortcutHelper
 import wtf.mazy.peel.ui.IconEditorController
@@ -45,7 +43,6 @@ import wtf.mazy.peel.ui.settings.OverridePickerController
 import wtf.mazy.peel.ui.settings.SandboxSwitchController
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.NotificationUtils.showToast
-import wtf.mazy.peel.util.WebViewLauncher
 import wtf.mazy.peel.util.displayUrl
 
 class WebAppSettingsActivity :
@@ -57,7 +54,7 @@ class WebAppSettingsActivity :
     private lateinit var iconEditor: IconEditorController
     private var fetchDialog: AlertDialog? = null
     private var fetchDialogText: TextView? = null
-    private var activeFetchServiceIntent: Intent? = null
+    private var activeFetcher: HeadlessWebViewFetcher? = null
     private var fetchGeneration: Int = 0
 
     @SuppressLint("SetJavaScriptEnabled", "ClickableViewAccessibility")
@@ -271,8 +268,8 @@ class WebAppSettingsActivity :
 
     private fun cancelActiveFetch() {
         fetchGeneration += 1
-        activeFetchServiceIntent?.let { stopService(it) }
-        activeFetchServiceIntent = null
+        activeFetcher?.cancel()
+        activeFetcher = null
     }
 
     private fun dismissFetchProgress() {
@@ -291,39 +288,16 @@ class WebAppSettingsActivity :
         showFetchProgress()
         fetchGeneration += 1
         val generation = fetchGeneration
-        val onProgress: (String) -> Unit = { fetchDialogText?.text = it }
 
-        val sandboxId = WebViewLauncher.resolveSandboxId(webapp)
-        val slotId = SandboxManager.resolveSlotId(this, sandboxId)
-        val receiver =
-            object : ResultReceiver(Handler(mainLooper)) {
-                override fun onReceiveResult(resultCode: Int, resultData: Bundle?) {
-                    if (generation != fetchGeneration) return
-                    when (resultCode) {
-                        SandboxFetchService.RESULT_PROGRESS ->
-                            onProgress(
-                                resultData?.getString(SandboxFetchService.KEY_PROGRESS) ?: ""
-                            )
-
-                        SandboxFetchService.RESULT_DONE ->
-                            handleFetchResult(
-                                webapp,
-                                SandboxFetchService.parseResult(resultData),
-                                generation,
-                            )
-                    }
-                }
-            }
-        val intent = SandboxFetchService.createIntent(
-            this,
-            slotId,
-            sandboxId,
-            url,
-            DataManager.instance.resolveEffectiveSettings(webapp),
-            receiver,
+        val fetcher = HeadlessWebViewFetcher(
+            context = this,
+            url = url,
+            settings = DataManager.instance.resolveEffectiveSettings(webapp),
+            onProgress = { text -> runOnUiThread { if (generation == fetchGeneration) fetchDialogText?.text = text } },
+            onResult = { result -> runOnUiThread { handleFetchResult(webapp, result, generation) } },
         )
-        activeFetchServiceIntent = intent
-        startService(intent)
+        activeFetcher = fetcher
+        fetcher.start()
     }
 
     private fun handleFetchResult(
@@ -333,7 +307,7 @@ class WebAppSettingsActivity :
     ) {
         if (generation != fetchGeneration) return
         if (isFinishing || isDestroyed) return
-        activeFetchServiceIntent = null
+        activeFetcher = null
         val candidates = result.candidates
         if (candidates.isEmpty()) {
             dismissFetchProgress()

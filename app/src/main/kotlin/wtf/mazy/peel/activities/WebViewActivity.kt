@@ -1,6 +1,5 @@
 package wtf.mazy.peel.activities
 
-import android.annotation.SuppressLint
 import android.app.ActivityManager
 import android.content.ActivityNotFoundException
 import android.content.Intent
@@ -16,10 +15,6 @@ import android.os.Looper
 import android.util.TypedValue
 import android.view.View
 import android.view.WindowManager
-import android.webkit.CookieManager
-import android.webkit.HttpAuthHandler
-import android.webkit.ValueCallback
-import android.webkit.WebView
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import androidx.activity.OnBackPressedCallback
@@ -33,17 +28,19 @@ import androidx.core.graphics.drawable.toDrawable
 import androidx.core.net.toUri
 import androidx.lifecycle.lifecycleScope
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import androidx.webkit.WebSettingsCompat
-import androidx.webkit.WebViewFeature
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.launch
+import org.mozilla.geckoview.ContentBlocking
+import org.mozilla.geckoview.GeckoSession
+import org.mozilla.geckoview.GeckoSessionSettings
+import org.mozilla.geckoview.GeckoView
+import org.mozilla.geckoview.GeckoSession.Loader
 import wtf.mazy.peel.R
-import wtf.mazy.peel.media.MediaJsBridge
+import wtf.mazy.peel.gecko.GeckoRuntimeProvider
 import wtf.mazy.peel.media.MediaPlaybackManager
 import wtf.mazy.peel.model.DataManager
-import wtf.mazy.peel.model.SandboxManager
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.model.WebAppSettings
 import wtf.mazy.peel.ui.FloatingControlsView
@@ -58,35 +55,38 @@ import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.HostIdentity
 import wtf.mazy.peel.util.NotificationUtils
 import wtf.mazy.peel.util.WebViewLauncher
-import wtf.mazy.peel.util.buildUserAgent
 import wtf.mazy.peel.util.shortLabel
-import wtf.mazy.peel.webview.ChromeClientHost
 import wtf.mazy.peel.webview.DownloadHandler
-import wtf.mazy.peel.webview.FileFetcher
 import wtf.mazy.peel.webview.NavigationStartPoint
-import wtf.mazy.peel.webview.PeelWebChromeClient
-import wtf.mazy.peel.webview.PeelWebViewClient
+import wtf.mazy.peel.webview.PeelContentDelegate
+import wtf.mazy.peel.webview.PeelNavigationDelegate
+import wtf.mazy.peel.webview.PeelPermissionDelegate
+import wtf.mazy.peel.webview.PeelProgressDelegate
+import wtf.mazy.peel.webview.PeelPromptDelegate
 import wtf.mazy.peel.webview.PermissionResult
-import wtf.mazy.peel.webview.WebViewClientHost
+import wtf.mazy.peel.webview.SessionHost
 import wtf.mazy.peel.webview.WebViewContextMenu
 
-open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClientHost {
+class WebViewActivity : AppCompatActivity(), SessionHost {
     override var webappUuid: String? = null
-    var webView: WebView? = null
-        private set
+
+    private var geckoView: GeckoView? = null
+    private var geckoSession: GeckoSession? = null
 
     private var progressBar: ProgressBar? = null
     private var swipeRefreshLayout: SwipeRefreshLayout? = null
     override var currentlyReloading = true
     private var customHeaders: Map<String, String>? = null
-    override var filePathCallback: ValueCallback<Array<Uri?>?>? = null
+    override var filePathCallback: ((Array<Uri>?) -> Unit)? = null
+    override var canGoBack = false
+
     private val filePickerLauncher =
         registerForActivityResult(StartActivityForResult()) { result ->
             val callback = filePathCallback ?: return@registerForActivityResult
             if (result?.resultCode == RESULT_OK) {
-                callback.onReceiveValue(extractUris(result.data))
+                callback.invoke(extractUris(result.data))
             } else {
-                callback.onReceiveValue(null)
+                callback.invoke(null)
             }
             filePathCallback = null
         }
@@ -100,26 +100,21 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         }
 
     private lateinit var _navigationStartPoint: NavigationStartPoint
-    override val navigationStartPoint: NavigationStartPoint
-        get() = _navigationStartPoint
 
     private val webapp: WebApp
         get() = DataManager.instance.getWebApp(webappUuid!!)!!
 
     private var floatingControls: FloatingControlsView? = null
-    private lateinit var fileFetcher: FileFetcher
-    private val downloadHandler = DownloadHandler(
-        activity = this,
-        getWebView = { webView },
-    )
-    private lateinit var peelWebViewClient: PeelWebViewClient
-    private var peelWebChromeClient: PeelWebChromeClient? = null
+    private lateinit var downloadHandler: DownloadHandler
+    private lateinit var navigationDelegate: PeelNavigationDelegate
+    private lateinit var permissionDelegate: PeelPermissionDelegate
+    private lateinit var promptDelegate: PeelPromptDelegate
+    private var contextMenu: WebViewContextMenu? = null
 
     private var pageLoadHandled = false
     private var mediaPlaybackManager: MediaPlaybackManager? = null
     private var cachedSettings: WebAppSettings? = null
     private var isStartupComplete = false
-    private var ephemeralSandboxId: String? = null
 
     @Volatile
     private var cachedPeelApps: List<WebApp> = emptyList()
@@ -140,7 +135,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
             activity = this,
             getWebappUuid = { webappUuid },
             onSuccess = {
-                launchOverlayController.hideWhenReady(webView)
+                launchOverlayController.hideFallback()
             },
             onFailure = { finish() },
         )
@@ -150,7 +145,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         mainHandler = mainHandler,
         onReload = {
             currentlyReloading = true
-            webView?.reload()
+            geckoSession?.reload()
         },
     )
 
@@ -172,25 +167,10 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
             return
         }
 
-        fileFetcher = FileFetcher(cacheDir = cacheDir, getWebView = { webView })
-        downloadHandler.fileFetcher = fileFetcher
-        downloadHandler.getBaseUrl = { webapp.baseUrl }
-        downloadHandler.getCustomHeaders = { customHeaders ?: emptyMap() }
-
-        val sandboxId = WebViewLauncher.resolveSandboxId(webapp)
-        if (!SandboxManager.initDataDirectorySuffix(sandboxId)) {
-            finishAndRemoveTask()
-            return
-        }
-        if (WebViewLauncher.isEphemeralSandbox(webapp)) {
-            ephemeralSandboxId = sandboxId
-            SandboxManager.wipeSandboxStorage(sandboxId)
-        }
-
         _navigationStartPoint = NavigationStartPoint(webapp.baseUrl)
         cachedSettings = DataManager.instance.resolveEffectiveSettings(webapp)
         applyTaskSnapshotProtection()
-        setupWebView()
+        setupGeckoView()
         biometricController.registerReceiver()
         biometricController.showPromptIfNeeded(
             effectiveSettings.isBiometricProtection == true,
@@ -212,21 +192,18 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         if (!isStartupComplete) return
         val uuid = webappUuid ?: return
         if (DataManager.instance.getWebApp(uuid) == null) return
-        SandboxManager.currentSlotId?.let { SandboxManager.touchSlot(it) }
         cachedSettings = DataManager.instance.resolveEffectiveSettings(webapp)
-        webView?.onResume()
-        webView?.resumeTimers()
-        configureCookies(effectiveSettings)
+        geckoSession?.setActive(true)
         mediaPlaybackManager?.setBackground(false)
-        if (webView != null) applyColorScheme()
+        applyColorScheme()
 
         if (effectiveSettings.isShowNotification == true && floatingControls == null) {
             floatingControls = FloatingControlsView(
                 parent = findViewById(R.id.webview_root),
                 webappUuid = uuid,
-                getWebView = { webView },
+                getSession = { geckoSession },
                 onHome = {
-                    webView?.let { navigationStartPoint.reset(it) }
+                    _navigationStartPoint.reset()
                     loadURL(webapp.baseUrl)
                 },
             )
@@ -237,7 +214,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         ) { launchOverlayController.arm { systemBarController.suppressNextAnimation = true } }
 
         if (launchOverlayController.isVisible && !biometricController.isPromptActive && pageLoadHandled) {
-            launchOverlayController.hideWhenReady(webView)
+            launchOverlayController.hideFallback()
         }
 
         autoReloadController.start(effectiveSettings)
@@ -253,16 +230,13 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         if (settings.isAllowMediaPlaybackInBackground == true) {
             mediaPlaybackManager?.setBackground(true)
         } else {
-            webView?.evaluateJavascript(
-                "document.querySelectorAll('audio').forEach(x => x.pause());" +
-                        "document.querySelectorAll('video').forEach(x => x.pause());",
-                null,
-            )
-            webView?.onPause()
-            webView?.pauseTimers()
+            geckoSession?.setActive(false)
         }
 
-        if (settings.isClearCache == true) webView?.clearCache(true)
+        if (settings.isClearCache == true) {
+            val runtime = GeckoRuntimeProvider.getRuntime(this)
+            runtime.storageController.clearData(org.mozilla.geckoview.StorageController.ClearFlags.ALL_CACHES)
+        }
 
         autoReloadController.stop()
     }
@@ -278,11 +252,9 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         systemBarController.release()
         mediaPlaybackManager?.release()
         mediaPlaybackManager = null
-        webView?.destroy()
-        webView = null
-        if (isFinishing) {
-            ephemeralSandboxId?.let { SandboxManager.wipeSandboxStorage(it) }
-        }
+        geckoSession?.close()
+        geckoSession = null
+        geckoView = null
         super.onDestroy()
     }
 
@@ -356,7 +328,12 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     override val hostWindow: android.view.Window
         get() = window
 
-    override fun showHttpAuthDialog(handler: HttpAuthHandler, host: String?, realm: String?) {
+    override fun showHttpAuthDialog(
+        onResult: (username: String, password: String) -> Unit,
+        onCancel: () -> Unit,
+        host: String?,
+        realm: String?,
+    ) {
         var passwordInput: TextInputEditText? = null
         val dp8 = (resources.displayMetrics.density * 8).toInt()
         showInputDialogRaw(
@@ -365,7 +342,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
                 hintRes = R.string.username,
                 allowEmpty = true,
                 message = "Host: ${host ?: "-"}\nRealm: ${realm ?: "-"}",
-                onCancel = { handler.cancel() },
+                onCancel = { onCancel() },
                 extraContent = { container ->
                     val passwordLayout = TextInputLayout(container.context).apply {
                         hint = getString(R.string.password)
@@ -385,7 +362,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
                 },
             ),
         ) { usernameInput, _ ->
-            handler.proceed(
+            onResult(
                 usernameInput.text.toString(),
                 passwordInput?.text?.toString().orEmpty(),
             )
@@ -401,9 +378,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
             return uiMode == Configuration.UI_MODE_NIGHT_YES
         }
 
-    @SuppressLint("RequiresFeature")
     override fun applyColorScheme() {
-        val currentWebView = webView ?: return
         val settings = effectiveSettings
         val scheme = settings.colorScheme ?: WebAppSettings.COLOR_SCHEME_AUTO
 
@@ -414,19 +389,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         }
         getDelegate().localNightMode = nightMode
 
-        currentWebView.setBackgroundColor(if (isDarkSchemeActive) Color.BLACK else Color.WHITE)
-
-        val darkenContent = settings.isAlgorithmicDarkening == true
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            @Suppress("DEPRECATION")
-            currentWebView.isForceDarkAllowed = darkenContent
-            if (WebViewFeature.isFeatureSupported(WebViewFeature.ALGORITHMIC_DARKENING)) {
-                @Suppress("DEPRECATION")
-                WebSettingsCompat.setAlgorithmicDarkeningAllowed(
-                    currentWebView.settings, darkenContent
-                )
-            }
-        }
+        geckoView?.setBackgroundColor(if (isDarkSchemeActive) Color.BLACK else Color.WHITE)
     }
 
     override fun loadURL(url: String) {
@@ -434,7 +397,17 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         if (url.startsWith("http://") && effectiveSettings.isAlwaysHttps == true) {
             finalUrl = url.replaceFirst("http://", "https://")
         }
-        webView?.loadUrl(finalUrl, customHeaders ?: emptyMap())
+        val headers = customHeaders
+        if (headers.isNullOrEmpty()) {
+            geckoSession?.loadUri(finalUrl)
+        } else {
+            geckoSession?.load(
+                Loader()
+                    .uri(finalUrl)
+                    .additionalHeaders(headers)
+                    .headerFilter(GeckoSession.HEADER_FILTER_UNRESTRICTED_UNSAFE)
+            )
+        }
     }
 
     override fun finishActivity() = finish()
@@ -449,13 +422,13 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
             finish()
             return
         }
-        val canGoBack = getBackSteps() > 0
+        val canBack = canGoBack && _navigationStartPoint.allowGoBack
         MaterialAlertDialogBuilder(this)
             .setTitle(R.string.site_not_found)
             .setMessage(getString(R.string.connection_error, description))
             .setPositiveButton(R.string.retry) { _, _ -> loadURL(url) }
-            .setNegativeButton(if (canGoBack) R.string.back else R.string.exit) { _, _ ->
-                if (canGoBack) webView?.goBackOrForward(-getBackSteps()) else finish()
+            .setNegativeButton(if (canBack) R.string.back else R.string.exit) { _, _ ->
+                if (canBack) geckoSession?.goBack() else finish()
             }
             .setCancelable(false)
             .show()
@@ -471,22 +444,24 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
 
     override fun onPageStarted() {
         pageLoadHandled = false
-        peelWebChromeClient?.clearPagePermissions()
-        mediaPlaybackManager?.injectPolyfill()
-        webView?.let { downloadHandler.onPageStarted(it) }
+        permissionDelegate.clearPagePermissions()
+        promptDelegate.clearAutoAuth()
+        navigationDelegate.clearAutoAuth()
     }
 
     override fun onPageFullyLoaded() {
         if (pageLoadHandled || biometricController.isPromptActive) return
         pageLoadHandled = true
         if (launchOverlayController.isVisible) {
-            launchOverlayController.hideWhenReady(webView) {
-                webView?.let { peelWebViewClient.extractDynamicBarColor(it) }
-            }
-        } else {
-            webView?.let { peelWebViewClient.extractDynamicBarColor(it) }
+            launchOverlayController.hideFallback()
         }
-        mediaPlaybackManager?.injectObserver()
+        _navigationStartPoint.onPageFinished()
+    }
+
+    override fun onFirstContentfulPaint() {
+        if (launchOverlayController.isVisible && !biometricController.isPromptActive) {
+            launchOverlayController.hideFallback()
+        }
     }
 
     private fun buildIntentForUrl(url: String): Intent? {
@@ -526,7 +501,6 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
             showToast(getString(R.string.no_app_found))
         }
     }
-
 
     override val themeBackgroundColor: Int
         get() {
@@ -580,7 +554,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
             .show()
     }
 
-    private fun setupWebView() {
+    private fun setupGeckoView() {
         val settings = effectiveSettings
         window.setBackgroundDrawable(themeBackgroundColor.toDrawable())
         setContentView(R.layout.full_webview)
@@ -591,35 +565,99 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         )
         applyWindowFlags(settings)
         setupPullToRefresh(settings)
-        webView?.buildUserAgent()
-        if (settings.isShowFullscreen == true) systemBarController.hide() else systemBarController.show(
-            false
-        )
-        configureWebViewSettings(settings)
+        if (settings.isShowFullscreen == true) systemBarController.hide() else systemBarController.show(false)
         applyColorScheme()
-        configureCookies(settings)
-        configureZoom(settings)
-
         customHeaders = buildCustomHeaders(settings)
 
-        peelWebChromeClient = PeelWebChromeClient(this)
-        webView?.webChromeClient = peelWebChromeClient
+        downloadHandler = DownloadHandler(
+            activity = this,
+            getSession = { geckoSession },
+            getBaseUrl = { webapp.baseUrl },
+        )
+
+        val session = createSession(settings)
+        geckoSession = session
+
+        navigationDelegate = PeelNavigationDelegate(this)
+        permissionDelegate = PeelPermissionDelegate(this)
+        promptDelegate = PeelPromptDelegate(this)
+
+        session.navigationDelegate = navigationDelegate
+        session.progressDelegate = PeelProgressDelegate(this)
+        if (settings.isLongClickShare == true) setupContextMenu(settings)
+        val contextMenuCallback: ((GeckoSession, Int, Int, GeckoSession.ContentDelegate.ContextElement) -> Unit)? =
+            if (contextMenu != null) {
+                { s: GeckoSession, x: Int, y: Int, el: GeckoSession.ContentDelegate.ContextElement -> contextMenu?.onContextMenu(s, x, y, el) }
+            } else null
+        session.contentDelegate = PeelContentDelegate(
+            host = this,
+            onDownload = { response -> downloadHandler.onExternalResponse(response) },
+            onContextMenu = contextMenuCallback,
+        )
+        session.permissionDelegate = permissionDelegate
+        session.promptDelegate = promptDelegate
+
+        val runtime = GeckoRuntimeProvider.getRuntime(this)
+        session.open(runtime)
+        session.setActive(true)
+        geckoView?.setSession(session)
 
         loadURL(sharedUrlFromIntent() ?: webapp.baseUrl)
-
-        setupLongClickShare(settings)
-        webView?.let { downloadHandler.install(it) }
         setupMediaPlayback(settings)
     }
 
-    @SuppressLint("JavascriptInterface")
+    private fun createSession(settings: WebAppSettings): GeckoSession {
+        val useContainer = webapp.isUseContainer ||
+                (webapp.groupUuid?.let { DataManager.instance.getGroup(it) }?.isUseContainer == true)
+        val contextId = if (useContainer) webapp.uuid else null
+
+        val sessionSettings = GeckoSessionSettings.Builder()
+            .allowJavascript(settings.isAllowJs == true)
+            .apply {
+                if (settings.isRequestDesktop == true) {
+                    userAgentMode(GeckoSessionSettings.USER_AGENT_MODE_DESKTOP)
+                    viewportMode(GeckoSessionSettings.VIEWPORT_MODE_DESKTOP)
+                }
+                if (contextId != null) contextId(contextId)
+                usePrivateMode(
+                    webapp.isEphemeralSandbox ||
+                            (webapp.groupUuid?.let { DataManager.instance.getGroup(it) }?.isEphemeralSandbox == true)
+                )
+            }
+            .build()
+
+        val session = GeckoSession(sessionSettings)
+
+        val cookieBehavior = when {
+            settings.isAllowCookies != true -> ContentBlocking.CookieBehavior.ACCEPT_NONE
+            settings.isAllowThirdPartyCookies == true -> ContentBlocking.CookieBehavior.ACCEPT_ALL
+            else -> ContentBlocking.CookieBehavior.ACCEPT_FIRST_PARTY
+        }
+        session.settings.useTrackingProtection = settings.isSafeBrowsing == true
+        val runtime = GeckoRuntimeProvider.getRuntime(this)
+        runtime.settings.contentBlocking.setCookieBehavior(cookieBehavior)
+
+        return session
+    }
+
     private fun setupMediaPlayback(settings: WebAppSettings) {
         if (settings.isAllowMediaPlaybackInBackground != true) return
-        val view = webView ?: return
+        val session = geckoSession ?: return
         val manager = MediaPlaybackManager(this)
-        manager.attach(view, webapp.title, webapp.resolveIcon(), webapp.uuid)
-        view.addJavascriptInterface(MediaJsBridge(manager), MediaJsBridge.JS_INTERFACE_NAME)
+        manager.attach(session, webapp.title, webapp.resolveIcon(), webapp.uuid)
         mediaPlaybackManager = manager
+    }
+
+    private fun setupContextMenu(settings: WebAppSettings) {
+        contextMenu = WebViewContextMenu(
+            activity = this,
+            downloadHandler = downloadHandler,
+            onExternalIntent = ::startExternalIntent,
+            onOpenInPeel = ::openInPeel,
+            onOpenInBestPeelMatch = ::openInBestPeelMatch,
+            bestPeelMatchIcon = ::bestPeelMatchIcon,
+            onToast = ::showToast,
+        )
     }
 
     private fun applyWindowFlags(settings: WebAppSettings) {
@@ -638,7 +676,7 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
     private fun bindViews() {
         findViewById<View>(R.id.webview_root)?.setBackgroundColor(themeBackgroundColor)
         findViewById<View>(R.id.webviewActivity)?.setBackgroundColor(themeBackgroundColor)
-        webView = findViewById(R.id.webview)
+        geckoView = findViewById(R.id.geckoview)
         val overlay = findViewById<View>(R.id.webviewLaunchOverlay)
         launchOverlayController.attach(overlay, themeBackgroundColor)
         launchOverlayController.arm { systemBarController.suppressNextAnimation = true }
@@ -650,75 +688,14 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
         if (settings.isPullToRefresh == true) {
             swipeRefreshLayout?.apply {
                 isEnabled = true
-                setOnChildScrollUpCallback { _, _ ->
-                    webView?.let { it.scrollY > 0 || it.canScrollVertically(-1) } ?: true
-                }
                 setOnRefreshListener {
-                    webView?.reload()
+                    geckoSession?.reload()
                     isRefreshing = false
                 }
             }
         } else {
             swipeRefreshLayout?.isEnabled = false
         }
-    }
-
-    @SuppressLint("SetJavaScriptEnabled")
-    private fun configureWebViewSettings(settings: WebAppSettings) {
-        webView?.apply {
-            peelWebViewClient = PeelWebViewClient(this@WebViewActivity)
-            webViewClient = peelWebViewClient
-            this.settings.apply {
-                safeBrowsingEnabled = settings.isSafeBrowsing == true
-                domStorageEnabled = true
-                allowFileAccess = false
-                blockNetworkLoads = false
-                javaScriptEnabled = settings.isAllowJs == true
-                if (settings.isBlockImages == true) blockNetworkImage = true
-                if (settings.isRequestDesktop == true) {
-                    userAgentString = Const.DESKTOP_USER_AGENT
-                    useWideViewPort = true
-                    loadWithOverviewMode = true
-                }
-            }
-        }
-    }
-
-    private fun configureCookies(settings: WebAppSettings) {
-        CookieManager.getInstance().apply {
-            setAcceptCookie(settings.isAllowCookies == true)
-            setAcceptThirdPartyCookies(webView, settings.isAllowThirdPartyCookies == true)
-        }
-    }
-
-    private fun configureZoom(settings: WebAppSettings) {
-        webView?.apply {
-            scrollBarStyle = WebView.SCROLLBARS_OUTSIDE_OVERLAY
-            isScrollbarFadingEnabled = false
-            if (settings.isEnableZooming == true) {
-                this.settings.apply {
-                    setSupportZoom(true)
-                    builtInZoomControls = true
-                    displayZoomControls = false
-                }
-            }
-        }
-    }
-
-    private fun setupLongClickShare(settings: WebAppSettings) {
-        if (settings.isLongClickShare != true) return
-        val wv = webView ?: return
-        WebViewContextMenu(
-            activity = this,
-            getWebView = { webView },
-            fileFetcher = fileFetcher,
-            downloadHandler = downloadHandler,
-            onExternalIntent = ::startExternalIntent,
-            onOpenInPeel = ::openInPeel,
-            onOpenInBestPeelMatch = ::openInBestPeelMatch,
-            bestPeelMatchIcon = ::bestPeelMatchIcon,
-            onToast = ::showToast,
-        ).install(wv)
     }
 
     private fun bestPeelMatchIcon(url: String): Bitmap? {
@@ -798,42 +775,27 @@ open class WebViewActivity : AppCompatActivity(), WebViewClientHost, ChromeClien
             this,
             object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
-                    val steps = getBackSteps()
-                    when {
-                        steps > 0 -> webView?.goBackOrForward(-steps)
-                        else -> finishAndRemoveTask()
+                    if (canGoBack && _navigationStartPoint.allowGoBack) {
+                        geckoSession?.goBack()
+                    } else {
+                        finishAndRemoveTask()
                     }
                 }
             },
         )
     }
 
-    private fun getBackSteps(): Int {
-        val wv = webView ?: return 0
-        if (!wv.canGoBack()) return 0
-
-        val history = wv.copyBackForwardList()
-        val currentIndex = history.currentIndex
-        if (currentIndex <= 0) return 0
-
-        return if (navigationStartPoint.canGoBackFrom(currentIndex)) 1 else 0
-    }
-
     private fun sharedUrlFromIntent(): String? =
         intent.getStringExtra(Const.INTENT_TARGET_URL)
 
-    private fun extractUris(intent: Intent?): Array<Uri?>? =
+    private fun extractUris(intent: Intent?): Array<Uri>? =
         intent?.data?.let { arrayOf(it) }
             ?: intent?.clipData?.let { clip -> Array(clip.itemCount) { clip.getItemAt(it).uri } }
 
     private fun buildCustomHeaders(settings: WebAppSettings): Map<String, String> {
         val extraHeaders = mutableMapOf("X-Requested-With" to "")
         settings.customHeaders?.forEach { (key, value) ->
-            if (key.equals("User-Agent", ignoreCase = true)) {
-                webView?.settings?.userAgentString = value
-            } else {
-                extraHeaders[key] = value
-            }
+            extraHeaders[key] = value
         }
         return extraHeaders.toMap()
     }

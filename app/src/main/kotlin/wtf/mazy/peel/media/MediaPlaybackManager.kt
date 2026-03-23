@@ -7,14 +7,15 @@ import android.content.IntentFilter
 import android.graphics.Bitmap
 import android.os.Handler
 import android.os.Looper
-import android.webkit.WebView
 import androidx.core.content.ContextCompat
-import java.util.Locale
+import org.mozilla.geckoview.GeckoSession
+import org.mozilla.geckoview.MediaSession as GeckoMediaSession
 
-class MediaPlaybackManager(context: Context) : MediaJsBridge.Listener {
+class MediaPlaybackManager(context: Context) : GeckoMediaSession.Delegate {
 
     private val context: Context = context.applicationContext
-    private var webView: WebView? = null
+    private var session: GeckoSession? = null
+    private var mediaSession: GeckoMediaSession? = null
     private var title: String = ""
     private var icon: Bitmap? = null
     private var webappUuid: String = ""
@@ -26,7 +27,7 @@ class MediaPlaybackManager(context: Context) : MediaJsBridge.Listener {
     private var lastArtworkUrl: String? = null
     private var lastHasPrevious = false
     private var lastHasNext = false
-    private var jsInitiatedPause = false
+    private var nativePause = false
     private var generation = 0
     private val handler = Handler(Looper.getMainLooper())
     private var pendingPause: Runnable? = null
@@ -39,94 +40,73 @@ class MediaPlaybackManager(context: Context) : MediaJsBridge.Listener {
                 val gen = intent.getIntExtra(MediaPlaybackService.EXTRA_GENERATION, -1)
                 if (gen != -1 && gen != generation) return
                 when (intent.action) {
-                    MediaPlaybackService.BROADCAST_PLAY -> evalJs(MediaJsBridge.RESUME_JS)
-
+                    MediaPlaybackService.BROADCAST_PLAY -> mediaSession?.play()
                     MediaPlaybackService.BROADCAST_PAUSE -> {
-                        if (jsInitiatedPause) {
-                            jsInitiatedPause = false
+                        if (nativePause) {
+                            nativePause = false
                             return
                         }
-                        evalJs(MediaJsBridge.PAUSE_ALL_JS)
+                        mediaSession?.pause()
                     }
-
                     MediaPlaybackService.BROADCAST_STOP -> {
-                        evalJs(MediaJsBridge.PAUSE_ALL_JS)
+                        mediaSession?.stop()
                         serviceStarted = false
                     }
-
-                    MediaPlaybackService.BROADCAST_PREVIOUS ->
-                        evalJs(MediaJsBridge.PREVIOUS_TRACK_JS)
-
-                    MediaPlaybackService.BROADCAST_NEXT -> evalJs(MediaJsBridge.NEXT_TRACK_JS)
-
+                    MediaPlaybackService.BROADCAST_PREVIOUS -> mediaSession?.previousTrack()
+                    MediaPlaybackService.BROADCAST_NEXT -> mediaSession?.nextTrack()
                     MediaPlaybackService.BROADCAST_SEEK_TO -> {
-                        val seekMs =
-                            intent.getLongExtra(MediaPlaybackService.EXTRA_SEEK_POSITION_MS, 0L)
-                        evalJs(String.format(Locale.US, MediaJsBridge.SEEK_TO_JS, seekMs / 1000.0))
+                        val seekMs = intent.getLongExtra(MediaPlaybackService.EXTRA_SEEK_POSITION_MS, 0L)
+                        mediaSession?.seekTo(seekMs / 1000.0, false)
                     }
                 }
             }
         }
 
-    fun attach(webView: WebView, title: String, icon: Bitmap?, webappUuid: String) {
-        this.webView = webView
+    fun attach(geckoSession: GeckoSession, title: String, icon: Bitmap?, webappUuid: String) {
+        this.session = geckoSession
         this.title = title
         this.icon = icon
         this.webappUuid = webappUuid
+        geckoSession.mediaSessionDelegate = this
         if (!receiverRegistered) registerReceiver()
     }
 
-    fun injectPolyfill() {
-        webView?.evaluateJavascript(MediaJsBridge.POLYFILL_JS, null)
-    }
-
-    fun injectObserver() {
-        webView?.evaluateJavascript(MediaJsBridge.OBSERVER_JS, null)
-    }
-
     fun setBackground(isBackground: Boolean) {
-        evalJs("window._peelBackground = $isBackground;")
     }
 
-    override fun onMediaStarted() {
+    override fun onPlay(session: GeckoSession, mediaSession: GeckoMediaSession) {
+        this.mediaSession = mediaSession
         cancelPendingPause()
         if (serviceStarted) {
             sendAction(MediaPlaybackService.ACTION_RESUME)
             return
         }
-        stopOtherSlots()
         generation++
         context.startService(
             MediaPlaybackService.createStartIntent(
-                context,
-                title,
-                icon,
-                webappUuid,
-                generation,
-                lastTitle,
-                lastArtist,
-                lastArtworkUrl,
+                context, title, icon, webappUuid, generation,
+                lastTitle, lastArtist, lastArtworkUrl,
             )
         )
         serviceStarted = true
         if (lastHasPrevious || lastHasNext) {
-            onActionsChanged(lastHasPrevious, lastHasNext)
+            updateActions(lastHasPrevious, lastHasNext)
         }
     }
 
-    override fun onMediaPaused() {
+    override fun onPause(session: GeckoSession, mediaSession: GeckoMediaSession) {
+        this.mediaSession = mediaSession
         if (!serviceStarted) return
         cancelPendingPause()
-        pendingPause =
-            Runnable {
-                if (!serviceStarted) return@Runnable
-                jsInitiatedPause = true
-                sendAction(MediaPlaybackService.ACTION_PAUSE)
-            }
-                .also { handler.postDelayed(it, 1200L) }
+        pendingPause = Runnable {
+            if (!serviceStarted) return@Runnable
+            nativePause = true
+            sendAction(MediaPlaybackService.ACTION_PAUSE)
+        }.also { handler.postDelayed(it, 1200L) }
     }
 
-    override fun onMediaStopped() {
+    override fun onStop(session: GeckoSession, mediaSession: GeckoMediaSession) {
+        this.mediaSession = mediaSession
         cancelPendingPause()
         lastTitle = null
         lastArtist = null
@@ -136,21 +116,53 @@ class MediaPlaybackManager(context: Context) : MediaJsBridge.Listener {
         serviceStarted = false
     }
 
-    override fun onMetadataChanged(title: String?, artist: String?, artworkUrl: String?) {
-        lastTitle = title
-        lastArtist = artist
-        lastArtworkUrl = artworkUrl
+    override fun onMetadata(session: GeckoSession, mediaSession: GeckoMediaSession, meta: GeckoMediaSession.Metadata) {
+        this.mediaSession = mediaSession
+        lastTitle = meta.title?.takeIf { it.isNotEmpty() }
+        lastArtist = meta.artist?.takeIf { it.isNotEmpty() }
+        lastArtworkUrl = null
         if (!serviceStarted) return
         context.startService(
             Intent(context, MediaPlaybackService.resolveServiceClass()).apply {
                 action = MediaPlaybackService.ACTION_UPDATE_METADATA
-                putExtra(MediaPlaybackService.EXTRA_TRACK_TITLE, title ?: "")
-                putExtra(MediaPlaybackService.EXTRA_TRACK_ARTIST, artist ?: "")
-                putExtra(MediaPlaybackService.EXTRA_TRACK_ARTWORK_URL, artworkUrl ?: "")
+                putExtra(MediaPlaybackService.EXTRA_TRACK_TITLE, lastTitle ?: "")
+                putExtra(MediaPlaybackService.EXTRA_TRACK_ARTIST, lastArtist ?: "")
+                putExtra(MediaPlaybackService.EXTRA_TRACK_ARTWORK_URL, lastArtworkUrl ?: "")
             })
     }
 
-    override fun onActionsChanged(hasPrevious: Boolean, hasNext: Boolean) {
+    override fun onFeatures(session: GeckoSession, mediaSession: GeckoMediaSession, features: Long) {
+        this.mediaSession = mediaSession
+        val hasPrevious = (features and GeckoMediaSession.Feature.PREVIOUS_TRACK) != 0L
+        val hasNext = (features and GeckoMediaSession.Feature.NEXT_TRACK) != 0L
+        updateActions(hasPrevious, hasNext)
+    }
+
+    override fun onPositionState(session: GeckoSession, mediaSession: GeckoMediaSession, state: GeckoMediaSession.PositionState) {
+        this.mediaSession = mediaSession
+        if (!serviceStarted) return
+        context.startService(
+            Intent(context, MediaPlaybackService.resolveServiceClass()).apply {
+                action = MediaPlaybackService.ACTION_UPDATE_POSITION
+                putExtra(MediaPlaybackService.EXTRA_DURATION_MS, (state.duration * 1000).toLong())
+                putExtra(MediaPlaybackService.EXTRA_POSITION_MS, (state.position * 1000).toLong())
+                putExtra(MediaPlaybackService.EXTRA_PLAYBACK_RATE, state.playbackRate.toFloat())
+            })
+    }
+
+    fun release() {
+        cancelPendingPause()
+        if (serviceStarted) {
+            sendAction(MediaPlaybackService.ACTION_STOP)
+            serviceStarted = false
+        }
+        unregisterReceiver()
+        session?.mediaSessionDelegate = null
+        session = null
+        mediaSession = null
+    }
+
+    private fun updateActions(hasPrevious: Boolean, hasNext: Boolean) {
         lastHasPrevious = hasPrevious
         lastHasNext = hasNext
         if (!serviceStarted) return
@@ -162,31 +174,6 @@ class MediaPlaybackManager(context: Context) : MediaJsBridge.Listener {
             })
     }
 
-    override fun onPositionChanged(durationMs: Long, positionMs: Long, playbackRate: Float) {
-        if (!serviceStarted) return
-        context.startService(
-            Intent(context, MediaPlaybackService.resolveServiceClass()).apply {
-                action = MediaPlaybackService.ACTION_UPDATE_POSITION
-                putExtra(MediaPlaybackService.EXTRA_DURATION_MS, durationMs)
-                putExtra(MediaPlaybackService.EXTRA_POSITION_MS, positionMs)
-                putExtra(MediaPlaybackService.EXTRA_PLAYBACK_RATE, playbackRate)
-            })
-    }
-
-    fun release() {
-        cancelPendingPause()
-        if (serviceStarted) {
-            sendAction(MediaPlaybackService.ACTION_STOP)
-            serviceStarted = false
-        }
-        unregisterReceiver()
-        webView = null
-    }
-
-    private fun evalJs(js: String) {
-        webView?.post { webView?.evaluateJavascript(js, null) }
-    }
-
     private fun sendAction(action: String) {
         context.startService(
             Intent(context, MediaPlaybackService.resolveServiceClass()).apply {
@@ -195,15 +182,14 @@ class MediaPlaybackManager(context: Context) : MediaJsBridge.Listener {
     }
 
     private fun registerReceiver() {
-        val filter =
-            IntentFilter().apply {
-                addAction(MediaPlaybackService.BROADCAST_PLAY)
-                addAction(MediaPlaybackService.BROADCAST_PAUSE)
-                addAction(MediaPlaybackService.BROADCAST_STOP)
-                addAction(MediaPlaybackService.BROADCAST_PREVIOUS)
-                addAction(MediaPlaybackService.BROADCAST_NEXT)
-                addAction(MediaPlaybackService.BROADCAST_SEEK_TO)
-            }
+        val filter = IntentFilter().apply {
+            addAction(MediaPlaybackService.BROADCAST_PLAY)
+            addAction(MediaPlaybackService.BROADCAST_PAUSE)
+            addAction(MediaPlaybackService.BROADCAST_STOP)
+            addAction(MediaPlaybackService.BROADCAST_PREVIOUS)
+            addAction(MediaPlaybackService.BROADCAST_NEXT)
+            addAction(MediaPlaybackService.BROADCAST_SEEK_TO)
+        }
         ContextCompat.registerReceiver(
             context, receiver, filter, ContextCompat.RECEIVER_NOT_EXPORTED
         )
@@ -222,26 +208,5 @@ class MediaPlaybackManager(context: Context) : MediaJsBridge.Listener {
     private fun cancelPendingPause() {
         pendingPause?.let { handler.removeCallbacks(it) }
         pendingPause = null
-    }
-
-    private fun stopOtherSlots() {
-        val myClass = MediaPlaybackService.resolveServiceClass()
-        val allClasses =
-            arrayOf(
-                MediaPlaybackService::class.java,
-                MediaPlaybackService0::class.java,
-                MediaPlaybackService1::class.java,
-                MediaPlaybackService2::class.java,
-                MediaPlaybackService3::class.java,
-            )
-        for (cls in allClasses) {
-            if (cls != myClass) {
-                try {
-                    context.startService(
-                        Intent(context, cls).apply { action = MediaPlaybackService.ACTION_STOP })
-                } catch (_: Exception) {
-                }
-            }
-        }
     }
 }

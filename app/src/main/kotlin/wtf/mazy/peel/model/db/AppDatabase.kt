@@ -24,16 +24,14 @@ class StringMapConverter {
 }
 
 @Database(
-    entities = [WebAppEntity::class, SandboxSlotEntity::class, WebAppGroupEntity::class],
-    version = 10,
+    entities = [WebAppEntity::class, WebAppGroupEntity::class],
+    version = 11,
     exportSchema = true,
 )
 @TypeConverters(StringMapConverter::class)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun webAppDao(): WebAppDao
-
-    abstract fun sandboxSlotDao(): SandboxSlotDao
 
     abstract fun webAppGroupDao(): WebAppGroupDao
 
@@ -229,6 +227,22 @@ abstract class AppDatabase : RoomDatabase() {
                 "basicAuthPassword",
             ).joinToString(", ")
 
+        private fun ensureSettingsColumns(db: SupportSQLiteDatabase) {
+            for (table in listOf("webapps", "webapp_groups")) {
+                val cursor = db.query("PRAGMA table_info($table)")
+                val existing = mutableSetOf<String>()
+                val nameIdx = cursor.getColumnIndex("name")
+                while (cursor.moveToNext()) {
+                    existing.add(cursor.getString(nameIdx))
+                }
+                cursor.close()
+                if ("colorScheme" !in existing)
+                    db.execSQL("ALTER TABLE $table ADD COLUMN colorScheme INTEGER DEFAULT NULL")
+                if ("isAlgorithmicDarkening" !in existing)
+                    db.execSQL("ALTER TABLE $table ADD COLUMN isAlgorithmicDarkening INTEGER DEFAULT NULL")
+            }
+        }
+
         private fun recreateTablesV9(db: SupportSQLiteDatabase) {
             db.execSQL(
                 """
@@ -305,9 +319,18 @@ abstract class AppDatabase : RoomDatabase() {
                 }
             }
 
+        val MIGRATION_10_11 =
+            object : Migration(10, 11) {
+                override fun migrate(db: SupportSQLiteDatabase) {
+                    db.execSQL("DROP TABLE IF EXISTS sandbox_slots")
+                }
+            }
+
         val MIGRATION_9_10 =
             object : Migration(9, 10) {
                 override fun migrate(db: SupportSQLiteDatabase) {
+                    ensureSettingsColumns(db)
+
                     db.execSQL(
                         """
                         CREATE TABLE IF NOT EXISTS webapps_new (
@@ -335,6 +358,32 @@ abstract class AppDatabase : RoomDatabase() {
                     )
                     db.execSQL("DROP TABLE webapps")
                     db.execSQL("ALTER TABLE webapps_new RENAME TO webapps")
+
+                    db.execSQL(
+                        """
+                        CREATE TABLE IF NOT EXISTS webapp_groups_new (
+                            uuid TEXT NOT NULL PRIMARY KEY,
+                            title TEXT NOT NULL,
+                            `order` INTEGER NOT NULL,
+                            isUseContainer INTEGER NOT NULL,
+                            isEphemeralSandbox INTEGER NOT NULL,
+                            $SETTINGS_COLS
+                        )
+                        """
+                    )
+                    db.execSQL(
+                        """
+                        INSERT INTO webapp_groups_new (
+                            uuid, title, `order`, isUseContainer, isEphemeralSandbox,
+                            $SETTINGS_COL_NAMES
+                        )
+                        SELECT uuid, title, `order`, isUseContainer, isEphemeralSandbox,
+                            $SETTINGS_COL_NAMES
+                        FROM webapp_groups
+                        """
+                    )
+                    db.execSQL("DROP TABLE webapp_groups")
+                    db.execSQL("ALTER TABLE webapp_groups_new RENAME TO webapp_groups")
                 }
             }
 
@@ -359,6 +408,7 @@ abstract class AppDatabase : RoomDatabase() {
                     MIGRATION_7_9,
                     MIGRATION_8_9,
                     MIGRATION_9_10,
+                    MIGRATION_10_11,
                 )
                 .allowMainThreadQueries()
                 .build()

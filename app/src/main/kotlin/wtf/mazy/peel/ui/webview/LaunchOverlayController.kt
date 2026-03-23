@@ -2,7 +2,6 @@ package wtf.mazy.peel.ui.webview
 
 import android.os.Handler
 import android.view.View
-import android.webkit.WebView
 
 class LaunchOverlayController(
     private val mainHandler: Handler,
@@ -29,12 +28,7 @@ class LaunchOverlayController(
         onArm()
     }
 
-    fun hideWhenReady(webView: WebView?, onHiding: (() -> Unit)? = null) {
-        if (webView == null) {
-            hideIfNeeded(onHiding)
-            return
-        }
-
+    fun hideFallback(onHiding: (() -> Unit)? = null) {
         release()
         var hidden = false
         val fallback = Runnable {
@@ -44,16 +38,11 @@ class LaunchOverlayController(
         }
         pendingFallback = fallback
         mainHandler.postDelayed(fallback, fallbackDelayMs)
+    }
 
-        webView.postVisualStateCallback(0L, object : WebView.VisualStateCallback() {
-            override fun onComplete(requestId: Long) {
-                if (hidden || isDestroyed()) return
-                hidden = true
-                pendingFallback?.let { mainHandler.removeCallbacks(it) }
-                pendingFallback = null
-                hideIfNeeded(onHiding)
-            }
-        })
+    fun hideNow(onHiding: (() -> Unit)? = null) {
+        release()
+        hideIfNeeded(onHiding)
     }
 
     fun release() {

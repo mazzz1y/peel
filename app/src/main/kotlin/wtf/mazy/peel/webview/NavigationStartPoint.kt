@@ -1,22 +1,15 @@
 package wtf.mazy.peel.webview
 
-import android.webkit.WebView
 import androidx.core.net.toUri
 
-/**
- * Tracks the history index where user-driven browsing begins, skipping
- * auto-redirects and challenge pages so back-press exits instead of
- * cycling through entries the user never chose.
- */
 class NavigationStartPoint(private val baseUrl: String) {
 
-    private var index: Int? = null
+    private var navigationCount = 0
     private var settled = false
     private var visitedForeignHost = false
 
-    fun reset(view: WebView) {
-        val list = view.copyBackForwardList()
-        index = if (list.size == 0) 0 else list.currentIndex + 1
+    fun reset() {
+        navigationCount = 0
         settled = true
         visitedForeignHost = false
     }
@@ -25,22 +18,18 @@ class NavigationStartPoint(private val baseUrl: String) {
         if (!settled && !visitedForeignHost) settled = true
     }
 
-    fun onVisitedHistoryUpdated(view: WebView, url: String?, isReload: Boolean) {
-        if (settled || isReload) return
+    fun onLocationChange(url: String?) {
+        navigationCount++
+        if (settled) return
         if (!isBaseHost(url)) {
             visitedForeignHost = true
             return
         }
-
-        index = view.copyBackForwardList().currentIndex
-
         if (visitedForeignHost) settled = true
     }
 
-    fun canGoBackFrom(currentIndex: Int): Boolean {
-        val start = index ?: return true
-        return currentIndex > start
-    }
+    val allowGoBack: Boolean
+        get() = settled && navigationCount > 1
 
     private fun isBaseHost(url: String?): Boolean {
         val urlHost = url?.toUri()?.host?.removePrefix("www.") ?: return false

@@ -4,6 +4,8 @@ plugins {
     id 'org.jetbrains.kotlin.plugin.serialization'
 }
 
+def geckoviewVersion = "148.0.20260309125808"
+
 android {
     compileSdk 36
 
@@ -58,6 +60,21 @@ android {
         targetCompatibility JavaVersion.VERSION_21
     }
 
+    packaging {
+        jniLibs {
+            useLegacyPackaging = true
+        }
+    }
+
+    splits {
+        abi {
+            enable true
+            reset()
+            include "arm64-v8a", "armeabi-v7a", "x86_64"
+            universalApk false
+        }
+    }
+
     namespace 'wtf.mazy.peel'
 }
 
@@ -69,7 +86,7 @@ ksp {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.10.0'
-    implementation 'androidx.webkit:webkit:1.15.0'
+    implementation "org.mozilla.geckoview:geckoview:$geckoviewVersion"
     implementation "androidx.biometric:biometric:1.1.0"
     implementation "androidx.fragment:fragment-ktx:1.8.9"
     implementation 'com.google.android.material:material:1.13.0'

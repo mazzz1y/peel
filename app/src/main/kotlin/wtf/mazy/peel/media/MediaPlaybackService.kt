@@ -34,7 +34,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.DataManager
-import wtf.mazy.peel.model.SandboxManager
 import wtf.mazy.peel.util.WebViewLauncher
 import java.io.ByteArrayOutputStream
 import java.net.HttpURLConnection
@@ -447,14 +446,7 @@ open class MediaPlaybackService : MediaSessionService() {
             }
         }
 
-        fun resolveServiceClass(): Class<out MediaPlaybackService> =
-            when (SandboxManager.currentSlotId) {
-                0 -> MediaPlaybackService0::class.java
-                1 -> MediaPlaybackService1::class.java
-                2 -> MediaPlaybackService2::class.java
-                3 -> MediaPlaybackService3::class.java
-                else -> throw IllegalStateException("Media playback requires a sandbox process")
-            }
+        fun resolveServiceClass(): Class<out MediaPlaybackService> = MediaPlaybackService::class.java
 
         private fun bitmapToBytes(bmp: Bitmap): ByteArray {
             val stream = ByteArrayOutputStream()
@@ -463,11 +455,3 @@ open class MediaPlaybackService : MediaSessionService() {
         }
     }
 }
-
-class MediaPlaybackService0 : MediaPlaybackService()
-
-class MediaPlaybackService1 : MediaPlaybackService()
-
-class MediaPlaybackService2 : MediaPlaybackService()
-
-class MediaPlaybackService3 : MediaPlaybackService()

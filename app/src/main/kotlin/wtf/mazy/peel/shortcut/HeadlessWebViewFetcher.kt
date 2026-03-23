@@ -1,17 +1,10 @@
 package wtf.mazy.peel.shortcut
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Handler
 import android.os.Looper
-import android.webkit.CookieManager
-import android.webkit.WebChromeClient
-import android.webkit.WebResourceError
-import android.webkit.WebResourceRequest
-import android.webkit.WebView
-import android.webkit.WebViewClient
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -24,15 +17,14 @@ import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
-import org.json.JSONArray
 import org.json.JSONObject
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.WebAppSettings
 import wtf.mazy.peel.shortcut.ShortcutIconUtils.getWidthFromIcon
 import wtf.mazy.peel.util.Const
-import wtf.mazy.peel.util.buildUserAgent
 import java.net.HttpURLConnection
 import java.net.URL
+import java.util.regex.Pattern
 
 data class FetchCandidate(
     val title: String?,
@@ -51,143 +43,82 @@ class HeadlessWebViewFetcher(
     private val onResult: (FetchResult) -> Unit,
 ) {
     private val appContext = context.applicationContext
-    private val webView = WebView(appContext)
     private val handler = Handler(Looper.getMainLooper())
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     private var customHeaders: Map<String, String> = emptyMap()
-    private lateinit var userAgent: String
-    private var extracting = false
+    private var userAgent: String = DEFAULT_USER_AGENT
     private var finished = false
     private var resolveJob: Job? = null
-    private val timeoutRunnable = Runnable { tryExtract(force = true) }
 
-    @SuppressLint("SetJavaScriptEnabled")
     fun start() {
-        configureWebView()
-        handler.postDelayed(timeoutRunnable, TIMEOUT_MS)
+        val headers = mutableMapOf<String, String>()
+        settings.customHeaders?.forEach { (key, value) ->
+            if (key.equals("User-Agent", ignoreCase = true)) userAgent = value
+            else headers[key] = value
+        }
+        if (settings.isRequestDesktop == true) userAgent = Const.DESKTOP_USER_AGENT
+        customHeaders = headers
+
         postProgress(appContext.getString(R.string.fetch_step_loading))
 
         var loadUrl = url
         if (loadUrl.startsWith("http://") && settings.isAlwaysHttps == true)
             loadUrl = loadUrl.replaceFirst("http://", "https://")
-        webView.loadUrl(loadUrl, customHeaders)
+
+        resolveJob = scope.launch {
+            val result = try {
+                withTimeout(TIMEOUT_MS) { fetchAndResolve(loadUrl) }
+            } catch (_: TimeoutCancellationException) {
+                FetchResult(emptyList(), null)
+            } catch (_: Exception) {
+                FetchResult(emptyList(), null)
+            }
+            finish(result)
+        }
     }
 
     fun cancel() {
         finish()
     }
 
-    private fun configureWebView() {
-        webView.buildUserAgent()
-        webView.settings.apply {
-            javaScriptEnabled = settings.isAllowJs == true
-            blockNetworkImage = true
-            domStorageEnabled = true
-            safeBrowsingEnabled = settings.isSafeBrowsing == true
-            if (settings.isRequestDesktop == true) {
-                userAgentString = Const.DESKTOP_USER_AGENT
-                useWideViewPort = true
-                loadWithOverviewMode = true
-            }
-        }
-        CookieManager.getInstance().apply {
-            setAcceptCookie(settings.isAllowCookies == true)
-            setAcceptThirdPartyCookies(webView, settings.isAllowThirdPartyCookies == true)
-        }
-
-        val headers = mutableMapOf<String, String>()
-        settings.customHeaders?.forEach { (key, value) ->
-            if (key.equals("User-Agent", ignoreCase = true)) webView.settings.userAgentString =
-                value
-            else headers[key] = value
-        }
-        customHeaders = headers
-        userAgent = webView.settings.userAgentString
-
-        webView.webViewClient = object : WebViewClient() {
-            override fun onPageFinished(view: WebView?, url: String?) {
-                if (view != null) tryExtract(force = true)
-            }
-
-            override fun onReceivedError(
-                view: WebView?, request: WebResourceRequest?, error: WebResourceError?,
-            ) {
-                if (request?.isForMainFrame == true && !extracting) finish()
-            }
-
-            override fun onReceivedHttpError(
-                view: WebView?,
-                request: WebResourceRequest?,
-                errorResponse: android.webkit.WebResourceResponse?,
-            ) {
-                if (request?.isForMainFrame == true && !extracting) finish()
-            }
-        }
-        webView.webChromeClient = object : WebChromeClient() {
-            override fun onProgressChanged(view: WebView?, newProgress: Int) {
-                if (view != null) tryExtract(force = false)
-            }
+    private suspend fun fetchAndResolve(loadUrl: String): FetchResult = withContext(Dispatchers.IO) {
+        val conn = openConnection(loadUrl)
+        try {
+            if (conn.responseCode != 200) return@withContext FetchResult(emptyList(), null)
+            val finalUrl = conn.url.toString()
+            val html = conn.inputStream.bufferedReader().use { it.readText() }
+            val redirected = if (finalUrl.trimEnd('/') != url.trimEnd('/')) finalUrl else null
+            resolve(html, finalUrl, redirected)
+        } finally {
+            conn.disconnect()
         }
     }
 
-    private fun tryExtract(force: Boolean) {
-        if (finished) return
-        if (extracting && !force) return
-        extracting = true
-        webView.evaluateJavascript(EXTRACT_JS) { raw ->
-            if (finished) return@evaluateJavascript
-            val json = parseJsResult(raw)
-            val headParsed = json?.optBoolean("headParsed") == true
-            val iconCount = json?.optJSONArray("iconLinks")?.length() ?: 0
-            val hasManifest = json?.optString("manifestUrl")?.isNotEmpty() == true
-            val hasLinks = json != null && (iconCount > 0 || hasManifest)
-            if ((!headParsed || !hasLinks) && !force) {
-                extracting = false
-                return@evaluateJavascript
-            }
-            handler.removeCallbacksAndMessages(null)
-            resolveJob?.cancel()
-            resolveJob = scope.launch {
-                val result = try {
-                    withTimeout(RESOLVE_TIMEOUT_MS) { resolve(raw, webView.url ?: url) }
-                } catch (_: TimeoutCancellationException) {
-                    FetchResult(emptyList(), null)
-                }
-                finish(result)
-            }
-        }
-    }
-
-    private suspend fun resolve(raw: String?, pageUrl: String): FetchResult =
+    private suspend fun resolve(html: String, pageUrl: String, redirected: String?): FetchResult =
         withContext(Dispatchers.IO) {
-            val json = parseJsResult(raw)
-            val pageTitle = json?.optString("title")?.takeIf { it.isNotEmpty() }
-            val redirected = if (pageUrl.trimEnd('/') != url.trimEnd('/')) pageUrl else null
+            val pageTitle = extractTitle(html)
+            val manifestUrl = extractManifestUrl(html, pageUrl)
+            val iconLinks = extractIconLinks(html, pageUrl)
 
             val candidates = mutableListOf<FetchCandidate>()
 
-            if (json != null) {
-                scope.ensureActive()
-                postProgress(appContext.getString(R.string.fetch_step_downloading))
+            scope.ensureActive()
+            postProgress(appContext.getString(R.string.fetch_step_downloading))
 
-                coroutineScope {
-                    val manifestDeferred = async {
-                        findManifestCandidate(json, pageUrl, pageTitle)
-                    }
-                    val pageIconsDeferred = async {
-                        findPageIconCandidates(json, pageTitle)
-                    }
-                    val faviconDeferred = async {
-                        findFaviconCandidate(pageUrl, pageTitle)
-                    }
-
-                    manifestDeferred.await()?.let { candidates += it }
-                    candidates += pageIconsDeferred.await()
-                    faviconDeferred.await()?.let { candidates += it }
+            coroutineScope {
+                val manifestDeferred = async {
+                    findManifestCandidate(manifestUrl, pageUrl, pageTitle)
                 }
-            } else {
-                scope.ensureActive()
-                findFaviconCandidate(pageUrl, null)?.let { candidates += it }
+                val pageIconsDeferred = async {
+                    findPageIconCandidates(iconLinks, pageTitle)
+                }
+                val faviconDeferred = async {
+                    findFaviconCandidate(pageUrl, pageTitle)
+                }
+
+                manifestDeferred.await()?.let { candidates += it }
+                candidates += pageIconsDeferred.await()
+                faviconDeferred.await()?.let { candidates += it }
             }
 
             val bestTitle = candidates.firstOrNull { it.source == "PWA" }?.title ?: pageTitle
@@ -197,11 +128,10 @@ class HeadlessWebViewFetcher(
         }
 
     private fun findManifestCandidate(
-        json: JSONObject, pageUrl: String, pageTitle: String?,
+        manifestUrl: String?, pageUrl: String, pageTitle: String?,
     ): FetchCandidate? {
-        val jsManifestUrl = json.optString("manifestUrl").takeIf { it.isNotEmpty() }
-        if (jsManifestUrl != null) {
-            tryManifest(jsManifestUrl, pageTitle)?.let { return it }
+        if (manifestUrl != null) {
+            tryManifest(manifestUrl, pageTitle)?.let { return it }
         }
         val origins = linkedSetOf(originOf(pageUrl), originOf(url))
         for (origin in origins) {
@@ -257,20 +187,15 @@ class HeadlessWebViewFetcher(
     }
 
     private fun findPageIconCandidates(
-        json: JSONObject, pageTitle: String?,
+        iconLinks: List<IconLink>, pageTitle: String?,
     ): List<FetchCandidate> {
-        val arr = json.optJSONArray("iconLinks") ?: return emptyList()
         val touchIcons = mutableListOf<Pair<Int, String>>()
         val linkIcons = mutableListOf<Pair<Int, String>>()
 
-        for (i in 0 until arr.length()) {
-            val obj = arr.optJSONObject(i) ?: continue
-            val href = obj.optString("href").takeIf { it.isNotEmpty() } ?: continue
-            val sizes = obj.optString("sizes")
-            val width = if (sizes.isNotEmpty()) getWidthFromIcon(sizes) else 1
-            val rel = obj.optString("rel").lowercase()
-            if (rel.contains("apple-touch-icon")) touchIcons += width to href
-            else linkIcons += width to href
+        for (link in iconLinks) {
+            val width = if (link.sizes.isNotEmpty()) getWidthFromIcon(link.sizes) else 1
+            if (link.rel.contains("apple-touch-icon")) touchIcons += width to link.href
+            else linkIcons += width to link.href
         }
 
         val result = mutableListOf<FetchCandidate>()
@@ -325,8 +250,6 @@ class HeadlessWebViewFetcher(
         conn.readTimeout = CONNECTION_TIMEOUT_MS
         conn.instanceFollowRedirects = true
         conn.setRequestProperty("User-Agent", userAgent)
-        val cookies = CookieManager.getInstance().getCookie(url)
-        if (cookies != null) conn.setRequestProperty("Cookie", cookies)
         customHeaders.forEach { (key, value) -> conn.setRequestProperty(key, value) }
         return conn
     }
@@ -340,18 +263,60 @@ class HeadlessWebViewFetcher(
         finished = true
         handler.removeCallbacksAndMessages(null)
         scope.cancel()
-        webView.stopLoading()
-        webView.destroy()
         onResult(result)
     }
 
+    private data class IconLink(val href: String, val rel: String, val sizes: String)
+
     companion object {
-        private const val TIMEOUT_MS = 10_000L
-        private const val RESOLVE_TIMEOUT_MS = 10_000L
+        private const val TIMEOUT_MS = 20_000L
         private const val CONNECTION_TIMEOUT_MS = 4_000
         private const val MAX_ICON_BYTES = 5 * 1024 * 1024
+        private const val DEFAULT_USER_AGENT =
+            "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Mobile Safari/537.36"
         private val MANIFEST_FALLBACK_PATHS =
             listOf("/manifest.webmanifest", "/manifest.json", "/site.webmanifest")
+
+        private val TITLE_RE = Pattern.compile("<title[^>]*>([^<]+)</title>", Pattern.CASE_INSENSITIVE)
+        private val MANIFEST_RE = Pattern.compile("""<link[^>]+rel\s*=\s*["']manifest["'][^>]+href\s*=\s*["']([^"']+)["']""", Pattern.CASE_INSENSITIVE)
+        private val MANIFEST_RE2 = Pattern.compile("""<link[^>]+href\s*=\s*["']([^"']+)["'][^>]+rel\s*=\s*["']manifest["']""", Pattern.CASE_INSENSITIVE)
+        private val ICON_LINK_RE = Pattern.compile("""<link\b([^>]*rel\s*=\s*["'][^"']*icon[^"']*["'][^>]*)>""", Pattern.CASE_INSENSITIVE)
+        private val HREF_RE = Pattern.compile("""href\s*=\s*["']([^"']+)["']""", Pattern.CASE_INSENSITIVE)
+        private val REL_RE = Pattern.compile("""rel\s*=\s*["']([^"']+)["']""", Pattern.CASE_INSENSITIVE)
+        private val SIZES_RE = Pattern.compile("""sizes\s*=\s*["']([^"']+)["']""", Pattern.CASE_INSENSITIVE)
+
+        private fun extractTitle(html: String): String? {
+            val m = TITLE_RE.matcher(html)
+            return if (m.find()) m.group(1)?.trim()?.takeIf { it.isNotEmpty() } else null
+        }
+
+        private fun extractManifestUrl(html: String, baseUrl: String): String? {
+            for (re in listOf(MANIFEST_RE, MANIFEST_RE2)) {
+                val m = re.matcher(html)
+                if (m.find()) {
+                    val href = m.group(1) ?: continue
+                    return try { URL(URL(baseUrl), href).toString() } catch (_: Exception) { href }
+                }
+            }
+            return null
+        }
+
+        private fun extractIconLinks(html: String, baseUrl: String): List<IconLink> {
+            val result = mutableListOf<IconLink>()
+            val m = ICON_LINK_RE.matcher(html)
+            while (m.find()) {
+                val attrs = m.group(1) ?: continue
+                val hrefMatch = HREF_RE.matcher(attrs)
+                if (!hrefMatch.find()) continue
+                val href = try { URL(URL(baseUrl), hrefMatch.group(1)).toString() } catch (_: Exception) { continue }
+                val relMatch = REL_RE.matcher(attrs)
+                val rel = if (relMatch.find()) relMatch.group(1)?.lowercase() ?: "" else ""
+                val sizesMatch = SIZES_RE.matcher(attrs)
+                val sizes = if (sizesMatch.find()) sizesMatch.group(1) ?: "" else ""
+                result.add(IconLink(href, rel, sizes))
+            }
+            return result
+        }
 
         private fun originOf(url: String): String =
             URL(url).let {
@@ -365,36 +330,5 @@ class HeadlessWebViewFetcher(
             return filter { it.icon == null || seen.add(it.icon.width to it.icon.height) }
                 .sortedBy { if (it.icon != null) 0 else 1 }
         }
-
-        private fun parseJsResult(raw: String?): JSONObject? {
-            if (raw == null || raw == "null") return null
-            return try {
-                val decoded = JSONArray("[$raw]").optString(0)
-                if (decoded.isEmpty()) null else JSONObject(decoded)
-            } catch (_: Exception) {
-                null
-            }
-        }
-
-        private val EXTRACT_JS = """
-            (function() {
-                var result = {
-                    headParsed: !!document.body,
-                    title: document.title || '',
-                    manifestUrl: '',
-                    iconLinks: []
-                };
-                var manifest = document.querySelector('link[rel="manifest"]');
-                if (manifest && manifest.href) result.manifestUrl = manifest.href;
-                var links = document.querySelectorAll('link[rel*="icon"]');
-                for (var i = 0; i < links.length; i++) {
-                    var l = links[i];
-                    if (l.href) result.iconLinks.push({
-                        href: l.href, rel: l.rel || '', sizes: l.getAttribute('sizes') || ''
-                    });
-                }
-                return JSON.stringify(result);
-            })();
-        """.trimIndent()
     }
 }

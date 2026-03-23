@@ -9,9 +9,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import wtf.mazy.peel.gecko.GeckoRuntimeProvider
 import wtf.mazy.peel.model.DataManager
-import wtf.mazy.peel.model.SandboxManager
-import wtf.mazy.peel.model.db.AppDatabase
 
 class App : Application() {
 
@@ -24,17 +23,8 @@ class App : Application() {
     override fun onCreate() {
         super.onCreate()
         appContext = applicationContext
-        SandboxManager.initialize(AppDatabase.getInstance(applicationContext).sandboxSlotDao())
-        if (SandboxManager.currentSlotId == null) {
-            @Suppress("DEPRECATION")
-            SandboxManager.migrateDefaultWebViewDir()
-        }
         appScope.launch {
-            if (SandboxManager.currentSlotId != null) {
-                DataManager.instance.initializeForSandbox(applicationContext)
-            } else {
-                DataManager.instance.initialize(applicationContext)
-            }
+            DataManager.instance.initialize(applicationContext)
         }
     }
 

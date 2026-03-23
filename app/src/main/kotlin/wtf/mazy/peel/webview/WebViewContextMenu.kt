@@ -6,28 +6,21 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
-import android.os.Handler
-import android.os.Looper
 import android.text.TextUtils
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
 import android.webkit.MimeTypeMap
-import android.webkit.WebView
-import android.webkit.WebView.HitTestResult
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.core.content.FileProvider
 import androidx.core.net.toUri
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import org.mozilla.geckoview.GeckoSession
 import wtf.mazy.peel.R
-import java.io.File
 
 class WebViewContextMenu(
     private val activity: Context,
-    private val getWebView: () -> WebView?,
-    private val fileFetcher: FileFetcher,
     private val downloadHandler: DownloadHandler,
     private val onExternalIntent: (Uri) -> Unit,
     private val onOpenInPeel: ((String) -> Unit)?,
@@ -36,15 +29,15 @@ class WebViewContextMenu(
     private val onToast: (String) -> Unit,
 ) {
 
-    fun install(webView: WebView) {
-        webView.setOnLongClickListener { show(webView) }
-    }
-
-    private fun show(webView: WebView): Boolean {
-        val info = resolveHitInfo(webView) ?: return false
-        if (!info.hasContent) return false
+    fun onContextMenu(
+        session: GeckoSession,
+        screenX: Int,
+        screenY: Int,
+        element: GeckoSession.ContentDelegate.ContextElement,
+    ) {
+        val info = resolveHitInfo(element) ?: return
+        if (!info.hasContent) return
         showDialog(info)
-        return true
     }
 
     private data class MenuAction(
@@ -63,45 +56,30 @@ class WebViewContextMenu(
         val hasContent get() = linkActions.isNotEmpty() || imageActions.isNotEmpty()
     }
 
-    private fun resolveHitInfo(webView: WebView): HitInfo? {
-        val hit = webView.hitTestResult
-        val extra = hit.extra ?: return null
+    private fun resolveHitInfo(element: GeckoSession.ContentDelegate.ContextElement): HitInfo? {
+        val linkUrl = element.linkUri
+        val imageUrl = element.srcUri
+        val title = element.title?.takeIf { it.isNotBlank() }
 
-        val nodeHref = when (hit.type) {
-            HitTestResult.SRC_ANCHOR_TYPE,
-            HitTestResult.SRC_IMAGE_ANCHOR_TYPE -> {
-                val msg = Handler(Looper.getMainLooper()).obtainMessage()
-                webView.requestFocusNodeHref(msg)
-                msg.data
-            }
-
-            else -> null
-        }
-        val title = nodeHref?.getString("title")?.takeIf { it.isNotBlank() }
-
-        return when (hit.type) {
-            HitTestResult.SRC_ANCHOR_TYPE ->
-                HitInfo(
-                    title?.takeIf { it != extra },
-                    extra,
-                    linkActionsFor(extra, title),
-                    emptyList()
-                )
-
-            HitTestResult.IMAGE_TYPE ->
-                HitInfo(null, extra, emptyList(), imageActionsFor(extra))
-
-            HitTestResult.SRC_IMAGE_ANCHOR_TYPE -> {
-                val anchorUrl = nodeHref?.getString("url")
-                val displayUrl = anchorUrl ?: extra
-                HitInfo(
-                    title = title?.takeIf { it != displayUrl },
-                    url = displayUrl,
-                    linkActions = anchorUrl?.let { linkActionsFor(it, title) } ?: emptyList(),
-                    imageActions = imageActionsFor(extra),
-                )
-            }
-
+        return when {
+            linkUrl != null && imageUrl != null -> HitInfo(
+                title = title?.takeIf { it != linkUrl },
+                url = linkUrl,
+                linkActions = linkActionsFor(linkUrl, title),
+                imageActions = imageActionsFor(imageUrl),
+            )
+            linkUrl != null -> HitInfo(
+                title = title?.takeIf { it != linkUrl },
+                url = linkUrl,
+                linkActions = linkActionsFor(linkUrl, title),
+                imageActions = emptyList(),
+            )
+            imageUrl != null -> HitInfo(
+                title = null,
+                url = imageUrl,
+                linkActions = emptyList(),
+                imageActions = imageActionsFor(imageUrl),
+            )
             else -> null
         }
     }
@@ -124,7 +102,6 @@ class WebViewContextMenu(
     }
 
     private fun imageActionsFor(url: String) = listOf(
-        MenuAction(str(R.string.context_menu_copy_image)) { copyImage(url) },
         MenuAction(str(R.string.context_menu_download_image)) { downloadUrl(url) },
         MenuAction(str(R.string.context_menu_share_image)) { shareImage(url) },
     )
@@ -259,38 +236,10 @@ class WebViewContextMenu(
         downloadHandler.downloadUrl(url)
     }
 
-    private fun withImageFile(url: String, action: (File) -> Unit) {
-        fileFetcher.fetch(url, null) { file ->
-            if (file != null) action(file)
-            else onToast(str(R.string.image_download_failed))
-        }
-    }
-
-    private fun imageContentUri(file: File): Uri =
-        FileProvider.getUriForFile(activity, "${activity.packageName}.fileprovider", file)
-
-    private fun imageMimeType(file: File): String =
-        MimeTypeMap.getSingleton()
-            .getMimeTypeFromExtension(file.extension)
-            ?: "image/*"
-
-    private fun copyImage(url: String) = withImageFile(url) { file ->
-        val uri = imageContentUri(file)
-        val mime = imageMimeType(file)
-        val clipboard = activity.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-        clipboard.setPrimaryClip(ClipData("image", arrayOf(mime), ClipData.Item(uri)))
-        onToast(str(R.string.image_copied))
-    }
-
-    private fun shareImage(url: String) = withImageFile(url) { file ->
-        val uri = imageContentUri(file)
-        val mime = imageMimeType(file)
+    private fun shareImage(url: String) {
         val intent = Intent(Intent.ACTION_SEND).apply {
-            type = mime
-            putExtra(Intent.EXTRA_STREAM, uri)
-            if (url.startsWith("http")) putExtra(Intent.EXTRA_TEXT, stripQueryParams(url))
-            clipData = ClipData.newUri(activity.contentResolver, null, uri)
-            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            type = "text/plain"
+            putExtra(Intent.EXTRA_TEXT, url)
         }
         activity.startActivity(Intent.createChooser(intent, null))
     }

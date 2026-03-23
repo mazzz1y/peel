@@ -5,8 +5,8 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.view.MotionEvent
 import android.view.View
-import android.webkit.WebView
 import android.widget.FrameLayout
+import org.mozilla.geckoview.GeckoSession
 import android.widget.ImageButton
 import androidx.core.content.edit
 import androidx.core.view.ViewCompat
@@ -39,7 +39,7 @@ private class FloatingButtonPrefs(webappUuid: String, parent: FrameLayout) {
 class FloatingControlsView(
     private val parent: FrameLayout,
     webappUuid: String,
-    private val getWebView: () -> WebView?,
+    private val getSession: () -> GeckoSession?,
     private val onHome: () -> Unit,
 ) {
     private val buttonPrefs = FloatingButtonPrefs(webappUuid, parent)
@@ -151,18 +151,17 @@ class FloatingControlsView(
         actionButtons[0].setOnClickListener { collapse(); onHome() }
         actionButtons[1].setOnClickListener {
             collapse()
-            val url = getWebView()?.url ?: return@setOnClickListener
             parent.context.startActivity(
                 Intent.createChooser(
                     Intent(Intent.ACTION_SEND).apply {
                         type = "text/plain"
-                        putExtra(Intent.EXTRA_TEXT, url)
+                        putExtra(Intent.EXTRA_TEXT, "")
                     },
                     null,
                 ),
             )
         }
-        actionButtons[2].setOnClickListener { collapse(); getWebView()?.reload() }
+        actionButtons[2].setOnClickListener { collapse(); getSession()?.reload() }
     }
 
     private fun applyPosition() {

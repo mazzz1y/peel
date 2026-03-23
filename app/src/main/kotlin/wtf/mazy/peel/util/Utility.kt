@@ -1,21 +1,9 @@
 package wtf.mazy.peel.util
 
 import android.webkit.URLUtil
-import android.webkit.WebView
 import java.net.URLDecoder
 import java.text.BreakIterator
 import java.util.regex.Pattern
-
-private val CHROME_VERSION_RE = Regex("""Chrome/([\d.]+)""")
-
-fun WebView.buildUserAgent() {
-    val raw = settings.userAgentString ?: ""
-    val major = CHROME_VERSION_RE.find(raw)?.groupValues?.get(1)?.substringBefore('.') ?: "145"
-    settings.userAgentString =
-        "Mozilla/5.0 (Linux; Android 10; K) " +
-                "AppleWebKit/537.36 (KHTML, like Gecko) " +
-                "Chrome/$major.0.0.0 Mobile Safari/537.36"
-}
 
 fun displayUrl(url: String): String {
     val queryStart = url.indexOf('?')

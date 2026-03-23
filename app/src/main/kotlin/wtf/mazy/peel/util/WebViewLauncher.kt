@@ -7,8 +7,8 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.net.toUri
 import wtf.mazy.peel.R
+import wtf.mazy.peel.activities.WebViewActivity
 import wtf.mazy.peel.model.DataManager
-import wtf.mazy.peel.model.SandboxManager
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.ui.BiometricPromptHelper
 
@@ -44,29 +44,9 @@ object WebViewLauncher {
 
     internal fun createWebViewIntent(webapp: WebApp, c: Context?): Intent? {
         if (c == null) return null
-        val sandboxId = resolveSandboxId(webapp)
-        val activityClass =
-            SandboxManager.resolveActivityClass(c, sandboxId, webapp.uuid) ?: return null
-        return buildIntent(c, activityClass, webapp.uuid)
-    }
-
-    fun resolveSandboxId(webapp: WebApp): String {
-        if (webapp.isUseContainer) return webapp.uuid
-        val group = webapp.groupUuid?.let { DataManager.instance.getGroup(it) }
-        if (group != null && group.isUseContainer) return group.uuid
-        return SandboxManager.DEFAULT_SANDBOX_ID
-    }
-
-    fun isEphemeralSandbox(webapp: WebApp): Boolean {
-        if (webapp.isUseContainer) return webapp.isEphemeralSandbox
-        val group = webapp.groupUuid?.let { DataManager.instance.getGroup(it) }
-        return group?.isUseContainer == true && group.isEphemeralSandbox
-    }
-
-    private fun buildIntent(c: Context, activityClass: Class<*>, uuid: String): Intent {
-        return Intent(c, activityClass).apply {
-            putExtra(Const.INTENT_WEBAPP_UUID, uuid)
-            data = "app://$uuid".toUri()
+        return Intent(c, WebViewActivity::class.java).apply {
+            putExtra(Const.INTENT_WEBAPP_UUID, webapp.uuid)
+            data = "app://${webapp.uuid}".toUri()
             action = Intent.ACTION_VIEW
         }
     }

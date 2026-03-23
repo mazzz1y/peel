@@ -113,263 +113,27 @@
             android:taskAffinity=""
             android:theme="@style/AppTheme.Trampoline" />
 
-        <!-- Slot 0 -->
         <activity
-            android:name=".activities.SandboxActivity0"
+            android:name=".activities.WebViewActivity"
             android:configChanges="orientation|screenSize|smallestScreenSize|density|screenLayout|uiMode|keyboard|keyboardHidden|navigation"
             android:documentLaunchMode="intoExisting"
             android:exported="false"
             android:icon="@mipmap/ic_launcher"
             android:launchMode="singleTask"
-            android:process=":sandbox_0"
-            android:roundIcon="@mipmap/ic_launcher"
-            android:taskAffinity=""
-            android:theme="@style/AppTheme.WebView"
-            android:windowSoftInputMode="adjustResize" />
-        <activity
-            android:name=".activities.SandboxActivity1"
-            android:configChanges="orientation|screenSize|smallestScreenSize|density|screenLayout|uiMode|keyboard|keyboardHidden|navigation"
-            android:documentLaunchMode="intoExisting"
-            android:exported="false"
-            android:icon="@mipmap/ic_launcher"
-            android:launchMode="singleTask"
-            android:process=":sandbox_0"
-            android:roundIcon="@mipmap/ic_launcher"
-            android:taskAffinity=""
-            android:theme="@style/AppTheme.WebView"
-            android:windowSoftInputMode="adjustResize" />
-        <activity
-            android:name=".activities.SandboxActivity2"
-            android:configChanges="orientation|screenSize|smallestScreenSize|density|screenLayout|uiMode|keyboard|keyboardHidden|navigation"
-            android:documentLaunchMode="intoExisting"
-            android:exported="false"
-            android:icon="@mipmap/ic_launcher"
-            android:launchMode="singleTask"
-            android:process=":sandbox_0"
-            android:roundIcon="@mipmap/ic_launcher"
-            android:taskAffinity=""
-            android:theme="@style/AppTheme.WebView"
-            android:windowSoftInputMode="adjustResize" />
-        <activity
-            android:name=".activities.SandboxActivity3"
-            android:configChanges="orientation|screenSize|smallestScreenSize|density|screenLayout|uiMode|keyboard|keyboardHidden|navigation"
-            android:documentLaunchMode="intoExisting"
-            android:exported="false"
-            android:icon="@mipmap/ic_launcher"
-            android:launchMode="singleTask"
-            android:process=":sandbox_0"
-            android:roundIcon="@mipmap/ic_launcher"
-            android:taskAffinity=""
-            android:theme="@style/AppTheme.WebView"
-            android:windowSoftInputMode="adjustResize" />
-
-        <!-- Slot 1 -->
-        <activity
-            android:name=".activities.SandboxActivity4"
-            android:configChanges="orientation|screenSize|smallestScreenSize|density|screenLayout|uiMode|keyboard|keyboardHidden|navigation"
-            android:documentLaunchMode="intoExisting"
-            android:exported="false"
-            android:icon="@mipmap/ic_launcher"
-            android:launchMode="singleTask"
-            android:process=":sandbox_1"
-            android:roundIcon="@mipmap/ic_launcher"
-            android:taskAffinity=""
-            android:theme="@style/AppTheme.WebView"
-            android:windowSoftInputMode="adjustResize" />
-        <activity
-            android:name=".activities.SandboxActivity5"
-            android:configChanges="orientation|screenSize|smallestScreenSize|density|screenLayout|uiMode|keyboard|keyboardHidden|navigation"
-            android:documentLaunchMode="intoExisting"
-            android:exported="false"
-            android:icon="@mipmap/ic_launcher"
-            android:launchMode="singleTask"
-            android:process=":sandbox_1"
-            android:roundIcon="@mipmap/ic_launcher"
-            android:taskAffinity=""
-            android:theme="@style/AppTheme.WebView"
-            android:windowSoftInputMode="adjustResize" />
-        <activity
-            android:name=".activities.SandboxActivity6"
-            android:configChanges="orientation|screenSize|smallestScreenSize|density|screenLayout|uiMode|keyboard|keyboardHidden|navigation"
-            android:documentLaunchMode="intoExisting"
-            android:exported="false"
-            android:icon="@mipmap/ic_launcher"
-            android:launchMode="singleTask"
-            android:process=":sandbox_1"
-            android:roundIcon="@mipmap/ic_launcher"
-            android:taskAffinity=""
-            android:theme="@style/AppTheme.WebView"
-            android:windowSoftInputMode="adjustResize" />
-        <activity
-            android:name=".activities.SandboxActivity7"
-            android:configChanges="orientation|screenSize|smallestScreenSize|density|screenLayout|uiMode|keyboard|keyboardHidden|navigation"
-            android:documentLaunchMode="intoExisting"
-            android:exported="false"
-            android:icon="@mipmap/ic_launcher"
-            android:launchMode="singleTask"
-            android:process=":sandbox_1"
-            android:roundIcon="@mipmap/ic_launcher"
-            android:taskAffinity=""
-            android:theme="@style/AppTheme.WebView"
-            android:windowSoftInputMode="adjustResize" />
-
-        <!-- Slot 2 -->
-        <activity
-            android:name=".activities.SandboxActivity8"
-            android:configChanges="orientation|screenSize|smallestScreenSize|density|screenLayout|uiMode|keyboard|keyboardHidden|navigation"
-            android:documentLaunchMode="intoExisting"
-            android:exported="false"
-            android:icon="@mipmap/ic_launcher"
-            android:launchMode="singleTask"
-            android:process=":sandbox_2"
-            android:roundIcon="@mipmap/ic_launcher"
-            android:taskAffinity=""
-            android:theme="@style/AppTheme.WebView"
-            android:windowSoftInputMode="adjustResize" />
-        <activity
-            android:name=".activities.SandboxActivity9"
-            android:configChanges="orientation|screenSize|smallestScreenSize|density|screenLayout|uiMode|keyboard|keyboardHidden|navigation"
-            android:documentLaunchMode="intoExisting"
-            android:exported="false"
-            android:icon="@mipmap/ic_launcher"
-            android:launchMode="singleTask"
-            android:process=":sandbox_2"
-            android:roundIcon="@mipmap/ic_launcher"
-            android:taskAffinity=""
-            android:theme="@style/AppTheme.WebView"
-            android:windowSoftInputMode="adjustResize" />
-        <activity
-            android:name=".activities.SandboxActivity10"
-            android:configChanges="orientation|screenSize|smallestScreenSize|density|screenLayout|uiMode|keyboard|keyboardHidden|navigation"
-            android:documentLaunchMode="intoExisting"
-            android:exported="false"
-            android:icon="@mipmap/ic_launcher"
-            android:launchMode="singleTask"
-            android:process=":sandbox_2"
-            android:roundIcon="@mipmap/ic_launcher"
-            android:taskAffinity=""
-            android:theme="@style/AppTheme.WebView"
-            android:windowSoftInputMode="adjustResize" />
-        <activity
-            android:name=".activities.SandboxActivity11"
-            android:configChanges="orientation|screenSize|smallestScreenSize|density|screenLayout|uiMode|keyboard|keyboardHidden|navigation"
-            android:documentLaunchMode="intoExisting"
-            android:exported="false"
-            android:icon="@mipmap/ic_launcher"
-            android:launchMode="singleTask"
-            android:process=":sandbox_2"
-            android:roundIcon="@mipmap/ic_launcher"
-            android:taskAffinity=""
-            android:theme="@style/AppTheme.WebView"
-            android:windowSoftInputMode="adjustResize" />
-
-        <!-- Slot 3 -->
-        <activity
-            android:name=".activities.SandboxActivity12"
-            android:configChanges="orientation|screenSize|smallestScreenSize|density|screenLayout|uiMode|keyboard|keyboardHidden|navigation"
-            android:documentLaunchMode="intoExisting"
-            android:exported="false"
-            android:icon="@mipmap/ic_launcher"
-            android:launchMode="singleTask"
-            android:process=":sandbox_3"
-            android:roundIcon="@mipmap/ic_launcher"
-            android:taskAffinity=""
-            android:theme="@style/AppTheme.WebView"
-            android:windowSoftInputMode="adjustResize" />
-        <activity
-            android:name=".activities.SandboxActivity13"
-            android:configChanges="orientation|screenSize|smallestScreenSize|density|screenLayout|uiMode|keyboard|keyboardHidden|navigation"
-            android:documentLaunchMode="intoExisting"
-            android:exported="false"
-            android:icon="@mipmap/ic_launcher"
-            android:launchMode="singleTask"
-            android:process=":sandbox_3"
-            android:roundIcon="@mipmap/ic_launcher"
-            android:taskAffinity=""
-            android:theme="@style/AppTheme.WebView"
-            android:windowSoftInputMode="adjustResize" />
-        <activity
-            android:name=".activities.SandboxActivity14"
-            android:configChanges="orientation|screenSize|smallestScreenSize|density|screenLayout|uiMode|keyboard|keyboardHidden|navigation"
-            android:documentLaunchMode="intoExisting"
-            android:exported="false"
-            android:icon="@mipmap/ic_launcher"
-            android:launchMode="singleTask"
-            android:process=":sandbox_3"
-            android:roundIcon="@mipmap/ic_launcher"
-            android:taskAffinity=""
-            android:theme="@style/AppTheme.WebView"
-            android:windowSoftInputMode="adjustResize" />
-        <activity
-            android:name=".activities.SandboxActivity15"
-            android:configChanges="orientation|screenSize|smallestScreenSize|density|screenLayout|uiMode|keyboard|keyboardHidden|navigation"
-            android:documentLaunchMode="intoExisting"
-            android:exported="false"
-            android:icon="@mipmap/ic_launcher"
-            android:launchMode="singleTask"
-            android:process=":sandbox_3"
             android:roundIcon="@mipmap/ic_launcher"
             android:taskAffinity=""
             android:theme="@style/AppTheme.WebView"
             android:windowSoftInputMode="adjustResize" />
 
         <service
-            android:name=".media.MediaPlaybackService0"
+            android:name=".media.MediaPlaybackService"
             android:exported="true"
             android:foregroundServiceType="mediaPlayback"
-            android:permission="android.permission.FOREGROUND_SERVICE"
-            android:process=":sandbox_0">
+            android:permission="android.permission.FOREGROUND_SERVICE">
             <intent-filter>
                 <action android:name="androidx.media3.session.MediaSessionService" />
             </intent-filter>
         </service>
-        <service
-            android:name=".media.MediaPlaybackService1"
-            android:exported="true"
-            android:foregroundServiceType="mediaPlayback"
-            android:permission="android.permission.FOREGROUND_SERVICE"
-            android:process=":sandbox_1">
-            <intent-filter>
-                <action android:name="androidx.media3.session.MediaSessionService" />
-            </intent-filter>
-        </service>
-        <service
-            android:name=".media.MediaPlaybackService2"
-            android:exported="true"
-            android:foregroundServiceType="mediaPlayback"
-            android:permission="android.permission.FOREGROUND_SERVICE"
-            android:process=":sandbox_2">
-            <intent-filter>
-                <action android:name="androidx.media3.session.MediaSessionService" />
-            </intent-filter>
-        </service>
-        <service
-            android:name=".media.MediaPlaybackService3"
-            android:exported="true"
-            android:foregroundServiceType="mediaPlayback"
-            android:permission="android.permission.FOREGROUND_SERVICE"
-            android:process=":sandbox_3">
-            <intent-filter>
-                <action android:name="androidx.media3.session.MediaSessionService" />
-            </intent-filter>
-        </service>
-
-        <service
-            android:name=".activities.SandboxFetchService0"
-            android:exported="false"
-            android:process=":sandbox_0" />
-        <service
-            android:name=".activities.SandboxFetchService1"
-            android:exported="false"
-            android:process=":sandbox_1" />
-        <service
-            android:name=".activities.SandboxFetchService2"
-            android:exported="false"
-            android:process=":sandbox_2" />
-        <service
-            android:name=".activities.SandboxFetchService3"
-            android:exported="false"
-            android:process=":sandbox_3" />
 
         <activity
             android:name=".activities.ShareReceiverActivity"
