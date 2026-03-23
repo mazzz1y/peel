@@ -21,9 +21,19 @@ class NestedGeckoView @JvmOverloads constructor(
     private val childHelper = NestedScrollingChildHelper(this)
     private var inputResult = PanZoomController.INPUT_RESULT_UNHANDLED
     private var allowOverscroll = false
+    private var scrollY = 0
 
     init {
         isNestedScrollingEnabled = true
+    }
+
+    override fun canScrollVertically(direction: Int): Boolean {
+        if (direction < 0) return scrollY > 0
+        return super.canScrollVertically(direction)
+    }
+
+    fun updateScrollPosition(y: Int) {
+        scrollY = y
     }
 
     override fun onTouchEvent(ev: MotionEvent): Boolean {

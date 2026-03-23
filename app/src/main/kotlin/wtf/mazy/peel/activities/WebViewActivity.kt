@@ -599,6 +599,15 @@ class WebViewActivity : AppCompatActivity(), SessionHost {
         session.permissionDelegate = permissionDelegate
         session.promptDelegate = promptDelegate
 
+        val nestedView = geckoView as? wtf.mazy.peel.gecko.NestedGeckoView
+        if (nestedView != null) {
+            session.scrollDelegate = object : GeckoSession.ScrollDelegate {
+                override fun onScrollChanged(session: GeckoSession, scrollX: Int, scrollY: Int) {
+                    nestedView.updateScrollPosition(scrollY)
+                }
+            }
+        }
+
         val runtime = GeckoRuntimeProvider.getRuntime(this)
         session.open(runtime)
         session.setActive(true)
