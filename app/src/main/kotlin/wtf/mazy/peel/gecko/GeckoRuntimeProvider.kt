@@ -15,12 +15,16 @@ import kotlin.coroutines.resumeWithException
 object GeckoRuntimeProvider {
 
     const val THEME_COLOR_APP = "themeColor"
+    const val PAGE_INFO_APP = "pageInfo"
 
     @Volatile
     private var runtime: GeckoRuntime? = null
 
     @Volatile
     private var themeColorExtension: WebExtension? = null
+
+    @Volatile
+    private var pageInfoExtension: WebExtension? = null
 
     fun getRuntime(context: Context): GeckoRuntime {
         return runtime ?: synchronized(this) {
@@ -39,6 +43,19 @@ object GeckoRuntimeProvider {
             ext
         } catch (e: Exception) {
             Log.d(TAG, "ensureThemeColorExtension failed: $e")
+            null
+        }
+    }
+
+    suspend fun ensurePageInfoExtension(context: Context): WebExtension? {
+        pageInfoExtension?.let { return it }
+        return try {
+            val ext = getRuntime(context).webExtensionController
+                .ensureBuiltIn(PAGE_INFO_URI, PAGE_INFO_ID)
+                .await()
+            pageInfoExtension = ext
+            ext
+        } catch (_: Exception) {
             null
         }
     }
@@ -77,4 +94,6 @@ object GeckoRuntimeProvider {
     private const val TAG = "PeelColor"
     private const val THEME_COLOR_URI = "resource://android/assets/extensions/theme-color/"
     private const val THEME_COLOR_ID = "theme-color@peel.mazy.wtf"
+    private const val PAGE_INFO_URI = "resource://android/assets/extensions/page-info/"
+    private const val PAGE_INFO_ID = "peel@mazy.wtf"
 }

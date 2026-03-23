@@ -21,9 +21,11 @@ import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.withTimeoutOrNull
 import org.json.JSONArray
 import org.json.JSONObject
+import org.mozilla.geckoview.GeckoResult
 import org.mozilla.geckoview.GeckoSession
 import org.mozilla.geckoview.GeckoSessionSettings
 import org.mozilla.geckoview.GeckoView
+import org.mozilla.geckoview.WebExtension
 import wtf.mazy.peel.R
 import wtf.mazy.peel.gecko.GeckoRuntimeProvider
 import wtf.mazy.peel.model.WebAppSettings
@@ -96,6 +98,8 @@ class HeadlessFetcher(
         var capturedUrl: String? = null
         var capturedTitle: String? = null
 
+        val ext = GeckoRuntimeProvider.ensurePageInfoExtension(appContext)
+
         val session = GeckoSession(
             GeckoSessionSettings.Builder()
                 .allowJavascript(true)
@@ -110,6 +114,23 @@ class HeadlessFetcher(
                 .build()
         )
         geckoSession = session
+
+        if (ext != null) {
+            session.webExtensionController.setMessageDelegate(
+                ext,
+                object : WebExtension.MessageDelegate {
+                    override fun onMessage(
+                        nativeApp: String,
+                        message: Any,
+                        sender: WebExtension.MessageSender,
+                    ): GeckoResult<Any>? {
+                        if (message is JSONObject) jsData.complete(message)
+                        return null
+                    }
+                },
+                GeckoRuntimeProvider.PAGE_INFO_APP,
+            )
+        }
 
         session.navigationDelegate = object : GeckoSession.NavigationDelegate {
             override fun onLocationChange(
@@ -130,13 +151,7 @@ class HeadlessFetcher(
 
         session.contentDelegate = object : GeckoSession.ContentDelegate {
             override fun onTitleChange(session: GeckoSession, title: String?) {
-                if (title != null && title.startsWith(DATA_PREFIX)) {
-                    try {
-                        jsData.complete(JSONObject(title.removePrefix(DATA_PREFIX)))
-                    } catch (_: Exception) {}
-                } else if (!title.isNullOrEmpty()) {
-                    capturedTitle = title
-                }
+                if (!title.isNullOrEmpty()) capturedTitle = title
             }
         }
 
@@ -157,7 +172,6 @@ class HeadlessFetcher(
         }
 
         pageLoaded.await()
-        session.loadUri(EXTRACT_PAGE_INFO_JS)
 
         val info = withTimeoutOrNull(JS_WAIT_MS) { jsData.await() }
 
@@ -383,33 +397,8 @@ class HeadlessFetcher(
         private const val JS_WAIT_MS = 3_000L
         private const val CONNECTION_TIMEOUT_MS = 4_000
         private const val MAX_ICON_BYTES = 5 * 1024 * 1024
-        private const val DATA_PREFIX = "__PEEL_DATA__"
         private val MANIFEST_FALLBACK_PATHS =
             listOf("/manifest.json", "/manifest.webmanifest", "/site.webmanifest")
-
-        private val EXTRACT_PAGE_INFO_JS = "javascript:void(" + """
-            (async function() {
-                var r = {iconLinks: [], manifestUrl: '', manifest: null};
-                var links = document.querySelectorAll('link[rel*="icon"]');
-                for (var i = 0; i < links.length; i++) {
-                    var l = links[i];
-                    if (l.href) r.iconLinks.push({
-                        href: l.href,
-                        rel: l.rel || '',
-                        sizes: l.getAttribute('sizes') || ''
-                    });
-                }
-                var me = document.querySelector('link[rel="manifest"]');
-                if (me && me.href) {
-                    r.manifestUrl = me.href;
-                    try {
-                        var re = await fetch(me.href, {credentials: 'include'});
-                        if (re.ok) r.manifest = await re.json();
-                    } catch(e) {}
-                }
-                document.title = '$DATA_PREFIX' + JSON.stringify(r);
-            })()
-        """.trimIndent().replace("\n", "") + ")"
 
         private fun resolveUrl(base: String, relative: String): String =
             try { URL(URL(base), relative).toString() } catch (_: Exception) { relative }
