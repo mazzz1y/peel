@@ -27,17 +27,13 @@ import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.util.WebViewLauncher
 import java.io.ByteArrayOutputStream
-import java.net.HttpURLConnection
-import java.net.URL
 
 @OptIn(UnstableApi::class)
 open class MediaPlaybackService : MediaSessionService() {
@@ -47,7 +43,6 @@ open class MediaPlaybackService : MediaSessionService() {
     private var peelPlayer: PeelPlayer? = null
     private var wakeLock: PowerManager.WakeLock? = null
     private var wifiLock: WifiManager.WifiLock? = null
-    private var artworkJob: Job? = null
     private var sessionAdded = false
 
     private var appTitle = ""
@@ -57,7 +52,6 @@ open class MediaPlaybackService : MediaSessionService() {
     private var trackTitle: String? = null
     private var trackArtist: String? = null
     private var trackArtwork: Bitmap? = null
-    private var trackArtworkUrl: String? = null
 
     private var playing = false
     private var hasPrevious = false
@@ -100,6 +94,7 @@ open class MediaPlaybackService : MediaSessionService() {
             }
 
             ACTION_UPDATE_METADATA -> handleUpdateMetadata(intent)
+            ACTION_UPDATE_ARTWORK -> handleUpdateArtwork(intent)
             ACTION_UPDATE_ACTIONS -> {
                 hasPrevious = intent.getBooleanExtra(EXTRA_HAS_PREVIOUS, false)
                 hasNext = intent.getBooleanExtra(EXTRA_HAS_NEXT, false)
@@ -151,9 +146,6 @@ open class MediaPlaybackService : MediaSessionService() {
         trackTitle = intent.getStringExtra(EXTRA_TRACK_TITLE)?.takeIf { it.isNotEmpty() }
         trackArtist = intent.getStringExtra(EXTRA_TRACK_ARTIST)?.takeIf { it.isNotEmpty() }
         trackArtwork = null
-        val artworkUrl = intent.getStringExtra(EXTRA_TRACK_ARTWORK_URL)?.takeIf { it.isNotEmpty() }
-        trackArtworkUrl = artworkUrl
-        if (artworkUrl != null) fetchArtwork(artworkUrl)
 
         durationMs = 0L
         positionMs = 0L
@@ -172,12 +164,12 @@ open class MediaPlaybackService : MediaSessionService() {
     private fun handleUpdateMetadata(intent: Intent) {
         trackTitle = intent.getStringExtra(EXTRA_TRACK_TITLE)?.takeIf { it.isNotEmpty() }
         trackArtist = intent.getStringExtra(EXTRA_TRACK_ARTIST)?.takeIf { it.isNotEmpty() }
-        val artworkUrl = intent.getStringExtra(EXTRA_TRACK_ARTWORK_URL)?.takeIf { it.isNotEmpty() }
-        if (artworkUrl != trackArtworkUrl) {
-            trackArtwork = null
-            trackArtworkUrl = artworkUrl
-            if (artworkUrl != null) fetchArtwork(artworkUrl)
-        }
+        notifyPlayerChanged()
+    }
+
+    private fun handleUpdateArtwork(intent: Intent) {
+        val bytes = intent.getByteArrayExtra(EXTRA_TRACK_ARTWORK_BYTES) ?: return
+        trackArtwork = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
         notifyPlayerChanged()
     }
 
@@ -199,31 +191,6 @@ open class MediaPlaybackService : MediaSessionService() {
 
     private fun notifyPlayerChanged() {
         peelPlayer?.notifyStateChanged()
-    }
-
-    private fun fetchArtwork(url: String) {
-        artworkJob?.cancel()
-        artworkJob =
-            scope.launch {
-                val bmp =
-                    withContext(Dispatchers.IO) {
-                        try {
-                            val conn = URL(url).openConnection() as HttpURLConnection
-                            conn.connectTimeout = 4000
-                            conn.readTimeout = 4000
-                            conn.instanceFollowRedirects = true
-                            val result = BitmapFactory.decodeStream(conn.inputStream)
-                            conn.disconnect()
-                            result
-                        } catch (_: Exception) {
-                            null
-                        }
-                    }
-                if (bmp != null && trackArtworkUrl == url) {
-                    trackArtwork = bmp
-                    notifyPlayerChanged()
-                }
-            }
     }
 
     private fun acquireWakeLocks() {
@@ -398,6 +365,7 @@ open class MediaPlaybackService : MediaSessionService() {
         const val ACTION_UPDATE_METADATA = "wtf.mazy.peel.media.UPDATE_METADATA"
         const val ACTION_UPDATE_ACTIONS = "wtf.mazy.peel.media.UPDATE_ACTIONS"
         const val ACTION_UPDATE_POSITION = "wtf.mazy.peel.media.UPDATE_POSITION"
+        const val ACTION_UPDATE_ARTWORK = "wtf.mazy.peel.media.UPDATE_ARTWORK"
 
         const val BROADCAST_PLAY = "wtf.mazy.peel.media.BROADCAST_PLAY"
         const val BROADCAST_PAUSE = "wtf.mazy.peel.media.BROADCAST_PAUSE"
@@ -411,7 +379,7 @@ open class MediaPlaybackService : MediaSessionService() {
         const val EXTRA_WEBAPP_UUID = "webapp_uuid"
         const val EXTRA_TRACK_TITLE = "track_title"
         const val EXTRA_TRACK_ARTIST = "track_artist"
-        const val EXTRA_TRACK_ARTWORK_URL = "track_artwork_url"
+        const val EXTRA_TRACK_ARTWORK_BYTES = "track_artwork_bytes"
         const val EXTRA_HAS_PREVIOUS = "has_previous"
         const val EXTRA_HAS_NEXT = "has_next"
         const val EXTRA_DURATION_MS = "duration_ms"
@@ -428,7 +396,6 @@ open class MediaPlaybackService : MediaSessionService() {
             generation: Int,
             trackTitle: String? = null,
             trackArtist: String? = null,
-            trackArtworkUrl: String? = null,
         ): Intent {
             return Intent(context, resolveServiceClass()).apply {
                 action = ACTION_START
@@ -442,7 +409,6 @@ open class MediaPlaybackService : MediaSessionService() {
                 }
                 putExtra(EXTRA_TRACK_TITLE, trackTitle ?: "")
                 putExtra(EXTRA_TRACK_ARTIST, trackArtist ?: "")
-                putExtra(EXTRA_TRACK_ARTWORK_URL, trackArtworkUrl ?: "")
             }
         }
 

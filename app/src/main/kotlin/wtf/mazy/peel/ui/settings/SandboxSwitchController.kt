@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.materialswitch.MaterialSwitch
 import wtf.mazy.peel.R
+import wtf.mazy.peel.activities.WebViewActivity
 import wtf.mazy.peel.model.SandboxManager
 import wtf.mazy.peel.model.SandboxOwner
 import wtf.mazy.peel.util.NotificationUtils.showToast
@@ -17,7 +18,6 @@ class SandboxSwitchController(
     private val switchEphemeral: MaterialSwitch,
     private val ephemeralRow: View,
     private val btnClear: View,
-    private val onReleaseSandbox: (() -> Unit)? = null,
 ) {
     fun setup() {
         updateEphemeralVisibility()
@@ -25,11 +25,11 @@ class SandboxSwitchController(
 
         switchSandbox.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked == owner.isUseContainer) return@setOnCheckedChangeListener
-            if (!isChecked && SandboxManager.getSandboxDataDir(owner.uuid).exists()) {
+            if (!isChecked) {
                 MaterialAlertDialogBuilder(activity)
                     .setMessage(R.string.clear_sandbox_data_confirm)
                     .setPositiveButton(R.string.ok) { _, _ ->
-                        disableSandbox(releaseProcess = false)
+                        disableSandbox()
                         clearSandboxData()
                     }
                     .setNegativeButton(R.string.cancel) { _, _ ->
@@ -44,23 +44,16 @@ class SandboxSwitchController(
         switchEphemeral.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked == owner.isEphemeralSandbox) return@setOnCheckedChangeListener
             if (isChecked) {
-                val sandboxDir = SandboxManager.getSandboxDataDir(owner.uuid)
-                if (sandboxDir.exists()) {
-                    MaterialAlertDialogBuilder(activity)
-                        .setMessage(R.string.clear_sandbox_data_confirm)
-                        .setPositiveButton(R.string.ok) { _, _ ->
-                            owner.isEphemeralSandbox = true
-                            clearSandboxData()
-                        }
-                        .setNegativeButton(R.string.cancel) { _, _ ->
-                            switchEphemeral.isChecked = false
-                        }
-                        .show()
-                } else {
-                    onReleaseSandbox?.invoke()
-                    owner.isEphemeralSandbox = true
-                    updateClearButtonVisibility()
-                }
+                MaterialAlertDialogBuilder(activity)
+                    .setMessage(R.string.clear_sandbox_data_confirm)
+                    .setPositiveButton(R.string.ok) { _, _ ->
+                        owner.isEphemeralSandbox = true
+                        clearSandboxData()
+                    }
+                    .setNegativeButton(R.string.cancel) { _, _ ->
+                        switchEphemeral.isChecked = false
+                    }
+                    .show()
             } else {
                 owner.isEphemeralSandbox = false
                 updateClearButtonVisibility()
@@ -75,8 +68,7 @@ class SandboxSwitchController(
     }
 
     private fun updateClearButtonVisibility() {
-        val sandboxDir = SandboxManager.getSandboxDataDir(owner.uuid)
-        val show = sandboxDir.exists() && owner.isUseContainer && !owner.isEphemeralSandbox
+        val show = owner.isUseContainer && !owner.isEphemeralSandbox
         btnClear.visibility = if (show) View.VISIBLE else View.GONE
     }
 
@@ -95,11 +87,10 @@ class SandboxSwitchController(
             updateClearButtonVisibility()
             return
         }
-        disableSandbox(releaseProcess = true)
+        disableSandbox()
     }
 
-    private fun disableSandbox(releaseProcess: Boolean) {
-        if (releaseProcess) onReleaseSandbox?.invoke()
+    private fun disableSandbox() {
         owner.isUseContainer = false
         owner.isEphemeralSandbox = false
         switchEphemeral.isChecked = false
@@ -108,6 +99,7 @@ class SandboxSwitchController(
     }
 
     private fun clearSandboxData() {
+        WebViewActivity.finishByUuid(owner.uuid)
         if (SandboxManager.clearSandboxData(activity, owner.uuid)) {
             showToast(activity, activity.getString(R.string.clear_sandbox_data), Toast.LENGTH_SHORT)
         }

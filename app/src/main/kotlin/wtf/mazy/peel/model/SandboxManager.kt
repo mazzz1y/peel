@@ -28,16 +28,4 @@ object SandboxManager {
     fun clearNonSandboxData() {
         App.appContext.cacheDir?.deleteRecursively()
     }
-
-    fun getSandboxDataDir(contextId: String): java.io.File {
-        return java.io.File(App.appContext.filesDir.parent, "app_webview_$contextId")
-    }
-
-    fun hasStoredData(context: Context, contextId: String): Boolean {
-        return getSandboxDataDir(contextId).exists()
-    }
-
-    @Suppress("UNUSED_PARAMETER")
-    fun releaseSandbox(context: Context, uuid: String) {
-    }
 }

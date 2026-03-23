@@ -1,11 +1,8 @@
 package wtf.mazy.peel.ui.webview
 
 import android.animation.ValueAnimator
-import android.os.Build
 import android.view.View
 import android.view.Window
-import android.view.WindowInsets
-import android.view.WindowInsetsController
 import androidx.core.graphics.ColorUtils
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -18,13 +15,16 @@ class SystemBarController(
 ) {
     private var statusBarScrim: View? = null
     private var navigationBarScrim: View? = null
+    private var contentView: View? = null
     private var currentBarColor: Int? = null
     private var barColorAnimator: ValueAnimator? = null
+    private var isFullscreen = false
     var suppressNextAnimation = false
 
     fun attach(rootView: View, applyDynamicColor: Boolean) {
         statusBarScrim = rootView.findViewById(R.id.statusBarScrim)
         navigationBarScrim = rootView.findViewById(R.id.navigationBarScrim)
+        contentView = rootView.findViewById(R.id.webviewActivity)
         if (applyDynamicColor) {
             applyColor(getThemeColor())
         }
@@ -38,7 +38,10 @@ class SystemBarController(
                 layoutParams.height = systemInsets.bottom
                 requestLayout()
             }
-            insets
+            if (!isFullscreen) {
+                contentView?.setPadding(0, systemInsets.top, 0, systemInsets.bottom)
+            }
+            WindowInsetsCompat.CONSUMED
         }
     }
 
@@ -62,40 +65,23 @@ class SystemBarController(
     }
 
     fun hide() {
+        isFullscreen = true
         statusBarScrim?.visibility = View.GONE
         navigationBarScrim?.visibility = View.GONE
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            @Suppress("DEPRECATION") window.setDecorFitsSystemWindows(false)
-            window.insetsController?.apply {
-                hide(WindowInsets.Type.statusBars() or WindowInsets.Type.navigationBars())
-                systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-            }
-        } else {
-            @Suppress("DEPRECATION")
-            window.decorView.systemUiVisibility =
-                (View.SYSTEM_UI_FLAG_FULLSCREEN or
-                        View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
-                        View.SYSTEM_UI_FLAG_IMMERSIVE or
-                        View.SYSTEM_UI_FLAG_LAYOUT_STABLE or
-                        View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or
-                        View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION)
-        }
+        contentView?.setPadding(0, 0, 0, 0)
+        val controller = WindowInsetsControllerCompat(window, window.decorView)
+        controller.hide(WindowInsetsCompat.Type.systemBars())
+        controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
     }
 
-    fun show(isFullscreen: Boolean) {
-        if (isFullscreen) return
+    fun show(stayFullscreen: Boolean) {
+        if (stayFullscreen) return
+        isFullscreen = false
         statusBarScrim?.visibility = View.VISIBLE
         navigationBarScrim?.visibility = View.VISIBLE
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            @Suppress("DEPRECATION") window.setDecorFitsSystemWindows(true)
-            window.insetsController?.apply {
-                show(WindowInsets.Type.statusBars() or WindowInsets.Type.navigationBars())
-                systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-            }
-        } else {
-            @Suppress("DEPRECATION")
-            window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
-        }
+        val controller = WindowInsetsControllerCompat(window, window.decorView)
+        controller.show(WindowInsetsCompat.Type.systemBars())
+        ViewCompat.requestApplyInsets(window.decorView)
     }
 
     fun release() {

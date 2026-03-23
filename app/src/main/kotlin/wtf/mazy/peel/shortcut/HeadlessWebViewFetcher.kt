@@ -1,30 +1,36 @@
 package wtf.mazy.peel.shortcut
 
-import android.content.Context
+import android.app.Activity
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
+import android.view.View
+import android.view.ViewGroup
+import android.widget.FrameLayout
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.TimeoutCancellationException
-import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.withTimeoutOrNull
+import org.json.JSONArray
 import org.json.JSONObject
+import org.mozilla.geckoview.GeckoSession
+import org.mozilla.geckoview.GeckoSessionSettings
+import org.mozilla.geckoview.GeckoView
 import wtf.mazy.peel.R
+import wtf.mazy.peel.gecko.GeckoRuntimeProvider
 import wtf.mazy.peel.model.WebAppSettings
 import wtf.mazy.peel.shortcut.ShortcutIconUtils.getWidthFromIcon
-import wtf.mazy.peel.util.Const
 import java.net.HttpURLConnection
 import java.net.URL
-import java.util.regex.Pattern
 
 data class FetchCandidate(
     val title: String?,
@@ -35,136 +41,276 @@ data class FetchCandidate(
 
 data class FetchResult(val candidates: List<FetchCandidate>, val redirectedUrl: String?)
 
-class HeadlessWebViewFetcher(
-    context: Context,
+class HeadlessFetcher(
+    private val activity: Activity,
     private val url: String,
     private val settings: WebAppSettings,
+    private val contextId: String?,
+    private val usePrivateMode: Boolean,
     private val onProgress: ((String) -> Unit)? = null,
     private val onResult: (FetchResult) -> Unit,
 ) {
-    private val appContext = context.applicationContext
+    private val appContext = activity.applicationContext
     private val handler = Handler(Looper.getMainLooper())
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     private var customHeaders: Map<String, String> = emptyMap()
-    private var userAgent: String = DEFAULT_USER_AGENT
+    private var userAgent: String = GeckoSession.getDefaultUserAgent()
+    private var desktopMode = false
     private var finished = false
-    private var resolveJob: Job? = null
+    private var geckoView: GeckoView? = null
+    private var geckoSession: GeckoSession? = null
 
     fun start() {
         val headers = mutableMapOf<String, String>()
         settings.customHeaders?.forEach { (key, value) ->
-            if (key.equals("User-Agent", ignoreCase = true)) userAgent = value
-            else headers[key] = value
+            if (!key.equals("User-Agent", ignoreCase = true)) headers[key] = value
         }
-        if (settings.isRequestDesktop == true) userAgent = Const.DESKTOP_USER_AGENT
+        desktopMode = settings.isRequestDesktop == true
         customHeaders = headers
-
-        postProgress(appContext.getString(R.string.fetch_step_loading))
 
         var loadUrl = url
         if (loadUrl.startsWith("http://") && settings.isAlwaysHttps == true)
             loadUrl = loadUrl.replaceFirst("http://", "https://")
 
-        resolveJob = scope.launch {
+        Log.d(TAG, "start url=$loadUrl contextId=$contextId private=$usePrivateMode")
+
+        scope.launch {
             val result = try {
-                withTimeout(TIMEOUT_MS) { fetchAndResolve(loadUrl) }
-            } catch (_: TimeoutCancellationException) {
+                withTimeout(TIMEOUT_MS) { doFetch(loadUrl) }
+            } catch (e: TimeoutCancellationException) {
+                Log.d(TAG, "timeout reached")
                 FetchResult(emptyList(), null)
-            } catch (_: Exception) {
+            } catch (e: Exception) {
+                Log.d(TAG, "doFetch exception: $e")
                 FetchResult(emptyList(), null)
+            } finally {
+                teardown()
             }
+            Log.d(TAG, "finish candidates=${result.candidates.size} redirect=${result.redirectedUrl}")
             finish(result)
         }
     }
 
     fun cancel() {
+        teardown()
         finish()
     }
 
-    private suspend fun fetchAndResolve(loadUrl: String): FetchResult = withContext(Dispatchers.IO) {
-        val conn = openConnection(loadUrl)
-        try {
-            if (conn.responseCode != 200) return@withContext FetchResult(emptyList(), null)
-            val finalUrl = conn.url.toString()
-            val html = conn.inputStream.bufferedReader().use { it.readText() }
-            val redirected = if (finalUrl.trimEnd('/') != url.trimEnd('/')) finalUrl else null
-            resolve(html, finalUrl, redirected)
-        } finally {
-            conn.disconnect()
+    private suspend fun doFetch(loadUrl: String): FetchResult {
+        val pageLoaded = CompletableDeferred<Unit>()
+        val jsData = CompletableDeferred<JSONObject>()
+        var capturedUrl: String? = null
+        var capturedTitle: String? = null
+
+        val session = GeckoSession(
+            GeckoSessionSettings.Builder()
+                .allowJavascript(true)
+                .apply {
+                    if (desktopMode) {
+                        userAgentMode(GeckoSessionSettings.USER_AGENT_MODE_DESKTOP)
+                        viewportMode(GeckoSessionSettings.VIEWPORT_MODE_DESKTOP)
+                    }
+                    if (contextId != null) contextId(contextId)
+                    usePrivateMode(usePrivateMode)
+                }
+                .build()
+        )
+        geckoSession = session
+
+        session.navigationDelegate = object : GeckoSession.NavigationDelegate {
+            override fun onLocationChange(
+                session: GeckoSession,
+                url: String?,
+                perms: MutableList<GeckoSession.PermissionDelegate.ContentPermission>,
+                hasUserGesture: Boolean,
+            ) {
+                Log.d(TAG, "onLocationChange: $url")
+                if (url != null && !url.startsWith("about:")) capturedUrl = url
+            }
+        }
+
+        session.progressDelegate = object : GeckoSession.ProgressDelegate {
+            override fun onPageStop(session: GeckoSession, success: Boolean) {
+                Log.d(TAG, "onPageStop: success=$success url=$capturedUrl")
+                if (capturedUrl != null) pageLoaded.complete(Unit)
+            }
+        }
+
+        session.contentDelegate = object : GeckoSession.ContentDelegate {
+            override fun onTitleChange(session: GeckoSession, title: String?) {
+                if (title != null && title.startsWith(DATA_PREFIX)) {
+                    Log.d(TAG, "onTitleChange: data payload (${title.length} chars)")
+                    try {
+                        jsData.complete(JSONObject(title.removePrefix(DATA_PREFIX)))
+                    } catch (e: Exception) {
+                        Log.d(TAG, "onTitleChange: parse error: $e")
+                    }
+                } else if (!title.isNullOrEmpty()) {
+                    Log.d(TAG, "onTitleChange: $title")
+                    capturedTitle = title
+                }
+            }
+        }
+
+        postProgress(appContext.getString(R.string.fetch_step_loading))
+        Log.d(TAG, "opening session, loading $loadUrl")
+        session.open(GeckoRuntimeProvider.getRuntime(appContext))
+        attachView(session)
+        session.setActive(true)
+
+        if (customHeaders.isNotEmpty()) {
+            session.load(
+                GeckoSession.Loader()
+                    .uri(loadUrl)
+                    .additionalHeaders(customHeaders)
+                    .headerFilter(GeckoSession.HEADER_FILTER_UNRESTRICTED_UNSAFE)
+            )
+        } else {
+            session.loadUri(loadUrl)
+        }
+
+        pageLoaded.await()
+        Log.d(TAG, "page loaded, injecting extraction script")
+
+        session.loadUri(EXTRACT_PAGE_INFO_JS)
+
+        val info = withTimeoutOrNull(JS_WAIT_MS) { jsData.await() }
+        Log.d(TAG, "jsData=${info != null} title=$capturedTitle")
+
+        postProgress(appContext.getString(R.string.fetch_step_downloading))
+
+        val pageUrl = capturedUrl ?: loadUrl
+        val redirected = if (pageUrl.trimEnd('/') != url.trimEnd('/')) pageUrl else null
+
+        return withContext(Dispatchers.IO) {
+            resolve(info, capturedTitle, pageUrl, redirected)
         }
     }
 
-    private suspend fun resolve(html: String, pageUrl: String, redirected: String?): FetchResult =
-        withContext(Dispatchers.IO) {
-            val pageTitle = extractTitle(html)
-            val manifestUrl = extractManifestUrl(html, pageUrl)
-            val iconLinks = extractIconLinks(html, pageUrl)
-
-            val candidates = mutableListOf<FetchCandidate>()
-
-            scope.ensureActive()
-            postProgress(appContext.getString(R.string.fetch_step_downloading))
-
-            coroutineScope {
-                val manifestDeferred = async {
-                    findManifestCandidate(manifestUrl, pageUrl, pageTitle)
-                }
-                val pageIconsDeferred = async {
-                    findPageIconCandidates(iconLinks, pageTitle)
-                }
-                val faviconDeferred = async {
-                    findFaviconCandidate(pageUrl, pageTitle)
-                }
-
-                manifestDeferred.await()?.let { candidates += it }
-                candidates += pageIconsDeferred.await()
-                faviconDeferred.await()?.let { candidates += it }
-            }
-
-            val bestTitle = candidates.firstOrNull { it.source == "PWA" }?.title ?: pageTitle
-            if (bestTitle != null) candidates += FetchCandidate(bestTitle, null, "")
-
-            FetchResult(candidates.deduplicatedBySize(), redirected)
+    private fun attachView(session: GeckoSession) {
+        val view = GeckoView(activity).apply {
+            layoutParams = FrameLayout.LayoutParams(1, 1)
+            alpha = 0f
+            visibility = View.INVISIBLE
         }
+        activity.findViewById<ViewGroup>(android.R.id.content).addView(view)
+        geckoView = view
+        view.setSession(session)
+    }
 
-    private fun findManifestCandidate(
-        manifestUrl: String?, pageUrl: String, pageTitle: String?,
+    private fun resolve(
+        jsInfo: JSONObject?,
+        pageTitle: String?,
+        pageUrl: String,
+        redirected: String?,
+    ): FetchResult {
+        val candidates = mutableListOf<FetchCandidate>()
+
+        val manifest = jsInfo?.optJSONObject("manifest")
+        val manifestUrl = jsInfo?.optString("manifestUrl")?.takeIf { it.isNotEmpty() }
+        resolveManifest(manifest, manifestUrl ?: pageUrl, pageTitle)?.let { candidates += it }
+
+        scope.ensureActive()
+        resolvePageIcons(jsInfo?.optJSONArray("iconLinks"), pageTitle)?.let { candidates += it }
+
+        scope.ensureActive()
+        resolveFavicon(pageUrl, pageTitle)?.let { candidates += it }
+
+        val bestTitle = candidates.firstOrNull { it.source == "PWA" }?.title ?: pageTitle
+        if (bestTitle != null) candidates += FetchCandidate(bestTitle, null, "")
+
+        Log.d(TAG, "resolve: ${candidates.size} candidates (${candidates.map { "${it.source}:${it.icon != null}" }})")
+        return FetchResult(candidates.deduplicatedBySize(), redirected)
+    }
+
+    private fun resolveManifest(
+        manifest: JSONObject?,
+        baseUrl: String,
+        pageTitle: String?,
     ): FetchCandidate? {
-        if (manifestUrl != null) {
-            tryManifest(manifestUrl, pageTitle)?.let { return it }
+        val m = manifest ?: probeManifestFallback(baseUrl) ?: return null
+        val name = m.optString("name").takeIf { it.isNotEmpty() }
+            ?: m.optString("short_name").takeIf { it.isNotEmpty() }
+        val icon = downloadBestManifestIcon(m, baseUrl)
+        val startUrl = m.optString("start_url").takeIf { it.isNotEmpty() }
+            ?.let { resolveUrl(baseUrl, it) }
+        Log.d(TAG, "resolveManifest: name=$name icon=${icon != null} startUrl=$startUrl")
+        if (name == null && icon == null) return null
+        return FetchCandidate(name ?: pageTitle, icon, "PWA", startUrl)
+    }
+
+    private fun resolvePageIcons(
+        iconLinks: JSONArray?,
+        pageTitle: String?,
+    ): List<FetchCandidate>? {
+        if (iconLinks == null) return null
+        val touchIcons = mutableListOf<Pair<Int, String>>()
+        val linkIcons = mutableListOf<Pair<Int, String>>()
+        for (i in 0 until iconLinks.length()) {
+            val obj = iconLinks.optJSONObject(i) ?: continue
+            val href = obj.optString("href").takeIf { it.isNotEmpty() } ?: continue
+            val sizes = obj.optString("sizes")
+            val width = if (sizes.isNotEmpty()) getWidthFromIcon(sizes) else 1
+            val rel = obj.optString("rel").lowercase()
+            if (rel.contains("apple-touch-icon")) touchIcons += width to href
+            else linkIcons += width to href
         }
-        val origins = linkedSetOf(originOf(pageUrl), originOf(url))
-        for (origin in origins) {
+        Log.d(TAG, "resolvePageIcons: touch=${touchIcons.size} link=${linkIcons.size}")
+        val result = mutableListOf<FetchCandidate>()
+        downloadLargest(touchIcons)?.let { result += FetchCandidate(pageTitle, it, "Apple") }
+        downloadLargest(linkIcons)?.let { result += FetchCandidate(pageTitle, it, "HTML") }
+        return result.ifEmpty { null }
+    }
+
+    private fun resolveFavicon(pageUrl: String, pageTitle: String?): FetchCandidate? {
+        val faviconUrl = "${originOf(pageUrl)}/favicon.ico"
+        val bmp = downloadBitmap(faviconUrl)
+        Log.d(TAG, "resolveFavicon: $faviconUrl -> ${bmp != null}")
+        if (bmp == null) return null
+        return FetchCandidate(pageTitle, bmp, "Favicon")
+    }
+
+    private fun probeManifestFallback(pageUrl: String): JSONObject? {
+        val tried = mutableSetOf<String>()
+        val bases = linkedSetOf(pageUrl, url)
+        for (base in bases) {
             for (path in MANIFEST_FALLBACK_PATHS) {
                 scope.ensureActive()
-                tryManifest("$origin$path", pageTitle)?.let { return it }
+                val resolved = resolveUrl(base, path)
+                if (tried.add(resolved)) {
+                    Log.d(TAG, "probeManifest: trying $resolved")
+                    tryFetchManifest(resolved)?.let { return it }
+                }
+            }
+        }
+        for (base in bases) {
+            for (path in MANIFEST_FALLBACK_PATHS) {
+                scope.ensureActive()
+                val atOrigin = "${originOf(base)}$path"
+                if (tried.add(atOrigin)) {
+                    Log.d(TAG, "probeManifest: trying $atOrigin")
+                    tryFetchManifest(atOrigin)?.let { return it }
+                }
             }
         }
         return null
     }
 
-    private fun tryManifest(manifestUrl: String, pageTitle: String?): FetchCandidate? {
+    private fun tryFetchManifest(manifestUrl: String): JSONObject? {
         return try {
             val conn = openConnection(manifestUrl)
             try {
-                if (conn.responseCode != 200) return null
-                val finalUrl = conn.url.toString()
-                val manifest = JSONObject(conn.inputStream.bufferedReader().use { it.readText() })
-                val name = manifest.optString("name").takeIf { it.isNotEmpty() }
-                val icon = downloadBestManifestIcon(manifest, finalUrl)
-                val startUrl = manifest.optString("start_url").takeIf { it.isNotEmpty() }
-                    ?.let { URL(URL(finalUrl), it).toString() }
-                if (name != null || icon != null) FetchCandidate(
-                    name ?: pageTitle,
-                    icon,
-                    "PWA",
-                    startUrl
-                )
-                else null
+                val code = conn.responseCode
+                Log.d(TAG, "tryFetchManifest: $manifestUrl -> $code")
+                if (code != 200) return null
+                if (conn.contentType?.lowercase().orEmpty().contains("html")) return null
+                val json = JSONObject(conn.inputStream.bufferedReader().use { it.readText() })
+                if (json.has("name") || json.has("short_name") || json.has("icons")) json else null
             } finally {
                 conn.disconnect()
             }
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            Log.d(TAG, "tryFetchManifest: $manifestUrl error: $e")
             null
         }
     }
@@ -178,40 +324,19 @@ class HeadlessWebViewFetcher(
             val src = obj.optString("src").takeIf { it.isNotEmpty() } ?: continue
             if (src.endsWith(".svg")) continue
             val width = getWidthFromIcon(obj.optString("sizes", ""))
-            val resolved = URL(URL(baseUrl), src).toString()
+            val resolved = resolveUrl(baseUrl, src)
             val purpose = obj.optString("purpose").lowercase()
             if (purpose.isEmpty() || purpose.contains("any")) any += width to resolved
             else other += width to resolved
         }
+        Log.d(TAG, "downloadBestManifestIcon: any=${any.size} other=${other.size}")
         return downloadLargest(any) ?: downloadLargest(other)
     }
 
-    private fun findPageIconCandidates(
-        iconLinks: List<IconLink>, pageTitle: String?,
-    ): List<FetchCandidate> {
-        val touchIcons = mutableListOf<Pair<Int, String>>()
-        val linkIcons = mutableListOf<Pair<Int, String>>()
-
-        for (link in iconLinks) {
-            val width = if (link.sizes.isNotEmpty()) getWidthFromIcon(link.sizes) else 1
-            if (link.rel.contains("apple-touch-icon")) touchIcons += width to link.href
-            else linkIcons += width to link.href
-        }
-
-        val result = mutableListOf<FetchCandidate>()
-        downloadLargest(touchIcons)?.let { result += FetchCandidate(pageTitle, it, "Apple") }
-        downloadLargest(linkIcons)?.let { result += FetchCandidate(pageTitle, it, "HTML") }
-        return result
-    }
-
-    private fun findFaviconCandidate(pageUrl: String, pageTitle: String?): FetchCandidate? {
-        val bmp = downloadBitmap("${originOf(pageUrl)}/favicon.ico") ?: return null
-        return FetchCandidate(pageTitle, bmp, "Favicon")
-    }
-
     private fun downloadLargest(icons: List<Pair<Int, String>>): Bitmap? {
-        for ((_, iconUrl) in icons.sortedByDescending { it.first }) {
+        for ((w, iconUrl) in icons.sortedByDescending { it.first }) {
             scope.ensureActive()
+            Log.d(TAG, "downloadLargest: trying ${w}px $iconUrl")
             downloadBitmap(iconUrl)?.let { return it }
         }
         return null
@@ -221,25 +346,27 @@ class HeadlessWebViewFetcher(
         return try {
             val conn = openConnection(url)
             try {
-                if (conn.responseCode != 200) return null
-                val contentType = conn.contentType?.lowercase().orEmpty()
-                if (contentType.contains("image/svg")) return null
-                if (
-                    contentType.startsWith("text/") ||
-                    contentType.contains("html") ||
-                    contentType.contains("json") ||
-                    contentType.contains("xml")
+                val code = conn.responseCode
+                if (code != 200) {
+                    Log.d(TAG, "downloadBitmap: $url -> $code")
+                    return null
+                }
+                val ct = conn.contentType?.lowercase().orEmpty()
+                if (ct.contains("image/svg")) return null
+                if (ct.startsWith("text/") || ct.contains("html") ||
+                    ct.contains("json") || ct.contains("xml")
                 ) return null
                 if (conn.contentLength > MAX_ICON_BYTES) return null
                 val bytes = conn.inputStream.use { it.readBytes() }
-                val opts = BitmapFactory.Options().apply {
-                    inPreferredConfig = Bitmap.Config.ARGB_8888
-                }
-                BitmapFactory.decodeByteArray(bytes, 0, bytes.size, opts)
+                BitmapFactory.decodeByteArray(
+                    bytes, 0, bytes.size,
+                    BitmapFactory.Options().apply { inPreferredConfig = Bitmap.Config.ARGB_8888 },
+                )
             } finally {
                 conn.disconnect()
             }
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            Log.d(TAG, "downloadBitmap: $url error: $e")
             null
         }
     }
@@ -254,6 +381,23 @@ class HeadlessWebViewFetcher(
         return conn
     }
 
+    private fun teardown() {
+        val session = geckoSession
+        val view = geckoView
+        geckoSession = null
+        geckoView = null
+        if (session != null || view != null) {
+            handler.post {
+                try {
+                    session?.setActive(false)
+                    view?.releaseSession()
+                    session?.close()
+                    (view?.parent as? ViewGroup)?.removeView(view)
+                } catch (_: Exception) {}
+            }
+        }
+    }
+
     private fun postProgress(text: String) {
         handler.post { onProgress?.invoke(text) }
     }
@@ -266,57 +410,42 @@ class HeadlessWebViewFetcher(
         onResult(result)
     }
 
-    private data class IconLink(val href: String, val rel: String, val sizes: String)
-
     companion object {
+        private const val TAG = "PeelFetch"
         private const val TIMEOUT_MS = 20_000L
+        private const val JS_WAIT_MS = 3_000L
         private const val CONNECTION_TIMEOUT_MS = 4_000
         private const val MAX_ICON_BYTES = 5 * 1024 * 1024
-        private const val DEFAULT_USER_AGENT =
-            "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Mobile Safari/537.36"
+        private const val DATA_PREFIX = "__PEEL_DATA__"
         private val MANIFEST_FALLBACK_PATHS =
-            listOf("/manifest.webmanifest", "/manifest.json", "/site.webmanifest")
+            listOf("/manifest.json", "/manifest.webmanifest", "/site.webmanifest")
 
-        private val TITLE_RE = Pattern.compile("<title[^>]*>([^<]+)</title>", Pattern.CASE_INSENSITIVE)
-        private val MANIFEST_RE = Pattern.compile("""<link[^>]+rel\s*=\s*["']manifest["'][^>]+href\s*=\s*["']([^"']+)["']""", Pattern.CASE_INSENSITIVE)
-        private val MANIFEST_RE2 = Pattern.compile("""<link[^>]+href\s*=\s*["']([^"']+)["'][^>]+rel\s*=\s*["']manifest["']""", Pattern.CASE_INSENSITIVE)
-        private val ICON_LINK_RE = Pattern.compile("""<link\b([^>]*rel\s*=\s*["'][^"']*icon[^"']*["'][^>]*)>""", Pattern.CASE_INSENSITIVE)
-        private val HREF_RE = Pattern.compile("""href\s*=\s*["']([^"']+)["']""", Pattern.CASE_INSENSITIVE)
-        private val REL_RE = Pattern.compile("""rel\s*=\s*["']([^"']+)["']""", Pattern.CASE_INSENSITIVE)
-        private val SIZES_RE = Pattern.compile("""sizes\s*=\s*["']([^"']+)["']""", Pattern.CASE_INSENSITIVE)
-
-        private fun extractTitle(html: String): String? {
-            val m = TITLE_RE.matcher(html)
-            return if (m.find()) m.group(1)?.trim()?.takeIf { it.isNotEmpty() } else null
-        }
-
-        private fun extractManifestUrl(html: String, baseUrl: String): String? {
-            for (re in listOf(MANIFEST_RE, MANIFEST_RE2)) {
-                val m = re.matcher(html)
-                if (m.find()) {
-                    val href = m.group(1) ?: continue
-                    return try { URL(URL(baseUrl), href).toString() } catch (_: Exception) { href }
+        private val EXTRACT_PAGE_INFO_JS = "javascript:void(" + """
+            (async function() {
+                var r = {iconLinks: [], manifestUrl: '', manifest: null};
+                var links = document.querySelectorAll('link[rel*="icon"]');
+                for (var i = 0; i < links.length; i++) {
+                    var l = links[i];
+                    if (l.href) r.iconLinks.push({
+                        href: l.href,
+                        rel: l.rel || '',
+                        sizes: l.getAttribute('sizes') || ''
+                    });
                 }
-            }
-            return null
-        }
+                var me = document.querySelector('link[rel="manifest"]');
+                if (me && me.href) {
+                    r.manifestUrl = me.href;
+                    try {
+                        var re = await fetch(me.href, {credentials: 'include'});
+                        if (re.ok) r.manifest = await re.json();
+                    } catch(e) {}
+                }
+                document.title = '$DATA_PREFIX' + JSON.stringify(r);
+            })()
+        """.trimIndent().replace("\n", "") + ")"
 
-        private fun extractIconLinks(html: String, baseUrl: String): List<IconLink> {
-            val result = mutableListOf<IconLink>()
-            val m = ICON_LINK_RE.matcher(html)
-            while (m.find()) {
-                val attrs = m.group(1) ?: continue
-                val hrefMatch = HREF_RE.matcher(attrs)
-                if (!hrefMatch.find()) continue
-                val href = try { URL(URL(baseUrl), hrefMatch.group(1)).toString() } catch (_: Exception) { continue }
-                val relMatch = REL_RE.matcher(attrs)
-                val rel = if (relMatch.find()) relMatch.group(1)?.lowercase() ?: "" else ""
-                val sizesMatch = SIZES_RE.matcher(attrs)
-                val sizes = if (sizesMatch.find()) sizesMatch.group(1) ?: "" else ""
-                result.add(IconLink(href, rel, sizes))
-            }
-            return result
-        }
+        private fun resolveUrl(base: String, relative: String): String =
+            try { URL(URL(base), relative).toString() } catch (_: Exception) { relative }
 
         private fun originOf(url: String): String =
             URL(url).let {

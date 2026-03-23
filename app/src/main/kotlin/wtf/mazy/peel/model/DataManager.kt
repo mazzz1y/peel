@@ -435,6 +435,7 @@ class DataManager private constructor() {
                 oldWebsites.filter { it.uuid !in importedAppUuids }
                     .forEach {
                         SandboxManager.clearSandboxData(App.appContext, it.uuid)
+                        it.deleteIcon()
                         deleteAppPrefs(App.appContext, it.uuid)
                     }
 

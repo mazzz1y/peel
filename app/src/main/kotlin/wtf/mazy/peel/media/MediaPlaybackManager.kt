@@ -9,7 +9,9 @@ import android.os.Handler
 import android.os.Looper
 import androidx.core.content.ContextCompat
 import org.mozilla.geckoview.GeckoSession
+import org.mozilla.geckoview.Image
 import org.mozilla.geckoview.MediaSession as GeckoMediaSession
+import java.io.ByteArrayOutputStream
 
 class MediaPlaybackManager(context: Context) : GeckoMediaSession.Delegate {
 
@@ -24,7 +26,6 @@ class MediaPlaybackManager(context: Context) : GeckoMediaSession.Delegate {
 
     private var lastTitle: String? = null
     private var lastArtist: String? = null
-    private var lastArtworkUrl: String? = null
     private var lastHasPrevious = false
     private var lastHasNext = false
     private var nativePause = false
@@ -85,7 +86,7 @@ class MediaPlaybackManager(context: Context) : GeckoMediaSession.Delegate {
         context.startService(
             MediaPlaybackService.createStartIntent(
                 context, title, icon, webappUuid, generation,
-                lastTitle, lastArtist, lastArtworkUrl,
+                lastTitle, lastArtist,
             )
         )
         serviceStarted = true
@@ -110,7 +111,6 @@ class MediaPlaybackManager(context: Context) : GeckoMediaSession.Delegate {
         cancelPendingPause()
         lastTitle = null
         lastArtist = null
-        lastArtworkUrl = null
         if (!serviceStarted) return
         sendAction(MediaPlaybackService.ACTION_STOP)
         serviceStarted = false
@@ -120,15 +120,23 @@ class MediaPlaybackManager(context: Context) : GeckoMediaSession.Delegate {
         this.mediaSession = mediaSession
         lastTitle = meta.title?.takeIf { it.isNotEmpty() }
         lastArtist = meta.artist?.takeIf { it.isNotEmpty() }
-        lastArtworkUrl = null
         if (!serviceStarted) return
         context.startService(
             Intent(context, MediaPlaybackService.resolveServiceClass()).apply {
                 action = MediaPlaybackService.ACTION_UPDATE_METADATA
                 putExtra(MediaPlaybackService.EXTRA_TRACK_TITLE, lastTitle ?: "")
                 putExtra(MediaPlaybackService.EXTRA_TRACK_ARTIST, lastArtist ?: "")
-                putExtra(MediaPlaybackService.EXTRA_TRACK_ARTWORK_URL, lastArtworkUrl ?: "")
             })
+        meta.artwork?.getBitmap(ARTWORK_SIZE)?.accept { bitmap ->
+            if (bitmap != null && serviceStarted) {
+                val bytes = bitmapToBytes(bitmap)
+                context.startService(
+                    Intent(context, MediaPlaybackService.resolveServiceClass()).apply {
+                        action = MediaPlaybackService.ACTION_UPDATE_ARTWORK
+                        putExtra(MediaPlaybackService.EXTRA_TRACK_ARTWORK_BYTES, bytes)
+                    })
+            }
+        }
     }
 
     override fun onFeatures(session: GeckoSession, mediaSession: GeckoMediaSession, features: Long) {
@@ -208,5 +216,15 @@ class MediaPlaybackManager(context: Context) : GeckoMediaSession.Delegate {
     private fun cancelPendingPause() {
         pendingPause?.let { handler.removeCallbacks(it) }
         pendingPause = null
+    }
+
+    private fun bitmapToBytes(bmp: Bitmap): ByteArray {
+        val stream = ByteArrayOutputStream()
+        bmp.compress(Bitmap.CompressFormat.PNG, 100, stream)
+        return stream.toByteArray()
+    }
+
+    companion object {
+        private const val ARTWORK_SIZE = 256
     }
 }

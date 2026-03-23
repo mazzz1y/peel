@@ -32,10 +32,9 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.launch
-import org.mozilla.geckoview.ContentBlocking
 import org.mozilla.geckoview.GeckoSession
 import org.mozilla.geckoview.GeckoSessionSettings
-import org.mozilla.geckoview.GeckoView
+import wtf.mazy.peel.gecko.NestedGeckoView
 import org.mozilla.geckoview.GeckoSession.Loader
 import wtf.mazy.peel.R
 import wtf.mazy.peel.gecko.GeckoRuntimeProvider
@@ -70,7 +69,7 @@ import wtf.mazy.peel.webview.WebViewContextMenu
 class WebViewActivity : AppCompatActivity(), SessionHost {
     override var webappUuid: String? = null
 
-    private var geckoView: GeckoView? = null
+    private var geckoView: NestedGeckoView? = null
     private var geckoSession: GeckoSession? = null
 
     private var progressBar: ProgressBar? = null
@@ -152,6 +151,7 @@ class WebViewActivity : AppCompatActivity(), SessionHost {
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+        liveInstances.add(this)
 
         webappUuid = intent.getStringExtra(Const.INTENT_WEBAPP_UUID)
         ensureDataReady(webappUuid, forceReload = false) {
@@ -247,6 +247,7 @@ class WebViewActivity : AppCompatActivity(), SessionHost {
     }
 
     override fun onDestroy() {
+        liveInstances.remove(this)
         launchOverlayController.release()
         biometricController.unregisterReceiver()
         systemBarController.release()
@@ -627,15 +628,7 @@ class WebViewActivity : AppCompatActivity(), SessionHost {
             .build()
 
         val session = GeckoSession(sessionSettings)
-
-        val cookieBehavior = when {
-            settings.isAllowCookies != true -> ContentBlocking.CookieBehavior.ACCEPT_NONE
-            settings.isAllowThirdPartyCookies == true -> ContentBlocking.CookieBehavior.ACCEPT_ALL
-            else -> ContentBlocking.CookieBehavior.ACCEPT_FIRST_PARTY
-        }
         session.settings.useTrackingProtection = settings.isSafeBrowsing == true
-        val runtime = GeckoRuntimeProvider.getRuntime(this)
-        runtime.settings.contentBlocking.setCookieBehavior(cookieBehavior)
 
         return session
     }
@@ -661,10 +654,6 @@ class WebViewActivity : AppCompatActivity(), SessionHost {
     }
 
     private fun applyWindowFlags(settings: WebAppSettings) {
-        if (settings.isShowFullscreen == true) {
-            findViewById<View>(R.id.webview_root)?.fitsSystemWindows = false
-            findViewById<View>(R.id.webviewActivity)?.fitsSystemWindows = false
-        }
         if (settings.isKeepAwake == true) {
             window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         }
@@ -813,5 +802,15 @@ class WebViewActivity : AppCompatActivity(), SessionHost {
     companion object {
         private const val UI_ANIMATION_DURATION_MS = 300L
         private const val OVERLAY_HIDE_FALLBACK_MS = 800L
+
+        private val liveInstances = mutableSetOf<WebViewActivity>()
+
+        fun finishByUuid(uuid: String) {
+            liveInstances.filter { it.webappUuid == uuid }.forEach { it.finish() }
+        }
+
+        fun finishAll() {
+            liveInstances.toList().forEach { it.finish() }
+        }
     }
 }

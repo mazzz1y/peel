@@ -25,13 +25,12 @@ import wtf.mazy.peel.R
 import wtf.mazy.peel.databinding.WebappSettingsBinding
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.IconCache
-import wtf.mazy.peel.model.SandboxManager
 import wtf.mazy.peel.model.SettingDefinition
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.model.WebAppGroup
 import wtf.mazy.peel.shortcut.FetchCandidate
 import wtf.mazy.peel.shortcut.FetchResult
-import wtf.mazy.peel.shortcut.HeadlessWebViewFetcher
+import wtf.mazy.peel.shortcut.HeadlessFetcher
 import wtf.mazy.peel.shortcut.LetterIconGenerator
 import wtf.mazy.peel.shortcut.ShortcutHelper
 import wtf.mazy.peel.ui.IconEditorController
@@ -54,7 +53,7 @@ class WebAppSettingsActivity :
     private lateinit var iconEditor: IconEditorController
     private var fetchDialog: AlertDialog? = null
     private var fetchDialogText: TextView? = null
-    private var activeFetcher: HeadlessWebViewFetcher? = null
+    private var activeFetcher: HeadlessFetcher? = null
     private var fetchGeneration: Int = 0
 
     @SuppressLint("SetJavaScriptEnabled", "ClickableViewAccessibility")
@@ -213,9 +212,7 @@ class WebAppSettingsActivity :
             binding.switchEphemeralSandbox,
             binding.ephemeralSandboxRow,
             binding.btnClearSandbox,
-            onReleaseSandbox = { SandboxManager.releaseSandbox(this, modifiedWebapp.uuid) },
-        )
-            .setup()
+        ).setup()
     }
 
     private fun setupFetchButton(modifiedWebapp: WebApp) {
@@ -289,10 +286,18 @@ class WebAppSettingsActivity :
         fetchGeneration += 1
         val generation = fetchGeneration
 
-        val fetcher = HeadlessWebViewFetcher(
-            context = this,
+        val useContainer = webapp.isUseContainer ||
+            (webapp.groupUuid?.let { DataManager.instance.getGroup(it) }?.isUseContainer == true)
+        val contextId = if (useContainer) webapp.uuid else null
+        val usePrivateMode = webapp.isEphemeralSandbox ||
+            (webapp.groupUuid?.let { DataManager.instance.getGroup(it) }?.isEphemeralSandbox == true)
+
+        val fetcher = HeadlessFetcher(
+            activity = this,
             url = url,
             settings = DataManager.instance.resolveEffectiveSettings(webapp),
+            contextId = contextId,
+            usePrivateMode = usePrivateMode,
             onProgress = { text -> runOnUiThread { if (generation == fetchGeneration) fetchDialogText?.text = text } },
             onResult = { result -> runOnUiThread { handleFetchResult(webapp, result, generation) } },
         )

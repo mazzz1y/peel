@@ -24,15 +24,14 @@
     <FrameLayout
         android:id="@+id/webviewActivity"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:fitsSystemWindows="true">
+        android:layout_height="match_parent">
 
         <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
             android:id="@+id/swipeRefreshLayout"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <org.mozilla.geckoview.GeckoView
+            <wtf.mazy.peel.gecko.NestedGeckoView
                 android:id="@+id/geckoview"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"

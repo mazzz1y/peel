@@ -134,11 +134,6 @@ object SettingRegistry {
                 labelOn = R.string.color_scheme_dark,
             ),
             SettingDefinition.BooleanSetting(
-                SettingField(WebAppSettings::isAlgorithmicDarkening, false),
-                R.string.setting_force_dark_theme,
-                SettingCategory.APPEARANCE,
-            ),
-            SettingDefinition.BooleanSetting(
                 SettingField(WebAppSettings::isDynamicStatusBar, true),
                 R.string.setting_dynamic_status_bar,
                 SettingCategory.APPEARANCE,
@@ -151,11 +146,6 @@ object SettingRegistry {
             SettingDefinition.BooleanSetting(
                 SettingField(WebAppSettings::isShowFullscreen, false),
                 R.string.show_fullscreen,
-                SettingCategory.APPEARANCE,
-            ),
-            SettingDefinition.BooleanSetting(
-                SettingField(WebAppSettings::isEnableZooming, false),
-                R.string.activate_two_finger_zoom,
                 SettingCategory.APPEARANCE,
             ),
             // Permissions
@@ -180,26 +170,6 @@ object SettingRegistry {
                 SettingCategory.PERMISSIONS,
             ),
             // Content
-            SettingDefinition.BooleanSetting(
-                SettingField(WebAppSettings::isAllowCookies, true),
-                R.string.accept_cookies,
-                SettingCategory.CONTENT,
-            ),
-            SettingDefinition.BooleanSetting(
-                SettingField(WebAppSettings::isAllowThirdPartyCookies, false),
-                R.string.accept_third_party_cookies,
-                SettingCategory.CONTENT,
-            ),
-            SettingDefinition.BooleanSetting(
-                SettingField(WebAppSettings::isBlockImages, false),
-                R.string.do_not_load_images,
-                SettingCategory.CONTENT,
-            ),
-            SettingDefinition.BooleanSetting(
-                SettingField(WebAppSettings::isBlockThirdPartyRequests, false),
-                R.string.block_all_third_party_requests,
-                SettingCategory.CONTENT,
-            ),
             SettingDefinition.BooleanSetting(
                 SettingField(WebAppSettings::isDrmAllowed, false),
                 R.string.allow_drm_content,

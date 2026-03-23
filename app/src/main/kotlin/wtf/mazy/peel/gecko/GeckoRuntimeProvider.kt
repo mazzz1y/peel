@@ -23,12 +23,11 @@ object GeckoRuntimeProvider {
             .consoleOutput(BuildConfig.DEBUG)
             .aboutConfigEnabled(BuildConfig.DEBUG)
             .preferredColorScheme(GeckoRuntimeSettings.COLOR_SCHEME_SYSTEM)
-            .allowInsecureConnections(GeckoRuntimeSettings.ALLOW_ALL)
             .contentBlocking(
                 ContentBlocking.Settings.Builder()
                     .antiTracking(ContentBlocking.AntiTracking.NONE)
                     .safeBrowsing(ContentBlocking.SafeBrowsing.DEFAULT)
-                    .cookieBehavior(ContentBlocking.CookieBehavior.ACCEPT_ALL)
+                    .cookieBehavior(ContentBlocking.CookieBehavior.ACCEPT_FIRST_PARTY)
                     .build()
             )
             .build()

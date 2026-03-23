@@ -8,7 +8,6 @@ import kotlinx.coroutines.launch
 import wtf.mazy.peel.R
 import wtf.mazy.peel.databinding.GroupSettingsBinding
 import wtf.mazy.peel.model.DataManager
-import wtf.mazy.peel.model.SandboxManager
 import wtf.mazy.peel.model.SettingDefinition
 import wtf.mazy.peel.model.WebAppGroup
 import wtf.mazy.peel.ui.IconEditorController
@@ -92,9 +91,7 @@ class GroupSettingsActivity :
             binding.switchEphemeralSandbox,
             binding.ephemeralSandboxRow,
             binding.btnClearSandbox,
-            onReleaseSandbox = { SandboxManager.releaseSandbox(this, group.uuid) },
-        )
-            .setup()
+        ).setup()
     }
 
     private lateinit var overrideController: OverridePickerController
