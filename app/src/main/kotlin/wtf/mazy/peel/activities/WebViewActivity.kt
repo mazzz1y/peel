@@ -461,7 +461,7 @@ class WebViewActivity : AppCompatActivity(), SessionHost {
 
     override fun onFirstContentfulPaint() {
         if (launchOverlayController.isVisible && !biometricController.isPromptActive) {
-            launchOverlayController.hideFallback()
+            launchOverlayController.hideNow()
         }
     }
 
@@ -612,6 +612,7 @@ class WebViewActivity : AppCompatActivity(), SessionHost {
         session.open(runtime)
         session.setActive(true)
         geckoView?.setSession(session)
+        geckoView?.coverUntilFirstPaint(themeBackgroundColor)
 
         lifecycleScope.launch {
             if (settings.isDynamicStatusBar == true) {
