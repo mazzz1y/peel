@@ -47,13 +47,6 @@ class PeelNavigationDelegate(private val host: SessionHost) : GeckoSession.Navig
         }
 
         if (settings.isAlwaysHttps == true && url.startsWith("http://")) {
-            if (request.isRedirect) {
-                host.runOnUi {
-                    host.showToast(host.getString(R.string.https_only_blocked))
-                    host.finishActivity()
-                }
-                return GeckoResult.fromValue(AllowOrDeny.DENY)
-            }
             host.runOnUi { host.loadURL(url.replaceFirst("http://", "https://")) }
             return GeckoResult.fromValue(AllowOrDeny.DENY)
         }
