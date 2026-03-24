@@ -31,6 +31,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import org.mozilla.geckoview.GeckoSession
 import org.mozilla.geckoview.GeckoSessionSettings
@@ -113,6 +114,7 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
 
     private var pageLoadHandled = false
     private var mediaPlaybackManager: MediaPlaybackManager? = null
+    private var sessionSetupJob: Job? = null
     private var cachedSettings: WebAppSettings? = null
     private var isStartupComplete = false
 
@@ -264,6 +266,7 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
         systemBarController.release()
         mediaPlaybackManager?.release()
         mediaPlaybackManager = null
+        geckoView?.releaseSession()
         geckoSession?.close()
         geckoSession = null
         geckoView = null
@@ -308,71 +311,21 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
         webappUuid = newUuid
         _navigationStartPoint = NavigationStartPoint(webapp.baseUrl)
         cachedSettings = DataManager.instance.resolveEffectiveSettings(webapp)
-        customHeaders = buildCustomHeaders(effectiveSettings)
-        pageLoadHandled = false
-        currentUrl = webapp.baseUrl
         biometricController.resetForSwap()
         systemBarController.resetForSwap()
         mediaPlaybackManager?.release()
         mediaPlaybackManager = null
 
-        recreateSession(effectiveSettings)
-
-        applyWindowFlags(effectiveSettings)
-        setupPullToRefresh(effectiveSettings)
-        if (effectiveSettings.isShowFullscreen == true) systemBarController.hide() else systemBarController.show(false)
+        val settings = effectiveSettings
+        configureSession(settings)
+        customHeaders = buildCustomHeaders(settings)
+        applyWindowFlags(settings)
+        setupPullToRefresh(settings)
+        applyColorScheme()
+        if (settings.isShowFullscreen == true) systemBarController.hide() else systemBarController.show(false)
         applyTaskSnapshotProtection()
 
-        lifecycleScope.launch {
-            if (effectiveSettings.isDynamicStatusBar == true) {
-                val ext = GeckoRuntimeProvider.ensureThemeColorExtension(applicationContext)
-                if (ext != null) {
-                    val delegate = geckoSession?.contentDelegate as? PeelContentDelegate
-                    if (delegate != null && geckoSession != null) {
-                        delegate.setupThemeColorExtension(ext, geckoSession!!)
-                    }
-                }
-            }
-            loadURL(sharedUrlFromIntent() ?: webapp.baseUrl)
-            setupMediaPlayback(effectiveSettings)
-        }
-    }
-
-    private fun recreateSession(settings: WebAppSettings) {
-        geckoSession?.close()
-        val session = createSession(settings)
-        geckoSession = session
-
-        session.navigationDelegate = navigationDelegate
-        if (settings.isLongClickShare == true) setupContextMenu(settings) else contextMenu = null
-        val contextMenuCallback: ((GeckoSession, Int, Int, GeckoSession.ContentDelegate.ContextElement) -> Unit)? =
-            if (contextMenu != null) {
-                { s, x, y, el -> contextMenu?.onContextMenu(s, x, y, el) }
-            } else null
-        val contentDelegate = PeelContentDelegate(
-            host = this,
-            onDownload = { response -> downloadHandler.onExternalResponse(response) },
-            onContextMenu = contextMenuCallback,
-        )
-        session.contentDelegate = contentDelegate
-        session.progressDelegate = PeelProgressDelegate(this)
-        session.permissionDelegate = permissionDelegate
-        session.promptDelegate = promptDelegate
-
-        val nestedView = geckoView as? NestedGeckoView
-        if (nestedView != null) {
-            session.scrollDelegate = object : GeckoSession.ScrollDelegate {
-                override fun onScrollChanged(session: GeckoSession, scrollX: Int, scrollY: Int) {
-                    nestedView.updateScrollPosition(scrollY)
-                }
-            }
-        }
-
-        val runtime = GeckoRuntimeProvider.getRuntime(this)
-        session.open(runtime)
-        session.setActive(true)
-        geckoView?.setSession(session)
-        geckoView?.coverUntilFirstPaint(themeBackgroundColor)
+        launchSessionExtensionsAndLoad(settings, sharedUrlFromIntent() ?: webapp.baseUrl)
     }
 
     override val webAppName: String
@@ -623,7 +576,6 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
     }
 
     private fun setupGeckoView() {
-        currentUrl = webapp.baseUrl
         val settings = effectiveSettings
         window.setBackgroundDrawable(themeBackgroundColor.toDrawable())
         setContentView(R.layout.activity_browser)
@@ -632,41 +584,61 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
             rootView = findViewById(R.id.browser_root),
             applyDynamicColor = settings.isDynamicStatusBar == true,
         )
-        applyWindowFlags(settings)
-        setupPullToRefresh(settings)
-        if (settings.isShowFullscreen == true) systemBarController.hide() else systemBarController.show(false)
-        applyColorScheme()
-        customHeaders = buildCustomHeaders(settings)
 
         downloadHandler = DownloadHandler(
             activity = this,
             getRuntime = { GeckoRuntimeProvider.getRuntime(this) },
         )
-
-        val session = createSession(settings)
-        geckoSession = session
-
         navigationDelegate = PeelNavigationDelegate(this)
         permissionDelegate = PeelPermissionDelegate(this)
         promptDelegate = PeelPromptDelegate(this)
 
+        configureSession(settings)
+        customHeaders = buildCustomHeaders(settings)
+        applyWindowFlags(settings)
+        setupPullToRefresh(settings)
+        applyColorScheme()
+        if (settings.isShowFullscreen == true) systemBarController.hide() else systemBarController.show(false)
+
+        launchSessionExtensionsAndLoad(settings, sharedUrlFromIntent() ?: webapp.baseUrl)
+    }
+
+    private fun configureSession(settings: WebAppSettings) {
+        sessionSetupJob?.cancel()
+        (geckoSession?.contentDelegate as? PeelContentDelegate)?.exitFullscreen()
+        geckoView?.releaseSession()
+        geckoSession?.close()
+
+        currentUrl = webapp.baseUrl
+        canGoBack = false
+        currentlyReloading = true
+        pageLoadHandled = false
+        filePathCallback = null
+        navigationDelegate.clearAutoAuth()
+        permissionDelegate.clearPagePermissions()
+        promptDelegate.clearAutoAuth()
+        (geckoView as? NestedGeckoView)?.resetScrollPosition()
+        autoReloadController.stop()
+
+        val session = createSession(settings)
+        geckoSession = session
+
         session.navigationDelegate = navigationDelegate
-        if (settings.isLongClickShare == true) setupContextMenu(settings)
+        if (settings.isLongClickShare == true) setupContextMenu(settings) else contextMenu = null
         val contextMenuCallback: ((GeckoSession, Int, Int, GeckoSession.ContentDelegate.ContextElement) -> Unit)? =
             if (contextMenu != null) {
-                { s: GeckoSession, x: Int, y: Int, el: GeckoSession.ContentDelegate.ContextElement -> contextMenu?.onContextMenu(s, x, y, el) }
+                { s, x, y, el -> contextMenu?.onContextMenu(s, x, y, el) }
             } else null
-        val contentDelegate = PeelContentDelegate(
+        session.contentDelegate = PeelContentDelegate(
             host = this,
             onDownload = { response -> downloadHandler.onExternalResponse(response) },
             onContextMenu = contextMenuCallback,
         )
-        session.contentDelegate = contentDelegate
         session.progressDelegate = PeelProgressDelegate(this)
         session.permissionDelegate = permissionDelegate
         session.promptDelegate = promptDelegate
 
-        val nestedView = geckoView as? wtf.mazy.peel.gecko.NestedGeckoView
+        val nestedView = geckoView as? NestedGeckoView
         if (nestedView != null) {
             session.scrollDelegate = object : GeckoSession.ScrollDelegate {
                 override fun onScrollChanged(session: GeckoSession, scrollX: Int, scrollY: Int) {
@@ -680,14 +652,20 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
         session.setActive(true)
         geckoView?.setSession(session)
         geckoView?.coverUntilFirstPaint(themeBackgroundColor)
+    }
 
-        lifecycleScope.launch {
+    private fun launchSessionExtensionsAndLoad(settings: WebAppSettings, url: String) {
+        sessionSetupJob = lifecycleScope.launch {
             if (settings.isDynamicStatusBar == true) {
                 val ext = GeckoRuntimeProvider.ensureThemeColorExtension(applicationContext)
-                if (ext != null) contentDelegate.setupThemeColorExtension(ext, session)
+                val delegate = geckoSession?.contentDelegate as? PeelContentDelegate
+                if (ext != null && delegate != null && geckoSession != null) {
+                    delegate.setupThemeColorExtension(ext, geckoSession!!)
+                }
             }
-            loadURL(sharedUrlFromIntent() ?: webapp.baseUrl)
+            loadURL(url)
             setupMediaPlayback(settings)
+            autoReloadController.start(settings)
         }
     }
 

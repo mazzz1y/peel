@@ -36,6 +36,10 @@ class NestedGeckoView @JvmOverloads constructor(
         scrollY = y
     }
 
+    fun resetScrollPosition() {
+        scrollY = 0
+    }
+
     override fun onTouchEvent(ev: MotionEvent): Boolean {
         val event = MotionEvent.obtain(ev)
         val action = event.actionMasked

@@ -23,6 +23,14 @@ class PeelContentDelegate(
     private var customView: View? = null
     private var originalOrientation = 0
 
+    fun exitFullscreen() {
+        val view = customView ?: return
+        (host.hostWindow.decorView as FrameLayout).removeView(view)
+        customView = null
+        host.hostOrientation = originalOrientation
+        host.showSystemBars()
+    }
+
     fun setupThemeColorExtension(ext: WebExtension, session: GeckoSession) {
         if (host.effectiveSettings.isDynamicStatusBar != true) return
         session.webExtensionController.setMessageDelegate(
