@@ -11,7 +11,6 @@ import wtf.mazy.peel.model.WebAppSettings
 
 class PeelNavigationDelegate(private val host: SessionHost) : GeckoSession.NavigationDelegate {
 
-    private val autoAuthAttempted = mutableSetOf<String>()
     private var appLinkDialogShowing = false
 
     override fun onCanGoBack(session: GeckoSession, canGoBack: Boolean) {
@@ -74,7 +73,6 @@ class PeelNavigationDelegate(private val host: SessionHost) : GeckoSession.Navig
     }
 
     fun clearAutoAuth() {
-        autoAuthAttempted.clear()
         appLinkDialogShowing = false
     }
 

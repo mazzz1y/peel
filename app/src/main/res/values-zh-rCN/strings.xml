@@ -6,13 +6,9 @@
     <string name="loading_icon_and_website_title">加载中…</string>
     <string name="open_external_links_in_browser_app">在外部打开链接</string>
     <string name="allow_javascript">允许 JavaScript</string>
-    <string name="accept_cookies">允许 Cookie</string>
-    <string name="accept_third_party_cookies">第三方 Cookie</string>
     <string name="clear_cache_after_usage">退出时清除缓存</string>
     <string name="fetch_failed">无法从网站获取数据</string>
-    <string name="delete_question">确定要删除此网站吗？</string>
     <string name="enter_valid_url">请输入有效的网址</string>
-    <string name="edit_webapp_settings">网页应用设置</string>
     <string name="add_webapp">添加网页应用</string>
     <string name="empty_state_message">暂无网页应用。\n点击 + 按钮添加第一个应用。</string>
     <string name="request_website_in_desktop_version">桌面模式</string>
@@ -28,16 +24,6 @@
     <string name="fetch_step_downloading">下载图标…</string>
 
     <string name="web_app_settings">网页应用设置</string>
-    <string name="do_not_load_images">屏蔽图片</string>
-    <string name="ssl_error_msg_line1">此页面的 SSL 证书存在问题</string>
-    <string name="ssl_error_unknown_authority">证书颁发机构不受信任</string>
-    <string name="ssl_error_expired">证书已过期</string>
-    <string name="ssl_error_id_mismatch">证书与主机名不匹配</string>
-    <string name="ssl_error_notyetvalid">证书尚未生效</string>
-    <string name="load_anyway">仍然加载</string>
-    <string name="https_only_blocked">已屏蔽：未加密连接</string>
-    <string name="ssl_error_blocked">已屏蔽：%1$s</string>
-    <string name="allow_http">允许 HTTP</string>
     <string name="permissions">权限</string>
     <string name="content">内容</string>
     <string name="security">安全</string>
@@ -75,7 +61,6 @@
     <string name="importing">正在导入…</string>
     <string name="webapp_not_found">此网页应用不再可用</string>
     <string name="no_filemanager">请安装文件管理器</string>
-    <string name="export_btn">导出</string>
     <string name="import_btn">导入</string>
     <string name="allow_location_access">位置</string>
     <string name="allow_drm_content">DRM 内容</string>
@@ -85,25 +70,17 @@
     <string name="icon_remove">删除图片</string>
     <string name="show_progress_bar_during_page_load">加载指示器</string>
     <string name="webapp_autoreload">自动刷新</string>
-    <string name="webapp_interval_for_reload">间隔（秒）</string>
-    <string name="webapp_autoreload_switch">定期刷新页面</string>
     <string name="name">名称</string>
     <string name="setting_color_scheme">配色方案</string>
     <string name="color_scheme_auto">自动</string>
     <string name="color_scheme_light">浅色</string>
     <string name="color_scheme_dark">深色</string>
-    <string name="setting_force_dark_theme">强制深色主题</string>
-    <string name="ssl_errors">SSL 错误</string>
     <string name="webapp_already_deleted">此网页应用已删除。您可以删除此快捷方式</string>
-    <string name="override_global_settings">覆盖全局设置</string>
     <string name="global_web_app_settings">全局网页应用设置</string>
     <string name="general">常规</string>
     <string name="backup">备份</string>
     <string name="import_data">导入</string>
     <string name="export_data">导出</string>
-    <string name="block_all_third_party_requests">屏蔽第三方请求</string>
-    <string name="sandbox">沙盒</string>
-    <string name="no_sandbox">不使用沙盒</string>
     <string name="enable_sandbox">启用沙盒</string>
     <string name="ephemeral_sandbox">临时存储</string>
     <string name="clear_sandbox_data">清除沙盒数据</string>
@@ -136,12 +113,8 @@
     <string name="create_shortcut">创建快捷方式</string>
     <string name="create">创建</string>
     <string name="back">返回</string>
-    <string name="forward">前进</string>
-    <string name="copy_url">复制 URL</string>
     <string name="clone">克隆</string>
     <string name="share">分享</string>
-    <string name="reload">刷新</string>
-    <string name="activate_two_finger_zoom">双指缩放</string>
     <string name="bioprompt_restricted_webapp">访问限制</string>
     <string name="enable_access_restriction">生物识别锁定</string>
     <string name="bioprompt_not_recognized">未识别，请重试</string>
@@ -149,10 +122,7 @@
     <string name="media_channel_name">媒体播放</string>
     <string name="media_channel_description">后台媒体播放控制</string>
 
-    <string name="start_url">URL</string>
     <string name="more">更多</string>
-    <string name="close_web_app">关闭网页应用</string>
-    <string name="to_main_menu">返回主菜单</string>
     <string name="cancel">取消</string>
     <string name="ok">确定</string>
     <string name="no_biometric_devices">您的设备不支持生物识别认证</string>
@@ -167,14 +137,8 @@
     <string name="app_info">关于</string>
     <string name="gnu_license">本软件基于 GNU 通用公共许可证第 3 版发布。\nhttps://www.gnu.org/licenses/gpl-3.0.txt</string>
 
-    <string name="default_webapp_settings">默认设置</string>
-    <string name="main_settings">图标</string>
-    <string name="advanced_settings">高级</string>
-    <string name="reset">重置</string>
-    <string name="reset_global_settings">重置全局设置</string>
     <string name="delete">删除</string>
     <string name="settings">设置</string>
-    <string name="drag_to_reorder">拖动排序</string>
     <string name="app_icon">应用图标</string>
 
     <string name="select_setting_to_override">选择设置</string>
@@ -190,7 +154,6 @@
     <string name="setting_long_click_share">长按快捷菜单</string>
     <string name="setting_pull_to_refresh">下拉刷新</string>
     <string name="setting_disable_screenshots">禁止截屏</string>
-    <string name="setting_safe_browsing">安全浏览</string>
     <string name="setting_always_https">仅 HTTPS</string>
     <string name="setting_custom_headers">自定义请求头</string>
     <string name="setting_basic_auth">HTTP 授权</string>
@@ -221,15 +184,11 @@
     <string name="context_menu_open_link">在浏览器中打开</string>
     <string name="context_menu_copy_link">复制链接地址</string>
     <string name="context_menu_copy_link_text">复制链接文字</string>
-    <string name="context_menu_download_link">下载链接</string>
     <string name="context_menu_share_link">分享链接</string>
-    <string name="context_menu_copy_image">复制图片</string>
     <string name="context_menu_download_image">下载图片</string>
     <string name="context_menu_share_image">分享图片</string>
     <string name="link_copied">链接已复制</string>
     <string name="text_copied">文字已复制</string>
-    <string name="image_copied">图片已复制</string>
-    <string name="image_download_failed">图片下载失败</string>
     <string name="download_failed">下载失败</string>
     <string name="search">搜索</string>
     <string name="no_search_results">未找到应用</string>

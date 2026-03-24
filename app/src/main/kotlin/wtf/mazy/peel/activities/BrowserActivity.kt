@@ -145,7 +145,7 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
         mainHandler = mainHandler,
         onReload = {
             currentlyReloading = true
-            geckoSession?.reload()
+            reloadCurrentPage()
         },
     )
 
@@ -200,17 +200,21 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
         if (DataManager.instance.getWebApp(uuid) == null) return
         cachedSettings = DataManager.instance.resolveEffectiveSettings(webapp)
         mediaPlaybackManager?.setBackground(false)
+        customHeaders = buildCustomHeaders(effectiveSettings)
+        applyWindowFlags(effectiveSettings)
         applyColorScheme()
+        setupPullToRefresh(effectiveSettings)
+        if (effectiveSettings.isShowFullscreen == true) systemBarController.hide() else systemBarController.show(false)
 
         if (effectiveSettings.isShowNotification == true && floatingControls == null) {
             floatingControls = FloatingControlsView(
                 parent = findViewById(R.id.browser_root),
                 webappUuid = uuid,
-                getSession = { geckoSession },
                 onHome = {
                     _navigationStartPoint.reset()
                     loadURL(webapp.baseUrl)
                 },
+                onReload = ::reloadCurrentPage,
                 getCurrentUrl = { currentUrl },
             )
         }
@@ -306,13 +310,69 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
         cachedSettings = DataManager.instance.resolveEffectiveSettings(webapp)
         customHeaders = buildCustomHeaders(effectiveSettings)
         pageLoadHandled = false
+        currentUrl = webapp.baseUrl
         biometricController.resetForSwap()
         systemBarController.resetForSwap()
         mediaPlaybackManager?.release()
         mediaPlaybackManager = null
-        setupMediaPlayback(effectiveSettings)
+
+        recreateSession(effectiveSettings)
+
+        applyWindowFlags(effectiveSettings)
+        setupPullToRefresh(effectiveSettings)
+        if (effectiveSettings.isShowFullscreen == true) systemBarController.hide() else systemBarController.show(false)
         applyTaskSnapshotProtection()
-        loadURL(sharedUrlFromIntent() ?: webapp.baseUrl)
+
+        lifecycleScope.launch {
+            if (effectiveSettings.isDynamicStatusBar == true) {
+                val ext = GeckoRuntimeProvider.ensureThemeColorExtension(applicationContext)
+                if (ext != null) {
+                    val delegate = geckoSession?.contentDelegate as? PeelContentDelegate
+                    if (delegate != null && geckoSession != null) {
+                        delegate.setupThemeColorExtension(ext, geckoSession!!)
+                    }
+                }
+            }
+            loadURL(sharedUrlFromIntent() ?: webapp.baseUrl)
+            setupMediaPlayback(effectiveSettings)
+        }
+    }
+
+    private fun recreateSession(settings: WebAppSettings) {
+        geckoSession?.close()
+        val session = createSession(settings)
+        geckoSession = session
+
+        session.navigationDelegate = navigationDelegate
+        if (settings.isLongClickShare == true) setupContextMenu(settings) else contextMenu = null
+        val contextMenuCallback: ((GeckoSession, Int, Int, GeckoSession.ContentDelegate.ContextElement) -> Unit)? =
+            if (contextMenu != null) {
+                { s, x, y, el -> contextMenu?.onContextMenu(s, x, y, el) }
+            } else null
+        val contentDelegate = PeelContentDelegate(
+            host = this,
+            onDownload = { response -> downloadHandler.onExternalResponse(response) },
+            onContextMenu = contextMenuCallback,
+        )
+        session.contentDelegate = contentDelegate
+        session.progressDelegate = PeelProgressDelegate(this)
+        session.permissionDelegate = permissionDelegate
+        session.promptDelegate = promptDelegate
+
+        val nestedView = geckoView as? NestedGeckoView
+        if (nestedView != null) {
+            session.scrollDelegate = object : GeckoSession.ScrollDelegate {
+                override fun onScrollChanged(session: GeckoSession, scrollX: Int, scrollY: Int) {
+                    nestedView.updateScrollPosition(scrollY)
+                }
+            }
+        }
+
+        val runtime = GeckoRuntimeProvider.getRuntime(this)
+        session.open(runtime)
+        session.setActive(true)
+        geckoView?.setSession(session)
+        geckoView?.coverUntilFirstPaint(themeBackgroundColor)
     }
 
     override val webAppName: String
@@ -680,9 +740,13 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
     private fun applyWindowFlags(settings: WebAppSettings) {
         if (settings.isKeepAwake == true) {
             window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        } else {
+            window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         }
         if (settings.isDisableScreenshots == true) {
             window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+        } else {
+            window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
         }
     }
 
@@ -702,12 +766,21 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
             swipeRefreshLayout?.apply {
                 isEnabled = true
                 setOnRefreshListener {
-                    geckoSession?.reload()
+                    reloadCurrentPage()
                     isRefreshing = false
                 }
             }
         } else {
             swipeRefreshLayout?.isEnabled = false
+        }
+    }
+
+    private fun reloadCurrentPage() {
+        val url = currentUrl
+        if (url.isNotEmpty() && customHeaders?.isNotEmpty() == true) {
+            loadURL(url)
+        } else {
+            geckoSession?.reload()
         }
     }
 

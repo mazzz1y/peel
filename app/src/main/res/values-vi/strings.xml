@@ -6,13 +6,9 @@
     <string name="loading_icon_and_website_title">Đang tải…</string>
     <string name="open_external_links_in_browser_app">Mở liên kết bên ngoài</string>
     <string name="allow_javascript">Cho phép JavaScript</string>
-    <string name="accept_cookies">Cho phép cookie</string>
-    <string name="accept_third_party_cookies">Cookie bên thứ ba</string>
     <string name="clear_cache_after_usage">Xóa bộ nhớ đệm khi thoát</string>
     <string name="fetch_failed">Không thể lấy dữ liệu từ trang web</string>
-    <string name="delete_question">Bạn có chắc muốn xóa trang web này?</string>
     <string name="enter_valid_url">Vui lòng nhập địa chỉ web hợp lệ</string>
-    <string name="edit_webapp_settings">Cài đặt ứng dụng web</string>
     <string name="add_webapp">Thêm ứng dụng web</string>
     <string name="empty_state_message">Chưa có ứng dụng web.\nNhấn + để thêm ứng dụng đầu tiên.</string>
     <string name="request_website_in_desktop_version">Chế độ máy tính</string>
@@ -28,16 +24,6 @@
     <string name="fetch_step_downloading">Đang tải biểu tượng…</string>
 
     <string name="web_app_settings">Cài đặt ứng dụng web</string>
-    <string name="do_not_load_images">Chặn hình ảnh</string>
-    <string name="ssl_error_msg_line1">Trang này có vấn đề với chứng chỉ SSL</string>
-    <string name="ssl_error_unknown_authority">Tổ chức cấp chứng chỉ không đáng tin cậy</string>
-    <string name="ssl_error_expired">Chứng chỉ đã hết hạn</string>
-    <string name="ssl_error_id_mismatch">Chứng chỉ không khớp với tên máy chủ</string>
-    <string name="ssl_error_notyetvalid">Chứng chỉ chưa có hiệu lực</string>
-    <string name="load_anyway">Vẫn tải</string>
-    <string name="https_only_blocked">Đã chặn: kết nối không mã hóa</string>
-    <string name="ssl_error_blocked">Đã chặn: %1$s</string>
-    <string name="allow_http">Cho phép HTTP</string>
     <string name="permissions">Quyền</string>
     <string name="content">Nội dung</string>
     <string name="security">Bảo mật</string>
@@ -75,7 +61,6 @@
     <string name="importing">Đang nhập…</string>
     <string name="webapp_not_found">Ứng dụng web này không còn khả dụng</string>
     <string name="no_filemanager">Vui lòng cài đặt trình quản lý tệp</string>
-    <string name="export_btn">Xuất</string>
     <string name="import_btn">Nhập</string>
     <string name="allow_location_access">Vị trí</string>
     <string name="allow_drm_content">Nội dung DRM</string>
@@ -85,25 +70,17 @@
     <string name="icon_remove">Xóa hình ảnh</string>
     <string name="show_progress_bar_during_page_load">Chỉ báo tải</string>
     <string name="webapp_autoreload">Tự động tải lại</string>
-    <string name="webapp_interval_for_reload">Khoảng thời gian (giây)</string>
-    <string name="webapp_autoreload_switch">Tự động làm mới trang</string>
     <string name="name">Tên</string>
     <string name="setting_color_scheme">Bảng màu</string>
     <string name="color_scheme_auto">Tự động</string>
     <string name="color_scheme_light">Sáng</string>
     <string name="color_scheme_dark">Tối</string>
-    <string name="setting_force_dark_theme">Buộc giao diện tối</string>
-    <string name="ssl_errors">Lỗi SSL</string>
     <string name="webapp_already_deleted">Ứng dụng web này đã bị xóa. Bạn có thể xóa lối tắt này</string>
-    <string name="override_global_settings">Ghi đè cài đặt toàn cục</string>
     <string name="global_web_app_settings">Cài đặt toàn cục ứng dụng web</string>
     <string name="general">Chung</string>
     <string name="backup">Sao lưu</string>
     <string name="import_data">Nhập</string>
     <string name="export_data">Xuất</string>
-    <string name="block_all_third_party_requests">Chặn yêu cầu bên thứ ba</string>
-    <string name="sandbox">Sandbox</string>
-    <string name="no_sandbox">Không dùng sandbox</string>
     <string name="enable_sandbox">Bật sandbox</string>
     <string name="ephemeral_sandbox">Lưu trữ tạm thời</string>
     <string name="clear_sandbox_data">Xóa dữ liệu sandbox</string>
@@ -136,12 +113,8 @@
     <string name="create_shortcut">Tạo lối tắt</string>
     <string name="create">Tạo</string>
     <string name="back">Quay lại</string>
-    <string name="forward">Tiến</string>
-    <string name="copy_url">Sao chép URL</string>
     <string name="clone">Nhân bản</string>
     <string name="share">Chia sẻ</string>
-    <string name="reload">Tải lại</string>
-    <string name="activate_two_finger_zoom">Thu phóng bằng hai ngón</string>
     <string name="bioprompt_restricted_webapp">Hạn chế truy cập</string>
     <string name="enable_access_restriction">Khóa sinh trắc học</string>
     <string name="bioprompt_not_recognized">Không nhận dạng được. Thử lại</string>
@@ -149,10 +122,7 @@
     <string name="media_channel_name">Phát phương tiện</string>
     <string name="media_channel_description">Điều khiển phát phương tiện nền</string>
 
-    <string name="start_url">URL</string>
     <string name="more">Thêm</string>
-    <string name="close_web_app">Đóng ứng dụng web</string>
-    <string name="to_main_menu">Về menu chính</string>
     <string name="cancel">Hủy</string>
     <string name="ok">OK</string>
     <string name="no_biometric_devices">Thiết bị của bạn không hỗ trợ xác thực sinh trắc học</string>
@@ -167,14 +137,8 @@
     <string name="app_info">Giới thiệu</string>
     <string name="gnu_license">Phần mềm này được phát hành theo GNU General Public License — Phiên bản 3.\nhttps://www.gnu.org/licenses/gpl-3.0.txt</string>
 
-    <string name="default_webapp_settings">Cài đặt mặc định</string>
-    <string name="main_settings">Biểu tượng</string>
-    <string name="advanced_settings">Nâng cao</string>
-    <string name="reset">Đặt lại</string>
-    <string name="reset_global_settings">Đặt lại cài đặt toàn cục</string>
     <string name="delete">Xóa</string>
     <string name="settings">Cài đặt</string>
-    <string name="drag_to_reorder">Kéo để sắp xếp</string>
     <string name="app_icon">Biểu tượng ứng dụng</string>
 
     <string name="select_setting_to_override">Chọn cài đặt</string>
@@ -190,7 +154,6 @@
     <string name="setting_long_click_share">Menu ngữ cảnh nhấn giữ</string>
     <string name="setting_pull_to_refresh">Kéo xuống để làm mới</string>
     <string name="setting_disable_screenshots">Chặn chụp màn hình</string>
-    <string name="setting_safe_browsing">Duyệt web an toàn</string>
     <string name="setting_always_https">Chỉ HTTPS</string>
     <string name="setting_custom_headers">Tiêu đề tùy chỉnh</string>
     <string name="setting_basic_auth">Xác thực HTTP</string>
@@ -221,15 +184,11 @@
     <string name="context_menu_open_link">Mở trong trình duyệt</string>
     <string name="context_menu_copy_link">Sao chép địa chỉ liên kết</string>
     <string name="context_menu_copy_link_text">Sao chép văn bản liên kết</string>
-    <string name="context_menu_download_link">Tải đường liên kết xuống</string>
     <string name="context_menu_share_link">Chia sẻ đường liên kết</string>
-    <string name="context_menu_copy_image">Sao chép ảnh</string>
     <string name="context_menu_download_image">Tải hình ảnh xuống</string>
     <string name="context_menu_share_image">Chia sẻ hình ảnh</string>
     <string name="link_copied">Đã sao chép liên kết</string>
     <string name="text_copied">Đã sao chép văn bản</string>
-    <string name="image_copied">Đã sao chép hình ảnh</string>
-    <string name="image_download_failed">Tải hình ảnh thất bại</string>
     <string name="download_failed">Tải xuống thất bại</string>
     <string name="search">Tìm kiếm</string>
     <string name="no_search_results">Không tìm thấy ứng dụng</string>

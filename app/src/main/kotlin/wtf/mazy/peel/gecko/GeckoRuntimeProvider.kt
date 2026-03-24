@@ -9,6 +9,7 @@ import org.mozilla.geckoview.GeckoRuntime
 import org.mozilla.geckoview.GeckoRuntimeSettings
 import org.mozilla.geckoview.WebExtension
 import wtf.mazy.peel.BuildConfig
+import wtf.mazy.peel.model.DataManager
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
@@ -61,11 +62,16 @@ object GeckoRuntimeProvider {
     }
 
     private fun createRuntime(context: Context): GeckoRuntime {
+        val defaults = DataManager.instance.defaultSettings.settings
+        val lna = defaults.isBlockLocalNetwork == true
         val settings = GeckoRuntimeSettings.Builder()
             .javaScriptEnabled(true)
             .consoleOutput(BuildConfig.DEBUG)
             .aboutConfigEnabled(BuildConfig.DEBUG)
             .preferredColorScheme(GeckoRuntimeSettings.COLOR_SCHEME_SYSTEM)
+            .globalPrivacyControlEnabled(defaults.isGlobalPrivacyControl == true)
+            .setLnaEnabled(lna)
+            .setLnaBlocking(lna)
             .contentBlocking(
                 ContentBlocking.Settings.Builder()
                     .antiTracking(ContentBlocking.AntiTracking.NONE)
@@ -74,7 +80,9 @@ object GeckoRuntimeProvider {
                     .build()
             )
             .build()
-        return GeckoRuntime.create(context, settings)
+        val rt = GeckoRuntime.create(context, settings)
+        rt.settings.setFingerprintingProtection(defaults.isFingerprintingProtection == true)
+        return rt
     }
 
     suspend fun <T> GeckoResult<T>.await(): T = suspendCancellableCoroutine { cont ->

@@ -3,7 +3,6 @@ package wtf.mazy.peel.browser
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
-import android.util.Log
 import android.view.View
 import android.widget.FrameLayout
 import androidx.core.graphics.createBitmap
@@ -25,7 +24,6 @@ class PeelContentDelegate(
     private var originalOrientation = 0
 
     fun setupThemeColorExtension(ext: WebExtension, session: GeckoSession) {
-        Log.d(TAG, "setupThemeColorExtension: id=${ext.id} flags=${ext.flags}")
         if (host.effectiveSettings.isDynamicStatusBar != true) return
         session.webExtensionController.setMessageDelegate(
             ext,
@@ -37,7 +35,6 @@ class PeelContentDelegate(
                 ): GeckoResult<Any>? {
                     if (message is JSONObject) {
                         val raw = message.optString("color", "")
-                        Log.d(TAG, "onMessage color='$raw'")
                         val color = parseWebColor(raw) ?: host.themeBackgroundColor
                         host.runOnUi { host.updateStatusBarColor(color) }
                     }
@@ -65,7 +62,6 @@ class PeelContentDelegate(
     }
 
     override fun onExternalResponse(session: GeckoSession, response: WebResponse) {
-        Log.d(TAG, "onExternalResponse: uri=${response.uri}")
         onDownload(response)
     }
 
@@ -89,8 +85,6 @@ class PeelContentDelegate(
     }
 
     companion object {
-        private const val TAG = "PeelColor"
-
         private val rgbRegex = Regex("""rgba?\(\s*(\d+)[\s,]+(\d+)[\s,]+(\d+)""")
 
         fun parseWebColor(raw: String): Int? {

@@ -6,7 +6,6 @@ import android.content.SharedPreferences
 import android.view.MotionEvent
 import android.view.View
 import android.widget.FrameLayout
-import org.mozilla.geckoview.GeckoSession
 import android.widget.ImageButton
 import androidx.core.content.edit
 import androidx.core.view.ViewCompat
@@ -39,8 +38,8 @@ private class FloatingButtonPrefs(webappUuid: String, parent: FrameLayout) {
 class FloatingControlsView(
     private val parent: FrameLayout,
     webappUuid: String,
-    private val getSession: () -> GeckoSession?,
     private val onHome: () -> Unit,
+    private val onReload: () -> Unit,
     private val getCurrentUrl: () -> String,
 ) {
     private val buttonPrefs = FloatingButtonPrefs(webappUuid, parent)
@@ -162,7 +161,7 @@ class FloatingControlsView(
                 ),
             )
         }
-        actionButtons[2].setOnClickListener { collapse(); getSession()?.reload() }
+        actionButtons[2].setOnClickListener { collapse(); onReload() }
     }
 
     private fun applyPosition() {

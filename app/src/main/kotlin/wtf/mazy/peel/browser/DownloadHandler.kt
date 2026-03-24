@@ -10,7 +10,6 @@ import android.text.SpannableString
 import android.text.Spanned
 import android.text.style.TypefaceSpan
 import android.util.Base64
-import android.util.Log
 import android.webkit.MimeTypeMap
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
@@ -35,7 +34,6 @@ class DownloadHandler(
     private var promptShowing = false
 
     fun onExternalResponse(response: WebResponse) {
-        Log.d(TAG, "onExternalResponse: uri=${response.uri} headers=${response.headers}")
         val contentDisposition = response.headers["Content-Disposition"]
         val contentType = response.headers["Content-Type"]?.substringBefore(";")?.trim()
         val fileName = resolveFileName(response.uri, contentDisposition, contentType)
@@ -196,10 +194,6 @@ class DownloadHandler(
             java.net.URLDecoder.decode(data, "UTF-8").toByteArray()
         }
         return DataUriPayload(mime, bytes)
-    }
-
-    companion object {
-        private const val TAG = "PeelDownload"
     }
 
     private fun resolveFileName(

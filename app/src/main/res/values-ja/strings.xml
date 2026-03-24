@@ -6,13 +6,9 @@
     <string name="loading_icon_and_website_title">読み込み中…</string>
     <string name="open_external_links_in_browser_app">リンクを外部で開く</string>
     <string name="allow_javascript">JavaScriptを許可</string>
-    <string name="accept_cookies">Cookieを許可</string>
-    <string name="accept_third_party_cookies">サードパーティCookie</string>
     <string name="clear_cache_after_usage">終了時にキャッシュを消去</string>
     <string name="fetch_failed">ウェブサイトからデータを取得できませんでした</string>
-    <string name="delete_question">このウェブサイトを削除しますか？</string>
     <string name="enter_valid_url">有効なウェブアドレスを入力してください</string>
-    <string name="edit_webapp_settings">ウェブアプリ設定</string>
     <string name="add_webapp">ウェブアプリを追加</string>
     <string name="empty_state_message">ウェブアプリがありません。\n+ボタンをタップして最初のアプリを追加してください。</string>
     <string name="request_website_in_desktop_version">デスクトップモード</string>
@@ -28,16 +24,6 @@
     <string name="fetch_step_downloading">アイコンをダウンロード中…</string>
 
     <string name="web_app_settings">ウェブアプリ設定</string>
-    <string name="do_not_load_images">画像をブロック</string>
-    <string name="ssl_error_msg_line1">このページのSSL証明書に問題があります</string>
-    <string name="ssl_error_unknown_authority">認証局が信頼されていません</string>
-    <string name="ssl_error_expired">証明書の有効期限が切れています</string>
-    <string name="ssl_error_id_mismatch">証明書がホスト名と一致しません</string>
-    <string name="ssl_error_notyetvalid">証明書はまだ有効ではありません</string>
-    <string name="load_anyway">それでも読み込む</string>
-    <string name="https_only_blocked">ブロック：暗号化されていない接続</string>
-    <string name="ssl_error_blocked">ブロック：%1$s</string>
-    <string name="allow_http">HTTPを許可</string>
     <string name="permissions">権限</string>
     <string name="content">コンテンツ</string>
     <string name="security">セキュリティ</string>
@@ -75,7 +61,6 @@
     <string name="importing">インポート中…</string>
     <string name="webapp_not_found">このウェブアプリは利用できなくなりました</string>
     <string name="no_filemanager">ファイルマネージャーをインストールしてください</string>
-    <string name="export_btn">エクスポート</string>
     <string name="import_btn">インポート</string>
     <string name="allow_location_access">位置情報</string>
     <string name="allow_drm_content">DRMコンテンツ</string>
@@ -85,25 +70,17 @@
     <string name="icon_remove">画像を削除</string>
     <string name="show_progress_bar_during_page_load">読み込みインジケーター</string>
     <string name="webapp_autoreload">自動リロード</string>
-    <string name="webapp_interval_for_reload">間隔（秒）</string>
-    <string name="webapp_autoreload_switch">定期的にページを更新</string>
     <string name="name">名前</string>
     <string name="setting_color_scheme">カラースキーム</string>
     <string name="color_scheme_auto">自動</string>
     <string name="color_scheme_light">ライト</string>
     <string name="color_scheme_dark">ダーク</string>
-    <string name="setting_force_dark_theme">ダークテーマを強制</string>
-    <string name="ssl_errors">SSLエラー</string>
     <string name="webapp_already_deleted">このウェブアプリは削除されました。このショートカットを削除できます</string>
-    <string name="override_global_settings">グローバル設定をオーバーライド</string>
     <string name="global_web_app_settings">グローバルウェブアプリ設定</string>
     <string name="general">一般</string>
     <string name="backup">バックアップ</string>
     <string name="import_data">インポート</string>
     <string name="export_data">エクスポート</string>
-    <string name="block_all_third_party_requests">サードパーティリクエストをブロック</string>
-    <string name="sandbox">サンドボックス</string>
-    <string name="no_sandbox">サンドボックスを使用しない</string>
     <string name="enable_sandbox">サンドボックスを有効化</string>
     <string name="ephemeral_sandbox">一時ストレージ</string>
     <string name="clear_sandbox_data">サンドボックスデータを消去</string>
@@ -136,12 +113,8 @@
     <string name="create_shortcut">ショートカットを作成</string>
     <string name="create">作成</string>
     <string name="back">戻る</string>
-    <string name="forward">進む</string>
-    <string name="copy_url">URLをコピー</string>
     <string name="clone">複製</string>
     <string name="share">共有</string>
-    <string name="reload">再読み込み</string>
-    <string name="activate_two_finger_zoom">ピンチズーム</string>
     <string name="bioprompt_restricted_webapp">アクセス制限</string>
     <string name="enable_access_restriction">生体認証ロック</string>
     <string name="bioprompt_not_recognized">認識できませんでした。もう一度お試しください</string>
@@ -149,10 +122,7 @@
     <string name="media_channel_name">メディア再生</string>
     <string name="media_channel_description">バックグラウンドメディア再生コントロール</string>
 
-    <string name="start_url">URL</string>
     <string name="more">その他</string>
-    <string name="close_web_app">ウェブアプリを閉じる</string>
-    <string name="to_main_menu">メインメニューへ</string>
     <string name="cancel">キャンセル</string>
     <string name="ok">OK</string>
     <string name="no_biometric_devices">お使いのデバイスは生体認証に対応していません</string>
@@ -167,14 +137,8 @@
     <string name="app_info">このアプリについて</string>
     <string name="gnu_license">このソフトウェアはGNU General Public License バージョン3の下で公開されています。\nhttps://www.gnu.org/licenses/gpl-3.0.txt</string>
 
-    <string name="default_webapp_settings">デフォルト設定</string>
-    <string name="main_settings">アイコン</string>
-    <string name="advanced_settings">詳細</string>
-    <string name="reset">リセット</string>
-    <string name="reset_global_settings">グローバル設定をリセット</string>
     <string name="delete">削除</string>
     <string name="settings">設定</string>
-    <string name="drag_to_reorder">ドラッグして並べ替え</string>
     <string name="app_icon">アプリアイコン</string>
 
     <string name="select_setting_to_override">設定を選択</string>
@@ -190,7 +154,6 @@
     <string name="setting_long_click_share">長押しコンテキストメニュー</string>
     <string name="setting_pull_to_refresh">引いて更新</string>
     <string name="setting_disable_screenshots">スクリーンショットをブロック</string>
-    <string name="setting_safe_browsing">セーフブラウジング</string>
     <string name="setting_always_https">HTTPSのみ</string>
     <string name="setting_custom_headers">カスタムヘッダー</string>
     <string name="setting_basic_auth">HTTP 認証</string>
@@ -221,15 +184,11 @@
     <string name="context_menu_open_link">ブラウザで開く</string>
     <string name="context_menu_copy_link">リンクアドレスをコピー</string>
     <string name="context_menu_copy_link_text">リンクテキストをコピー</string>
-    <string name="context_menu_download_link">リンクをダウンロード</string>
     <string name="context_menu_share_link">リンクを共有</string>
-    <string name="context_menu_copy_image">画像をコピー</string>
     <string name="context_menu_download_image">画像をダウンロード</string>
     <string name="context_menu_share_image">画像を共有</string>
     <string name="link_copied">リンクをコピーしました</string>
     <string name="text_copied">テキストをコピーしました</string>
-    <string name="image_copied">画像をコピーしました</string>
-    <string name="image_download_failed">画像のダウンロードに失敗しました</string>
     <string name="download_failed">ダウンロードに失敗しました</string>
     <string name="search">検索</string>
     <string name="no_search_results">アプリが見つかりません</string>

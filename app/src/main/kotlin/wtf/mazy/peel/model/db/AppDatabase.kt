@@ -25,7 +25,7 @@ class StringMapConverter {
 
 @Database(
     entities = [WebAppEntity::class, WebAppGroupEntity::class],
-    version = 11,
+    version = 13,
     exportSchema = true,
 )
 @TypeConverters(StringMapConverter::class)
@@ -152,27 +152,20 @@ abstract class AppDatabase : RoomDatabase() {
         private val SETTINGS_COLS =
             """
             isOpenUrlExternal INTEGER,
-            isAllowCookies INTEGER,
-            isAllowThirdPartyCookies INTEGER,
             isAllowJs INTEGER,
             isRequestDesktop INTEGER,
             isClearCache INTEGER,
-            isBlockImages INTEGER,
             isAlwaysHttps INTEGER,
             isAllowLocationAccess INTEGER,
             customHeaders TEXT,
             isAutoReload INTEGER,
             timeAutoReload INTEGER,
             colorScheme INTEGER,
-            isAlgorithmicDarkening INTEGER,
-            isIgnoreSslErrors INTEGER,
-            isBlockThirdPartyRequests INTEGER,
             isDrmAllowed INTEGER,
             isShowFullscreen INTEGER,
             isKeepAwake INTEGER,
             isCameraPermission INTEGER,
             isMicrophonePermission INTEGER,
-            isEnableZooming INTEGER,
             isBiometricProtection INTEGER,
             isAllowMediaPlaybackInBackground INTEGER,
             isLongClickShare INTEGER,
@@ -183,6 +176,9 @@ abstract class AppDatabase : RoomDatabase() {
             isDynamicStatusBar INTEGER,
             isShowNotification INTEGER,
             isAppLinksPermission INTEGER,
+            isGlobalPrivacyControl INTEGER,
+            isFingerprintingProtection INTEGER,
+            isBlockLocalNetwork INTEGER,
             isUseBasicAuth INTEGER,
             basicAuthUsername TEXT,
             basicAuthPassword TEXT
@@ -191,27 +187,20 @@ abstract class AppDatabase : RoomDatabase() {
         private val SETTINGS_COL_NAMES =
             listOf(
                 "isOpenUrlExternal",
-                "isAllowCookies",
-                "isAllowThirdPartyCookies",
                 "isAllowJs",
                 "isRequestDesktop",
                 "isClearCache",
-                "isBlockImages",
                 "isAlwaysHttps",
                 "isAllowLocationAccess",
                 "customHeaders",
                 "isAutoReload",
                 "timeAutoReload",
                 "colorScheme",
-                "isAlgorithmicDarkening",
-                "isIgnoreSslErrors",
-                "isBlockThirdPartyRequests",
                 "isDrmAllowed",
                 "isShowFullscreen",
                 "isKeepAwake",
                 "isCameraPermission",
                 "isMicrophonePermission",
-                "isEnableZooming",
                 "isBiometricProtection",
                 "isAllowMediaPlaybackInBackground",
                 "isLongClickShare",
@@ -222,6 +211,9 @@ abstract class AppDatabase : RoomDatabase() {
                 "isDynamicStatusBar",
                 "isShowNotification",
                 "isAppLinksPermission",
+                "isGlobalPrivacyControl",
+                "isFingerprintingProtection",
+                "isBlockLocalNetwork",
                 "isUseBasicAuth",
                 "basicAuthUsername",
                 "basicAuthPassword",
@@ -326,11 +318,81 @@ abstract class AppDatabase : RoomDatabase() {
                 }
             }
 
+        val MIGRATION_11_12 =
+            object : Migration(11, 12) {
+                override fun migrate(db: SupportSQLiteDatabase) {
+                    for (table in listOf("webapps", "webapp_groups")) {
+                        db.execSQL("ALTER TABLE $table ADD COLUMN isGlobalPrivacyControl INTEGER DEFAULT NULL")
+                        db.execSQL("ALTER TABLE $table ADD COLUMN isFingerprintingProtection INTEGER DEFAULT NULL")
+                        db.execSQL("ALTER TABLE $table ADD COLUMN isBlockLocalNetwork INTEGER DEFAULT NULL")
+                    }
+                }
+            }
+
         val MIGRATION_9_10 =
             object : Migration(9, 10) {
                 override fun migrate(db: SupportSQLiteDatabase) {
                     ensureSettingsColumns(db)
 
+                    db.execSQL(
+                        """
+                        CREATE TABLE IF NOT EXISTS webapps_new (
+                            uuid TEXT NOT NULL PRIMARY KEY,
+                            baseUrl TEXT NOT NULL,
+                            title TEXT NOT NULL,
+                            isUseContainer INTEGER NOT NULL,
+                            isEphemeralSandbox INTEGER NOT NULL,
+                            `order` INTEGER NOT NULL,
+                            groupUuid TEXT,
+                            $SETTINGS_COLS
+                        )
+                        """
+                    )
+                    db.execSQL(
+                        """
+                        INSERT INTO webapps_new (
+                            uuid, baseUrl, title, isUseContainer,
+                            isEphemeralSandbox, `order`, groupUuid, $SETTINGS_COL_NAMES
+                        )
+                        SELECT uuid, baseUrl, title, isUseContainer,
+                            isEphemeralSandbox, `order`, groupUuid, $SETTINGS_COL_NAMES
+                        FROM webapps
+                        """
+                    )
+                    db.execSQL("DROP TABLE webapps")
+                    db.execSQL("ALTER TABLE webapps_new RENAME TO webapps")
+
+                    db.execSQL(
+                        """
+                        CREATE TABLE IF NOT EXISTS webapp_groups_new (
+                            uuid TEXT NOT NULL PRIMARY KEY,
+                            title TEXT NOT NULL,
+                            `order` INTEGER NOT NULL,
+                            isUseContainer INTEGER NOT NULL,
+                            isEphemeralSandbox INTEGER NOT NULL,
+                            $SETTINGS_COLS
+                        )
+                        """
+                    )
+                    db.execSQL(
+                        """
+                        INSERT INTO webapp_groups_new (
+                            uuid, title, `order`, isUseContainer, isEphemeralSandbox,
+                            $SETTINGS_COL_NAMES
+                        )
+                        SELECT uuid, title, `order`, isUseContainer, isEphemeralSandbox,
+                            $SETTINGS_COL_NAMES
+                        FROM webapp_groups
+                        """
+                    )
+                    db.execSQL("DROP TABLE webapp_groups")
+                    db.execSQL("ALTER TABLE webapp_groups_new RENAME TO webapp_groups")
+                }
+            }
+
+        val MIGRATION_12_13 =
+            object : Migration(12, 13) {
+                override fun migrate(db: SupportSQLiteDatabase) {
                     db.execSQL(
                         """
                         CREATE TABLE IF NOT EXISTS webapps_new (
@@ -409,6 +471,8 @@ abstract class AppDatabase : RoomDatabase() {
                     MIGRATION_8_9,
                     MIGRATION_9_10,
                     MIGRATION_10_11,
+                    MIGRATION_11_12,
+                    MIGRATION_12_13,
                 )
                 .allowMainThreadQueries()
                 .build()

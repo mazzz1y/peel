@@ -6,13 +6,9 @@
     <string name="loading_icon_and_website_title">लोड हो रहा है…</string>
     <string name="open_external_links_in_browser_app">लिंक बाहरी रूप से खोलें</string>
     <string name="allow_javascript">JavaScript अनुमति दें</string>
-    <string name="accept_cookies">कुकीज़ अनुमति दें</string>
-    <string name="accept_third_party_cookies">तृतीय-पक्ष कुकीज़</string>
     <string name="clear_cache_after_usage">बंद करने पर कैश साफ़ करें</string>
     <string name="fetch_failed">वेबसाइट से डेटा प्राप्त नहीं हो सका</string>
-    <string name="delete_question">क्या आप इस वेबसाइट को हटाना चाहते हैं?</string>
     <string name="enter_valid_url">कृपया एक मान्य वेब पता दर्ज करें।</string>
-    <string name="edit_webapp_settings">वेब ऐप सेटिंग्स</string>
     <string name="add_webapp">वेब ऐप जोड़ें</string>
     <string name="empty_state_message">कोई वेब ऐप नहीं।\nपहला ऐप जोड़ने के लिए + बटन दबाएं।</string>
     <string name="request_website_in_desktop_version">डेस्कटॉप मोड</string>
@@ -28,16 +24,6 @@
     <string name="fetch_step_downloading">आइकन डाउनलोड हो रहे हैं…</string>
 
     <string name="web_app_settings">वेब ऐप सेटिंग्स</string>
-    <string name="do_not_load_images">चित्र अवरोधित करें</string>
-    <string name="ssl_error_msg_line1">इस पेज के SSL प्रमाणपत्र में समस्या है।</string>
-    <string name="ssl_error_unknown_authority">प्रमाणपत्र प्राधिकारी विश्वसनीय नहीं है।</string>
-    <string name="ssl_error_expired">प्रमाणपत्र समाप्त हो चुका है।</string>
-    <string name="ssl_error_id_mismatch">प्रमाणपत्र होस्ट नाम से मेल नहीं खाता।</string>
-    <string name="ssl_error_notyetvalid">प्रमाणपत्र अभी मान्य नहीं है।</string>
-    <string name="load_anyway">फिर भी लोड करें</string>
-    <string name="https_only_blocked">अवरोधित: अनएन्क्रिप्टेड कनेक्शन</string>
-    <string name="ssl_error_blocked">अवरोधित: %1$s</string>
-    <string name="allow_http">HTTP अनुमति दें</string>
     <string name="permissions">अनुमतियां</string>
     <string name="content">सामग्री</string>
     <string name="security">सुरक्षा</string>
@@ -75,7 +61,6 @@
     <string name="importing">आयात हो रहा है…</string>
     <string name="webapp_not_found">यह वेब ऐप अब उपलब्ध नहीं है</string>
     <string name="no_filemanager">कृपया एक फ़ाइल प्रबंधक इंस्टॉल करें</string>
-    <string name="export_btn">निर्यात</string>
     <string name="import_btn">आयात</string>
     <string name="allow_location_access">स्थान</string>
     <string name="allow_drm_content">DRM सामग्री</string>
@@ -85,25 +70,17 @@
     <string name="icon_remove">चित्र हटाएं</string>
     <string name="show_progress_bar_during_page_load">लोडिंग संकेतक</string>
     <string name="webapp_autoreload">स्वत: रीलोड</string>
-    <string name="webapp_interval_for_reload">अंतराल (सेकंड)</string>
-    <string name="webapp_autoreload_switch">नियमित रूप से पेज रीफ़्रेश करें</string>
     <string name="name">नाम</string>
     <string name="setting_color_scheme">रंग योजना</string>
     <string name="color_scheme_auto">स्वचालित</string>
     <string name="color_scheme_light">हल्का</string>
     <string name="color_scheme_dark">गहरा</string>
-    <string name="setting_force_dark_theme">डार्क थीम लागू करें</string>
-    <string name="ssl_errors">SSL त्रुटियां</string>
     <string name="webapp_already_deleted">यह वेब ऐप हटा दिया गया है। आप यह शॉर्टकट हटा सकते हैं।</string>
-    <string name="override_global_settings">वैश्विक सेटिंग्स ओवरराइड करें</string>
     <string name="global_web_app_settings">वैश्विक वेब ऐप सेटिंग्स</string>
     <string name="general">सामान्य</string>
     <string name="backup">बैकअप</string>
     <string name="import_data">आयात</string>
     <string name="export_data">निर्यात</string>
-    <string name="block_all_third_party_requests">तृतीय-पक्ष अनुरोध अवरोधित करें</string>
-    <string name="sandbox">सैंडबॉक्स</string>
-    <string name="no_sandbox">सैंडबॉक्स का उपयोग न करें</string>
     <string name="enable_sandbox">सैंडबॉक्स सक्षम करें</string>
     <string name="ephemeral_sandbox">अस्थायी संग्रहण</string>
     <string name="clear_sandbox_data">सैंडबॉक्स डेटा साफ़ करें</string>
@@ -136,12 +113,8 @@
     <string name="create_shortcut">शॉर्टकट बनाएं</string>
     <string name="create">बनाएं</string>
     <string name="back">पीछे</string>
-    <string name="forward">आगे</string>
-    <string name="copy_url">URL कॉपी करें</string>
     <string name="clone">क्लोन</string>
     <string name="share">साझा करें</string>
-    <string name="reload">रीलोड</string>
-    <string name="activate_two_finger_zoom">पिंच ज़ूम</string>
     <string name="bioprompt_restricted_webapp">एक्सेस प्रतिबंध</string>
     <string name="enable_access_restriction">बायोमेट्रिक लॉक</string>
     <string name="bioprompt_not_recognized">पहचाना नहीं गया। पुनः प्रयास करें</string>
@@ -149,10 +122,7 @@
     <string name="media_channel_name">मीडिया प्लेबैक</string>
     <string name="media_channel_description">बैकग्राउंड मीडिया प्लेबैक नियंत्रण</string>
 
-    <string name="start_url">URL</string>
     <string name="more">अधिक</string>
-    <string name="close_web_app">वेब ऐप बंद करें</string>
-    <string name="to_main_menu">मुख्य मेनू पर जाएं</string>
     <string name="cancel">रद्द करें</string>
     <string name="ok">ठीक</string>
     <string name="no_biometric_devices">आपका डिवाइस बायोमेट्रिक प्रमाणीकरण का समर्थन नहीं करता।</string>
@@ -167,14 +137,8 @@
     <string name="app_info">जानकारी</string>
     <string name="gnu_license">यह सॉफ़्टवेयर GNU General Public License संस्करण 3 के तहत जारी है।\nhttps://www.gnu.org/licenses/gpl-3.0.txt</string>
 
-    <string name="default_webapp_settings">डिफ़ॉल्ट सेटिंग्स</string>
-    <string name="main_settings">आइकन</string>
-    <string name="advanced_settings">उन्नत</string>
-    <string name="reset">रीसेट</string>
-    <string name="reset_global_settings">वैश्विक सेटिंग्स रीसेट करें</string>
     <string name="delete">हटाएं</string>
     <string name="settings">सेटिंग्स</string>
-    <string name="drag_to_reorder">क्रम बदलने के लिए खींचें</string>
     <string name="app_icon">ऐप आइकन</string>
 
     <string name="select_setting_to_override">सेटिंग चुनें</string>
@@ -190,7 +154,6 @@
     <string name="setting_long_click_share">लंबा दबाकर संदर्भ मेनू</string>
     <string name="setting_pull_to_refresh">खींचकर रीफ़्रेश करें</string>
     <string name="setting_disable_screenshots">स्क्रीनशॉट अवरोधित करें</string>
-    <string name="setting_safe_browsing">सुरक्षित ब्राउज़िंग</string>
     <string name="setting_always_https">केवल HTTPS</string>
     <string name="setting_custom_headers">कस्टम हेडर</string>
     <string name="setting_basic_auth">HTTP प्राधिकरण</string>
@@ -222,15 +185,11 @@
     <string name="context_menu_open_link">ब्राउज़र में खोलें</string>
     <string name="context_menu_copy_link">लिंक पते को कॉपी करें</string>
     <string name="context_menu_copy_link_text">लिंक लेख को कॉपी करें</string>
-    <string name="context_menu_download_link">डाउनलोड करने का लिंक</string>
     <string name="context_menu_share_link">लिंक शेयर करें</string>
-    <string name="context_menu_copy_image">इमेज की कॉपी बनाएं</string>
     <string name="context_menu_download_image">इमेज डाउनलोड करें</string>
     <string name="context_menu_share_image">इमेज शेयर करें</string>
     <string name="link_copied">लिंक कॉपी हुआ</string>
     <string name="text_copied">टेक्स्ट कॉपी हुआ</string>
-    <string name="image_copied">छवि कॉपी हुई</string>
-    <string name="image_download_failed">छवि डाउनलोड विफल</string>
     <string name="download_failed">डाउनलोड विफल</string>
     <string name="search">खोजें</string>
     <string name="no_search_results">कोई ऐप नहीं मिला</string>

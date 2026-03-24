@@ -16,6 +16,7 @@ sealed class SettingDefinition(
     val toggle: SettingField,
     @param:StringRes val displayNameResId: Int,
     val category: SettingCategory,
+    val globalOnly: Boolean = false,
 ) {
     val key: String
         get() = toggle.key
@@ -27,7 +28,8 @@ sealed class SettingDefinition(
         toggle: SettingField,
         @StringRes displayNameResId: Int,
         category: SettingCategory,
-    ) : SettingDefinition(toggle, displayNameResId, category)
+        globalOnly: Boolean = false,
+    ) : SettingDefinition(toggle, displayNameResId, category, globalOnly)
 
     class TriStateSetting(
         toggle: SettingField,
@@ -189,8 +191,26 @@ object SettingRegistry {
 
             SettingDefinition.BooleanSetting(
                 SettingField(WebAppSettings::isSafeBrowsing, true),
-                R.string.setting_safe_browsing,
+                R.string.setting_enhanced_tracking_protection,
                 SettingCategory.SECURITY,
+            ),
+            SettingDefinition.BooleanSetting(
+                SettingField(WebAppSettings::isGlobalPrivacyControl, false),
+                R.string.setting_global_privacy_control,
+                SettingCategory.SECURITY,
+                globalOnly = true,
+            ),
+            SettingDefinition.BooleanSetting(
+                SettingField(WebAppSettings::isFingerprintingProtection, false),
+                R.string.setting_fingerprinting_protection,
+                SettingCategory.SECURITY,
+                globalOnly = true,
+            ),
+            SettingDefinition.BooleanSetting(
+                SettingField(WebAppSettings::isBlockLocalNetwork, false),
+                R.string.setting_block_local_network,
+                SettingCategory.SECURITY,
+                globalOnly = true,
             ),
             SettingDefinition.BooleanSetting(
                 SettingField(WebAppSettings::isBiometricProtection, false),
@@ -223,6 +243,8 @@ object SettingRegistry {
         )
 
     fun getAllSettings(): List<SettingDefinition> = ALL_SETTINGS
+
+    fun getPerAppSettings(): List<SettingDefinition> = ALL_SETTINGS.filter { !it.globalOnly }
 
     fun getSettingByKey(key: String): SettingDefinition? {
         return ALL_SETTINGS.find { it.key == key }

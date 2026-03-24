@@ -1,12 +1,12 @@
 {
   "formatVersion": 1,
   "database": {
-    "version": 11,
-    "identityHash": "6458d834595de9c71510ee6065fb1f10",
+    "version": 13,
+    "identityHash": "1eea2bfe9d5c865254e65052601abcc2",
     "entities": [
       {
         "tableName": "webapps",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uuid` TEXT NOT NULL, `baseUrl` TEXT NOT NULL, `title` TEXT NOT NULL, `isUseContainer` INTEGER NOT NULL, `isEphemeralSandbox` INTEGER NOT NULL, `order` INTEGER NOT NULL, `groupUuid` TEXT, `isOpenUrlExternal` INTEGER, `isAllowCookies` INTEGER, `isAllowThirdPartyCookies` INTEGER, `isAllowJs` INTEGER, `isRequestDesktop` INTEGER, `isClearCache` INTEGER, `isBlockImages` INTEGER, `isAlwaysHttps` INTEGER, `isAllowLocationAccess` INTEGER, `customHeaders` TEXT, `isAutoReload` INTEGER, `timeAutoReload` INTEGER, `colorScheme` INTEGER, `isAlgorithmicDarkening` INTEGER, `isIgnoreSslErrors` INTEGER, `isBlockThirdPartyRequests` INTEGER, `isDrmAllowed` INTEGER, `isShowFullscreen` INTEGER, `isKeepAwake` INTEGER, `isCameraPermission` INTEGER, `isMicrophonePermission` INTEGER, `isEnableZooming` INTEGER, `isBiometricProtection` INTEGER, `isAllowMediaPlaybackInBackground` INTEGER, `isLongClickShare` INTEGER, `isShowProgressbar` INTEGER, `isDisableScreenshots` INTEGER, `isPullToRefresh` INTEGER, `isSafeBrowsing` INTEGER, `isDynamicStatusBar` INTEGER, `isShowNotification` INTEGER, `isAppLinksPermission` INTEGER, `isGlobalPrivacyControl` INTEGER, `isFingerprintingProtection` INTEGER, `isBlockLocalNetwork` INTEGER, `isUseBasicAuth` INTEGER, `basicAuthUsername` TEXT, `basicAuthPassword` TEXT, PRIMARY KEY(`uuid`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uuid` TEXT NOT NULL, `baseUrl` TEXT NOT NULL, `title` TEXT NOT NULL, `isUseContainer` INTEGER NOT NULL, `isEphemeralSandbox` INTEGER NOT NULL, `order` INTEGER NOT NULL, `groupUuid` TEXT, `isOpenUrlExternal` INTEGER, `isAllowJs` INTEGER, `isRequestDesktop` INTEGER, `isClearCache` INTEGER, `isAlwaysHttps` INTEGER, `isAllowLocationAccess` INTEGER, `customHeaders` TEXT, `isAutoReload` INTEGER, `timeAutoReload` INTEGER, `colorScheme` INTEGER, `isDrmAllowed` INTEGER, `isShowFullscreen` INTEGER, `isKeepAwake` INTEGER, `isCameraPermission` INTEGER, `isMicrophonePermission` INTEGER, `isBiometricProtection` INTEGER, `isAllowMediaPlaybackInBackground` INTEGER, `isLongClickShare` INTEGER, `isShowProgressbar` INTEGER, `isDisableScreenshots` INTEGER, `isPullToRefresh` INTEGER, `isSafeBrowsing` INTEGER, `isDynamicStatusBar` INTEGER, `isShowNotification` INTEGER, `isAppLinksPermission` INTEGER, `isGlobalPrivacyControl` INTEGER, `isFingerprintingProtection` INTEGER, `isBlockLocalNetwork` INTEGER, `isUseBasicAuth` INTEGER, `basicAuthUsername` TEXT, `basicAuthPassword` TEXT, PRIMARY KEY(`uuid`))",
         "fields": [
           {
             "fieldPath": "uuid",
@@ -55,16 +55,6 @@
             "affinity": "INTEGER"
           },
           {
-            "fieldPath": "settings.isAllowCookies",
-            "columnName": "isAllowCookies",
-            "affinity": "INTEGER"
-          },
-          {
-            "fieldPath": "settings.isAllowThirdPartyCookies",
-            "columnName": "isAllowThirdPartyCookies",
-            "affinity": "INTEGER"
-          },
-          {
             "fieldPath": "settings.isAllowJs",
             "columnName": "isAllowJs",
             "affinity": "INTEGER"
@@ -77,11 +67,6 @@
           {
             "fieldPath": "settings.isClearCache",
             "columnName": "isClearCache",
-            "affinity": "INTEGER"
-          },
-          {
-            "fieldPath": "settings.isBlockImages",
-            "columnName": "isBlockImages",
             "affinity": "INTEGER"
           },
           {
@@ -115,21 +100,6 @@
             "affinity": "INTEGER"
           },
           {
-            "fieldPath": "settings.isAlgorithmicDarkening",
-            "columnName": "isAlgorithmicDarkening",
-            "affinity": "INTEGER"
-          },
-          {
-            "fieldPath": "settings.isIgnoreSslErrors",
-            "columnName": "isIgnoreSslErrors",
-            "affinity": "INTEGER"
-          },
-          {
-            "fieldPath": "settings.isBlockThirdPartyRequests",
-            "columnName": "isBlockThirdPartyRequests",
-            "affinity": "INTEGER"
-          },
-          {
             "fieldPath": "settings.isDrmAllowed",
             "columnName": "isDrmAllowed",
             "affinity": "INTEGER"
@@ -152,11 +122,6 @@
           {
             "fieldPath": "settings.isMicrophonePermission",
             "columnName": "isMicrophonePermission",
-            "affinity": "INTEGER"
-          },
-          {
-            "fieldPath": "settings.isEnableZooming",
-            "columnName": "isEnableZooming",
             "affinity": "INTEGER"
           },
           {
@@ -249,7 +214,7 @@
       },
       {
         "tableName": "webapp_groups",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uuid` TEXT NOT NULL, `title` TEXT NOT NULL, `order` INTEGER NOT NULL, `isUseContainer` INTEGER NOT NULL, `isEphemeralSandbox` INTEGER NOT NULL, `isOpenUrlExternal` INTEGER, `isAllowCookies` INTEGER, `isAllowThirdPartyCookies` INTEGER, `isAllowJs` INTEGER, `isRequestDesktop` INTEGER, `isClearCache` INTEGER, `isBlockImages` INTEGER, `isAlwaysHttps` INTEGER, `isAllowLocationAccess` INTEGER, `customHeaders` TEXT, `isAutoReload` INTEGER, `timeAutoReload` INTEGER, `colorScheme` INTEGER, `isAlgorithmicDarkening` INTEGER, `isIgnoreSslErrors` INTEGER, `isBlockThirdPartyRequests` INTEGER, `isDrmAllowed` INTEGER, `isShowFullscreen` INTEGER, `isKeepAwake` INTEGER, `isCameraPermission` INTEGER, `isMicrophonePermission` INTEGER, `isEnableZooming` INTEGER, `isBiometricProtection` INTEGER, `isAllowMediaPlaybackInBackground` INTEGER, `isLongClickShare` INTEGER, `isShowProgressbar` INTEGER, `isDisableScreenshots` INTEGER, `isPullToRefresh` INTEGER, `isSafeBrowsing` INTEGER, `isDynamicStatusBar` INTEGER, `isShowNotification` INTEGER, `isAppLinksPermission` INTEGER, `isGlobalPrivacyControl` INTEGER, `isFingerprintingProtection` INTEGER, `isBlockLocalNetwork` INTEGER, `isUseBasicAuth` INTEGER, `basicAuthUsername` TEXT, `basicAuthPassword` TEXT, PRIMARY KEY(`uuid`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uuid` TEXT NOT NULL, `title` TEXT NOT NULL, `order` INTEGER NOT NULL, `isUseContainer` INTEGER NOT NULL, `isEphemeralSandbox` INTEGER NOT NULL, `isOpenUrlExternal` INTEGER, `isAllowJs` INTEGER, `isRequestDesktop` INTEGER, `isClearCache` INTEGER, `isAlwaysHttps` INTEGER, `isAllowLocationAccess` INTEGER, `customHeaders` TEXT, `isAutoReload` INTEGER, `timeAutoReload` INTEGER, `colorScheme` INTEGER, `isDrmAllowed` INTEGER, `isShowFullscreen` INTEGER, `isKeepAwake` INTEGER, `isCameraPermission` INTEGER, `isMicrophonePermission` INTEGER, `isBiometricProtection` INTEGER, `isAllowMediaPlaybackInBackground` INTEGER, `isLongClickShare` INTEGER, `isShowProgressbar` INTEGER, `isDisableScreenshots` INTEGER, `isPullToRefresh` INTEGER, `isSafeBrowsing` INTEGER, `isDynamicStatusBar` INTEGER, `isShowNotification` INTEGER, `isAppLinksPermission` INTEGER, `isGlobalPrivacyControl` INTEGER, `isFingerprintingProtection` INTEGER, `isBlockLocalNetwork` INTEGER, `isUseBasicAuth` INTEGER, `basicAuthUsername` TEXT, `basicAuthPassword` TEXT, PRIMARY KEY(`uuid`))",
         "fields": [
           {
             "fieldPath": "uuid",
@@ -287,16 +252,6 @@
             "affinity": "INTEGER"
           },
           {
-            "fieldPath": "settings.isAllowCookies",
-            "columnName": "isAllowCookies",
-            "affinity": "INTEGER"
-          },
-          {
-            "fieldPath": "settings.isAllowThirdPartyCookies",
-            "columnName": "isAllowThirdPartyCookies",
-            "affinity": "INTEGER"
-          },
-          {
             "fieldPath": "settings.isAllowJs",
             "columnName": "isAllowJs",
             "affinity": "INTEGER"
@@ -309,11 +264,6 @@
           {
             "fieldPath": "settings.isClearCache",
             "columnName": "isClearCache",
-            "affinity": "INTEGER"
-          },
-          {
-            "fieldPath": "settings.isBlockImages",
-            "columnName": "isBlockImages",
             "affinity": "INTEGER"
           },
           {
@@ -347,21 +297,6 @@
             "affinity": "INTEGER"
           },
           {
-            "fieldPath": "settings.isAlgorithmicDarkening",
-            "columnName": "isAlgorithmicDarkening",
-            "affinity": "INTEGER"
-          },
-          {
-            "fieldPath": "settings.isIgnoreSslErrors",
-            "columnName": "isIgnoreSslErrors",
-            "affinity": "INTEGER"
-          },
-          {
-            "fieldPath": "settings.isBlockThirdPartyRequests",
-            "columnName": "isBlockThirdPartyRequests",
-            "affinity": "INTEGER"
-          },
-          {
             "fieldPath": "settings.isDrmAllowed",
             "columnName": "isDrmAllowed",
             "affinity": "INTEGER"
@@ -384,11 +319,6 @@
           {
             "fieldPath": "settings.isMicrophonePermission",
             "columnName": "isMicrophonePermission",
-            "affinity": "INTEGER"
-          },
-          {
-            "fieldPath": "settings.isEnableZooming",
-            "columnName": "isEnableZooming",
             "affinity": "INTEGER"
           },
           {
@@ -482,7 +412,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '6458d834595de9c71510ee6065fb1f10')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '1eea2bfe9d5c865254e65052601abcc2')"
     ]
   }
 }

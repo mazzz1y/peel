@@ -6,13 +6,9 @@
     <string name="loading_icon_and_website_title">লোড হচ্ছে…</string>
     <string name="open_external_links_in_browser_app">বাহ্যিকভাবে লিংক খুলুন</string>
     <string name="allow_javascript">JavaScript অনুমতি দিন</string>
-    <string name="accept_cookies">কুকি অনুমতি দিন</string>
-    <string name="accept_third_party_cookies">তৃতীয় পক্ষের কুকি</string>
     <string name="clear_cache_after_usage">বন্ধ করার সময় ক্যাশ মুছুন</string>
     <string name="fetch_failed">ওয়েবসাইট থেকে ডেটা পাওয়া যায়নি</string>
-    <string name="delete_question">আপনি কি এই ওয়েবসাইটটি সরাতে চান?</string>
     <string name="enter_valid_url">অনুগ্রহ করে একটি বৈধ ওয়েব ঠিকানা দিন।</string>
-    <string name="edit_webapp_settings">ওয়েব অ্যাপ সেটিংস</string>
     <string name="add_webapp">ওয়েব অ্যাপ যোগ করুন</string>
     <string name="empty_state_message">কোনো ওয়েব অ্যাপ নেই।\nপ্রথমটি যোগ করতে + বোতাম চাপুন।</string>
     <string name="request_website_in_desktop_version">ডেস্কটপ মোড</string>
@@ -28,16 +24,6 @@
     <string name="fetch_step_downloading">আইকন ডাউনলোড হচ্ছে…</string>
 
     <string name="web_app_settings">ওয়েব অ্যাপ সেটিংস</string>
-    <string name="do_not_load_images">ছবি ব্লক করুন</string>
-    <string name="ssl_error_msg_line1">এই পৃষ্ঠার SSL সার্টিফিকেটে সমস্যা আছে।</string>
-    <string name="ssl_error_unknown_authority">সার্টিফিকেট কর্তৃপক্ষ বিশ্বস্ত নয়।</string>
-    <string name="ssl_error_expired">সার্টিফিকেটের মেয়াদ শেষ হয়েছে।</string>
-    <string name="ssl_error_id_mismatch">সার্টিফিকেট হোস্ট নামের সাথে মেলে না।</string>
-    <string name="ssl_error_notyetvalid">সার্টিফিকেট এখনো বৈধ হয়নি।</string>
-    <string name="load_anyway">তবুও লোড করুন</string>
-    <string name="https_only_blocked">ব্লক করা হয়েছে: এনক্রিপ্ট না করা সংযোগ</string>
-    <string name="ssl_error_blocked">ব্লক করা হয়েছে: %1$s</string>
-    <string name="allow_http">HTTP অনুমতি দিন</string>
     <string name="permissions">অনুমতি</string>
     <string name="content">বিষয়বস্তু</string>
     <string name="security">নিরাপত্তা</string>
@@ -75,7 +61,6 @@
     <string name="importing">ইমপোর্ট হচ্ছে…</string>
     <string name="webapp_not_found">এই ওয়েব অ্যাপটি আর উপলব্ধ নেই</string>
     <string name="no_filemanager">অনুগ্রহ করে একটি ফাইল ম্যানেজার ইনস্টল করুন</string>
-    <string name="export_btn">রপ্তানি</string>
     <string name="import_btn">আমদানি</string>
     <string name="allow_location_access">অবস্থান</string>
     <string name="allow_drm_content">DRM বিষয়বস্তু</string>
@@ -85,25 +70,17 @@
     <string name="icon_remove">ছবি সরান</string>
     <string name="show_progress_bar_during_page_load">লোডিং নির্দেশক</string>
     <string name="webapp_autoreload">স্বয়ংক্রিয় রিলোড</string>
-    <string name="webapp_interval_for_reload">ব্যবধান (সেকেন্ড)</string>
-    <string name="webapp_autoreload_switch">নিয়মিত পৃষ্ঠা রিফ্রেশ করুন</string>
     <string name="name">নাম</string>
     <string name="setting_color_scheme">রঙের স্কিম</string>
     <string name="color_scheme_auto">স্বয়ংক্রিয়</string>
     <string name="color_scheme_light">হালকা</string>
     <string name="color_scheme_dark">গাঢ়</string>
-    <string name="setting_force_dark_theme">ডার্ক থিম বাধ্যতামূলক করুন</string>
-    <string name="ssl_errors">SSL ত্রুটি</string>
     <string name="webapp_already_deleted">এই ওয়েব অ্যাপটি মুছে ফেলা হয়েছে। আপনি এই শর্টকাটটি মুছতে পারেন।</string>
-    <string name="override_global_settings">গ্লোবাল সেটিংস ওভাররাইড করুন</string>
     <string name="global_web_app_settings">গ্লোবাল ওয়েব অ্যাপ সেটিংস</string>
     <string name="general">সাধারণ</string>
     <string name="backup">ব্যাকআপ</string>
     <string name="import_data">আমদানি</string>
     <string name="export_data">রপ্তানি</string>
-    <string name="block_all_third_party_requests">তৃতীয় পক্ষের অনুরোধ ব্লক করুন</string>
-    <string name="sandbox">স্যান্ডবক্স</string>
-    <string name="no_sandbox">স্যান্ডবক্স ব্যবহার করবেন না</string>
     <string name="enable_sandbox">স্যান্ডবক্স সক্রিয় করুন</string>
     <string name="ephemeral_sandbox">অস্থায়ী সংরক্ষণ</string>
     <string name="clear_sandbox_data">স্যান্ডবক্স ডেটা মুছুন</string>
@@ -136,12 +113,8 @@
     <string name="create_shortcut">শর্টকাট তৈরি করুন</string>
     <string name="create">তৈরি করুন</string>
     <string name="back">পেছনে</string>
-    <string name="forward">সামনে</string>
-    <string name="copy_url">URL কপি করুন</string>
     <string name="clone">ক্লোন</string>
     <string name="share">শেয়ার</string>
-    <string name="reload">রিলোড</string>
-    <string name="activate_two_finger_zoom">পিঞ্চ জুম</string>
     <string name="bioprompt_restricted_webapp">অ্যাক্সেস সীমাবদ্ধতা</string>
     <string name="enable_access_restriction">বায়োমেট্রিক লক</string>
     <string name="bioprompt_not_recognized">চিনতে পারা যায়নি। আবার চেষ্টা করুন</string>
@@ -149,10 +122,7 @@
     <string name="media_channel_name">মিডিয়া প্লেব্যাক</string>
     <string name="media_channel_description">ব্যাকগ্রাউন্ড মিডিয়া প্লেব্যাক নিয়ন্ত্রণ</string>
 
-    <string name="start_url">URL</string>
     <string name="more">আরও</string>
-    <string name="close_web_app">ওয়েব অ্যাপ বন্ধ করুন</string>
-    <string name="to_main_menu">মূল মেনুতে যান</string>
     <string name="cancel">বাতিল</string>
     <string name="ok">ঠিক আছে</string>
     <string name="no_biometric_devices">আপনার ডিভাইস বায়োমেট্রিক প্রমাণীকরণ সমর্থন করে না।</string>
@@ -167,14 +137,8 @@
     <string name="app_info">সম্পর্কে</string>
     <string name="gnu_license">এই সফটওয়্যারটি GNU General Public License সংস্করণ 3 এর অধীনে প্রকাশিত।\nhttps://www.gnu.org/licenses/gpl-3.0.txt</string>
 
-    <string name="default_webapp_settings">ডিফল্ট সেটিংস</string>
-    <string name="main_settings">আইকন</string>
-    <string name="advanced_settings">উন্নত</string>
-    <string name="reset">রিসেট</string>
-    <string name="reset_global_settings">গ্লোবাল সেটিংস রিসেট করুন</string>
     <string name="delete">মুছুন</string>
     <string name="settings">সেটিংস</string>
-    <string name="drag_to_reorder">সাজাতে টেনে আনুন</string>
     <string name="app_icon">অ্যাপ আইকন</string>
 
     <string name="select_setting_to_override">সেটিং নির্বাচন করুন</string>
@@ -190,7 +154,6 @@
     <string name="setting_long_click_share">দীর্ঘ চাপে প্রসঙ্গ মেনু</string>
     <string name="setting_pull_to_refresh">টেনে রিফ্রেশ</string>
     <string name="setting_disable_screenshots">স্ক্রিনশট ব্লক করুন</string>
-    <string name="setting_safe_browsing">নিরাপদ ব্রাউজিং</string>
     <string name="setting_always_https">শুধু HTTPS</string>
     <string name="setting_custom_headers">কাস্টম হেডার</string>
     <string name="setting_basic_auth">HTTP অনুমোদন</string>
@@ -222,15 +185,11 @@
     <string name="context_menu_open_link">ব্রাউজারে খুলুন</string>
     <string name="context_menu_copy_link">লিঙ্ক অ্যাড্রেস কপি করুন</string>
     <string name="context_menu_copy_link_text">লিঙ্ক টেক্সট কপি করুন</string>
-    <string name="context_menu_download_link">লিঙ্ক ডাউনলোড করুন</string>
     <string name="context_menu_share_link">লিঙ্ক শেয়ার করুন</string>
-    <string name="context_menu_copy_image">ছবি কপি করুন</string>
     <string name="context_menu_download_image">ছবি ডাউনলোড করুন</string>
     <string name="context_menu_share_image">ছবি শেয়ার করুন</string>
     <string name="link_copied">লিঙ্ক কপি হয়েছে</string>
     <string name="text_copied">লেখা কপি হয়েছে</string>
-    <string name="image_copied">ছবি কপি হয়েছে</string>
-    <string name="image_download_failed">ছবি ডাউনলোড ব্যর্থ হয়েছে</string>
     <string name="download_failed">ডাউনলোড ব্যর্থ হয়েছে</string>
     <string name="search">অনুসন্ধান</string>
     <string name="no_search_results">কোনো অ্যাপ পাওয়া যায়নি</string>

@@ -6,13 +6,9 @@
     <string name="loading_icon_and_website_title">Загрузка…</string>
     <string name="open_external_links_in_browser_app">Внешние ссылки в браузере</string>
     <string name="allow_javascript">Разрешить JavaScript</string>
-    <string name="accept_cookies">Разрешить куки</string>
-    <string name="accept_third_party_cookies">Сторонние куки</string>
     <string name="clear_cache_after_usage">Очищать кеш при выходе</string>
     <string name="fetch_failed">Не удалось получить данные с сайта</string>
-    <string name="delete_question">Вы уверены, что хотите удалить этот сайт?</string>
     <string name="enter_valid_url">Пожалуйста, введите корректный веб-адрес</string>
-    <string name="edit_webapp_settings">Настройки веб-приложения</string>
     <string name="add_webapp">Добавить веб-приложение</string>
     <string name="empty_state_message">Нет веб-приложений.\nНажмите +, чтобы добавить первое.</string>
     <string name="request_website_in_desktop_version">Версия для ПК</string>
@@ -28,16 +24,6 @@
     <string name="fetch_step_downloading">Загрузка иконок…</string>
 
     <string name="web_app_settings">Настройки веб-приложения</string>
-    <string name="do_not_load_images">Блокировать изображения</string>
-    <string name="ssl_error_msg_line1">У этой страницы проблема с SSL-сертификатом</string>
-    <string name="ssl_error_unknown_authority">Центр сертификации не является доверенным</string>
-    <string name="ssl_error_expired">Сертификат просрочен</string>
-    <string name="ssl_error_id_mismatch">Сертификат не соответствует имени хоста</string>
-    <string name="ssl_error_notyetvalid">Сертификат ещё не действителен</string>
-    <string name="load_anyway">Загрузить всё равно</string>
-    <string name="https_only_blocked">Заблокировано: незашифрованное соединение</string>
-    <string name="ssl_error_blocked">Заблокировано: %1$s</string>
-    <string name="allow_http">Разрешить HTTP</string>
     <string name="permissions">Разрешения</string>
     <string name="content">Содержимое</string>
     <string name="security">Безопасность</string>
@@ -75,7 +61,6 @@
     <string name="importing">Импорт…</string>
     <string name="webapp_not_found">Это веб-приложение больше недоступно</string>
     <string name="no_filemanager">Пожалуйста, установите файловый менеджер</string>
-    <string name="export_btn">Экспорт</string>
     <string name="import_btn">Импорт</string>
     <string name="allow_location_access">Местоположение</string>
     <string name="allow_drm_content">DRM-контент</string>
@@ -85,25 +70,17 @@
     <string name="icon_remove">Удалить изображение</string>
     <string name="show_progress_bar_during_page_load">Индикатор загрузки</string>
     <string name="webapp_autoreload">Автообновление</string>
-    <string name="webapp_interval_for_reload">Интервал в секундах</string>
-    <string name="webapp_autoreload_switch">Обновлять страницу регулярно</string>
     <string name="name">Название</string>
     <string name="setting_color_scheme">Цветовая схема</string>
     <string name="color_scheme_auto">Авто</string>
     <string name="color_scheme_light">Светлая</string>
     <string name="color_scheme_dark">Тёмная</string>
-    <string name="setting_force_dark_theme">Принудительная тёмная тема</string>
-    <string name="ssl_errors">Ошибки SSL</string>
     <string name="webapp_already_deleted">Это веб-приложение удалено. Вы можете удалить этот ярлык</string>
-    <string name="override_global_settings">Переопределить глобальные настройки</string>
     <string name="global_web_app_settings">Глобальные настройки веб-приложений</string>
     <string name="general">Основное</string>
     <string name="backup">Резервная копия</string>
     <string name="import_data">Импорт</string>
     <string name="export_data">Экспорт</string>
-    <string name="block_all_third_party_requests">Блокировать сторонние запросы</string>
-    <string name="sandbox">Песочница</string>
-    <string name="no_sandbox">Не использовать песочницу</string>
     <string name="enable_sandbox">Включить песочницу</string>
     <string name="ephemeral_sandbox">Временное хранилище</string>
     <string name="clear_sandbox_data">Очистить данные песочницы</string>
@@ -136,12 +113,8 @@
     <string name="create_shortcut">Создать ярлык</string>
     <string name="create">Создать</string>
     <string name="back">Назад</string>
-    <string name="forward">Вперёд</string>
-    <string name="copy_url">Копировать URL</string>
     <string name="clone">Клонировать</string>
     <string name="share">Поделиться</string>
-    <string name="reload">Обновить</string>
-    <string name="activate_two_finger_zoom">Масштабирование щипком</string>
     <string name="bioprompt_restricted_webapp">Ограничение доступа</string>
     <string name="enable_access_restriction">Биометрическая блокировка</string>
     <string name="bioprompt_not_recognized">Не распознано. Попробуйте ещё раз</string>
@@ -149,10 +122,7 @@
     <string name="media_channel_name">Воспроизведение медиа</string>
     <string name="media_channel_description">Управление фоновым воспроизведением медиа</string>
 
-    <string name="start_url">URL</string>
     <string name="more">Ещё</string>
-    <string name="close_web_app">Закрыть веб-приложение</string>
-    <string name="to_main_menu">В главное меню</string>
     <string name="cancel">Отмена</string>
     <string name="ok">ОК</string>
     <string name="no_biometric_devices">Ваше устройство не поддерживает биометрическую аутентификацию</string>
@@ -167,14 +137,8 @@
     <string name="app_info">О приложении</string>
     <string name="gnu_license">Это программное обеспечение распространяется под лицензией GNU General Public License — версия 3.\nhttps://www.gnu.org/licenses/gpl-3.0.txt</string>
 
-    <string name="default_webapp_settings">Настройки по умолчанию</string>
-    <string name="main_settings">Иконка</string>
-    <string name="advanced_settings">Дополнительно</string>
-    <string name="reset">Сбросить</string>
-    <string name="reset_global_settings">Сбросить глобальные настройки</string>
     <string name="delete">Удалить</string>
     <string name="settings">Настройки</string>
-    <string name="drag_to_reorder">Перетащите для сортировки</string>
     <string name="app_icon">Иконка приложения</string>
 
     <string name="select_setting_to_override">Выберите настройку</string>
@@ -190,7 +154,6 @@
     <string name="setting_long_click_share">Контекстное меню</string>
     <string name="setting_pull_to_refresh">Обновление свайпом вниз</string>
     <string name="setting_disable_screenshots">Блокировать скриншоты</string>
-    <string name="setting_safe_browsing">Безопасный просмотр</string>
     <string name="setting_always_https">Только HTTPS</string>
     <string name="setting_custom_headers">Пользовательские HTTP заголовки</string>
     <string name="setting_basic_auth">HTTP Авторизация</string>
@@ -224,15 +187,11 @@
     <string name="context_menu_open_link">Открыть в браузере</string>
     <string name="context_menu_copy_link">Копировать адрес ссылки</string>
     <string name="context_menu_copy_link_text">Копировать текст ссылки</string>
-    <string name="context_menu_download_link">Сохранить данные по ссылке</string>
     <string name="context_menu_share_link">Поделиться ссылкой</string>
-    <string name="context_menu_copy_image">Скопировать изображение</string>
     <string name="context_menu_download_image">Скачать изображение</string>
     <string name="context_menu_share_image">Поделиться изображением</string>
     <string name="link_copied">Ссылка скопирована</string>
     <string name="text_copied">Текст скопирован</string>
-    <string name="image_copied">Изображение скопировано</string>
-    <string name="image_download_failed">Не удалось скачать изображение</string>
     <string name="download_failed">Не удалось скачать файл</string>
     <string name="search">Поиск</string>
     <string name="no_search_results">Приложения не найдены</string>
