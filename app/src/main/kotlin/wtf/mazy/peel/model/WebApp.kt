@@ -52,7 +52,7 @@ data class WebApp(var baseUrl: String, override val uuid: String = UUID.randomUU
     }
 
     fun cleanupWebAppData(activity: Activity) {
-        SandboxManager.clearSandboxData(activity, uuid)
+        if (isUseContainer) SandboxManager.clearSandboxData(activity, uuid)
         deleteIcon()
         deleteAppPrefs(activity, uuid)
     }

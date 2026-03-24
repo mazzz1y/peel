@@ -670,9 +670,12 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
     }
 
     private fun createSession(settings: WebAppSettings): GeckoSession {
-        val useContainer = webapp.isUseContainer ||
-                (webapp.groupUuid?.let { DataManager.instance.getGroup(it) }?.isUseContainer == true)
-        val contextId = if (useContainer) webapp.uuid else null
+        val group = webapp.groupUuid?.let { DataManager.instance.getGroup(it) }
+        val contextId = when {
+            group?.isUseContainer == true -> group.uuid
+            webapp.isUseContainer -> webapp.uuid
+            else -> null
+        }
 
         val sessionSettings = GeckoSessionSettings.Builder()
             .allowJavascript(settings.isAllowJs == true)

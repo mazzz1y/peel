@@ -286,9 +286,12 @@ class WebAppSettingsActivity :
         fetchGeneration += 1
         val generation = fetchGeneration
 
-        val useContainer = webapp.isUseContainer ||
-            (webapp.groupUuid?.let { DataManager.instance.getGroup(it) }?.isUseContainer == true)
-        val contextId = if (useContainer) webapp.uuid else null
+        val group = webapp.groupUuid?.let { DataManager.instance.getGroup(it) }
+        val contextId = when {
+            group?.isUseContainer == true -> group.uuid
+            webapp.isUseContainer -> webapp.uuid
+            else -> null
+        }
         val usePrivateMode = webapp.isEphemeralSandbox ||
             (webapp.groupUuid?.let { DataManager.instance.getGroup(it) }?.isEphemeralSandbox == true)
 
