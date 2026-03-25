@@ -113,6 +113,7 @@
     <string name="permission_prompt_location">Allow %1$s to access your location?</string>
     <string name="open_app_links">Open links in external apps</string>
     <string name="permission_prompt_open_app">Open this link in an external app?\n\n%1$s</string>
+    <string name="permission_prompt_open_externally">Open this link externally?\n\n%1$s</string>
     <string name="no_app_found">No app found to handle this link</string>
 
     <string name="create_shortcut">Create shortcut</string>
@@ -176,6 +177,8 @@
     <string name="setting_custom_headers">Custom headers</string>
     <string name="setting_basic_auth">HTTP Authorization</string>
     <string name="setting_dynamic_status_bar">Dynamic status bar</string>
+    <string name="setting_open_in_peel_app">Open links in Peel apps</string>
+    <string name="permission_prompt_open_in_peel_app">Open this link in %1$s?</string>
     <string name="setting_floating_controls">Floating controls</string>
 
     <string name="groups">Groups</string>

@@ -463,6 +463,11 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
         )
     }
 
+    override fun onLocationChanged(url: String) {
+        currentUrl = url
+        _navigationStartPoint.onLocationChange(url)
+    }
+
     override fun onPageStarted() {
         pageLoadHandled = false
         permissionDelegate.clearPagePermissions()
@@ -571,7 +576,6 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
                 dialog.dismiss()
                 onResult(PermissionResult.DENY)
             }
-            .setOnCancelListener { onResult(PermissionResult.DENY) }
             .show()
     }
 
@@ -617,7 +621,7 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
         navigationDelegate.clearAutoAuth()
         permissionDelegate.clearPagePermissions()
         promptDelegate.clearAutoAuth()
-        (geckoView as? NestedGeckoView)?.resetScrollPosition()
+        geckoView?.resetScrollPosition()
         autoReloadController.stop()
 
         val session = createSession(settings)
@@ -638,7 +642,7 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
         session.permissionDelegate = permissionDelegate
         session.promptDelegate = promptDelegate
 
-        val nestedView = geckoView as? NestedGeckoView
+        val nestedView = geckoView
         if (nestedView != null) {
             session.scrollDelegate = object : GeckoSession.ScrollDelegate {
                 override fun onScrollChanged(session: GeckoSession, scrollX: Int, scrollY: Int) {
@@ -670,12 +674,7 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
     }
 
     private fun createSession(settings: WebAppSettings): GeckoSession {
-        val group = webapp.groupUuid?.let { DataManager.instance.getGroup(it) }
-        val contextId = when {
-            group?.isUseContainer == true -> group.uuid
-            webapp.isUseContainer -> webapp.uuid
-            else -> null
-        }
+        val contextId = resolveContextId(webapp)
 
         val sessionSettings = GeckoSessionSettings.Builder()
             .allowJavascript(settings.isAllowJs == true)
@@ -762,6 +761,58 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
             loadURL(url)
         } else {
             geckoSession?.reload()
+        }
+    }
+
+    private fun resolveContextId(app: WebApp): String? {
+        val group = app.groupUuid?.let { DataManager.instance.getGroup(it) }
+        return when {
+            group?.isUseContainer == true -> group.uuid
+            app.isUseContainer -> app.uuid
+            else -> null
+        }
+    }
+
+    override fun findPeelAppMatches(url: String): List<WebApp> {
+        val currentUuid = webappUuid ?: return emptyList()
+        val targetHost = url.toUri().host?.removePrefix("www.")?.lowercase() ?: return emptyList()
+        val myHost = webapp.baseUrl.toUri().host?.removePrefix("www.")?.lowercase()
+        if (targetHost == myHost) return emptyList()
+        return cachedPeelApps.filter { app ->
+            app.uuid != currentUuid &&
+                app.baseUrl.toUri().host?.removePrefix("www.")?.lowercase() == targetHost
+        }
+    }
+
+    override fun showPeelAppRoutingDialog(
+        matches: List<WebApp>,
+        url: String,
+        onDismiss: () -> Unit,
+    ) {
+        if (matches.size == 1) {
+            val app = matches.first()
+            showPermissionDialog(
+                getString(R.string.permission_prompt_open_in_peel_app, app.title)
+            ) { result ->
+                if (result == PermissionResult.ALLOW) {
+                    BrowserLauncher.launch(app, this, url)
+                }
+                onDismiss()
+            }
+        } else {
+            val adapter = ListPickerAdapter(matches) { app, icon, name, detail ->
+                name.text = app.title
+                icon.setImageBitmap(app.resolveIcon())
+                detail.visibility = View.GONE
+            }
+            MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.open_in_peel)
+                .setAdapter(adapter) { _, position ->
+                    BrowserLauncher.launch(matches[position], this, url)
+                    onDismiss()
+                }
+                .setOnCancelListener { onDismiss() }
+                .show()
         }
     }
 

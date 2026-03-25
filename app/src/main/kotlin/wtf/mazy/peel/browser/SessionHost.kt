@@ -4,6 +4,7 @@ import android.content.Intent
 import android.net.Uri
 import android.view.Window
 import android.widget.ProgressBar
+import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.model.WebAppSettings
 
 enum class PermissionResult {
@@ -27,6 +28,7 @@ interface SessionHost {
 
     var filePathCallback: ((Array<Uri>?) -> Unit)?
 
+    fun onLocationChanged(url: String)
     fun onPageStarted()
     fun onPageFullyLoaded()
     fun onFirstContentfulPaint()
@@ -44,6 +46,8 @@ interface SessionHost {
     fun showToast(message: String)
     fun showConnectionError(description: String, url: String)
     fun updateStatusBarColor(color: Int)
+    fun findPeelAppMatches(url: String): List<WebApp>
+    fun showPeelAppRoutingDialog(matches: List<WebApp>, url: String, onDismiss: () -> Unit)
     fun startExternalIntent(uri: Uri)
     fun showPermissionDialog(message: CharSequence, onResult: (PermissionResult) -> Unit)
 

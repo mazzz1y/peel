@@ -25,7 +25,7 @@ class StringMapConverter {
 
 @Database(
     entities = [WebAppEntity::class, WebAppGroupEntity::class],
-    version = 13,
+    version = 14,
     exportSchema = true,
 )
 @TypeConverters(StringMapConverter::class)
@@ -179,6 +179,7 @@ abstract class AppDatabase : RoomDatabase() {
             isGlobalPrivacyControl INTEGER,
             isFingerprintingProtection INTEGER,
             isBlockLocalNetwork INTEGER,
+            isOpenInPeelApp INTEGER,
             isUseBasicAuth INTEGER,
             basicAuthUsername TEXT,
             basicAuthPassword TEXT
@@ -214,6 +215,7 @@ abstract class AppDatabase : RoomDatabase() {
                 "isGlobalPrivacyControl",
                 "isFingerprintingProtection",
                 "isBlockLocalNetwork",
+                "isOpenInPeelApp",
                 "isUseBasicAuth",
                 "basicAuthUsername",
                 "basicAuthPassword",
@@ -449,6 +451,15 @@ abstract class AppDatabase : RoomDatabase() {
                 }
             }
 
+        val MIGRATION_13_14 =
+            object : Migration(13, 14) {
+                override fun migrate(db: SupportSQLiteDatabase) {
+                    for (table in listOf("webapps", "webapp_groups")) {
+                        db.execSQL("ALTER TABLE $table ADD COLUMN isOpenInPeelApp INTEGER DEFAULT NULL")
+                    }
+                }
+            }
+
         fun getInstance(context: Context): AppDatabase {
             return instance
                 ?: synchronized(this) { instance ?: buildDatabase(context).also { instance = it } }
@@ -473,6 +484,7 @@ abstract class AppDatabase : RoomDatabase() {
                     MIGRATION_10_11,
                     MIGRATION_11_12,
                     MIGRATION_12_13,
+                    MIGRATION_13_14,
                 )
                 .allowMainThreadQueries()
                 .build()

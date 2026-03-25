@@ -101,6 +101,11 @@ object SettingRegistry {
                 SettingCategory.GENERAL,
             ),
             SettingDefinition.BooleanSetting(
+                SettingField(WebAppSettings::isOpenInPeelApp, true),
+                R.string.setting_open_in_peel_app,
+                SettingCategory.GENERAL,
+            ),
+            SettingDefinition.BooleanSetting(
                 SettingField(WebAppSettings::isLongClickShare, true),
                 R.string.setting_long_click_share,
                 SettingCategory.GENERAL,
