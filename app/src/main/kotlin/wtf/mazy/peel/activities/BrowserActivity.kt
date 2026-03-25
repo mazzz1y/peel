@@ -27,7 +27,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toDrawable
 import androidx.core.net.toUri
 import androidx.lifecycle.lifecycleScope
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import wtf.mazy.peel.gecko.VerticalSwipeRefreshLayout
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
@@ -73,7 +73,7 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
     private var geckoSession: GeckoSession? = null
 
     private var progressBar: ProgressBar? = null
-    private var swipeRefreshLayout: SwipeRefreshLayout? = null
+    private var swipeRefreshLayout: VerticalSwipeRefreshLayout? = null
     override var currentlyReloading = true
     private var customHeaders: Map<String, String>? = null
     override var filePathCallback: ((Array<Uri>?) -> Unit)? = null

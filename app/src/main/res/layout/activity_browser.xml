@@ -26,7 +26,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        <wtf.mazy.peel.gecko.VerticalSwipeRefreshLayout
             android:id="@+id/swipeRefreshLayout"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
@@ -39,7 +39,7 @@
                 android:focusableInTouchMode="true"
                 tools:ignore="MissingConstraints" />
 
-        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+        </wtf.mazy.peel.gecko.VerticalSwipeRefreshLayout>
 
         <View
             android:id="@+id/launchOverlay"

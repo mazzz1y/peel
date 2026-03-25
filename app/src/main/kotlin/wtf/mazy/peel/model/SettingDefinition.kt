@@ -111,7 +111,7 @@ object SettingRegistry {
                 SettingCategory.GENERAL,
             ),
             SettingDefinition.BooleanSetting(
-                SettingField(WebAppSettings::isPullToRefresh, false),
+                SettingField(WebAppSettings::isPullToRefresh, true),
                 R.string.setting_pull_to_refresh,
                 SettingCategory.GENERAL,
             ),
