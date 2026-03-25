@@ -16,4 +16,30 @@ function extractColor() {
   if (isOpaque(htmlBg)) return htmlBg;
   return "";
 }
-browser.runtime.sendNativeMessage("themeColor", { color: extractColor() });
+
+var lastColor = null;
+function sendColor() {
+  var color = extractColor();
+  if (color === lastColor) return;
+  lastColor = color;
+  browser.runtime.sendNativeMessage("themeColor", { color: color });
+}
+
+sendColor();
+
+new MutationObserver(sendColor).observe(
+  document.head,
+  { childList: true, subtree: true, attributes: true, attributeFilter: ["content", "media"] }
+);
+
+if (document.body) {
+  new MutationObserver(sendColor).observe(
+    document.body,
+    { attributes: true, attributeFilter: ["style", "class"] }
+  );
+}
+
+new MutationObserver(sendColor).observe(
+  document.documentElement,
+  { attributes: true, attributeFilter: ["style", "class"] }
+);
