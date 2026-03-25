@@ -288,8 +288,8 @@ class WebAppSettingsActivity :
 
         val group = webapp.groupUuid?.let { DataManager.instance.getGroup(it) }
         val contextId = when {
-            group?.isUseContainer == true -> group.uuid
             webapp.isUseContainer -> webapp.uuid
+            group?.isUseContainer == true -> group.uuid
             else -> null
         }
         val usePrivateMode = webapp.isEphemeralSandbox ||

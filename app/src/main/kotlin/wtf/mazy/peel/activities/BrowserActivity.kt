@@ -767,8 +767,8 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
     private fun resolveContextId(app: WebApp): String? {
         val group = app.groupUuid?.let { DataManager.instance.getGroup(it) }
         return when {
-            group?.isUseContainer == true -> group.uuid
             app.isUseContainer -> app.uuid
+            group?.isUseContainer == true -> group.uuid
             else -> null
         }
     }
