@@ -58,7 +58,7 @@ import wtf.mazy.peel.util.BrowserLauncher
 import wtf.mazy.peel.util.shortLabel
 import wtf.mazy.peel.browser.BrowserContextMenu
 import wtf.mazy.peel.browser.DownloadHandler
-import wtf.mazy.peel.browser.NavigationStartPoint
+
 import wtf.mazy.peel.browser.PeelContentDelegate
 import wtf.mazy.peel.browser.PeelNavigationDelegate
 import wtf.mazy.peel.browser.PeelPermissionDelegate
@@ -99,8 +99,6 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
             pendingPermissionCallback?.invoke(allGranted)
             pendingPermissionCallback = null
         }
-
-    private lateinit var _navigationStartPoint: NavigationStartPoint
 
     private val webapp: WebApp
         get() = DataManager.instance.getWebApp(webappUuid!!)!!
@@ -170,7 +168,6 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
             return
         }
 
-        _navigationStartPoint = NavigationStartPoint(webapp.baseUrl)
         cachedSettings = DataManager.instance.resolveEffectiveSettings(webapp)
         applyTaskSnapshotProtection()
         setupGeckoView()
@@ -212,10 +209,7 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
             floatingControls = FloatingControlsView(
                 parent = findViewById(R.id.browser_root),
                 webappUuid = uuid,
-                onHome = {
-                    _navigationStartPoint.reset()
-                    loadURL(webapp.baseUrl)
-                },
+                onHome = { loadURL(webapp.baseUrl) },
                 onReload = ::reloadCurrentPage,
                 getCurrentUrl = { currentUrl },
             )
@@ -309,7 +303,6 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
         if (isFinishing || isDestroyed) return
         if (DataManager.instance.getWebApp(newUuid) == null) return
         webappUuid = newUuid
-        _navigationStartPoint = NavigationStartPoint(webapp.baseUrl)
         cachedSettings = DataManager.instance.resolveEffectiveSettings(webapp)
         biometricController.resetForSwap()
         systemBarController.resetForSwap()
@@ -443,13 +436,12 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
             finish()
             return
         }
-        val canBack = canGoBack && _navigationStartPoint.allowGoBack
         MaterialAlertDialogBuilder(this)
             .setTitle(R.string.site_not_found)
             .setMessage(getString(R.string.connection_error, description))
             .setPositiveButton(R.string.retry) { _, _ -> loadURL(url) }
-            .setNegativeButton(if (canBack) R.string.back else R.string.exit) { _, _ ->
-                if (canBack) geckoSession?.goBack() else finish()
+            .setNegativeButton(if (canGoBack) R.string.back else R.string.exit) { _, _ ->
+                if (canGoBack) geckoSession?.goBack() else finish()
             }
             .setCancelable(false)
             .show()
@@ -465,7 +457,6 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
 
     override fun onLocationChanged(url: String) {
         currentUrl = url
-        _navigationStartPoint.onLocationChange(url)
     }
 
     override fun onPageStarted() {
@@ -481,7 +472,6 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
         if (launchOverlayController.isVisible) {
             launchOverlayController.hideFallback()
         }
-        _navigationStartPoint.onPageFinished()
     }
 
     override fun onFirstContentfulPaint() {
@@ -893,7 +883,7 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
             this,
             object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
-                    if (canGoBack && _navigationStartPoint.allowGoBack) {
+                    if (canGoBack) {
                         geckoSession?.goBack()
                     } else {
                         finishAndRemoveTask()
