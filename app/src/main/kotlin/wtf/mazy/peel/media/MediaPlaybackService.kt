@@ -298,7 +298,10 @@ open class MediaPlaybackService : MediaSessionService() {
                             .build()
                     )
                 )
-                .setPlaybackParameters(PlaybackParameters(playbackRate))
+                .setPlaybackParameters(
+                    if (playbackRate > 0) PlaybackParameters(playbackRate)
+                    else PlaybackParameters.DEFAULT
+                )
                 .setCurrentMediaItemIndex(0)
                 .build()
         }
