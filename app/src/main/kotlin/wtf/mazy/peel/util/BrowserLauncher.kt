@@ -13,7 +13,7 @@ import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.ui.BiometricPromptHelper
 
 object BrowserLauncher {
-    fun launch(webapp: WebApp, c: Context, url: String? = null) {
+    fun launch(webapp: WebApp, c: Context, url: String? = null, fromMenu: Boolean = false) {
         try {
             if (DataManager.instance.resolveEffectiveSettings(webapp).isBiometricProtection == true) {
                 val error = BiometricPromptHelper.getBiometricError(c)
@@ -24,6 +24,7 @@ object BrowserLauncher {
             }
             val intent = createIntent(webapp, c) ?: return
             if (url != null) intent.putExtra(Const.INTENT_TARGET_URL, url)
+            if (fromMenu) intent.putExtra(Const.INTENT_LAUNCHED_FROM_MENU, true)
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
             c.startActivity(intent)
         } catch (_: Exception) {

@@ -163,7 +163,7 @@ class WebAppListAdapter(
 
     private fun applyNormalListeners(holder: ViewHolder, item: WebApp) {
         holder.menuButton.isEnabled = true
-        holder.itemView.setOnClickListener { launch(item, activity) }
+        holder.itemView.setOnClickListener { launch(item, activity, fromMenu = true) }
         holder.appIcon.setOnClickListener {
             selectionHost?.enterSelectionMode(item.uuid)
         }

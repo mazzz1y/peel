@@ -79,6 +79,9 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
     override var filePathCallback: ((Array<Uri>?) -> Unit)? = null
     override var canGoBack = false
     override var currentUrl = ""
+    private val launchedFromMenu by lazy {
+        intent.getBooleanExtra(Const.INTENT_LAUNCHED_FROM_MENU, false)
+    }
 
     private val filePickerLauncher =
         registerForActivityResult(StartActivityForResult()) { result ->
@@ -903,9 +906,16 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
                 override fun handleOnBackPressed() {
                     if (canGoBack) {
                         geckoSession?.goBack()
-                    } else {
-                        finishAndRemoveTask()
+                        return
                     }
+                    if (launchedFromMenu) {
+                        startActivity(
+                            Intent(this@BrowserActivity, MainActivity::class.java).apply {
+                                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                            }
+                        )
+                    }
+                    finishAndRemoveTask()
                 }
             },
         )
