@@ -81,6 +81,11 @@ class PeelNavigationDelegate(private val host: SessionHost) : GeckoSession.Navig
             }
         }
 
+        if (request.target == GeckoSession.NavigationDelegate.TARGET_WINDOW_NEW) {
+            host.runOnUi { host.loadURL(url) }
+            return GeckoResult.fromValue(AllowOrDeny.DENY)
+        }
+
         return GeckoResult.fromValue(AllowOrDeny.ALLOW)
     }
 
