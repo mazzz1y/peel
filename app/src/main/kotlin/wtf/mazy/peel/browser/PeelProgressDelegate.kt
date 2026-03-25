@@ -11,6 +11,10 @@ class PeelProgressDelegate(private val host: SessionHost) : GeckoSession.Progres
     }
 
     override fun onPageStop(session: GeckoSession, success: Boolean) {
+        host.hostProgressBar?.let { bar ->
+            bar.visibility = ProgressBar.GONE
+            host.currentlyReloading = false
+        }
         if (success) {
             host.onPageFullyLoaded()
         }
