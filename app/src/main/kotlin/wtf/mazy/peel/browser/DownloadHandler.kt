@@ -34,90 +34,32 @@ class DownloadHandler(
     private var promptShowing = false
 
     fun onExternalResponse(response: WebResponse) {
-        val contentDisposition = response.headers["Content-Disposition"]
-        val contentType = response.headers["Content-Type"]?.substringBefore(";")?.trim()
-        val fileName = resolveFileName(response.uri, contentDisposition, contentType)
-
-        showDownloadPrompt(fileName) { allowed ->
-            promptShowing = false
-            if (!allowed) {
-                response.body?.close()
-                return@showDownloadPrompt
-            }
-            val body = response.body
-            if (body == null) {
-                showToast(activity, activity.getString(R.string.download_failed))
-                return@showDownloadPrompt
-            }
-            thread {
-                val ok = saveToDownloads(body, fileName, contentType)
-                activity.runOnUiThread {
-                    showToast(
-                        activity,
-                        activity.getString(if (ok) R.string.file_download else R.string.download_failed),
-                    )
-                }
-            }
-        }
+        val contentType = extractMimeType(response.headers)
+        val fileName =
+            resolveFileName(response.uri, response.headers["Content-Disposition"], contentType)
+        promptAndSave(fileName, contentType, response.body)
     }
 
     fun downloadUrl(url: String) {
         if (url.startsWith("data:")) {
-            val parsed = parseDataUri(url) ?: run {
-                showToast(activity, activity.getString(R.string.download_failed))
-                return
-            }
-            val ext = MimeTypeMap.getSingleton().getExtensionFromMimeType(parsed.mime)
-            val fileName = if (ext != null) "download.$ext" else "download"
-            showDownloadPrompt(fileName) { allowed ->
-                promptShowing = false
-                if (!allowed) return@showDownloadPrompt
-                thread {
-                    val ok = saveToDownloads(ByteArrayInputStream(parsed.bytes), fileName, parsed.mime)
-                    activity.runOnUiThread {
-                        showToast(
-                            activity,
-                            activity.getString(if (ok) R.string.file_download else R.string.download_failed),
-                        )
-                    }
-                }
-            }
+            val parsed = parseDataUri(url) ?: run { showError(); return }
+            val fileName = resolveFileName(url, null, parsed.mime)
+            promptAndSave(fileName, parsed.mime, ByteArrayInputStream(parsed.bytes))
             return
         }
         val executor = GeckoWebExecutor(getRuntime())
         executor.fetch(WebRequest(url)).then({ response ->
             val resp = response ?: run {
-                activity.runOnUiThread { showToast(activity, activity.getString(R.string.download_failed)) }
+                activity.runOnUiThread { showError() }
                 return@then GeckoResult<Void>()
             }
-            val contentType = resp.headers["Content-Type"]?.substringBefore(";")?.trim()
-            val disposition = resp.headers["Content-Disposition"]
-            val fileName = resolveFileName(resp.uri, disposition, contentType)
-            val body = resp.body
-            activity.runOnUiThread {
-                if (body == null) {
-                    showToast(activity, activity.getString(R.string.download_failed))
-                } else {
-                    showDownloadPrompt(fileName) { allowed ->
-                        promptShowing = false
-                        if (!allowed) { body.close(); return@showDownloadPrompt }
-                        thread {
-                            val ok = saveToDownloads(body, fileName, contentType)
-                            activity.runOnUiThread {
-                                showToast(
-                                    activity,
-                                    activity.getString(if (ok) R.string.file_download else R.string.download_failed),
-                                )
-                            }
-                        }
-                    }
-                }
-            }
+            val contentType = extractMimeType(resp.headers)
+            val fileName =
+                resolveFileName(resp.uri, resp.headers["Content-Disposition"], contentType)
+            activity.runOnUiThread { promptAndSave(fileName, contentType, resp.body) }
             GeckoResult<Void>()
         }, { _ ->
-            activity.runOnUiThread {
-                showToast(activity, activity.getString(R.string.download_failed))
-            }
+            activity.runOnUiThread { showError() }
             GeckoResult<Void>()
         })
     }
@@ -125,47 +67,53 @@ class DownloadHandler(
     fun shareImage(url: String) {
         if (url.startsWith("data:")) {
             val parsed = parseDataUri(url) ?: return
-            val ext = MimeTypeMap.getSingleton().getExtensionFromMimeType(parsed.mime)
-            val fileName = if (ext != null) "image.$ext" else "image"
-            thread {
-                try {
-                    val shareDir = File(activity.cacheDir, "shared_files").apply { mkdirs() }
-                    val file = File(shareDir, fileName)
-                    file.writeBytes(parsed.bytes)
-                    launchShareIntent(file, parsed.mime ?: "image/*", fileName)
-                } catch (_: Exception) {
-                    activity.runOnUiThread {
-                        showToast(activity, activity.getString(R.string.download_failed))
-                    }
-                }
-            }
+            val fileName = resolveFileName(url, null, parsed.mime)
+            writeAndShare(ByteArrayInputStream(parsed.bytes), fileName, parsed.mime ?: "image/*")
             return
         }
         val executor = GeckoWebExecutor(getRuntime())
         executor.fetch(WebRequest(url)).then({ response ->
             val resp = response ?: return@then GeckoResult<Void>()
-            val contentType = resp.headers["Content-Type"]?.substringBefore(";")?.trim()
-            val fileName = resolveFileName(resp.uri, resp.headers["Content-Disposition"], contentType)
+            val contentType = extractMimeType(resp.headers)
+            val fileName =
+                resolveFileName(resp.uri, resp.headers["Content-Disposition"], contentType)
             val body = resp.body ?: return@then GeckoResult<Void>()
-            thread {
-                try {
-                    val shareDir = File(activity.cacheDir, "shared_files").apply { mkdirs() }
-                    val file = File(shareDir, fileName)
-                    file.outputStream().use { out -> body.use { it.copyTo(out) } }
-                    val mime = contentType ?: MimeTypeMap.getSingleton()
-                        .getMimeTypeFromExtension(fileName.substringAfterLast('.', ""))
-                        ?: "image/*"
-                    launchShareIntent(file, mime, fileName)
-                } catch (_: Exception) {
-                    activity.runOnUiThread {
-                        showToast(activity, activity.getString(R.string.download_failed))
-                    }
-                }
-            }
+            val mime = contentType
+                ?: extensionToMime(fileName.substringAfterLast('.', ""))
+                ?: "image/*"
+            writeAndShare(body, fileName, mime)
             GeckoResult<Void>()
         }, { _ ->
             GeckoResult<Void>()
         })
+    }
+
+    private fun promptAndSave(fileName: String, mimeType: String?, body: InputStream?) {
+        if (body == null) {
+            showError(); return
+        }
+        showDownloadPrompt(fileName) { allowed ->
+            if (!allowed) {
+                body.close(); return@showDownloadPrompt
+            }
+            thread {
+                val ok = saveToDownloads(body, fileName, mimeType)
+                activity.runOnUiThread { showResultToast(ok) }
+            }
+        }
+    }
+
+    private fun writeAndShare(body: InputStream, fileName: String, mime: String) {
+        thread {
+            try {
+                val shareDir = File(activity.cacheDir, "shared_files").apply { mkdirs() }
+                val file = File(shareDir, fileName)
+                file.outputStream().use { out -> body.use { it.copyTo(out) } }
+                launchShareIntent(file, mime, fileName)
+            } catch (_: Exception) {
+                activity.runOnUiThread { showError() }
+            }
+        }
     }
 
     private fun launchShareIntent(file: File, mime: String, fileName: String) {
@@ -181,28 +129,18 @@ class DownloadHandler(
         }
     }
 
-    private data class DataUriPayload(val mime: String?, val bytes: ByteArray)
-
-    private fun parseDataUri(uri: String): DataUriPayload? {
-        val header = uri.substringBefore(",")
-        val data = uri.substringAfter(",", "")
-        if (data.isEmpty()) return null
-        val mime = header.removePrefix("data:").removeSuffix(";base64").takeIf { it.isNotBlank() }
-        val bytes = if (header.endsWith(";base64")) {
-            Base64.decode(data, Base64.DEFAULT)
-        } else {
-            java.net.URLDecoder.decode(data, "UTF-8").toByteArray()
-        }
-        return DataUriPayload(mime, bytes)
-    }
-
     private fun resolveFileName(
         url: String,
         contentDisposition: String?,
         mimeType: String?,
     ): String {
-        if (url.startsWith("blob:") || url.startsWith("data:")) return "download"
-        return getFileNameFromDownload(url, contentDisposition, mimeType) ?: "download"
+        val name = when {
+            url.startsWith("blob:") || url.startsWith("data:") -> "download"
+            else -> getFileNameFromDownload(url, contentDisposition, mimeType) ?: "download"
+        }
+        if ('.' in name || mimeType == null) return name
+        val ext = MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType)
+        return if (ext != null) "$name.$ext" else name
     }
 
     private fun showDownloadPrompt(fileName: String, onResult: (Boolean) -> Unit) {
@@ -232,6 +170,38 @@ class DownloadHandler(
             .show()
     }
 
+    private fun showError() {
+        showToast(activity, activity.getString(R.string.download_failed))
+    }
+
+    private fun showResultToast(ok: Boolean) {
+        showToast(
+            activity,
+            activity.getString(if (ok) R.string.file_download else R.string.download_failed),
+        )
+    }
+
+    private fun extractMimeType(headers: Map<String, String>): String? =
+        headers["Content-Type"]?.substringBefore(";")?.trim()
+
+    private fun extensionToMime(ext: String): String? =
+        MimeTypeMap.getSingleton().getMimeTypeFromExtension(ext)
+
+    private data class DataUriPayload(val mime: String?, val bytes: ByteArray)
+
+    private fun parseDataUri(uri: String): DataUriPayload? {
+        val header = uri.substringBefore(",")
+        val data = uri.substringAfter(",", "")
+        if (data.isEmpty()) return null
+        val mime = header.removePrefix("data:").removeSuffix(";base64").takeIf { it.isNotBlank() }
+        val bytes = if (header.endsWith(";base64")) {
+            Base64.decode(data, Base64.DEFAULT)
+        } else {
+            java.net.URLDecoder.decode(data, "UTF-8").toByteArray()
+        }
+        return DataUriPayload(mime, bytes)
+    }
+
     private fun saveToDownloads(input: InputStream, fileName: String, mimeType: String?): Boolean {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             saveToMediaStore(input, fileName, mimeType)
@@ -242,7 +212,7 @@ class DownloadHandler(
 
     private fun saveToMediaStore(input: InputStream, fileName: String, mimeType: String?): Boolean {
         val mime = mimeType
-            ?: MimeTypeMap.getSingleton().getMimeTypeFromExtension(fileName.substringAfterLast('.', ""))
+            ?: extensionToMime(fileName.substringAfterLast('.', ""))
             ?: "application/octet-stream"
         val values = ContentValues().apply {
             put(MediaStore.Downloads.DISPLAY_NAME, fileName)

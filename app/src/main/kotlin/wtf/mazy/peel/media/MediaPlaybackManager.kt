@@ -9,9 +9,8 @@ import android.os.Handler
 import android.os.Looper
 import androidx.core.content.ContextCompat
 import org.mozilla.geckoview.GeckoSession
-import org.mozilla.geckoview.Image
-import org.mozilla.geckoview.MediaSession as GeckoMediaSession
 import java.io.ByteArrayOutputStream
+import org.mozilla.geckoview.MediaSession as GeckoMediaSession
 
 class MediaPlaybackManager(context: Context) : GeckoMediaSession.Delegate {
 
@@ -49,14 +48,17 @@ class MediaPlaybackManager(context: Context) : GeckoMediaSession.Delegate {
                         }
                         mediaSession?.pause()
                     }
+
                     MediaPlaybackService.BROADCAST_STOP -> {
                         mediaSession?.stop()
                         serviceStarted = false
                     }
+
                     MediaPlaybackService.BROADCAST_PREVIOUS -> mediaSession?.previousTrack()
                     MediaPlaybackService.BROADCAST_NEXT -> mediaSession?.nextTrack()
                     MediaPlaybackService.BROADCAST_SEEK_TO -> {
-                        val seekMs = intent.getLongExtra(MediaPlaybackService.EXTRA_SEEK_POSITION_MS, 0L)
+                        val seekMs =
+                            intent.getLongExtra(MediaPlaybackService.EXTRA_SEEK_POSITION_MS, 0L)
                         mediaSession?.seekTo(seekMs / 1000.0, false)
                     }
                 }
@@ -116,7 +118,11 @@ class MediaPlaybackManager(context: Context) : GeckoMediaSession.Delegate {
         serviceStarted = false
     }
 
-    override fun onMetadata(session: GeckoSession, mediaSession: GeckoMediaSession, meta: GeckoMediaSession.Metadata) {
+    override fun onMetadata(
+        session: GeckoSession,
+        mediaSession: GeckoMediaSession,
+        meta: GeckoMediaSession.Metadata
+    ) {
         this.mediaSession = mediaSession
         lastTitle = meta.title?.takeIf { it.isNotEmpty() }
         lastArtist = meta.artist?.takeIf { it.isNotEmpty() }
@@ -139,14 +145,22 @@ class MediaPlaybackManager(context: Context) : GeckoMediaSession.Delegate {
         }
     }
 
-    override fun onFeatures(session: GeckoSession, mediaSession: GeckoMediaSession, features: Long) {
+    override fun onFeatures(
+        session: GeckoSession,
+        mediaSession: GeckoMediaSession,
+        features: Long
+    ) {
         this.mediaSession = mediaSession
         val hasPrevious = (features and GeckoMediaSession.Feature.PREVIOUS_TRACK) != 0L
         val hasNext = (features and GeckoMediaSession.Feature.NEXT_TRACK) != 0L
         updateActions(hasPrevious, hasNext)
     }
 
-    override fun onPositionState(session: GeckoSession, mediaSession: GeckoMediaSession, state: GeckoMediaSession.PositionState) {
+    override fun onPositionState(
+        session: GeckoSession,
+        mediaSession: GeckoMediaSession,
+        state: GeckoMediaSession.PositionState
+    ) {
         this.mediaSession = mediaSession
         if (!serviceStarted) return
         context.startService(

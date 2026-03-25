@@ -21,7 +21,12 @@ class PeelNavigationDelegate(private val host: SessionHost) : GeckoSession.Navig
 
     override fun onCanGoForward(session: GeckoSession, canGoForward: Boolean) {}
 
-    override fun onLocationChange(session: GeckoSession, url: String?, perms: MutableList<GeckoSession.PermissionDelegate.ContentPermission>, hasUserGesture: Boolean) {
+    override fun onLocationChange(
+        session: GeckoSession,
+        url: String?,
+        perms: MutableList<GeckoSession.PermissionDelegate.ContentPermission>,
+        hasUserGesture: Boolean
+    ) {
         host.canGoBack = true
         if (url != null) host.onLocationChanged(url)
     }

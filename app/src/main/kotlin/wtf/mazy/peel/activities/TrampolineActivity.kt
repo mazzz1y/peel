@@ -11,8 +11,8 @@ import wtf.mazy.peel.R
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.ui.ListPickerAdapter
-import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.BrowserLauncher
+import wtf.mazy.peel.util.Const
 
 class TrampolineActivity : AppCompatActivity() {
 

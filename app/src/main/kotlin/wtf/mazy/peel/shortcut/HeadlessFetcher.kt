@@ -375,7 +375,8 @@ class HeadlessFetcher(
                     view?.releaseSession()
                     session?.close()
                     (view?.parent as? ViewGroup)?.removeView(view)
-                } catch (_: Exception) {}
+                } catch (_: Exception) {
+                }
             }
         }
     }
@@ -401,7 +402,11 @@ class HeadlessFetcher(
             listOf("/manifest.json", "/manifest.webmanifest", "/site.webmanifest")
 
         private fun resolveUrl(base: String, relative: String): String =
-            try { URL(URL(base), relative).toString() } catch (_: Exception) { relative }
+            try {
+                URL(URL(base), relative).toString()
+            } catch (_: Exception) {
+                relative
+            }
 
         private fun originOf(url: String): String =
             URL(url).let {

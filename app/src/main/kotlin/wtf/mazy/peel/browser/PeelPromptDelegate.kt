@@ -1,13 +1,9 @@
 package wtf.mazy.peel.browser
 
 import android.content.Intent
-import android.net.Uri
-import android.provider.MediaStore
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import org.mozilla.geckoview.GeckoResult
 import org.mozilla.geckoview.GeckoSession
-import wtf.mazy.peel.R
-import wtf.mazy.peel.model.WebAppSettings
 
 class PeelPromptDelegate(private val host: SessionHost) : GeckoSession.PromptDelegate {
 

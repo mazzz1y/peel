@@ -50,7 +50,13 @@ class NestedGeckoView @JvmOverloads constructor(
                 val allowScroll = !shouldPinOnScreen() && allowOverscroll
                 var deltaY = lastY - eventY
 
-                if (allowScroll && dispatchNestedPreScroll(0, deltaY, scrollConsumed, scrollOffset)) {
+                if (allowScroll && dispatchNestedPreScroll(
+                        0,
+                        deltaY,
+                        scrollConsumed,
+                        scrollOffset
+                    )
+                ) {
                     deltaY -= scrollConsumed[1]
                     event.offsetLocation(0f, -scrollOffset[1].toFloat())
                     nestedOffsetY += scrollOffset[1]
@@ -58,7 +64,14 @@ class NestedGeckoView @JvmOverloads constructor(
 
                 lastY = eventY - scrollOffset[1]
 
-                if (allowScroll && dispatchNestedScroll(0, scrollOffset[1], 0, deltaY, scrollOffset)) {
+                if (allowScroll && dispatchNestedScroll(
+                        0,
+                        scrollOffset[1],
+                        0,
+                        deltaY,
+                        scrollOffset
+                    )
+                ) {
                     lastY -= scrollOffset[1]
                     event.offsetLocation(0f, scrollOffset[1].toFloat())
                     nestedOffsetY += scrollOffset[1]
@@ -74,7 +87,7 @@ class NestedGeckoView @JvmOverloads constructor(
                         inputResult = result.handledResult()
                         allowOverscroll =
                             inputResult == PanZoomController.INPUT_RESULT_HANDLED &&
-                            (result.overscrollDirections() and PanZoomController.OVERSCROLL_FLAG_VERTICAL) != 0
+                                    (result.overscrollDirections() and PanZoomController.OVERSCROLL_FLAG_VERTICAL) != 0
                         startNestedScroll(ViewCompat.SCROLL_AXIS_VERTICAL)
                     }
                 nestedOffsetY = 0

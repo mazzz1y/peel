@@ -29,7 +29,10 @@ class PeelPermissionDelegate(private val host: SessionHost) : GeckoSession.Permi
             GeckoSession.PermissionDelegate.PERMISSION_GEOLOCATION -> {
                 handleTriState(
                     host.effectiveSettings.isAllowLocationAccess,
-                    listOf(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION),
+                    listOf(
+                        Manifest.permission.ACCESS_COARSE_LOCATION,
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                    ),
                     PERM_KEY_LOCATION,
                     R.string.permission_prompt_location,
                 ) { granted ->
@@ -79,7 +82,10 @@ class PeelPermissionDelegate(private val host: SessionHost) : GeckoSession.Permi
             pending.add(
                 PendingMediaPermission(
                     host.effectiveSettings.isMicrophonePermission,
-                    listOf(Manifest.permission.RECORD_AUDIO, Manifest.permission.MODIFY_AUDIO_SETTINGS),
+                    listOf(
+                        Manifest.permission.RECORD_AUDIO,
+                        Manifest.permission.MODIFY_AUDIO_SETTINGS
+                    ),
                     PERM_KEY_MICROPHONE,
                     R.string.permission_prompt_microphone,
                     audio.first(),
@@ -158,6 +164,7 @@ class PeelPermissionDelegate(private val host: SessionHost) : GeckoSession.Permi
                     onResult(granted)
                 }
             }
+
             state == WebAppSettings.PERMISSION_ASK -> {
                 ensureOsPermission(androidPermissions) { osGranted ->
                     if (!osGranted) {
@@ -172,6 +179,7 @@ class PeelPermissionDelegate(private val host: SessionHost) : GeckoSession.Permi
                                 pageGranted.add(key)
                                 onResult(true)
                             }
+
                             PermissionResult.DENY -> {
                                 pageDenied.add(key)
                                 onResult(false)
@@ -180,6 +188,7 @@ class PeelPermissionDelegate(private val host: SessionHost) : GeckoSession.Permi
                     }
                 }
             }
+
             else -> onResult(false)
         }
     }

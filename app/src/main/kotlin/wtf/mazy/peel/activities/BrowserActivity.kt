@@ -34,31 +34,11 @@ import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import org.mozilla.geckoview.GeckoSession
-import org.mozilla.geckoview.GeckoSessionSettings
-import wtf.mazy.peel.gecko.NestedGeckoView
 import org.mozilla.geckoview.GeckoSession.Loader
+import org.mozilla.geckoview.GeckoSessionSettings
 import wtf.mazy.peel.R
-import wtf.mazy.peel.gecko.GeckoRuntimeProvider
-import wtf.mazy.peel.media.MediaPlaybackManager
-import wtf.mazy.peel.model.DataManager
-import wtf.mazy.peel.model.WebApp
-import wtf.mazy.peel.model.WebAppSettings
-import wtf.mazy.peel.ui.FloatingControlsView
-import wtf.mazy.peel.ui.ListPickerAdapter
-import wtf.mazy.peel.ui.dialog.InputDialogConfig
-import wtf.mazy.peel.ui.dialog.showInputDialogRaw
-import wtf.mazy.peel.ui.browser.AutoReloadController
-import wtf.mazy.peel.ui.browser.BiometricUnlockController
-import wtf.mazy.peel.ui.browser.LaunchOverlayController
-import wtf.mazy.peel.ui.browser.SystemBarController
-import wtf.mazy.peel.util.Const
-import wtf.mazy.peel.util.HostIdentity
-import wtf.mazy.peel.util.NotificationUtils
-import wtf.mazy.peel.util.BrowserLauncher
-import wtf.mazy.peel.util.shortLabel
 import wtf.mazy.peel.browser.BrowserContextMenu
 import wtf.mazy.peel.browser.DownloadHandler
-
 import wtf.mazy.peel.browser.PeelContentDelegate
 import wtf.mazy.peel.browser.PeelNavigationDelegate
 import wtf.mazy.peel.browser.PeelPermissionDelegate
@@ -66,6 +46,25 @@ import wtf.mazy.peel.browser.PeelProgressDelegate
 import wtf.mazy.peel.browser.PeelPromptDelegate
 import wtf.mazy.peel.browser.PermissionResult
 import wtf.mazy.peel.browser.SessionHost
+import wtf.mazy.peel.gecko.GeckoRuntimeProvider
+import wtf.mazy.peel.gecko.NestedGeckoView
+import wtf.mazy.peel.media.MediaPlaybackManager
+import wtf.mazy.peel.model.DataManager
+import wtf.mazy.peel.model.WebApp
+import wtf.mazy.peel.model.WebAppSettings
+import wtf.mazy.peel.ui.FloatingControlsView
+import wtf.mazy.peel.ui.ListPickerAdapter
+import wtf.mazy.peel.ui.browser.AutoReloadController
+import wtf.mazy.peel.ui.browser.BiometricUnlockController
+import wtf.mazy.peel.ui.browser.LaunchOverlayController
+import wtf.mazy.peel.ui.browser.SystemBarController
+import wtf.mazy.peel.ui.dialog.InputDialogConfig
+import wtf.mazy.peel.ui.dialog.showInputDialogRaw
+import wtf.mazy.peel.util.BrowserLauncher
+import wtf.mazy.peel.util.Const
+import wtf.mazy.peel.util.HostIdentity
+import wtf.mazy.peel.util.NotificationUtils
+import wtf.mazy.peel.util.shortLabel
 
 class BrowserActivity : AppCompatActivity(), SessionHost {
     override var webappUuid: String? = null
@@ -134,10 +133,13 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
         BiometricUnlockController(
             activity = this,
             getWebappUuid = { webappUuid },
-        onSuccess = {
-            launchOverlayController.hideFallback()
-            launchSessionExtensionsAndLoad(effectiveSettings, sharedUrlFromIntent() ?: webapp.baseUrl)
-        },
+            onSuccess = {
+                launchOverlayController.hideFallback()
+                launchSessionExtensionsAndLoad(
+                    effectiveSettings,
+                    sharedUrlFromIntent() ?: webapp.baseUrl
+                )
+            },
             onFailure = { finish() },
         )
     }
@@ -179,7 +181,10 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
             launchOverlayController.arm { systemBarController.suppressNextAnimation = true }
         }
         if (!needsBiometric) {
-            launchSessionExtensionsAndLoad(effectiveSettings, sharedUrlFromIntent() ?: webapp.baseUrl)
+            launchSessionExtensionsAndLoad(
+                effectiveSettings,
+                sharedUrlFromIntent() ?: webapp.baseUrl
+            )
         }
 
         setupBackNavigation()
@@ -209,7 +214,9 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
         applyWindowFlags(effectiveSettings)
         applyColorScheme()
         setupPullToRefresh(effectiveSettings)
-        if (effectiveSettings.isShowFullscreen == true) systemBarController.hide() else systemBarController.show(false)
+        if (effectiveSettings.isShowFullscreen == true) systemBarController.hide() else systemBarController.show(
+            false
+        )
 
         if (effectiveSettings.isShowNotification == true && floatingControls == null) {
             floatingControls = FloatingControlsView(
@@ -242,7 +249,9 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
 
     override fun onStop() {
         super.onStop()
-        if (!isStartupComplete) { biometricController.onStop(); return }
+        if (!isStartupComplete) {
+            biometricController.onStop(); return
+        }
         val settings = effectiveSettings
 
         if (settings.isAllowMediaPlaybackInBackground == true) {
@@ -321,7 +330,9 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
         applyWindowFlags(settings)
         setupPullToRefresh(settings)
         applyColorScheme()
-        if (settings.isShowFullscreen == true) systemBarController.hide() else systemBarController.show(false)
+        if (settings.isShowFullscreen == true) systemBarController.hide() else systemBarController.show(
+            false
+        )
         applyTaskSnapshotProtection()
 
         launchSessionExtensionsAndLoad(settings, sharedUrlFromIntent() ?: webapp.baseUrl)
@@ -599,7 +610,9 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
         applyWindowFlags(settings)
         setupPullToRefresh(settings)
         applyColorScheme()
-        if (settings.isShowFullscreen == true) systemBarController.hide() else systemBarController.show(false)
+        if (settings.isShowFullscreen == true) systemBarController.hide() else systemBarController.show(
+            false
+        )
     }
 
     private fun configureSession(settings: WebAppSettings) {
@@ -775,7 +788,7 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
         if (targetHost == myHost) return emptyList()
         return cachedPeelApps.filter { app ->
             app.uuid != currentUuid &&
-                app.baseUrl.toUri().host?.removePrefix("www.")?.lowercase() == targetHost
+                    app.baseUrl.toUri().host?.removePrefix("www.")?.lowercase() == targetHost
         }
     }
 

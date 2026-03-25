@@ -415,7 +415,8 @@ open class MediaPlaybackService : MediaSessionService() {
             }
         }
 
-        fun resolveServiceClass(): Class<out MediaPlaybackService> = MediaPlaybackService::class.java
+        fun resolveServiceClass(): Class<out MediaPlaybackService> =
+            MediaPlaybackService::class.java
 
         private fun bitmapToBytes(bmp: Bitmap): ByteArray {
             val stream = ByteArrayOutputStream()

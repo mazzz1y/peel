@@ -68,18 +68,21 @@ class BrowserContextMenu(
                 linkActions = linkActionsFor(linkUrl, title),
                 imageActions = imageActionsFor(imageUrl),
             )
+
             linkUrl != null -> HitInfo(
                 title = title?.takeIf { it != linkUrl },
                 url = linkUrl,
                 linkActions = linkActionsFor(linkUrl, title),
                 imageActions = emptyList(),
             )
+
             imageUrl != null -> HitInfo(
                 title = null,
                 url = imageUrl,
                 linkActions = emptyList(),
                 imageActions = imageActionsFor(imageUrl),
             )
+
             else -> null
         }
     }

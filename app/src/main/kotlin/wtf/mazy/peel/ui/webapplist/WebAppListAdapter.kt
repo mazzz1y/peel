@@ -23,9 +23,9 @@ import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.shortcut.ShortcutHelper
 import wtf.mazy.peel.ui.common.ShareSecretsDialog
 import wtf.mazy.peel.ui.toolbar.ToolbarModeHost
+import wtf.mazy.peel.util.BrowserLauncher.launch
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.NotificationUtils
-import wtf.mazy.peel.util.BrowserLauncher.launch
 import wtf.mazy.peel.util.displayUrl
 import java.util.Collections
 
@@ -349,6 +349,7 @@ class WebAppListAdapter(
             null -> DataManager.instance.activeWebsites
             WebAppListFragment.UNGROUPED_FILTER ->
                 DataManager.instance.activeWebsitesForGroup(null)
+
             else -> DataManager.instance.activeWebsitesForGroup(groupFilter)
         }
         return if (pendingDeleteUuids.isEmpty()) all.toMutableList()

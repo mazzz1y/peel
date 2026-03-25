@@ -293,7 +293,7 @@ class WebAppSettingsActivity :
             else -> null
         }
         val usePrivateMode = webapp.isEphemeralSandbox ||
-            (webapp.groupUuid?.let { DataManager.instance.getGroup(it) }?.isEphemeralSandbox == true)
+                (webapp.groupUuid?.let { DataManager.instance.getGroup(it) }?.isEphemeralSandbox == true)
 
         val fetcher = HeadlessFetcher(
             activity = this,
@@ -301,8 +301,20 @@ class WebAppSettingsActivity :
             settings = DataManager.instance.resolveEffectiveSettings(webapp),
             contextId = contextId,
             usePrivateMode = usePrivateMode,
-            onProgress = { text -> runOnUiThread { if (generation == fetchGeneration) fetchDialogText?.text = text } },
-            onResult = { result -> runOnUiThread { handleFetchResult(webapp, result, generation) } },
+            onProgress = { text ->
+                runOnUiThread {
+                    if (generation == fetchGeneration) fetchDialogText?.text = text
+                }
+            },
+            onResult = { result ->
+                runOnUiThread {
+                    handleFetchResult(
+                        webapp,
+                        result,
+                        generation
+                    )
+                }
+            },
         )
         activeFetcher = fetcher
         fetcher.start()
