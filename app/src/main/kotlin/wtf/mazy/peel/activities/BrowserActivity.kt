@@ -134,9 +134,10 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
         BiometricUnlockController(
             activity = this,
             getWebappUuid = { webappUuid },
-            onSuccess = {
-                launchOverlayController.hideFallback()
-            },
+        onSuccess = {
+            launchOverlayController.hideFallback()
+            launchSessionExtensionsAndLoad(effectiveSettings, sharedUrlFromIntent() ?: webapp.baseUrl)
+        },
             onFailure = { finish() },
         )
     }
@@ -172,9 +173,14 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
         applyTaskSnapshotProtection()
         setupGeckoView()
         biometricController.registerReceiver()
-        biometricController.showPromptIfNeeded(
-            effectiveSettings.isBiometricProtection == true,
-        ) { launchOverlayController.arm { systemBarController.suppressNextAnimation = true } }
+
+        val needsBiometric = effectiveSettings.isBiometricProtection == true
+        biometricController.showPromptIfNeeded(needsBiometric) {
+            launchOverlayController.arm { systemBarController.suppressNextAnimation = true }
+        }
+        if (!needsBiometric) {
+            launchSessionExtensionsAndLoad(effectiveSettings, sharedUrlFromIntent() ?: webapp.baseUrl)
+        }
 
         setupBackNavigation()
         isStartupComplete = true
@@ -448,6 +454,7 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
     }
 
     override fun updateStatusBarColor(color: Int) {
+        if (biometricController.isPromptActive) return
         systemBarController.update(
             color,
             launchOverlayController.isVisible,
@@ -593,8 +600,6 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
         setupPullToRefresh(settings)
         applyColorScheme()
         if (settings.isShowFullscreen == true) systemBarController.hide() else systemBarController.show(false)
-
-        launchSessionExtensionsAndLoad(settings, sharedUrlFromIntent() ?: webapp.baseUrl)
     }
 
     private fun configureSession(settings: WebAppSettings) {
