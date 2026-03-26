@@ -2,6 +2,7 @@ package wtf.mazy.peel.gecko
 
 import android.content.Context
 import android.util.Log
+import java.io.File
 import kotlinx.coroutines.suspendCancellableCoroutine
 import org.mozilla.geckoview.ContentBlocking
 import org.mozilla.geckoview.GeckoResult
@@ -64,7 +65,7 @@ object GeckoRuntimeProvider {
     private fun createRuntime(context: Context): GeckoRuntime {
         val defaults = DataManager.instance.defaultSettings.settings
         val lna = defaults.isBlockLocalNetwork == true
-        val settings = GeckoRuntimeSettings.Builder()
+        val builder = GeckoRuntimeSettings.Builder()
             .javaScriptEnabled(true)
             .consoleOutput(BuildConfig.DEBUG)
             .aboutConfigEnabled(BuildConfig.DEBUG)
@@ -79,10 +80,26 @@ object GeckoRuntimeProvider {
                     .cookieBehavior(ContentBlocking.CookieBehavior.ACCEPT_FIRST_PARTY)
                     .build()
             )
-            .build()
-        val rt = GeckoRuntime.create(context, settings)
+        writeGeckoConfig(context, defaults)?.let { builder.configFilePath(it) }
+        val rt = GeckoRuntime.create(context, builder.build())
         rt.settings.setFingerprintingProtection(defaults.isFingerprintingProtection == true)
         return rt
+    }
+
+    private fun writeGeckoConfig(
+        context: Context,
+        defaults: wtf.mazy.peel.model.WebAppSettings,
+    ): String? {
+        val prefs = buildList {
+            if (defaults.isBlockWebRtcIpLeak == true) {
+                add("  media.peerconnection.ice.default_address_only: true")
+                add("  media.peerconnection.ice.no_host: true")
+            }
+        }
+        if (prefs.isEmpty()) return null
+        val file = File(context.filesDir, GECKO_CONFIG_FILE)
+        file.writeText("prefs:\n" + prefs.joinToString("\n") + "\n")
+        return file.absolutePath
     }
 
     suspend fun <T> GeckoResult<T>.await(): T = suspendCancellableCoroutine { cont ->
@@ -99,6 +116,7 @@ object GeckoRuntimeProvider {
         )
     }
 
+    private const val GECKO_CONFIG_FILE = "geckoview-config.yaml"
     private const val TAG = "PeelColor"
     private const val THEME_COLOR_URI = "resource://android/assets/extensions/theme-color/"
     private const val THEME_COLOR_ID = "theme-color@peel.mazy.wtf"

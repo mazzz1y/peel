@@ -218,6 +218,12 @@ object SettingRegistry {
                 globalOnly = true,
             ),
             SettingDefinition.BooleanSetting(
+                SettingField(WebAppSettings::isBlockWebRtcIpLeak, false),
+                R.string.setting_block_webrtc_ip_leak,
+                SettingCategory.SECURITY,
+                globalOnly = true,
+            ),
+            SettingDefinition.BooleanSetting(
                 SettingField(WebAppSettings::isBiometricProtection, false),
                 R.string.enable_access_restriction,
                 SettingCategory.SECURITY,

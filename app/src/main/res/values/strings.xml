@@ -173,6 +173,7 @@
     <string name="setting_global_privacy_control">Global Privacy Control</string>
     <string name="setting_fingerprinting_protection">Fingerprinting Protection</string>
     <string name="setting_block_local_network">Block Local Network Access</string>
+    <string name="setting_block_webrtc_ip_leak">Block WebRTC IP Leak</string>
     <string name="setting_always_https">HTTPS only</string>
     <string name="setting_custom_headers">Custom headers</string>
     <string name="setting_basic_auth">HTTP Authorization</string>
