@@ -39,6 +39,7 @@ import org.mozilla.geckoview.GeckoSessionSettings
 import wtf.mazy.peel.R
 import wtf.mazy.peel.browser.BrowserContextMenu
 import wtf.mazy.peel.browser.DownloadHandler
+import wtf.mazy.peel.browser.NavigationStartPoint
 import wtf.mazy.peel.browser.PeelContentDelegate
 import wtf.mazy.peel.browser.PeelNavigationDelegate
 import wtf.mazy.peel.browser.PeelPermissionDelegate
@@ -115,6 +116,7 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
     private var pageLoadHandled = false
     private var mediaPlaybackManager: MediaPlaybackManager? = null
     private var sessionSetupJob: Job? = null
+    private lateinit var navigationStartPoint: NavigationStartPoint
     private var cachedSettings: WebAppSettings? = null
     private var isStartupComplete = false
 
@@ -478,6 +480,9 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
 
     override fun onLocationChanged(url: String) {
         currentUrl = url
+        if (navigationStartPoint.onLocationChange(url)) {
+            geckoSession?.purgeHistory()
+        }
     }
 
     override fun onPageStarted() {
@@ -488,6 +493,7 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
     }
 
     override fun onPageFullyLoaded() {
+        navigationStartPoint.onPageFinished()
         if (pageLoadHandled || biometricController.isPromptActive) return
         pageLoadHandled = true
         if (launchOverlayController.isVisible) {
@@ -634,6 +640,7 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
         promptDelegate.clearAutoAuth()
         geckoView?.resetScrollPosition()
         autoReloadController.stop()
+        navigationStartPoint = NavigationStartPoint(webapp.baseUrl)
 
         val session = createSession(settings)
         geckoSession = session
