@@ -15,6 +15,7 @@ class VerticalSwipeRefreshLayout @JvmOverloads constructor(
     private var initialX = 0f
     private var initialY = 0f
     private var declined = false
+    private var disallowIntercept = false
 
     override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
         when (ev.actionMasked) {
@@ -22,10 +23,11 @@ class VerticalSwipeRefreshLayout @JvmOverloads constructor(
                 initialX = ev.x
                 initialY = ev.y
                 declined = false
+                disallowIntercept = false
             }
 
             MotionEvent.ACTION_MOVE -> {
-                if (declined) return false
+                if (declined || disallowIntercept) return false
                 if (ev.pointerCount > 1) {
                     declined = true
                     return false
@@ -47,7 +49,6 @@ class VerticalSwipeRefreshLayout @JvmOverloads constructor(
     }
 
     override fun requestDisallowInterceptTouchEvent(b: Boolean) {
-        // Intentionally not propagated — prevents GeckoView from
-        // disabling swipe-to-refresh during its own gesture handling.
+        disallowIntercept = b
     }
 }

@@ -81,6 +81,7 @@ class NestedGeckoView @JvmOverloads constructor(
             MotionEvent.ACTION_DOWN -> {
                 inputResult = PanZoomController.INPUT_RESULT_UNHANDLED
                 allowOverscroll = false
+                parent?.requestDisallowInterceptTouchEvent(true)
                 super.onTouchEventForDetailResult(event)
                     .accept { result ->
                         if (result == null) return@accept
@@ -88,6 +89,15 @@ class NestedGeckoView @JvmOverloads constructor(
                         allowOverscroll =
                             inputResult == PanZoomController.INPUT_RESULT_HANDLED &&
                                     (result.overscrollDirections() and PanZoomController.OVERSCROLL_FLAG_VERTICAL) != 0
+
+                        val canOverscrollTop =
+                            inputResult != PanZoomController.INPUT_RESULT_HANDLED_CONTENT &&
+                                    (result.scrollableDirections() and PanZoomController.SCROLLABLE_FLAG_TOP) == 0 &&
+                                    (result.overscrollDirections() and PanZoomController.OVERSCROLL_FLAG_VERTICAL) != 0
+                        if (canOverscrollTop) {
+                            parent?.requestDisallowInterceptTouchEvent(false)
+                        }
+
                         startNestedScroll(ViewCompat.SCROLL_AXIS_VERTICAL)
                     }
                 nestedOffsetY = 0
@@ -98,6 +108,7 @@ class NestedGeckoView @JvmOverloads constructor(
 
             MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
                 stopNestedScroll()
+                parent?.requestDisallowInterceptTouchEvent(false)
             }
         }
 
