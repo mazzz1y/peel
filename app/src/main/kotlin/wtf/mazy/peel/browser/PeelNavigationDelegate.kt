@@ -27,7 +27,6 @@ class PeelNavigationDelegate(private val host: SessionHost) : GeckoSession.Navig
         perms: MutableList<GeckoSession.PermissionDelegate.ContentPermission>,
         hasUserGesture: Boolean
     ) {
-        host.canGoBack = true
         if (url != null) host.onLocationChanged(url)
     }
 

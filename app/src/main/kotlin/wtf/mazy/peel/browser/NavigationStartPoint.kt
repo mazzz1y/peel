@@ -3,21 +3,23 @@ package wtf.mazy.peel.browser
 import androidx.core.net.toUri
 
 class NavigationStartPoint(private val baseUrl: String) {
-    private var settled = false
     private var visitedForeignHost = false
+    private var frozen = false
+    var settledAtUrl: String? = null
+        private set
 
-    fun onLocationChange(url: String): Boolean {
-        if (settled) return false
+    fun onLocationChange(url: String) {
+        if (settledAtUrl != null) return
         if (!isBaseHost(url)) {
-            visitedForeignHost = true
-            return false
+            if (!frozen) visitedForeignHost = true
+            return
         }
-        settled = true
-        return visitedForeignHost
+        if (!visitedForeignHost) return
+        settledAtUrl = url
     }
 
     fun onPageFinished() {
-        settled = true
+        frozen = true
     }
 
     private fun isBaseHost(url: String): Boolean {

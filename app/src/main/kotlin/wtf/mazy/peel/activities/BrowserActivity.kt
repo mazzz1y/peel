@@ -80,6 +80,7 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
     override var filePathCallback: ((Array<Uri>?) -> Unit)? = null
     override var canGoBack = false
     override var currentUrl = ""
+
     private val launchedFromMenu by lazy {
         intent.getBooleanExtra(Const.INTENT_LAUNCHED_FROM_MENU, false)
     }
@@ -480,9 +481,7 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
 
     override fun onLocationChanged(url: String) {
         currentUrl = url
-        if (navigationStartPoint.onLocationChange(url)) {
-            geckoSession?.purgeHistory()
-        }
+        navigationStartPoint.onLocationChange(url)
     }
 
     override fun onPageStarted() {
@@ -630,7 +629,7 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
         geckoView?.releaseSession()
         geckoSession?.close()
 
-        currentUrl = webapp.baseUrl
+        currentUrl = ""
         canGoBack = false
         currentlyReloading = true
         pageLoadHandled = false
@@ -911,7 +910,8 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
             this,
             object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
-                    if (canGoBack) {
+                    val settledAt = navigationStartPoint.settledAtUrl
+                    if (canGoBack && (settledAt == null || currentUrl != settledAt)) {
                         geckoSession?.goBack()
                         return
                     }
