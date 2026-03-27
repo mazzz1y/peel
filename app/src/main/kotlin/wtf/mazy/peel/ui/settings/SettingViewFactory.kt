@@ -19,6 +19,7 @@ import wtf.mazy.peel.model.WebAppSettings
 class SettingViewFactory(
     private val inflater: LayoutInflater,
     private val buttonStrategy: ButtonStrategy,
+    private val onSettingChanged: ((String) -> Unit)? = null,
 ) {
     sealed interface ButtonStrategy {
         class GlobalDefaults : ButtonStrategy
@@ -85,6 +86,8 @@ class SettingViewFactory(
         val switchListener = { _: android.widget.CompoundButton?, isChecked: Boolean ->
             settings.setValue(setting.key, isChecked)
             updateUndoVisibility(btnUndo, setting, settings)
+            onSettingChanged?.invoke(setting.key)
+            Unit
         }
 
         configureButtons(btnRemove, btnUndo, setting, settings) {
@@ -137,6 +140,7 @@ class SettingViewFactory(
                 settings.setValue(setting.key, values[item.itemId])
                 syncUi()
                 updateUndoVisibility(btnUndo, setting, settings)
+                onSettingChanged?.invoke(setting.key)
                 true
             }
             popup.show()
@@ -208,7 +212,9 @@ class SettingViewFactory(
                 if (isChecked) editText.post { editText.requestFocus() }
                 listenersActive = true
                 updateUndoVisibility(btnUndo, setting, settings)
+                onSettingChanged?.invoke(setting.key)
             }
+            Unit
         }
 
         syncUi()
@@ -405,7 +411,9 @@ class SettingViewFactory(
                 layout.visibility = if (isChecked) View.VISIBLE else View.GONE
                 if (isChecked) editUsername.post { editUsername.requestFocus() }
                 updateUndoVisibility(btnUndo, setting, settings)
+                onSettingChanged?.invoke(setting.key)
             }
+            Unit
         }
 
         syncUi()

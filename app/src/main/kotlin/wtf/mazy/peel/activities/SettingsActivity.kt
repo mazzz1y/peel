@@ -1,24 +1,32 @@
 package wtf.mazy.peel.activities
 
+import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.content.withStyledAttributes
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import wtf.mazy.peel.R
 import wtf.mazy.peel.databinding.GlobalSettingsBinding
+import wtf.mazy.peel.model.ApplyTiming
+import wtf.mazy.peel.model.ApplyTimingRegistry
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.SettingRegistry
 import wtf.mazy.peel.ui.settings.SettingViewFactory
+import kotlin.system.exitProcess
 
 class SettingsActivity : ToolbarBaseActivity<GlobalSettingsBinding>() {
 
     private lateinit var editableSettings: wtf.mazy.peel.model.WebApp
+    private var currentSnackbar: Snackbar? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,8 +52,11 @@ class SettingsActivity : ToolbarBaseActivity<GlobalSettingsBinding>() {
     private fun setupDefaultSettingsUI() {
         val settings = editableSettings.settings
         val container = binding.linearLayoutGlobalSettings
-        val factory =
-            SettingViewFactory(layoutInflater, SettingViewFactory.ButtonStrategy.GlobalDefaults())
+        val factory = SettingViewFactory(
+            layoutInflater,
+            SettingViewFactory.ButtonStrategy.GlobalDefaults(),
+            ::onSettingChanged,
+        )
 
         val settingsGrouped =
             SettingRegistry.getAllSettings()
@@ -94,5 +105,33 @@ class SettingsActivity : ToolbarBaseActivity<GlobalSettingsBinding>() {
                 withStyledAttributes(null, attrs) { background = getDrawable(0) }
             }
         container.addView(divider)
+    }
+
+    private fun onSettingChanged(key: String) {
+        val timing = ApplyTimingRegistry.getTiming(key)
+        if (timing == ApplyTiming.IMMEDIATE) return
+        currentSnackbar?.dismiss()
+        val message = when (timing) {
+            ApplyTiming.PEEL_RESTART -> R.string.setting_requires_peel_restart
+            ApplyTiming.WEBAPP_RESTART -> R.string.setting_requires_webapp_restart
+            else -> return
+        }
+        val snackbar = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
+        snackbar.setAction(R.string.restart) { restartApp() }
+        currentSnackbar = snackbar
+        snackbar.show()
+    }
+
+    private fun restartApp() {
+        lifecycleScope.launch {
+            withContext(NonCancellable) {
+                DataManager.instance.setDefaultSettings(editableSettings)
+            }
+            val intent = packageManager.getLaunchIntentForPackage(packageName)?.apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+            }
+            intent?.let { startActivity(it) }
+            Handler(Looper.getMainLooper()).postDelayed({ exitProcess(0) }, 200)
+        }
     }
 }

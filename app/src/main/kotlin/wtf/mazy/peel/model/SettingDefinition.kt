@@ -80,6 +80,36 @@ enum class SettingCategory(@param:StringRes val displayNameResId: Int) {
     ADVANCED(R.string.advanced),
 }
 
+enum class ApplyTiming {
+    IMMEDIATE,
+    WEBAPP_RESTART,
+    PEEL_RESTART,
+}
+
+object ApplyTimingRegistry {
+    private val WEBAPP_RESTART_KEYS = setOf(
+        "isAllowJs",
+        "isRequestDesktop",
+        "isLongClickShare",
+        "isSafeBrowsing",
+        "isDynamicStatusBar",
+        "isAllowMediaPlaybackInBackground",
+    )
+
+    private val PEEL_RESTART_KEYS = setOf(
+        "isGlobalPrivacyControl",
+        "isFingerprintingProtection",
+        "isBlockLocalNetwork",
+        "isBlockWebRtcIpLeak",
+    )
+
+    fun getTiming(key: String): ApplyTiming = when (key) {
+        in PEEL_RESTART_KEYS -> ApplyTiming.PEEL_RESTART
+        in WEBAPP_RESTART_KEYS -> ApplyTiming.WEBAPP_RESTART
+        else -> ApplyTiming.IMMEDIATE
+    }
+}
+
 object SettingRegistry {
 
     private val ALL_SETTINGS: List<SettingDefinition> =

@@ -181,6 +181,9 @@
     <string name="setting_open_in_peel_app">Open links in Peel apps</string>
     <string name="permission_prompt_open_in_peel_app">Open this link in %1$s?</string>
     <string name="setting_floating_controls">Floating controls</string>
+    <string name="setting_requires_peel_restart">This setting takes effect after Peel restart</string>
+    <string name="setting_requires_webapp_restart">This setting takes effect after webapps restart</string>
+    <string name="restart">Restart</string>
 
     <string name="groups">Groups</string>
     <string name="group">Group</string>
