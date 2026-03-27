@@ -27,6 +27,13 @@ function sendColor() {
 
 sendColor();
 
+window.addEventListener("pageshow", function(e) {
+  if (e.persisted) {
+    lastColor = null;
+    sendColor();
+  }
+});
+
 new MutationObserver(sendColor).observe(
   document.head,
   { childList: true, subtree: true, attributes: true, attributeFilter: ["content", "media"] }
