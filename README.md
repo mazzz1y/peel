@@ -6,9 +6,9 @@
 
 **Turn any website into a native-like Android app**
 
-Peel is an open-source Android app that turns websites into standalone, app-like experiences. It lets you create lightweight web apps with custom icons, isolated storage, and fine-grained privacy controls, separate from browsers.
+Peel is an open-source Android app that turns websites into standalone, app-like experiences. It lets you create lightweight web apps with custom icons, isolated storage, and fine-grained privacy controls, separate from your browser.
 
-Uses System Android WebView for efficient rendering and minimal resource usage.
+Powered by GeckoView (Mozilla's browser engine) for strong privacy, extension support, and modern web compatibility.
 
 <a href="https://apps.obtainium.imranr.dev/redirect.html?r=obtainium://add/https://github.com/mazzz1y/peel">
 <img src="https://github.com/ImranR98/Obtainium/blob/main/assets/graphics/badge_obtainium.png?raw=true"
@@ -20,15 +20,17 @@ alt="Get it on Obtainium" align="center" height="54" />
 - Add websites as standalone apps with automatic icon and title fetching
 - Launch web apps directly from your home screen with adaptive icons
 - App grouping with home screen group shortcuts
-- Per-group and per-app optional isolated sandbox processes with separate cookies and storage
-- Block third-party requests, manage cookies, enforce HTTPS, set custom headers, etc
-- Lock sensitive web apps behind fingerprint or face authentication, set flag secure to disallow screencasting and screenshots
-- Force dark theme on any website with optional scheduling
+- Per-group and per-app optional isolated sandbox with separate cookies and storage
+- Smart external link routing to other Peel apps or system browser
+- Privacy controls: GPC signal, fingerprinting protection, local network blocking, WebRTC IP leak prevention
+- Enhanced Tracking Protection, HTTPS-only mode, custom headers
+- Lock sensitive web apps behind biometric authentication, block screenshots
+- Dynamic status bar color matching web content
 - Background media playback with full MediaSession support (notification controls, seek, metadata)
-- Open links in other Peel apps via long-press context menu with domain-affinity matching
+- Pull-to-refresh with proper APZ integration
 - Set settings globally or override them per app
 - Export and import all web apps and settings with all properties and icons
-- Written in Kotlin with Modern Material 3 interface
+- Written in Kotlin with Material 3 interface
 
 ## Screenshots
 
@@ -37,7 +39,7 @@ alt="Get it on Obtainium" align="center" height="54" />
 
 ## Acknowledgments
 
-Hard fork of [Native Alpha](https://github.com/cylonid/NativeAlphaForAndroid) with significant changes including flow refactoring, removal of redundant options, and new features. Not compatible with the original.
+Hard fork of [Native Alpha](https://github.com/cylonid/NativeAlphaForAndroid) with significant changes including a full migration from WebView to GeckoView, flow refactoring, removal of redundant options, and new features. Not compatible with the original.
 
 <details>
 <summary>Changes from Native Alpha</summary>
@@ -45,24 +47,28 @@ Hard fork of [Native Alpha](https://github.com/cylonid/NativeAlphaForAndroid) wi
 #### Removed Features
 - Ad blocking
 - Multi-touch gestures (2-finger navigation, 3-finger app switching, 2-finger reload)
-- Custom WebView context menu pop-up
 
 #### Added Features
+- GeckoView engine (replacing Android WebView)
+- Privacy: GPC signal, fingerprinting protection, local network blocking, WebRTC IP leak prevention
+- Dynamic status bar color from web content via browser extension
+- Smart external link routing between Peel apps
 - Material Design 3 dynamic color support
 - More reliable UUID-based app storage
 - Web-app reordering
 - App grouping and per-group sandboxing
 - Backups now include webapp positions in the list and images
-- Persistent notification with Home/Share/Reload actions
-- Optional pull-to-refresh
-- More reliable icon fetching
+- Floating controls with Home/Share/Reload actions
+- Pull-to-refresh with Gecko APZ integration
+- More reliable icon fetching via headless browser
 - Letter icon generator
 - Per-webapp setting overrides via a picker dialog
-- Custom HTTP header map (replaces the dedicated user-agent setting)
-- Always-use-HTTPS upgrade setting
-- Disable screenshots setting (`FLAG_SECURE`)
-- Long-press link sharing
+- Custom HTTP header map
+- HTTPS-only upgrade setting
+- Biometric lock and screenshot blocking (`FLAG_SECURE`)
+- Long-press context menu with link sharing
 - Per-webapp sandbox data clearing
+- Auth redirect chain handling for clean back navigation
 
 </details>
 
