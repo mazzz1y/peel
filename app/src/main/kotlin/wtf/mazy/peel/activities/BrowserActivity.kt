@@ -793,49 +793,29 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
         url: String,
         onDismiss: () -> Unit,
     ) {
-        if (matches.size == 1) {
-            val app = matches.first()
-            MaterialAlertDialogBuilder(this)
-                .setMessage(getString(R.string.permission_prompt_open_in_peel_app, app.title))
-                .setCancelable(false)
-                .setPositiveButton(R.string.open) { dialog, _ ->
-                    dialog.dismiss()
-                    BrowserLauncher.launch(app, this, url)
-                    onDismiss()
-                }
-                .setNeutralButton(R.string.dont_switch) { dialog, _ ->
-                    dialog.dismiss()
-                    loadURL(url)
-                    onDismiss()
-                }
-                .setNegativeButton(R.string.cancel) { dialog, _ ->
-                    dialog.dismiss()
-                    onDismiss()
-                }
-                .show()
-        } else {
-            val adapter = ListPickerAdapter(matches) { app, icon, name, detail ->
-                name.text = app.title
-                icon.setImageBitmap(app.resolveIcon())
-                detail.visibility = View.GONE
-            }
-            MaterialAlertDialogBuilder(this)
-                .setTitle(R.string.open_in_peel)
-                .setAdapter(adapter) { _, position ->
-                    BrowserLauncher.launch(matches[position], this, url)
-                    onDismiss()
-                }
-                .setNeutralButton(R.string.dont_switch) { dialog, _ ->
-                    dialog.dismiss()
-                    loadURL(url)
-                    onDismiss()
-                }
-                .setNegativeButton(R.string.cancel) { dialog, _ ->
-                    dialog.dismiss()
-                    onDismiss()
-                }
-                .show()
+        val adapter = ListPickerAdapter(matches) { app, icon, name, detail ->
+            name.text = app.title
+            icon.setImageBitmap(app.resolveIcon())
+            detail.visibility = View.GONE
         }
+        MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.open_in_peel)
+            .setAdapter(adapter) { _, position ->
+                BrowserLauncher.launch(matches[position], this, url)
+                onDismiss()
+            }
+            .setNeutralButton(R.string.load_here) { dialog, _ ->
+                dialog.dismiss()
+                loadURL(url)
+                onDismiss()
+            }
+            .setNegativeButton(R.string.open_in_system) { dialog, _ ->
+                dialog.dismiss()
+                startExternalIntent(url.toUri())
+                onDismiss()
+            }
+            .setOnCancelListener { onDismiss() }
+            .show()
     }
 
     private fun bestPeelMatchIcon(url: String): Bitmap? {

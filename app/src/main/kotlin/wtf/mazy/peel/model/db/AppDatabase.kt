@@ -25,7 +25,7 @@ class StringMapConverter {
 
 @Database(
     entities = [WebAppEntity::class, WebAppGroupEntity::class],
-    version = 15,
+    version = 16,
     exportSchema = true,
 )
 @TypeConverters(StringMapConverter::class)
@@ -179,7 +179,6 @@ abstract class AppDatabase : RoomDatabase() {
             "isFingerprintingProtection" to "INTEGER",
             "isBlockLocalNetwork" to "INTEGER",
             "isBlockWebRtcIpLeak" to "INTEGER",
-            "isOpenInPeelApp" to "INTEGER",
             "isUseBasicAuth" to "INTEGER",
             "basicAuthUsername" to "TEXT",
             "basicAuthPassword" to "TEXT",
@@ -440,6 +439,66 @@ abstract class AppDatabase : RoomDatabase() {
                 }
             }
 
+        val MIGRATION_15_16 =
+            object : Migration(15, 16) {
+                override fun migrate(db: SupportSQLiteDatabase) {
+                    ensureSettingsColumns(db)
+                    db.execSQL(
+                        """
+                        CREATE TABLE IF NOT EXISTS webapps_new (
+                            uuid TEXT NOT NULL PRIMARY KEY,
+                            baseUrl TEXT NOT NULL,
+                            title TEXT NOT NULL,
+                            isUseContainer INTEGER NOT NULL,
+                            isEphemeralSandbox INTEGER NOT NULL,
+                            `order` INTEGER NOT NULL,
+                            groupUuid TEXT,
+                            $SETTINGS_COLS
+                        )
+                        """
+                    )
+                    db.execSQL(
+                        """
+                        INSERT INTO webapps_new (
+                            uuid, baseUrl, title, isUseContainer,
+                            isEphemeralSandbox, `order`, groupUuid, $SETTINGS_COL_NAMES
+                        )
+                        SELECT uuid, baseUrl, title, isUseContainer,
+                            isEphemeralSandbox, `order`, groupUuid, $SETTINGS_COL_NAMES
+                        FROM webapps
+                        """
+                    )
+                    db.execSQL("DROP TABLE webapps")
+                    db.execSQL("ALTER TABLE webapps_new RENAME TO webapps")
+
+                    db.execSQL(
+                        """
+                        CREATE TABLE IF NOT EXISTS webapp_groups_new (
+                            uuid TEXT NOT NULL PRIMARY KEY,
+                            title TEXT NOT NULL,
+                            `order` INTEGER NOT NULL,
+                            isUseContainer INTEGER NOT NULL,
+                            isEphemeralSandbox INTEGER NOT NULL,
+                            $SETTINGS_COLS
+                        )
+                        """
+                    )
+                    db.execSQL(
+                        """
+                        INSERT INTO webapp_groups_new (
+                            uuid, title, `order`, isUseContainer, isEphemeralSandbox,
+                            $SETTINGS_COL_NAMES
+                        )
+                        SELECT uuid, title, `order`, isUseContainer, isEphemeralSandbox,
+                            $SETTINGS_COL_NAMES
+                        FROM webapp_groups
+                        """
+                    )
+                    db.execSQL("DROP TABLE webapp_groups")
+                    db.execSQL("ALTER TABLE webapp_groups_new RENAME TO webapp_groups")
+                }
+            }
+
         fun getInstance(context: Context): AppDatabase {
             return instance
                 ?: synchronized(this) { instance ?: buildDatabase(context).also { instance = it } }
@@ -466,6 +525,7 @@ abstract class AppDatabase : RoomDatabase() {
                     MIGRATION_12_13,
                     MIGRATION_13_14,
                     MIGRATION_14_15,
+                    MIGRATION_15_16,
                 )
                 .allowMainThreadQueries()
                 .build()

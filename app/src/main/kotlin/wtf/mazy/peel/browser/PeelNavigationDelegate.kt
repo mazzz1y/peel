@@ -55,20 +55,19 @@ class PeelNavigationDelegate(private val host: SessionHost) : GeckoSession.Navig
             return GeckoResult.fromValue(AllowOrDeny.DENY)
         }
 
-        if (settings.isOpenInPeelApp == true && !peelRoutingDialogShowing) {
-            val matches = host.findPeelAppMatches(url)
-            if (matches.isNotEmpty()) {
-                peelRoutingDialogShowing = true
-                host.runOnUi {
-                    host.showPeelAppRoutingDialog(matches, url) {
-                        peelRoutingDialogShowing = false
-                    }
-                }
-                return GeckoResult.fromValue(AllowOrDeny.DENY)
-            }
-        }
-
         if (settings.isOpenUrlExternal == true) {
+            if (!peelRoutingDialogShowing) {
+                val matches = host.findPeelAppMatches(url)
+                if (matches.isNotEmpty()) {
+                    peelRoutingDialogShowing = true
+                    host.runOnUi {
+                        host.showPeelAppRoutingDialog(matches, url) {
+                            peelRoutingDialogShowing = false
+                        }
+                    }
+                    return GeckoResult.fromValue(AllowOrDeny.DENY)
+                }
+            }
             if (HostIdentity.affinity(host.baseUrl, url) <= HostIdentity.TLD_ONLY) {
                 showExternalIntentPrompt(
                     url, R.string.permission_prompt_open_externally,
