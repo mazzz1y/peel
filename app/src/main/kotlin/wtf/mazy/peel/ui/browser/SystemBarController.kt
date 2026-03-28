@@ -30,6 +30,7 @@ class SystemBarController(
         }
         ViewCompat.setOnApplyWindowInsetsListener(rootView) { _, insets ->
             val systemInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            val imeInsets = insets.getInsets(WindowInsetsCompat.Type.ime())
             statusBarScrim?.apply {
                 layoutParams.height = systemInsets.top
                 requestLayout()
@@ -38,8 +39,11 @@ class SystemBarController(
                 layoutParams.height = systemInsets.bottom
                 requestLayout()
             }
+            val bottom = maxOf(systemInsets.bottom, imeInsets.bottom)
             if (!isFullscreen) {
-                contentView?.setPadding(0, systemInsets.top, 0, systemInsets.bottom)
+                contentView?.setPadding(0, systemInsets.top, 0, bottom)
+            } else {
+                contentView?.setPadding(0, 0, 0, bottom)
             }
             WindowInsetsCompat.CONSUMED
         }
