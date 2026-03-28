@@ -36,9 +36,4 @@ class PeelProgressDelegate(private val host: SessionHost) : GeckoSession.Progres
         }
     }
 
-    override fun onSecurityChange(
-        session: GeckoSession,
-        securityInfo: GeckoSession.ProgressDelegate.SecurityInformation,
-    ) {
-    }
 }

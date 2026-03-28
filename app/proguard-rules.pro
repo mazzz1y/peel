@@ -27,16 +27,6 @@
 -keepattributes InnerClasses
 -keepattributes EnclosingMethod
 
-# Jsoup HTML parser - Keep only main classes used
--keeppackagenames org.jsoup.nodes
--keep class org.jsoup.Jsoup { *; }
--keep class org.jsoup.nodes.** { *; }
--keep class org.jsoup.select.Elements { *; }
--keep class org.jsoup.Connection { *; }
-# Jsoup optional dependencies (re2j regex engine - not included)
--dontwarn com.google.re2j.Matcher
--dontwarn com.google.re2j.Pattern
-
 # Keep line numbers for crash reports
 -keepattributes SourceFile,LineNumberTable
 -renamesourcefileattribute SourceFile
@@ -64,7 +54,7 @@
 -keep class androidx.lifecycle.ViewModel { *; }
 -keep class androidx.lifecycle.ViewModelProvider { *; }
 -keep class androidx.lifecycle.LiveData { *; }
--keep class androidx.navigation.fragment.NavHostFragment { *; }
+
 
 # Material Components - Keep only what's actually used
 -keep class com.google.android.material.snackbar.Snackbar { *; }

@@ -35,7 +35,7 @@ class GroupSettingsActivity :
         originalGroup = groupUuid?.let { DataManager.instance.getGroup(it) }
 
         if (originalGroup == null) {
-            showToast(this, getString(R.string.webapp_not_found), Toast.LENGTH_SHORT)
+            showToast(this, getString(R.string.group_not_found), Toast.LENGTH_SHORT)
             finish()
             return
         }

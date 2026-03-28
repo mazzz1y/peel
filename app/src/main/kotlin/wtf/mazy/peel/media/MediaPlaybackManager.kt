@@ -9,8 +9,14 @@ import android.os.Handler
 import android.os.Looper
 import androidx.core.content.ContextCompat
 import org.mozilla.geckoview.GeckoSession
-import java.io.ByteArrayOutputStream
 import org.mozilla.geckoview.MediaSession as GeckoMediaSession
+import java.io.ByteArrayOutputStream
+
+fun Bitmap.toPngBytes(): ByteArray {
+    val stream = ByteArrayOutputStream()
+    compress(Bitmap.CompressFormat.PNG, 100, stream)
+    return stream.toByteArray()
+}
 
 class MediaPlaybackManager(context: Context) : GeckoMediaSession.Delegate {
 
@@ -74,9 +80,6 @@ class MediaPlaybackManager(context: Context) : GeckoMediaSession.Delegate {
         if (!receiverRegistered) registerReceiver()
     }
 
-    fun setBackground(isBackground: Boolean) {
-    }
-
     override fun onPlay(session: GeckoSession, mediaSession: GeckoMediaSession) {
         this.mediaSession = mediaSession
         cancelPendingPause()
@@ -135,7 +138,7 @@ class MediaPlaybackManager(context: Context) : GeckoMediaSession.Delegate {
             })
         meta.artwork?.getBitmap(ARTWORK_SIZE)?.accept { bitmap ->
             if (bitmap != null && serviceStarted) {
-                val bytes = bitmapToBytes(bitmap)
+                val bytes = bitmap.toPngBytes()
                 context.startService(
                     Intent(context, MediaPlaybackService.resolveServiceClass()).apply {
                         action = MediaPlaybackService.ACTION_UPDATE_ARTWORK
@@ -230,12 +233,6 @@ class MediaPlaybackManager(context: Context) : GeckoMediaSession.Delegate {
     private fun cancelPendingPause() {
         pendingPause?.let { handler.removeCallbacks(it) }
         pendingPause = null
-    }
-
-    private fun bitmapToBytes(bmp: Bitmap): ByteArray {
-        val stream = ByteArrayOutputStream()
-        bmp.compress(Bitmap.CompressFormat.PNG, 100, stream)
-        return stream.toByteArray()
     }
 
     companion object {

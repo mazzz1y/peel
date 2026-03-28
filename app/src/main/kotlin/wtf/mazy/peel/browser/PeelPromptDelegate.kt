@@ -121,11 +121,7 @@ class PeelPromptDelegate(private val host: SessionHost) : GeckoSession.PromptDel
 
         val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
             addCategory(Intent.CATEGORY_OPENABLE)
-            type = if (prompt.mimeTypes != null && prompt.mimeTypes!!.isNotEmpty()) {
-                prompt.mimeTypes!!.first()
-            } else {
-                "*/*"
-            }
+            type = prompt.mimeTypes?.firstOrNull() ?: "*/*"
         }
 
         if (!host.launchFilePicker(intent)) {

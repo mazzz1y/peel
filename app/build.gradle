@@ -50,7 +50,6 @@ android {
         }
         debug {
             applicationIdSuffix = ".debug"
-            resValue "string", "app_name", "Peel"
             minifyEnabled false
             shrinkResources false
         }
@@ -84,7 +83,6 @@ ksp {
 
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.10.0'
     implementation "org.mozilla.geckoview:geckoview:$geckoviewVersion"
     implementation "androidx.biometric:biometric:1.1.0"

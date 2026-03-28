@@ -1,5 +1,4 @@
 <resources>
-    <string name="app_name" translatable="false">Peel</string>
     <string name="action_settings">Settings</string>
     <string name="global_settings">Global Settings</string>
     <string name="save">Save</string>
@@ -65,6 +64,7 @@
     <string name="preparing_export">Preparing…</string>
     <string name="importing">Importing…</string>
     <string name="webapp_not_found">The Web App you are trying to reach is no longer available</string>
+    <string name="group_not_found">The Group you are trying to reach is no longer available</string>
     <string name="no_filemanager">Please install a file manager</string>
     <string name="import_btn">Import</string>
     <string name="allow_location_access">Location</string>

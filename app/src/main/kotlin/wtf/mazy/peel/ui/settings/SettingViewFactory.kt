@@ -6,6 +6,7 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.inputmethod.EditorInfo
+import android.widget.CompoundButton
 import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.PopupMenu
@@ -22,7 +23,7 @@ class SettingViewFactory(
     private val onSettingChanged: ((String) -> Unit)? = null,
 ) {
     sealed interface ButtonStrategy {
-        class GlobalDefaults : ButtonStrategy
+        data object GlobalDefaults : ButtonStrategy
 
         class Override(val onRemove: (SettingDefinition) -> Unit) : ButtonStrategy
     }
@@ -83,7 +84,7 @@ class SettingViewFactory(
         textName.text = view.context.getString(setting.displayNameResId)
         switch.isChecked = settings.getValue(setting.key) as? Boolean ?: false
 
-        val switchListener = { _: android.widget.CompoundButton?, isChecked: Boolean ->
+        val switchListener = { _: CompoundButton?, isChecked: Boolean ->
             settings.setValue(setting.key, isChecked)
             updateUndoVisibility(btnUndo, setting, settings)
             onSettingChanged?.invoke(setting.key)
@@ -202,7 +203,7 @@ class SettingViewFactory(
                 }
             }
 
-        val switchListener = { _: android.widget.CompoundButton?, isChecked: Boolean ->
+        val switchListener = { _: CompoundButton?, isChecked: Boolean ->
             if (listenersActive) {
                 settings.setValue(setting.key, isChecked)
                 listenersActive = false
@@ -405,7 +406,7 @@ class SettingViewFactory(
             }
         }
 
-        val switchListener = { _: android.widget.CompoundButton?, isChecked: Boolean ->
+        val switchListener = { _: CompoundButton?, isChecked: Boolean ->
             if (listenersActive) {
                 settings.setValue(setting.key, isChecked)
                 layout.visibility = if (isChecked) View.VISIBLE else View.GONE

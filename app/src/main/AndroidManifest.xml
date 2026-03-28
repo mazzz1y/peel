@@ -3,7 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="com.android.launcher.permission.INSTALL_SHORTCUT" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission
@@ -31,9 +30,6 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
 
     <uses-permission android:name="android.permission.WAKE_LOCK" />
-    <uses-permission
-        android:name="android.permission.REQUEST_INSTALL_PACKAGES"
-        tools:ignore="RequestInstallPackagesPolicy" />
 
     <application
         android:name="wtf.mazy.peel.util.App"
@@ -43,7 +39,7 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:resizeableActivity="true"
-        android:roundIcon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:usesCleartextTraffic="true">
 
@@ -120,7 +116,7 @@
             android:exported="false"
             android:icon="@mipmap/ic_launcher"
             android:launchMode="singleTask"
-            android:roundIcon="@mipmap/ic_launcher"
+            android:roundIcon="@mipmap/ic_launcher_round"
             android:taskAffinity=""
             android:theme="@style/AppTheme.Browser"
             android:windowSoftInputMode="adjustResize" />
@@ -151,28 +147,28 @@
             android:name=".activities.SettingsActivity"
             android:icon="@mipmap/ic_launcher"
             android:parentActivityName=".activities.MainActivity"
-            android:roundIcon="@mipmap/ic_launcher"
+            android:roundIcon="@mipmap/ic_launcher_round"
             android:theme="@style/AppTheme"
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".activities.WebAppSettingsActivity"
             android:icon="@mipmap/ic_launcher"
             android:parentActivityName=".activities.MainActivity"
-            android:roundIcon="@mipmap/ic_launcher"
+            android:roundIcon="@mipmap/ic_launcher_round"
             android:theme="@style/AppTheme"
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".activities.GroupListActivity"
             android:icon="@mipmap/ic_launcher"
             android:parentActivityName=".activities.MainActivity"
-            android:roundIcon="@mipmap/ic_launcher"
+            android:roundIcon="@mipmap/ic_launcher_round"
             android:theme="@style/AppTheme"
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".activities.GroupSettingsActivity"
             android:icon="@mipmap/ic_launcher"
             android:parentActivityName=".activities.GroupListActivity"
-            android:roundIcon="@mipmap/ic_launcher"
+            android:roundIcon="@mipmap/ic_launcher_round"
             android:theme="@style/AppTheme"
             android:windowSoftInputMode="adjustResize" />
 

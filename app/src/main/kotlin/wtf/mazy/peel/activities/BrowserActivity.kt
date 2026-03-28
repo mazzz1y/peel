@@ -215,7 +215,6 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
         val uuid = webappUuid ?: return
         if (DataManager.instance.getWebApp(uuid) == null) return
         cachedSettings = DataManager.instance.resolveEffectiveSettings(webapp)
-        mediaPlaybackManager?.setBackground(false)
         customHeaders = buildCustomHeaders(effectiveSettings)
         applyWindowFlags(effectiveSettings)
         applyColorScheme()
@@ -260,9 +259,7 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
         }
         val settings = effectiveSettings
 
-        if (settings.isAllowMediaPlaybackInBackground == true) {
-            mediaPlaybackManager?.setBackground(true)
-        } else {
+        if (settings.isAllowMediaPlaybackInBackground != true) {
             geckoSession?.setActive(false)
         }
 
@@ -415,7 +412,7 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
             return uiMode == Configuration.UI_MODE_NIGHT_YES
         }
 
-    override fun applyColorScheme() {
+    private fun applyColorScheme() {
         val settings = effectiveSettings
         val scheme = settings.colorScheme ?: WebAppSettings.COLOR_SCHEME_AUTO
 
@@ -447,9 +444,7 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
         }
     }
 
-    override fun finishActivity() = finish()
-
-    override fun showToast(message: String) {
+    private fun showToast(message: String) {
         NotificationUtils.showToast(this, message)
     }
 
@@ -488,7 +483,7 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
         pageLoadHandled = false
         permissionDelegate.clearPagePermissions()
         promptDelegate.clearAutoAuth()
-        navigationDelegate.clearAutoAuth()
+        navigationDelegate.resetDialogState()
     }
 
     override fun onPageFullyLoaded() {
@@ -634,7 +629,7 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
         currentlyReloading = true
         pageLoadHandled = false
         filePathCallback = null
-        navigationDelegate.clearAutoAuth()
+        navigationDelegate.resetDialogState()
         permissionDelegate.clearPagePermissions()
         promptDelegate.clearAutoAuth()
         geckoView?.resetScrollPosition()
@@ -691,7 +686,7 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
     }
 
     private fun createSession(settings: WebAppSettings): GeckoSession {
-        val contextId = resolveContextId(webapp)
+        val contextId = webapp.resolveContextId()
 
         val sessionSettings = GeckoSessionSettings.Builder()
             .allowJavascript(settings.isAllowJs == true)
@@ -701,10 +696,7 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
                     viewportMode(GeckoSessionSettings.VIEWPORT_MODE_DESKTOP)
                 }
                 if (contextId != null) contextId(contextId)
-                usePrivateMode(
-                    webapp.isEphemeralSandbox ||
-                            (webapp.groupUuid?.let { DataManager.instance.getGroup(it) }?.isEphemeralSandbox == true)
-                )
+                usePrivateMode(webapp.resolvePrivateMode())
             }
             .build()
 
@@ -781,14 +773,7 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
         }
     }
 
-    private fun resolveContextId(app: WebApp): String? {
-        val group = app.groupUuid?.let { DataManager.instance.getGroup(it) }
-        return when {
-            app.isUseContainer -> app.uuid
-            group?.isUseContainer == true -> group.uuid
-            else -> null
-        }
-    }
+
 
     override fun findPeelAppMatches(url: String): List<WebApp> {
         val currentUuid = webappUuid ?: return emptyList()

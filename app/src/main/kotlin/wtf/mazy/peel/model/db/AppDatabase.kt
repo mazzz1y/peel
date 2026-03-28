@@ -234,8 +234,6 @@ abstract class AppDatabase : RoomDatabase() {
                 cursor.close()
                 if ("colorScheme" !in existing)
                     db.execSQL("ALTER TABLE $table ADD COLUMN colorScheme INTEGER DEFAULT NULL")
-                if ("isAlgorithmicDarkening" !in existing)
-                    db.execSQL("ALTER TABLE $table ADD COLUMN isAlgorithmicDarkening INTEGER DEFAULT NULL")
             }
         }
 

@@ -59,4 +59,17 @@ data class WebApp(var baseUrl: String, override val uuid: String = UUID.randomUU
 
     val contentFingerprint: Int
         get() = Objects.hash(title, baseUrl, groupUuid, isUseContainer, isEphemeralSandbox, order)
+
+    fun resolveContextId(): String? {
+        val group = groupUuid?.let { DataManager.instance.getGroup(it) }
+        return when {
+            isUseContainer -> uuid
+            group?.isUseContainer == true -> group.uuid
+            else -> null
+        }
+    }
+
+    fun resolvePrivateMode(): Boolean =
+        isEphemeralSandbox ||
+                (groupUuid?.let { DataManager.instance.getGroup(it) }?.isEphemeralSandbox == true)
 }

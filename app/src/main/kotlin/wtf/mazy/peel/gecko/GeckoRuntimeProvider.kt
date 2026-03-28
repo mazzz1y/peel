@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import java.io.File
 import kotlinx.coroutines.suspendCancellableCoroutine
+import wtf.mazy.peel.model.WebAppSettings
 import org.mozilla.geckoview.ContentBlocking
 import org.mozilla.geckoview.GeckoResult
 import org.mozilla.geckoview.GeckoRuntime
@@ -88,7 +89,7 @@ object GeckoRuntimeProvider {
 
     private fun writeGeckoConfig(
         context: Context,
-        defaults: wtf.mazy.peel.model.WebAppSettings,
+        defaults: WebAppSettings,
     ): String? {
         val prefs = buildList {
             if (defaults.isBlockWebRtcIpLeak == true) {
@@ -117,7 +118,7 @@ object GeckoRuntimeProvider {
     }
 
     private const val GECKO_CONFIG_FILE = "geckoview-config.yaml"
-    private const val TAG = "PeelColor"
+    private const val TAG = "PeelGecko"
     private const val THEME_COLOR_URI = "resource://android/assets/extensions/theme-color/"
     private const val THEME_COLOR_ID = "theme-color@peel.mazy.wtf"
     private const val PAGE_INFO_URI = "resource://android/assets/extensions/page-info/"

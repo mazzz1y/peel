@@ -106,7 +106,7 @@ class PeelPermissionDelegate(private val host: SessionHost) : GeckoSession.Permi
             callback.reject()
             return
         }
-        val perms = permissions.map { it }.toTypedArray()
+        val perms = permissions.toList().toTypedArray()
         if (host.hasPermissions(*perms)) {
             callback.grant()
             return

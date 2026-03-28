@@ -40,10 +40,7 @@ interface SessionHost {
         realm: String?,
     )
 
-    fun applyColorScheme()
     fun loadURL(url: String)
-    fun finishActivity()
-    fun showToast(message: String)
     fun showConnectionError(description: String, url: String)
     fun updateStatusBarColor(color: Int)
     fun findPeelAppMatches(url: String): List<WebApp>

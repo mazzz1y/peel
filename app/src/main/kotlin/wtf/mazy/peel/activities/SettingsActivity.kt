@@ -54,7 +54,7 @@ class SettingsActivity : ToolbarBaseActivity<GlobalSettingsBinding>() {
         val container = binding.linearLayoutGlobalSettings
         val factory = SettingViewFactory(
             layoutInflater,
-            SettingViewFactory.ButtonStrategy.GlobalDefaults(),
+            SettingViewFactory.ButtonStrategy.GlobalDefaults,
             ::onSettingChanged,
         )
 

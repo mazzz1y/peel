@@ -33,7 +33,6 @@ import kotlinx.coroutines.launch
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.util.BrowserLauncher
-import java.io.ByteArrayOutputStream
 
 @OptIn(UnstableApi::class)
 open class MediaPlaybackService : MediaSessionService() {
@@ -264,7 +263,7 @@ open class MediaPlaybackService : MediaSessionService() {
             trackArtist?.let { metadataBuilder.setArtist(it) }
             art?.let {
                 metadataBuilder.setArtworkData(
-                    bitmapToBytes(it), MediaMetadata.PICTURE_TYPE_FRONT_COVER
+                    it.toPngBytes(), MediaMetadata.PICTURE_TYPE_FRONT_COVER
                 )
             }
             val metadata = metadataBuilder.build()
@@ -406,9 +405,7 @@ open class MediaPlaybackService : MediaSessionService() {
                 putExtra(EXTRA_WEBAPP_UUID, webappUuid)
                 putExtra(EXTRA_GENERATION, generation)
                 if (icon != null) {
-                    val stream = ByteArrayOutputStream()
-                    icon.compress(Bitmap.CompressFormat.PNG, 100, stream)
-                    putExtra(EXTRA_ICON, stream.toByteArray())
+                    putExtra(EXTRA_ICON, icon.toPngBytes())
                 }
                 putExtra(EXTRA_TRACK_TITLE, trackTitle ?: "")
                 putExtra(EXTRA_TRACK_ARTIST, trackArtist ?: "")
@@ -417,11 +414,5 @@ open class MediaPlaybackService : MediaSessionService() {
 
         fun resolveServiceClass(): Class<out MediaPlaybackService> =
             MediaPlaybackService::class.java
-
-        private fun bitmapToBytes(bmp: Bitmap): ByteArray {
-            val stream = ByteArrayOutputStream()
-            bmp.compress(Bitmap.CompressFormat.PNG, 100, stream)
-            return stream.toByteArray()
-        }
     }
 }

@@ -1,6 +1,5 @@
 package wtf.mazy.peel.activities
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import android.text.SpannableString
 import android.text.Spanned
@@ -56,7 +55,6 @@ class WebAppSettingsActivity :
     private var activeFetcher: HeadlessFetcher? = null
     private var fetchGeneration: Int = 0
 
-    @SuppressLint("SetJavaScriptEnabled", "ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         iconEditor = IconEditorController(this, { binding.imgWebAppIcon }) { modifiedWebapp }
         super.onCreate(savedInstanceState)
@@ -286,14 +284,8 @@ class WebAppSettingsActivity :
         fetchGeneration += 1
         val generation = fetchGeneration
 
-        val group = webapp.groupUuid?.let { DataManager.instance.getGroup(it) }
-        val contextId = when {
-            webapp.isUseContainer -> webapp.uuid
-            group?.isUseContainer == true -> group.uuid
-            else -> null
-        }
-        val usePrivateMode = webapp.isEphemeralSandbox ||
-                (webapp.groupUuid?.let { DataManager.instance.getGroup(it) }?.isEphemeralSandbox == true)
+        val contextId = webapp.resolveContextId()
+        val usePrivateMode = webapp.resolvePrivateMode()
 
         val fetcher = HeadlessFetcher(
             activity = this,

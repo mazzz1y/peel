@@ -19,8 +19,6 @@ class PeelNavigationDelegate(private val host: SessionHost) : GeckoSession.Navig
         host.canGoBack = canGoBack
     }
 
-    override fun onCanGoForward(session: GeckoSession, canGoForward: Boolean) {}
-
     override fun onLocationChange(
         session: GeckoSession,
         url: String?,
@@ -99,7 +97,7 @@ class PeelNavigationDelegate(private val host: SessionHost) : GeckoSession.Navig
         return null
     }
 
-    fun clearAutoAuth() {
+    fun resetDialogState() {
         appLinkDialogShowing = false
         peelRoutingDialogShowing = false
         externalLinkDialogShowing = false

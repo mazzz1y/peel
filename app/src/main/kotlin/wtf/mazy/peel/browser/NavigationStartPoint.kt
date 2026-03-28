@@ -2,29 +2,32 @@ package wtf.mazy.peel.browser
 
 import androidx.core.net.toUri
 
-class NavigationStartPoint(private val baseUrl: String) {
+class NavigationStartPoint(baseUrl: String) {
+    private val baseHost = baseUrl.toUri().host?.removePrefix("www.")
     private var visitedForeignHost = false
-    private var frozen = false
+    private var initialLoadComplete = false
+    private var seenBaseHost = false
     var settledAtUrl: String? = null
         private set
 
     fun onLocationChange(url: String) {
         if (settledAtUrl != null) return
+        if (url.startsWith("about:")) return
         if (!isBaseHost(url)) {
-            if (!frozen) visitedForeignHost = true
+            if (!initialLoadComplete) visitedForeignHost = true
             return
         }
+        seenBaseHost = true
         if (!visitedForeignHost) return
         settledAtUrl = url
     }
 
     fun onPageFinished() {
-        frozen = true
+        if (seenBaseHost) initialLoadComplete = true
     }
 
     private fun isBaseHost(url: String): Boolean {
         val urlHost = url.toUri().host?.removePrefix("www.") ?: return false
-        val baseHost = baseUrl.toUri().host?.removePrefix("www.") ?: return false
-        return urlHost == baseHost
+        return baseHost != null && urlHost == baseHost
     }
 }

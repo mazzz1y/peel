@@ -17,27 +17,26 @@ class NestedGeckoView @JvmOverloads constructor(
     private var lastY = 0
     private val scrollOffset = IntArray(2)
     private val scrollConsumed = IntArray(2)
-    private var nestedOffsetY = 0
     private val childHelper = NestedScrollingChildHelper(this)
     private var inputResult = PanZoomController.INPUT_RESULT_UNHANDLED
     private var allowOverscroll = false
-    private var scrollY = 0
+    private var geckoScrollY = 0
 
     init {
         isNestedScrollingEnabled = true
     }
 
     override fun canScrollVertically(direction: Int): Boolean {
-        if (direction < 0) return scrollY > 0
+        if (direction < 0) return geckoScrollY > 0
         return super.canScrollVertically(direction)
     }
 
     fun updateScrollPosition(y: Int) {
-        scrollY = y
+        geckoScrollY = y
     }
 
     fun resetScrollPosition() {
-        scrollY = 0
+        geckoScrollY = 0
     }
 
     override fun onTouchEvent(ev: MotionEvent): Boolean {
@@ -59,7 +58,6 @@ class NestedGeckoView @JvmOverloads constructor(
                 ) {
                     deltaY -= scrollConsumed[1]
                     event.offsetLocation(0f, -scrollOffset[1].toFloat())
-                    nestedOffsetY += scrollOffset[1]
                 }
 
                 lastY = eventY - scrollOffset[1]
@@ -74,7 +72,6 @@ class NestedGeckoView @JvmOverloads constructor(
                 ) {
                     lastY -= scrollOffset[1]
                     event.offsetLocation(0f, scrollOffset[1].toFloat())
-                    nestedOffsetY += scrollOffset[1]
                 }
             }
 
@@ -100,7 +97,6 @@ class NestedGeckoView @JvmOverloads constructor(
 
                         startNestedScroll(ViewCompat.SCROLL_AXIS_VERTICAL)
                     }
-                nestedOffsetY = 0
                 lastY = eventY
                 event.recycle()
                 return true

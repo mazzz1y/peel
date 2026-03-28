@@ -24,11 +24,8 @@ class PeelContentDelegate(
     private var originalOrientation = 0
 
     fun exitFullscreen() {
-        val view = customView ?: return
-        (host.hostWindow.decorView as FrameLayout).removeView(view)
-        customView = null
-        host.hostOrientation = originalOrientation
-        host.showSystemBars()
+        if (customView == null) return
+        restoreFromFullscreen()
     }
 
     fun setupThemeColorExtension(ext: WebExtension, session: GeckoSession) {
@@ -53,20 +50,20 @@ class PeelContentDelegate(
         )
     }
 
-    override fun onTitleChange(session: GeckoSession, title: String?) {}
-
     override fun onFullScreen(session: GeckoSession, fullScreen: Boolean) {
         if (fullScreen) {
             originalOrientation = host.hostOrientation
             host.hideSystemBars()
         } else {
-            if (customView != null) {
-                (host.hostWindow.decorView as FrameLayout).removeView(customView)
-                customView = null
-            }
-            host.hostOrientation = originalOrientation
-            host.showSystemBars()
+            restoreFromFullscreen()
         }
+    }
+
+    private fun restoreFromFullscreen() {
+        customView?.let { (host.hostWindow.decorView as FrameLayout).removeView(it) }
+        customView = null
+        host.hostOrientation = originalOrientation
+        host.showSystemBars()
     }
 
     override fun onExternalResponse(session: GeckoSession, response: WebResponse) {

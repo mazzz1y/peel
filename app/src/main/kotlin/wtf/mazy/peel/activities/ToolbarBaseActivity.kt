@@ -19,7 +19,6 @@ abstract class ToolbarBaseActivity<VB : ViewBinding> : AppCompatActivity() {
         get() = _binding
 
     private lateinit var baseBinding: ActivityToolbarBaseBinding
-    private var onNavigationClickListener: (() -> Unit)? = null
 
     abstract fun inflateBinding(layoutInflater: LayoutInflater): VB
 
@@ -39,9 +38,7 @@ abstract class ToolbarBaseActivity<VB : ViewBinding> : AppCompatActivity() {
 
         onBackPressedDispatcher.addCallback(this) { finish() }
 
-        toolbar.setNavigationOnClickListener {
-            onNavigationClickListener?.invoke() ?: onBackPressedDispatcher.onBackPressed()
-        }
+        toolbar.setNavigationOnClickListener { onBackPressedDispatcher.onBackPressed() }
     }
 
     fun setToolbarTitle(title: String) {
