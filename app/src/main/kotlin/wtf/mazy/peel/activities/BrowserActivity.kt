@@ -793,14 +793,24 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
     ) {
         if (matches.size == 1) {
             val app = matches.first()
-            showPermissionDialog(
-                getString(R.string.permission_prompt_open_in_peel_app, app.title)
-            ) { result ->
-                if (result == PermissionResult.ALLOW) {
+            MaterialAlertDialogBuilder(this)
+                .setMessage(getString(R.string.permission_prompt_open_in_peel_app, app.title))
+                .setCancelable(false)
+                .setPositiveButton(R.string.open) { dialog, _ ->
+                    dialog.dismiss()
                     BrowserLauncher.launch(app, this, url)
+                    onDismiss()
                 }
-                onDismiss()
-            }
+                .setNeutralButton(R.string.dont_switch) { dialog, _ ->
+                    dialog.dismiss()
+                    loadURL(url)
+                    onDismiss()
+                }
+                .setNegativeButton(R.string.cancel) { dialog, _ ->
+                    dialog.dismiss()
+                    onDismiss()
+                }
+                .show()
         } else {
             val adapter = ListPickerAdapter(matches) { app, icon, name, detail ->
                 name.text = app.title
@@ -813,7 +823,15 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
                     BrowserLauncher.launch(matches[position], this, url)
                     onDismiss()
                 }
-                .setOnCancelListener { onDismiss() }
+                .setNeutralButton(R.string.dont_switch) { dialog, _ ->
+                    dialog.dismiss()
+                    loadURL(url)
+                    onDismiss()
+                }
+                .setNegativeButton(R.string.cancel) { dialog, _ ->
+                    dialog.dismiss()
+                    onDismiss()
+                }
                 .show()
         }
     }

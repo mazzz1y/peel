@@ -122,7 +122,7 @@ class PeelNavigationDelegate(private val host: SessionHost) : GeckoSession.Navig
         if (isDialogShowing()) return
         setDialogShowing(true)
         host.runOnUi {
-            host.showPermissionDialog(host.getString(messageResId, url)) { result ->
+            host.showPermissionDialog(host.getString(messageResId, truncateUrl(url))) { result ->
                 setDialogShowing(false)
                 if (result == PermissionResult.ALLOW) {
                     host.startExternalIntent(url.toUri())
@@ -131,4 +131,9 @@ class PeelNavigationDelegate(private val host: SessionHost) : GeckoSession.Navig
         }
     }
 
+    private fun truncateUrl(url: String, maxLen: Int = 80): String {
+        if (url.length <= maxLen) return url
+        val tail = 10
+        return url.take(maxLen - tail - 1) + "…" + url.takeLast(tail)
+    }
 }

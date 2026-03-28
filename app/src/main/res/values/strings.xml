@@ -179,7 +179,7 @@
     <string name="setting_basic_auth">HTTP Authorization</string>
     <string name="setting_dynamic_status_bar">Dynamic status bar</string>
     <string name="setting_open_in_peel_app">Open links in Peel apps</string>
-    <string name="permission_prompt_open_in_peel_app">Open this link in %1$s?</string>
+    <string name="permission_prompt_open_in_peel_app">Open in \"%1$s\" webapp?</string>
     <string name="setting_floating_controls">Floating controls</string>
     <string name="setting_requires_peel_restart">This setting takes effect after Peel restart</string>
     <string name="setting_requires_webapp_restart">This setting takes effect after webapps restart</string>
@@ -196,6 +196,8 @@
     <string name="group_empty">No apps in this group</string>
     <string name="ungrouped">Ungrouped</string>
     <string name="open_in_peel">Open in Peel</string>
+    <string name="open">Open</string>
+    <string name="dont_switch">Don\'t switch</string>
     <string name="no_web_apps_available">No web apps available</string>
     <string name="move_to_group">Move to group</string>
     <string name="delete_group_title">Delete Group</string>
