@@ -1,5 +1,6 @@
 package wtf.mazy.peel.gecko
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.util.AttributeSet
 import android.view.MotionEvent
@@ -18,8 +19,8 @@ class NestedGeckoView @JvmOverloads constructor(
     private val scrollOffset = IntArray(2)
     private val scrollConsumed = IntArray(2)
     private val childHelper = NestedScrollingChildHelper(this)
-    private var inputResult = PanZoomController.INPUT_RESULT_UNHANDLED
-    private var allowOverscroll = false
+    @Volatile private var inputResult = PanZoomController.INPUT_RESULT_UNHANDLED
+    @Volatile private var allowOverscroll = false
     private var geckoScrollY = 0
 
     init {
@@ -39,6 +40,7 @@ class NestedGeckoView @JvmOverloads constructor(
         geckoScrollY = 0
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(ev: MotionEvent): Boolean {
         val event = MotionEvent.obtain(ev)
         val action = event.actionMasked
@@ -91,11 +93,12 @@ class NestedGeckoView @JvmOverloads constructor(
                             inputResult != PanZoomController.INPUT_RESULT_HANDLED_CONTENT &&
                                     (result.scrollableDirections() and PanZoomController.SCROLLABLE_FLAG_TOP) == 0 &&
                                     (result.overscrollDirections() and PanZoomController.OVERSCROLL_FLAG_VERTICAL) != 0
-                        if (canOverscrollTop) {
-                            parent?.requestDisallowInterceptTouchEvent(false)
+                        post {
+                            if (canOverscrollTop) {
+                                parent?.requestDisallowInterceptTouchEvent(false)
+                            }
+                            startNestedScroll(ViewCompat.SCROLL_AXIS_VERTICAL)
                         }
-
-                        startNestedScroll(ViewCompat.SCROLL_AXIS_VERTICAL)
                     }
                 lastY = eventY
                 event.recycle()
