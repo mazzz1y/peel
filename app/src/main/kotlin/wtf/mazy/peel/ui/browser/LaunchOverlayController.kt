@@ -40,9 +40,14 @@ class LaunchOverlayController(
         mainHandler.postDelayed(fallback, fallbackDelayMs)
     }
 
-    fun hideNow(onHiding: (() -> Unit)? = null) {
+    fun hideNow() {
         release()
-        hideIfNeeded(onHiding)
+        if (!isVisible) return
+        isVisible = false
+        overlayView?.apply {
+            alpha = 0f
+            visibility = View.GONE
+        }
     }
 
     fun release() {

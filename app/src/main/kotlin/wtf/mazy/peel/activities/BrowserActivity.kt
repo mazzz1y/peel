@@ -426,7 +426,6 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
         }
         getDelegate().localNightMode = nightMode
 
-        geckoView?.setBackgroundColor(if (isDarkSchemeActive) Color.BLACK else Color.WHITE)
     }
 
     override fun loadURL(url: String) {
