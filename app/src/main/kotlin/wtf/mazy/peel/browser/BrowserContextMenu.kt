@@ -6,13 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
-import android.text.TextUtils
-import android.util.TypedValue
-import android.view.Gravity
-import android.view.View
-import android.widget.ImageView
 import android.widget.LinearLayout
-import android.widget.TextView
 import androidx.core.net.toUri
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import org.mozilla.geckoview.GeckoSession
@@ -111,14 +105,15 @@ class BrowserContextMenu(
 
         val content = LinearLayout(activity).apply {
             orientation = LinearLayout.VERTICAL
-            addView(buildHeader(info.title, displayUrl(info.url)))
-            addView(buildDivider())
+            addView(MenuDialogHelper.buildHeader(activity, info.title, MenuDialogHelper.displayUrl(info.url)))
+            addView(MenuDialogHelper.buildDivider(activity))
             val sections = listOf(info.linkActions, info.imageActions).filter { it.isNotEmpty() }
             sections.forEachIndexed { i, actions ->
-                if (i > 0) addView(buildDivider())
+                if (i > 0) addView(MenuDialogHelper.buildDivider(activity))
                 actions.forEach { action ->
                     addView(
-                        buildActionRow(
+                        MenuDialogHelper.buildActionRow(
+                            activity,
                             action.label,
                             action.icon,
                             action.onIconClick?.let { dismiss(it) },
@@ -132,88 +127,6 @@ class BrowserContextMenu(
         dialog = MaterialAlertDialogBuilder(activity)
             .setView(content)
             .show()
-    }
-
-    private fun buildHeader(title: String?, url: String) = LinearLayout(activity).apply {
-        orientation = LinearLayout.VERTICAL
-        setPadding(dpToPx(16f), dpToPx(20f), dpToPx(16f), dpToPx(14f))
-        if (title != null) {
-            addView(TextView(activity).apply {
-                text = title
-                maxLines = 1
-                ellipsize = TextUtils.TruncateAt.END
-                setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f)
-                setTextColor(resolveThemeColor(com.google.android.material.R.attr.colorOnSurface))
-            })
-        }
-        addView(TextView(activity).apply {
-            text = url
-            maxLines = 1
-            ellipsize = TextUtils.TruncateAt.MIDDLE
-            setTextSize(TypedValue.COMPLEX_UNIT_SP, 12f)
-            setTextColor(resolveThemeColor(com.google.android.material.R.attr.colorOnSurfaceVariant))
-            if (title != null) setPadding(0, dpToPx(2f), 0, 0)
-        })
-    }
-
-    private fun buildDivider() = View(activity).apply {
-        layoutParams = LinearLayout.LayoutParams(
-            LinearLayout.LayoutParams.MATCH_PARENT, dpToPx(1f),
-        )
-        setBackgroundColor(resolveThemeColor(com.google.android.material.R.attr.colorOutlineVariant))
-    }
-
-    private fun buildActionRow(
-        label: String,
-        icon: Bitmap? = null,
-        onIconClick: (() -> Unit)? = null,
-        onClick: () -> Unit,
-    ): View {
-        val outValue = TypedValue()
-        activity.theme.resolveAttribute(android.R.attr.selectableItemBackground, outValue, true)
-
-        if (icon == null || onIconClick == null) {
-            return TextView(activity).apply {
-                text = label
-                setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f)
-                setTextColor(resolveThemeColor(com.google.android.material.R.attr.colorOnSurface))
-                setPadding(dpToPx(16f), dpToPx(14f), dpToPx(16f), dpToPx(14f))
-                setBackgroundResource(outValue.resourceId)
-                setOnClickListener { onClick() }
-            }
-        }
-
-        return LinearLayout(activity).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER_VERTICAL
-
-            addView(TextView(activity).apply {
-                text = label
-                setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f)
-                setTextColor(resolveThemeColor(com.google.android.material.R.attr.colorOnSurface))
-                setPadding(dpToPx(16f), dpToPx(14f), dpToPx(12f), dpToPx(14f))
-                layoutParams =
-                    LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
-                setBackgroundResource(outValue.resourceId)
-                setOnClickListener { onClick() }
-            })
-
-            val iconSize = dpToPx(24f)
-            val iconPad = dpToPx(16f)
-            addView(ImageView(activity).apply {
-                setImageBitmap(icon)
-                layoutParams = LinearLayout.LayoutParams(
-                    iconSize + iconPad * 2,
-                    LinearLayout.LayoutParams.MATCH_PARENT,
-                )
-                setPadding(iconPad, 0, iconPad, 0)
-                scaleType = ImageView.ScaleType.CENTER_INSIDE
-                isClickable = true
-                isFocusable = true
-                setBackgroundResource(outValue.resourceId)
-                setOnClickListener { onIconClick() }
-            })
-        }
     }
 
     private fun copyToClipboard(text: String, toastResId: Int = R.string.link_copied) {
@@ -237,23 +150,4 @@ class BrowserContextMenu(
 
     private fun str(resId: Int): String = activity.getString(resId)
 
-    private fun displayUrl(url: String): String {
-        if (url.startsWith("data:")) return url.substringBefore(",").substringAfter("data:")
-        return stripQueryParams(url)
-    }
-
-    private fun stripQueryParams(url: String): String {
-        val q = url.indexOf('?')
-        return if (q > 0) url.substring(0, q) else url
-    }
-
-    private fun resolveThemeColor(attr: Int): Int {
-        val tv = TypedValue()
-        activity.theme.resolveAttribute(attr, tv, true)
-        return tv.data
-    }
-
-    private fun dpToPx(dp: Float): Int = TypedValue.applyDimension(
-        TypedValue.COMPLEX_UNIT_DIP, dp, activity.resources.displayMetrics,
-    ).toInt()
 }

@@ -12,15 +12,11 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.text.TextUtils
 import android.util.TypedValue
-import android.view.Gravity
 import android.view.View
 import android.view.WindowManager
-import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ProgressBar
-import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
@@ -49,6 +45,7 @@ import wtf.mazy.peel.browser.PeelPermissionDelegate
 import wtf.mazy.peel.browser.PeelProgressDelegate
 import wtf.mazy.peel.browser.PeelPromptDelegate
 import wtf.mazy.peel.browser.ExternalLinkResult
+import wtf.mazy.peel.browser.MenuDialogHelper
 import wtf.mazy.peel.browser.PermissionResult
 import wtf.mazy.peel.browser.SessionHost
 import wtf.mazy.peel.gecko.GeckoRuntimeProvider
@@ -483,6 +480,9 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
     override fun onLocationChanged(url: String) {
         currentUrl = url
         navigationStartPoint.onLocationChange(url)
+        val urlHost = url.toUri().host?.removePrefix("www.")?.lowercase()
+        val baseHost = webapp.baseUrl.toUri().host?.removePrefix("www.")?.lowercase()
+        if (urlHost != null && urlHost == baseHost) navigationDelegate.browsingExternally = false
     }
 
     override fun onPageStarted() {
@@ -638,7 +638,7 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
         pageLoadHandled = false
         filePathCallback = null
         navigationDelegate.resetDialogState()
-        navigationDelegate.allowedHosts.clear()
+        navigationDelegate.browsingExternally = false
         permissionDelegate.clearPagePermissions()
         promptDelegate.clearAutoAuth()
         geckoView?.resetScrollPosition()
@@ -811,25 +811,19 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
 
         val content = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            addView(buildMenuHeader(url))
-            addView(buildMenuDivider())
-            if (peelMatches.isNotEmpty()) {
-                val icon = bestPeelMatchIcon(url)
-                val iconClick = if (icon != null) {
-                    {
-                        dismiss(ExternalLinkResult.OpenInPeelApp {
-                            openInBestPeelMatch(url)
-                        })
-                    }
-                } else null
-                addView(buildMenuRow(getString(R.string.open_in_peel), icon, iconClick) {
-                    dismiss(ExternalLinkResult.OpenInPeelApp { openInPeel(url) })
-                })
-            }
-            addView(buildMenuRow(getString(R.string.open_in_current_session)) {
+            addView(MenuDialogHelper.buildHeader(this@BrowserActivity, null, MenuDialogHelper.displayUrl(url)))
+            addView(MenuDialogHelper.buildDivider(this@BrowserActivity))
+            val icon = bestPeelMatchIcon(url)
+            val iconClick = if (icon != null) {
+                { dismiss(ExternalLinkResult.OpenInPeelApp { openInBestPeelMatch(url) }) }
+            } else null
+            addView(MenuDialogHelper.buildActionRow(this@BrowserActivity, getString(R.string.open_in_peel), icon, iconClick) {
+                dismiss(ExternalLinkResult.OpenInPeelApp { openInPeel(url) })
+            })
+            addView(MenuDialogHelper.buildActionRow(this@BrowserActivity, getString(R.string.open_in_current_session)) {
                 dismiss(ExternalLinkResult.LOAD_HERE)
             })
-            addView(buildMenuRow(getString(R.string.open_in_system)) {
+            addView(MenuDialogHelper.buildActionRow(this@BrowserActivity, getString(R.string.open_in_system)) {
                 dismiss(ExternalLinkResult.OPEN_IN_SYSTEM)
             })
         }
@@ -841,93 +835,6 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
             }
             .show()
     }
-
-    private fun buildMenuHeader(url: String): View {
-        val displayUrl = url.let {
-            val q = it.indexOf('?')
-            if (q > 0) it.substring(0, q) else it
-        }
-        return TextView(this).apply {
-            text = displayUrl
-            maxLines = 1
-            ellipsize = android.text.TextUtils.TruncateAt.MIDDLE
-            setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 12f)
-            val color = android.util.TypedValue()
-            theme.resolveAttribute(com.google.android.material.R.attr.colorOnSurfaceVariant, color, true)
-            setTextColor(color.data)
-            val pad = dpToPx(16f)
-            setPadding(pad, dpToPx(20f), pad, dpToPx(14f))
-        }
-    }
-
-    private fun buildMenuDivider(): View {
-        val color = android.util.TypedValue()
-        theme.resolveAttribute(com.google.android.material.R.attr.colorOutlineVariant, color, true)
-        return View(this).apply {
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT, dpToPx(1f),
-            )
-            setBackgroundColor(color.data)
-        }
-    }
-
-    private fun buildMenuRow(
-        label: String,
-        icon: android.graphics.Bitmap? = null,
-        onIconClick: (() -> Unit)? = null,
-        onClick: () -> Unit,
-    ): View {
-        val outValue = android.util.TypedValue()
-        theme.resolveAttribute(android.R.attr.selectableItemBackground, outValue, true)
-        val textColor = android.util.TypedValue()
-        theme.resolveAttribute(com.google.android.material.R.attr.colorOnSurface, textColor, true)
-
-        if (icon == null || onIconClick == null) {
-            return TextView(this).apply {
-                text = label
-                setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 16f)
-                setTextColor(textColor.data)
-                setPadding(dpToPx(16f), dpToPx(14f), dpToPx(16f), dpToPx(14f))
-                setBackgroundResource(outValue.resourceId)
-                setOnClickListener { onClick() }
-            }
-        }
-
-        return LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = android.view.Gravity.CENTER_VERTICAL
-
-            addView(TextView(this@BrowserActivity).apply {
-                text = label
-                setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 16f)
-                setTextColor(textColor.data)
-                setPadding(dpToPx(16f), dpToPx(14f), dpToPx(12f), dpToPx(14f))
-                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
-                setBackgroundResource(outValue.resourceId)
-                setOnClickListener { onClick() }
-            })
-
-            val iconSize = dpToPx(24f)
-            val iconPad = dpToPx(16f)
-            addView(android.widget.ImageView(this@BrowserActivity).apply {
-                setImageBitmap(icon)
-                layoutParams = LinearLayout.LayoutParams(
-                    iconSize + iconPad * 2,
-                    LinearLayout.LayoutParams.MATCH_PARENT,
-                )
-                setPadding(iconPad, 0, iconPad, 0)
-                scaleType = android.widget.ImageView.ScaleType.CENTER_INSIDE
-                isClickable = true
-                isFocusable = true
-                setBackgroundResource(outValue.resourceId)
-                setOnClickListener { onIconClick() }
-            })
-        }
-    }
-
-    private fun dpToPx(dp: Float): Int = android.util.TypedValue.applyDimension(
-        android.util.TypedValue.COMPLEX_UNIT_DIP, dp, resources.displayMetrics,
-    ).toInt()
 
     private fun bestPeelMatchIcon(url: String): Bitmap? {
         val currentUuid = webappUuid ?: return null
@@ -994,7 +901,7 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
                 .setTitle(R.string.open_in_peel)
                 .setAdapter(adapter) { _, position -> launchWebApp(apps[position], url) }
                 .show()
-            dialog.listView?.layoutParams?.height = dpToPx(MAX_PEEL_PICKER_HEIGHT_DP)
+            dialog.listView?.layoutParams?.height = MenuDialogHelper.dpToPx(this@BrowserActivity, MAX_PEEL_PICKER_HEIGHT_DP)
             dialog.listView?.requestLayout()
         }
     }

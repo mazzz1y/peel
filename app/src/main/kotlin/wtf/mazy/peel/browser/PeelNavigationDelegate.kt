@@ -14,7 +14,7 @@ class PeelNavigationDelegate(private val host: SessionHost) : GeckoSession.Navig
 
     private var appLinkDialogShowing = false
     private var externalMenuShowing = false
-    val allowedHosts = mutableSetOf<String>()
+    var browsingExternally = false
 
     override fun onCanGoBack(session: GeckoSession, canGoBack: Boolean) {
         host.canGoBack = canGoBack
@@ -57,8 +57,7 @@ class PeelNavigationDelegate(private val host: SessionHost) : GeckoSession.Navig
         }
 
         if (settings.isOpenUrlExternal == true) {
-            val urlHost = url.toUri().host
-            if (urlHost != null && urlHost in allowedHosts) {
+            if (browsingExternally) {
                 return GeckoResult.fromValue(AllowOrDeny.ALLOW)
             }
 
@@ -74,7 +73,7 @@ class PeelNavigationDelegate(private val host: SessionHost) : GeckoSession.Navig
                             externalMenuShowing = false
                             when (result) {
                                 ExternalLinkResult.LOAD_HERE -> {
-                                    if (urlHost != null) allowedHosts.add(urlHost)
+                                    browsingExternally = true
                                     host.loadURL(url)
                                 }
                                 ExternalLinkResult.OPEN_IN_SYSTEM -> {
