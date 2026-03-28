@@ -13,8 +13,8 @@ import wtf.mazy.peel.util.withMonoSpan
 class PeelNavigationDelegate(private val host: SessionHost) : GeckoSession.NavigationDelegate {
 
     private var appLinkDialogShowing = false
-    private var peelRoutingDialogShowing = false
-    private var externalLinkDialogShowing = false
+    private var externalMenuShowing = false
+    val allowedHosts = mutableSetOf<String>()
 
     override fun onCanGoBack(session: GeckoSession, canGoBack: Boolean) {
         host.canGoBack = canGoBack
@@ -57,25 +57,41 @@ class PeelNavigationDelegate(private val host: SessionHost) : GeckoSession.Navig
         }
 
         if (settings.isOpenUrlExternal == true) {
-            if (!peelRoutingDialogShowing) {
-                val matches = host.findPeelAppMatches(url)
-                if (matches.isNotEmpty()) {
-                    peelRoutingDialogShowing = true
+            val urlHost = url.toUri().host
+            if (urlHost != null && urlHost in allowedHosts) {
+                return GeckoResult.fromValue(AllowOrDeny.ALLOW)
+            }
+
+            val peelMatches = host.findPeelAppMatches(url)
+            val isExternal = HostIdentity.affinity(host.baseUrl, url) <= HostIdentity.TLD_ONLY
+
+            if (peelMatches.isNotEmpty() || isExternal) {
+                if (!externalMenuShowing) {
+                    externalMenuShowing = true
                     val redirect = request.isRedirect
                     host.runOnUi {
-                        host.showPeelAppRoutingDialog(matches, url, redirect) {
-                            peelRoutingDialogShowing = false
+                        host.showExternalLinkMenu(url, peelMatches, redirect) { result ->
+                            externalMenuShowing = false
+                            when (result) {
+                                ExternalLinkResult.LOAD_HERE -> {
+                                    if (urlHost != null) allowedHosts.add(urlHost)
+                                    host.loadURL(url)
+                                }
+                                ExternalLinkResult.OPEN_IN_SYSTEM -> {
+                                    host.startExternalIntent(url.toUri())
+                                }
+                                ExternalLinkResult.DISMISSED -> {
+                                    if (redirect && host.lastLoadedUrl.isNotEmpty()) {
+                                        host.loadURL(host.lastLoadedUrl)
+                                    }
+                                }
+                                is ExternalLinkResult.OpenInPeelApp -> {
+                                    result.launcher()
+                                }
+                            }
                         }
                     }
-                    return GeckoResult.fromValue(AllowOrDeny.DENY)
                 }
-            }
-            if (HostIdentity.affinity(host.baseUrl, url) <= HostIdentity.TLD_ONLY) {
-                showExternalIntentPrompt(
-                    url, R.string.permission_prompt_open_externally,
-                    { externalLinkDialogShowing }, { externalLinkDialogShowing = it },
-                    isRedirect = request.isRedirect,
-                )
                 return GeckoResult.fromValue(AllowOrDeny.DENY)
             }
         }
@@ -101,38 +117,25 @@ class PeelNavigationDelegate(private val host: SessionHost) : GeckoSession.Navig
 
     fun resetDialogState() {
         appLinkDialogShowing = false
-        peelRoutingDialogShowing = false
-        externalLinkDialogShowing = false
+        externalMenuShowing = false
     }
 
     private fun handleAppLink(url: String, settings: WebAppSettings) {
         when (settings.isAppLinksPermission) {
             WebAppSettings.PERMISSION_ON -> host.runOnUi { host.startExternalIntent(url.toUri()) }
-            WebAppSettings.PERMISSION_ASK -> showExternalIntentPrompt(
-                url, R.string.permission_prompt_open_app,
-                { appLinkDialogShowing }, { appLinkDialogShowing = it },
-            )
-        }
-    }
-
-    private fun showExternalIntentPrompt(
-        url: String,
-        messageResId: Int,
-        isDialogShowing: () -> Boolean,
-        setDialogShowing: (Boolean) -> Unit,
-        isRedirect: Boolean = false,
-    ) {
-        if (isDialogShowing()) return
-        setDialogShowing(true)
-        val truncated = truncateUrl(url)
-        val message = host.getString(messageResId, truncated).withMonoSpan(truncated)
-        host.runOnUi {
-            host.showPermissionDialog(message) { result ->
-                setDialogShowing(false)
-                if (result == PermissionResult.ALLOW) {
-                    host.startExternalIntent(url.toUri())
-                } else if (isRedirect && host.lastLoadedUrl.isNotEmpty()) {
-                    host.loadURL(host.lastLoadedUrl)
+            WebAppSettings.PERMISSION_ASK -> {
+                if (appLinkDialogShowing) return
+                appLinkDialogShowing = true
+                val truncated = truncateUrl(url)
+                val message = host.getString(R.string.permission_prompt_open_app, truncated)
+                    .withMonoSpan(truncated)
+                host.runOnUi {
+                    host.showPermissionDialog(message) { result ->
+                        appLinkDialogShowing = false
+                        if (result == PermissionResult.ALLOW) {
+                            host.startExternalIntent(url.toUri())
+                        }
+                    }
                 }
             }
         }

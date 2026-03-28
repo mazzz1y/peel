@@ -199,9 +199,8 @@
     <string name="global_privacy">গ্লোবাল প্রাইভেসি</string>
     <string name="group_not_found">গ্রুপটি আর উপলব্ধ নেই</string>
     <string name="icon_dimensions_source">%1$dx%2$d · %3$s</string>
-    <string name="load_here">এখানে লোড করুন</string>
+    <string name="open_in_current_session">বর্তমান সেশনে খুলুন</string>
     <string name="open_in_system">সিস্টেমে খুলুন</string>
-    <string name="permission_prompt_open_externally">এই লিঙ্ক বাইরে খুলবেন?\n\n%1$s</string>
     <string name="restart">রিস্টার্ট</string>
     <string name="setting_block_local_network">লোকাল নেটওয়ার্ক অ্যাক্সেস ব্লক</string>
     <string name="setting_block_webrtc_ip_leak">WebRTC IP লিক ব্লক</string>

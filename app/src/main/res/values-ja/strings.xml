@@ -198,9 +198,8 @@
     <string name="global_privacy">グローバルプライバシー</string>
     <string name="group_not_found">このグループはもう利用できません</string>
     <string name="icon_dimensions_source">%1$dx%2$d · %3$s</string>
-    <string name="load_here">ここで読み込む</string>
+    <string name="open_in_current_session">現在のセッションで開く</string>
     <string name="open_in_system">システムで開く</string>
-    <string name="permission_prompt_open_externally">このリンクを外部で開きますか？\n\n%1$s</string>
     <string name="restart">再起動</string>
     <string name="setting_block_local_network">ローカルネットワークアクセスをブロック</string>
     <string name="setting_block_webrtc_ip_leak">WebRTC IPリークをブロック</string>

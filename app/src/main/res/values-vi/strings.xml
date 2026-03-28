@@ -198,9 +198,8 @@
     <string name="global_privacy">Quyền riêng tư toàn cục</string>
     <string name="group_not_found">Nhóm này không còn khả dụng</string>
     <string name="icon_dimensions_source">%1$dx%2$d · %3$s</string>
-    <string name="load_here">Tải tại đây</string>
+    <string name="open_in_current_session">Mở trong phiên hiện tại</string>
     <string name="open_in_system">Mở trong hệ thống</string>
-    <string name="permission_prompt_open_externally">Mở liên kết này bên ngoài?\n\n%1$s</string>
     <string name="restart">Khởi động lại</string>
     <string name="setting_block_local_network">Chặn truy cập mạng cục bộ</string>
     <string name="setting_block_webrtc_ip_leak">Chặn rò rỉ IP qua WebRTC</string>

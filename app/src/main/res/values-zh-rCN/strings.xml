@@ -198,9 +198,8 @@
     <string name="global_privacy">全局隐私</string>
     <string name="group_not_found">该分组已不可用</string>
     <string name="icon_dimensions_source">%1$dx%2$d · %3$s</string>
-    <string name="load_here">在此加载</string>
+    <string name="open_in_current_session">在当前会话中打开</string>
     <string name="open_in_system">在系统中打开</string>
-    <string name="permission_prompt_open_externally">在外部打开此链接？\n\n%1$s</string>
     <string name="restart">重启</string>
     <string name="setting_block_local_network">阻止本地网络访问</string>
     <string name="setting_block_webrtc_ip_leak">阻止 WebRTC IP 泄露</string>

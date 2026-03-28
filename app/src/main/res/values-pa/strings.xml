@@ -188,9 +188,8 @@
     <string name="global_privacy">ਗਲੋਬਲ ਪ੍ਰਾਈਵੇਸੀ</string>
     <string name="group_not_found">ਇਹ ਗਰੁੱਪ ਹੁਣ ਉਪਲਬਧ ਨਹੀਂ ਹੈ</string>
     <string name="icon_dimensions_source">%1$dx%2$d · %3$s</string>
-    <string name="load_here">ਇੱਥੇ ਲੋਡ ਕਰੋ</string>
+    <string name="open_in_current_session">ਮੌਜੂਦਾ ਸੈਸ਼ਨ ਵਿੱਚ ਖੋਲ੍ਹੋ</string>
     <string name="open_in_system">ਸਿਸਟਮ ਵਿੱਚ ਖੋਲ੍ਹੋ</string>
-    <string name="permission_prompt_open_externally">ਇਹ ਲਿੰਕ ਬਾਹਰੀ ਐਪ ਵਿੱਚ ਖੋਲ੍ਹੋ?\n\n%1$s</string>
     <string name="restart">ਰੀਸਟਾਰਟ</string>
     <string name="setting_block_local_network">ਲੋਕਲ ਨੈੱਟਵਰਕ ਐਕਸੈਸ ਬਲਾਕ</string>
     <string name="setting_block_webrtc_ip_leak">WebRTC IP ਲੀਕ ਬਲਾਕ</string>

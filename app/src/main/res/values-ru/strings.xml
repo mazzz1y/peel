@@ -201,9 +201,8 @@
     <string name="global_privacy">Глобальная приватность</string>
     <string name="group_not_found">Группа больше недоступна</string>
     <string name="icon_dimensions_source">%1$dx%2$d · %3$s</string>
-    <string name="load_here">Загрузить здесь</string>
+    <string name="open_in_current_session">Открыть в текущей сессии</string>
     <string name="open_in_system">Открыть в системе</string>
-    <string name="permission_prompt_open_externally">Открыть эту ссылку во внешнем приложении?\n\n%1$s</string>
     <string name="restart">Перезапустить</string>
     <string name="setting_block_local_network">Блокировка локальной сети</string>
     <string name="setting_block_webrtc_ip_leak">Блокировка утечки IP через WebRTC</string>

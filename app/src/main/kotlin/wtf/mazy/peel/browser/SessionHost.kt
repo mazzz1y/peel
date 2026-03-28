@@ -12,6 +12,13 @@ enum class PermissionResult {
     DENY,
 }
 
+sealed interface ExternalLinkResult {
+    data object LOAD_HERE : ExternalLinkResult
+    data object OPEN_IN_SYSTEM : ExternalLinkResult
+    data object DISMISSED : ExternalLinkResult
+    data class OpenInPeelApp(val launcher: () -> Unit) : ExternalLinkResult
+}
+
 interface SessionHost {
     val effectiveSettings: WebAppSettings
     val isDarkSchemeActive: Boolean
@@ -45,11 +52,11 @@ interface SessionHost {
     fun showConnectionError(description: String, url: String)
     fun updateStatusBarColor(color: Int)
     fun findPeelAppMatches(url: String): List<WebApp>
-    fun showPeelAppRoutingDialog(
-        matches: List<WebApp>,
+    fun showExternalLinkMenu(
         url: String,
-        isRedirect: Boolean = false,
-        onDismiss: () -> Unit
+        peelMatches: List<WebApp>,
+        isRedirect: Boolean,
+        onResult: (ExternalLinkResult) -> Unit,
     )
 
     fun startExternalIntent(uri: Uri)

@@ -34,6 +34,29 @@ window.addEventListener("pageshow", function(e) {
   }
 });
 
+window.addEventListener("load", function() {
+  setTimeout(sendColor, 500);
+});
+
+window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", function() {
+  lastColor = null;
+  sendColor();
+});
+
+var origPush = history.pushState;
+history.pushState = function() {
+  origPush.apply(this, arguments);
+  setTimeout(sendColor, 300);
+};
+var origReplace = history.replaceState;
+history.replaceState = function() {
+  origReplace.apply(this, arguments);
+  setTimeout(sendColor, 300);
+};
+window.addEventListener("popstate", function() {
+  setTimeout(sendColor, 300);
+});
+
 new MutationObserver(sendColor).observe(
   document.head,
   { childList: true, subtree: true, attributes: true, attributeFilter: ["content", "media"] }

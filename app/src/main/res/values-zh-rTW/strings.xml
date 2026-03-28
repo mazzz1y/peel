@@ -198,9 +198,8 @@
     <string name="global_privacy">全域隱私</string>
     <string name="group_not_found">此群組已不可用</string>
     <string name="icon_dimensions_source">%1$dx%2$d · %3$s</string>
-    <string name="load_here">在此載入</string>
+    <string name="open_in_current_session">在目前工作階段中開啟</string>
     <string name="open_in_system">在系統中開啟</string>
-    <string name="permission_prompt_open_externally">在外部開啟此連結？\n\n%1$s</string>
     <string name="restart">重新啟動</string>
     <string name="setting_block_local_network">封鎖本機網路存取</string>
     <string name="setting_block_webrtc_ip_leak">封鎖 WebRTC IP 洩漏</string>

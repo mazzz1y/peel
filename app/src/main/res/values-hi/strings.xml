@@ -199,9 +199,8 @@
     <string name="global_privacy">वैश्विक गोपनीयता</string>
     <string name="group_not_found">यह ग्रुप अब उपलब्ध नहीं है</string>
     <string name="icon_dimensions_source">%1$dx%2$d · %3$s</string>
-    <string name="load_here">यहाँ लोड करें</string>
+    <string name="open_in_current_session">वर्तमान सत्र में खोलें</string>
     <string name="open_in_system">सिस्टम में खोलें</string>
-    <string name="permission_prompt_open_externally">इस लिंक को बाहरी ऐप में खोलें?\n\n%1$s</string>
     <string name="restart">रीस्टार्ट</string>
     <string name="setting_block_local_network">स्थानीय नेटवर्क एक्सेस ब्लॉक करें</string>
     <string name="setting_block_webrtc_ip_leak">WebRTC IP लीक ब्लॉक करें</string>

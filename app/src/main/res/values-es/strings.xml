@@ -194,11 +194,10 @@
     <string name="global_privacy">Privacidad global</string>
     <string name="group_not_found">El grupo ya no está disponible</string>
     <string name="icon_dimensions_source">%1$dx%2$d · %3$s</string>
-    <string name="load_here">Cargar aquí</string>
+    <string name="open_in_current_session">Abrir en la sesión actual</string>
     <string name="open_in_system">Abrir en el sistema</string>
     <string name="permission_prompt_allow">Permitir</string>
     <string name="permission_prompt_deny">Denegar</string>
-    <string name="permission_prompt_open_externally">¿Abrir este enlace externamente?\n\n%1$s</string>
     <string name="restart">Reiniciar</string>
     <string name="setting_block_local_network">Bloquear acceso a red local</string>
     <string name="setting_block_webrtc_ip_leak">Bloquear filtración IP por WebRTC</string>

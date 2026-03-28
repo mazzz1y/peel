@@ -199,9 +199,8 @@
     <string name="global_privacy">Privacidade global</string>
     <string name="group_not_found">O grupo não está mais disponível</string>
     <string name="icon_dimensions_source">%1$dx%2$d · %3$s</string>
-    <string name="load_here">Carregar aqui</string>
+    <string name="open_in_current_session">Abrir na sessão atual</string>
     <string name="open_in_system">Abrir no sistema</string>
-    <string name="permission_prompt_open_externally">Abrir este link externamente?\n\n%1$s</string>
     <string name="restart">Reiniciar</string>
     <string name="setting_block_local_network">Bloquear acesso à rede local</string>
     <string name="setting_block_webrtc_ip_leak">Bloquear vazamento de IP por WebRTC</string>
