@@ -37,13 +37,14 @@ sealed class SettingDefinition(
         toggle: SettingField,
         @StringRes displayNameResId: Int,
         category: SettingCategory,
+        globalOnly: Boolean = false,
         val valueOff: Int = 0,
         val valueMid: Int = 1,
         val valueOn: Int = 2,
         @StringRes val labelOff: Int = R.string.permission_deny,
         @StringRes val labelMid: Int = R.string.permission_ask,
         @StringRes val labelOn: Int = R.string.permission_allow,
-    ) : SettingDefinition(toggle, displayNameResId, category)
+    ) : SettingDefinition(toggle, displayNameResId, category, globalOnly)
 
     class BooleanWithIntSetting(
         toggle: SettingField,
@@ -94,12 +95,12 @@ object ApplyTimingRegistry {
         "isAllowJs",
         "isRequestDesktop",
         "isLongClickShare",
-        "isSafeBrowsing",
         "isDynamicStatusBar",
         "isAllowMediaPlaybackInBackground",
     )
 
     private val PEEL_RESTART_KEYS = setOf(
+        "isSafeBrowsing",
         "isGlobalPrivacyControl",
         "isFingerprintingProtection",
         "isBlockLocalNetwork",
@@ -242,10 +243,17 @@ object SettingRegistry {
                 SettingCategory.SECURITY,
             ),
 
-            SettingDefinition.BooleanSetting(
-                SettingField(WebAppSettings::isSafeBrowsing, true),
-                R.string.setting_enhanced_tracking_protection,
-                SettingCategory.SECURITY,
+            SettingDefinition.TriStateSetting(
+                SettingField(WebAppSettings::isSafeBrowsing, WebAppSettings.TRACKER_PROTECTION_DEFAULT),
+                R.string.setting_tracker_protection,
+                SettingCategory.GLOBAL_PRIVACY,
+                globalOnly = true,
+                valueOff = WebAppSettings.TRACKER_PROTECTION_NONE,
+                valueMid = WebAppSettings.TRACKER_PROTECTION_DEFAULT,
+                valueOn = WebAppSettings.TRACKER_PROTECTION_STRICT,
+                labelOff = R.string.tracker_protection_none,
+                labelMid = R.string.tracker_protection_default,
+                labelOn = R.string.tracker_protection_strict,
             ),
             SettingDefinition.BooleanSetting(
                 SettingField(WebAppSettings::isGlobalPrivacyControl, true),

@@ -26,7 +26,7 @@ data class WebAppSettings(
     var isShowProgressbar: Boolean? = null,
     var isDisableScreenshots: Boolean? = null,
     var isPullToRefresh: Boolean? = null,
-    var isSafeBrowsing: Boolean? = null,
+    var isSafeBrowsing: Int? = null,
     var isDynamicStatusBar: Boolean? = null,
     var isShowNotification: Boolean? = null,
     var isAppLinksPermission: Int? = null,
@@ -46,6 +46,10 @@ data class WebAppSettings(
         const val COLOR_SCHEME_AUTO = 0
         const val COLOR_SCHEME_LIGHT = 1
         const val COLOR_SCHEME_DARK = 2
+
+        const val TRACKER_PROTECTION_NONE = 0
+        const val TRACKER_PROTECTION_DEFAULT = 1
+        const val TRACKER_PROTECTION_STRICT = 2
 
         @Suppress("UNCHECKED_CAST")
         private val PROPERTY_MAP: Map<String, KMutableProperty1<WebAppSettings, Any?>> by lazy {

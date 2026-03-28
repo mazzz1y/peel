@@ -170,7 +170,10 @@
     <string name="download_failed">Download failed</string>
     <string name="setting_pull_to_refresh">Pull to refresh</string>
     <string name="setting_disable_screenshots">Block screenshots</string>
-    <string name="setting_enhanced_tracking_protection">Enhanced Tracking Protection</string>
+    <string name="setting_tracker_protection">Tracker Protection</string>
+    <string name="tracker_protection_none">None</string>
+    <string name="tracker_protection_default">Default</string>
+    <string name="tracker_protection_strict">Strict</string>
     <string name="setting_global_privacy_control">GPC Signal</string>
     <string name="setting_fingerprinting_protection">Fingerprinting Protection</string>
     <string name="setting_block_local_network">Block Local Network Access</string>

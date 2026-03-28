@@ -204,7 +204,10 @@
     <string name="restart">Khởi động lại</string>
     <string name="setting_block_local_network">Chặn truy cập mạng cục bộ</string>
     <string name="setting_block_webrtc_ip_leak">Chặn rò rỉ IP qua WebRTC</string>
-    <string name="setting_enhanced_tracking_protection">Bảo vệ chống theo dõi nâng cao</string>
+    <string name="setting_tracker_protection">Bảo vệ chống theo dõi</string>
+    <string name="tracker_protection_none">Không</string>
+    <string name="tracker_protection_default">Mặc định</string>
+    <string name="tracker_protection_strict">Nghiêm ngặt</string>
     <string name="setting_fingerprinting_protection">Bảo vệ chống dấu vân tay</string>
     <string name="setting_global_privacy_control">Tín hiệu GPC</string>
     <string name="setting_requires_peel_restart">Cài đặt này có hiệu lực sau khi khởi động lại Peel</string>

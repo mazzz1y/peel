@@ -194,7 +194,10 @@
     <string name="restart">ਰੀਸਟਾਰਟ</string>
     <string name="setting_block_local_network">ਲੋਕਲ ਨੈੱਟਵਰਕ ਐਕਸੈਸ ਬਲਾਕ</string>
     <string name="setting_block_webrtc_ip_leak">WebRTC IP ਲੀਕ ਬਲਾਕ</string>
-    <string name="setting_enhanced_tracking_protection">ਉੱਨਤ ਟ੍ਰੈਕਿੰਗ ਸੁਰੱਖਿਆ</string>
+    <string name="setting_tracker_protection">ਟ੍ਰੈਕਰ ਸੁਰੱਖਿਆ</string>
+    <string name="tracker_protection_none">ਕੋਈ ਨਹੀਂ</string>
+    <string name="tracker_protection_default">ਡਿਫ਼ਾਲਟ</string>
+    <string name="tracker_protection_strict">ਸਖ਼ਤ</string>
     <string name="setting_fingerprinting_protection">ਫਿੰਗਰਪ੍ਰਿੰਟਿੰਗ ਸੁਰੱਖਿਆ</string>
     <string name="setting_global_privacy_control">GPC ਸਿਗਨਲ</string>
     <string name="setting_requires_peel_restart">ਇਹ ਸੈਟਿੰਗ Peel ਰੀਸਟਾਰਟ ਤੋਂ ਬਾਅਦ ਲਾਗੂ ਹੋਵੇਗੀ</string>

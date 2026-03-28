@@ -204,7 +204,10 @@
     <string name="restart">重启</string>
     <string name="setting_block_local_network">阻止本地网络访问</string>
     <string name="setting_block_webrtc_ip_leak">阻止 WebRTC IP 泄露</string>
-    <string name="setting_enhanced_tracking_protection">增强型跟踪保护</string>
+    <string name="setting_tracker_protection">跟踪器保护</string>
+    <string name="tracker_protection_none">无</string>
+    <string name="tracker_protection_default">默认</string>
+    <string name="tracker_protection_strict">严格</string>
     <string name="setting_fingerprinting_protection">指纹保护</string>
     <string name="setting_global_privacy_control">GPC 信号</string>
     <string name="setting_requires_peel_restart">此设置在重启 Peel 后生效</string>

@@ -704,7 +704,8 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
             .build()
 
         val session = GeckoSession(sessionSettings)
-        session.settings.useTrackingProtection = settings.isSafeBrowsing == true
+        session.settings.useTrackingProtection =
+            settings.isSafeBrowsing != null && settings.isSafeBrowsing != WebAppSettings.TRACKER_PROTECTION_NONE
 
         return session
     }

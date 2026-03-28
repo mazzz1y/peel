@@ -66,6 +66,11 @@ object GeckoRuntimeProvider {
     private fun createRuntime(context: Context): GeckoRuntime {
         val defaults = DataManager.instance.defaultSettings.settings
         val lna = defaults.isBlockLocalNetwork == true
+        val antiTracking = when (defaults.isSafeBrowsing) {
+            WebAppSettings.TRACKER_PROTECTION_STRICT -> ContentBlocking.AntiTracking.STRICT
+            WebAppSettings.TRACKER_PROTECTION_DEFAULT -> ContentBlocking.AntiTracking.DEFAULT
+            else -> ContentBlocking.AntiTracking.NONE
+        }
         val builder = GeckoRuntimeSettings.Builder()
             .javaScriptEnabled(true)
             .consoleOutput(BuildConfig.DEBUG)
@@ -76,7 +81,7 @@ object GeckoRuntimeProvider {
             .setLnaBlocking(lna)
             .contentBlocking(
                 ContentBlocking.Settings.Builder()
-                    .antiTracking(ContentBlocking.AntiTracking.NONE)
+                    .antiTracking(antiTracking)
                     .safeBrowsing(ContentBlocking.SafeBrowsing.DEFAULT)
                     .cookieBehavior(ContentBlocking.CookieBehavior.ACCEPT_FIRST_PARTY)
                     .build()

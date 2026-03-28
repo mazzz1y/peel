@@ -204,7 +204,10 @@
     <string name="restart">再起動</string>
     <string name="setting_block_local_network">ローカルネットワークアクセスをブロック</string>
     <string name="setting_block_webrtc_ip_leak">WebRTC IPリークをブロック</string>
-    <string name="setting_enhanced_tracking_protection">強化型トラッキング防止</string>
+    <string name="setting_tracker_protection">トラッカー保護</string>
+    <string name="tracker_protection_none">なし</string>
+    <string name="tracker_protection_default">デフォルト</string>
+    <string name="tracker_protection_strict">厳格</string>
     <string name="setting_fingerprinting_protection">フィンガープリント防止</string>
     <string name="setting_global_privacy_control">GPCシグナル</string>
     <string name="setting_requires_peel_restart">この設定はPeelの再起動後に有効になります</string>

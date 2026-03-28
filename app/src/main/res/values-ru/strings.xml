@@ -207,7 +207,10 @@
     <string name="restart">Перезапустить</string>
     <string name="setting_block_local_network">Блокировка локальной сети</string>
     <string name="setting_block_webrtc_ip_leak">Блокировка утечки IP через WebRTC</string>
-    <string name="setting_enhanced_tracking_protection">Улучшенная защита от отслеживания</string>
+    <string name="setting_tracker_protection">Защита от трекеров</string>
+    <string name="tracker_protection_none">Нет</string>
+    <string name="tracker_protection_default">По умолчанию</string>
+    <string name="tracker_protection_strict">Строгий</string>
     <string name="setting_fingerprinting_protection">Защита от фингерпринтинга</string>
     <string name="setting_global_privacy_control">Сигнал GPC</string>
     <string name="setting_requires_peel_restart">Настройка вступит в силу после перезапуска Peel</string>

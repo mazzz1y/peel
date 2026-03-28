@@ -202,7 +202,10 @@
     <string name="restart">Riavvia</string>
     <string name="setting_block_local_network">Blocca accesso alla rete locale</string>
     <string name="setting_block_webrtc_ip_leak">Blocca fuga IP tramite WebRTC</string>
-    <string name="setting_enhanced_tracking_protection">Protezione antitracciamento avanzata</string>
+    <string name="setting_tracker_protection">Protezione dai tracker</string>
+    <string name="tracker_protection_none">Nessuna</string>
+    <string name="tracker_protection_default">Predefinita</string>
+    <string name="tracker_protection_strict">Rigorosa</string>
     <string name="setting_fingerprinting_protection">Protezione dal fingerprinting</string>
     <string name="setting_global_privacy_control">Segnale GPC</string>
     <string name="setting_requires_peel_restart">Questa impostazione ha effetto dopo il riavvio di Peel</string>
