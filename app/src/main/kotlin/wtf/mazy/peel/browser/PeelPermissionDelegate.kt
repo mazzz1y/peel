@@ -22,7 +22,7 @@ class PeelPermissionDelegate(private val host: SessionHost) : GeckoSession.Permi
     override fun onContentPermissionRequest(
         session: GeckoSession,
         perm: GeckoSession.PermissionDelegate.ContentPermission,
-    ): GeckoResult<Int>? {
+    ): GeckoResult<Int> {
         val result = GeckoResult<Int>()
 
         when (perm.permission) {

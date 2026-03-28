@@ -117,7 +117,8 @@ class GroupSettingsActivity :
     }
 
     private fun onSettingChanged(key: String) {
-        currentSnackbar = ApplyTimingRegistry.showSnackbarIfNeeded(key, binding.root, currentSnackbar)
+        currentSnackbar =
+            ApplyTimingRegistry.showSnackbarIfNeeded(key, binding.root, currentSnackbar)
     }
 
     override fun onSettingSelected(setting: SettingDefinition) {

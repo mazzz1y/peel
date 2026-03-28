@@ -41,6 +41,7 @@ import wtf.mazy.peel.ui.dragReorderCallback
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.NotificationUtils
 import java.util.Collections
+import androidx.core.view.isVisible
 
 class GroupListActivity : AppCompatActivity() {
 
@@ -431,7 +432,7 @@ class GroupListActivity : AppCompatActivity() {
             listOf(
                 holder.iconSandbox,
                 holder.iconEphemeral
-            ).filter { it.visibility == View.VISIBLE }
+            ).filter { it.isVisible }
 
         private fun badgeSlideDistance(menuButton: View, badgeIcon: View): Float =
             (menuButton.width + badgeIcon.width) / 2f

@@ -58,7 +58,15 @@ data class WebApp(var baseUrl: String, override val uuid: String = UUID.randomUU
     }
 
     val contentFingerprint: Int
-        get() = Objects.hash(title, baseUrl, groupUuid, isUseContainer, isEphemeralSandbox, order, hasCustomIcon)
+        get() = Objects.hash(
+            title,
+            baseUrl,
+            groupUuid,
+            isUseContainer,
+            isEphemeralSandbox,
+            order,
+            hasCustomIcon
+        )
 
     fun resolveContextId(): String? {
         val group = groupUuid?.let { DataManager.instance.getGroup(it) }

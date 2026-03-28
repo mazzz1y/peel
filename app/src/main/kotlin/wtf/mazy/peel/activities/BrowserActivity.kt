@@ -27,7 +27,6 @@ import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toDrawable
 import androidx.core.net.toUri
 import androidx.lifecycle.lifecycleScope
-import wtf.mazy.peel.gecko.VerticalSwipeRefreshLayout
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
@@ -49,6 +48,7 @@ import wtf.mazy.peel.browser.PermissionResult
 import wtf.mazy.peel.browser.SessionHost
 import wtf.mazy.peel.gecko.GeckoRuntimeProvider
 import wtf.mazy.peel.gecko.NestedGeckoView
+import wtf.mazy.peel.gecko.VerticalSwipeRefreshLayout
 import wtf.mazy.peel.media.MediaPlaybackManager
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.WebApp
@@ -80,6 +80,7 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
     override var filePathCallback: ((Array<Uri>?) -> Unit)? = null
     override var canGoBack = false
     override var currentUrl = ""
+    override var lastLoadedUrl = ""
 
     private val launchedFromMenu by lazy {
         intent.getBooleanExtra(Const.INTENT_LAUNCHED_FROM_MENU, false)
@@ -488,6 +489,7 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
 
     override fun onPageFullyLoaded() {
         navigationStartPoint.onPageFinished()
+        lastLoadedUrl = currentUrl
         if (pageLoadHandled || biometricController.isPromptActive) return
         pageLoadHandled = true
         if (launchOverlayController.isVisible) {
@@ -625,6 +627,7 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
         geckoSession?.close()
 
         currentUrl = ""
+        lastLoadedUrl = ""
         canGoBack = false
         currentlyReloading = true
         pageLoadHandled = false
@@ -640,10 +643,10 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
         geckoSession = session
 
         session.navigationDelegate = navigationDelegate
-        if (settings.isLongClickShare == true) setupContextMenu(settings) else contextMenu = null
+        if (settings.isLongClickShare == true) setupContextMenu() else contextMenu = null
         val contextMenuCallback: ((GeckoSession, Int, Int, GeckoSession.ContentDelegate.ContextElement) -> Unit)? =
             if (contextMenu != null) {
-                { s, x, y, el -> contextMenu?.onContextMenu(s, x, y, el) }
+                { _, _, _, el -> contextMenu?.onContextMenu( el) }
             } else null
         session.contentDelegate = PeelContentDelegate(
             host = this,
@@ -714,7 +717,7 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
         mediaPlaybackManager = manager
     }
 
-    private fun setupContextMenu(settings: WebAppSettings) {
+    private fun setupContextMenu() {
         contextMenu = BrowserContextMenu(
             activity = this,
             downloadHandler = downloadHandler,
@@ -774,7 +777,6 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
     }
 
 
-
     override fun findPeelAppMatches(url: String): List<WebApp> {
         val currentUuid = webappUuid ?: return emptyList()
         val targetHost = url.toUri().host?.removePrefix("www.")?.lowercase() ?: return emptyList()
@@ -791,6 +793,7 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
     override fun showPeelAppRoutingDialog(
         matches: List<WebApp>,
         url: String,
+        isRedirect: Boolean,
         onDismiss: () -> Unit,
     ) {
         val adapter = ListPickerAdapter(matches) { app, icon, name, detail ->
@@ -814,7 +817,10 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
                 startExternalIntent(url.toUri())
                 onDismiss()
             }
-            .setOnCancelListener { onDismiss() }
+            .setOnCancelListener {
+                onDismiss()
+                if (isRedirect && lastLoadedUrl.isNotEmpty()) loadURL(lastLoadedUrl)
+            }
             .show()
     }
 

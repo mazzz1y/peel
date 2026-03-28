@@ -79,6 +79,7 @@ enum class SettingCategory(@param:StringRes val displayNameResId: Int) {
     PERMISSIONS(R.string.permissions),
     CONTENT(R.string.content),
     SECURITY(R.string.security),
+    GLOBAL_PRIVACY(R.string.global_privacy),
     ADVANCED(R.string.advanced),
 }
 
@@ -247,27 +248,27 @@ object SettingRegistry {
                 SettingCategory.SECURITY,
             ),
             SettingDefinition.BooleanSetting(
-                SettingField(WebAppSettings::isGlobalPrivacyControl, false),
+                SettingField(WebAppSettings::isGlobalPrivacyControl, true),
                 R.string.setting_global_privacy_control,
-                SettingCategory.SECURITY,
+                SettingCategory.GLOBAL_PRIVACY,
                 globalOnly = true,
             ),
             SettingDefinition.BooleanSetting(
-                SettingField(WebAppSettings::isFingerprintingProtection, false),
+                SettingField(WebAppSettings::isFingerprintingProtection, true),
                 R.string.setting_fingerprinting_protection,
-                SettingCategory.SECURITY,
+                SettingCategory.GLOBAL_PRIVACY,
                 globalOnly = true,
             ),
             SettingDefinition.BooleanSetting(
-                SettingField(WebAppSettings::isBlockLocalNetwork, false),
+                SettingField(WebAppSettings::isBlockLocalNetwork, true),
                 R.string.setting_block_local_network,
-                SettingCategory.SECURITY,
+                SettingCategory.GLOBAL_PRIVACY,
                 globalOnly = true,
             ),
             SettingDefinition.BooleanSetting(
-                SettingField(WebAppSettings::isBlockWebRtcIpLeak, false),
+                SettingField(WebAppSettings::isBlockWebRtcIpLeak, true),
                 R.string.setting_block_webrtc_ip_leak,
-                SettingCategory.SECURITY,
+                SettingCategory.GLOBAL_PRIVACY,
                 globalOnly = true,
             ),
             SettingDefinition.BooleanSetting(

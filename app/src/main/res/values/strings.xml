@@ -28,6 +28,7 @@
     <string name="permissions">Permissions</string>
     <string name="content">Content</string>
     <string name="security">Security</string>
+    <string name="global_privacy">Global Privacy</string>
     <string name="advanced">Advanced</string>
     <string name="appearance">Appearance</string>
     <string name="import_failed">Backup could not be restored</string>

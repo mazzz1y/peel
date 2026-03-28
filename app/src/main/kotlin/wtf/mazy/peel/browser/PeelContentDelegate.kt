@@ -1,11 +1,8 @@
 package wtf.mazy.peel.browser
 
-import android.graphics.Bitmap
-import android.graphics.Canvas
 import android.graphics.Color
 import android.view.View
 import android.widget.FrameLayout
-import androidx.core.graphics.createBitmap
 import androidx.core.graphics.toColorInt
 import org.json.JSONObject
 import org.mozilla.geckoview.GeckoResult
@@ -81,12 +78,6 @@ class PeelContentDelegate(
 
     override fun onFirstContentfulPaint(session: GeckoSession) {
         host.onFirstContentfulPaint()
-    }
-
-    fun getDefaultVideoPoster(): Bitmap {
-        val bitmap = createBitmap(1, 1)
-        Canvas(bitmap).drawARGB(0, 0, 0, 0)
-        return bitmap
     }
 
     companion object {

@@ -6,9 +6,7 @@ import android.content.Intent
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
-import android.text.SpannableString
-import android.text.Spanned
-import android.text.style.TypefaceSpan
+import wtf.mazy.peel.util.withMonoSpan
 import android.util.Base64
 import android.webkit.MimeTypeMap
 import androidx.appcompat.app.AppCompatActivity
@@ -146,20 +144,8 @@ class DownloadHandler(
     private fun showDownloadPrompt(fileName: String, onResult: (Boolean) -> Unit) {
         if (promptShowing) return
         promptShowing = true
-        val text = activity.getString(R.string.permission_prompt_download, fileName)
-        val nameStart = text.indexOf(fileName)
-        val message: CharSequence = if (nameStart >= 0) {
-            SpannableString(text).apply {
-                setSpan(
-                    TypefaceSpan("monospace"),
-                    nameStart,
-                    nameStart + fileName.length,
-                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE,
-                )
-            }
-        } else {
-            text
-        }
+        val message = activity.getString(R.string.permission_prompt_download, fileName)
+            .withMonoSpan(fileName)
 
         MaterialAlertDialogBuilder(activity)
             .setMessage(message)

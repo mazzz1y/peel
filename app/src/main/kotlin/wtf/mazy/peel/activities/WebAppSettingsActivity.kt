@@ -1,9 +1,7 @@
 package wtf.mazy.peel.activities
 
 import android.os.Bundle
-import android.text.SpannableString
-import android.text.Spanned
-import android.text.style.TypefaceSpan
+import wtf.mazy.peel.util.withMonoSpan
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -14,8 +12,8 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.progressindicator.CircularProgressIndicator
+import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.NonCancellable
@@ -423,18 +421,7 @@ class WebAppSettingsActivity :
 
     private fun promptUrlUpdate(webapp: WebApp, suggestedUrl: String, messageResId: Int) {
         if (suggestedUrl.trimEnd('/') == webapp.baseUrl.trimEnd('/')) return
-        val text = getString(messageResId, suggestedUrl)
-        val urlStart = text.indexOf(suggestedUrl)
-        val message = SpannableString(text).apply {
-            if (urlStart >= 0) {
-                setSpan(
-                    TypefaceSpan("monospace"),
-                    urlStart,
-                    urlStart + suggestedUrl.length,
-                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-                )
-            }
-        }
+        val message = getString(messageResId, suggestedUrl).withMonoSpan(suggestedUrl)
         MaterialAlertDialogBuilder(this)
             .setTitle(R.string.manifest_start_url_title)
             .setMessage(message)
@@ -461,7 +448,8 @@ class WebAppSettingsActivity :
     }
 
     private fun onSettingChanged(key: String) {
-        currentSnackbar = ApplyTimingRegistry.showSnackbarIfNeeded(key, binding.root, currentSnackbar)
+        currentSnackbar =
+            ApplyTimingRegistry.showSnackbarIfNeeded(key, binding.root, currentSnackbar)
     }
 
     override fun onSettingSelected(setting: SettingDefinition) {

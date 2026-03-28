@@ -16,7 +16,7 @@ class PeelPromptDelegate(private val host: SessionHost) : GeckoSession.PromptDel
     override fun onAlertPrompt(
         session: GeckoSession,
         prompt: GeckoSession.PromptDelegate.AlertPrompt,
-    ): GeckoResult<GeckoSession.PromptDelegate.PromptResponse>? {
+    ): GeckoResult<GeckoSession.PromptDelegate.PromptResponse> {
         val result = GeckoResult<GeckoSession.PromptDelegate.PromptResponse>()
         host.runOnUi {
             MaterialAlertDialogBuilder(host.hostWindow.context)
@@ -34,7 +34,7 @@ class PeelPromptDelegate(private val host: SessionHost) : GeckoSession.PromptDel
     override fun onButtonPrompt(
         session: GeckoSession,
         prompt: GeckoSession.PromptDelegate.ButtonPrompt,
-    ): GeckoResult<GeckoSession.PromptDelegate.PromptResponse>? {
+    ): GeckoResult<GeckoSession.PromptDelegate.PromptResponse> {
         val result = GeckoResult<GeckoSession.PromptDelegate.PromptResponse>()
         host.runOnUi {
             MaterialAlertDialogBuilder(host.hostWindow.context)
@@ -57,7 +57,7 @@ class PeelPromptDelegate(private val host: SessionHost) : GeckoSession.PromptDel
     override fun onTextPrompt(
         session: GeckoSession,
         prompt: GeckoSession.PromptDelegate.TextPrompt,
-    ): GeckoResult<GeckoSession.PromptDelegate.PromptResponse>? {
+    ): GeckoResult<GeckoSession.PromptDelegate.PromptResponse> {
         val result = GeckoResult<GeckoSession.PromptDelegate.PromptResponse>()
         host.runOnUi {
             val input = android.widget.EditText(host.hostWindow.context).apply {
@@ -82,7 +82,7 @@ class PeelPromptDelegate(private val host: SessionHost) : GeckoSession.PromptDel
     override fun onAuthPrompt(
         session: GeckoSession,
         prompt: GeckoSession.PromptDelegate.AuthPrompt,
-    ): GeckoResult<GeckoSession.PromptDelegate.PromptResponse>? {
+    ): GeckoResult<GeckoSession.PromptDelegate.PromptResponse> {
         val settings = host.effectiveSettings
         val authUri = prompt.authOptions.uri ?: ""
         if (settings.isUseBasicAuth == true) {
@@ -109,11 +109,11 @@ class PeelPromptDelegate(private val host: SessionHost) : GeckoSession.PromptDel
     override fun onFilePrompt(
         session: GeckoSession,
         prompt: GeckoSession.PromptDelegate.FilePrompt,
-    ): GeckoResult<GeckoSession.PromptDelegate.PromptResponse>? {
+    ): GeckoResult<GeckoSession.PromptDelegate.PromptResponse> {
         val result = GeckoResult<GeckoSession.PromptDelegate.PromptResponse>()
         host.filePathCallback = { uris ->
-            if (uris != null && uris.isNotEmpty()) {
-                result.complete(prompt.confirm(host.hostWindow.context, uris.first()!!))
+            if (!uris.isNullOrEmpty()) {
+                result.complete(prompt.confirm(host.hostWindow.context, uris.first()))
             } else {
                 result.complete(prompt.dismiss())
             }

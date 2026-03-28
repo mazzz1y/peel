@@ -29,9 +29,6 @@ class BrowserContextMenu(
 ) {
 
     fun onContextMenu(
-        session: GeckoSession,
-        screenX: Int,
-        screenY: Int,
         element: GeckoSession.ContentDelegate.ContextElement,
     ) {
         val info = resolveHitInfo(element) ?: return

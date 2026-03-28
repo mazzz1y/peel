@@ -9,8 +9,8 @@ import android.os.Handler
 import android.os.Looper
 import androidx.core.content.ContextCompat
 import org.mozilla.geckoview.GeckoSession
-import org.mozilla.geckoview.MediaSession as GeckoMediaSession
 import java.io.ByteArrayOutputStream
+import org.mozilla.geckoview.MediaSession as GeckoMediaSession
 
 fun Bitmap.toPngBytes(): ByteArray {
     val stream = ByteArrayOutputStream()

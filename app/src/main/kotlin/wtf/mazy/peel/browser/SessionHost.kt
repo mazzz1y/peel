@@ -20,6 +20,7 @@ interface SessionHost {
     val webAppName: String
     var canGoBack: Boolean
     var currentUrl: String
+    var lastLoadedUrl: String
 
     var currentlyReloading: Boolean
     val hostProgressBar: ProgressBar?
@@ -44,7 +45,13 @@ interface SessionHost {
     fun showConnectionError(description: String, url: String)
     fun updateStatusBarColor(color: Int)
     fun findPeelAppMatches(url: String): List<WebApp>
-    fun showPeelAppRoutingDialog(matches: List<WebApp>, url: String, onDismiss: () -> Unit)
+    fun showPeelAppRoutingDialog(
+        matches: List<WebApp>,
+        url: String,
+        isRedirect: Boolean = false,
+        onDismiss: () -> Unit
+    )
+
     fun startExternalIntent(uri: Uri)
     fun showPermissionDialog(message: CharSequence, onResult: (PermissionResult) -> Unit)
 

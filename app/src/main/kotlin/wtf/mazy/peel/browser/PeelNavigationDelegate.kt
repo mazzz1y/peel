@@ -8,6 +8,7 @@ import org.mozilla.geckoview.WebRequestError
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.WebAppSettings
 import wtf.mazy.peel.util.HostIdentity
+import wtf.mazy.peel.util.withMonoSpan
 
 class PeelNavigationDelegate(private val host: SessionHost) : GeckoSession.NavigationDelegate {
 
@@ -60,8 +61,9 @@ class PeelNavigationDelegate(private val host: SessionHost) : GeckoSession.Navig
                 val matches = host.findPeelAppMatches(url)
                 if (matches.isNotEmpty()) {
                     peelRoutingDialogShowing = true
+                    val redirect = request.isRedirect
                     host.runOnUi {
-                        host.showPeelAppRoutingDialog(matches, url) {
+                        host.showPeelAppRoutingDialog(matches, url, redirect) {
                             peelRoutingDialogShowing = false
                         }
                     }
@@ -72,6 +74,7 @@ class PeelNavigationDelegate(private val host: SessionHost) : GeckoSession.Navig
                 showExternalIntentPrompt(
                     url, R.string.permission_prompt_open_externally,
                     { externalLinkDialogShowing }, { externalLinkDialogShowing = it },
+                    isRedirect = request.isRedirect,
                 )
                 return GeckoResult.fromValue(AllowOrDeny.DENY)
             }
@@ -117,14 +120,19 @@ class PeelNavigationDelegate(private val host: SessionHost) : GeckoSession.Navig
         messageResId: Int,
         isDialogShowing: () -> Boolean,
         setDialogShowing: (Boolean) -> Unit,
+        isRedirect: Boolean = false,
     ) {
         if (isDialogShowing()) return
         setDialogShowing(true)
+        val truncated = truncateUrl(url)
+        val message = host.getString(messageResId, truncated).withMonoSpan(truncated)
         host.runOnUi {
-            host.showPermissionDialog(host.getString(messageResId, truncateUrl(url))) { result ->
+            host.showPermissionDialog(message) { result ->
                 setDialogShowing(false)
                 if (result == PermissionResult.ALLOW) {
                     host.startExternalIntent(url.toUri())
+                } else if (isRedirect && host.lastLoadedUrl.isNotEmpty()) {
+                    host.loadURL(host.lastLoadedUrl)
                 }
             }
         }

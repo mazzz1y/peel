@@ -2,9 +2,7 @@ package wtf.mazy.peel.gecko
 
 import android.content.Context
 import android.util.Log
-import java.io.File
 import kotlinx.coroutines.suspendCancellableCoroutine
-import wtf.mazy.peel.model.WebAppSettings
 import org.mozilla.geckoview.ContentBlocking
 import org.mozilla.geckoview.GeckoResult
 import org.mozilla.geckoview.GeckoRuntime
@@ -12,6 +10,8 @@ import org.mozilla.geckoview.GeckoRuntimeSettings
 import org.mozilla.geckoview.WebExtension
 import wtf.mazy.peel.BuildConfig
 import wtf.mazy.peel.model.DataManager
+import wtf.mazy.peel.model.WebAppSettings
+import java.io.File
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
