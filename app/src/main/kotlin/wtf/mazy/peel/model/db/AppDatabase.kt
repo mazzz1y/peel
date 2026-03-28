@@ -149,95 +149,65 @@ abstract class AppDatabase : RoomDatabase() {
                 }
             }
 
+        private val SETTINGS_COLUMNS = listOf(
+            "isOpenUrlExternal" to "INTEGER",
+            "isAllowJs" to "INTEGER",
+            "isRequestDesktop" to "INTEGER",
+            "isClearCache" to "INTEGER",
+            "isAlwaysHttps" to "INTEGER",
+            "isAllowLocationAccess" to "INTEGER",
+            "customHeaders" to "TEXT",
+            "isAutoReload" to "INTEGER",
+            "timeAutoReload" to "INTEGER",
+            "colorScheme" to "INTEGER",
+            "isDrmAllowed" to "INTEGER",
+            "isShowFullscreen" to "INTEGER",
+            "isKeepAwake" to "INTEGER",
+            "isCameraPermission" to "INTEGER",
+            "isMicrophonePermission" to "INTEGER",
+            "isBiometricProtection" to "INTEGER",
+            "isAllowMediaPlaybackInBackground" to "INTEGER",
+            "isLongClickShare" to "INTEGER",
+            "isShowProgressbar" to "INTEGER",
+            "isDisableScreenshots" to "INTEGER",
+            "isPullToRefresh" to "INTEGER",
+            "isSafeBrowsing" to "INTEGER",
+            "isDynamicStatusBar" to "INTEGER",
+            "isShowNotification" to "INTEGER",
+            "isAppLinksPermission" to "INTEGER",
+            "isGlobalPrivacyControl" to "INTEGER",
+            "isFingerprintingProtection" to "INTEGER",
+            "isBlockLocalNetwork" to "INTEGER",
+            "isBlockWebRtcIpLeak" to "INTEGER",
+            "isOpenInPeelApp" to "INTEGER",
+            "isUseBasicAuth" to "INTEGER",
+            "basicAuthUsername" to "TEXT",
+            "basicAuthPassword" to "TEXT",
+        )
+
         private val SETTINGS_COLS =
-            """
-            isOpenUrlExternal INTEGER,
-            isAllowJs INTEGER,
-            isRequestDesktop INTEGER,
-            isClearCache INTEGER,
-            isAlwaysHttps INTEGER,
-            isAllowLocationAccess INTEGER,
-            customHeaders TEXT,
-            isAutoReload INTEGER,
-            timeAutoReload INTEGER,
-            colorScheme INTEGER,
-            isDrmAllowed INTEGER,
-            isShowFullscreen INTEGER,
-            isKeepAwake INTEGER,
-            isCameraPermission INTEGER,
-            isMicrophonePermission INTEGER,
-            isBiometricProtection INTEGER,
-            isAllowMediaPlaybackInBackground INTEGER,
-            isLongClickShare INTEGER,
-            isShowProgressbar INTEGER,
-            isDisableScreenshots INTEGER,
-            isPullToRefresh INTEGER,
-            isSafeBrowsing INTEGER,
-            isDynamicStatusBar INTEGER,
-            isShowNotification INTEGER,
-            isAppLinksPermission INTEGER,
-            isGlobalPrivacyControl INTEGER,
-            isFingerprintingProtection INTEGER,
-            isBlockLocalNetwork INTEGER,
-            isBlockWebRtcIpLeak INTEGER,
-            isOpenInPeelApp INTEGER,
-            isUseBasicAuth INTEGER,
-            basicAuthUsername TEXT,
-            basicAuthPassword TEXT
-            """.trimIndent()
+            SETTINGS_COLUMNS.joinToString(",\n") { "${it.first} ${it.second}" }
 
         private val SETTINGS_COL_NAMES =
-            listOf(
-                "isOpenUrlExternal",
-                "isAllowJs",
-                "isRequestDesktop",
-                "isClearCache",
-                "isAlwaysHttps",
-                "isAllowLocationAccess",
-                "customHeaders",
-                "isAutoReload",
-                "timeAutoReload",
-                "colorScheme",
-                "isDrmAllowed",
-                "isShowFullscreen",
-                "isKeepAwake",
-                "isCameraPermission",
-                "isMicrophonePermission",
-                "isBiometricProtection",
-                "isAllowMediaPlaybackInBackground",
-                "isLongClickShare",
-                "isShowProgressbar",
-                "isDisableScreenshots",
-                "isPullToRefresh",
-                "isSafeBrowsing",
-                "isDynamicStatusBar",
-                "isShowNotification",
-                "isAppLinksPermission",
-                "isGlobalPrivacyControl",
-                "isFingerprintingProtection",
-                "isBlockLocalNetwork",
-                "isBlockWebRtcIpLeak",
-                "isOpenInPeelApp",
-                "isUseBasicAuth",
-                "basicAuthUsername",
-                "basicAuthPassword",
-            ).joinToString(", ")
+            SETTINGS_COLUMNS.joinToString(", ") { it.first }
 
         private fun ensureSettingsColumns(db: SupportSQLiteDatabase) {
             for (table in listOf("webapps", "webapp_groups")) {
                 val cursor = db.query("PRAGMA table_info($table)")
                 val existing = mutableSetOf<String>()
                 val nameIdx = cursor.getColumnIndex("name")
-                while (cursor.moveToNext()) {
-                    existing.add(cursor.getString(nameIdx))
-                }
+                while (cursor.moveToNext()) existing.add(cursor.getString(nameIdx))
                 cursor.close()
-                if ("colorScheme" !in existing)
-                    db.execSQL("ALTER TABLE $table ADD COLUMN colorScheme INTEGER DEFAULT NULL")
+                for ((col, type) in SETTINGS_COLUMNS) {
+                    if (col !in existing) {
+                        db.execSQL("ALTER TABLE $table ADD COLUMN $col $type DEFAULT NULL")
+                    }
+                }
             }
         }
 
         private fun recreateTablesV9(db: SupportSQLiteDatabase) {
+            ensureSettingsColumns(db)
             db.execSQL(
                 """
                 CREATE TABLE IF NOT EXISTS webapps_new (
@@ -395,6 +365,7 @@ abstract class AppDatabase : RoomDatabase() {
         val MIGRATION_12_13 =
             object : Migration(12, 13) {
                 override fun migrate(db: SupportSQLiteDatabase) {
+                    ensureSettingsColumns(db)
                     db.execSQL(
                         """
                         CREATE TABLE IF NOT EXISTS webapps_new (
