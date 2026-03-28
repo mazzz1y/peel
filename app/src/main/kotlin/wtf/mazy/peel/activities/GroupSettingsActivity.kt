@@ -4,9 +4,13 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import wtf.mazy.peel.R
 import wtf.mazy.peel.databinding.GroupSettingsBinding
+import wtf.mazy.peel.model.ApplyTimingRegistry
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.SettingDefinition
 import wtf.mazy.peel.model.WebAppGroup
@@ -25,6 +29,7 @@ class GroupSettingsActivity :
     private var originalGroup: WebAppGroup? = null
     private var modifiedGroup: WebAppGroup? = null
     private lateinit var iconEditor: IconEditorController
+    private var currentSnackbar: Snackbar? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         iconEditor = IconEditorController(this, { binding.imgGroupIcon }) { modifiedGroup }
@@ -59,7 +64,9 @@ class GroupSettingsActivity :
                 it.title = originalGroup?.title ?: ""
             }
             lifecycleScope.launch {
-                DataManager.instance.replaceGroup(it)
+                withContext(NonCancellable) {
+                    DataManager.instance.replaceGroup(it)
+                }
             }
         }
     }
@@ -104,8 +111,13 @@ class GroupSettingsActivity :
                 group.settings,
                 binding.linearLayoutOverrides,
                 binding.btnAddOverride,
+                ::onSettingChanged,
             )
         overrideController.setup()
+    }
+
+    private fun onSettingChanged(key: String) {
+        currentSnackbar = ApplyTimingRegistry.showSnackbarIfNeeded(key, binding.root, currentSnackbar)
     }
 
     override fun onSettingSelected(setting: SettingDefinition) {

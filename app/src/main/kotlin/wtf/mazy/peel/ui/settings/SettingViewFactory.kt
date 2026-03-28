@@ -1,12 +1,11 @@
 package wtf.mazy.peel.ui.settings
 
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.CompoundButton
+import androidx.core.widget.doAfterTextChanged
 import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.PopupMenu
@@ -184,24 +183,11 @@ class SettingViewFactory(
 
         var listenersActive = false
 
-        val textWatcher =
-            object : TextWatcher {
-                override fun beforeTextChanged(
-                    s: CharSequence?,
-                    start: Int,
-                    count: Int,
-                    after: Int,
-                ) {
-                }
-
-                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-
-                override fun afterTextChanged(s: Editable?) {
-                    if (!listenersActive) return
-                    settings.setValue(intKey, s?.toString()?.toIntOrNull() ?: intDefault)
-                    updateUndoVisibility(btnUndo, setting, settings)
-                }
-            }
+        editText.doAfterTextChanged { s ->
+            if (!listenersActive) return@doAfterTextChanged
+            settings.setValue(intKey, s?.toString()?.toIntOrNull() ?: intDefault)
+            updateUndoVisibility(btnUndo, setting, settings)
+        }
 
         val switchListener = { _: CompoundButton?, isChecked: Boolean ->
             if (listenersActive) {
@@ -219,7 +205,6 @@ class SettingViewFactory(
         }
 
         syncUi()
-        editText.addTextChangedListener(textWatcher)
         editText.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
                 editText.clearFocus()
@@ -275,7 +260,7 @@ class SettingViewFactory(
         fun refreshHeaders() {
             container.removeAllViews()
             settings.customHeaders?.forEach { (key, value) ->
-                addHeaderEntryView(container, settings, key, value)
+                addHeaderEntryView(container, settings, key, value, setting.key)
             }
         }
         refreshHeaders()
@@ -285,7 +270,8 @@ class SettingViewFactory(
                 settings.customHeaders = mutableMapOf()
             }
             settings.customHeaders?.put("", "")
-            addHeaderEntryView(container, settings, "", "")
+            addHeaderEntryView(container, settings, "", "", setting.key)
+            onSettingChanged?.invoke(setting.key)
         }
     }
 
@@ -294,6 +280,7 @@ class SettingViewFactory(
         settings: WebAppSettings,
         initialKey: String,
         initialValue: String,
+        settingKey: String,
     ) {
         val entryView = inflater.inflate(R.layout.item_header_entry, container, false)
         val editName = entryView.findViewById<TextInputEditText>(R.id.editHeaderName)
@@ -305,53 +292,28 @@ class SettingViewFactory(
 
         var currentKey = initialKey
 
-        editName.addTextChangedListener(
-            object : TextWatcher {
-                override fun beforeTextChanged(
-                    s: CharSequence?,
-                    start: Int,
-                    count: Int,
-                    after: Int
-                ) {
+        editName.doAfterTextChanged { s ->
+            val newKey = s?.toString() ?: ""
+            if (newKey != currentKey) {
+                settings.customHeaders?.remove(currentKey)
+                if (newKey.isNotEmpty()) {
+                    settings.customHeaders?.put(newKey, editValue.text?.toString() ?: "")
                 }
+                currentKey = newKey
+            }
+        }
 
-                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-
-                override fun afterTextChanged(s: Editable?) {
-                    val newKey = s?.toString() ?: ""
-                    if (newKey != currentKey) {
-                        settings.customHeaders?.remove(currentKey)
-                        if (newKey.isNotEmpty()) {
-                            settings.customHeaders?.put(newKey, editValue.text?.toString() ?: "")
-                        }
-                        currentKey = newKey
-                    }
-                }
-            })
-
-        editValue.addTextChangedListener(
-            object : TextWatcher {
-                override fun beforeTextChanged(
-                    s: CharSequence?,
-                    start: Int,
-                    count: Int,
-                    after: Int
-                ) {
-                }
-
-                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-
-                override fun afterTextChanged(s: Editable?) {
-                    val key = editName.text?.toString() ?: ""
-                    if (key.isNotEmpty()) {
-                        settings.customHeaders?.put(key, s?.toString() ?: "")
-                    }
-                }
-            })
+        editValue.doAfterTextChanged { s ->
+            val key = editName.text?.toString() ?: ""
+            if (key.isNotEmpty()) {
+                settings.customHeaders?.put(key, s?.toString() ?: "")
+            }
+        }
 
         btnRemoveHeader.setOnClickListener {
             settings.customHeaders?.remove(currentKey)
             container.removeView(entryView)
+            onSettingChanged?.invoke(settingKey)
         }
 
         container.addView(entryView)
@@ -386,26 +348,6 @@ class SettingViewFactory(
 
         var listenersActive = false
 
-        val usernameWatcher = object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-            override fun afterTextChanged(s: Editable?) {
-                if (!listenersActive) return
-                settings.setValue(usernameKey, s?.toString() ?: "")
-                updateUndoVisibility(btnUndo, setting, settings)
-            }
-        }
-
-        val passwordWatcher = object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-            override fun afterTextChanged(s: Editable?) {
-                if (!listenersActive) return
-                settings.setValue(passwordKey, s?.toString() ?: "")
-                updateUndoVisibility(btnUndo, setting, settings)
-            }
-        }
-
         val switchListener = { _: CompoundButton?, isChecked: Boolean ->
             if (listenersActive) {
                 settings.setValue(setting.key, isChecked)
@@ -418,8 +360,16 @@ class SettingViewFactory(
         }
 
         syncUi()
-        editUsername.addTextChangedListener(usernameWatcher)
-        editPassword.addTextChangedListener(passwordWatcher)
+        editUsername.doAfterTextChanged { s ->
+            if (!listenersActive) return@doAfterTextChanged
+            settings.setValue(usernameKey, s?.toString() ?: "")
+            updateUndoVisibility(btnUndo, setting, settings)
+        }
+        editPassword.doAfterTextChanged { s ->
+            if (!listenersActive) return@doAfterTextChanged
+            settings.setValue(passwordKey, s?.toString() ?: "")
+            updateUndoVisibility(btnUndo, setting, settings)
+        }
         switch.setOnCheckedChangeListener(switchListener)
         listenersActive = true
 

@@ -14,6 +14,7 @@ class OverridePickerController(
     private val settings: WebAppSettings,
     private val container: LinearLayout,
     private val addButton: View,
+    private val onSettingChanged: ((String) -> Unit)? = null,
 ) : OverridePickerDialog.OnSettingSelectedListener {
 
     private var viewFactory = createViewFactory()
@@ -42,6 +43,7 @@ class OverridePickerController(
                 removeOverride(setting.key)
                 refreshList()
             },
+            onSettingChanged,
         )
 
     private fun refreshList() {

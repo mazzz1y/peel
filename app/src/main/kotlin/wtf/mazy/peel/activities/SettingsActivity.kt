@@ -16,7 +16,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import wtf.mazy.peel.R
 import wtf.mazy.peel.databinding.GlobalSettingsBinding
-import wtf.mazy.peel.model.ApplyTiming
 import wtf.mazy.peel.model.ApplyTimingRegistry
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.SettingRegistry
@@ -108,18 +107,9 @@ class SettingsActivity : ToolbarBaseActivity<GlobalSettingsBinding>() {
     }
 
     private fun onSettingChanged(key: String) {
-        val timing = ApplyTimingRegistry.getTiming(key)
-        if (timing == ApplyTiming.IMMEDIATE) return
-        currentSnackbar?.dismiss()
-        val message = when (timing) {
-            ApplyTiming.PEEL_RESTART -> R.string.setting_requires_peel_restart
-            ApplyTiming.WEBAPP_RESTART -> R.string.setting_requires_webapp_restart
-            else -> return
-        }
-        val snackbar = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
-        snackbar.setAction(R.string.restart) { restartApp() }
-        currentSnackbar = snackbar
-        snackbar.show()
+        currentSnackbar = ApplyTimingRegistry.showSnackbarIfNeeded(
+            key, binding.root, currentSnackbar, ::restartApp
+        )
     }
 
     private fun restartApp() {

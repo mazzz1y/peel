@@ -14,6 +14,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.progressindicator.CircularProgressIndicator
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
@@ -22,6 +23,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import wtf.mazy.peel.R
 import wtf.mazy.peel.databinding.WebappSettingsBinding
+import wtf.mazy.peel.model.ApplyTimingRegistry
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.IconCache
 import wtf.mazy.peel.model.SettingDefinition
@@ -54,6 +56,7 @@ class WebAppSettingsActivity :
     private var fetchDialogText: TextView? = null
     private var activeFetcher: HeadlessFetcher? = null
     private var fetchGeneration: Int = 0
+    private var currentSnackbar: Snackbar? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         iconEditor = IconEditorController(this, { binding.imgWebAppIcon }) { modifiedWebapp }
@@ -452,8 +455,13 @@ class WebAppSettingsActivity :
                 modifiedWebapp.settings,
                 binding.linearLayoutOverrides,
                 binding.btnAddOverride,
+                ::onSettingChanged,
             )
         overrideController.setup()
+    }
+
+    private fun onSettingChanged(key: String) {
+        currentSnackbar = ApplyTimingRegistry.showSnackbarIfNeeded(key, binding.root, currentSnackbar)
     }
 
     override fun onSettingSelected(setting: SettingDefinition) {

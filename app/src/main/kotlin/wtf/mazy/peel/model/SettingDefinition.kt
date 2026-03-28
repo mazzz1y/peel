@@ -1,6 +1,8 @@
 package wtf.mazy.peel.model
 
+import android.view.View
 import androidx.annotation.StringRes
+import com.google.android.material.snackbar.Snackbar
 import wtf.mazy.peel.R
 import kotlin.reflect.KMutableProperty1
 
@@ -13,16 +15,16 @@ data class SettingField(
 }
 
 sealed class SettingDefinition(
-    val toggle: SettingField,
+    val primaryField: SettingField,
     @param:StringRes val displayNameResId: Int,
     val category: SettingCategory,
     val globalOnly: Boolean = false,
 ) {
     val key: String
-        get() = toggle.key
+        get() = primaryField.key
 
     open val allFields: List<SettingField>
-        get() = listOf(toggle)
+        get() = listOf(primaryField)
 
     class BooleanSetting(
         toggle: SettingField,
@@ -50,7 +52,7 @@ sealed class SettingDefinition(
         val intField: SettingField,
     ) : SettingDefinition(toggle, displayNameResId, category) {
         override val allFields
-            get() = listOf(toggle, intField)
+            get() = listOf(primaryField, intField)
     }
 
     class StringMapSetting(
@@ -67,7 +69,7 @@ sealed class SettingDefinition(
         val passwordField: SettingField,
     ) : SettingDefinition(toggle, displayNameResId, category) {
         override val allFields
-            get() = listOf(toggle, usernameField, passwordField)
+            get() = listOf(primaryField, usernameField, passwordField)
     }
 }
 
@@ -107,6 +109,26 @@ object ApplyTimingRegistry {
         in PEEL_RESTART_KEYS -> ApplyTiming.PEEL_RESTART
         in WEBAPP_RESTART_KEYS -> ApplyTiming.WEBAPP_RESTART
         else -> ApplyTiming.IMMEDIATE
+    }
+
+    fun showSnackbarIfNeeded(
+        key: String,
+        root: View,
+        current: Snackbar?,
+        restartAction: (() -> Unit)? = null,
+    ): Snackbar? {
+        val timing = getTiming(key)
+        if (timing == ApplyTiming.IMMEDIATE) return current
+        current?.dismiss()
+        val message = when (timing) {
+            ApplyTiming.PEEL_RESTART -> R.string.setting_requires_peel_restart
+            ApplyTiming.WEBAPP_RESTART -> R.string.setting_requires_webapp_restart
+            ApplyTiming.IMMEDIATE -> return current
+        }
+        return Snackbar.make(root, message, Snackbar.LENGTH_LONG).apply {
+            if (restartAction != null) setAction(R.string.restart) { restartAction() }
+            show()
+        }
     }
 }
 
