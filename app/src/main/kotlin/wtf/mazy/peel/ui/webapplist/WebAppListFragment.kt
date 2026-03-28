@@ -57,11 +57,11 @@ class WebAppListFragment : Fragment(R.layout.fragment_web_app_list) {
     }
 
     fun addPendingDeletes(uuids: Collection<String>) {
-        adapter.pendingDeleteUuids.addAll(uuids)
+        DataManager.instance.pendingDeleteUuids.addAll(uuids)
     }
 
     fun clearPendingDeletes(uuids: Collection<String>) {
-        adapter.pendingDeleteUuids.removeAll(uuids.toSet())
+        DataManager.instance.pendingDeleteUuids.removeAll(uuids.toSet())
     }
 
     fun updateWebAppList() {

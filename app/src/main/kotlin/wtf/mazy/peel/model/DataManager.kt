@@ -106,6 +106,7 @@ class DataManager private constructor() {
     private val dispatcher = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
     private val scope = CoroutineScope(SupervisorJob() + dispatcher)
     private val actions = Channel<Action>(Channel.UNLIMITED)
+    val pendingDeleteUuids = mutableSetOf<String>()
 
     private val _state =
         MutableStateFlow(DataState(emptyList(), emptyList(), createDefaultSettings()))

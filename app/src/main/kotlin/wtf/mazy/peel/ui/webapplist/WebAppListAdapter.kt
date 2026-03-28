@@ -39,7 +39,7 @@ class WebAppListAdapter(
     var groupFilter: String? = null
     var searchQuery: String = ""
     var showGroupLabels: Boolean = false
-    val pendingDeleteUuids = mutableSetOf<String>()
+    private val pendingDeleteUuids get() = DataManager.instance.pendingDeleteUuids
 
     private val selectionHost = activity as? SelectionModeHost
 

@@ -780,8 +780,10 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
         val targetHost = url.toUri().host?.removePrefix("www.")?.lowercase() ?: return emptyList()
         val myHost = webapp.baseUrl.toUri().host?.removePrefix("www.")?.lowercase()
         if (targetHost == myHost) return emptyList()
+        val pending = DataManager.instance.pendingDeleteUuids
         return cachedPeelApps.filter { app ->
             app.uuid != currentUuid &&
+                    app.uuid !in pending &&
                     app.baseUrl.toUri().host?.removePrefix("www.")?.lowercase() == targetHost
         }
     }
