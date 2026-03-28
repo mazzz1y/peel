@@ -196,4 +196,18 @@
     <string name="import_group_share_description">O grupo «%1$s» com %2$d app(s) foi compartilhado com você. Toque no grupo para expandir e escolher os apps a importar:</string>
     <string name="import_group_share_description_multi">%1$d grupos com %2$d app(s) foram compartilhados com você. Toque em cada grupo para expandir e escolher os apps a importar:</string>
     <string name="n_groups_selected">%1$d grupo(s) selecionado(s)</string>
+    <string name="global_privacy">Privacidade global</string>
+    <string name="group_not_found">O grupo não está mais disponível</string>
+    <string name="icon_dimensions_source">%1$dx%2$d · %3$s</string>
+    <string name="load_here">Carregar aqui</string>
+    <string name="open_in_system">Abrir no sistema</string>
+    <string name="permission_prompt_open_externally">Abrir este link externamente?\n\n%1$s</string>
+    <string name="restart">Reiniciar</string>
+    <string name="setting_block_local_network">Bloquear acesso à rede local</string>
+    <string name="setting_block_webrtc_ip_leak">Bloquear vazamento de IP por WebRTC</string>
+    <string name="setting_enhanced_tracking_protection">Proteção aprimorada contra rastreamento</string>
+    <string name="setting_fingerprinting_protection">Proteção contra impressão digital</string>
+    <string name="setting_global_privacy_control">Sinal GPC</string>
+    <string name="setting_requires_peel_restart">Esta configuração terá efeito após reiniciar o Peel</string>
+    <string name="setting_requires_webapp_restart">Esta configuração terá efeito após reiniciar os apps</string>
 </resources>

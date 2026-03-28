@@ -171,7 +171,7 @@
     <string name="setting_pull_to_refresh">Pull to refresh</string>
     <string name="setting_disable_screenshots">Block screenshots</string>
     <string name="setting_enhanced_tracking_protection">Enhanced Tracking Protection</string>
-    <string name="setting_global_privacy_control">Global Privacy Control</string>
+    <string name="setting_global_privacy_control">GPC Signal</string>
     <string name="setting_fingerprinting_protection">Fingerprinting Protection</string>
     <string name="setting_block_local_network">Block Local Network Access</string>
     <string name="setting_block_webrtc_ip_leak">Block WebRTC IP Leak</string>

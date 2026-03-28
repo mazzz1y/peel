@@ -195,4 +195,18 @@
     <string name="import_group_share_description">グループ「%1$s」（%2$d個のアプリ）が共有されました。グループをタップして展開し、インポートするアプリを選択してください：</string>
     <string name="import_group_share_description_multi">%1$d個のグループ（%2$d個のアプリ）が共有されました。各グループをタップして展開し、インポートするアプリを選択してください：</string>
     <string name="n_groups_selected">%1$d個のグループを選択</string>
+    <string name="global_privacy">グローバルプライバシー</string>
+    <string name="group_not_found">このグループはもう利用できません</string>
+    <string name="icon_dimensions_source">%1$dx%2$d · %3$s</string>
+    <string name="load_here">ここで読み込む</string>
+    <string name="open_in_system">システムで開く</string>
+    <string name="permission_prompt_open_externally">このリンクを外部で開きますか？\n\n%1$s</string>
+    <string name="restart">再起動</string>
+    <string name="setting_block_local_network">ローカルネットワークアクセスをブロック</string>
+    <string name="setting_block_webrtc_ip_leak">WebRTC IPリークをブロック</string>
+    <string name="setting_enhanced_tracking_protection">強化型トラッキング防止</string>
+    <string name="setting_fingerprinting_protection">フィンガープリント防止</string>
+    <string name="setting_global_privacy_control">GPCシグナル</string>
+    <string name="setting_requires_peel_restart">この設定はPeelの再起動後に有効になります</string>
+    <string name="setting_requires_webapp_restart">この設定はアプリの再起動後に有効になります</string>
 </resources>

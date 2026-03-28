@@ -192,4 +192,20 @@
     <string name="import_group_share_description">Die Gruppe „%1$s" mit %2$d App(s) wurde mit dir geteilt. Tippe auf die Gruppe, um sie zu erweitern und Apps zum Importieren auszuwählen:</string>
     <string name="import_group_share_description_multi">%1$d Gruppen mit %2$d App(s) wurden mit dir geteilt. Tippe auf jede Gruppe, um sie zu erweitern und Apps zum Importieren auszuwählen:</string>
     <string name="n_groups_selected">%1$d Gruppe(n) ausgewählt</string>
+    <string name="global_privacy">Globaler Datenschutz</string>
+    <string name="group_not_found">Die Gruppe ist nicht mehr verfügbar</string>
+    <string name="icon_dimensions_source">%1$dx%2$d · %3$s</string>
+    <string name="load_here">Hier laden</string>
+    <string name="open_in_system">Im System öffnen</string>
+    <string name="permission_prompt_allow">Erlauben</string>
+    <string name="permission_prompt_deny">Verweigern</string>
+    <string name="permission_prompt_open_externally">Diesen Link extern öffnen?\n\n%1$s</string>
+    <string name="restart">Neustart</string>
+    <string name="setting_block_local_network">Lokalen Netzwerkzugriff blockieren</string>
+    <string name="setting_block_webrtc_ip_leak">WebRTC-IP-Leak blockieren</string>
+    <string name="setting_enhanced_tracking_protection">Verbesserter Tracking-Schutz</string>
+    <string name="setting_fingerprinting_protection">Fingerprinting-Schutz</string>
+    <string name="setting_global_privacy_control">GPC-Signal</string>
+    <string name="setting_requires_peel_restart">Diese Einstellung wird nach einem Neustart von Peel wirksam</string>
+    <string name="setting_requires_webapp_restart">Diese Einstellung wird nach einem Neustart der Apps wirksam</string>
 </resources>

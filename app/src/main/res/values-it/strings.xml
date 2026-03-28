@@ -191,4 +191,20 @@
     <string name="import_group_share_description">Il gruppo «%1$s» con %2$d app è stato condiviso con te. Tocca il gruppo per espanderlo e scegliere le app da importare:</string>
     <string name="import_group_share_description_multi">%1$d gruppi con %2$d app sono stati condivisi con te. Tocca ogni gruppo per espanderlo e scegliere le app da importare:</string>
     <string name="n_groups_selected">%1$d gruppo/i selezionato/i</string>
+    <string name="global_privacy">Privacy globale</string>
+    <string name="group_not_found">Il gruppo non è più disponibile</string>
+    <string name="icon_dimensions_source">%1$dx%2$d · %3$s</string>
+    <string name="load_here">Carica qui</string>
+    <string name="open_in_system">Apri nel sistema</string>
+    <string name="permission_prompt_allow">Consenti</string>
+    <string name="permission_prompt_deny">Nega</string>
+    <string name="permission_prompt_open_externally">Aprire questo link esternamente?\n\n%1$s</string>
+    <string name="restart">Riavvia</string>
+    <string name="setting_block_local_network">Blocca accesso alla rete locale</string>
+    <string name="setting_block_webrtc_ip_leak">Blocca fuga IP tramite WebRTC</string>
+    <string name="setting_enhanced_tracking_protection">Protezione antitracciamento avanzata</string>
+    <string name="setting_fingerprinting_protection">Protezione dal fingerprinting</string>
+    <string name="setting_global_privacy_control">Segnale GPC</string>
+    <string name="setting_requires_peel_restart">Questa impostazione ha effetto dopo il riavvio di Peel</string>
+    <string name="setting_requires_webapp_restart">Questa impostazione ha effetto dopo il riavvio delle app</string>
 </resources>

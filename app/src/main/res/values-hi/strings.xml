@@ -196,4 +196,18 @@
     <string name="import_group_share_description">ग्रुप «%1$s» जिसमें %2$d ऐप हैं, आपके साथ साझा किया गया। ग्रुप पर टैप करके विस्तार करें और आयात करने के लिए ऐप चुनें:</string>
     <string name="import_group_share_description_multi">%1$d ग्रुप जिनमें %2$d ऐप हैं, आपके साथ साझा किए गए। प्रत्येक ग्रुप पर टैप करके विस्तार करें और आयात करने के लिए ऐप चुनें:</string>
     <string name="n_groups_selected">%1$d ग्रुप चयनित</string>
+    <string name="global_privacy">वैश्विक गोपनीयता</string>
+    <string name="group_not_found">यह ग्रुप अब उपलब्ध नहीं है</string>
+    <string name="icon_dimensions_source">%1$dx%2$d · %3$s</string>
+    <string name="load_here">यहाँ लोड करें</string>
+    <string name="open_in_system">सिस्टम में खोलें</string>
+    <string name="permission_prompt_open_externally">इस लिंक को बाहरी ऐप में खोलें?\n\n%1$s</string>
+    <string name="restart">रीस्टार्ट</string>
+    <string name="setting_block_local_network">स्थानीय नेटवर्क एक्सेस ब्लॉक करें</string>
+    <string name="setting_block_webrtc_ip_leak">WebRTC IP लीक ब्लॉक करें</string>
+    <string name="setting_enhanced_tracking_protection">उन्नत ट्रैकिंग सुरक्षा</string>
+    <string name="setting_fingerprinting_protection">फ़िंगरप्रिंटिंग सुरक्षा</string>
+    <string name="setting_global_privacy_control">GPC सिग्नल</string>
+    <string name="setting_requires_peel_restart">यह सेटिंग Peel रीस्टार्ट के बाद लागू होगी</string>
+    <string name="setting_requires_webapp_restart">यह सेटिंग ऐप रीस्टार्ट के बाद लागू होगी</string>
 </resources>

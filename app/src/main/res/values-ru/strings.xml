@@ -198,4 +198,18 @@
     <string name="import_group_share_description">Группа «%1$s» с %2$d приложением(ями) была отправлена вам. Нажмите на группу, чтобы развернуть и выбрать приложения для импорта:</string>
     <string name="import_group_share_description_multi">%1$d групп(ы) с %2$d приложением(ями) были отправлены вам. Нажмите на каждую группу, чтобы развернуть и выбрать приложения для импорта:</string>
     <string name="n_groups_selected">Выбрано групп: %1$d</string>
+    <string name="global_privacy">Глобальная приватность</string>
+    <string name="group_not_found">Группа больше недоступна</string>
+    <string name="icon_dimensions_source">%1$dx%2$d · %3$s</string>
+    <string name="load_here">Загрузить здесь</string>
+    <string name="open_in_system">Открыть в системе</string>
+    <string name="permission_prompt_open_externally">Открыть эту ссылку во внешнем приложении?\n\n%1$s</string>
+    <string name="restart">Перезапустить</string>
+    <string name="setting_block_local_network">Блокировка локальной сети</string>
+    <string name="setting_block_webrtc_ip_leak">Блокировка утечки IP через WebRTC</string>
+    <string name="setting_enhanced_tracking_protection">Улучшенная защита от отслеживания</string>
+    <string name="setting_fingerprinting_protection">Защита от фингерпринтинга</string>
+    <string name="setting_global_privacy_control">Сигнал GPC</string>
+    <string name="setting_requires_peel_restart">Настройка вступит в силу после перезапуска Peel</string>
+    <string name="setting_requires_webapp_restart">Настройка вступит в силу после перезапуска приложений</string>
 </resources>
