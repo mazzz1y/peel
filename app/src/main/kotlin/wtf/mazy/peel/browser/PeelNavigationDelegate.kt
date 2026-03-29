@@ -69,7 +69,7 @@ class PeelNavigationDelegate(private val host: SessionHost) : GeckoSession.Navig
                     externalMenuShowing = true
                     val redirect = request.isRedirect
                     host.runOnUi {
-                        host.showExternalLinkMenu(url, peelMatches, redirect) { result ->
+                        host.showExternalLinkMenu(url) { result ->
                             externalMenuShowing = false
                             when (result) {
                                 ExternalLinkResult.LOAD_HERE -> {

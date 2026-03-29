@@ -23,6 +23,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.lifecycle.Lifecycle
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toDrawable
 import androidx.core.net.toUri
@@ -66,11 +67,12 @@ import wtf.mazy.peel.ui.dialog.showInputDialogRaw
 import wtf.mazy.peel.util.BrowserLauncher
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.HostIdentity
+import wtf.mazy.peel.util.normalizedHost
 import wtf.mazy.peel.util.NotificationUtils
 import wtf.mazy.peel.util.shortLabel
 
 class BrowserActivity : AppCompatActivity(), SessionHost {
-    override var webappUuid: String? = null
+    var webappUuid: String? = null
 
     private var geckoView: NestedGeckoView? = null
     private var geckoSession: GeckoSession? = null
@@ -81,7 +83,7 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
     private var customHeaders: Map<String, String>? = null
     override var filePathCallback: ((Array<Uri>?) -> Unit)? = null
     override var canGoBack = false
-    override var currentUrl = ""
+    var currentUrl = ""
     override var lastLoadedUrl = ""
 
     private val launchedFromMenu by lazy {
@@ -223,16 +225,11 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
 
     private fun applyResumedState() {
         if (!isStartupComplete) return
+        if (!lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) return
         val uuid = webappUuid ?: return
         if (DataManager.instance.getWebApp(uuid) == null) return
         cachedSettings = DataManager.instance.resolveEffectiveSettings(webapp)
-        customHeaders = buildCustomHeaders(effectiveSettings)
-        applyWindowFlags(effectiveSettings)
-        applyColorScheme()
-        setupPullToRefresh(effectiveSettings)
-        if (effectiveSettings.isShowFullscreen == true) systemBarController.hide() else systemBarController.show(
-            false
-        )
+        applyVisualSettings(effectiveSettings)
 
         if (effectiveSettings.isShowNotification == true && floatingControls == null) {
             floatingControls = FloatingControlsView(
@@ -340,13 +337,7 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
 
         val settings = effectiveSettings
         configureSession(settings)
-        customHeaders = buildCustomHeaders(settings)
-        applyWindowFlags(settings)
-        setupPullToRefresh(settings)
-        applyColorScheme()
-        if (settings.isShowFullscreen == true) systemBarController.hide() else systemBarController.show(
-            false
-        )
+        applyVisualSettings(settings)
         applyTaskSnapshotProtection()
 
         launchSessionExtensionsAndLoad(settings, sharedUrlFromIntent() ?: webapp.baseUrl)
@@ -414,7 +405,7 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
         }
     }
 
-    override val isDarkSchemeActive: Boolean
+    val isDarkSchemeActive: Boolean
         get() {
             val mode = getDelegate().localNightMode
             if (mode == AppCompatDelegate.MODE_NIGHT_YES) return true
@@ -487,9 +478,9 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
     override fun onLocationChanged(url: String) {
         currentUrl = url
         navigationStartPoint.onLocationChange(url)
-        val urlHost = url.toUri().host?.removePrefix("www.")?.lowercase()
-        val baseHost = webapp.baseUrl.toUri().host?.removePrefix("www.")?.lowercase()
-        if (urlHost != null && urlHost == baseHost) navigationDelegate.browsingExternally = false
+        if (url.normalizedHost() == webapp.baseUrl.normalizedHost()) {
+            navigationDelegate.browsingExternally = false
+        }
     }
 
     override fun onPageStarted() {
@@ -621,13 +612,7 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
         promptDelegate = PeelPromptDelegate(this)
 
         configureSession(settings)
-        customHeaders = buildCustomHeaders(settings)
-        applyWindowFlags(settings)
-        setupPullToRefresh(settings)
-        applyColorScheme()
-        if (settings.isShowFullscreen == true) systemBarController.hide() else systemBarController.show(
-            false
-        )
+        applyVisualSettings(settings)
     }
 
     private fun configureSession(settings: WebAppSettings) {
@@ -741,6 +726,14 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
         )
     }
 
+    private fun applyVisualSettings(settings: WebAppSettings) {
+        customHeaders = buildCustomHeaders(settings)
+        applyWindowFlags(settings)
+        setupPullToRefresh(settings)
+        applyColorScheme()
+        if (settings.isShowFullscreen == true) systemBarController.hide() else systemBarController.show(false)
+    }
+
     private fun applyWindowFlags(settings: WebAppSettings) {
         if (settings.isKeepAwake == true) {
             window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
@@ -791,21 +784,18 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
 
     override fun findPeelAppMatches(url: String): List<WebApp> {
         val currentUuid = webappUuid ?: return emptyList()
-        val targetHost = url.toUri().host?.removePrefix("www.")?.lowercase() ?: return emptyList()
-        val myHost = webapp.baseUrl.toUri().host?.removePrefix("www.")?.lowercase()
-        if (targetHost == myHost) return emptyList()
+        val targetHost = url.normalizedHost() ?: return emptyList()
+        if (targetHost == webapp.baseUrl.normalizedHost()) return emptyList()
         val pending = DataManager.instance.pendingDeleteUuids
         return cachedPeelApps.filter { app ->
             app.uuid != currentUuid &&
                     app.uuid !in pending &&
-                    app.baseUrl.toUri().host?.removePrefix("www.")?.lowercase() == targetHost
+                    app.baseUrl.normalizedHost() == targetHost
         }
     }
 
     override fun showExternalLinkMenu(
         url: String,
-        peelMatches: List<WebApp>,
-        isRedirect: Boolean,
         onResult: (ExternalLinkResult) -> Unit,
     ) {
         var dialog: androidx.appcompat.app.AlertDialog? = null

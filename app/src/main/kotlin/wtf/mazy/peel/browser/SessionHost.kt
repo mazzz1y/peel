@@ -21,12 +21,9 @@ sealed interface ExternalLinkResult {
 
 interface SessionHost {
     val effectiveSettings: WebAppSettings
-    val isDarkSchemeActive: Boolean
     val baseUrl: String
-    val webappUuid: String?
     val webAppName: String
     var canGoBack: Boolean
-    var currentUrl: String
     var lastLoadedUrl: String
 
     var currentlyReloading: Boolean
@@ -54,8 +51,6 @@ interface SessionHost {
     fun findPeelAppMatches(url: String): List<WebApp>
     fun showExternalLinkMenu(
         url: String,
-        peelMatches: List<WebApp>,
-        isRedirect: Boolean,
         onResult: (ExternalLinkResult) -> Unit,
     )
 

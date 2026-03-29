@@ -1,8 +1,6 @@
 package wtf.mazy.peel.browser
 
 import android.graphics.Color
-import android.view.View
-import android.widget.FrameLayout
 import androidx.core.graphics.toColorInt
 import org.json.JSONObject
 import org.mozilla.geckoview.GeckoResult
@@ -17,11 +15,11 @@ class PeelContentDelegate(
     private val onContextMenu: ((GeckoSession, Int, Int, GeckoSession.ContentDelegate.ContextElement) -> Unit)? = null,
 ) : GeckoSession.ContentDelegate {
 
-    private var customView: View? = null
     private var originalOrientation = 0
+    private var isFullscreen = false
 
     fun exitFullscreen() {
-        if (customView == null) return
+        if (!isFullscreen) return
         restoreFromFullscreen()
     }
 
@@ -49,6 +47,7 @@ class PeelContentDelegate(
 
     override fun onFullScreen(session: GeckoSession, fullScreen: Boolean) {
         if (fullScreen) {
+            isFullscreen = true
             originalOrientation = host.hostOrientation
             host.hideSystemBars()
         } else {
@@ -57,8 +56,7 @@ class PeelContentDelegate(
     }
 
     private fun restoreFromFullscreen() {
-        customView?.let { (host.hostWindow.decorView as FrameLayout).removeView(it) }
-        customView = null
+        isFullscreen = false
         host.hostOrientation = originalOrientation
         host.showSystemBars()
     }

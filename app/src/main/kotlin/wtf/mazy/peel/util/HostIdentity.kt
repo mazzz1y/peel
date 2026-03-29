@@ -48,3 +48,5 @@ class HostIdentity private constructor(
         }
     }
 }
+
+fun String.normalizedHost(): String? = toUri().host?.removePrefix("www.")?.lowercase()

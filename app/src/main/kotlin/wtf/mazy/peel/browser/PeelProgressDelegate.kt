@@ -30,9 +30,7 @@ class PeelProgressDelegate(private val host: SessionHost) : GeckoSession.Progres
                 if (progress == 100) hideProgress()
             }
         }
-        if (progress == 100) {
-            host.onPageFullyLoaded()
-        }
+
     }
 
     private fun animateProgress(bar: ProgressBar, target: Int) {
