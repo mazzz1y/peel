@@ -166,6 +166,14 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
         super.onCreate(savedInstanceState)
         liveInstances.add(this)
 
+        window.setBackgroundDrawable(themeBackgroundColor.toDrawable())
+        setContentView(R.layout.activity_browser)
+        findViewById<View>(R.id.launchOverlay)?.let { overlay ->
+            overlay.setBackgroundColor(themeBackgroundColor)
+            overlay.alpha = 1f
+            overlay.visibility = View.VISIBLE
+        }
+
         webappUuid = intent.getStringExtra(Const.INTENT_WEBAPP_UUID)
         ensureDataReady(webappUuid, forceReload = false) {
             continueStartupAfterDataReady()
@@ -598,8 +606,6 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
 
     private fun setupGeckoView() {
         val settings = effectiveSettings
-        window.setBackgroundDrawable(themeBackgroundColor.toDrawable())
-        setContentView(R.layout.activity_browser)
         bindViews()
         systemBarController.attach(
             rootView = findViewById(R.id.browser_root),
