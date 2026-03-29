@@ -40,6 +40,6 @@ class NavigationStartPoint(baseUrl: String) {
     private fun samePathAs(a: String, b: String): Boolean {
         val aUri = a.toUri()
         val bUri = b.toUri()
-        return aUri.scheme == bUri.scheme && aUri.host == bUri.host && aUri.path == bUri.path
+        return aUri.scheme == bUri.scheme && aUri.host == bUri.host && aUri.path == bUri.path && aUri.fragment == bUri.fragment
     }
 }
