@@ -123,6 +123,7 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
     private var mediaPlaybackManager: MediaPlaybackManager? = null
     private var sessionSetupJob: Job? = null
     private lateinit var navigationStartPoint: NavigationStartPoint
+    private var suppressNextBackAfterHistoryReset = false
     private var cachedSettings: WebAppSettings? = null
     private var isStartupComplete = false
 
@@ -478,6 +479,9 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
     override fun onLocationChanged(url: String) {
         currentUrl = url
         navigationStartPoint.onLocationChange(url)
+        if (navigationStartPoint.consumeHistoryResetSignal()) {
+            resetHistoryAfterAuthReturn(url)
+        }
         if (url.normalizedHost() == webapp.baseUrl.normalizedHost()) {
             navigationDelegate.browsingExternally = false
         }
@@ -491,7 +495,6 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
     }
 
     override fun onPageFullyLoaded() {
-        navigationStartPoint.onPageFinished()
         lastLoadedUrl = currentUrl
         if (pageLoadHandled || biometricController.isPromptActive) return
         pageLoadHandled = true
@@ -781,6 +784,13 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
         }
     }
 
+    private fun resetHistoryAfterAuthReturn(url: String) {
+        val session = geckoSession ?: return
+        session.purgeHistory()
+        suppressNextBackAfterHistoryReset = true
+        canGoBack = false
+    }
+
 
     override fun findPeelAppMatches(url: String): List<WebApp> {
         val currentUuid = webappUuid ?: return emptyList()
@@ -910,8 +920,9 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
             this,
             object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
-                    val settledAt = navigationStartPoint.settledAtUrl
-                    if (canGoBack && (settledAt == null || currentUrl != settledAt)) {
+                    if (suppressNextBackAfterHistoryReset && canGoBack) {
+                        suppressNextBackAfterHistoryReset = false
+                    } else if (canGoBack) {
                         geckoSession?.goBack()
                         return
                     }

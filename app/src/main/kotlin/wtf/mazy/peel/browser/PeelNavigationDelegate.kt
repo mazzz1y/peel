@@ -32,7 +32,7 @@ class PeelNavigationDelegate(private val host: SessionHost) : GeckoSession.Navig
     override fun onLoadRequest(
         session: GeckoSession,
         request: GeckoSession.NavigationDelegate.LoadRequest,
-    ): GeckoResult<AllowOrDeny>? {
+    ): GeckoResult<AllowOrDeny> {
         val url = request.uri
         val settings = host.effectiveSettings
 
