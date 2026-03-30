@@ -12,14 +12,14 @@ import kotlinx.serialization.json.Json
 
 class StringMapConverter {
     @TypeConverter
-    fun fromStringMap(map: MutableMap<String, String>?): String? {
+    fun fromStringMap(map: Map<String, String>?): String? {
         return map?.let { Json.encodeToString(it) }
     }
 
     @TypeConverter
-    fun toStringMap(json: String?): MutableMap<String, String>? {
+    fun toStringMap(json: String?): Map<String, String>? {
         if (json == null) return null
-        return Json.decodeFromString<Map<String, String>>(json).toMutableMap()
+        return Json.decodeFromString<Map<String, String>>(json)
     }
 }
 

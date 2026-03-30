@@ -27,7 +27,7 @@ class OverridePickerController(
     override fun onSettingSelected(setting: SettingDefinition) {
         val globalSettings = DataManager.instance.defaultSettings.settings
         if (setting is SettingDefinition.StringMapSetting) {
-            settings.customHeaders = mutableMapOf()
+            settings.customHeaders = emptyMap()
         } else {
             setting.allFields.forEach { field ->
                 settings.setValue(field.key, globalSettings.getValue(field.key))

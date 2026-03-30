@@ -252,7 +252,7 @@ class SettingViewFactory(
                     strategy.onRemove(setting)
                 }
                 if (settings.customHeaders == null) {
-                    settings.customHeaders = mutableMapOf()
+                    settings.customHeaders = emptyMap()
                 }
             }
         }
@@ -266,10 +266,7 @@ class SettingViewFactory(
         refreshHeaders()
 
         btnAdd.setOnClickListener {
-            if (settings.customHeaders == null) {
-                settings.customHeaders = mutableMapOf()
-            }
-            settings.customHeaders?.put("", "")
+            settings.customHeaders = settings.customHeaders.orEmpty() + ("" to "")
             addHeaderEntryView(container, settings, "", "", setting.key)
             onSettingChanged?.invoke(setting.key)
         }
@@ -295,9 +292,9 @@ class SettingViewFactory(
         editName.doAfterTextChanged { s ->
             val newKey = s?.toString() ?: ""
             if (newKey != currentKey) {
-                settings.customHeaders?.remove(currentKey)
+                settings.customHeaders = settings.customHeaders?.minus(currentKey)
                 if (newKey.isNotEmpty()) {
-                    settings.customHeaders?.put(newKey, editValue.text?.toString() ?: "")
+                    settings.customHeaders = settings.customHeaders.orEmpty() + (newKey to (editValue.text?.toString() ?: ""))
                 }
                 currentKey = newKey
             }
@@ -306,12 +303,12 @@ class SettingViewFactory(
         editValue.doAfterTextChanged { s ->
             val key = editName.text?.toString() ?: ""
             if (key.isNotEmpty()) {
-                settings.customHeaders?.put(key, s?.toString() ?: "")
+                settings.customHeaders = settings.customHeaders.orEmpty() + (key to (s?.toString() ?: ""))
             }
         }
 
         btnRemoveHeader.setOnClickListener {
-            settings.customHeaders?.remove(currentKey)
+            settings.customHeaders = settings.customHeaders?.minus(currentKey)
             container.removeView(entryView)
             onSettingChanged?.invoke(settingKey)
         }

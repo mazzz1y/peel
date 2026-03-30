@@ -6,7 +6,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.Bitmap
-import android.graphics.Color
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -39,7 +38,6 @@ import org.mozilla.geckoview.GeckoSessionSettings
 import wtf.mazy.peel.R
 import wtf.mazy.peel.browser.BrowserContextMenu
 import wtf.mazy.peel.browser.DownloadHandler
-import wtf.mazy.peel.browser.NavigationStartPoint
 import wtf.mazy.peel.browser.PeelContentDelegate
 import wtf.mazy.peel.browser.PeelNavigationDelegate
 import wtf.mazy.peel.browser.PeelPermissionDelegate
@@ -49,6 +47,7 @@ import wtf.mazy.peel.browser.ExternalLinkResult
 import wtf.mazy.peel.browser.MenuDialogHelper
 import wtf.mazy.peel.browser.PermissionResult
 import wtf.mazy.peel.browser.SessionHost
+import wtf.mazy.peel.browser.StartupAuthReturnTracker
 import wtf.mazy.peel.gecko.GeckoRuntimeProvider
 import wtf.mazy.peel.gecko.NestedGeckoView
 import wtf.mazy.peel.gecko.VerticalSwipeRefreshLayout
@@ -82,7 +81,12 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
     override var currentlyReloading = true
     private var customHeaders: Map<String, String>? = null
     override var filePathCallback: ((Array<Uri>?) -> Unit)? = null
+    private var historyPurged = false
     override var canGoBack = false
+        set(value) {
+            if (historyPurged && value) return
+            field = value
+        }
     var currentUrl = ""
     override var lastLoadedUrl = ""
 
@@ -122,8 +126,9 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
     private var pageLoadHandled = false
     private var mediaPlaybackManager: MediaPlaybackManager? = null
     private var sessionSetupJob: Job? = null
-    private lateinit var navigationStartPoint: NavigationStartPoint
-    private var suppressNextBackAfterHistoryReset = false
+    private lateinit var startupAuthReturnTracker: StartupAuthReturnTracker
+    private var isStartupAuthTrackingActive = true
+
     private var cachedSettings: WebAppSettings? = null
     private var isStartupComplete = false
 
@@ -406,15 +411,6 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
         }
     }
 
-    val isDarkSchemeActive: Boolean
-        get() {
-            val mode = getDelegate().localNightMode
-            if (mode == AppCompatDelegate.MODE_NIGHT_YES) return true
-            if (mode == AppCompatDelegate.MODE_NIGHT_NO) return false
-            val uiMode = resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
-            return uiMode == Configuration.UI_MODE_NIGHT_YES
-        }
-
     private fun applyColorScheme() {
         val settings = effectiveSettings
         val scheme = settings.colorScheme ?: WebAppSettings.COLOR_SCHEME_AUTO
@@ -477,11 +473,9 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
     }
 
     override fun onLocationChanged(url: String) {
+        historyPurged = false
         currentUrl = url
-        navigationStartPoint.onLocationChange(url)
-        if (navigationStartPoint.consumeHistoryResetSignal()) {
-            resetHistoryAfterAuthReturn(url)
-        }
+        handleStartupAuthHistoryReset(url)
         if (url.normalizedHost() == webapp.baseUrl.normalizedHost()) {
             navigationDelegate.browsingExternally = false
         }
@@ -495,6 +489,7 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
     }
 
     override fun onPageFullyLoaded() {
+        closeStartupAuthTrackingIfInitialBaseLoaded()
         lastLoadedUrl = currentUrl
         if (pageLoadHandled || biometricController.isPromptActive) return
         pageLoadHandled = true
@@ -636,7 +631,9 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
         promptDelegate.clearAutoAuth()
         geckoView?.resetScrollPosition()
         autoReloadController.stop()
-        navigationStartPoint = NavigationStartPoint(webapp.baseUrl)
+        startupAuthReturnTracker = StartupAuthReturnTracker(webapp.baseUrl)
+        isStartupAuthTrackingActive = true
+        historyPurged = false
 
         val session = createSession(settings)
         geckoSession = session
@@ -784,11 +781,27 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
         }
     }
 
-    private fun resetHistoryAfterAuthReturn(url: String) {
+    private fun resetHistoryAfterAuthReturn() {
         val session = geckoSession ?: return
         session.purgeHistory()
-        suppressNextBackAfterHistoryReset = true
+        historyPurged = true
         canGoBack = false
+    }
+
+    private fun handleStartupAuthHistoryReset(url: String) {
+        if (!isStartupAuthTrackingActive) return
+        startupAuthReturnTracker.onLocationChange(url)
+        if (startupAuthReturnTracker.consumeShouldResetHistory()) {
+            resetHistoryAfterAuthReturn()
+            isStartupAuthTrackingActive = false
+        }
+    }
+
+    private fun closeStartupAuthTrackingIfInitialBaseLoaded() {
+        if (!isStartupAuthTrackingActive) return
+        if (currentUrl.normalizedHost() == webapp.baseUrl.normalizedHost()) {
+            isStartupAuthTrackingActive = false
+        }
     }
 
 
@@ -920,9 +933,7 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
             this,
             object : OnBackPressedCallback(true) {
                 override fun handleOnBackPressed() {
-                    if (suppressNextBackAfterHistoryReset && canGoBack) {
-                        suppressNextBackAfterHistoryReset = false
-                    } else if (canGoBack) {
+                    if (canGoBack) {
                         geckoSession?.goBack()
                         return
                     }

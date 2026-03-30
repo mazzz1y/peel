@@ -56,6 +56,10 @@ class PeelNavigationDelegate(private val host: SessionHost) : GeckoSession.Navig
             return GeckoResult.fromValue(AllowOrDeny.DENY)
         }
 
+        if (url.startsWith("blob:") || url.startsWith("data:")) {
+            return GeckoResult.fromValue(AllowOrDeny.ALLOW)
+        }
+
         if (settings.isOpenUrlExternal == true) {
             if (browsingExternally) {
                 return GeckoResult.fromValue(AllowOrDeny.ALLOW)
@@ -121,6 +125,7 @@ class PeelNavigationDelegate(private val host: SessionHost) : GeckoSession.Navig
 
     private fun handleAppLink(url: String, settings: WebAppSettings) {
         when (settings.isAppLinksPermission) {
+            WebAppSettings.PERMISSION_OFF -> { /* silently block */ }
             WebAppSettings.PERMISSION_ON -> host.runOnUi { host.startExternalIntent(url.toUri()) }
             WebAppSettings.PERMISSION_ASK -> {
                 if (appLinkDialogShowing) return

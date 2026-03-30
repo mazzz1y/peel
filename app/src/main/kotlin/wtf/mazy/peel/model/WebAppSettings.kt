@@ -11,7 +11,7 @@ data class WebAppSettings(
     var isClearCache: Boolean? = null,
     var isAlwaysHttps: Boolean? = null,
     var isAllowLocationAccess: Int? = null,
-    var customHeaders: MutableMap<String, String>? = null,
+    var customHeaders: Map<String, String>? = null,
     var isAutoReload: Boolean? = null,
     var timeAutoReload: Int? = null,
     var colorScheme: Int? = null,
@@ -107,7 +107,7 @@ data class WebAppSettings(
                     ?: DEFAULTS[key]
             effective.setValue(key, value)
         }
-        effective.customHeaders = effective.customHeaders?.toMutableMap()
+        effective.customHeaders = effective.customHeaders?.toMap()
         return effective
     }
 
@@ -115,5 +115,5 @@ data class WebAppSettings(
         return ALL_KEYS.filter { getValue(it) != null }
     }
 
-    fun deepCopy() = copy(customHeaders = customHeaders?.toMutableMap())
+    fun deepCopy() = copy(customHeaders = customHeaders?.toMap())
 }
