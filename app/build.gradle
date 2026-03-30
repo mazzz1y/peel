@@ -4,7 +4,7 @@ plugins {
     id 'org.jetbrains.kotlin.plugin.serialization'
 }
 
-def geckoviewVersion = "148.0.20260309125808"
+def geckoviewVersion = "149.0.20260318190823"
 
 android {
     compileSdk 36
