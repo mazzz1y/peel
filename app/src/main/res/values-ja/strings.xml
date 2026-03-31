@@ -142,7 +142,7 @@
     <string name="password">パスワード</string>
 
     <string name="app_info">このアプリについて</string>
-    <string name="gnu_license">このソフトウェアはGNU General Public License バージョン3の下で公開されています。\nhttps://www.gnu.org/licenses/gpl-3.0.txt</string>
+    <string name="about_description">ウェブアプリ向け軽量ブラウザ\nMozilla GeckoView 搭載</string>
 
     <string name="delete">削除</string>
     <string name="settings">設定</string>

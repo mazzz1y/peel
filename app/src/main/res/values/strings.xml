@@ -149,7 +149,12 @@
     <string name="password">Password</string>
 
     <string name="app_info">About</string>
-    <string name="gnu_license">This software is released under GNU General Public License - Version 3.\nhttps://www.gnu.org/licenses/gpl-3.0.txt</string>
+    <string name="about_version">v%1$s</string>
+    <string name="about_engine">GeckoView %1$s</string>
+    <string name="about_description">A lightweight browser for web apps\nPowered by Mozilla GeckoView</string>
+    <string name="about_github">GitHub</string>
+    <string name="about_fdroid">F-Droid</string>
+    <string name="about_license">GNU GPL v3</string>
 
     <string name="delete">Delete</string>
     <string name="settings">Settings</string>

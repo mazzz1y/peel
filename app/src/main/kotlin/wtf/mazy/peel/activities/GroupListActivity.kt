@@ -15,6 +15,7 @@ import android.widget.Toast
 import androidx.activity.addCallback
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -41,7 +42,6 @@ import wtf.mazy.peel.ui.dragReorderCallback
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.NotificationUtils
 import java.util.Collections
-import androidx.core.view.isVisible
 
 class GroupListActivity : AppCompatActivity() {
 

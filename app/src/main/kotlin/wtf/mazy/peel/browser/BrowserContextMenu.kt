@@ -105,7 +105,13 @@ class BrowserContextMenu(
 
         val content = LinearLayout(activity).apply {
             orientation = LinearLayout.VERTICAL
-            addView(MenuDialogHelper.buildHeader(activity, info.title, MenuDialogHelper.displayUrl(info.url)))
+            addView(
+                MenuDialogHelper.buildHeader(
+                    activity,
+                    info.title,
+                    MenuDialogHelper.displayUrl(info.url)
+                )
+            )
             addView(MenuDialogHelper.buildDivider(activity))
             val sections = listOf(info.linkActions, info.imageActions).filter { it.isNotEmpty() }
             sections.forEachIndexed { i, actions ->

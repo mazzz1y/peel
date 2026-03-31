@@ -142,7 +142,7 @@
     <string name="password">पासवर्ड</string>
 
     <string name="app_info">जानकारी</string>
-    <string name="gnu_license">यह सॉफ़्टवेयर GNU General Public License संस्करण 3 के तहत जारी है।\nhttps://www.gnu.org/licenses/gpl-3.0.txt</string>
+    <string name="about_description">वेब ऐप्स के लिए हल्का ब्राउज़र\nMozilla GeckoView द्वारा संचालित</string>
 
     <string name="delete">हटाएं</string>
     <string name="settings">सेटिंग्स</string>

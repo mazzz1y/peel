@@ -15,14 +15,24 @@ object MenuDialogHelper {
     fun buildHeader(context: Context, title: String?, url: String): View =
         LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(dpToPx(context, 16f), dpToPx(context, 20f), dpToPx(context, 16f), dpToPx(context, 14f))
+            setPadding(
+                dpToPx(context, 16f),
+                dpToPx(context, 20f),
+                dpToPx(context, 16f),
+                dpToPx(context, 14f)
+            )
             if (title != null) {
                 addView(TextView(context).apply {
                     text = title
                     maxLines = 1
                     ellipsize = TextUtils.TruncateAt.END
                     setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f)
-                    setTextColor(resolveThemeColor(context, com.google.android.material.R.attr.colorOnSurface))
+                    setTextColor(
+                        resolveThemeColor(
+                            context,
+                            com.google.android.material.R.attr.colorOnSurface
+                        )
+                    )
                 })
             }
             addView(TextView(context).apply {
@@ -30,7 +40,12 @@ object MenuDialogHelper {
                 maxLines = 1
                 ellipsize = TextUtils.TruncateAt.MIDDLE
                 setTextSize(TypedValue.COMPLEX_UNIT_SP, 12f)
-                setTextColor(resolveThemeColor(context, com.google.android.material.R.attr.colorOnSurfaceVariant))
+                setTextColor(
+                    resolveThemeColor(
+                        context,
+                        com.google.android.material.R.attr.colorOnSurfaceVariant
+                    )
+                )
                 if (title != null) setPadding(0, dpToPx(context, 2f), 0, 0)
             })
         }
@@ -39,7 +54,12 @@ object MenuDialogHelper {
         layoutParams = LinearLayout.LayoutParams(
             LinearLayout.LayoutParams.MATCH_PARENT, dpToPx(context, 1f),
         )
-        setBackgroundColor(resolveThemeColor(context, com.google.android.material.R.attr.colorOutlineVariant))
+        setBackgroundColor(
+            resolveThemeColor(
+                context,
+                com.google.android.material.R.attr.colorOutlineVariant
+            )
+        )
     }
 
     fun buildActionRow(
@@ -51,14 +71,20 @@ object MenuDialogHelper {
     ): View {
         val outValue = TypedValue()
         context.theme.resolveAttribute(android.R.attr.selectableItemBackground, outValue, true)
-        val textColor = resolveThemeColor(context, com.google.android.material.R.attr.colorOnSurface)
+        val textColor =
+            resolveThemeColor(context, com.google.android.material.R.attr.colorOnSurface)
 
         if (icon == null || onIconClick == null) {
             return TextView(context).apply {
                 text = label
                 setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f)
                 setTextColor(textColor)
-                setPadding(dpToPx(context, 16f), dpToPx(context, 14f), dpToPx(context, 16f), dpToPx(context, 14f))
+                setPadding(
+                    dpToPx(context, 16f),
+                    dpToPx(context, 14f),
+                    dpToPx(context, 16f),
+                    dpToPx(context, 14f)
+                )
                 setBackgroundResource(outValue.resourceId)
                 setOnClickListener { onClick() }
             }
@@ -72,8 +98,14 @@ object MenuDialogHelper {
                 text = label
                 setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f)
                 setTextColor(textColor)
-                setPadding(dpToPx(context, 16f), dpToPx(context, 14f), dpToPx(context, 12f), dpToPx(context, 14f))
-                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+                setPadding(
+                    dpToPx(context, 16f),
+                    dpToPx(context, 14f),
+                    dpToPx(context, 12f),
+                    dpToPx(context, 14f)
+                )
+                layoutParams =
+                    LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
                 setBackgroundResource(outValue.resourceId)
                 setOnClickListener { onClick() }
             })

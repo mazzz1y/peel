@@ -13,7 +13,7 @@
     <string name="request_website_in_desktop_version">Desktop-Version der Website anfordern</string>
     <string name="shortcut_icon">Symbol</string>
     <string name="app_info">Über die App</string>
-    <string name="gnu_license">Diese Software unterliegt der GNU General Public License - Version 3.\nhttps://www.gnu.org/licenses/gpl-3.0.txt</string>
+    <string name="about_description">Ein leichtgewichtiger Browser für Web-Apps\nBetrieben von Mozilla GeckoView</string>
     <string name="web_app_settings">Web-App-Einstellungen</string>
     <string name="import_failed">Die Sicherung konnte nicht wiederhergestellt werden</string>
     <string name="import_success">Sicherung mit %1$d Web-App(s) wurde wiederhergestellt.</string>

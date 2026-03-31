@@ -142,7 +142,7 @@
     <string name="password">Пароль</string>
 
     <string name="app_info">О приложении</string>
-    <string name="gnu_license">Это программное обеспечение распространяется под лицензией GNU General Public License — версия 3.\nhttps://www.gnu.org/licenses/gpl-3.0.txt</string>
+    <string name="about_description">Легковесный браузер для веб-приложений\nНа базе Mozilla GeckoView</string>
 
     <string name="delete">Удалить</string>
     <string name="settings">Настройки</string>

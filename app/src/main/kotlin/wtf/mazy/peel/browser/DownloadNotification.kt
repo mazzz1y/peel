@@ -22,7 +22,11 @@ class DownloadNotification(private val context: Context) {
         ensureChannel(context)
     }
 
-    fun buildProgress(fileName: String, webappName: String?, cancelIntent: PendingIntent): Notification =
+    fun buildProgress(
+        fileName: String,
+        webappName: String?,
+        cancelIntent: PendingIntent
+    ): Notification =
         progressBuilder(fileName, webappName, cancelIntent)
             .setContentText(context.getString(R.string.download_in_progress))
             .setProgress(0, 0, true)
@@ -53,18 +57,22 @@ class DownloadNotification(private val context: Context) {
             context, id, openIntent,
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
         )
-        manager.notify(id, baseBuilder(fileName, webappName)
-            .setContentText(context.getString(R.string.download_complete))
-            .setContentIntent(pendingIntent)
-            .setAutoCancel(true)
-            .build())
+        manager.notify(
+            id, baseBuilder(fileName, webappName)
+                .setContentText(context.getString(R.string.download_complete))
+                .setContentIntent(pendingIntent)
+                .setAutoCancel(true)
+                .build()
+        )
     }
 
     fun showError(fileName: String, webappName: String?) {
-        manager.notify(id, baseBuilder(fileName, webappName)
-            .setContentText(context.getString(R.string.download_failed))
-            .setAutoCancel(true)
-            .build())
+        manager.notify(
+            id, baseBuilder(fileName, webappName)
+                .setContentText(context.getString(R.string.download_failed))
+                .setAutoCancel(true)
+                .build()
+        )
     }
 
     fun dismiss() {

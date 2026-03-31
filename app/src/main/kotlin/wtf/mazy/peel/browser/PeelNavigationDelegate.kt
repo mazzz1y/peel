@@ -81,15 +81,18 @@ class PeelNavigationDelegate(private val host: SessionHost) : GeckoSession.Navig
                                     browsingExternally = true
                                     host.loadURL(url)
                                 }
+
                                 ExternalLinkResult.OPEN_IN_SYSTEM -> {
                                     host.startExternalIntent(url.toUri())
                                 }
+
                                 ExternalLinkResult.DISMISSED -> {
                                     if (redirect) {
                                         val fallback = host.lastLoadedUrl.ifEmpty { host.baseUrl }
                                         host.loadURL(fallback)
                                     }
                                 }
+
                                 is ExternalLinkResult.OpenInPeelApp -> {
                                     result.launcher()
                                 }
@@ -132,7 +135,9 @@ class PeelNavigationDelegate(private val host: SessionHost) : GeckoSession.Navig
 
     private fun handleAppLink(url: String, settings: WebAppSettings) {
         when (settings.isAppLinksPermission) {
-            WebAppSettings.PERMISSION_OFF -> { /* silently block */ }
+            WebAppSettings.PERMISSION_OFF -> { /* silently block */
+            }
+
             WebAppSettings.PERMISSION_ON -> host.runOnUi { host.startExternalIntent(url.toUri()) }
             WebAppSettings.PERMISSION_ASK -> {
                 if (appLinkDialogShowing) return

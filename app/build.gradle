@@ -21,6 +21,7 @@ android {
         targetSdkVersion 36
         versionCode project.hasProperty('VERSION_CODE') ? project.property('VERSION_CODE').toInteger() : 1
         versionName project.hasProperty('VERSION_NAME') ? project.property('VERSION_NAME') : "dev"
+        buildConfigField "String", "GECKOVIEW_VERSION", "\"$geckoviewVersion\""
     }
     buildFeatures {
         dataBinding true

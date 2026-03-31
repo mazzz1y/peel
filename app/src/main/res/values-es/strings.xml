@@ -12,8 +12,8 @@
     <string name="request_website_in_desktop_version">Solicitar el sitio web en versión de escritorio</string>
     <string name="shortcut_icon">Icono de acceso directo</string>
 
-    <string name="gnu_license">Este software se publica bajo la Licencia Pública General GNU - Versión 3.\nhttps://www.gnu.org/licenses/gpl-3.0.txt</string>
     <string name="app_info">Acerca de</string>
+    <string name="about_description">Un navegador ligero para aplicaciones web\nImpulsado por Mozilla GeckoView</string>
     <string name="web_app_settings">Configuración de la aplicación web</string>
     <string name="import_failed">La copia de seguridad no se ha podido restaurar</string>
     <string name="import_success">Copia de seguridad con %1$d aplicación(es) web ha sido restaurada con éxito.</string>

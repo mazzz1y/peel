@@ -35,7 +35,8 @@ class DownloadHandler(
     fun onExternalResponse(response: WebResponse) {
         val contentType = extractMimeType(response.headers)
         val contentLength = extractContentLength(response.headers)
-        val fileName = resolveFileName(response.uri, response.headers["Content-Disposition"], contentType)
+        val fileName =
+            resolveFileName(response.uri, response.headers["Content-Disposition"], contentType)
         promptAndSave(fileName, contentType, contentLength, response.body)
     }
 
@@ -43,13 +44,19 @@ class DownloadHandler(
         if (url.startsWith("data:")) {
             val parsed = parseDataUri(url) ?: run { showError(); return }
             val fileName = resolveFileName(url, null, parsed.mime)
-            promptAndSave(fileName, parsed.mime, parsed.bytes.size.toLong(), ByteArrayInputStream(parsed.bytes))
+            promptAndSave(
+                fileName,
+                parsed.mime,
+                parsed.bytes.size.toLong(),
+                ByteArrayInputStream(parsed.bytes)
+            )
             return
         }
         fetchUrl(url, onError = { showError() }) { resp ->
             val contentType = extractMimeType(resp.headers)
             val contentLength = extractContentLength(resp.headers)
-            val fileName = resolveFileName(resp.uri, resp.headers["Content-Disposition"], contentType)
+            val fileName =
+                resolveFileName(resp.uri, resp.headers["Content-Disposition"], contentType)
             promptAndSave(fileName, contentType, contentLength, resp.body)
         }
     }
@@ -63,7 +70,8 @@ class DownloadHandler(
         }
         fetchUrl(url) { resp ->
             val contentType = extractMimeType(resp.headers)
-            val fileName = resolveFileName(resp.uri, resp.headers["Content-Disposition"], contentType)
+            val fileName =
+                resolveFileName(resp.uri, resp.headers["Content-Disposition"], contentType)
             val body = resp.body ?: return@fetchUrl
             val mime = contentType
                 ?: extensionToMime(fileName.substringAfterLast('.', ""))
@@ -94,9 +102,13 @@ class DownloadHandler(
     private fun promptAndSave(
         fileName: String, mimeType: String?, contentLength: Long, body: InputStream?,
     ) {
-        if (body == null) { showError(); return }
+        if (body == null) {
+            showError(); return
+        }
         showDownloadPrompt(fileName) { allowed ->
-            if (!allowed) { body.close(); return@showDownloadPrompt }
+            if (!allowed) {
+                body.close(); return@showDownloadPrompt
+            }
             DownloadService.start(activity, fileName, mimeType, contentLength, webappName, body)
         }
     }

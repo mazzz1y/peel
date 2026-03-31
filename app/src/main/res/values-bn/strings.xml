@@ -142,7 +142,7 @@
     <string name="password">পাসওয়ার্ড</string>
 
     <string name="app_info">সম্পর্কে</string>
-    <string name="gnu_license">এই সফটওয়্যারটি GNU General Public License সংস্করণ 3 এর অধীনে প্রকাশিত।\nhttps://www.gnu.org/licenses/gpl-3.0.txt</string>
+    <string name="about_description">ওয়েব অ্যাপের জন্য হালকা ব্রাউজার\nMozilla GeckoView দ্বারা চালিত</string>
 
     <string name="delete">মুছুন</string>
     <string name="settings">সেটিংস</string>

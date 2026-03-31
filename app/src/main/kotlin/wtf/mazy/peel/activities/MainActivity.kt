@@ -14,6 +14,7 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
@@ -29,6 +30,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.coroutines.launch
+import wtf.mazy.peel.BuildConfig
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.BackupManager
 import wtf.mazy.peel.model.DataManager
@@ -466,11 +468,30 @@ class MainActivity :
     }
 
     private fun buildAboutDialog() {
+        val view = layoutInflater.inflate(R.layout.dialog_about, null)
+        view.findViewById<TextView>(R.id.aboutVersion).text =
+            getString(R.string.about_version, BuildConfig.VERSION_NAME)
+        view.findViewById<TextView>(R.id.aboutEngine).text =
+            getString(R.string.about_engine, BuildConfig.GECKOVIEW_VERSION)
+        view.findViewById<View>(R.id.aboutGithub).setOnClickListener {
+            startActivity(Intent.createChooser(
+                Intent(Intent.ACTION_SEND).apply {
+                    type = "text/plain"
+                    putExtra(Intent.EXTRA_TEXT, GITHUB_URL)
+                }, null,
+            ))
+        }
+        view.findViewById<View>(R.id.aboutLicense).setOnClickListener {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(LICENSE_URL)))
+        }
         MaterialAlertDialogBuilder(this)
-            .setTitle(getString(R.string.app_name))
-            .setMessage(getString(R.string.gnu_license))
-            .setPositiveButton(R.string.ok, null)
+            .setView(view)
             .show()
+    }
+
+    companion object {
+        private const val GITHUB_URL = "https://github.com/mazzz1y/peel"
+        private const val LICENSE_URL = "https://www.gnu.org/licenses/gpl-3.0.txt"
     }
 
     private fun showClearDataConfirmDialog() {

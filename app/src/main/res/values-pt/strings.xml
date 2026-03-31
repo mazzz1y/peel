@@ -142,7 +142,7 @@
     <string name="password">Senha</string>
 
     <string name="app_info">Sobre</string>
-    <string name="gnu_license">Este software é distribuído sob a GNU General Public License — Versão 3.\nhttps://www.gnu.org/licenses/gpl-3.0.txt</string>
+    <string name="about_description">Um navegador leve para aplicativos web\nMovido por Mozilla GeckoView</string>
 
     <string name="delete">Excluir</string>
     <string name="settings">Configurações</string>

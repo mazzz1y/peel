@@ -142,7 +142,7 @@
     <string name="password">密碼</string>
 
     <string name="app_info">關於</string>
-    <string name="gnu_license">本軟體基於 GNU 通用公共授權條款第 3 版發布。\nhttps://www.gnu.org/licenses/gpl-3.0.txt</string>
+    <string name="about_description">輕量級網路應用程式瀏覽器\n由 Mozilla GeckoView 驅動</string>
 
     <string name="delete">刪除</string>
     <string name="settings">設定</string>

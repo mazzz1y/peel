@@ -294,7 +294,9 @@ class SettingViewFactory(
             if (newKey != currentKey) {
                 settings.customHeaders = settings.customHeaders?.minus(currentKey)
                 if (newKey.isNotEmpty()) {
-                    settings.customHeaders = settings.customHeaders.orEmpty() + (newKey to (editValue.text?.toString() ?: ""))
+                    settings.customHeaders =
+                        settings.customHeaders.orEmpty() + (newKey to (editValue.text?.toString()
+                            ?: ""))
                 }
                 currentKey = newKey
             }
@@ -303,7 +305,8 @@ class SettingViewFactory(
         editValue.doAfterTextChanged { s ->
             val key = editName.text?.toString() ?: ""
             if (key.isNotEmpty()) {
-                settings.customHeaders = settings.customHeaders.orEmpty() + (key to (s?.toString() ?: ""))
+                settings.customHeaders =
+                    settings.customHeaders.orEmpty() + (key to (s?.toString() ?: ""))
             }
         }
 

@@ -8,12 +8,12 @@ import android.content.Intent
 import android.content.pm.ServiceInfo
 import android.net.Uri
 import android.os.Build
-import androidx.annotation.RequiresApi
 import android.os.Environment
 import android.os.IBinder
 import android.os.SystemClock
 import android.provider.MediaStore
 import android.webkit.MimeTypeMap
+import androidx.annotation.RequiresApi
 import androidx.core.app.ServiceCompat
 import androidx.core.content.FileProvider
 import kotlinx.coroutines.CancellationException
@@ -75,7 +75,13 @@ class DownloadService : Service() {
             val now = SystemClock.elapsedRealtime()
             if (now - lastNotifyTime >= 1000) {
                 lastNotifyTime = now
-                notification.updateProgress(fileName, webappName, bytesCopied, contentLength, cancelPending)
+                notification.updateProgress(
+                    fileName,
+                    webappName,
+                    bytesCopied,
+                    contentLength,
+                    cancelPending
+                )
             }
         }
 

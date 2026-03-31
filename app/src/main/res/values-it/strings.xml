@@ -12,8 +12,8 @@
     <string name="empty_state_message">Nessuna web app ancora.\nTocca il pulsante + per aggiungere la tua prima app.</string>
     <string name="request_website_in_desktop_version">Richiedi il sito web in versione desktop</string>
     <string name="shortcut_icon">Icona Scorciatoia</string>
-    <string name="gnu_license">Questo software è rilasciato sotto licenza GNU General Public License - Versione 3.\nhttps://www.gnu.org/licenses/gpl-3.0.txt</string>
     <string name="app_info">Info</string>
+    <string name="about_description">Un browser leggero per le app web\nAlimentato da Mozilla GeckoView</string>
     <string name="web_app_settings">Impostazioni Web App</string>
     <string name="import_failed">Backup non ripristinabile</string>
     <string name="import_success">Il backup di %1$d Web App è stato ripristinato con successo.</string>

@@ -1,7 +1,6 @@
 package wtf.mazy.peel.activities
 
 import android.os.Bundle
-import wtf.mazy.peel.util.withMonoSpan
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -42,6 +41,7 @@ import wtf.mazy.peel.ui.settings.SandboxSwitchController
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.NotificationUtils.showToast
 import wtf.mazy.peel.util.displayUrl
+import wtf.mazy.peel.util.withMonoSpan
 
 class WebAppSettingsActivity :
     ToolbarBaseActivity<WebappSettingsBinding>(), OverridePickerDialog.OnSettingSelectedListener {
@@ -327,11 +327,16 @@ class WebAppSettingsActivity :
             showToast(this, getString(R.string.fetch_failed), Toast.LENGTH_SHORT)
             return
         }
-        val urlSuggestion = resolveUrlSuggestion(webapp.baseUrl, result.startUrl, result.redirectedUrl)
+        val urlSuggestion =
+            resolveUrlSuggestion(webapp.baseUrl, result.startUrl, result.redirectedUrl)
         val withIcon = candidates.filter { it.icon != null }
         if (!webapp.hasCustomIcon && webapp.title.isEmpty() && withIcon.size == 1) {
             val candidate = withIcon.first()
-            val titled = if (result.title != null) FetchCandidate(result.title, candidate.icon, candidate.source) else candidate
+            val titled = if (result.title != null) FetchCandidate(
+                result.title,
+                candidate.icon,
+                candidate.source
+            ) else candidate
             applyFetchResult(webapp, titled, urlSuggestion)
             return
         }

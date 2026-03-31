@@ -138,9 +138,11 @@ class HeadlessFetcher(
                                 capturedUrl ?: loadUrl, currentTitle, message,
                             )
                             messages.trySend(Unit)
-                            postProgress(appContext.getString(
-                                R.string.fetch_step_processing, hostOf(capturedUrl ?: loadUrl),
-                            ))
+                            postProgress(
+                                appContext.getString(
+                                    R.string.fetch_step_processing, hostOf(capturedUrl ?: loadUrl),
+                                )
+                            )
                         }
                         return null
                     }
@@ -158,7 +160,12 @@ class HeadlessFetcher(
             ) {
                 if (url != null && !url.startsWith("about:")) {
                     capturedUrl = url
-                    postProgress(appContext.getString(R.string.fetch_step_loading_host, hostOf(url)))
+                    postProgress(
+                        appContext.getString(
+                            R.string.fetch_step_loading_host,
+                            hostOf(url)
+                        )
+                    )
                 }
             }
         }
@@ -185,7 +192,8 @@ class HeadlessFetcher(
         }
 
         messages.receive()
-        while (withTimeoutOrNull(COLLECT_MS) { messages.receive() } != null) { /* drain */ }
+        while (withTimeoutOrNull(COLLECT_MS) { messages.receive() } != null) { /* drain */
+        }
 
         val pageUrl = capturedUrl ?: loadUrl
 
@@ -370,7 +378,11 @@ class HeadlessFetcher(
             listOf("/manifest.json", "/manifest.webmanifest", "/site.webmanifest")
 
         private fun hostOf(url: String): String =
-            try { URL(url).host } catch (_: Exception) { url }
+            try {
+                URL(url).host
+            } catch (_: Exception) {
+                url
+            }
 
         private fun resolveUrl(base: String, relative: String): String =
             try {
@@ -386,7 +398,9 @@ class HeadlessFetcher(
                         "${it.protocol}://${it.host}:${it.port}"
                     else "${it.protocol}://${it.host}"
                 }
-            } catch (_: Exception) { url }
+            } catch (_: Exception) {
+                url
+            }
 
         private val SOURCE_PRIORITY = mapOf(
             "PWA" to 0, "Apple" to 1, "HTML" to 2, "Favicon" to 3,

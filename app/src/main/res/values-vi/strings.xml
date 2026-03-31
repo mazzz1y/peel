@@ -142,7 +142,7 @@
     <string name="password">Mật khẩu</string>
 
     <string name="app_info">Giới thiệu</string>
-    <string name="gnu_license">Phần mềm này được phát hành theo GNU General Public License — Phiên bản 3.\nhttps://www.gnu.org/licenses/gpl-3.0.txt</string>
+    <string name="about_description">Trình duyệt nhẹ cho ứng dụng web\nHỗ trợ bởi Mozilla GeckoView</string>
 
     <string name="delete">Xóa</string>
     <string name="settings">Cài đặt</string>

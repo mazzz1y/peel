@@ -25,10 +25,10 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.lifecycle.Lifecycle
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toDrawable
 import androidx.core.net.toUri
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
@@ -43,13 +43,13 @@ import wtf.mazy.peel.R
 import wtf.mazy.peel.browser.BrowserContextMenu
 import wtf.mazy.peel.browser.DownloadHandler
 import wtf.mazy.peel.browser.DownloadService
+import wtf.mazy.peel.browser.ExternalLinkResult
+import wtf.mazy.peel.browser.MenuDialogHelper
 import wtf.mazy.peel.browser.PeelContentDelegate
 import wtf.mazy.peel.browser.PeelNavigationDelegate
 import wtf.mazy.peel.browser.PeelPermissionDelegate
 import wtf.mazy.peel.browser.PeelProgressDelegate
 import wtf.mazy.peel.browser.PeelPromptDelegate
-import wtf.mazy.peel.browser.ExternalLinkResult
-import wtf.mazy.peel.browser.MenuDialogHelper
 import wtf.mazy.peel.browser.PermissionResult
 import wtf.mazy.peel.browser.SessionHost
 import wtf.mazy.peel.browser.StartupAuthReturnTracker
@@ -71,8 +71,8 @@ import wtf.mazy.peel.ui.dialog.showInputDialogRaw
 import wtf.mazy.peel.util.BrowserLauncher
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.HostIdentity
-import wtf.mazy.peel.util.normalizedHost
 import wtf.mazy.peel.util.NotificationUtils
+import wtf.mazy.peel.util.normalizedHost
 import wtf.mazy.peel.util.shortLabel
 
 class BrowserActivity : AppCompatActivity(), SessionHost {
@@ -279,7 +279,10 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
 
     override fun onPause() {
         super.onPause()
-        try { unregisterReceiver(downloadCompleteReceiver) } catch (_: Exception) {}
+        try {
+            unregisterReceiver(downloadCompleteReceiver)
+        } catch (_: Exception) {
+        }
         if (!isStartupComplete) return
         floatingControls?.remove()
         floatingControls = null
@@ -682,7 +685,7 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
         if (settings.isLongClickShare == true) setupContextMenu() else contextMenu = null
         val contextMenuCallback: ((GeckoSession, Int, Int, GeckoSession.ContentDelegate.ContextElement) -> Unit)? =
             if (contextMenu != null) {
-                { _, _, _, el -> contextMenu?.onContextMenu( el) }
+                { _, _, _, el -> contextMenu?.onContextMenu(el) }
             } else null
         session.contentDelegate = PeelContentDelegate(
             host = this,
@@ -771,7 +774,9 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
         applyWindowFlags(settings)
         setupPullToRefresh(settings)
         applyColorScheme()
-        if (settings.isShowFullscreen == true) systemBarController.hide() else systemBarController.show(false)
+        if (settings.isShowFullscreen == true) systemBarController.hide() else systemBarController.show(
+            false
+        )
     }
 
     private fun applyWindowFlags(settings: WebAppSettings) {
@@ -869,21 +874,41 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
 
         val content = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            addView(MenuDialogHelper.buildHeader(this@BrowserActivity, null, MenuDialogHelper.displayUrl(url)))
+            addView(
+                MenuDialogHelper.buildHeader(
+                    this@BrowserActivity,
+                    null,
+                    MenuDialogHelper.displayUrl(url)
+                )
+            )
             addView(MenuDialogHelper.buildDivider(this@BrowserActivity))
             val icon = bestPeelMatchIcon(url)
             val iconClick = if (icon != null) {
                 { dismiss(ExternalLinkResult.OpenInPeelApp { openInBestPeelMatch(url) }) }
             } else null
-            addView(MenuDialogHelper.buildActionRow(this@BrowserActivity, getString(R.string.open_in_peel), icon, iconClick) {
-                dismiss(ExternalLinkResult.OpenInPeelApp { openInPeel(url) })
-            })
-            addView(MenuDialogHelper.buildActionRow(this@BrowserActivity, getString(R.string.open_in_current_session)) {
-                dismiss(ExternalLinkResult.LOAD_HERE)
-            })
-            addView(MenuDialogHelper.buildActionRow(this@BrowserActivity, getString(R.string.open_in_system)) {
-                dismiss(ExternalLinkResult.OPEN_IN_SYSTEM)
-            })
+            addView(
+                MenuDialogHelper.buildActionRow(
+                    this@BrowserActivity,
+                    getString(R.string.open_in_peel),
+                    icon,
+                    iconClick
+                ) {
+                    dismiss(ExternalLinkResult.OpenInPeelApp { openInPeel(url) })
+                })
+            addView(
+                MenuDialogHelper.buildActionRow(
+                    this@BrowserActivity,
+                    getString(R.string.open_in_current_session)
+                ) {
+                    dismiss(ExternalLinkResult.LOAD_HERE)
+                })
+            addView(
+                MenuDialogHelper.buildActionRow(
+                    this@BrowserActivity,
+                    getString(R.string.open_in_system)
+                ) {
+                    dismiss(ExternalLinkResult.OPEN_IN_SYSTEM)
+                })
         }
 
         dialog = MaterialAlertDialogBuilder(this)
@@ -959,7 +984,8 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
                 .setTitle(R.string.open_in_peel)
                 .setAdapter(adapter) { _, position -> launchWebApp(apps[position], url) }
                 .show()
-            dialog.listView?.layoutParams?.height = MenuDialogHelper.dpToPx(this@BrowserActivity, MAX_PEEL_PICKER_HEIGHT_DP)
+            dialog.listView?.layoutParams?.height =
+                MenuDialogHelper.dpToPx(this@BrowserActivity, MAX_PEEL_PICKER_HEIGHT_DP)
             dialog.listView?.requestLayout()
         }
     }

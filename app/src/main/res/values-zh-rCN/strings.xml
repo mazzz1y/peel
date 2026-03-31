@@ -142,7 +142,7 @@
     <string name="password">密码</string>
 
     <string name="app_info">关于</string>
-    <string name="gnu_license">本软件基于 GNU 通用公共许可证第 3 版发布。\nhttps://www.gnu.org/licenses/gpl-3.0.txt</string>
+    <string name="about_description">轻量级网络应用浏览器\n由 Mozilla GeckoView 驱动</string>
 
     <string name="delete">删除</string>
     <string name="settings">设置</string>

@@ -137,7 +137,7 @@
     <string name="username">ਯੂਜ਼ਰ ਨਾਮ</string>
     <string name="password">ਪਾਸਵਰਡ</string>
     <string name="app_info">ਜਾਣਕਾਰੀ</string>
-    <string name="gnu_license">ਇਹ ਸਾਫ਼ਟਵੇਅਰ GNU General Public License ਸੰਸਕਰਣ 3 ਅਧੀਨ ਜਾਰੀ ਹੈ।\nhttps://www.gnu.org/licenses/gpl-3.0.txt</string>
+    <string name="about_description">ਵੈੱਬ ਐਪਸ ਲਈ ਹਲਕਾ ਬ੍ਰਾਊਜ਼ਰ\nMozilla GeckoView ਦੁਆਰਾ ਸੰਚਾਲਿਤ</string>
     <string name="delete">ਮਿਟਾਓ</string>
     <string name="settings">ਸੈਟਿੰਗਾਂ</string>
     <string name="app_icon">ਐਪ ਆਈਕਨ</string>

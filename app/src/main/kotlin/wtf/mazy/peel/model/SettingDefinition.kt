@@ -244,7 +244,10 @@ object SettingRegistry {
             ),
 
             SettingDefinition.TriStateSetting(
-                SettingField(WebAppSettings::isSafeBrowsing, WebAppSettings.TRACKER_PROTECTION_DEFAULT),
+                SettingField(
+                    WebAppSettings::isSafeBrowsing,
+                    WebAppSettings.TRACKER_PROTECTION_DEFAULT
+                ),
                 R.string.setting_tracker_protection,
                 SettingCategory.GLOBAL_PRIVACY,
                 globalOnly = true,
