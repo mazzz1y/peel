@@ -65,6 +65,10 @@
     <string name="allow_location_access">स्थान</string>
     <string name="allow_drm_content">DRM सामग्री</string>
     <string name="file_download">फ़ाइल डाउनलोड हो रही है…</string>
+    <string name="download_in_progress">डाउनलोड हो रहा है…</string>
+    <string name="download_complete">डाउनलोड पूर्ण — खोलने के लिए टैप करें</string>
+    <string name="download_channel_name">डाउनलोड</string>
+    <string name="download_channel_description">फ़ाइल डाउनलोड प्रगति और पूर्णता</string>
     <string name="permission_prompt_download">इस फ़ाइल को डाउनलोड करें?\n\n%1$s</string>
     <string name="icon_update">चित्र अपडेट करें</string>
     <string name="icon_remove">चित्र हटाएं</string>
@@ -125,6 +129,7 @@
     <string name="more">अधिक</string>
     <string name="cancel">रद्द करें</string>
     <string name="ok">ठीक</string>
+    <string name="open">खोलें</string>
     <string name="no_biometric_devices">आपका डिवाइस बायोमेट्रिक प्रमाणीकरण का समर्थन नहीं करता।</string>
     <string name="no_biometric_keys_enrolled">आपका डिवाइस बायोमेट्रिक्स का समर्थन करता है, लेकिन कोई विधि सेट नहीं है।</string>
     <string name="browser_launch_failed">वेब ऐप शुरू नहीं हो सका</string>

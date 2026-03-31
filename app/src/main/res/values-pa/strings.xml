@@ -64,6 +64,10 @@
     <string name="allow_location_access">ਟਿਕਾਣਾ</string>
     <string name="allow_drm_content">DRM ਸਮੱਗਰੀ</string>
     <string name="file_download">ਫ਼ਾਈਲ ਡਾਊਨਲੋਡ ਹੋ ਰਹੀ ਹੈ…</string>
+    <string name="download_in_progress">ਡਾਊਨਲੋਡ ਹੋ ਰਿਹਾ ਹੈ…</string>
+    <string name="download_complete">ਡਾਊਨਲੋਡ ਪੂਰਾ — ਖੋਲ੍ਹਣ ਲਈ ਟੈਪ ਕਰੋ</string>
+    <string name="download_channel_name">ਡਾਊਨਲੋਡ</string>
+    <string name="download_channel_description">ਫ਼ਾਈਲ ਡਾਊਨਲੋਡ ਪ੍ਰਗਤੀ ਅਤੇ ਸੰਪੂਰਨਤਾ</string>
     <string name="permission_prompt_download">ਇਹ ਫ਼ਾਈਲ ਡਾਊਨਲੋਡ ਕਰੋ?\n\n%1$s</string>
     <string name="icon_update">ਤਸਵੀਰ ਅੱਪਡੇਟ ਕਰੋ</string>
     <string name="icon_remove">ਤਸਵੀਰ ਹਟਾਓ</string>
@@ -122,6 +126,7 @@
     <string name="more">ਹੋਰ</string>
     <string name="cancel">ਰੱਦ ਕਰੋ</string>
     <string name="ok">ਠੀਕ ਹੈ</string>
+    <string name="open">ਖੋਲ੍ਹੋ</string>
     <string name="no_biometric_devices">ਤੁਹਾਡੀ ਡਿਵਾਈਸ ਬਾਇਓਮੈਟ੍ਰਿਕ ਪ੍ਰਮਾਣੀਕਰਨ ਦਾ ਸਮਰਥਨ ਨਹੀਂ ਕਰਦੀ।</string>
     <string name="no_biometric_keys_enrolled">ਤੁਹਾਡੀ ਡਿਵਾਈਸ ਬਾਇਓਮੈਟ੍ਰਿਕਸ ਦਾ ਸਮਰਥਨ ਕਰਦੀ ਹੈ, ਪਰ ਕੋਈ ਤਰੀਕਾ ਸੈੱਟ ਨਹੀਂ ਹੈ।</string>
     <string name="browser_launch_failed">ਵੈੱਬ ਐਪ ਸ਼ੁਰੂ ਨਹੀਂ ਹੋ ਸਕੀ</string>

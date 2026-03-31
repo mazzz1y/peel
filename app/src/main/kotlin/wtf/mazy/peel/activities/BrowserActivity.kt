@@ -2,7 +2,10 @@ package wtf.mazy.peel.activities
 
 import android.app.ActivityManager
 import android.content.ActivityNotFoundException
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.Bitmap
@@ -28,6 +31,7 @@ import androidx.core.graphics.drawable.toDrawable
 import androidx.core.net.toUri
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.Job
@@ -38,6 +42,7 @@ import org.mozilla.geckoview.GeckoSessionSettings
 import wtf.mazy.peel.R
 import wtf.mazy.peel.browser.BrowserContextMenu
 import wtf.mazy.peel.browser.DownloadHandler
+import wtf.mazy.peel.browser.DownloadService
 import wtf.mazy.peel.browser.PeelContentDelegate
 import wtf.mazy.peel.browser.PeelNavigationDelegate
 import wtf.mazy.peel.browser.PeelPermissionDelegate
@@ -122,6 +127,15 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
     private lateinit var permissionDelegate: PeelPermissionDelegate
     private lateinit var promptDelegate: PeelPromptDelegate
     private var contextMenu: BrowserContextMenu? = null
+
+    private val downloadCompleteReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            val fileName = intent.getStringExtra(DownloadService.EXTRA_FILE_NAME) ?: return
+            val uriString = intent.getStringExtra(DownloadService.EXTRA_URI) ?: return
+            val mimeType = intent.getStringExtra(DownloadService.EXTRA_MIME_TYPE)
+            showDownloadSnackbar(fileName, Uri.parse(uriString), mimeType)
+        }
+    }
 
     private var pageLoadHandled = false
     private var mediaPlaybackManager: MediaPlaybackManager? = null
@@ -223,6 +237,11 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
 
     override fun onResume() {
         super.onResume()
+        ContextCompat.registerReceiver(
+            this, downloadCompleteReceiver,
+            IntentFilter(DownloadService.ACTION_DOWNLOAD_COMPLETE),
+            ContextCompat.RECEIVER_NOT_EXPORTED,
+        )
         val uuid = webappUuid ?: return
         ensureDataReady(uuid, forceReload = true) {
             applyResumedState()
@@ -260,6 +279,7 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
 
     override fun onPause() {
         super.onPause()
+        try { unregisterReceiver(downloadCompleteReceiver) } catch (_: Exception) {}
         if (!isStartupComplete) return
         floatingControls?.remove()
         floatingControls = null
@@ -446,6 +466,23 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
         NotificationUtils.showToast(this, message)
     }
 
+    private fun showDownloadSnackbar(fileName: String, uri: Uri, mimeType: String?) {
+        val root = findViewById<View>(android.R.id.content)
+        Snackbar.make(root, getString(R.string.download_complete), Snackbar.LENGTH_LONG)
+            .setAction(getString(R.string.open)) {
+                try {
+                    val intent = Intent(Intent.ACTION_VIEW).apply {
+                        setDataAndType(uri, mimeType ?: "application/octet-stream")
+                        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK)
+                    }
+                    startActivity(intent)
+                } catch (_: ActivityNotFoundException) {
+                    showToast(getString(R.string.no_app_found))
+                }
+            }
+            .show()
+    }
+
     override fun showConnectionError(description: String, url: String) {
         if (launchOverlayController.isVisible) {
             showToast(getString(R.string.connection_error, description))
@@ -604,6 +641,8 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
         downloadHandler = DownloadHandler(
             activity = this,
             getRuntime = { GeckoRuntimeProvider.getRuntime(this) },
+            scope = lifecycleScope,
+            webappName = webapp.title,
         )
         navigationDelegate = PeelNavigationDelegate(this)
         permissionDelegate = PeelPermissionDelegate(this)

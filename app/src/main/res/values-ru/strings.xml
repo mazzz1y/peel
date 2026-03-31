@@ -65,6 +65,10 @@
     <string name="allow_location_access">Местоположение</string>
     <string name="allow_drm_content">DRM-контент</string>
     <string name="file_download">Файл загружается…</string>
+    <string name="download_in_progress">Загрузка…</string>
+    <string name="download_complete">Загрузка завершена — нажмите, чтобы открыть</string>
+    <string name="download_channel_name">Загрузки</string>
+    <string name="download_channel_description">Прогресс и завершение загрузки файлов</string>
     <string name="permission_prompt_download">Скачать этот файл?\n\n%1$s</string>
     <string name="icon_update">Обновить изображение</string>
     <string name="icon_remove">Удалить изображение</string>
@@ -125,6 +129,7 @@
     <string name="more">Ещё</string>
     <string name="cancel">Отмена</string>
     <string name="ok">ОК</string>
+    <string name="open">Открыть</string>
     <string name="no_biometric_devices">Ваше устройство не поддерживает биометрическую аутентификацию</string>
     <string name="no_biometric_keys_enrolled">Ваше устройство поддерживает биометрию, но ни один метод не настроен</string>
     <string name="browser_launch_failed">Не удалось запустить веб-приложение</string>

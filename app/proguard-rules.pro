@@ -65,6 +65,8 @@
 # Media playback
 -keep class wtf.mazy.peel.media.MediaPlaybackService* { *; }
 
+-keep class wtf.mazy.peel.browser.DownloadService { *; }
+
 # Biometric
 -keep class androidx.biometric.BiometricPrompt { *; }
 -keep class androidx.biometric.BiometricManager { *; }

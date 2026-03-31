@@ -37,7 +37,7 @@ class SandboxSwitchController(
                     }
                     .show()
             } else {
-                setSandboxEnabled(isChecked)
+                setSandboxEnabled()
             }
         }
 
@@ -80,14 +80,11 @@ class SandboxSwitchController(
             .show()
     }
 
-    private fun setSandboxEnabled(enabled: Boolean) {
-        if (enabled) {
-            owner.isUseContainer = true
-            updateEphemeralVisibility()
-            updateClearButtonVisibility()
-            return
-        }
-        disableSandbox()
+    private fun setSandboxEnabled() {
+        owner.isUseContainer = true
+        updateEphemeralVisibility()
+        updateClearButtonVisibility()
+        return
     }
 
     private fun disableSandbox() {

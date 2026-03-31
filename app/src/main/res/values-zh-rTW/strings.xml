@@ -65,6 +65,10 @@
     <string name="allow_location_access">位置</string>
     <string name="allow_drm_content">DRM 內容</string>
     <string name="file_download">檔案下載中…</string>
+    <string name="download_in_progress">下載中…</string>
+    <string name="download_complete">下載完成 — 點擊開啟</string>
+    <string name="download_channel_name">下載</string>
+    <string name="download_channel_description">檔案下載進度與完成通知</string>
     <string name="permission_prompt_download">下載此檔案？\n\n%1$s</string>
     <string name="icon_update">更新圖片</string>
     <string name="icon_remove">刪除圖片</string>
@@ -125,6 +129,7 @@
     <string name="more">更多</string>
     <string name="cancel">取消</string>
     <string name="ok">確定</string>
+    <string name="open">開啟</string>
     <string name="no_biometric_devices">您的裝置不支援生物辨識驗證</string>
     <string name="no_biometric_keys_enrolled">您的裝置支援生物辨識驗證，但尚未設定</string>
     <string name="browser_launch_failed">無法啟動網頁應用程式</string>

@@ -65,6 +65,10 @@
     <string name="allow_location_access">Localização</string>
     <string name="allow_drm_content">Conteúdo DRM</string>
     <string name="file_download">Baixando arquivo…</string>
+    <string name="download_in_progress">Baixando…</string>
+    <string name="download_complete">Download concluído — toque para abrir</string>
+    <string name="download_channel_name">Downloads</string>
+    <string name="download_channel_description">Progresso e conclusão de downloads</string>
     <string name="permission_prompt_download">Baixar este arquivo?\n\n%1$s</string>
     <string name="icon_update">Atualizar imagem</string>
     <string name="icon_remove">Remover imagem</string>
@@ -125,6 +129,7 @@
     <string name="more">Mais</string>
     <string name="cancel">Cancelar</string>
     <string name="ok">OK</string>
+    <string name="open">Abrir</string>
     <string name="no_biometric_devices">Seu dispositivo não suporta autenticação biométrica</string>
     <string name="no_biometric_keys_enrolled">Seu dispositivo suporta biometria, mas nenhum método foi configurado</string>
     <string name="browser_launch_failed">Não foi possível iniciar o Web App</string>

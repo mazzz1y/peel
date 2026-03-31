@@ -65,6 +65,10 @@
     <string name="allow_location_access">位置情報</string>
     <string name="allow_drm_content">DRMコンテンツ</string>
     <string name="file_download">ファイルをダウンロード中…</string>
+    <string name="download_in_progress">ダウンロード中…</string>
+    <string name="download_complete">ダウンロード完了 — タップして開く</string>
+    <string name="download_channel_name">ダウンロード</string>
+    <string name="download_channel_description">ファイルのダウンロード進捗と完了</string>
     <string name="permission_prompt_download">このファイルをダウンロードしますか？\n\n%1$s</string>
     <string name="icon_update">画像を更新</string>
     <string name="icon_remove">画像を削除</string>
@@ -125,6 +129,7 @@
     <string name="more">その他</string>
     <string name="cancel">キャンセル</string>
     <string name="ok">OK</string>
+    <string name="open">開く</string>
     <string name="no_biometric_devices">お使いのデバイスは生体認証に対応していません</string>
     <string name="no_biometric_keys_enrolled">お使いのデバイスは生体認証に対応していますが、設定されていません</string>
     <string name="browser_launch_failed">ウェブアプリを起動できませんでした</string>

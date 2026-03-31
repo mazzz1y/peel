@@ -51,6 +51,10 @@
     <string name="allow_drm_content">Consenti i contenuti DRM</string>
 
     <string name="file_download">Scaricamento file in corso…</string>
+    <string name="download_in_progress">Scaricamento in corso…</string>
+    <string name="download_complete">Download completato — tocca per aprire</string>
+    <string name="download_channel_name">Download</string>
+    <string name="download_channel_description">Progresso e completamento dei download</string>
     <string name="permission_prompt_download">Scaricare questo file?\n\n%1$s</string>
     <string name="show_progress_bar_during_page_load">Mostra barra di avanzamento durante il caricamento della pagina</string>
     <string name="webapp_autoreload">Ricarica automaticamente la pagina</string>
@@ -81,6 +85,7 @@
     <string name="more">Altro</string>
     <string name="cancel">Cancella</string>
     <string name="ok">OK</string>
+    <string name="open">Apri</string>
     <string name="no_biometric_devices">Il dispositivo non supporta l\'autenticazione biometrica</string>
     <string name="no_biometric_keys_enrolled">Il dispositivo supporta l\'autenticazione biometrica, ma non è stato ancora registrato alcun metodo</string>
     <string name="browser_launch_failed">Impossibile avviare la Web App</string>

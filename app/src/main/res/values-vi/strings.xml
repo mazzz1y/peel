@@ -65,6 +65,10 @@
     <string name="allow_location_access">Vị trí</string>
     <string name="allow_drm_content">Nội dung DRM</string>
     <string name="file_download">Đang tải tệp…</string>
+    <string name="download_in_progress">Đang tải…</string>
+    <string name="download_complete">Tải xong — chạm để mở</string>
+    <string name="download_channel_name">Tải xuống</string>
+    <string name="download_channel_description">Tiến trình và hoàn thành tải tệp</string>
     <string name="permission_prompt_download">Tải tệp này?\n\n%1$s</string>
     <string name="icon_update">Cập nhật hình ảnh</string>
     <string name="icon_remove">Xóa hình ảnh</string>
@@ -125,6 +129,7 @@
     <string name="more">Thêm</string>
     <string name="cancel">Hủy</string>
     <string name="ok">OK</string>
+    <string name="open">Mở</string>
     <string name="no_biometric_devices">Thiết bị của bạn không hỗ trợ xác thực sinh trắc học</string>
     <string name="no_biometric_keys_enrolled">Thiết bị hỗ trợ sinh trắc học nhưng chưa được thiết lập</string>
     <string name="browser_launch_failed">Không thể khởi chạy ứng dụng web</string>
