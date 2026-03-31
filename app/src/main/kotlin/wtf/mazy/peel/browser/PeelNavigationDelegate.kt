@@ -15,6 +15,7 @@ class PeelNavigationDelegate(private val host: SessionHost) : GeckoSession.Navig
     private var appLinkDialogShowing = false
     private var externalMenuShowing = false
     var browsingExternally = false
+    private var isInitialLoad = true
 
     override fun onCanGoBack(session: GeckoSession, canGoBack: Boolean) {
         host.canGoBack = canGoBack
@@ -61,7 +62,7 @@ class PeelNavigationDelegate(private val host: SessionHost) : GeckoSession.Navig
         }
 
         if (settings.isOpenUrlExternal == true) {
-            if (browsingExternally) {
+            if (browsingExternally || isInitialLoad) {
                 return GeckoResult.fromValue(AllowOrDeny.ALLOW)
             }
 
@@ -84,8 +85,9 @@ class PeelNavigationDelegate(private val host: SessionHost) : GeckoSession.Navig
                                     host.startExternalIntent(url.toUri())
                                 }
                                 ExternalLinkResult.DISMISSED -> {
-                                    if (redirect && host.lastLoadedUrl.isNotEmpty()) {
-                                        host.loadURL(host.lastLoadedUrl)
+                                    if (redirect) {
+                                        val fallback = host.lastLoadedUrl.ifEmpty { host.baseUrl }
+                                        host.loadURL(fallback)
                                     }
                                 }
                                 is ExternalLinkResult.OpenInPeelApp -> {
@@ -121,6 +123,11 @@ class PeelNavigationDelegate(private val host: SessionHost) : GeckoSession.Navig
     fun resetDialogState() {
         appLinkDialogShowing = false
         externalMenuShowing = false
+        isInitialLoad = true
+    }
+
+    fun onInitialPageLoaded() {
+        isInitialLoad = false
     }
 
     private fun handleAppLink(url: String, settings: WebAppSettings) {

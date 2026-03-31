@@ -3,7 +3,7 @@
     <string name="action_settings">设置</string>
     <string name="global_settings">全局设置</string>
     <string name="save">保存</string>
-    <string name="loading_icon_and_website_title">加载中…</string>
+
     <string name="open_external_links_in_browser_app">在外部打开链接</string>
     <string name="allow_javascript">允许 JavaScript</string>
     <string name="clear_cache_after_usage">退出时清除缓存</string>
@@ -20,8 +20,10 @@
     <string name="manifest_start_url_update">更新</string>
     <string name="manifest_start_url_keep">保持当前</string>
     <string name="redirect_url_message">此网站重定向到其他地址：\n\n%1$s\n\n是否更新网址？您随时可以在应用设置中更改。</string>
-    <string name="fetch_step_loading">加载页面…</string>
-    <string name="fetch_step_downloading">下载图标…</string>
+    <string name="fetch_step_loading">连接中…</string>
+    <string name="fetch_step_loading_host">获取 %1$s 的元数据…</string>
+    <string name="fetch_step_processing">下载 %1$s 的图标…</string>
+    <string name="fetch_step_downloading">准备结果…</string>
 
     <string name="web_app_settings">网页应用设置</string>
     <string name="permissions">权限</string>

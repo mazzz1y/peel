@@ -224,7 +224,7 @@ class WebAppSettingsActivity :
         val dp = resources.displayMetrics.density
         val text =
             TextView(this).apply {
-                setText(R.string.loading_icon_and_website_title)
+                setText(R.string.fetch_step_loading)
                 setTextAppearance(
                     com.google.android.material.R.style.TextAppearance_Material3_BodyMedium
                 )
@@ -327,11 +327,12 @@ class WebAppSettingsActivity :
             showToast(this, getString(R.string.fetch_failed), Toast.LENGTH_SHORT)
             return
         }
-        val startUrl = candidates.firstNotNullOfOrNull { it.startUrl }
-        val urlSuggestion = resolveUrlSuggestion(webapp.baseUrl, startUrl, result.redirectedUrl)
+        val urlSuggestion = resolveUrlSuggestion(webapp.baseUrl, result.startUrl, result.redirectedUrl)
         val withIcon = candidates.filter { it.icon != null }
         if (!webapp.hasCustomIcon && webapp.title.isEmpty() && withIcon.size == 1) {
-            applyFetchResult(webapp, withIcon.first(), urlSuggestion)
+            val candidate = withIcon.first()
+            val titled = if (result.title != null) FetchCandidate(result.title, candidate.icon, candidate.source) else candidate
+            applyFetchResult(webapp, titled, urlSuggestion)
             return
         }
         showFetchPickerDialog(webapp, candidates, urlSuggestion)

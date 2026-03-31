@@ -3,7 +3,7 @@
     <string name="action_settings">Impostazioni</string>
     <string name="global_settings">Impostazioni generali</string>
     <string name="save">Salva</string>
-    <string name="loading_icon_and_website_title">Caricamento icona e titolo del sito web…</string>
+
     <string name="open_external_links_in_browser_app">Apri i collegamenti esterni nell\'applicazione del browser</string>
     <string name="allow_javascript">Consenti Javascript</string>
     <string name="clear_cache_after_usage">Cancella la cache dopo l\'utilizzo</string>
@@ -97,8 +97,10 @@
 
     <string name="fetch_failed">Impossibile recuperare i dati dal sito web</string>
     <string name="fetch_icon_title">Recupera dal sito web</string>
-    <string name="fetch_step_loading">Caricamento pagina…</string>
-    <string name="fetch_step_downloading">Download icone…</string>
+    <string name="fetch_step_loading">Connessione…</string>
+    <string name="fetch_step_loading_host">Recupero metadati da %1$s…</string>
+    <string name="fetch_step_processing">Download icone da %1$s…</string>
+    <string name="fetch_step_downloading">Preparazione risultati…</string>
     <string name="permissions">Permessi</string>
     <string name="advanced">Avanzate</string>
     <string name="appearance">Aspetto</string>

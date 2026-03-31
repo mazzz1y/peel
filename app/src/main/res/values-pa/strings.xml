@@ -3,7 +3,7 @@
     <string name="action_settings">ਸੈਟਿੰਗਾਂ</string>
     <string name="global_settings">ਗਲੋਬਲ ਸੈਟਿੰਗਾਂ</string>
     <string name="save">ਸੇਵ ਕਰੋ</string>
-    <string name="loading_icon_and_website_title">ਲੋਡ ਹੋ ਰਿਹਾ ਹੈ…</string>
+
     <string name="open_external_links_in_browser_app">ਲਿੰਕ ਬਾਹਰੀ ਤੌਰ \'ਤੇ ਖੋਲ੍ਹੋ</string>
     <string name="allow_javascript">JavaScript ਦੀ ਇਜਾਜ਼ਤ ਦਿਓ</string>
     <string name="clear_cache_after_usage">ਬੰਦ ਕਰਨ \'ਤੇ ਕੈਸ਼ ਸਾਫ਼ ਕਰੋ</string>
@@ -20,8 +20,10 @@
     <string name="manifest_start_url_update">ਅੱਪਡੇਟ ਕਰੋ</string>
     <string name="manifest_start_url_keep">ਮੌਜੂਦਾ ਰੱਖੋ</string>
     <string name="redirect_url_message">ਇਹ ਵੈੱਬਸਾਈਟ ਇੱਕ ਵੱਖਰੇ ਪਤੇ ਤੇ ਰੀਡਾਇਰੈਕਟ ਕਰਦੀ ਹੈ:\n\n%1$s\n\nਕੀ ਤੁਸੀਂ URL ਅੱਪਡੇਟ ਕਰਨਾ ਚਾਹੁੰਦੇ ਹੋ? ਤੁਸੀਂ ਇਸਨੂੰ ਬਾਅਦ ਵਿੱਚ ਐਪ ਸੈਟਿੰਗਾਂ ਵਿੱਚ ਕਦੇ ਵੀ ਬਦਲ ਸਕਦੇ ਹੋ।</string>
-    <string name="fetch_step_loading">ਪੰਨਾ ਲੋਡ ਹੋ ਰਿਹਾ ਹੈ…</string>
-    <string name="fetch_step_downloading">ਆਈਕਨ ਡਾਊਨਲੋਡ ਹੋ ਰਹੇ ਹਨ…</string>
+    <string name="fetch_step_loading">ਕਨੈਕਟ ਹੋ ਰਿਹਾ ਹੈ…</string>
+    <string name="fetch_step_loading_host">%1$s ਤੋਂ ਮੈਟਾਡੇਟਾ ਲਿਆਂਦਾ ਜਾ ਰਿਹਾ ਹੈ…</string>
+    <string name="fetch_step_processing">%1$s ਤੋਂ ਆਈਕਨ ਡਾਊਨਲੋਡ ਹੋ ਰਹੇ ਹਨ…</string>
+    <string name="fetch_step_downloading">ਨਤੀਜੇ ਤਿਆਰ ਹੋ ਰਹੇ ਹਨ…</string>
     <string name="web_app_settings">ਵੈੱਬ ਐਪ ਸੈਟਿੰਗਾਂ</string>
     <string name="permissions">ਇਜਾਜ਼ਤਾਂ</string>
     <string name="content">ਸਮੱਗਰੀ</string>

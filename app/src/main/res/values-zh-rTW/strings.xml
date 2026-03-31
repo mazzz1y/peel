@@ -3,7 +3,7 @@
     <string name="action_settings">設定</string>
     <string name="global_settings">全域設定</string>
     <string name="save">儲存</string>
-    <string name="loading_icon_and_website_title">載入中…</string>
+
     <string name="open_external_links_in_browser_app">以外部開啟連結</string>
     <string name="allow_javascript">允許 JavaScript</string>
     <string name="clear_cache_after_usage">結束時清除快取</string>
@@ -20,8 +20,10 @@
     <string name="manifest_start_url_update">更新</string>
     <string name="manifest_start_url_keep">保持目前</string>
     <string name="redirect_url_message">此網站重新導向到其他地址：\n\n%1$s\n\n是否更新網址？您隨時可以在應用程式設定中變更。</string>
-    <string name="fetch_step_loading">載入頁面…</string>
-    <string name="fetch_step_downloading">下載圖示…</string>
+    <string name="fetch_step_loading">連線中…</string>
+    <string name="fetch_step_loading_host">取得 %1$s 的中繼資料…</string>
+    <string name="fetch_step_processing">下載 %1$s 的圖示…</string>
+    <string name="fetch_step_downloading">準備結果…</string>
 
     <string name="web_app_settings">網頁應用程式設定</string>
     <string name="permissions">權限</string>

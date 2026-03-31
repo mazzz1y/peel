@@ -3,7 +3,7 @@
     <string name="action_settings">सेटिंग्स</string>
     <string name="global_settings">वैश्विक सेटिंग्स</string>
     <string name="save">सहेजें</string>
-    <string name="loading_icon_and_website_title">लोड हो रहा है…</string>
+
     <string name="open_external_links_in_browser_app">लिंक बाहरी रूप से खोलें</string>
     <string name="allow_javascript">JavaScript अनुमति दें</string>
     <string name="clear_cache_after_usage">बंद करने पर कैश साफ़ करें</string>
@@ -20,8 +20,10 @@
     <string name="manifest_start_url_update">अपडेट करें</string>
     <string name="manifest_start_url_keep">मौजूदा रखें</string>
     <string name="redirect_url_message">यह वेबसाइट एक अलग पते पर रीडायरेक्ट करती है:\n\n%1$s\n\nक्या आप URL अपडेट करना चाहते हैं? आप इसे बाद में ऐप सेटिंग्स में कभी भी बदल सकते हैं।</string>
-    <string name="fetch_step_loading">पेज लोड हो रहा है…</string>
-    <string name="fetch_step_downloading">आइकन डाउनलोड हो रहे हैं…</string>
+    <string name="fetch_step_loading">कनेक्ट हो रहा है…</string>
+    <string name="fetch_step_loading_host">%1$s से मेटाडेटा प्राप्त हो रहा है…</string>
+    <string name="fetch_step_processing">%1$s से आइकन डाउनलोड हो रहे हैं…</string>
+    <string name="fetch_step_downloading">परिणाम तैयार हो रहे हैं…</string>
 
     <string name="web_app_settings">वेब ऐप सेटिंग्स</string>
     <string name="permissions">अनुमतियां</string>

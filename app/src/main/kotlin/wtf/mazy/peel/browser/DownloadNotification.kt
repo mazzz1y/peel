@@ -22,38 +22,20 @@ class DownloadNotification(private val context: Context) {
         ensureChannel(context)
     }
 
-    fun buildProgress(fileName: String, webappName: String?, cancelIntent: PendingIntent): Notification {
-        return NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_download_24dp)
-            .setContentTitle(fileName)
+    fun buildProgress(fileName: String, webappName: String?, cancelIntent: PendingIntent): Notification =
+        progressBuilder(fileName, webappName, cancelIntent)
             .setContentText(context.getString(R.string.download_in_progress))
-            .apply { webappName?.let { setSubText(it) } }
             .setProgress(0, 0, true)
-            .setOngoing(true)
-            .setSilent(true)
-            .setCategory(NotificationCompat.CATEGORY_PROGRESS)
-            .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
-            .addAction(0, context.getString(R.string.cancel), cancelIntent)
             .build()
-    }
 
     fun updateProgress(
         fileName: String, webappName: String?,
         current: Long, total: Long, cancelIntent: PendingIntent,
     ) {
-        val builder = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_download_24dp)
-            .setContentTitle(fileName)
-            .apply { webappName?.let { setSubText(it) } }
-            .setOngoing(true)
-            .setSilent(true)
-            .setCategory(NotificationCompat.CATEGORY_PROGRESS)
-            .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
-            .addAction(0, context.getString(R.string.cancel), cancelIntent)
+        val builder = progressBuilder(fileName, webappName, cancelIntent)
         if (total > 0) {
             val percent = (current * 100 / total).toInt()
-            builder.setProgress(100, percent, false)
-                .setContentText("$percent%")
+            builder.setProgress(100, percent, false).setContentText("$percent%")
         } else {
             builder.setProgress(0, 0, true)
                 .setContentText(context.getString(R.string.download_in_progress))
@@ -71,31 +53,39 @@ class DownloadNotification(private val context: Context) {
             context, id, openIntent,
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
         )
-        val notification = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_download_24dp)
-            .setContentTitle(fileName)
+        manager.notify(id, baseBuilder(fileName, webappName)
             .setContentText(context.getString(R.string.download_complete))
-            .apply { webappName?.let { setSubText(it) } }
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
-            .build()
-        manager.notify(id, notification)
+            .build())
     }
 
     fun showError(fileName: String, webappName: String?) {
-        val notification = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_download_24dp)
-            .setContentTitle(fileName)
+        manager.notify(id, baseBuilder(fileName, webappName)
             .setContentText(context.getString(R.string.download_failed))
-            .apply { webappName?.let { setSubText(it) } }
             .setAutoCancel(true)
-            .build()
-        manager.notify(id, notification)
+            .build())
     }
 
     fun dismiss() {
         manager.cancel(id)
     }
+
+    private fun baseBuilder(fileName: String, webappName: String?): NotificationCompat.Builder =
+        NotificationCompat.Builder(context, CHANNEL_ID)
+            .setSmallIcon(R.drawable.ic_download_24dp)
+            .setContentTitle(fileName)
+            .apply { webappName?.let { setSubText(it) } }
+
+    private fun progressBuilder(
+        fileName: String, webappName: String?, cancelIntent: PendingIntent,
+    ): NotificationCompat.Builder =
+        baseBuilder(fileName, webappName)
+            .setOngoing(true)
+            .setSilent(true)
+            .setCategory(NotificationCompat.CATEGORY_PROGRESS)
+            .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
+            .addAction(0, context.getString(R.string.cancel), cancelIntent)
 
     companion object {
         private const val CHANNEL_ID = "downloads"

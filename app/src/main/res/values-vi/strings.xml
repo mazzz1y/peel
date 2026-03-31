@@ -3,7 +3,7 @@
     <string name="action_settings">Cài đặt</string>
     <string name="global_settings">Cài đặt toàn cục</string>
     <string name="save">Lưu</string>
-    <string name="loading_icon_and_website_title">Đang tải…</string>
+
     <string name="open_external_links_in_browser_app">Mở liên kết bên ngoài</string>
     <string name="allow_javascript">Cho phép JavaScript</string>
     <string name="clear_cache_after_usage">Xóa bộ nhớ đệm khi thoát</string>
@@ -20,8 +20,10 @@
     <string name="manifest_start_url_update">Cập nhật</string>
     <string name="manifest_start_url_keep">Giữ hiện tại</string>
     <string name="redirect_url_message">Trang web này chuyển hướng đến một địa chỉ khác:\n\n%1$s\n\nBạn có muốn cập nhật URL không? Bạn luôn có thể thay đổi trong cài đặt ứng dụng.</string>
-    <string name="fetch_step_loading">Đang tải trang…</string>
-    <string name="fetch_step_downloading">Đang tải biểu tượng…</string>
+    <string name="fetch_step_loading">Đang kết nối…</string>
+    <string name="fetch_step_loading_host">Đang lấy siêu dữ liệu từ %1$s…</string>
+    <string name="fetch_step_processing">Đang tải biểu tượng từ %1$s…</string>
+    <string name="fetch_step_downloading">Đang chuẩn bị kết quả…</string>
 
     <string name="web_app_settings">Cài đặt ứng dụng web</string>
     <string name="permissions">Quyền</string>

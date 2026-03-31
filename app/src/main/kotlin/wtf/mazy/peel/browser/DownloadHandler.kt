@@ -46,21 +46,12 @@ class DownloadHandler(
             promptAndSave(fileName, parsed.mime, parsed.bytes.size.toLong(), ByteArrayInputStream(parsed.bytes))
             return
         }
-        val executor = GeckoWebExecutor(getRuntime())
-        executor.fetch(WebRequest(url)).then({ response ->
-            val resp = response ?: run {
-                activity.runOnUiThread { showError() }
-                return@then GeckoResult<Void>()
-            }
+        fetchUrl(url, onError = { showError() }) { resp ->
             val contentType = extractMimeType(resp.headers)
             val contentLength = extractContentLength(resp.headers)
             val fileName = resolveFileName(resp.uri, resp.headers["Content-Disposition"], contentType)
-            activity.runOnUiThread { promptAndSave(fileName, contentType, contentLength, resp.body) }
-            GeckoResult()
-        }, { _ ->
-            activity.runOnUiThread { showError() }
-            GeckoResult()
-        })
+            promptAndSave(fileName, contentType, contentLength, resp.body)
+        }
     }
 
     fun shareImage(url: String) {
@@ -70,18 +61,32 @@ class DownloadHandler(
             writeAndShare(ByteArrayInputStream(parsed.bytes), fileName, parsed.mime ?: "image/*")
             return
         }
-        val executor = GeckoWebExecutor(getRuntime())
-        executor.fetch(WebRequest(url)).then({ response ->
-            val resp = response ?: return@then GeckoResult<Void>()
+        fetchUrl(url) { resp ->
             val contentType = extractMimeType(resp.headers)
             val fileName = resolveFileName(resp.uri, resp.headers["Content-Disposition"], contentType)
-            val body = resp.body ?: return@then GeckoResult<Void>()
+            val body = resp.body ?: return@fetchUrl
             val mime = contentType
                 ?: extensionToMime(fileName.substringAfterLast('.', ""))
                 ?: "image/*"
             writeAndShare(body, fileName, mime)
+        }
+    }
+
+    private fun fetchUrl(
+        url: String,
+        onError: (() -> Unit)? = null,
+        onResponse: (WebResponse) -> Unit,
+    ) {
+        val executor = GeckoWebExecutor(getRuntime())
+        executor.fetch(WebRequest(url)).then({ response ->
+            val resp = response ?: run {
+                onError?.let { activity.runOnUiThread { it() } }
+                return@then GeckoResult<Void>()
+            }
+            activity.runOnUiThread { onResponse(resp) }
             GeckoResult()
         }, { _ ->
+            onError?.let { activity.runOnUiThread { it() } }
             GeckoResult()
         })
     }

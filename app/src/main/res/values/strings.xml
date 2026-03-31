@@ -2,7 +2,7 @@
     <string name="action_settings">Settings</string>
     <string name="global_settings">Global Settings</string>
     <string name="save">Save</string>
-    <string name="loading_icon_and_website_title">Fetching…</string>
+
     <string name="open_external_links_in_browser_app">External link routing</string>
     <string name="allow_javascript">Allow JavaScript</string>
     <string name="clear_cache_after_usage">Clear cache on exit</string>
@@ -15,8 +15,10 @@
     <string name="shortcut_icon">Shortcut Icon</string>
     <string name="fetch_icon_title">Fetch from website</string>
     <string name="choose_icon">Choose icon and title</string>
-    <string name="fetch_step_loading">Loading page…</string>
-    <string name="fetch_step_downloading">Downloading icons…</string>
+    <string name="fetch_step_loading">Connecting…</string>
+    <string name="fetch_step_loading_host">Fetching metadata from %1$s…</string>
+    <string name="fetch_step_processing">Downloading icons from %1$s…</string>
+    <string name="fetch_step_downloading">Preparing results…</string>
     <string name="icon_dimensions_source">%1$dx%2$d · %3$s</string>
     <string name="manifest_start_url_title">Update URL?</string>
     <string name="manifest_start_url_message">The website manifest suggests a different start URL:\n\n%1$s\n\nWould you like to update the URL? You can always change it later in the app settings.</string>
