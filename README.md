@@ -8,7 +8,7 @@
 
 Peel is an open-source Android app that turns websites into standalone, app-like experiences. It lets you create lightweight web apps with custom icons, isolated storage, and fine-grained privacy controls, separate from your browser.
 
-Powered by GeckoView (Mozilla's browser engine) for strong privacy, extension support, and modern web compatibility.
+Powered by GeckoView (Mozilla's browser engine)
 
 <a href="https://apps.obtainium.imranr.dev/redirect.html?r=obtainium://add/https://github.com/mazzz1y/peel">
 <img src="https://github.com/ImranR98/Obtainium/blob/main/assets/graphics/badge_obtainium.png?raw=true"
@@ -40,36 +40,6 @@ alt="Get it on Obtainium" align="center" height="54" />
 ## Acknowledgments
 
 Hard fork of [Native Alpha](https://github.com/cylonid/NativeAlphaForAndroid) with significant changes including a full migration from WebView to GeckoView, flow refactoring, removal of redundant options, and new features. Not compatible with the original.
-
-<details>
-<summary>Changes from Native Alpha</summary>
-
-#### Removed Features
-- Ad blocking
-- Multi-touch gestures (2-finger navigation, 3-finger app switching, 2-finger reload)
-
-#### Added Features
-- GeckoView engine (replacing Android WebView)
-- Privacy: GPC signal, fingerprinting protection, local network blocking, WebRTC IP leak prevention
-- Dynamic status bar color from web content via browser extension
-- Smart external link routing between Peel apps
-- Material Design 3 dynamic color support
-- More reliable UUID-based app storage
-- Web-app reordering
-- App grouping and per-group sandboxing
-- Backups now include webapp positions in the list and images
-- Floating controls with Home/Share/Reload actions
-- Pull-to-refresh with Gecko APZ integration
-- More reliable icon fetching via headless browser
-- Letter icon generator
-- Per-webapp setting overrides via a picker dialog
-- Custom HTTP header map
-- HTTPS-only upgrade setting
-- Biometric lock and screenshot blocking (`FLAG_SECURE`)
-- Long-press context menu with link sharing
-- Per-webapp sandbox data clearing
-
-</details>
 
 ## License
 
