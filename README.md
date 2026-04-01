@@ -68,7 +68,6 @@ Hard fork of [Native Alpha](https://github.com/cylonid/NativeAlphaForAndroid) wi
 - Biometric lock and screenshot blocking (`FLAG_SECURE`)
 - Long-press context menu with link sharing
 - Per-webapp sandbox data clearing
-- Auth redirect chain handling for clean back navigation
 
 </details>
 

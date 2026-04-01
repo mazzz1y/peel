@@ -45,26 +45,39 @@ jobs:
         id: version
         run: |
           TAG=${GITHUB_REF#refs/tags/v}
-          IFS='.' read -r MAJOR MINOR PATCH <<< "$TAG"
+          SEMVER=${TAG%%-*}
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$SEMVER"
           MAJOR=${MAJOR:-0}
           MINOR=${MINOR:-0}
           PATCH=${PATCH:-0}
           CODE=$((MAJOR * 10000 + MINOR * 100 + PATCH))
           echo "name=v$TAG" >> $GITHUB_OUTPUT
           echo "code=$CODE" >> $GITHUB_OUTPUT
-          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          if [[ "$TAG" == *-* ]]; then
+            echo "prerelease=true" >> $GITHUB_OUTPUT
+          else
+            echo "prerelease=false" >> $GITHUB_OUTPUT
+          fi
       
       - name: Build Release APK
         run: ./gradlew assembleRelease -PVERSION_NAME=${{ steps.version.outputs.name }} -PVERSION_CODE=${{ steps.version.outputs.code }}
 
-      - name: Rename APK
-        run: mv app/build/outputs/apk/release/app-release.apk app/build/outputs/apk/release/peel-${{ steps.version.outputs.name }}-universal.apk
+      - name: Prepare release assets
+        run: |
+          mkdir -p release-assets
+          VERSION="${{ steps.version.outputs.name }}"
+          for apk in app/build/outputs/apk/release/app-*-release.apk; do
+            abi="$(basename "$apk" | sed 's/^app-//;s/-release\.apk$//')"
+            cp "$apk" "release-assets/peel-${VERSION}-${abi}.apk"
+          done
+          ls -lh release-assets/
       
       - name: Create Release
         run: |
           gh release create ${{ github.ref_name }} \
             --title "${{ steps.version.outputs.name }}" \
             --generate-notes \
-            app/build/outputs/apk/release/peel-${{ steps.version.outputs.name }}-universal.apk
+            ${{ steps.version.outputs.prerelease == 'true' && '--prerelease' || '' }} \
+            release-assets/*.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
