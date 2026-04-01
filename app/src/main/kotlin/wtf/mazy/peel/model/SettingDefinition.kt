@@ -41,9 +41,9 @@ sealed class SettingDefinition(
         val valueOff: Int = 0,
         val valueMid: Int = 1,
         val valueOn: Int = 2,
-        @StringRes val labelOff: Int = R.string.permission_deny,
-        @StringRes val labelMid: Int = R.string.permission_ask,
-        @StringRes val labelOn: Int = R.string.permission_allow,
+        @param:StringRes val labelOff: Int = R.string.permission_deny,
+        @param:StringRes val labelMid: Int = R.string.permission_ask,
+        @param:StringRes val labelOn: Int = R.string.permission_allow,
     ) : SettingDefinition(toggle, displayNameResId, category, globalOnly)
 
     class BooleanWithIntSetting(

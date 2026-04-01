@@ -62,6 +62,10 @@
 -keep class com.google.android.material.card.MaterialCardView { *; }
 -keep class com.google.android.material.appbar.AppBarLayout { *; }
 
+# SnakeYAML uses Class.getPackage().getName() in static initializers;
+# repackaging breaks this causing NPE in GeckoView's DebugConfig init.
+-keeppackagenames org.yaml.snakeyaml.**
+
 # Media playback
 -keep class wtf.mazy.peel.media.MediaPlaybackService* { *; }
 
@@ -70,5 +74,3 @@
 # Biometric
 -keep class androidx.biometric.BiometricPrompt { *; }
 -keep class androidx.biometric.BiometricManager { *; }
-
-
