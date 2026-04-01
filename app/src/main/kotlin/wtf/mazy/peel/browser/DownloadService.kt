@@ -113,7 +113,7 @@ class DownloadService : Service() {
 
     private fun stopForegroundIfIdle() {
         if (activeJobs.isEmpty()) {
-            ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
+            ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_DETACH)
             stopSelf()
         }
     }

@@ -25,7 +25,7 @@ class StringMapConverter {
 
 @Database(
     entities = [WebAppEntity::class, WebAppGroupEntity::class],
-    version = 16,
+    version = 10,
     exportSchema = true,
 )
 @TypeConverters(StringMapConverter::class)
@@ -282,167 +282,12 @@ abstract class AppDatabase : RoomDatabase() {
                 }
             }
 
-        val MIGRATION_10_11 =
-            object : Migration(10, 11) {
-                override fun migrate(db: SupportSQLiteDatabase) {
-                    db.execSQL("DROP TABLE IF EXISTS sandbox_slots")
-                }
-            }
-
-        val MIGRATION_11_12 =
-            object : Migration(11, 12) {
-                override fun migrate(db: SupportSQLiteDatabase) {
-                    for (table in listOf("webapps", "webapp_groups")) {
-                        db.execSQL("ALTER TABLE $table ADD COLUMN isGlobalPrivacyControl INTEGER DEFAULT NULL")
-                        db.execSQL("ALTER TABLE $table ADD COLUMN isFingerprintingProtection INTEGER DEFAULT NULL")
-                        db.execSQL("ALTER TABLE $table ADD COLUMN isBlockLocalNetwork INTEGER DEFAULT NULL")
-                    }
-                }
-            }
-
         val MIGRATION_9_10 =
             object : Migration(9, 10) {
                 override fun migrate(db: SupportSQLiteDatabase) {
+                    db.execSQL("DROP TABLE IF EXISTS sandbox_slots")
                     ensureSettingsColumns(db)
 
-                    db.execSQL(
-                        """
-                        CREATE TABLE IF NOT EXISTS webapps_new (
-                            uuid TEXT NOT NULL PRIMARY KEY,
-                            baseUrl TEXT NOT NULL,
-                            title TEXT NOT NULL,
-                            isUseContainer INTEGER NOT NULL,
-                            isEphemeralSandbox INTEGER NOT NULL,
-                            `order` INTEGER NOT NULL,
-                            groupUuid TEXT,
-                            $SETTINGS_COLS
-                        )
-                        """
-                    )
-                    db.execSQL(
-                        """
-                        INSERT INTO webapps_new (
-                            uuid, baseUrl, title, isUseContainer,
-                            isEphemeralSandbox, `order`, groupUuid, $SETTINGS_COL_NAMES
-                        )
-                        SELECT uuid, baseUrl, title, isUseContainer,
-                            isEphemeralSandbox, `order`, groupUuid, $SETTINGS_COL_NAMES
-                        FROM webapps
-                        """
-                    )
-                    db.execSQL("DROP TABLE webapps")
-                    db.execSQL("ALTER TABLE webapps_new RENAME TO webapps")
-
-                    db.execSQL(
-                        """
-                        CREATE TABLE IF NOT EXISTS webapp_groups_new (
-                            uuid TEXT NOT NULL PRIMARY KEY,
-                            title TEXT NOT NULL,
-                            `order` INTEGER NOT NULL,
-                            isUseContainer INTEGER NOT NULL,
-                            isEphemeralSandbox INTEGER NOT NULL,
-                            $SETTINGS_COLS
-                        )
-                        """
-                    )
-                    db.execSQL(
-                        """
-                        INSERT INTO webapp_groups_new (
-                            uuid, title, `order`, isUseContainer, isEphemeralSandbox,
-                            $SETTINGS_COL_NAMES
-                        )
-                        SELECT uuid, title, `order`, isUseContainer, isEphemeralSandbox,
-                            $SETTINGS_COL_NAMES
-                        FROM webapp_groups
-                        """
-                    )
-                    db.execSQL("DROP TABLE webapp_groups")
-                    db.execSQL("ALTER TABLE webapp_groups_new RENAME TO webapp_groups")
-                }
-            }
-
-        val MIGRATION_12_13 =
-            object : Migration(12, 13) {
-                override fun migrate(db: SupportSQLiteDatabase) {
-                    ensureSettingsColumns(db)
-                    db.execSQL(
-                        """
-                        CREATE TABLE IF NOT EXISTS webapps_new (
-                            uuid TEXT NOT NULL PRIMARY KEY,
-                            baseUrl TEXT NOT NULL,
-                            title TEXT NOT NULL,
-                            isUseContainer INTEGER NOT NULL,
-                            isEphemeralSandbox INTEGER NOT NULL,
-                            `order` INTEGER NOT NULL,
-                            groupUuid TEXT,
-                            $SETTINGS_COLS
-                        )
-                        """
-                    )
-                    db.execSQL(
-                        """
-                        INSERT INTO webapps_new (
-                            uuid, baseUrl, title, isUseContainer,
-                            isEphemeralSandbox, `order`, groupUuid, $SETTINGS_COL_NAMES
-                        )
-                        SELECT uuid, baseUrl, title, isUseContainer,
-                            isEphemeralSandbox, `order`, groupUuid, $SETTINGS_COL_NAMES
-                        FROM webapps
-                        """
-                    )
-                    db.execSQL("DROP TABLE webapps")
-                    db.execSQL("ALTER TABLE webapps_new RENAME TO webapps")
-
-                    db.execSQL(
-                        """
-                        CREATE TABLE IF NOT EXISTS webapp_groups_new (
-                            uuid TEXT NOT NULL PRIMARY KEY,
-                            title TEXT NOT NULL,
-                            `order` INTEGER NOT NULL,
-                            isUseContainer INTEGER NOT NULL,
-                            isEphemeralSandbox INTEGER NOT NULL,
-                            $SETTINGS_COLS
-                        )
-                        """
-                    )
-                    db.execSQL(
-                        """
-                        INSERT INTO webapp_groups_new (
-                            uuid, title, `order`, isUseContainer, isEphemeralSandbox,
-                            $SETTINGS_COL_NAMES
-                        )
-                        SELECT uuid, title, `order`, isUseContainer, isEphemeralSandbox,
-                            $SETTINGS_COL_NAMES
-                        FROM webapp_groups
-                        """
-                    )
-                    db.execSQL("DROP TABLE webapp_groups")
-                    db.execSQL("ALTER TABLE webapp_groups_new RENAME TO webapp_groups")
-                }
-            }
-
-        val MIGRATION_13_14 =
-            object : Migration(13, 14) {
-                override fun migrate(db: SupportSQLiteDatabase) {
-                    for (table in listOf("webapps", "webapp_groups")) {
-                        db.execSQL("ALTER TABLE $table ADD COLUMN isOpenInPeelApp INTEGER DEFAULT NULL")
-                    }
-                }
-            }
-
-        val MIGRATION_14_15 =
-            object : Migration(14, 15) {
-                override fun migrate(db: SupportSQLiteDatabase) {
-                    for (table in listOf("webapps", "webapp_groups")) {
-                        db.execSQL("ALTER TABLE $table ADD COLUMN isBlockWebRtcIpLeak INTEGER DEFAULT NULL")
-                    }
-                }
-            }
-
-        val MIGRATION_15_16 =
-            object : Migration(15, 16) {
-                override fun migrate(db: SupportSQLiteDatabase) {
-                    ensureSettingsColumns(db)
                     db.execSQL(
                         """
                         CREATE TABLE IF NOT EXISTS webapps_new (
@@ -520,12 +365,6 @@ abstract class AppDatabase : RoomDatabase() {
                     MIGRATION_7_9,
                     MIGRATION_8_9,
                     MIGRATION_9_10,
-                    MIGRATION_10_11,
-                    MIGRATION_11_12,
-                    MIGRATION_12_13,
-                    MIGRATION_13_14,
-                    MIGRATION_14_15,
-                    MIGRATION_15_16,
                 )
                 .allowMainThreadQueries()
                 .build()

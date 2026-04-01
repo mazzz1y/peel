@@ -1,11 +1,14 @@
 package wtf.mazy.peel.activities
 
+import android.Manifest
 import android.content.ActivityNotFoundException
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Typeface
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.text.Spannable
 import android.text.SpannableString
@@ -76,6 +79,9 @@ class MainActivity :
             uri?.let { performFullBackupExport(it) }
         }
 
+    private val notificationPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { }
+
     private val importDialogHelper = ImportDialogHelper(this)
 
     private val importLauncher =
@@ -132,6 +138,16 @@ class MainActivity :
             }
         }
         handleIncomingBackupIntent(intent)
+        requestNotificationPermission()
+    }
+
+    private fun requestNotificationPermission() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return
+        if (checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) return
+        val prefs = getSharedPreferences("peel_prefs", MODE_PRIVATE)
+        if (prefs.getBoolean("notification_permission_asked", false)) return
+        prefs.edit().putBoolean("notification_permission_asked", true).apply()
+        notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
     }
 
     override fun onNewIntent(intent: Intent) {
