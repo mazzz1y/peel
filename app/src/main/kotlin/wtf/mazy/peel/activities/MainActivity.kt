@@ -35,6 +35,7 @@ import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.coroutines.launch
 import wtf.mazy.peel.BuildConfig
 import wtf.mazy.peel.R
+import wtf.mazy.peel.gecko.GeckoRuntimeProvider
 import wtf.mazy.peel.model.BackupManager
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.SandboxManager
@@ -139,6 +140,7 @@ class MainActivity :
         }
         handleIncomingBackupIntent(intent)
         requestNotificationPermission()
+        GeckoRuntimeProvider.initAsync(this)
     }
 
     private fun requestNotificationPermission() {

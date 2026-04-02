@@ -2,6 +2,10 @@ package wtf.mazy.peel.gecko
 
 import android.content.Context
 import android.util.Log
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import org.mozilla.geckoview.ContentBlocking
 import org.mozilla.geckoview.GeckoResult
@@ -12,6 +16,7 @@ import wtf.mazy.peel.BuildConfig
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.WebAppSettings
 import java.io.File
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
@@ -29,9 +34,24 @@ object GeckoRuntimeProvider {
     @Volatile
     private var pageInfoExtension: WebExtension? = null
 
+    private val initStarted = AtomicBoolean(false)
+
     fun getRuntime(context: Context): GeckoRuntime {
         return runtime ?: synchronized(this) {
             runtime ?: createRuntime(context.applicationContext).also { runtime = it }
+        }
+    }
+
+    fun initAsync(context: Context) {
+        if (!initStarted.compareAndSet(false, true)) return
+        val appContext = context.applicationContext
+        CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate).launch {
+            DataManager.instance.awaitReady()
+            try {
+                getRuntime(appContext)
+            } catch (_: Exception) {
+                initStarted.set(false)
+            }
         }
     }
 
