@@ -4,7 +4,7 @@
     <string name="global_settings">Impostazioni generali</string>
     <string name="save">Salva</string>
 
-    <string name="open_external_links_in_browser_app">Apri i collegamenti esterni nell\'applicazione del browser</string>
+    <string name="open_external_links_in_browser_app">Chiedi per i collegamenti esterni</string>
     <string name="allow_javascript">Consenti Javascript</string>
     <string name="clear_cache_after_usage">Cancella la cache dopo l\'utilizzo</string>
     <string name="enter_valid_url">Inserire un indirizzo web valido</string>

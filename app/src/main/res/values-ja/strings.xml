@@ -4,7 +4,7 @@
     <string name="global_settings">グローバル設定</string>
     <string name="save">保存</string>
 
-    <string name="open_external_links_in_browser_app">リンクを外部で開く</string>
+    <string name="open_external_links_in_browser_app">外部リンクを開く前に確認</string>
     <string name="allow_javascript">JavaScriptを許可</string>
     <string name="clear_cache_after_usage">終了時にキャッシュを消去</string>
     <string name="fetch_failed">ウェブサイトからデータを取得できませんでした</string>

@@ -4,7 +4,7 @@
     <string name="global_settings">ਗਲੋਬਲ ਸੈਟਿੰਗਾਂ</string>
     <string name="save">ਸੇਵ ਕਰੋ</string>
 
-    <string name="open_external_links_in_browser_app">ਲਿੰਕ ਬਾਹਰੀ ਤੌਰ \'ਤੇ ਖੋਲ੍ਹੋ</string>
+    <string name="open_external_links_in_browser_app">ਬਾਹਰੀ ਲਿੰਕਾਂ ਲਈ ਪੁੱਛੋ</string>
     <string name="allow_javascript">JavaScript ਦੀ ਇਜਾਜ਼ਤ ਦਿਓ</string>
     <string name="clear_cache_after_usage">ਬੰਦ ਕਰਨ \'ਤੇ ਕੈਸ਼ ਸਾਫ਼ ਕਰੋ</string>
     <string name="fetch_failed">ਵੈੱਬਸਾਈਟ ਤੋਂ ਡੇਟਾ ਪ੍ਰਾਪਤ ਨਹੀਂ ਹੋ ਸਕਿਆ</string>

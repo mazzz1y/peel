@@ -4,7 +4,7 @@
     <string name="global_settings">Configurações globais</string>
     <string name="save">Salvar</string>
 
-    <string name="open_external_links_in_browser_app">Abrir links externamente</string>
+    <string name="open_external_links_in_browser_app">Perguntar sobre links externos</string>
     <string name="allow_javascript">Permitir JavaScript</string>
     <string name="clear_cache_after_usage">Limpar cache ao sair</string>
     <string name="fetch_failed">Não foi possível obter dados do site</string>

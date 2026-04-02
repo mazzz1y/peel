@@ -3,7 +3,7 @@
     <string name="global_settings">Ajustes generales</string>
     <string name="save">Guardar</string>
 
-    <string name="open_external_links_in_browser_app">Abrir enlaces externos en la aplicación del navegador</string>
+    <string name="open_external_links_in_browser_app">Preguntar por enlaces externos</string>
     <string name="allow_javascript">Permitir Javascript</string>
     <string name="clear_cache_after_usage">Eliminar el cache después del uso</string>
     <string name="enter_valid_url">Por favor, introduzca una dirección web válida</string>

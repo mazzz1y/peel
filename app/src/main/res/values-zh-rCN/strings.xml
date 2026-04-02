@@ -4,7 +4,7 @@
     <string name="global_settings">全局设置</string>
     <string name="save">保存</string>
 
-    <string name="open_external_links_in_browser_app">在外部打开链接</string>
+    <string name="open_external_links_in_browser_app">打开外部链接前询问</string>
     <string name="allow_javascript">允许 JavaScript</string>
     <string name="clear_cache_after_usage">退出时清除缓存</string>
     <string name="fetch_failed">无法从网站获取数据</string>

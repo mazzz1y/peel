@@ -4,7 +4,7 @@
     <string name="global_settings">গ্লোবাল সেটিংস</string>
     <string name="save">সংরক্ষণ</string>
 
-    <string name="open_external_links_in_browser_app">বাহ্যিকভাবে লিংক খুলুন</string>
+    <string name="open_external_links_in_browser_app">বাহ্যিক লিংকের জন্য জিজ্ঞাসা করুন</string>
     <string name="allow_javascript">JavaScript অনুমতি দিন</string>
     <string name="clear_cache_after_usage">বন্ধ করার সময় ক্যাশ মুছুন</string>
     <string name="fetch_failed">ওয়েবসাইট থেকে ডেটা পাওয়া যায়নি</string>

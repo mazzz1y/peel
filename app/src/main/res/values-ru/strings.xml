@@ -4,7 +4,7 @@
     <string name="global_settings">Глобальные настройки</string>
     <string name="save">Сохранить</string>
 
-    <string name="open_external_links_in_browser_app">Внешние ссылки в браузере</string>
+    <string name="open_external_links_in_browser_app">Спрашивать о внешних ссылках</string>
     <string name="allow_javascript">Разрешить JavaScript</string>
     <string name="clear_cache_after_usage">Очищать кеш при выходе</string>
     <string name="fetch_failed">Не удалось получить данные с сайта</string>

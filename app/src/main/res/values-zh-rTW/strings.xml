@@ -4,7 +4,7 @@
     <string name="global_settings">全域設定</string>
     <string name="save">儲存</string>
 
-    <string name="open_external_links_in_browser_app">以外部開啟連結</string>
+    <string name="open_external_links_in_browser_app">開啟外部連結前詢問</string>
     <string name="allow_javascript">允許 JavaScript</string>
     <string name="clear_cache_after_usage">結束時清除快取</string>
     <string name="fetch_failed">無法從網站取得資料</string>

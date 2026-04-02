@@ -220,7 +220,7 @@ class HeadlessFetcher(
             }
 
             messages.receive()
-            while (withTimeoutOrNull(COLLECT_MS) { messages.receive() } != null) { }
+            while (withTimeoutOrNull(COLLECT_MS) { messages.receive() } != null) continue
         }
 
         if (customHeaders.isNotEmpty()) {
@@ -235,7 +235,7 @@ class HeadlessFetcher(
         }
 
         messages.receive()
-        while (withTimeoutOrNull(COLLECT_MS) { messages.receive() } != null) { }
+        while (withTimeoutOrNull(COLLECT_MS) { messages.receive() } != null) continue
 
         val pageUrl = capturedUrl ?: loadUrl
 
@@ -475,7 +475,9 @@ class HeadlessFetcher(
 
         private fun hostOf(url: String): String =
             try {
-                URL(url).host
+                val u = URL(url)
+                val path = u.path.orEmpty().trimEnd('/')
+                if (path.isEmpty()) u.host else "${u.host}$path"
             } catch (_: Exception) {
                 url
             }

@@ -5,7 +5,7 @@
     <string name="save">Speichern</string>
     <string name="action_settings">Einstellungen</string>
 
-    <string name="open_external_links_in_browser_app">Externe Links in Browser-App öffnen</string>
+    <string name="open_external_links_in_browser_app">Bei externen Links nachfragen</string>
     <string name="allow_javascript">Javascript zulassen</string>
     <string name="enter_valid_url">Bitte geben Sie eine gültige URL an</string>
     <string name="add_webapp">Web-App hinzufügen</string>

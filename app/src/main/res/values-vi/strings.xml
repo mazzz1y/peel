@@ -4,7 +4,7 @@
     <string name="global_settings">Cài đặt toàn cục</string>
     <string name="save">Lưu</string>
 
-    <string name="open_external_links_in_browser_app">Mở liên kết bên ngoài</string>
+    <string name="open_external_links_in_browser_app">Hỏi khi mở liên kết bên ngoài</string>
     <string name="allow_javascript">Cho phép JavaScript</string>
     <string name="clear_cache_after_usage">Xóa bộ nhớ đệm khi thoát</string>
     <string name="fetch_failed">Không thể lấy dữ liệu từ trang web</string>
