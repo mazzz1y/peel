@@ -349,8 +349,10 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
         }
         lifecycleScope.launch {
             DataManager.instance.ensureWebAppLoaded(uuid, forceReload = forceReload)
-            cachedPeelApps = DataManager.instance.queryAllWebApps()
             if (!isFinishing && !isDestroyed) action()
+            if (!isFinishing && !isDestroyed) {
+                cachedPeelApps = DataManager.instance.queryAllWebApps()
+            }
         }
     }
 
@@ -714,6 +716,7 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
 
     private fun launchSessionExtensionsAndLoad(settings: WebAppSettings, url: String) {
         sessionSetupJob = lifecycleScope.launch {
+            loadURL(url)
             if (settings.isDynamicStatusBar == true) {
                 val ext = GeckoRuntimeProvider.ensureThemeColorExtension(applicationContext)
                 val delegate = geckoSession?.contentDelegate as? PeelContentDelegate
@@ -721,7 +724,6 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
                     delegate.setupThemeColorExtension(ext, geckoSession!!)
                 }
             }
-            loadURL(url)
             setupMediaPlayback(settings)
             autoReloadController.start(settings)
         }
