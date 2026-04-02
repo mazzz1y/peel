@@ -5,7 +5,6 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Handler
 import android.os.Looper
-import android.util.Base64
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
@@ -29,6 +28,7 @@ import org.mozilla.geckoview.WebExtension
 import wtf.mazy.peel.R
 import wtf.mazy.peel.gecko.GeckoRuntimeProvider
 import wtf.mazy.peel.model.WebAppSettings
+import java.io.ByteArrayOutputStream
 import java.net.HttpURLConnection
 import java.net.URL
 
@@ -49,7 +49,14 @@ data class FetchResult(
     }
 }
 
-private data class PageSnapshot(val url: String, val title: String?, val jsData: JSONObject)
+private data class IconRef(val href: String, val sizes: String, val source: String)
+
+private data class PageSnapshot(
+    val url: String,
+    val title: String?,
+    val manifestUrl: String,
+    val iconRefs: List<IconRef>,
+)
 
 class HeadlessFetcher(
     private val activity: Activity,
@@ -134,8 +141,25 @@ class HeadlessFetcher(
                         sender: WebExtension.MessageSender,
                     ): GeckoResult<Any>? {
                         if (message is JSONObject) {
+                            val manifestUrl = message.optString("manifestUrl", "")
+                            val iconRefs = mutableListOf<IconRef>()
+                            val arr = message.optJSONArray("iconUrls")
+                            if (arr != null) {
+                                for (i in 0 until arr.length()) {
+                                    val obj = arr.optJSONObject(i) ?: continue
+                                    val href = obj.optString("href").takeIf { it.isNotEmpty() } ?: continue
+                                    iconRefs += IconRef(
+                                        href = href,
+                                        sizes = obj.optString("sizes", ""),
+                                        source = obj.optString("source", "HTML"),
+                                    )
+                                }
+                            }
                             collected += PageSnapshot(
-                                capturedUrl ?: loadUrl, currentTitle, message,
+                                url = capturedUrl ?: loadUrl,
+                                title = currentTitle,
+                                manifestUrl = manifestUrl,
+                                iconRefs = iconRefs,
                             )
                             messages.trySend(Unit)
                             postProgress(
@@ -161,10 +185,7 @@ class HeadlessFetcher(
                 if (url != null && !url.startsWith("about:")) {
                     capturedUrl = url
                     postProgress(
-                        appContext.getString(
-                            R.string.fetch_step_loading_host,
-                            hostOf(url)
-                        )
+                        appContext.getString(R.string.fetch_step_loading_host, hostOf(url))
                     )
                 }
             }
@@ -180,6 +201,28 @@ class HeadlessFetcher(
         attachView(session)
         session.setActive(true)
 
+        val rootUrl = originOf(loadUrl) + "/"
+        val hasSubPath = try {
+            val path = URL(loadUrl).path
+            path.isNotEmpty() && path != "/"
+        } catch (_: Exception) { false }
+
+        if (hasSubPath) {
+            if (customHeaders.isNotEmpty()) {
+                session.load(
+                    GeckoSession.Loader()
+                        .uri(rootUrl)
+                        .additionalHeaders(customHeaders)
+                        .headerFilter(GeckoSession.HEADER_FILTER_UNRESTRICTED_UNSAFE)
+                )
+            } else {
+                session.loadUri(rootUrl)
+            }
+
+            messages.receive()
+            while (withTimeoutOrNull(COLLECT_MS) { messages.receive() } != null) { }
+        }
+
         if (customHeaders.isNotEmpty()) {
             session.load(
                 GeckoSession.Loader()
@@ -192,8 +235,7 @@ class HeadlessFetcher(
         }
 
         messages.receive()
-        while (withTimeoutOrNull(COLLECT_MS) { messages.receive() } != null) { /* drain */
-        }
+        while (withTimeoutOrNull(COLLECT_MS) { messages.receive() } != null) { }
 
         val pageUrl = capturedUrl ?: loadUrl
 
@@ -223,24 +265,60 @@ class HeadlessFetcher(
         pageUrl: String,
         redirected: String?,
     ): FetchResult {
-        val icons = mutableListOf<FetchCandidate>()
-        for (snap in collected.reversed()) {
-            scope.ensureActive()
-            val title = snap.title ?: hostOf(snap.url)
-            decodeIcons(snap.jsData, title)?.let { icons += it }
+        val manifestUrls = linkedSetOf<String>()
+        for (snap in collected) {
+            if (snap.manifestUrl.isNotEmpty()) manifestUrls += snap.manifestUrl
         }
 
-        val manifest = collected.lastOrNull()?.jsData?.optJSONObject("manifest")
-            ?: run {
-                scope.ensureActive()
-                probeManifestFallback(pageUrl)
-            }
+        val manifest = fetchManifest(manifestUrls, pageUrl)
+
         val manifestName = manifest?.optString("name")?.ifEmpty { null }
             ?: manifest?.optString("short_name")?.ifEmpty { null }
         val startUrl = manifest?.optString("start_url")?.ifEmpty { null }
             ?.let { resolveUrl(collected.lastOrNull()?.url ?: pageUrl, it) }
-
         val bestTitle = manifestName ?: collected.lastOrNull()?.title ?: lastTitle
+
+        val allRefs = mutableListOf<IconRef>()
+        val seenHrefs = mutableSetOf<String>()
+
+        if (manifest != null) {
+            val manifestBase = manifestUrls.lastOrNull() ?: pageUrl
+            val icons = manifest.optJSONArray("icons")
+            if (icons != null) {
+                for (i in 0 until icons.length()) {
+                    val obj = icons.optJSONObject(i) ?: continue
+                    val src = obj.optString("src").takeIf { it.isNotEmpty() } ?: continue
+                    if (src.endsWith(".svg")) continue
+                    val resolved = resolveUrl(manifestBase, src)
+                    if (seenHrefs.add(resolved)) {
+                        allRefs += IconRef(resolved, obj.optString("sizes", ""), "PWA")
+                    }
+                }
+            }
+        }
+
+        for (snap in collected.reversed()) {
+            for (ref in snap.iconRefs) {
+                if (ref.href.endsWith(".svg")) continue
+                if (seenHrefs.add(ref.href)) {
+                    allRefs += ref
+                }
+            }
+        }
+
+        val faviconUrl = originOf(pageUrl) + "/favicon.ico"
+        if (seenHrefs.add(faviconUrl)) {
+            allRefs += IconRef(faviconUrl, "", "Favicon")
+        }
+
+        val title = bestTitle ?: hostOf(pageUrl)
+        val icons = mutableListOf<FetchCandidate>()
+        for (ref in allRefs) {
+            if (icons.size >= MAX_ICONS) break
+            scope.ensureActive()
+            val bmp = downloadIcon(ref.href) ?: continue
+            icons += FetchCandidate(title, bmp, ref.source)
+        }
 
         val candidates = if (icons.isNotEmpty()) {
             icons.deduplicatedBySize()
@@ -253,47 +331,22 @@ class HeadlessFetcher(
         return FetchResult(candidates, bestTitle, startUrl, redirected)
     }
 
-    private fun decodeIcons(jsData: JSONObject, title: String): List<FetchCandidate>? {
-        val iconData = jsData.optJSONArray("iconData") ?: return null
-        val result = mutableListOf<FetchCandidate>()
-        for (i in 0 until iconData.length()) {
+    private fun fetchManifest(
+        jsManifestUrls: Set<String>,
+        pageUrl: String,
+    ): JSONObject? {
+        for (manifestUrl in jsManifestUrls) {
             scope.ensureActive()
-            val obj = iconData.optJSONObject(i) ?: continue
-            val dataUrl = obj.optString("dataUrl").takeIf { it.isNotEmpty() } ?: continue
-            val source = obj.optString("source", "HTML")
-            val bmp = decodeDataUrl(dataUrl) ?: continue
-            result += FetchCandidate(title, bmp, source)
+            tryFetchManifest(manifestUrl)?.let { return it }
         }
-        return result.ifEmpty { null }
-    }
-
-    private fun decodeDataUrl(dataUrl: String): Bitmap? {
-        val base64 = dataUrl.substringAfter(",", "")
-        if (base64.isEmpty() || base64.length > MAX_ICON_BYTES * 4 / 3) return null
-        return try {
-            val bytes = Base64.decode(base64, Base64.DEFAULT)
-            if (bytes.size > MAX_ICON_BYTES) return null
-            val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
-            BitmapFactory.decodeByteArray(bytes, 0, bytes.size, bounds)
-            if (bounds.outWidth > MAX_ICON_DIM || bounds.outHeight > MAX_ICON_DIM) return null
-            BitmapFactory.decodeByteArray(
-                bytes, 0, bytes.size,
-                BitmapFactory.Options().apply { inPreferredConfig = Bitmap.Config.ARGB_8888 },
-            )
-        } catch (_: Exception) {
-            null
-        }
-    }
-
-    private fun probeManifestFallback(pageUrl: String): JSONObject? {
-        val tried = mutableSetOf<String>()
-        for (base in linkedSetOf(pageUrl, url)) {
+        val tried = jsManifestUrls.toMutableSet()
+        val origins = linkedSetOf(originOf(pageUrl), originOf(url))
+        for (origin in origins) {
             for (path in MANIFEST_FALLBACK_PATHS) {
                 scope.ensureActive()
-                for (candidate in listOf(resolveUrl(base, path), "${originOf(base)}$path")) {
-                    if (tried.add(candidate)) {
-                        tryFetchManifest(candidate)?.let { return it }
-                    }
+                val candidate = "$origin$path"
+                if (tried.add(candidate)) {
+                    tryFetchManifest(candidate)?.let { return it }
                 }
             }
         }
@@ -320,6 +373,48 @@ class HeadlessFetcher(
                 if (sb.isEmpty()) return null
                 val json = JSONObject(sb.toString())
                 if (json.has("name") || json.has("short_name") || json.has("icons")) json else null
+            } finally {
+                conn.disconnect()
+            }
+        } catch (_: Exception) {
+            null
+        }
+    }
+
+    private fun downloadIcon(iconUrl: String): Bitmap? {
+        return try {
+            val conn = openConnection(iconUrl)
+            try {
+                if (conn.responseCode != 200) return null
+                val contentType = conn.contentType?.lowercase().orEmpty()
+                if (contentType.isNotEmpty() && !contentType.startsWith("image/")) return null
+                val length = conn.contentLength
+                if (length > MAX_ICON_BYTES) return null
+
+                val bytes = conn.inputStream.use { input ->
+                    val out = ByteArrayOutputStream(length.coerceIn(1024, MAX_ICON_BYTES))
+                    val buf = ByteArray(8192)
+                    var total = 0
+                    while (true) {
+                        val n = input.read(buf)
+                        if (n < 0) break
+                        total += n
+                        if (total > MAX_ICON_BYTES) return null
+                        out.write(buf, 0, n)
+                    }
+                    out.toByteArray()
+                }
+                if (bytes.isEmpty()) return null
+
+                val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+                BitmapFactory.decodeByteArray(bytes, 0, bytes.size, bounds)
+                if (bounds.outWidth > MAX_ICON_DIM || bounds.outHeight > MAX_ICON_DIM) return null
+                if (bounds.outWidth <= 0 || bounds.outHeight <= 0) return null
+
+                BitmapFactory.decodeByteArray(
+                    bytes, 0, bytes.size,
+                    BitmapFactory.Options().apply { inPreferredConfig = Bitmap.Config.ARGB_8888 },
+                )
             } finally {
                 conn.disconnect()
             }
@@ -374,6 +469,7 @@ class HeadlessFetcher(
         private const val CONNECTION_TIMEOUT_MS = 4_000
         private const val MAX_ICON_BYTES = 1024 * 1024
         private const val MAX_ICON_DIM = 1024
+        private const val MAX_ICONS = 20
         private val MANIFEST_FALLBACK_PATHS =
             listOf("/manifest.json", "/manifest.webmanifest", "/site.webmanifest")
 
