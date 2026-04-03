@@ -21,9 +21,9 @@
     <string name="manifest_start_url_keep">Manter atual</string>
     <string name="redirect_url_message">Este site redireciona para um endereço diferente:\n\n%1$s\n\nDeseja atualizar o URL? Você pode alterá-lo a qualquer momento nas configurações do aplicativo.</string>
     <string name="fetch_step_loading">Conectando…</string>
-    <string name="fetch_step_loading_host">Obtendo metadados de %1$s…</string>
-    <string name="fetch_step_processing">Baixando ícones de %1$s…</string>
-    <string name="fetch_step_downloading">Preparando resultados…</string>
+    <string name="fetch_step_loading_host">Obtendo metadados…</string>
+    <string name="fetch_step_downloading_icons">Baixando ícones…</string>
+    <string name="fetch_step_downloading_manifest">Baixando manifesto…</string>
 
     <string name="web_app_settings">Configurações do Web App</string>
     <string name="permissions">Permissões</string>

@@ -21,9 +21,9 @@
     <string name="manifest_start_url_keep">保持目前</string>
     <string name="redirect_url_message">此網站重新導向到其他地址：\n\n%1$s\n\n是否更新網址？您隨時可以在應用程式設定中變更。</string>
     <string name="fetch_step_loading">連線中…</string>
-    <string name="fetch_step_loading_host">取得 %1$s 的中繼資料…</string>
-    <string name="fetch_step_processing">下載 %1$s 的圖示…</string>
-    <string name="fetch_step_downloading">準備結果…</string>
+    <string name="fetch_step_loading_host">取得中繼資料…</string>
+    <string name="fetch_step_downloading_icons">下載圖示…</string>
+    <string name="fetch_step_downloading_manifest">下載清單…</string>
 
     <string name="web_app_settings">網頁應用程式設定</string>
     <string name="permissions">權限</string>

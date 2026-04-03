@@ -21,9 +21,9 @@
     <string name="manifest_start_url_keep">বর্তমানটি রাখুন</string>
     <string name="redirect_url_message">এই ওয়েবসাইটটি একটি ভিন্ন ঠিকানায় পুনঃনির্দেশ করে:\n\n%1$s\n\nURL আপডেট করতে চান? আপনি পরে অ্যাপ সেটিংসে এটি পরিবর্তন করতে পারবেন।</string>
     <string name="fetch_step_loading">সংযোগ হচ্ছে…</string>
-    <string name="fetch_step_loading_host">%1$s থেকে মেটাডেটা আনা হচ্ছে…</string>
-    <string name="fetch_step_processing">%1$s থেকে আইকন ডাউনলোড হচ্ছে…</string>
-    <string name="fetch_step_downloading">ফলাফল প্রস্তুত হচ্ছে…</string>
+    <string name="fetch_step_loading_host">মেটাডেটা আনা হচ্ছে…</string>
+    <string name="fetch_step_downloading_icons">আইকন ডাউনলোড হচ্ছে…</string>
+    <string name="fetch_step_downloading_manifest">ম্যানিফেস্ট ডাউনলোড হচ্ছে…</string>
 
     <string name="web_app_settings">ওয়েব অ্যাপ সেটিংস</string>
     <string name="permissions">অনুমতি</string>

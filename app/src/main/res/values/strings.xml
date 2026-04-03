@@ -16,9 +16,9 @@
     <string name="fetch_icon_title">Fetch from website</string>
     <string name="choose_icon">Choose icon and title</string>
     <string name="fetch_step_loading">Connecting…</string>
-    <string name="fetch_step_loading_host">Fetching metadata from %1$s…</string>
-    <string name="fetch_step_processing">Downloading icons from %1$s…</string>
-    <string name="fetch_step_downloading">Preparing results…</string>
+    <string name="fetch_step_loading_host">Fetching metadata…</string>
+    <string name="fetch_step_downloading_icons">Downloading icons…</string>
+    <string name="fetch_step_downloading_manifest">Downloading manifest…</string>
     <string name="icon_dimensions_source">%1$dx%2$d · %3$s</string>
     <string name="manifest_start_url_title">Update URL?</string>
     <string name="manifest_start_url_message">The website manifest suggests a different start URL:\n\n%1$s\n\nWould you like to update the URL? You can always change it later in the app settings.</string>

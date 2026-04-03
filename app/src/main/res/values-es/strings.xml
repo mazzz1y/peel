@@ -98,9 +98,9 @@
     <string name="fetch_failed">No se pudieron obtener datos del sitio web</string>
     <string name="fetch_icon_title">Obtener del sitio web</string>
     <string name="fetch_step_loading">Conectando…</string>
-    <string name="fetch_step_loading_host">Obteniendo metadatos de %1$s…</string>
-    <string name="fetch_step_processing">Descargando iconos de %1$s…</string>
-    <string name="fetch_step_downloading">Preparando resultados…</string>
+    <string name="fetch_step_loading_host">Obteniendo metadatos…</string>
+    <string name="fetch_step_downloading_icons">Descargando iconos…</string>
+    <string name="fetch_step_downloading_manifest">Descargando manifiesto…</string>
     <string name="permissions">Permisos</string>
     <string name="advanced">Avanzado</string>
     <string name="appearance">Apariencia</string>

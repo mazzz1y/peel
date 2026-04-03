@@ -19,8 +19,10 @@ class NestedGeckoView @JvmOverloads constructor(
     private val scrollOffset = IntArray(2)
     private val scrollConsumed = IntArray(2)
     private val childHelper = NestedScrollingChildHelper(this)
+
     @Volatile
     private var inputResult = PanZoomController.INPUT_RESULT_UNHANDLED
+
     @Volatile
     private var allowOverscroll = false
     private var geckoScrollY = 0

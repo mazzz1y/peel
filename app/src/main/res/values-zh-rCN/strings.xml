@@ -21,9 +21,9 @@
     <string name="manifest_start_url_keep">保持当前</string>
     <string name="redirect_url_message">此网站重定向到其他地址：\n\n%1$s\n\n是否更新网址？您随时可以在应用设置中更改。</string>
     <string name="fetch_step_loading">连接中…</string>
-    <string name="fetch_step_loading_host">获取 %1$s 的元数据…</string>
-    <string name="fetch_step_processing">下载 %1$s 的图标…</string>
-    <string name="fetch_step_downloading">准备结果…</string>
+    <string name="fetch_step_loading_host">获取元数据…</string>
+    <string name="fetch_step_downloading_icons">下载图标…</string>
+    <string name="fetch_step_downloading_manifest">下载清单…</string>
 
     <string name="web_app_settings">网页应用设置</string>
     <string name="permissions">权限</string>

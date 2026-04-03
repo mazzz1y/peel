@@ -98,9 +98,9 @@
     <string name="fetch_failed">Impossibile recuperare i dati dal sito web</string>
     <string name="fetch_icon_title">Recupera dal sito web</string>
     <string name="fetch_step_loading">Connessione…</string>
-    <string name="fetch_step_loading_host">Recupero metadati da %1$s…</string>
-    <string name="fetch_step_processing">Download icone da %1$s…</string>
-    <string name="fetch_step_downloading">Preparazione risultati…</string>
+    <string name="fetch_step_loading_host">Recupero metadati…</string>
+    <string name="fetch_step_downloading_icons">Download icone…</string>
+    <string name="fetch_step_downloading_manifest">Download manifesto…</string>
     <string name="permissions">Permessi</string>
     <string name="advanced">Avanzate</string>
     <string name="appearance">Aspetto</string>

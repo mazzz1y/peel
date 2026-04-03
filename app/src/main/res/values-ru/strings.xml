@@ -21,9 +21,9 @@
     <string name="manifest_start_url_keep">Оставить текущий</string>
     <string name="redirect_url_message">Этот сайт перенаправляет на другой адрес:\n\n%1$s\n\nОбновить URL? Вы всегда можете изменить его позже в настройках приложения.</string>
     <string name="fetch_step_loading">Подключение…</string>
-    <string name="fetch_step_loading_host">Загрузка метаданных с %1$s…</string>
-    <string name="fetch_step_processing">Загрузка иконок с %1$s…</string>
-    <string name="fetch_step_downloading">Подготовка результатов…</string>
+    <string name="fetch_step_loading_host">Загрузка метаданных…</string>
+    <string name="fetch_step_downloading_icons">Загрузка иконок…</string>
+    <string name="fetch_step_downloading_manifest">Загрузка манифеста…</string>
 
     <string name="web_app_settings">Настройки веб-приложения</string>
     <string name="permissions">Разрешения</string>

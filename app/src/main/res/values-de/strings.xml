@@ -98,9 +98,9 @@
     <string name="fetch_failed">Daten konnten nicht von der Website abgerufen werden</string>
     <string name="fetch_icon_title">Von Website abrufen</string>
     <string name="fetch_step_loading">Verbinden…</string>
-    <string name="fetch_step_loading_host">Metadaten von %1$s abrufen…</string>
-    <string name="fetch_step_processing">Symbole von %1$s herunterladen…</string>
-    <string name="fetch_step_downloading">Ergebnisse vorbereiten…</string>
+    <string name="fetch_step_loading_host">Metadaten abrufen…</string>
+    <string name="fetch_step_downloading_icons">Symbole herunterladen…</string>
+    <string name="fetch_step_downloading_manifest">Manifest herunterladen…</string>
     <string name="permissions">Berechtigungen</string>
     <string name="advanced">Erweitert</string>
     <string name="appearance">Erscheinungsbild</string>

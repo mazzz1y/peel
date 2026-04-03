@@ -492,12 +492,15 @@ class MainActivity :
         view.findViewById<TextView>(R.id.aboutEngine).text =
             getString(R.string.about_engine, BuildConfig.GECKOVIEW_VERSION)
         view.findViewById<View>(R.id.aboutGithub).setOnClickListener {
-            startActivity(Intent.createChooser(
-                Intent(Intent.ACTION_SEND).apply {
-                    type = "text/plain"
-                    putExtra(Intent.EXTRA_TEXT, GITHUB_URL)
-                }, null,
-            ))
+            startActivity(
+                Intent.createChooser(
+                    Intent(Intent.ACTION_SEND).apply {
+                        type = "text/plain"
+                        putExtra(Intent.EXTRA_TEXT, GITHUB_URL)
+                    },
+                    null,
+                )
+            )
         }
         view.findViewById<View>(R.id.aboutLicense).setOnClickListener {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(LICENSE_URL)))

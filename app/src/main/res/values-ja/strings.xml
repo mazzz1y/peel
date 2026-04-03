@@ -21,9 +21,9 @@
     <string name="manifest_start_url_keep">現在のまま</string>
     <string name="redirect_url_message">このウェブサイトは別のアドレスにリダイレクトします:\n\n%1$s\n\nURLを更新しますか？アプリの設定でいつでも変更できます。</string>
     <string name="fetch_step_loading">接続中…</string>
-    <string name="fetch_step_loading_host">%1$s のメタデータを取得中…</string>
-    <string name="fetch_step_processing">%1$s のアイコンをダウンロード中…</string>
-    <string name="fetch_step_downloading">結果を準備中…</string>
+    <string name="fetch_step_loading_host">メタデータを取得中…</string>
+    <string name="fetch_step_downloading_icons">アイコンをダウンロード中…</string>
+    <string name="fetch_step_downloading_manifest">マニフェストをダウンロード中…</string>
 
     <string name="web_app_settings">ウェブアプリ設定</string>
     <string name="permissions">権限</string>
