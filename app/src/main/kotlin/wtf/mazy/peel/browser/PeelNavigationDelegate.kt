@@ -117,10 +117,20 @@ class PeelNavigationDelegate(private val host: SessionHost) : GeckoSession.Navig
         uri: String?,
         error: WebRequestError,
     ): GeckoResult<String>? {
-        val description = error.message ?: "Unknown error"
+        val description = ERROR_NAMES[error.code]
+            ?: error.message
+            ?: "ERROR_UNKNOWN (0x${error.code.toString(16)})"
         val url = uri ?: host.baseUrl
         host.runOnUi { host.showConnectionError(description, url) }
         return null
+    }
+
+    companion object {
+        private val ERROR_NAMES: Map<Int, String> by lazy {
+            WebRequestError::class.java.declaredFields
+                .filter { it.name.startsWith("ERROR_") && it.type == Int::class.javaPrimitiveType }
+                .associate { it.getInt(null) to it.name.removePrefix("ERROR_") }
+        }
     }
 
     fun resetDialogState() {
