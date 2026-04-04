@@ -6,7 +6,9 @@
 
 **Turn any website into a native-like Android app**
 
-Peel is an open-source Android app that turns websites into standalone, app-like experiences. It lets you create lightweight web apps with custom icons, isolated storage, and fine-grained privacy controls, separate from your browser.
+Peel is an open-source Android app that turns websites into standalone, app-like experiences. It
+lets you create lightweight web apps with custom icons, isolated storage, and fine-grained privacy
+controls, separate from your browser.
 
 Powered by GeckoView (Mozilla's browser engine)
 
@@ -22,7 +24,8 @@ alt="Get it on Obtainium" align="center" height="54" />
 - App grouping with home screen group shortcuts
 - Per-group and per-app optional isolated sandbox with separate cookies and storage
 - Smart external link routing to other Peel apps or system browser
-- Privacy controls: GPC signal, fingerprinting protection, local network blocking, WebRTC IP leak prevention
+- Privacy controls: GPC signal, fingerprinting protection, local network blocking, WebRTC IP leak
+  prevention
 - Enhanced Tracking Protection, HTTPS-only mode, custom headers
 - Lock sensitive web apps behind biometric authentication, block screenshots
 - Dynamic status bar color matching web content
@@ -35,11 +38,13 @@ alt="Get it on Obtainium" align="center" height="54" />
 ## Screenshots
 
 | ![Screenshot 1](.github/screenshots/1.png) | ![Screenshot 2](.github/screenshots/2.png) | ![Screenshot 3](.github/screenshots/3.png) | ![Screenshot 4](.github/screenshots/4.png) |
-|:--:|:--:|:--:|:--:|
+|:------------------------------------------:|:------------------------------------------:|:------------------------------------------:|:------------------------------------------:|
 
 ## Acknowledgments
 
-Hard fork of [Native Alpha](https://github.com/cylonid/NativeAlphaForAndroid) with significant changes including a full migration from WebView to GeckoView, flow refactoring, removal of redundant options, and new features. Not compatible with the original.
+Hard fork of [Native Alpha](https://github.com/cylonid/NativeAlphaForAndroid) with significant
+changes including a full migration from WebView to GeckoView, flow refactoring, removal of redundant
+options, and new features. Not compatible with the original.
 
 ## License
 
