@@ -34,8 +34,10 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.mozilla.geckoview.GeckoSession
 import org.mozilla.geckoview.GeckoSession.Loader
 import org.mozilla.geckoview.GeckoSessionSettings
@@ -102,19 +104,27 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
     private val filePickerLauncher =
         registerForActivityResult(StartActivityForResult()) { result ->
             val callback = filePathCallback ?: return@registerForActivityResult
-            if (result?.resultCode == RESULT_OK) {
-                val uris = extractUris(result.data)
-                if (!uris.isNullOrEmpty()) {
-                    callback.invoke(uris)
+            filePathCallback = null
+            if (result?.resultCode != RESULT_OK) {
+                PeelPromptDelegate.consumeCaptureUri()
+                callback.invoke(null)
+                return@registerForActivityResult
+            }
+            val contentUris = extractUris(result.data)
+            if (contentUris.isNullOrEmpty()) {
+                val captured = PeelPromptDelegate.consumeCaptureUri()
+                callback.invoke(captured?.let { arrayOf(it) })
+                return@registerForActivityResult
+            }
+            lifecycleScope.launch {
+                val fileUris = withContext(Dispatchers.IO) { resolveToFileUris(contentUris) }
+                if (fileUris.isNotEmpty()) {
+                    callback.invoke(fileUris)
                 } else {
                     val captured = PeelPromptDelegate.consumeCaptureUri()
                     callback.invoke(captured?.let { arrayOf(it) })
                 }
-            } else {
-                PeelPromptDelegate.consumeCaptureUri()
-                callback.invoke(null)
             }
-            filePathCallback = null
         }
     private var pendingPermissionCallback: ((Boolean) -> Unit)? = null
     private val mainHandler = Handler(Looper.getMainLooper())
@@ -602,8 +612,13 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
     override fun runOnUi(action: Runnable) = runOnUiThread(action)
 
     override fun launchFilePicker(intent: Intent?): Boolean {
-        filePickerLauncher.launch(intent)
-        return true
+        val safeIntent = intent ?: return false
+        return try {
+            filePickerLauncher.launch(safeIntent)
+            true
+        } catch (_: Exception) {
+            false
+        }
     }
 
     override fun hideSystemBars() {
@@ -1031,6 +1046,26 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
     private fun extractUris(intent: Intent?): Array<Uri>? =
         intent?.data?.let { arrayOf(it) }
             ?: intent?.clipData?.let { clip -> Array(clip.itemCount) { clip.getItemAt(it).uri } }
+
+    private fun resolveToFileUris(uris: Array<Uri>): Array<Uri> {
+        val picksDir = java.io.File(cacheDir, "picks").apply { mkdirs() }
+        picksDir.listFiles()?.forEach { it.delete() }
+        return uris.mapNotNull { uri ->
+            if (uri.scheme == "file") return@mapNotNull uri
+            try {
+                val mimeType = contentResolver.getType(uri)
+                val ext = android.webkit.MimeTypeMap.getSingleton()
+                    .getExtensionFromMimeType(mimeType) ?: "bin"
+                val dest = java.io.File.createTempFile("pick_", ".$ext", picksDir)
+                contentResolver.openInputStream(uri)?.use { input ->
+                    dest.outputStream().use { output -> input.copyTo(output) }
+                }
+                Uri.fromFile(dest)
+            } catch (_: Exception) {
+                null
+            }
+        }.toTypedArray()
+    }
 
     private fun buildCustomHeaders(settings: WebAppSettings): Map<String, String> {
         val extraHeaders = mutableMapOf("X-Requested-With" to "")

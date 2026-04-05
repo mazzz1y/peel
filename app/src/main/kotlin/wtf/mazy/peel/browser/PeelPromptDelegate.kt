@@ -162,7 +162,6 @@ class PeelPromptDelegate(private val host: SessionHost) : GeckoSession.PromptDel
             val contentIntent = Intent(Intent.ACTION_GET_CONTENT).apply {
                 addCategory(Intent.CATEGORY_OPENABLE)
                 type = "*/*"
-                putExtra(Intent.EXTRA_LOCAL_ONLY, true)
                 if (mimeTypes.isNotEmpty()) {
                     putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes)
                 }
@@ -184,13 +183,15 @@ class PeelPromptDelegate(private val host: SessionHost) : GeckoSession.PromptDel
                 extras.add(Intent(MediaStore.Audio.Media.RECORD_SOUND_ACTION))
             }
 
-            val chooser = Intent.createChooser(contentIntent, null).apply {
-                if (extras.isNotEmpty()) {
+            val launchIntent = if (extras.isNotEmpty()) {
+                Intent.createChooser(contentIntent, null).apply {
                     putExtra(Intent.EXTRA_INITIAL_INTENTS, extras.toTypedArray())
                 }
+            } else {
+                contentIntent
             }
 
-            if (!host.launchFilePicker(chooser)) {
+            if (!host.launchFilePicker(launchIntent)) {
                 host.filePathCallback = null
                 result.complete(prompt.dismiss())
             }
@@ -210,6 +211,7 @@ class PeelPromptDelegate(private val host: SessionHost) : GeckoSession.PromptDel
     private fun buildImageCaptureIntent(): Intent? {
         val context = host.hostWindow.context
         val capturesDir = File(context.cacheDir, "captures").apply { mkdirs() }
+        capturesDir.listFiles()?.forEach { it.delete() }
         val photoFile = try {
             File.createTempFile("img_", ".jpg", capturesDir)
         } catch (_: Exception) {
