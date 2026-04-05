@@ -1,5 +1,7 @@
 package wtf.mazy.peel.browser
 
+import android.Manifest
+import android.content.ClipData
 import android.content.Intent
 import android.net.Uri
 import android.provider.MediaStore
@@ -120,13 +122,11 @@ class PeelPromptDelegate(private val host: SessionHost) : GeckoSession.PromptDel
         val isMultiple = prompt.type == GeckoSession.PromptDelegate.FilePrompt.Type.MULTIPLE
 
         host.filePathCallback = { uris ->
-            val resolved = uris ?: captureUri?.let { arrayOf(it) }
-            captureUri = null
-            if (!resolved.isNullOrEmpty()) {
+            if (!uris.isNullOrEmpty()) {
                 if (isMultiple) {
-                    result.complete(prompt.confirm(context, resolved))
+                    result.complete(prompt.confirm(context, uris))
                 } else {
-                    result.complete(prompt.confirm(context, resolved.first()))
+                    result.complete(prompt.confirm(context, uris.first()))
                 }
             } else {
                 result.complete(prompt.dismiss())
@@ -139,55 +139,71 @@ class PeelPromptDelegate(private val host: SessionHost) : GeckoSession.PromptDel
         fun matchesAll(prefix: String) =
             mimeTypes.isNotEmpty() && mimeTypes.all { it.startsWith(prefix) }
 
-        if (prompt.capture != GeckoSession.PromptDelegate.FilePrompt.Capture.NONE) {
-            val directIntent = when {
-                matchesAll("image/") -> buildImageCaptureIntent()
-                matchesAll("video/") -> Intent(MediaStore.ACTION_VIDEO_CAPTURE)
-                matchesAll("audio/") -> Intent(MediaStore.Audio.Media.RECORD_SOUND_ACTION)
-                else -> null
-            }
-            if (directIntent != null) {
-                if (!host.launchFilePicker(directIntent)) {
-                    host.filePathCallback = null
-                    result.complete(prompt.dismiss())
+        val wantsCapture = matchesAny("image/") || matchesAny("video/")
+        val hasCameraPermission = host.hasPermissions(Manifest.permission.CAMERA)
+
+        fun launchWithCapture(canCapture: Boolean) {
+            if (prompt.capture != GeckoSession.PromptDelegate.FilePrompt.Capture.NONE) {
+                val directIntent = when {
+                    matchesAll("image/") && canCapture -> buildImageCaptureIntent()
+                    matchesAll("video/") && canCapture -> Intent(MediaStore.ACTION_VIDEO_CAPTURE)
+                    matchesAll("audio/") -> Intent(MediaStore.Audio.Media.RECORD_SOUND_ACTION)
+                    else -> null
                 }
-                return result
+                if (directIntent != null) {
+                    if (!host.launchFilePicker(directIntent)) {
+                        host.filePathCallback = null
+                        result.complete(prompt.dismiss())
+                    }
+                    return
+                }
+            }
+
+            val contentIntent = Intent(Intent.ACTION_GET_CONTENT).apply {
+                addCategory(Intent.CATEGORY_OPENABLE)
+                type = "*/*"
+                putExtra(Intent.EXTRA_LOCAL_ONLY, true)
+                if (mimeTypes.isNotEmpty()) {
+                    putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes)
+                }
+                if (isMultiple) {
+                    putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
+                }
+            }
+
+            val extras = mutableListOf<Intent>()
+            if (canCapture) {
+                if (matchesAny("image/")) {
+                    buildImageCaptureIntent()?.let { extras.add(it) }
+                }
+                if (matchesAny("video/")) {
+                    extras.add(Intent(MediaStore.ACTION_VIDEO_CAPTURE))
+                }
+            }
+            if (matchesAny("audio/")) {
+                extras.add(Intent(MediaStore.Audio.Media.RECORD_SOUND_ACTION))
+            }
+
+            val chooser = Intent.createChooser(contentIntent, null).apply {
+                if (extras.isNotEmpty()) {
+                    putExtra(Intent.EXTRA_INITIAL_INTENTS, extras.toTypedArray())
+                }
+            }
+
+            if (!host.launchFilePicker(chooser)) {
+                host.filePathCallback = null
+                result.complete(prompt.dismiss())
             }
         }
 
-        val contentIntent = Intent(Intent.ACTION_GET_CONTENT).apply {
-            addCategory(Intent.CATEGORY_OPENABLE)
-            type = "*/*"
-            putExtra(Intent.EXTRA_LOCAL_ONLY, true)
-            if (mimeTypes.isNotEmpty()) {
-                putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes)
+        if (wantsCapture && !hasCameraPermission) {
+            host.requestOsPermissions(arrayOf(Manifest.permission.CAMERA)) { granted ->
+                launchWithCapture(granted)
             }
-            if (isMultiple) {
-                putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
-            }
+        } else {
+            launchWithCapture(hasCameraPermission)
         }
 
-        val extras = mutableListOf<Intent>()
-        if (matchesAny("image/")) {
-            buildImageCaptureIntent()?.let { extras.add(it) }
-        }
-        if (matchesAny("video/")) {
-            extras.add(Intent(MediaStore.ACTION_VIDEO_CAPTURE))
-        }
-        if (matchesAny("audio/")) {
-            extras.add(Intent(MediaStore.Audio.Media.RECORD_SOUND_ACTION))
-        }
-
-        val chooser = Intent.createChooser(contentIntent, null).apply {
-            if (extras.isNotEmpty()) {
-                putExtra(Intent.EXTRA_INITIAL_INTENTS, extras.toTypedArray())
-            }
-        }
-
-        if (!host.launchFilePicker(chooser)) {
-            host.filePathCallback = null
-            result.complete(prompt.dismiss())
-        }
         return result
     }
 
@@ -195,7 +211,7 @@ class PeelPromptDelegate(private val host: SessionHost) : GeckoSession.PromptDel
         val context = host.hostWindow.context
         val capturesDir = File(context.cacheDir, "captures").apply { mkdirs() }
         val photoFile = try {
-            File.createTempFile("capture_", ".jpg", capturesDir)
+            File.createTempFile("img_", ".jpg", capturesDir)
         } catch (_: Exception) {
             return null
         }
@@ -205,14 +221,21 @@ class PeelPromptDelegate(private val host: SessionHost) : GeckoSession.PromptDel
             "${context.packageName}.fileprovider",
             photoFile,
         )
-        captureUri = photoUri
+        captureFile = photoFile
         return Intent(MediaStore.ACTION_IMAGE_CAPTURE).apply {
             putExtra(MediaStore.EXTRA_OUTPUT, photoUri)
+            clipData = ClipData.newRawUri(null, photoUri)
+            addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION or Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
     }
 
     companion object {
-        @JvmStatic
-        private var captureUri: Uri? = null
+        private var captureFile: File? = null
+
+        fun consumeCaptureUri(): Uri? {
+            val file = captureFile
+            captureFile = null
+            return file?.let { Uri.fromFile(it) }
+        }
     }
 }

@@ -103,8 +103,15 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
         registerForActivityResult(StartActivityForResult()) { result ->
             val callback = filePathCallback ?: return@registerForActivityResult
             if (result?.resultCode == RESULT_OK) {
-                callback.invoke(extractUris(result.data))
+                val uris = extractUris(result.data)
+                if (!uris.isNullOrEmpty()) {
+                    callback.invoke(uris)
+                } else {
+                    val captured = PeelPromptDelegate.consumeCaptureUri()
+                    callback.invoke(captured?.let { arrayOf(it) })
+                }
             } else {
+                PeelPromptDelegate.consumeCaptureUri()
                 callback.invoke(null)
             }
             filePathCallback = null
