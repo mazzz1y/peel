@@ -6,6 +6,9 @@
     <cache-path
         name="shared_backups"
         path="shared_backups/" />
+    <cache-path
+        name="captures"
+        path="captures/" />
     <external-path
         name="downloads"
         path="Download/" />

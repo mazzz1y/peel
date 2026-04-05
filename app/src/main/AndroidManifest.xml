@@ -32,6 +32,18 @@
 
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
+    <queries>
+        <intent>
+            <action android:name="android.media.action.IMAGE_CAPTURE" />
+        </intent>
+        <intent>
+            <action android:name="android.media.action.VIDEO_CAPTURE" />
+        </intent>
+        <intent>
+            <action android:name="android.provider.MediaStore.RECORD_SOUND" />
+        </intent>
+    </queries>
+
     <application
         android:name="wtf.mazy.peel.util.App"
         android:allowBackup="true"
@@ -83,7 +95,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
 
-                <data android:scheme="file" />
+                <data android:scheme="file" android:host="*" />
                 <data android:pathPattern=".*\\.peel" />
                 <data android:pathPattern=".*\\..*\\.peel" />
                 <data android:pathPattern=".*\\..*\\..*\\.peel" />
