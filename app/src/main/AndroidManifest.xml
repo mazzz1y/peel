@@ -83,11 +83,13 @@
                 <category android:name="android.intent.category.BROWSABLE" />
 
                 <data android:mimeType="application/x-peel-backup" />
+                <data android:mimeType="application/octet-stream" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <data android:mimeType="application/x-peel-backup" />
+                <data android:mimeType="application/octet-stream" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -96,6 +98,7 @@
                 <category android:name="android.intent.category.BROWSABLE" />
 
                 <data android:scheme="file" android:host="*" />
+                <data android:scheme="content" />
                 <data android:pathPattern=".*\\.peel" />
                 <data android:pathPattern=".*\\..*\\.peel" />
                 <data android:pathPattern=".*\\..*\\..*\\.peel" />
