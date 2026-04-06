@@ -8,8 +8,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
@@ -109,13 +112,13 @@ class DataManager private constructor() {
     val pendingDeleteUuids = mutableSetOf<String>()
 
     private val _state =
-        MutableStateFlow(DataState(emptyList(), emptyList(), createDefaultSettings()))
-    val state: StateFlow<DataState> = _state.asStateFlow()
+        MutableSharedFlow<DataState>(replay = 1)
+    val state: SharedFlow<DataState> = _state.asSharedFlow()
     private val _isReady = MutableStateFlow(false)
     val isReady: StateFlow<Boolean> = _isReady.asStateFlow()
 
     @Volatile
-    private var currentState: DataState = _state.value
+    private var currentState: DataState = DataState(emptyList(), emptyList(), createDefaultSettings())
 
     init {
         scope.launch {
@@ -540,7 +543,7 @@ class DataManager private constructor() {
     private fun updateState(mutation: DataReducer.StateMutation) {
         val next = DataReducer.apply(currentState, mutation)
         currentState = next
-        if (mutation.emit) _state.value = next
+        if (mutation.emit) _state.tryEmit(next)
     }
 
     private fun ensureDefaultSettingsConcrete(source: WebApp): WebApp {
