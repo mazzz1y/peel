@@ -45,9 +45,9 @@ fun Activity.showSandboxInputDialog(
                         LinearLayout.LayoutParams.WRAP_CONTENT,
                     ).apply { topMargin = (8 * resources.displayMetrics.density).toInt() }
                 }
-                switchSandbox!!.setOnCheckedChangeListener { _, isChecked ->
-                    switchEphemeral!!.visibility = if (isChecked) View.VISIBLE else View.GONE
-                    if (!isChecked) switchEphemeral!!.isChecked = false
+                switchSandbox.setOnCheckedChangeListener { _, isChecked ->
+                    switchEphemeral.visibility = if (isChecked) View.VISIBLE else View.GONE
+                    if (!isChecked) switchEphemeral.isChecked = false
                 }
                 container.addView(switchSandbox)
                 container.addView(switchEphemeral)

@@ -5,6 +5,10 @@ import android.content.ClipData
 import android.content.Intent
 import android.net.Uri
 import android.provider.MediaStore
+import android.text.SpannableString
+import android.text.Spanned
+import android.text.style.StyleSpan
+import androidx.appcompat.app.AlertDialog
 import androidx.core.content.FileProvider
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import org.mozilla.geckoview.GeckoResult
@@ -109,6 +113,90 @@ class PeelPromptDelegate(private val host: SessionHost) : GeckoSession.PromptDel
             host = authUri,
             realm = null,
         )
+        return result
+    }
+
+    override fun onChoicePrompt(
+        session: GeckoSession,
+        prompt: GeckoSession.PromptDelegate.ChoicePrompt,
+    ): GeckoResult<GeckoSession.PromptDelegate.PromptResponse> {
+        val result = GeckoResult<GeckoSession.PromptDelegate.PromptResponse>()
+
+        val labels = mutableListOf<CharSequence>()
+        val choices = mutableListOf<GeckoSession.PromptDelegate.ChoicePrompt.Choice>()
+        val enabled = mutableListOf<Boolean>()
+        fun walk(items: Array<GeckoSession.PromptDelegate.ChoicePrompt.Choice>, inGroup: Boolean) {
+            for (c in items) {
+                if (c.separator) continue
+                val nested = c.items
+                if (nested != null) {
+                    if (c.label.isNotEmpty()) {
+                        val header = SpannableString(c.label).apply {
+                            setSpan(StyleSpan(android.graphics.Typeface.BOLD), 0, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                        }
+                        labels.add(header)
+                        choices.add(c)
+                        enabled.add(false)
+                    }
+                    walk(nested, inGroup = true)
+                } else {
+                    labels.add(if (inGroup) "  ${c.label}" else c.label)
+                    choices.add(c)
+                    enabled.add(!c.disabled)
+                }
+            }
+        }
+        walk(prompt.choices, inGroup = false)
+
+        if (choices.isEmpty()) {
+            result.complete(prompt.dismiss())
+            return result
+        }
+
+        host.runOnUi {
+            var settled = false
+            val labelArray: Array<CharSequence> = labels.toTypedArray()
+            val builder = MaterialAlertDialogBuilder(host.hostWindow.context)
+                .setTitle(prompt.title)
+                .setNegativeButton(android.R.string.cancel, null)
+                .setOnDismissListener { if (!settled) result.complete(prompt.dismiss()) }
+
+            when (prompt.type) {
+                GeckoSession.PromptDelegate.ChoicePrompt.Type.MULTIPLE -> {
+                    val checked = BooleanArray(choices.size) { i ->
+                        enabled[i] && choices[i].selected
+                    }
+                    builder
+                        .setMultiChoiceItems(labelArray, checked) { dialog, which, _ ->
+                            if (!enabled[which]) {
+                                checked[which] = false
+                                (dialog as AlertDialog).listView.setItemChecked(which, false)
+                            }
+                        }
+                        .setPositiveButton(android.R.string.ok) { _, _ ->
+                            settled = true
+                            val picked = choices.filterIndexed { i, _ -> checked[i] && enabled[i] }
+                            result.complete(prompt.confirm(picked.toTypedArray()))
+                        }
+                        .show()
+                }
+                else -> {
+                    val initial = choices.indices.firstOrNull { enabled[it] && choices[it].selected } ?: -1
+                    builder
+                        .setSingleChoiceItems(labelArray, initial) { dialog, which ->
+                            if (!enabled[which]) {
+                                (dialog as AlertDialog).listView.setItemChecked(which, false)
+                                if (initial >= 0) dialog.listView.setItemChecked(initial, true)
+                                return@setSingleChoiceItems
+                            }
+                            settled = true
+                            result.complete(prompt.confirm(choices[which]))
+                            dialog.dismiss()
+                        }
+                        .show()
+                }
+            }
+        }
         return result
     }
 
