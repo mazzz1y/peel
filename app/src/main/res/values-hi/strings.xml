@@ -219,4 +219,18 @@
     <string name="setting_global_privacy_control">GPC सिग्नल</string>
     <string name="setting_requires_peel_restart">यह सेटिंग Peel रीस्टार्ट के बाद लागू होगी</string>
     <string name="setting_requires_webapp_restart">यह सेटिंग ऐप रीस्टार्ट के बाद लागू होगी</string>
+
+    <string name="extensions">एक्सटेंशन</string>
+    <string name="no_extensions_installed">कोई एक्सटेंशन इंस्टॉल नहीं है।\n+ टैप करके उपलब्ध एक्सटेंशन देखें।</string>
+    <string name="available_extensions">उपलब्ध एक्सटेंशन</string>
+    <string name="install_extension_confirm">\"%1$s\" इंस्टॉल करें?</string>
+    <string name="extension_permissions">इस एक्सटेंशन को चाहिए:</string>
+    <string name="uninstall_extension">अनइंस्टॉल</string>
+    <string name="uninstall_extension_confirm">\"%1$s\" अनइंस्टॉल करें?</string>
+    <string name="extension_settings">सेटिंग्स</string>
+    <string name="installing_extension">इंस्टॉल हो रहा है\u2026</string>
+    <string name="loading_extensions">लोड हो रहा है\u2026</string>
+    <string name="install_extension_error">एक्सटेंशन इंस्टॉल विफल</string>
+    <string name="all_extensions_installed">सभी अनुशंसित एक्सटेंशन पहले से इंस्टॉल हैं</string>
+    <string name="install">इंस्टॉल</string>
 </resources>

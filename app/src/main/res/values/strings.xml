@@ -225,4 +225,34 @@
     </plurals>
     <string name="search">Search</string>
     <string name="no_search_results">No apps found</string>
+
+    <string name="extensions">Extensions</string>
+    <string name="no_extensions_installed">No extensions installed</string>
+    <string name="extensions_for_site">Extensions on %1$s</string>
+    <string name="available_extensions">Available extensions</string>
+    <string name="install_extension_confirm">Install \"%1$s\"?</string>
+    <string name="extension_permissions">This extension requires:</string>
+    <string name="uninstall_extension">Uninstall</string>
+    <string name="uninstall_extension_confirm">Uninstall \"%1$s\"?</string>
+    <string name="extension_settings">Settings</string>
+    <string name="extension_update">Update</string>
+    <string name="extension_updated_to">Updated to %1$s</string>
+    <string name="extension_already_up_to_date">Already up to date</string>
+    <string name="update_all_extensions">Update all</string>
+    <string name="install_extension_from_file">Install from file\u2026</string>
+    <string name="browse_amo">Browse addons.mozilla.org</string>
+    <string name="installing_extension">Installing\u2026</string>
+    <string name="loading_extensions">Loading\u2026</string>
+    <string name="install_extension_error">Failed to install extension</string>
+    <string name="all_extensions_installed">All recommended extensions are already installed</string>
+    <string name="extensions_update_summary">%1$d updated, %2$d up to date</string>
+    <string name="extensions_update_summary_with_failed">%1$d updated, %2$d up to date, %3$d failed</string>
+    <string name="install_extension_confirm_title">Install extension?</string>
+    <string name="install_extension_permission_summary">%1$s is requesting the following permissions:</string>
+    <string name="install_extension_permissions_header">Permissions:</string>
+    <string name="install_extension_origins_header">Access to sites:</string>
+    <string name="install_extension_no_permissions">No special permissions requested.</string>
+    <string name="update_extension_confirm_title">Update extension?</string>
+    <string name="update_extension_permission_summary">%1$s is requesting new permissions:</string>
+    <string name="install">Install</string>
 </resources>

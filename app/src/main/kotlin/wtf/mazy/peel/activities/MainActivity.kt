@@ -185,6 +185,11 @@ class MainActivity :
                 true
             }
 
+            R.id.action_extensions -> {
+                startActivity(Intent(this, ExtensionsActivity::class.java))
+                true
+            }
+
             R.id.action_global_settings -> {
                 startActivity(Intent(this, SettingsActivity::class.java))
                 true

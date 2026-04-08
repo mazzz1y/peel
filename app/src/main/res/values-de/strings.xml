@@ -216,4 +216,18 @@
     <string name="setting_global_privacy_control">GPC-Signal</string>
     <string name="setting_requires_peel_restart">Diese Einstellung wird nach einem Neustart von Peel wirksam</string>
     <string name="setting_requires_webapp_restart">Diese Einstellung wird nach einem Neustart der Apps wirksam</string>
+
+    <string name="extensions">Erweiterungen</string>
+    <string name="no_extensions_installed">Keine Erweiterungen installiert.\nTippen Sie auf + um verfügbare Erweiterungen zu durchsuchen.</string>
+    <string name="available_extensions">Verfügbare Erweiterungen</string>
+    <string name="install_extension_confirm">\"%1$s\" installieren?</string>
+    <string name="extension_permissions">Diese Erweiterung benötigt:</string>
+    <string name="uninstall_extension">Deinstallieren</string>
+    <string name="uninstall_extension_confirm">\"%1$s\" deinstallieren?</string>
+    <string name="extension_settings">Einstellungen</string>
+    <string name="installing_extension">Wird installiert\u2026</string>
+    <string name="loading_extensions">Wird geladen\u2026</string>
+    <string name="install_extension_error">Erweiterung konnte nicht installiert werden</string>
+    <string name="all_extensions_installed">Alle empfohlenen Erweiterungen sind bereits installiert</string>
+    <string name="install">Installieren</string>
 </resources>

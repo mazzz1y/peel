@@ -218,4 +218,18 @@
     <string name="setting_global_privacy_control">GPC 信号</string>
     <string name="setting_requires_peel_restart">此设置在重启 Peel 后生效</string>
     <string name="setting_requires_webapp_restart">此设置在重启应用后生效</string>
+
+    <string name="extensions">扩展</string>
+    <string name="no_extensions_installed">未安装扩展。\n点击 + 浏览可用扩展。</string>
+    <string name="available_extensions">可用扩展</string>
+    <string name="install_extension_confirm">安装 \"%1$s\"？</string>
+    <string name="extension_permissions">此扩展需要：</string>
+    <string name="uninstall_extension">卸载</string>
+    <string name="uninstall_extension_confirm">卸载 \"%1$s\"？</string>
+    <string name="extension_settings">设置</string>
+    <string name="installing_extension">安装中\u2026</string>
+    <string name="loading_extensions">加载中\u2026</string>
+    <string name="install_extension_error">扩展安装失败</string>
+    <string name="all_extensions_installed">所有推荐扩展已安装</string>
+    <string name="install">安装</string>
 </resources>

@@ -40,6 +40,7 @@ class FloatingControlsView(
     webappUuid: String,
     private val onHome: () -> Unit,
     private val onReload: () -> Unit,
+    private val onExtensions: () -> Unit,
     private val getCurrentUrl: () -> String,
 ) {
     private val buttonPrefs = FloatingButtonPrefs(webappUuid, parent)
@@ -54,6 +55,7 @@ class FloatingControlsView(
         createButton(R.drawable.ic_baseline_home_24),
         createButton(R.drawable.ic_baseline_share_24),
         createButton(R.drawable.ic_baseline_refresh_24),
+        createButton(R.drawable.ic_extension_24dp),
     )
     private val allViews = actionButtons + trigger
 
@@ -162,6 +164,7 @@ class FloatingControlsView(
             )
         }
         actionButtons[2].setOnClickListener { collapse(); onReload() }
+        actionButtons[3].setOnClickListener { collapse(); onExtensions() }
     }
 
     private fun applyPosition() {

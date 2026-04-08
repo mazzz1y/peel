@@ -69,6 +69,8 @@ import wtf.mazy.peel.ui.browser.BiometricUnlockController
 import wtf.mazy.peel.ui.browser.LaunchOverlayController
 import wtf.mazy.peel.ui.browser.SystemBarController
 import wtf.mazy.peel.ui.dialog.InputDialogConfig
+import wtf.mazy.peel.ui.extensions.ExtensionPickerDialog
+import wtf.mazy.peel.ui.extensions.SessionExtensionActions
 import wtf.mazy.peel.ui.dialog.showInputDialogRaw
 import wtf.mazy.peel.util.BrowserLauncher
 import wtf.mazy.peel.util.Const
@@ -82,6 +84,7 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
 
     private var geckoView: NestedGeckoView? = null
     private var geckoSession: GeckoSession? = null
+    private val sessionExtensionActions by lazy { SessionExtensionActions(this) }
 
     private var progressBar: ProgressBar? = null
     private var swipeRefreshLayout: VerticalSwipeRefreshLayout? = null
@@ -249,7 +252,11 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
 
     override fun onStart() {
         super.onStart()
-        geckoSession?.setActive(true)
+        geckoSession?.let { session ->
+            session.setActive(true)
+            GeckoRuntimeProvider.getRuntime(this)
+                .webExtensionController.setTabActive(session, true)
+        }
     }
 
     override fun onResume() {
@@ -279,6 +286,7 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
                 webappUuid = uuid,
                 onHome = { loadURL(webapp.baseUrl) },
                 onReload = ::reloadCurrentPage,
+                onExtensions = { ExtensionPickerDialog.show(this, sessionExtensionActions) },
                 getCurrentUrl = { currentUrl },
             )
         }
@@ -336,6 +344,7 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
         geckoSession?.close()
         geckoSession = null
         geckoView = null
+        sessionExtensionActions.detach()
         super.onDestroy()
     }
 
@@ -732,8 +741,10 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
         val runtime = GeckoRuntimeProvider.getRuntime(this)
         session.open(runtime)
         session.setActive(true)
+        runtime.webExtensionController.setTabActive(session, true)
         geckoView?.setSession(session)
         geckoView?.coverUntilFirstPaint(themeBackgroundColor)
+        sessionExtensionActions.attach(session)
     }
 
     private fun launchSessionExtensionsAndLoad(settings: WebAppSettings, url: String) {
