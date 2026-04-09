@@ -7,6 +7,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.widget.FrameLayout
 import android.widget.ImageButton
+import androidx.appcompat.view.ContextThemeWrapper
 import androidx.core.content.edit
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -44,18 +45,20 @@ class FloatingControlsView(
     private val getCurrentUrl: () -> String,
 ) {
     private val buttonPrefs = FloatingButtonPrefs(webappUuid, parent)
+    private val themedContext =
+        ContextThemeWrapper(parent.context, R.style.ThemeOverlay_App_FloatingControls)
     private val density = parent.resources.displayMetrics.density
     private val buttonSizePx = (40 * density).toInt()
     private val gapPx = (8 * density).toInt()
     private val stepPx = buttonSizePx + gapPx
     private val marginPx = (8 * density).toInt()
 
-    private val trigger = createButton(R.drawable.ic_baseline_more_vert_24)
+    private val trigger = createButton(R.drawable.ic_symbols_more_vert_24)
     private val actionButtons = listOf(
-        createButton(R.drawable.ic_baseline_home_24),
-        createButton(R.drawable.ic_baseline_share_24),
-        createButton(R.drawable.ic_baseline_refresh_24),
-        createButton(R.drawable.ic_extension_24dp),
+        createButton(R.drawable.ic_symbols_home_24),
+        createButton(R.drawable.ic_symbols_share_24),
+        createButton(R.drawable.ic_symbols_refresh_24),
+        createButton(R.drawable.ic_symbols_extension_24),
     )
     private val allViews = actionButtons + trigger
 
@@ -101,7 +104,7 @@ class FloatingControlsView(
     }
 
     private fun createButton(iconRes: Int): ImageButton {
-        return ImageButton(parent.context).apply {
+        return ImageButton(themedContext).apply {
             layoutParams = FrameLayout.LayoutParams(buttonSizePx, buttonSizePx)
             setBackgroundResource(R.drawable.fab_circle_bg)
             setImageResource(iconRes)

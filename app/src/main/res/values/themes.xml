@@ -82,6 +82,15 @@
         <item name="colorControlNormal">?attr/colorOnSurface</item>
     </style>
 
+    <!-- Floating controls overlay: pins icon/ripple colors to dark values
+         regardless of system theme, so the FAB always renders as light-on-dark
+         against its permanently dark circle background (fab_circle_bg.xml). -->
+    <style name="ThemeOverlay.App.FloatingControls" parent="">
+        <item name="colorOnSurface">@color/floating_controls_icon</item>
+        <item name="colorControlNormal">@color/floating_controls_icon</item>
+        <item name="colorControlHighlight">@color/floating_controls_ripple</item>
+    </style>
+
     <!-- Unified Settings Styles -->
     <style name="SettingsItemContainer">
         <item name="android:layout_width">match_parent</item>
