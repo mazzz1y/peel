@@ -296,6 +296,7 @@ object SettingRegistry {
                 SettingField(WebAppSettings::isClearCache, false),
                 R.string.clear_cache_after_usage,
                 SettingCategory.SECURITY,
+                globalOnly = true,
             ),
             // Advanced
             SettingDefinition.StringMapSetting(
