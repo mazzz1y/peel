@@ -138,11 +138,10 @@ class MediaPlaybackManager(context: Context) : GeckoMediaSession.Delegate {
             })
         meta.artwork?.getBitmap(ARTWORK_SIZE)?.accept { bitmap ->
             if (bitmap != null && serviceStarted) {
-                val bytes = bitmap.toPngBytes()
+                MediaPlaybackService.pendingArtwork = bitmap
                 context.startService(
                     Intent(context, MediaPlaybackService.resolveServiceClass()).apply {
                         action = MediaPlaybackService.ACTION_UPDATE_ARTWORK
-                        putExtra(MediaPlaybackService.EXTRA_TRACK_ARTWORK_BYTES, bytes)
                     })
             }
         }

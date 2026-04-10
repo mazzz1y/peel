@@ -6,7 +6,6 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.net.wifi.WifiManager
 import android.os.Looper
 import android.os.PowerManager
@@ -46,11 +45,13 @@ open class MediaPlaybackService : MediaSessionService() {
 
     private var appTitle = ""
     private var appIcon: Bitmap? = null
+    private var appIconBytes: ByteArray? = null
     private var webappUuid: String? = null
 
     private var trackTitle: String? = null
     private var trackArtist: String? = null
     private var trackArtwork: Bitmap? = null
+    private var trackArtworkBytes: ByteArray? = null
 
     private var playing = false
     private var hasPrevious = false
@@ -134,8 +135,9 @@ open class MediaPlaybackService : MediaSessionService() {
         appTitle = intent.getStringExtra(EXTRA_TITLE) ?: ""
         generation = intent.getIntExtra(EXTRA_GENERATION, 0)
         webappUuid = intent.getStringExtra(EXTRA_WEBAPP_UUID)
-        val iconBytes = intent.getByteArrayExtra(EXTRA_ICON)
-        appIcon = iconBytes?.let { BitmapFactory.decodeByteArray(it, 0, it.size) }
+        appIcon = pendingIcon
+        appIconBytes = appIcon?.toPngBytes()
+        pendingIcon = null
         scope.launch {
             buildContentIntent(webappUuid)?.let {
                 session?.setSessionActivity(it)
@@ -145,6 +147,7 @@ open class MediaPlaybackService : MediaSessionService() {
         trackTitle = intent.getStringExtra(EXTRA_TRACK_TITLE)?.takeIf { it.isNotEmpty() }
         trackArtist = intent.getStringExtra(EXTRA_TRACK_ARTIST)?.takeIf { it.isNotEmpty() }
         trackArtwork = null
+        trackArtworkBytes = null
 
         durationMs = 0L
         positionMs = 0L
@@ -167,8 +170,10 @@ open class MediaPlaybackService : MediaSessionService() {
     }
 
     private fun handleUpdateArtwork(intent: Intent) {
-        val bytes = intent.getByteArrayExtra(EXTRA_TRACK_ARTWORK_BYTES) ?: return
-        trackArtwork = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+        val bmp = pendingArtwork ?: return
+        pendingArtwork = null
+        trackArtwork = bmp
+        trackArtworkBytes = bmp.toPngBytes()
         notifyPlayerChanged()
     }
 
@@ -257,13 +262,13 @@ open class MediaPlaybackService : MediaSessionService() {
 
         override fun getState(): State {
             val displayTitle = trackTitle ?: appTitle
-            val art = trackArtwork ?: appIcon
+            val artBytes = trackArtworkBytes ?: appIconBytes
 
             val metadataBuilder = MediaMetadata.Builder().setTitle(displayTitle)
             trackArtist?.let { metadataBuilder.setArtist(it) }
-            art?.let {
+            artBytes?.let {
                 metadataBuilder.setArtworkData(
-                    it.toPngBytes(), MediaMetadata.PICTURE_TYPE_FRONT_COVER
+                    it, MediaMetadata.PICTURE_TYPE_FRONT_COVER
                 )
             }
             val metadata = metadataBuilder.build()
@@ -377,11 +382,9 @@ open class MediaPlaybackService : MediaSessionService() {
         const val BROADCAST_SEEK_TO = "wtf.mazy.peel.media.BROADCAST_SEEK_TO"
 
         const val EXTRA_TITLE = "title"
-        const val EXTRA_ICON = "icon"
         const val EXTRA_WEBAPP_UUID = "webapp_uuid"
         const val EXTRA_TRACK_TITLE = "track_title"
         const val EXTRA_TRACK_ARTIST = "track_artist"
-        const val EXTRA_TRACK_ARTWORK_BYTES = "track_artwork_bytes"
         const val EXTRA_HAS_PREVIOUS = "has_previous"
         const val EXTRA_HAS_NEXT = "has_next"
         const val EXTRA_DURATION_MS = "duration_ms"
@@ -389,6 +392,12 @@ open class MediaPlaybackService : MediaSessionService() {
         const val EXTRA_PLAYBACK_RATE = "playback_rate"
         const val EXTRA_SEEK_POSITION_MS = "seek_position_ms"
         const val EXTRA_GENERATION = "generation"
+
+        @Volatile
+        var pendingIcon: Bitmap? = null
+
+        @Volatile
+        var pendingArtwork: Bitmap? = null
 
         fun createStartIntent(
             context: Context,
@@ -399,14 +408,12 @@ open class MediaPlaybackService : MediaSessionService() {
             trackTitle: String? = null,
             trackArtist: String? = null,
         ): Intent {
+            pendingIcon = icon
             return Intent(context, resolveServiceClass()).apply {
                 action = ACTION_START
                 putExtra(EXTRA_TITLE, title)
                 putExtra(EXTRA_WEBAPP_UUID, webappUuid)
                 putExtra(EXTRA_GENERATION, generation)
-                if (icon != null) {
-                    putExtra(EXTRA_ICON, icon.toPngBytes())
-                }
                 putExtra(EXTRA_TRACK_TITLE, trackTitle ?: "")
                 putExtra(EXTRA_TRACK_ARTIST, trackArtist ?: "")
             }
