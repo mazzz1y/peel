@@ -36,9 +36,9 @@
     <string name="import_mode_title">Sao lưu đầy đủ</string>
     <string name="import_mode_description">Chứa %1$d ứng dụng và %2$d nhóm. Dữ liệu hiện có sẽ bị thay thế. Bật chế độ gộp để giữ các ứng dụng không có trong bản sao lưu.</string>
     <string name="import_mode_merge_switch">Chế độ gộp</string>
-    <string name="import_mapping_title">Ứng dụng được chia sẻ</string>
-    <string name="import_mapping_description">%1$d ứng dụng được chia sẻ với bạn. Chọn nhóm đích và ứng dụng cần nhập:</string>
-    <string name="import_mapping_description_no_groups">%1$d ứng dụng được chia sẻ với bạn. Chọn ứng dụng cần nhập:</string>
+    <string name="import_mapping_title">Nhập ứng dụng</string>
+    <string name="import_mapping_description">%1$s được chia sẻ với bạn. Chọn nhóm đích và ứng dụng cần nhập:</string>
+    <string name="import_mapping_description_no_groups">%1$s được chia sẻ với bạn. Chọn ứng dụng cần nhập:</string>
     <string name="import_mapping_description_single">Một ứng dụng được chia sẻ với bạn, chọn nhóm đích:</string>
     <string name="import_mapping_description_single_no_groups">Một ứng dụng được chia sẻ với bạn:</string>
     <string name="import_group_mode_new">Tạo nhóm mới</string>
@@ -199,8 +199,8 @@
     <string name="download_failed">Tải xuống thất bại</string>
     <string name="search">Tìm kiếm</string>
     <string name="no_search_results">Không tìm thấy ứng dụng</string>
-    <string name="import_group_share_description">Nhóm «%1$s» với %2$d ứng dụng đã được chia sẻ với bạn. Nhấn vào nhóm để mở rộng và chọn ứng dụng để nhập:</string>
-    <string name="import_group_share_description_multi">%1$d nhóm với %2$d ứng dụng đã được chia sẻ với bạn. Nhấn vào từng nhóm để mở rộng và chọn ứng dụng để nhập:</string>
+    <string name="import_group_share_description">Nhóm «%1$s» với %2$s ứng dụng đã được chia sẻ với bạn. Nhấn vào nhóm để mở rộng và chọn ứng dụng để nhập:</string>
+    <string name="import_group_share_description_multi">%1$s nhóm với %2$s ứng dụng đã được chia sẻ với bạn. Nhấn vào từng nhóm để mở rộng và chọn ứng dụng để nhập:</string>
     <string name="n_groups_selected">Đã chọn %1$d nhóm</string>
     <string name="global_privacy">Quyền riêng tư toàn cục</string>
     <string name="group_not_found">Nhóm này không còn khả dụng</string>
@@ -245,4 +245,10 @@
     <string name="update_extension_confirm_title">Cập nhật tiện ích?</string>
     <string name="update_extension_permission_summary">%1$s yêu cầu quyền mới:</string>
     <string name="install">Cài đặt</string>
+    <plurals name="import_apps_count">
+        <item quantity="other">%d ứng dụng</item>
+    </plurals>
+    <plurals name="import_groups_count">
+        <item quantity="other">%d nhóm</item>
+    </plurals>
 </resources>

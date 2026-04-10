@@ -11,9 +11,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import org.mozilla.geckoview.GeckoSession
 import org.mozilla.geckoview.GeckoView
-import org.mozilla.geckoview.WebExtension
 import wtf.mazy.peel.R
-import wtf.mazy.peel.gecko.GeckoRuntimeProvider
 import java.util.concurrent.atomic.AtomicLong
 
 class ExtensionPopupBottomSheet : BottomSheetDialogFragment() {
@@ -104,16 +102,6 @@ class ExtensionPopupBottomSheet : BottomSheetDialogFragment() {
             } catch (_: Exception) {
                 reclaim(token)?.session?.close()
             }
-        }
-
-        fun showOptionsPage(activity: FragmentActivity, ext: WebExtension) {
-            val optionsUrl = ext.metaData.optionsPageUrl ?: return
-            val runtime = GeckoRuntimeProvider.getRuntime(activity)
-            val session = GeckoSession()
-            session.open(runtime)
-            session.loadUri(optionsUrl)
-            val token = stash(session, ext.metaData.name ?: ext.id)
-            safeShow(activity.supportFragmentManager, token)
         }
 
         fun showExistingSession(

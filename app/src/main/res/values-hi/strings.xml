@@ -36,9 +36,9 @@
     <string name="import_mode_title">पूर्ण बैकअप</string>
     <string name="import_mode_description">%1$d ऐप और %2$d समूह शामिल हैं। मौजूदा डेटा बदल दिया जाएगा। बैकअप में शामिल न किए गए ऐप्स रखने के लिए मर्ज मोड चालू करें।</string>
     <string name="import_mode_merge_switch">मर्ज मोड</string>
-    <string name="import_mapping_title">साझा किए गए ऐप्स</string>
-    <string name="import_mapping_description">%1$d ऐप आपके साथ साझा किए गए। गंतव्य समूह चुनें और आयात करने के लिए ऐप्स चुनें:</string>
-    <string name="import_mapping_description_no_groups">%1$d ऐप आपके साथ साझा किए गए। आयात करने के लिए ऐप चुनें:</string>
+    <string name="import_mapping_title">ऐप्स आयात करें</string>
+    <string name="import_mapping_description">%1$s आपके साथ साझा किए गए। गंतव्य समूह चुनें और आयात करने के लिए ऐप्स चुनें:</string>
+    <string name="import_mapping_description_no_groups">%1$s आपके साथ साझा किए गए। आयात करने के लिए ऐप चुनें:</string>
     <string name="import_mapping_description_single">एक ऐप आपके साथ साझा किया गया, गंतव्य समूह चुनें:</string>
     <string name="import_mapping_description_single_no_groups">एक ऐप आपके साथ साझा किया गया:</string>
     <string name="import_group_mode_new">नया समूह बनाएँ</string>
@@ -200,8 +200,8 @@
     <string name="download_failed">डाउनलोड विफल</string>
     <string name="search">खोजें</string>
     <string name="no_search_results">कोई ऐप नहीं मिला</string>
-    <string name="import_group_share_description">ग्रुप «%1$s» जिसमें %2$d ऐप हैं, आपके साथ साझा किया गया। ग्रुप पर टैप करके विस्तार करें और आयात करने के लिए ऐप चुनें:</string>
-    <string name="import_group_share_description_multi">%1$d ग्रुप जिनमें %2$d ऐप हैं, आपके साथ साझा किए गए। प्रत्येक ग्रुप पर टैप करके विस्तार करें और आयात करने के लिए ऐप चुनें:</string>
+    <string name="import_group_share_description">ग्रुप «%1$s» जिसमें %2$s ऐप हैं, आपके साथ साझा किया गया। ग्रुप पर टैप करके विस्तार करें और आयात करने के लिए ऐप चुनें:</string>
+    <string name="import_group_share_description_multi">%1$s ग्रुप जिनमें %2$s ऐप हैं, आपके साथ साझा किए गए। प्रत्येक ग्रुप पर टैप करके विस्तार करें और आयात करने के लिए ऐप चुनें:</string>
     <string name="n_groups_selected">%1$d ग्रुप चयनित</string>
     <string name="global_privacy">वैश्विक गोपनीयता</string>
     <string name="group_not_found">यह ग्रुप अब उपलब्ध नहीं है</string>
@@ -246,4 +246,12 @@
     <string name="update_extension_confirm_title">एक्सटेंशन अपडेट करें?</string>
     <string name="update_extension_permission_summary">%1$s नई अनुमतियाँ माँग रहा है:</string>
     <string name="install">इंस्टॉल</string>
+    <plurals name="import_apps_count">
+        <item quantity="one">%d ऐप</item>
+        <item quantity="other">%d ऐप्स</item>
+    </plurals>
+    <plurals name="import_groups_count">
+        <item quantity="one">%d ग्रुप</item>
+        <item quantity="other">%d ग्रुप</item>
+    </plurals>
 </resources>

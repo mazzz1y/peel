@@ -37,8 +37,8 @@
     <string name="import_mode_description">Содержит %1$d приложение(ий) и %2$d группу(п). Существующие данные будут заменены. Включите режим слияния, чтобы сохранить приложения, не входящие в резервную копию.</string>
     <string name="import_mode_merge_switch">Режим слияния</string>
     <string name="import_mapping_title">Импорт приложений</string>
-    <string name="import_mapping_description">Вам отправили %1$d приложение(ий). Выберите группу и приложения для импорта:</string>
-    <string name="import_mapping_description_no_groups">Вам отправили %1$d приложение(ий). Выберите приложения для импорта:</string>
+    <string name="import_mapping_description">Вам отправили %1$s. Выберите группу и приложения для импорта:</string>
+    <string name="import_mapping_description_no_groups">Вам отправили %1$s. Выберите приложения для импорта:</string>
     <string name="import_mapping_description_single">Вам отправили приложение, выберите группу назначения:</string>
     <string name="import_mapping_description_single_no_groups">Вам отправили приложение:</string>
     <string name="import_group_mode_new">Создать группу</string>
@@ -202,8 +202,8 @@
     <string name="download_failed">Не удалось скачать файл</string>
     <string name="search">Поиск</string>
     <string name="no_search_results">Приложения не найдены</string>
-    <string name="import_group_share_description">Группа «%1$s» с %2$d приложением(ями) была отправлена вам. Нажмите на группу, чтобы развернуть и выбрать приложения для импорта:</string>
-    <string name="import_group_share_description_multi">%1$d групп(ы) с %2$d приложением(ями) были отправлены вам. Нажмите на каждую группу, чтобы развернуть и выбрать приложения для импорта:</string>
+    <string name="import_group_share_description">Группа «%1$s» с %2$s была отправлена вам. Нажмите на группу, чтобы развернуть и выбрать приложения для импорта:</string>
+    <string name="import_group_share_description_multi">%1$s с %2$s были отправлены вам. Нажмите на каждую группу, чтобы развернуть и выбрать приложения для импорта:</string>
     <string name="n_groups_selected">Выбрано групп: %1$d</string>
     <string name="global_privacy">Глобальная приватность</string>
     <string name="group_not_found">Группа больше недоступна</string>
@@ -248,4 +248,16 @@
     <string name="update_extension_confirm_title">Обновить расширение?</string>
     <string name="update_extension_permission_summary">%1$s запрашивает новые разрешения:</string>
     <string name="install">Установить</string>
+    <plurals name="import_apps_count">
+        <item quantity="one">%d приложение</item>
+        <item quantity="few">%d приложения</item>
+        <item quantity="many">%d приложений</item>
+        <item quantity="other">%d приложений</item>
+    </plurals>
+    <plurals name="import_groups_count">
+        <item quantity="one">%d группа</item>
+        <item quantity="few">%d группы</item>
+        <item quantity="many">%d групп</item>
+        <item quantity="other">%d групп</item>
+    </plurals>
 </resources>

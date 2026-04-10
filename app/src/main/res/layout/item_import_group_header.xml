@@ -1,58 +1,82 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:gravity="center_vertical"
-    android:minHeight="56dp"
-    android:orientation="horizontal"
-    android:paddingEnd="8dp">
+    android:layout_marginHorizontal="12dp"
+    android:layout_marginVertical="6dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="2dp"
+    app:strokeWidth="0dp">
 
-    <ImageView
-        android:id="@+id/group_icon"
-        android:layout_width="36dp"
-        android:layout_height="36dp"
-        android:importantForAccessibility="no"
-        android:scaleType="centerCrop" />
-
-    <LinearLayout
-        android:layout_width="0dp"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="12dp"
-        android:layout_weight="1"
-        android:orientation="vertical">
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="12dp">
+
+        <ImageView
+            android:id="@+id/group_icon"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:importantForAccessibility="no"
+            android:padding="3dp"
+            android:scaleType="fitCenter"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/group_name"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="8dp"
             android:ellipsize="end"
             android:maxLines="1"
-            android:textAppearance="?attr/textAppearanceBodyLarge" />
+            android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
+            android:textColor="?attr/colorOnSurface"
+            app:layout_constraintBottom_toTopOf="@id/group_count"
+            app:layout_constraintEnd_toStartOf="@id/group_expand"
+            app:layout_constraintStart_toEndOf="@id/group_icon"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_chainStyle="packed" />
 
         <TextView
             android:id="@+id/group_count"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="8dp"
             android:ellipsize="end"
             android:maxLines="1"
-            android:textAppearance="?attr/textAppearanceBodySmall"
-            android:textColor="?attr/colorOnSurfaceVariant" />
-    </LinearLayout>
+            android:textAppearance="@style/TextAppearance.Material3.BodySmall"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/group_expand"
+            app:layout_constraintStart_toEndOf="@id/group_icon"
+            app:layout_constraintTop_toBottomOf="@id/group_name" />
 
-    <ImageView
-        android:id="@+id/group_expand"
-        android:layout_width="36dp"
-        android:layout_height="36dp"
-        android:importantForAccessibility="no"
-        android:padding="6dp"
-        android:src="@drawable/ic_expand_more_24dp" />
+        <ImageView
+            android:id="@+id/group_expand"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:importantForAccessibility="no"
+            android:padding="6dp"
+            android:src="@drawable/ic_expand_more_24dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/group_checkbox"
+            app:layout_constraintTop_toTopOf="parent" />
 
-    <com.google.android.material.materialswitch.MaterialSwitch
-        android:id="@+id/group_switch"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        app:useMaterialThemeColors="true" />
+        <com.google.android.material.checkbox.MaterialCheckBox
+            android:id="@+id/group_checkbox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-</LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</com.google.android.material.card.MaterialCardView>

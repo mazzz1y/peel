@@ -38,13 +38,21 @@
     <string name="import_mode_title">Full Backup</string>
     <string name="import_mode_description">Contains %1$d app(s) and %2$d group(s). Existing data will be replaced. Enable merge mode to keep apps not included in the backup.</string>
     <string name="import_mode_merge_switch">Merge mode</string>
-    <string name="import_mapping_title">Shared Apps</string>
-    <string name="import_mapping_description">%1$d app(s) shared with you. Choose a destination group and select which apps to import:</string>
-    <string name="import_mapping_description_no_groups">%1$d app(s) shared with you. Select which apps to import:</string>
+    <string name="import_mapping_title">Import Apps</string>
+    <string name="import_mapping_description">%1$s shared with you. Choose a destination group and select which apps to import:</string>
+    <string name="import_mapping_description_no_groups">%1$s shared with you. Select which apps to import:</string>
     <string name="import_mapping_description_single">An app was shared with you, choose a destination group:</string>
     <string name="import_mapping_description_single_no_groups">An app was shared with you:</string>
-    <string name="import_group_share_description">Group "%1$s" with %2$d app(s) was shared with you. Tap the group to expand and choose apps to import:</string>
-    <string name="import_group_share_description_multi">%1$d groups with %2$d app(s) were shared with you. Tap each group to expand and choose apps to import:</string>
+    <string name="import_group_share_description">Group "%1$s" with %2$s was shared with you. Tap the group to expand and choose apps to import:</string>
+    <string name="import_group_share_description_multi">%1$s with %2$s were shared with you. Tap each group to expand and choose apps to import:</string>
+    <plurals name="import_apps_count">
+        <item quantity="one">%d app</item>
+        <item quantity="other">%d apps</item>
+    </plurals>
+    <plurals name="import_groups_count">
+        <item quantity="one">%d group</item>
+        <item quantity="other">%d groups</item>
+    </plurals>
     <string name="import_group_mode_new">Create new group</string>
     <string name="import_destination_group">Destination group</string>
     <string name="import_mapping_empty">No apps found in this file.</string>

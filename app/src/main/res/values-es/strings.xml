@@ -20,9 +20,9 @@
     <string name="import_mode_title">Copia completa</string>
     <string name="import_mode_description">Contiene %1$d app(s) y %2$d grupo(s). Los datos existentes serán reemplazados. Activa el modo combinar para conservar las apps que no están en la copia.</string>
     <string name="import_mode_merge_switch">Modo combinar</string>
-    <string name="import_mapping_title">Apps compartidas</string>
-    <string name="import_mapping_description">%1$d app(s) compartida(s) contigo. Elige un grupo de destino y selecciona las apps a importar:</string>
-    <string name="import_mapping_description_no_groups">%1$d app(s) compartida(s) contigo. Selecciona las apps a importar:</string>
+    <string name="import_mapping_title">Importar apps</string>
+    <string name="import_mapping_description">%1$s compartida contigo. Elige un grupo de destino y selecciona las apps a importar:</string>
+    <string name="import_mapping_description_no_groups">%1$s compartida contigo. Selecciona las apps a importar:</string>
     <string name="import_mapping_description_single">Una app fue compartida contigo, elige un grupo de destino:</string>
     <string name="import_mapping_description_single_no_groups">Una app fue compartida contigo:</string>
     <string name="import_group_mode_new">Crear nuevo grupo</string>
@@ -195,8 +195,8 @@
     <string name="download_failed">Error en la descarga</string>
     <string name="search">Buscar</string>
     <string name="no_search_results">No se encontraron apps</string>
-    <string name="import_group_share_description">El grupo «%1$s» con %2$d app(s) se compartió contigo. Toca el grupo para expandirlo y elegir las apps a importar:</string>
-    <string name="import_group_share_description_multi">%1$d grupos con %2$d app(s) se compartieron contigo. Toca cada grupo para expandirlo y elegir las apps a importar:</string>
+    <string name="import_group_share_description">El grupo «%1$s» con %2$s se compartió contigo. Toca el grupo para expandirlo y elegir las apps a importar:</string>
+    <string name="import_group_share_description_multi">%1$s con %2$s se compartieron contigo. Toca cada grupo para expandirlo y elegir las apps a importar:</string>
     <string name="n_groups_selected">%1$d grupo(s) seleccionado(s)</string>
     <string name="global_privacy">Privacidad global</string>
     <string name="group_not_found">El grupo ya no está disponible</string>
@@ -243,4 +243,12 @@
     <string name="update_extension_confirm_title">¿Actualizar extensión?</string>
     <string name="update_extension_permission_summary">%1$s solicita nuevos permisos:</string>
     <string name="install">Instalar</string>
+    <plurals name="import_apps_count">
+        <item quantity="one">%d app</item>
+        <item quantity="other">%d apps</item>
+    </plurals>
+    <plurals name="import_groups_count">
+        <item quantity="one">%d grupo</item>
+        <item quantity="other">%d grupos</item>
+    </plurals>
 </resources>

@@ -7,10 +7,11 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.materialswitch.MaterialSwitch
+import com.google.android.material.checkbox.MaterialCheckBox
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.WebAppSurrogate
 import wtf.mazy.peel.shortcut.LetterIconGenerator
+import wtf.mazy.peel.util.displayUrl
 
 class ImportMappingAdapter(
     private val items: List<WebAppSurrogate>,
@@ -41,14 +42,14 @@ class ImportMappingAdapter(
         val name: TextView = itemView.findViewById(R.id.group_name)
         val count: TextView = itemView.findViewById(R.id.group_count)
         val chevron: ImageView = itemView.findViewById(R.id.group_expand)
-        val switch: MaterialSwitch = itemView.findViewById(R.id.group_switch)
+        val checkbox: MaterialCheckBox = itemView.findViewById(R.id.group_checkbox)
     }
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val icon: ImageView = itemView.findViewById(R.id.app_icon)
         val name: TextView = itemView.findViewById(R.id.app_name)
         val url: TextView = itemView.findViewById(R.id.app_url)
-        val switch: MaterialSwitch = itemView.findViewById(R.id.app_switch)
+        val checkbox: MaterialCheckBox = itemView.findViewById(R.id.app_checkbox)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -76,9 +77,8 @@ class ImportMappingAdapter(
 
         val row = rows.getOrNull(position) as? Row.AppItem ?: return
         val item = row.app
-
         holder.name.text = item.title.ifBlank { item.baseUrl }
-        holder.url.text = item.baseUrl
+        holder.url.text = displayUrl(item.baseUrl)
 
         val bitmap = icons[item.uuid]
         if (bitmap != null) {
@@ -93,11 +93,11 @@ class ImportMappingAdapter(
             holder.icon.setImageBitmap(fallback)
         }
 
-        holder.switch.setOnCheckedChangeListener(null)
-        holder.switch.isChecked = item.uuid in selectedUuids
+        holder.checkbox.setOnCheckedChangeListener(null)
+        holder.checkbox.isChecked = item.uuid in selectedUuids
         if (showSwitches) {
-            holder.switch.visibility = View.VISIBLE
-            holder.switch.setOnCheckedChangeListener { _, isChecked ->
+            holder.checkbox.visibility = View.VISIBLE
+            holder.checkbox.setOnCheckedChangeListener { _, isChecked ->
                 if (isChecked) {
                     selectedUuids.add(item.uuid)
                     if (row.sectionUuid.isNotEmpty()) {
@@ -116,9 +116,9 @@ class ImportMappingAdapter(
                     }
                 }
             }
-            holder.itemView.setOnClickListener { holder.switch.toggle() }
+            holder.itemView.setOnClickListener { holder.checkbox.toggle() }
         } else {
-            holder.switch.visibility = View.GONE
+            holder.checkbox.visibility = View.GONE
             holder.itemView.setOnClickListener(null)
         }
     }
@@ -133,6 +133,22 @@ class ImportMappingAdapter(
             is Row.AppItem -> VIEW_TYPE_APP
             null -> VIEW_TYPE_APP
         }
+    }
+
+    fun isGroupedApp(position: Int): Boolean {
+        val row = rows.getOrNull(position) as? Row.AppItem ?: return false
+        return row.sectionUuid.isNotEmpty()
+    }
+
+    fun isExpandedGroupHeader(position: Int): Boolean {
+        val row = rows.getOrNull(position) as? Row.GroupHeader ?: return false
+        return row.section.uuid in expandedGroups && row.section.apps.isNotEmpty()
+    }
+
+    fun isLastGroupedApp(position: Int): Boolean {
+        if (!isGroupedApp(position)) return false
+        val next = rows.getOrNull(position + 1)
+        return next == null || next !is Row.AppItem || next.sectionUuid.isEmpty()
     }
 
     private fun bindGroup(holder: GroupViewHolder) {
@@ -156,9 +172,9 @@ class ImportMappingAdapter(
         val isExpanded = section.uuid in expandedGroups
         val isSelected = section.uuid in selectedGroupUuids
         holder.chevron.rotation = if (isExpanded) 180f else 0f
-        holder.switch.setOnCheckedChangeListener(null)
-        holder.switch.isChecked = isSelected
-        holder.switch.setOnCheckedChangeListener { _, checked ->
+        holder.checkbox.setOnCheckedChangeListener(null)
+        holder.checkbox.isChecked = isSelected
+        holder.checkbox.setOnCheckedChangeListener { _, checked ->
             if (checked) {
                 selectedGroupUuids.add(section.uuid)
                 val selectedInGroup = selectedAppsByGroup.getOrPut(section.uuid) { mutableSetOf() }

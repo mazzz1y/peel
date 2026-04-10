@@ -36,9 +36,9 @@
     <string name="import_mode_title">フルバックアップ</string>
     <string name="import_mode_description">%1$d個のアプリと%2$d個のグループが含まれています。既存のデータは置き換えられます。バックアップに含まれないアプリを残すにはマージモードを有効にしてください。</string>
     <string name="import_mode_merge_switch">マージモード</string>
-    <string name="import_mapping_title">共有アプリ</string>
-    <string name="import_mapping_description">%1$d個のアプリが共有されました。インポート先のグループとアプリを選択してください：</string>
-    <string name="import_mapping_description_no_groups">%1$d個のアプリが共有されました。インポートするアプリを選択してください：</string>
+    <string name="import_mapping_title">アプリをインポート</string>
+    <string name="import_mapping_description">%1$sが共有されました。インポート先のグループとアプリを選択してください：</string>
+    <string name="import_mapping_description_no_groups">%1$sが共有されました。インポートするアプリを選択してください：</string>
     <string name="import_mapping_description_single">アプリが共有されました。インポート先のグループを選択してください：</string>
     <string name="import_mapping_description_single_no_groups">アプリが共有されました：</string>
     <string name="import_group_mode_new">新しいグループを作成</string>
@@ -199,8 +199,8 @@
     <string name="download_failed">ダウンロードに失敗しました</string>
     <string name="search">検索</string>
     <string name="no_search_results">アプリが見つかりません</string>
-    <string name="import_group_share_description">グループ「%1$s」（%2$d個のアプリ）が共有されました。グループをタップして展開し、インポートするアプリを選択してください：</string>
-    <string name="import_group_share_description_multi">%1$d個のグループ（%2$d個のアプリ）が共有されました。各グループをタップして展開し、インポートするアプリを選択してください：</string>
+    <string name="import_group_share_description">グループ「%1$s」（%2$s個のアプリ）が共有されました。グループをタップして展開し、インポートするアプリを選択してください：</string>
+    <string name="import_group_share_description_multi">%1$s個のグループ（%2$s個のアプリ）が共有されました。各グループをタップして展開し、インポートするアプリを選択してください：</string>
     <string name="n_groups_selected">%1$d個のグループを選択</string>
     <string name="global_privacy">グローバルプライバシー</string>
     <string name="group_not_found">このグループはもう利用できません</string>
@@ -245,4 +245,10 @@
     <string name="update_extension_confirm_title">拡張機能を更新しますか？</string>
     <string name="update_extension_permission_summary">%1$s が新しい権限を要求しています:</string>
     <string name="install">インストール</string>
+    <plurals name="import_apps_count">
+        <item quantity="other">%d個のアプリ</item>
+    </plurals>
+    <plurals name="import_groups_count">
+        <item quantity="other">%d個のグループ</item>
+    </plurals>
 </resources>

@@ -36,9 +36,9 @@
     <string name="import_mode_title">完整備份</string>
     <string name="import_mode_description">包含 %1$d 個應用程式和 %2$d 個群組。現有資料將被取代。啟用合併模式可保留備份中未包含的應用程式。</string>
     <string name="import_mode_merge_switch">合併模式</string>
-    <string name="import_mapping_title">分享的應用程式</string>
-    <string name="import_mapping_description">%1$d 個應用程式已分享給你。選擇目標群組和要匯入的應用程式：</string>
-    <string name="import_mapping_description_no_groups">%1$d 個應用程式已分享給你。選取要匯入的應用程式：</string>
+    <string name="import_mapping_title">匯入應用程式</string>
+    <string name="import_mapping_description">%1$s已分享給你。選擇目標群組和要匯入的應用程式：</string>
+    <string name="import_mapping_description_no_groups">%1$s已分享給你。選取要匯入的應用程式：</string>
     <string name="import_mapping_description_single">收到一個共享應用程式，選擇目標群組：</string>
     <string name="import_mapping_description_single_no_groups">收到一個共享應用程式：</string>
     <string name="import_group_mode_new">建立新群組</string>
@@ -199,8 +199,8 @@
     <string name="download_failed">下載失敗</string>
     <string name="search">搜尋</string>
     <string name="no_search_results">未找到應用程式</string>
-    <string name="import_group_share_description">群組「%1$s」包含 %2$d 個應用程式已與你共享。點擊群組展開並選擇要匯入的應用程式：</string>
-    <string name="import_group_share_description_multi">%1$d 個群組包含 %2$d 個應用程式已與你共享。點擊各群組展開並選擇要匯入的應用程式：</string>
+    <string name="import_group_share_description">群組「%1$s」包含 %2$s 個應用程式已與你共享。點擊群組展開並選擇要匯入的應用程式：</string>
+    <string name="import_group_share_description_multi">%1$s 個群組包含 %2$s 個應用程式已與你共享。點擊各群組展開並選擇要匯入的應用程式：</string>
     <string name="n_groups_selected">已選擇 %1$d 個群組</string>
     <string name="global_privacy">全域隱私</string>
     <string name="group_not_found">此群組已不可用</string>
@@ -245,4 +245,10 @@
     <string name="update_extension_confirm_title">更新擴充功能？</string>
     <string name="update_extension_permission_summary">%1$s 要求新權限：</string>
     <string name="install">安裝</string>
+    <plurals name="import_apps_count">
+        <item quantity="other">%d 個應用程式</item>
+    </plurals>
+    <plurals name="import_groups_count">
+        <item quantity="other">%d 個群組</item>
+    </plurals>
 </resources>

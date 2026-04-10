@@ -36,9 +36,9 @@
     <string name="import_mode_title">সম্পূর্ণ ব্যাকআপ</string>
     <string name="import_mode_description">%1$dটি অ্যাপ এবং %2$dটি গ্রুপ রয়েছে। বিদ্যমান ডেটা প্রতিস্থাপিত হবে। ব্যাকআপে অন্তর্ভুক্ত নয় এমন অ্যাপ রাখতে মার্জ মোড চালু করুন।</string>
     <string name="import_mode_merge_switch">মার্জ মোড</string>
-    <string name="import_mapping_title">শেয়ার করা অ্যাপ</string>
-    <string name="import_mapping_description">%1$dটি অ্যাপ আপনার সাথে শেয়ার করা হয়েছে। গন্তব্য গ্রুপ এবং আমদানি করার অ্যাপ নির্বাচন করুন:</string>
-    <string name="import_mapping_description_no_groups">%1$dটি অ্যাপ আপনার সাথে শেয়ার করা হয়েছে। আমদানির জন্য অ্যাপ নির্বাচন করুন:</string>
+    <string name="import_mapping_title">অ্যাপ ইমপোর্ট</string>
+    <string name="import_mapping_description">%1$s আপনার সাথে শেয়ার করা হয়েছে। গন্তব্য গ্রুপ এবং আমদানি করার অ্যাপ নির্বাচন করুন:</string>
+    <string name="import_mapping_description_no_groups">%1$s আপনার সাথে শেয়ার করা হয়েছে। আমদানির জন্য অ্যাপ নির্বাচন করুন:</string>
     <string name="import_mapping_description_single">একটি অ্যাপ আপনার সাথে শেয়ার করা হয়েছে, গন্তব্য গ্রুপ নির্বাচন করুন:</string>
     <string name="import_mapping_description_single_no_groups">একটি অ্যাপ আপনার সাথে শেয়ার করা হয়েছে:</string>
     <string name="import_group_mode_new">নতুন গ্রুপ তৈরি করুন</string>
@@ -200,8 +200,8 @@
     <string name="download_failed">ডাউনলোড ব্যর্থ হয়েছে</string>
     <string name="search">অনুসন্ধান</string>
     <string name="no_search_results">কোনো অ্যাপ পাওয়া যায়নি</string>
-    <string name="import_group_share_description">গ্রুপ «%1$s» যাতে %2$d টি অ্যাপ আছে, আপনার সাথে শেয়ার করা হয়েছে। গ্রুপে ট্যাপ করে প্রসারিত করুন এবং আমদানি করতে অ্যাপ বেছে নিন:</string>
-    <string name="import_group_share_description_multi">%1$d টি গ্রুপ যাতে %2$d টি অ্যাপ আছে, আপনার সাথে শেয়ার করা হয়েছে। প্রতিটি গ্রুপে ট্যাপ করে প্রসারিত করুন এবং আমদানি করতে অ্যাপ বেছে নিন:</string>
+    <string name="import_group_share_description">গ্রুপ «%1$s» যাতে %2$s টি অ্যাপ আছে, আপনার সাথে শেয়ার করা হয়েছে। গ্রুপে ট্যাপ করে প্রসারিত করুন এবং আমদানি করতে অ্যাপ বেছে নিন:</string>
+    <string name="import_group_share_description_multi">%1$s টি গ্রুপ যাতে %2$s টি অ্যাপ আছে, আপনার সাথে শেয়ার করা হয়েছে। প্রতিটি গ্রুপে ট্যাপ করে প্রসারিত করুন এবং আমদানি করতে অ্যাপ বেছে নিন:</string>
     <string name="n_groups_selected">%1$d টি গ্রুপ নির্বাচিত</string>
     <string name="global_privacy">গ্লোবাল প্রাইভেসি</string>
     <string name="group_not_found">গ্রুপটি আর উপলব্ধ নেই</string>
@@ -246,4 +246,12 @@
     <string name="update_extension_confirm_title">এক্সটেনশন আপডেট করবেন?</string>
     <string name="update_extension_permission_summary">%1$s নতুন অনুমতি চাইছে:</string>
     <string name="install">ইনস্টল</string>
+    <plurals name="import_apps_count">
+        <item quantity="one">%d টি অ্যাপ</item>
+        <item quantity="other">%d টি অ্যাপ</item>
+    </plurals>
+    <plurals name="import_groups_count">
+        <item quantity="one">%d টি গ্রুপ</item>
+        <item quantity="other">%d টি গ্রুপ</item>
+    </plurals>
 </resources>

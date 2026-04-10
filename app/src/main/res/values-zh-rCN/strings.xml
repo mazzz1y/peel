@@ -36,9 +36,9 @@
     <string name="import_mode_title">完整备份</string>
     <string name="import_mode_description">包含 %1$d 个应用和 %2$d 个分组。现有数据将被替换。启用合并模式可保留备份中未包含的应用。</string>
     <string name="import_mode_merge_switch">合并模式</string>
-    <string name="import_mapping_title">共享的应用</string>
-    <string name="import_mapping_description">%1$d 个应用已分享给你。选择目标分组和要导入的应用：</string>
-    <string name="import_mapping_description_no_groups">%1$d 个应用已分享给你。选择要导入的应用：</string>
+    <string name="import_mapping_title">导入应用</string>
+    <string name="import_mapping_description">%1$s已分享给你。选择目标分组和要导入的应用：</string>
+    <string name="import_mapping_description_no_groups">%1$s已分享给你。选择要导入的应用：</string>
     <string name="import_mapping_description_single">收到一个共享应用，选择目标分组：</string>
     <string name="import_mapping_description_single_no_groups">收到一个共享应用：</string>
     <string name="import_group_mode_new">创建新分组</string>
@@ -199,8 +199,8 @@
     <string name="download_failed">下载失败</string>
     <string name="search">搜索</string>
     <string name="no_search_results">未找到应用</string>
-    <string name="import_group_share_description">分组「%1$s」包含 %2$d 个应用已与你共享。点击分组展开并选择要导入的应用：</string>
-    <string name="import_group_share_description_multi">%1$d 个分组包含 %2$d 个应用已与你共享。点击各分组展开并选择要导入的应用：</string>
+    <string name="import_group_share_description">分组「%1$s」包含 %2$s 个应用已与你共享。点击分组展开并选择要导入的应用：</string>
+    <string name="import_group_share_description_multi">%1$s 个分组包含 %2$s 个应用已与你共享。点击各分组展开并选择要导入的应用：</string>
     <string name="n_groups_selected">已选择 %1$d 个分组</string>
     <string name="global_privacy">全局隐私</string>
     <string name="group_not_found">该分组已不可用</string>
@@ -245,4 +245,10 @@
     <string name="update_extension_confirm_title">更新扩展？</string>
     <string name="update_extension_permission_summary">%1$s 请求新权限：</string>
     <string name="install">安装</string>
+    <plurals name="import_apps_count">
+        <item quantity="other">%d 个应用</item>
+    </plurals>
+    <plurals name="import_groups_count">
+        <item quantity="other">%d 个分组</item>
+    </plurals>
 </resources>

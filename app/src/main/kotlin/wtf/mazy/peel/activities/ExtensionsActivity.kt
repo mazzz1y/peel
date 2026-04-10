@@ -1,5 +1,6 @@
 package wtf.mazy.peel.activities
 
+import android.content.Intent
 import android.os.Bundle
 import android.text.style.BulletSpan
 import android.util.Log
@@ -33,7 +34,6 @@ import wtf.mazy.peel.ui.extensions.AmoExtensionsRepository
 import wtf.mazy.peel.ui.extensions.AmoExtensionsRepository.AmoExtension
 import wtf.mazy.peel.ui.extensions.ExtensionAdapter
 import wtf.mazy.peel.ui.extensions.ExtensionIconCache
-import wtf.mazy.peel.ui.extensions.ExtensionPopupBottomSheet
 import wtf.mazy.peel.util.NotificationUtils
 import java.io.File
 
@@ -92,7 +92,12 @@ class ExtensionsActivity : AppCompatActivity() {
 
         adapter = ExtensionAdapter(
             onUpdate = ::updateExtension,
-            onSettings = { ExtensionPopupBottomSheet.showOptionsPage(this, it) },
+            onSettings = {
+                startActivity(
+                    Intent(this, ExtensionPageActivity::class.java)
+                        .putExtra(ExtensionPageActivity.EXTRA_EXTENSION_ID, it.id)
+                )
+            },
             onUninstall = ::confirmUninstall,
         )
         recyclerView.layoutManager = LinearLayoutManager(this)
@@ -382,12 +387,15 @@ class ExtensionsActivity : AppCompatActivity() {
                 ExtensionIconCache.refreshFromExtension(this@ExtensionsActivity, installed)
                 loadInstalledExtensions()
             } catch (e: Exception) {
-                Log.w(TAG, "installExtension failed for $uri", e)
-                NotificationUtils.showToast(
-                    this@ExtensionsActivity,
-                    getString(R.string.install_extension_error),
-                    Toast.LENGTH_SHORT,
-                )
+                val canceled = (e as? WebExtension.InstallException)?.code ==
+                    WebExtension.InstallException.ErrorCodes.ERROR_USER_CANCELED
+                if (!canceled) {
+                    NotificationUtils.showToast(
+                        this@ExtensionsActivity,
+                        getString(R.string.install_extension_error),
+                        Toast.LENGTH_SHORT,
+                    )
+                }
             } finally {
                 loader.dismiss()
             }
