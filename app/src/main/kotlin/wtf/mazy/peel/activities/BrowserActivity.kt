@@ -84,7 +84,11 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
 
     private var geckoView: NestedGeckoView? = null
     private var geckoSession: GeckoSession? = null
-    private val sessionExtensionActions by lazy { SessionExtensionActions(this) }
+    private val sessionExtensionActions by lazy {
+        SessionExtensionActions(this) { hasExtensions ->
+            if (hasExtensions) rebuildFloatingControls()
+        }
+    }
 
     private var progressBar: ProgressBar? = null
     private var swipeRefreshLayout: VerticalSwipeRefreshLayout? = null
@@ -281,14 +285,7 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
         applyVisualSettings(effectiveSettings)
 
         if (effectiveSettings.isShowNotification == true && floatingControls == null) {
-            floatingControls = FloatingControlsView(
-                parent = findViewById(R.id.browser_root),
-                webappUuid = uuid,
-                onHome = { loadURL(webapp.baseUrl) },
-                onReload = ::reloadCurrentPage,
-                onExtensions = { ExtensionPickerDialog.show(this, sessionExtensionActions) },
-                getCurrentUrl = { currentUrl },
-            )
+            floatingControls = createFloatingControls(uuid)
         }
 
         biometricController.showPromptIfNeeded(
@@ -312,6 +309,25 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
         floatingControls?.remove()
         floatingControls = null
         autoReloadController.stop()
+    }
+
+    private fun createFloatingControls(uuid: String): FloatingControlsView {
+        return FloatingControlsView(
+            parent = findViewById(R.id.browser_root),
+            webappUuid = uuid,
+            onHome = { loadURL(webapp.baseUrl) },
+            onReload = ::reloadCurrentPage,
+            onExtensions = if (sessionExtensionActions.hasExtensions)
+                ({ ExtensionPickerDialog.show(this, sessionExtensionActions) }) else null,
+            getCurrentUrl = { currentUrl },
+        )
+    }
+
+    private fun rebuildFloatingControls() {
+        val uuid = webappUuid ?: return
+        val current = floatingControls ?: return
+        current.remove()
+        floatingControls = createFloatingControls(uuid)
     }
 
     override fun onStop() {

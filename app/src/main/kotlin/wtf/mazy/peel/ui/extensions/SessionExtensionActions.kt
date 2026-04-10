@@ -12,6 +12,7 @@ import wtf.mazy.peel.gecko.GeckoRuntimeProvider
 
 class SessionExtensionActions(
     private val activity: FragmentActivity,
+    private val onExtensionsReady: ((hasExtensions: Boolean) -> Unit)? = null,
 ) {
     data class Entry(
         val extension: WebExtension,
@@ -27,6 +28,8 @@ class SessionExtensionActions(
     private var currentContextId: String? = null
     private var currentPrivateMode: Boolean = false
     private var attachJob: Job? = null
+    var hasExtensions: Boolean = false
+        private set
 
     fun snapshot(): List<Entry> {
         return defaults.values.mapNotNull { (ext, defaultAction) ->
@@ -46,6 +49,8 @@ class SessionExtensionActions(
         currentPrivateMode = session.settings.usePrivateMode
         attachJob = activity.lifecycleScope.launch {
             val extensions = GeckoRuntimeProvider.listUserExtensions(activity)
+            hasExtensions = extensions.isNotEmpty()
+            onExtensionsReady?.invoke(hasExtensions)
             val liveIds = extensions.mapTo(mutableSetOf()) { it.id }
             defaults.keys.retainAll(liveIds)
 
@@ -126,6 +131,7 @@ class SessionExtensionActions(
         overrides.clear()
         currentContextId = null
         currentPrivateMode = false
+        hasExtensions = false
     }
 
     private fun openPopup(extension: WebExtension): GeckoResult<GeckoSession> {

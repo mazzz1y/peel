@@ -41,7 +41,7 @@ class FloatingControlsView(
     webappUuid: String,
     private val onHome: () -> Unit,
     private val onReload: () -> Unit,
-    private val onExtensions: () -> Unit,
+    private val onExtensions: (() -> Unit)? = null,
     private val getCurrentUrl: () -> String,
 ) {
     private val buttonPrefs = FloatingButtonPrefs(webappUuid, parent)
@@ -54,12 +54,12 @@ class FloatingControlsView(
     private val marginPx = (8 * density).toInt()
 
     private val trigger = createButton(R.drawable.ic_symbols_more_vert_24)
-    private val actionButtons = listOf(
-        createButton(R.drawable.ic_symbols_home_24),
-        createButton(R.drawable.ic_symbols_share_24),
-        createButton(R.drawable.ic_symbols_refresh_24),
-        createButton(R.drawable.ic_symbols_extension_24),
-    )
+    private val actionButtons = buildList {
+        add(createButton(R.drawable.ic_symbols_home_24))
+        add(createButton(R.drawable.ic_symbols_share_24))
+        add(createButton(R.drawable.ic_symbols_refresh_24))
+        if (onExtensions != null) add(createButton(R.drawable.ic_symbols_extension_24))
+    }
     private val allViews = actionButtons + trigger
 
     private val layoutChangeListener =
@@ -167,7 +167,9 @@ class FloatingControlsView(
             )
         }
         actionButtons[2].setOnClickListener { collapse(); onReload() }
-        actionButtons[3].setOnClickListener { collapse(); onExtensions() }
+        if (onExtensions != null && actionButtons.size > 3) {
+            actionButtons[3].setOnClickListener { collapse(); onExtensions.invoke() }
+        }
     }
 
     private fun applyPosition() {
