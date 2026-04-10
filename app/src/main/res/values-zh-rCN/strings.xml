@@ -231,5 +231,18 @@
     <string name="loading_extensions">加载中\u2026</string>
     <string name="install_extension_error">扩展安装失败</string>
     <string name="all_extensions_installed">所有推荐扩展已安装</string>
+    <string name="extension_update">更新</string>
+    <string name="extension_updated_to">已更新至 %1$s</string>
+    <string name="extension_already_up_to_date">已是最新</string>
+    <string name="update_all_extensions">全部更新</string>
+    <string name="extensions_update_summary">%1$d 已更新，%2$d 无变化</string>
+    <string name="extensions_update_summary_with_failed">%1$d 已更新，%2$d 无变化，%3$d 失败</string>
+    <string name="install_extension_confirm_title">安装扩展？</string>
+    <string name="install_extension_permission_summary">%1$s 请求以下权限：</string>
+    <string name="install_extension_permissions_header">权限：</string>
+    <string name="install_extension_origins_header">访问网站：</string>
+    <string name="install_extension_no_permissions">无需特殊权限。</string>
+    <string name="update_extension_confirm_title">更新扩展？</string>
+    <string name="update_extension_permission_summary">%1$s 请求新权限：</string>
     <string name="install">安装</string>
 </resources>

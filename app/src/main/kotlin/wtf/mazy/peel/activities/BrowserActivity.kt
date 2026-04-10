@@ -325,6 +325,11 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
             geckoSession?.setActive(false)
         }
 
+        geckoSession?.let { session ->
+            GeckoRuntimeProvider.getRuntime(this)
+                .webExtensionController.setTabActive(session, false)
+        }
+
         if (settings.isClearCache == true) {
             val runtime = GeckoRuntimeProvider.getRuntime(this)
             runtime.storageController.clearData(org.mozilla.geckoview.StorageController.ClearFlags.ALL_CACHES)
@@ -340,11 +345,11 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
         systemBarController.release()
         mediaPlaybackManager?.release()
         mediaPlaybackManager = null
+        sessionExtensionActions.detach()
         geckoView?.releaseSession()
         geckoSession?.close()
         geckoSession = null
         geckoView = null
-        sessionExtensionActions.detach()
         super.onDestroy()
     }
 

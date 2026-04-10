@@ -229,5 +229,18 @@
     <string name="loading_extensions">Caricamento\u2026</string>
     <string name="install_extension_error">Impossibile installare l\'estensione</string>
     <string name="all_extensions_installed">Tutte le estensioni consigliate sono già installate</string>
+    <string name="extension_update">Aggiorna</string>
+    <string name="extension_updated_to">Aggiornato a %1$s</string>
+    <string name="extension_already_up_to_date">Già aggiornato</string>
+    <string name="update_all_extensions">Aggiorna tutto</string>
+    <string name="extensions_update_summary">%1$d aggiornate, %2$d già aggiornate</string>
+    <string name="extensions_update_summary_with_failed">%1$d aggiornate, %2$d già aggiornate, %3$d fallite</string>
+    <string name="install_extension_confirm_title">Installare l\'estensione?</string>
+    <string name="install_extension_permission_summary">%1$s richiede le seguenti autorizzazioni:</string>
+    <string name="install_extension_permissions_header">Autorizzazioni:</string>
+    <string name="install_extension_origins_header">Accesso ai siti:</string>
+    <string name="install_extension_no_permissions">Nessuna autorizzazione speciale richiesta.</string>
+    <string name="update_extension_confirm_title">Aggiornare l\'estensione?</string>
+    <string name="update_extension_permission_summary">%1$s richiede nuove autorizzazioni:</string>
     <string name="install">Installa</string>
 </resources>

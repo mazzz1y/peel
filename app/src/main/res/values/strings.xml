@@ -228,7 +228,6 @@
 
     <string name="extensions">Extensions</string>
     <string name="no_extensions_installed">No extensions installed</string>
-    <string name="extensions_for_site">Extensions on %1$s</string>
     <string name="available_extensions">Available extensions</string>
     <string name="install_extension_confirm">Install \"%1$s\"?</string>
     <string name="extension_permissions">This extension requires:</string>
@@ -239,8 +238,6 @@
     <string name="extension_updated_to">Updated to %1$s</string>
     <string name="extension_already_up_to_date">Already up to date</string>
     <string name="update_all_extensions">Update all</string>
-    <string name="install_extension_from_file">Install from file\u2026</string>
-    <string name="browse_amo">Browse addons.mozilla.org</string>
     <string name="installing_extension">Installing\u2026</string>
     <string name="loading_extensions">Loading\u2026</string>
     <string name="install_extension_error">Failed to install extension</string>

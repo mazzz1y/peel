@@ -232,5 +232,18 @@
     <string name="loading_extensions">লোড হচ্ছে\u2026</string>
     <string name="install_extension_error">এক্সটেনশন ইনস্টল ব্যর্থ হয়েছে</string>
     <string name="all_extensions_installed">সকল প্রস্তাবিত এক্সটেনশন ইতিমধ্যে ইনস্টল করা আছে</string>
+    <string name="extension_update">আপডেট</string>
+    <string name="extension_updated_to">%1$s-এ আপডেট হয়েছে</string>
+    <string name="extension_already_up_to_date">ইতিমধ্যে আপডেট</string>
+    <string name="update_all_extensions">সব আপডেট করুন</string>
+    <string name="extensions_update_summary">%1$d আপডেট, %2$d পরিবর্তন নেই</string>
+    <string name="extensions_update_summary_with_failed">%1$d আপডেট, %2$d পরিবর্তন নেই, %3$d ব্যর্থ</string>
+    <string name="install_extension_confirm_title">এক্সটেনশন ইনস্টল করবেন?</string>
+    <string name="install_extension_permission_summary">%1$s নিম্নলিখিত অনুমতি চাইছে:</string>
+    <string name="install_extension_permissions_header">অনুমতিসমূহ:</string>
+    <string name="install_extension_origins_header">সাইটে অ্যাক্সেস:</string>
+    <string name="install_extension_no_permissions">কোনো বিশেষ অনুমতির প্রয়োজন নেই।</string>
+    <string name="update_extension_confirm_title">এক্সটেনশন আপডেট করবেন?</string>
+    <string name="update_extension_permission_summary">%1$s নতুন অনুমতি চাইছে:</string>
     <string name="install">ইনস্টল</string>
 </resources>

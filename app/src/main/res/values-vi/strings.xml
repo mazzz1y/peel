@@ -231,5 +231,18 @@
     <string name="loading_extensions">Đang tải\u2026</string>
     <string name="install_extension_error">Cài đặt tiện ích thất bại</string>
     <string name="all_extensions_installed">Tất cả tiện ích đề xuất đã được cài đặt</string>
+    <string name="extension_update">Cập nhật</string>
+    <string name="extension_updated_to">Đã cập nhật lên %1$s</string>
+    <string name="extension_already_up_to_date">Đã là phiên bản mới nhất</string>
+    <string name="update_all_extensions">Cập nhật tất cả</string>
+    <string name="extensions_update_summary">%1$d đã cập nhật, %2$d không thay đổi</string>
+    <string name="extensions_update_summary_with_failed">%1$d đã cập nhật, %2$d không thay đổi, %3$d thất bại</string>
+    <string name="install_extension_confirm_title">Cài đặt tiện ích?</string>
+    <string name="install_extension_permission_summary">%1$s yêu cầu các quyền sau:</string>
+    <string name="install_extension_permissions_header">Quyền:</string>
+    <string name="install_extension_origins_header">Truy cập trang web:</string>
+    <string name="install_extension_no_permissions">Không cần quyền đặc biệt.</string>
+    <string name="update_extension_confirm_title">Cập nhật tiện ích?</string>
+    <string name="update_extension_permission_summary">%1$s yêu cầu quyền mới:</string>
     <string name="install">Cài đặt</string>
 </resources>

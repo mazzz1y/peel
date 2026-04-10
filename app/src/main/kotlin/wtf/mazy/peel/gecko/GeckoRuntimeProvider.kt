@@ -45,7 +45,14 @@ object GeckoRuntimeProvider {
 
     private val installMutex = Mutex()
 
-    private val promptScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
+    private var promptJob = SupervisorJob()
+    private var promptScope = CoroutineScope(promptJob + Dispatchers.Main.immediate)
+
+    fun cancelPromptScope() {
+        promptJob.cancel()
+        promptJob = SupervisorJob()
+        promptScope = CoroutineScope(promptJob + Dispatchers.Main.immediate)
+    }
 
     @Volatile
     private var runtime: GeckoRuntime? = null

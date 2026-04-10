@@ -232,5 +232,18 @@
     <string name="loading_extensions">लोड हो रहा है\u2026</string>
     <string name="install_extension_error">एक्सटेंशन इंस्टॉल विफल</string>
     <string name="all_extensions_installed">सभी अनुशंसित एक्सटेंशन पहले से इंस्टॉल हैं</string>
+    <string name="extension_update">अपडेट</string>
+    <string name="extension_updated_to">%1$s में अपडेट किया गया</string>
+    <string name="extension_already_up_to_date">पहले से अपडेट है</string>
+    <string name="update_all_extensions">सभी अपडेट करें</string>
+    <string name="extensions_update_summary">%1$d अपडेट, %2$d बिना बदलाव</string>
+    <string name="extensions_update_summary_with_failed">%1$d अपडेट, %2$d बिना बदलाव, %3$d विफल</string>
+    <string name="install_extension_confirm_title">एक्सटेंशन इंस्टॉल करें?</string>
+    <string name="install_extension_permission_summary">%1$s निम्नलिखित अनुमतियाँ माँग रहा है:</string>
+    <string name="install_extension_permissions_header">अनुमतियाँ:</string>
+    <string name="install_extension_origins_header">साइटों तक पहुँच:</string>
+    <string name="install_extension_no_permissions">कोई विशेष अनुमति आवश्यक नहीं।</string>
+    <string name="update_extension_confirm_title">एक्सटेंशन अपडेट करें?</string>
+    <string name="update_extension_permission_summary">%1$s नई अनुमतियाँ माँग रहा है:</string>
     <string name="install">इंस्टॉल</string>
 </resources>

@@ -151,12 +151,9 @@ class ExtensionsActivity : AppCompatActivity() {
     }
 
     override fun onStop() {
-        if (GeckoRuntimeProvider.installPromptHandler != null) {
-            GeckoRuntimeProvider.installPromptHandler = null
-        }
-        if (GeckoRuntimeProvider.updatePromptHandler != null) {
-            GeckoRuntimeProvider.updatePromptHandler = null
-        }
+        GeckoRuntimeProvider.installPromptHandler = null
+        GeckoRuntimeProvider.updatePromptHandler = null
+        GeckoRuntimeProvider.cancelPromptScope()
         super.onStop()
     }
 

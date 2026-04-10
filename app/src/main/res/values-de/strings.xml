@@ -229,5 +229,18 @@
     <string name="loading_extensions">Wird geladen\u2026</string>
     <string name="install_extension_error">Erweiterung konnte nicht installiert werden</string>
     <string name="all_extensions_installed">Alle empfohlenen Erweiterungen sind bereits installiert</string>
+    <string name="extension_update">Aktualisieren</string>
+    <string name="extension_updated_to">Aktualisiert auf %1$s</string>
+    <string name="extension_already_up_to_date">Bereits aktuell</string>
+    <string name="update_all_extensions">Alle aktualisieren</string>
+    <string name="extensions_update_summary">%1$d aktualisiert, %2$d aktuell</string>
+    <string name="extensions_update_summary_with_failed">%1$d aktualisiert, %2$d aktuell, %3$d fehlgeschlagen</string>
+    <string name="install_extension_confirm_title">Erweiterung installieren?</string>
+    <string name="install_extension_permission_summary">%1$s fordert folgende Berechtigungen an:</string>
+    <string name="install_extension_permissions_header">Berechtigungen:</string>
+    <string name="install_extension_origins_header">Zugriff auf Seiten:</string>
+    <string name="install_extension_no_permissions">Keine besonderen Berechtigungen erforderlich.</string>
+    <string name="update_extension_confirm_title">Erweiterung aktualisieren?</string>
+    <string name="update_extension_permission_summary">%1$s fordert neue Berechtigungen an:</string>
     <string name="install">Installieren</string>
 </resources>

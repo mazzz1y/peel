@@ -231,5 +231,18 @@
     <string name="loading_extensions">載入中\u2026</string>
     <string name="install_extension_error">擴充功能安裝失敗</string>
     <string name="all_extensions_installed">所有推薦的擴充功能已安裝</string>
+    <string name="extension_update">更新</string>
+    <string name="extension_updated_to">已更新至 %1$s</string>
+    <string name="extension_already_up_to_date">已是最新</string>
+    <string name="update_all_extensions">全部更新</string>
+    <string name="extensions_update_summary">%1$d 已更新，%2$d 無變化</string>
+    <string name="extensions_update_summary_with_failed">%1$d 已更新，%2$d 無變化，%3$d 失敗</string>
+    <string name="install_extension_confirm_title">安裝擴充功能？</string>
+    <string name="install_extension_permission_summary">%1$s 要求以下權限：</string>
+    <string name="install_extension_permissions_header">權限：</string>
+    <string name="install_extension_origins_header">存取網站：</string>
+    <string name="install_extension_no_permissions">不需要特殊權限。</string>
+    <string name="update_extension_confirm_title">更新擴充功能？</string>
+    <string name="update_extension_permission_summary">%1$s 要求新權限：</string>
     <string name="install">安裝</string>
 </resources>

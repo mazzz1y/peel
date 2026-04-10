@@ -221,5 +221,18 @@
     <string name="loading_extensions">ਲੋਡ ਹੋ ਰਿਹਾ\u2026</string>
     <string name="install_extension_error">ਐਕਸਟੈਂਸ਼ਨ ਇੰਸਟਾਲ ਅਸਫਲ</string>
     <string name="all_extensions_installed">ਸਾਰੇ ਸਿਫ਼ਾਰਸ਼ੀ ਐਕਸਟੈਂਸ਼ਨ ਪਹਿਲਾਂ ਹੀ ਇੰਸਟਾਲ ਹਨ</string>
+    <string name="extension_update">ਅੱਪਡੇਟ</string>
+    <string name="extension_updated_to">%1$s ਵਿੱਚ ਅੱਪਡੇਟ ਕੀਤਾ</string>
+    <string name="extension_already_up_to_date">ਪਹਿਲਾਂ ਹੀ ਅੱਪਡੇਟ ਹੈ</string>
+    <string name="update_all_extensions">ਸਭ ਅੱਪਡੇਟ ਕਰੋ</string>
+    <string name="extensions_update_summary">%1$d ਅੱਪਡੇਟ, %2$d ਬਿਨਾ ਬਦਲਾਅ</string>
+    <string name="extensions_update_summary_with_failed">%1$d ਅੱਪਡੇਟ, %2$d ਬਿਨਾ ਬਦਲਾਅ, %3$d ਅਸਫਲ</string>
+    <string name="install_extension_confirm_title">ਐਕਸਟੈਂਸ਼ਨ ਇੰਸਟਾਲ ਕਰੋ?</string>
+    <string name="install_extension_permission_summary">%1$s ਹੇਠ ਲਿਖੀਆਂ ਇਜਾਜ਼ਤਾਂ ਮੰਗ ਰਿਹਾ ਹੈ:</string>
+    <string name="install_extension_permissions_header">ਇਜਾਜ਼ਤਾਂ:</string>
+    <string name="install_extension_origins_header">ਸਾਈਟਾਂ ਤੱਕ ਪਹੁੰਚ:</string>
+    <string name="install_extension_no_permissions">ਕੋਈ ਵਿਸ਼ੇਸ਼ ਇਜਾਜ਼ਤ ਲੋੜੀਂਦੀ ਨਹੀਂ।</string>
+    <string name="update_extension_confirm_title">ਐਕਸਟੈਂਸ਼ਨ ਅੱਪਡੇਟ ਕਰੋ?</string>
+    <string name="update_extension_permission_summary">%1$s ਨਵੀਆਂ ਇਜਾਜ਼ਤਾਂ ਮੰਗ ਰਿਹਾ ਹੈ:</string>
     <string name="install">ਇੰਸਟਾਲ</string>
 </resources>
