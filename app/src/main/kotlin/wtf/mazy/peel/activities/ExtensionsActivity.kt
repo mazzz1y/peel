@@ -1,6 +1,5 @@
 package wtf.mazy.peel.activities
 
-import android.content.Intent
 import android.os.Bundle
 import android.text.style.BulletSpan
 import android.util.Log
@@ -34,6 +33,7 @@ import wtf.mazy.peel.ui.extensions.AmoExtensionsRepository
 import wtf.mazy.peel.ui.extensions.AmoExtensionsRepository.AmoExtension
 import wtf.mazy.peel.ui.extensions.ExtensionAdapter
 import wtf.mazy.peel.ui.extensions.ExtensionIconCache
+import wtf.mazy.peel.ui.extensions.SessionExtensionActions
 import wtf.mazy.peel.util.NotificationUtils
 import java.io.File
 
@@ -93,10 +93,7 @@ class ExtensionsActivity : AppCompatActivity() {
         adapter = ExtensionAdapter(
             onUpdate = ::updateExtension,
             onSettings = {
-                startActivity(
-                    Intent(this, ExtensionPageActivity::class.java)
-                        .putExtra(ExtensionPageActivity.EXTRA_EXTENSION_ID, it.id)
-                )
+                startActivity(ExtensionPageActivity.intentForExtension(this, it.id))
             },
             onUninstall = ::confirmUninstall,
         )
@@ -235,6 +232,7 @@ class ExtensionsActivity : AppCompatActivity() {
             val isEmpty = extensions.isEmpty()
             emptyStateText.visibility = if (isEmpty) View.VISIBLE else View.GONE
             recyclerView.visibility = if (isEmpty) View.GONE else View.VISIBLE
+            SessionExtensionActions.extensionsChanged = true
         }
     }
 

@@ -1,5 +1,7 @@
 package wtf.mazy.peel.activities
 
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
@@ -29,22 +31,29 @@ class ExtensionPageActivity : AppCompatActivity() {
 
         geckoView = findViewById(R.id.gecko_view)
 
-        val extensionId = intent.getStringExtra(EXTRA_EXTENSION_ID) ?: run { finish(); return }
-
-        lifecycleScope.launch {
-            val extensions = GeckoRuntimeProvider.listUserExtensions(this@ExtensionPageActivity)
-            val ext = extensions.find { it.id == extensionId } ?: run { finish(); return@launch }
-
-            val optionsUrl = ext.metaData.optionsPageUrl ?: run { finish(); return@launch }
-            supportActionBar?.title = ext.metaData.name ?: ext.id
-
-            val runtime = GeckoRuntimeProvider.getRuntime(this@ExtensionPageActivity)
-            val session = GeckoSession()
-            session.open(runtime)
-            session.loadUri(optionsUrl)
-            geckoView?.setSession(session)
-            geckoSession = session
+        val url = intent.getStringExtra(EXTRA_URL)
+        if (url != null) {
+            supportActionBar?.title = intent.getStringExtra(EXTRA_TITLE) ?: ""
+            openSession(url)
+        } else {
+            val extensionId = intent.getStringExtra(EXTRA_EXTENSION_ID) ?: run { finish(); return }
+            lifecycleScope.launch {
+                val extensions = GeckoRuntimeProvider.listUserExtensions(this@ExtensionPageActivity)
+                val ext = extensions.find { it.id == extensionId } ?: run { finish(); return@launch }
+                val optionsUrl = ext.metaData.optionsPageUrl ?: run { finish(); return@launch }
+                supportActionBar?.title = ext.metaData.name ?: ext.id
+                openSession(optionsUrl)
+            }
         }
+    }
+
+    private fun openSession(url: String) {
+        val runtime = GeckoRuntimeProvider.getRuntime(this)
+        val session = GeckoSession()
+        session.open(runtime)
+        session.loadUri(url)
+        geckoView?.setSession(session)
+        geckoSession = session
     }
 
     override fun onDestroy() {
@@ -57,5 +66,18 @@ class ExtensionPageActivity : AppCompatActivity() {
 
     companion object {
         const val EXTRA_EXTENSION_ID = "extension_id"
+        const val EXTRA_URL = "url"
+        const val EXTRA_TITLE = "title"
+
+        fun intentForExtension(context: Context, extensionId: String): Intent {
+            return Intent(context, ExtensionPageActivity::class.java)
+                .putExtra(EXTRA_EXTENSION_ID, extensionId)
+        }
+
+        fun intentForUrl(context: Context, url: String, title: String): Intent {
+            return Intent(context, ExtensionPageActivity::class.java)
+                .putExtra(EXTRA_URL, url)
+                .putExtra(EXTRA_TITLE, title)
+        }
     }
 }

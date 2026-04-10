@@ -71,7 +71,7 @@ class ExtensionPopupBottomSheet : BottomSheetDialogFragment() {
     private data class Pending(val session: GeckoSession, val title: String?)
 
     companion object {
-        private const val TAG = "ExtensionPopupSheet"
+        internal const val TAG = "ExtensionPopupSheet"
         private const val ARG_TOKEN = "token"
 
         private val nextToken = AtomicLong(0L)

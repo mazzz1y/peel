@@ -4,15 +4,18 @@ import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import org.mozilla.geckoview.AllowOrDeny
 import org.mozilla.geckoview.GeckoResult
 import org.mozilla.geckoview.GeckoSession
 import org.mozilla.geckoview.GeckoSessionSettings
 import org.mozilla.geckoview.WebExtension
+import wtf.mazy.peel.activities.ExtensionPageActivity
 import wtf.mazy.peel.gecko.GeckoRuntimeProvider
 
 class SessionExtensionActions(
     private val activity: FragmentActivity,
     private val onExtensionsReady: ((hasExtensions: Boolean) -> Unit)? = null,
+    private val onNavigateToUrl: ((String) -> Unit)? = null,
 ) {
     data class Entry(
         val extension: WebExtension,
@@ -22,14 +25,11 @@ class SessionExtensionActions(
 
     private data class Default(val extension: WebExtension, val action: WebExtension.Action)
 
-    private val defaults = mutableMapOf<String, Default>()
     private val overrides = mutableMapOf<String, WebExtension.Action>()
-    private val attached = mutableListOf<Pair<WebExtension, GeckoSession>>()
+    private val attachedSessions = mutableListOf<Pair<WebExtension, GeckoSession>>()
     private var currentContextId: String? = null
     private var currentPrivateMode: Boolean = false
     private var attachJob: Job? = null
-    var hasExtensions: Boolean = false
-        private set
 
     fun snapshot(): List<Entry> {
         return defaults.values.mapNotNull { (ext, defaultAction) ->
@@ -47,6 +47,8 @@ class SessionExtensionActions(
         detach()
         currentContextId = session.settings.contextId
         currentPrivateMode = session.settings.usePrivateMode
+        active = this
+
         attachJob = activity.lifecycleScope.launch {
             val extensions = GeckoRuntimeProvider.listUserExtensions(activity)
             hasExtensions = extensions.isNotEmpty()
@@ -54,33 +56,7 @@ class SessionExtensionActions(
             val liveIds = extensions.mapTo(mutableSetOf()) { it.id }
             defaults.keys.retainAll(liveIds)
 
-            val globalDelegate = object : WebExtension.ActionDelegate {
-                override fun onBrowserAction(
-                    extension: WebExtension,
-                    session: GeckoSession?,
-                    action: WebExtension.Action,
-                ) {
-                    defaults[extension.id] = Default(extension, action)
-                }
-
-                override fun onPageAction(
-                    extension: WebExtension,
-                    session: GeckoSession?,
-                    action: WebExtension.Action,
-                ) {
-                    defaults[extension.id] = Default(extension, action)
-                }
-
-                override fun onTogglePopup(
-                    extension: WebExtension,
-                    action: WebExtension.Action,
-                ): GeckoResult<GeckoSession>? = openPopup(extension)
-
-                override fun onOpenPopup(
-                    extension: WebExtension,
-                    action: WebExtension.Action,
-                ): GeckoResult<GeckoSession>? = openPopup(extension)
-            }
+            applyGlobalDelegates(extensions)
 
             val sessionDelegate = object : WebExtension.ActionDelegate {
                 override fun onBrowserAction(
@@ -102,19 +78,18 @@ class SessionExtensionActions(
                 override fun onTogglePopup(
                     extension: WebExtension,
                     action: WebExtension.Action,
-                ): GeckoResult<GeckoSession>? = openPopup(extension)
+                ): GeckoResult<GeckoSession> = createPopupSession(extension)
 
                 override fun onOpenPopup(
                     extension: WebExtension,
                     action: WebExtension.Action,
-                ): GeckoResult<GeckoSession>? = openPopup(extension)
+                ): GeckoResult<GeckoSession> = createPopupSession(extension)
             }
 
             val controller = session.webExtensionController
             for (ext in extensions) {
-                ext.setActionDelegate(globalDelegate)
                 controller.setActionDelegate(ext, sessionDelegate)
-                attached += ext to session
+                attachedSessions += ext to session
             }
         }
     }
@@ -122,19 +97,23 @@ class SessionExtensionActions(
     fun detach() {
         attachJob?.cancel()
         attachJob = null
-        for ((ext, session) in attached) {
-            ext.setActionDelegate(null)
+        for ((ext, session) in attachedSessions) {
             session.webExtensionController.setActionDelegate(ext, null)
         }
-        attached.clear()
-        defaults.clear()
+        attachedSessions.clear()
         overrides.clear()
         currentContextId = null
         currentPrivateMode = false
-        hasExtensions = false
+        if (active === this) active = null
     }
 
-    private fun openPopup(extension: WebExtension): GeckoResult<GeckoSession> {
+    internal fun dismissPopup() {
+        activity.supportFragmentManager
+            .findFragmentByTag(ExtensionPopupBottomSheet.TAG)
+            ?.let { (it as? ExtensionPopupBottomSheet)?.dismiss() }
+    }
+
+    private fun createPopupSession(extension: WebExtension): GeckoResult<GeckoSession> {
         val ctxId = currentContextId
         val priv = currentPrivateMode
         val runtime = GeckoRuntimeProvider.getRuntime(activity)
@@ -143,6 +122,24 @@ class SessionExtensionActions(
             .usePrivateMode(priv)
             .build()
         val popupSession = GeckoSession(popupSettings)
+        popupSession.contentDelegate = object : GeckoSession.ContentDelegate {
+            override fun onCloseRequest(session: GeckoSession) {
+                dismissPopup()
+            }
+        }
+        popupSession.navigationDelegate = object : GeckoSession.NavigationDelegate {
+            override fun onLoadRequest(
+                session: GeckoSession,
+                request: GeckoSession.NavigationDelegate.LoadRequest,
+            ): GeckoResult<AllowOrDeny> {
+                if (request.target == GeckoSession.NavigationDelegate.TARGET_WINDOW_NEW) {
+                    dismissPopup()
+                    onNavigateToUrl?.invoke(request.uri)
+                    return GeckoResult.fromValue(AllowOrDeny.DENY)
+                }
+                return GeckoResult.fromValue(AllowOrDeny.ALLOW)
+            }
+        }
         popupSession.open(runtime)
         ExtensionPopupBottomSheet.showExistingSession(
             activity = activity,
@@ -150,5 +147,96 @@ class SessionExtensionActions(
             title = extension.metaData.name ?: extension.id,
         )
         return GeckoResult.fromValue(popupSession)
+    }
+
+    companion object {
+        @Volatile
+        private var active: SessionExtensionActions? = null
+
+        @Volatile
+        var hasExtensions: Boolean = false
+            private set
+
+        @Volatile
+        var extensionsChanged: Boolean = false
+
+        private val defaults = mutableMapOf<String, Default>()
+        private val managedExtensions = mutableMapOf<String, WebExtension>()
+
+        private val globalActionDelegate = object : WebExtension.ActionDelegate {
+            override fun onBrowserAction(
+                extension: WebExtension,
+                session: GeckoSession?,
+                action: WebExtension.Action,
+            ) {
+                defaults[extension.id] = Default(extension, action)
+            }
+
+            override fun onPageAction(
+                extension: WebExtension,
+                session: GeckoSession?,
+                action: WebExtension.Action,
+            ) {
+                defaults[extension.id] = Default(extension, action)
+            }
+
+            override fun onTogglePopup(
+                extension: WebExtension,
+                action: WebExtension.Action,
+            ): GeckoResult<GeckoSession>? {
+                return active?.createPopupSession(extension)
+            }
+
+            override fun onOpenPopup(
+                extension: WebExtension,
+                action: WebExtension.Action,
+            ): GeckoResult<GeckoSession>? {
+                return active?.createPopupSession(extension)
+            }
+        }
+
+        private val globalTabDelegate = object : WebExtension.TabDelegate {
+            override fun onNewTab(
+                source: WebExtension,
+                createDetails: WebExtension.CreateTabDetails,
+            ): GeckoResult<GeckoSession>? {
+                val url = createDetails.url ?: return null
+                val host = active ?: return null
+                val title = source.metaData.name ?: source.id
+                host.activity.runOnUiThread {
+                    host.dismissPopup()
+                    host.activity.startActivity(
+                        ExtensionPageActivity.intentForUrl(host.activity, url, title)
+                    )
+                }
+                return null
+            }
+
+            override fun onOpenOptionsPage(source: WebExtension) {
+                val host = active ?: return
+                host.activity.runOnUiThread {
+                    host.dismissPopup()
+                    host.activity.startActivity(
+                        ExtensionPageActivity.intentForExtension(host.activity, source.id)
+                    )
+                }
+            }
+        }
+
+        fun setActive(instance: SessionExtensionActions) {
+            active = instance
+        }
+
+        private fun applyGlobalDelegates(extensions: List<WebExtension>) {
+            val liveIds = extensions.mapTo(mutableSetOf()) { it.id }
+            managedExtensions.keys.retainAll(liveIds)
+            for (ext in extensions) {
+                if (ext.id !in managedExtensions) {
+                    ext.setActionDelegate(globalActionDelegate)
+                    ext.tabDelegate = globalTabDelegate
+                    managedExtensions[ext.id] = ext
+                }
+            }
+        }
     }
 }

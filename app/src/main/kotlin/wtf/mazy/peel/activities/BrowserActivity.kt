@@ -85,9 +85,13 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
     private var geckoView: NestedGeckoView? = null
     private var geckoSession: GeckoSession? = null
     private val sessionExtensionActions by lazy {
-        SessionExtensionActions(this) { hasExtensions ->
-            if (hasExtensions) rebuildFloatingControls()
-        }
+        SessionExtensionActions(
+            activity = this,
+            onExtensionsReady = { hasExtensions ->
+                if (hasExtensions) rebuildFloatingControls()
+            },
+            onNavigateToUrl = ::loadURL,
+        )
     }
 
     private var progressBar: ProgressBar? = null
@@ -271,6 +275,11 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
             ContextCompat.RECEIVER_NOT_EXPORTED,
         )
         val uuid = webappUuid ?: return
+        SessionExtensionActions.setActive(sessionExtensionActions)
+        if (SessionExtensionActions.extensionsChanged) {
+            SessionExtensionActions.extensionsChanged = false
+            geckoSession?.let { sessionExtensionActions.attach(it) }
+        }
         ensureDataReady(uuid, forceReload = true) {
             applyResumedState()
         }
@@ -317,7 +326,7 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
             webappUuid = uuid,
             onHome = { loadURL(webapp.baseUrl) },
             onReload = ::reloadCurrentPage,
-            onExtensions = if (sessionExtensionActions.hasExtensions)
+            onExtensions = if (SessionExtensionActions.hasExtensions)
                 ({ ExtensionPickerDialog.show(this, sessionExtensionActions) }) else null,
             getCurrentUrl = { currentUrl },
         )
@@ -345,6 +354,7 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
             GeckoRuntimeProvider.getRuntime(this)
                 .webExtensionController.setTabActive(session, false)
         }
+        sessionExtensionActions.dismissPopup()
 
         if (settings.isClearCache == true) {
             val runtime = GeckoRuntimeProvider.getRuntime(this)
