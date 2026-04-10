@@ -30,6 +30,7 @@ alt="Get it on Obtainium" align="center" height="54" />
 - Lock sensitive web apps behind biometric authentication, block screenshots
 - Dynamic status bar color matching web content
 - Background media playback with full MediaSession support (notification controls, seek, metadata)
+- Firefox extensions support
 - Pull-to-refresh with proper APZ integration
 - Set settings globally or override them per app
 - Export and import all web apps and settings with all properties and icons
