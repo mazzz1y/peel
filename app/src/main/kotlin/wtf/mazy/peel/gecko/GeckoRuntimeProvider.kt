@@ -219,6 +219,7 @@ object GeckoRuntimeProvider {
                 add("  media.peerconnection.ice.default_address_only: true")
                 add("  media.peerconnection.ice.no_host: true")
             }
+
         }
         if (prefs.isEmpty()) return null
         val file = File(context.filesDir, GECKO_CONFIG_FILE)

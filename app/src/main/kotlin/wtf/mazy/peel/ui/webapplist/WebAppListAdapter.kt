@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.color.MaterialColors
 import kotlinx.coroutines.launch
 import wtf.mazy.peel.R
+import wtf.mazy.peel.activities.MainActivity
 import wtf.mazy.peel.activities.WebAppSettingsActivity
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.WebApp
@@ -288,7 +289,8 @@ class WebAppListAdapter(
     private fun openSettings(webapp: WebApp) {
         val intent = Intent(activity, WebAppSettingsActivity::class.java)
         intent.putExtra(Const.INTENT_WEBAPP_UUID, webapp.uuid)
-        activity.startActivity(intent)
+        (activity as? MainActivity)?.launchSettings(intent)
+            ?: activity.startActivity(intent)
     }
 
     private fun cloneWebApp(webapp: WebApp) {

@@ -1,9 +1,14 @@
 package wtf.mazy.peel.util
 
+import android.app.Activity
+import android.content.Intent
+import android.os.Handler
+import android.os.Looper
 import android.webkit.URLUtil
 import java.net.URLDecoder
 import java.text.BreakIterator
 import java.util.regex.Pattern
+import kotlin.system.exitProcess
 
 fun displayUrl(url: String): String {
     val queryStart = url.indexOf('?')
@@ -29,6 +34,14 @@ fun leadingEmojis(text: String, max: Int): String? {
         count++
     }
     return if (count > 0) text.substring(0, prev) else null
+}
+
+fun restartApp(activity: Activity) {
+    val intent = activity.packageManager.getLaunchIntentForPackage(activity.packageName)?.apply {
+        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+    }
+    intent?.let { activity.startActivity(it) }
+    Handler(Looper.getMainLooper()).postDelayed({ exitProcess(0) }, 200)
 }
 
 object Utility {

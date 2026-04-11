@@ -56,12 +56,6 @@ sealed class SettingDefinition(
             get() = listOf(primaryField, intField)
     }
 
-    class StringMapSetting(
-        toggle: SettingField,
-        @StringRes displayNameResId: Int,
-        category: SettingCategory,
-    ) : SettingDefinition(toggle, displayNameResId, category)
-
     class BooleanWithCredentialsSetting(
         toggle: SettingField,
         @StringRes displayNameResId: Int,
@@ -113,19 +107,33 @@ object ApplyTimingRegistry {
         else -> ApplyTiming.IMMEDIATE
     }
 
-    fun showSnackbarIfNeeded(
-        key: String,
+    fun getChangedKeys(original: WebAppSettings, modified: WebAppSettings): Set<String> {
+        return WebAppSettings.ALL_KEYS.filterTo(mutableSetOf()) { key ->
+            original.getValue(key) != modified.getValue(key)
+        }
+    }
+
+    fun getHighestTiming(keys: Set<String>): ApplyTiming {
+        var highest = ApplyTiming.IMMEDIATE
+        for (key in keys) {
+            val t = getTiming(key)
+            if (t > highest) highest = t
+        }
+        return highest
+    }
+
+    const val EXTRA_APPLY_TIMING = "apply_timing"
+
+    fun showSnackbarForTiming(
+        timing: ApplyTiming,
         root: View,
-        current: Snackbar?,
         restartAction: (() -> Unit)? = null,
     ): Snackbar? {
-        val timing = getTiming(key)
-        if (timing == ApplyTiming.IMMEDIATE) return current
-        current?.dismiss()
+        if (timing == ApplyTiming.IMMEDIATE) return null
         val message = when (timing) {
             ApplyTiming.PEEL_RESTART -> R.string.setting_requires_peel_restart
             ApplyTiming.WEBAPP_RESTART -> R.string.setting_requires_webapp_restart
-            ApplyTiming.IMMEDIATE -> return current
+            ApplyTiming.IMMEDIATE -> return null
         }
         return Snackbar.make(root, message, Snackbar.LENGTH_LONG).apply {
             if (restartAction != null) setAction(R.string.restart) { restartAction() }
@@ -299,11 +307,6 @@ object SettingRegistry {
                 globalOnly = true,
             ),
             // Advanced
-            SettingDefinition.StringMapSetting(
-                SettingField(WebAppSettings::customHeaders, null),
-                R.string.setting_custom_headers,
-                SettingCategory.ADVANCED,
-            ),
             SettingDefinition.BooleanWithCredentialsSetting(
                 SettingField(WebAppSettings::isUseBasicAuth, false),
                 R.string.setting_basic_auth,

@@ -125,7 +125,6 @@ object BackupManager {
 
     private fun WebAppSettings.withoutSecrets(): WebAppSettings {
         return deepCopy().apply {
-            customHeaders = null
             isUseBasicAuth = false
             basicAuthUsername = null
             basicAuthPassword = null

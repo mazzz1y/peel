@@ -14,7 +14,6 @@ class OverridePickerController(
     private val settings: WebAppSettings,
     private val container: LinearLayout,
     private val addButton: View,
-    private val onSettingChanged: ((String) -> Unit)? = null,
 ) : OverridePickerDialog.OnSettingSelectedListener {
 
     private var viewFactory = createViewFactory()
@@ -26,12 +25,8 @@ class OverridePickerController(
 
     override fun onSettingSelected(setting: SettingDefinition) {
         val globalSettings = DataManager.instance.defaultSettings.settings
-        if (setting is SettingDefinition.StringMapSetting) {
-            settings.customHeaders = emptyMap()
-        } else {
-            setting.allFields.forEach { field ->
-                settings.setValue(field.key, globalSettings.getValue(field.key))
-            }
+        setting.allFields.forEach { field ->
+            settings.setValue(field.key, globalSettings.getValue(field.key))
         }
         container.addView(viewFactory.createView(container, setting, settings))
     }
@@ -43,7 +38,6 @@ class OverridePickerController(
                 removeOverride(setting.key)
                 refreshList()
             },
-            onSettingChanged,
         )
 
     private fun refreshList() {

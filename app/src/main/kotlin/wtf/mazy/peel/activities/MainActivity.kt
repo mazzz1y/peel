@@ -36,6 +36,8 @@ import kotlinx.coroutines.launch
 import wtf.mazy.peel.BuildConfig
 import wtf.mazy.peel.R
 import wtf.mazy.peel.gecko.GeckoRuntimeProvider
+import wtf.mazy.peel.model.ApplyTiming
+import wtf.mazy.peel.model.ApplyTimingRegistry
 import wtf.mazy.peel.model.BackupManager
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.SandboxManager
@@ -53,6 +55,7 @@ import wtf.mazy.peel.ui.webapplist.SelectionModeHost
 import wtf.mazy.peel.ui.webapplist.WebAppListFragment
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.NotificationUtils
+import wtf.mazy.peel.util.restartApp
 
 class MainActivity :
     AppCompatActivity(),
@@ -88,6 +91,11 @@ class MainActivity :
     private val importLauncher =
         registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
             uri?.let { importDialogHelper.showForUri(it) }
+        }
+
+    private val settingsLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            handleSettingsResult(result.data)
         }
 
     private val backPressCallback = object : androidx.activity.OnBackPressedCallback(false) {
@@ -168,6 +176,19 @@ class MainActivity :
         super.onDestroy()
     }
 
+    fun launchSettings(intent: Intent) {
+        settingsLauncher.launch(intent)
+    }
+
+    private fun handleSettingsResult(data: Intent?) {
+        val timingName = data?.getStringExtra(ApplyTimingRegistry.EXTRA_APPLY_TIMING) ?: return
+        val timing = ApplyTiming.valueOf(timingName)
+        ApplyTimingRegistry.showSnackbarForTiming(
+            timing,
+            findViewById(android.R.id.content),
+        ) { restartApp(this) }
+    }
+
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_main, menu)
         return true
@@ -191,7 +212,7 @@ class MainActivity :
             }
 
             R.id.action_global_settings -> {
-                startActivity(Intent(this, SettingsActivity::class.java))
+                settingsLauncher.launch(Intent(this, SettingsActivity::class.java))
                 true
             }
 
@@ -615,7 +636,7 @@ class MainActivity :
                 val settingsIntent = Intent(this@MainActivity, WebAppSettingsActivity::class.java)
                 settingsIntent.putExtra(Const.INTENT_WEBAPP_UUID, newSite.uuid)
                 settingsIntent.putExtra(Const.INTENT_AUTO_FETCH, true)
-                startActivity(settingsIntent)
+                settingsLauncher.launch(settingsIntent)
             }
         }
     }

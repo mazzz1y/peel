@@ -19,7 +19,6 @@ import wtf.mazy.peel.model.WebAppSettings
 class SettingViewFactory(
     private val inflater: LayoutInflater,
     private val buttonStrategy: ButtonStrategy,
-    private val onSettingChanged: ((String) -> Unit)? = null,
 ) {
     sealed interface ButtonStrategy {
         data object GlobalDefaults : ButtonStrategy
@@ -46,11 +45,6 @@ class SettingViewFactory(
             is SettingDefinition.BooleanWithIntSetting ->
                 inflate(R.layout.item_setting_boolean_int, container) {
                     setupBooleanWithInt(it, setting, settings)
-                }
-
-            is SettingDefinition.StringMapSetting ->
-                inflate(R.layout.item_setting_header_map, container) {
-                    setupHeaderMap(it, setting, settings)
                 }
 
             is SettingDefinition.BooleanWithCredentialsSetting ->
@@ -86,8 +80,6 @@ class SettingViewFactory(
         val switchListener = { _: CompoundButton?, isChecked: Boolean ->
             settings.setValue(setting.key, isChecked)
             updateUndoVisibility(btnUndo, setting, settings)
-            onSettingChanged?.invoke(setting.key)
-            Unit
         }
 
         configureButtons(btnRemove, btnUndo, setting, settings) {
@@ -140,7 +132,6 @@ class SettingViewFactory(
                 settings.setValue(setting.key, values[item.itemId])
                 syncUi()
                 updateUndoVisibility(btnUndo, setting, settings)
-                onSettingChanged?.invoke(setting.key)
                 true
             }
             popup.show()
@@ -199,9 +190,7 @@ class SettingViewFactory(
                 if (isChecked) editText.post { editText.requestFocus() }
                 listenersActive = true
                 updateUndoVisibility(btnUndo, setting, settings)
-                onSettingChanged?.invoke(setting.key)
             }
-            Unit
         }
 
         syncUi()
@@ -228,96 +217,6 @@ class SettingViewFactory(
             syncUi()
             listenersActive = true
         }
-    }
-
-
-    private fun setupHeaderMap(
-        view: View,
-        setting: SettingDefinition.StringMapSetting,
-        settings: WebAppSettings,
-    ) {
-        val textName = view.findViewById<TextView>(R.id.textSettingName)
-        val btnAdd = view.findViewById<ImageButton>(R.id.btnAddHeader)
-        val btnRemove = view.findViewById<ImageButton>(R.id.btnRemoveOverride)
-        val container = view.findViewById<LinearLayout>(R.id.containerHeaders)
-
-        textName.text = view.context.getString(setting.displayNameResId)
-
-        when (val strategy = buttonStrategy) {
-            is ButtonStrategy.GlobalDefaults -> btnRemove.visibility = View.GONE
-            is ButtonStrategy.Override -> {
-                btnRemove.visibility = View.VISIBLE
-                btnRemove.setOnClickListener {
-                    settings.customHeaders = null
-                    strategy.onRemove(setting)
-                }
-                if (settings.customHeaders == null) {
-                    settings.customHeaders = emptyMap()
-                }
-            }
-        }
-
-        fun refreshHeaders() {
-            container.removeAllViews()
-            settings.customHeaders?.forEach { (key, value) ->
-                addHeaderEntryView(container, settings, key, value, setting.key)
-            }
-        }
-        refreshHeaders()
-
-        btnAdd.setOnClickListener {
-            settings.customHeaders = settings.customHeaders.orEmpty() + ("" to "")
-            addHeaderEntryView(container, settings, "", "", setting.key)
-            onSettingChanged?.invoke(setting.key)
-        }
-    }
-
-    private fun addHeaderEntryView(
-        container: LinearLayout,
-        settings: WebAppSettings,
-        initialKey: String,
-        initialValue: String,
-        settingKey: String,
-    ) {
-        val entryView = inflater.inflate(R.layout.item_header_entry, container, false)
-        val editName = entryView.findViewById<TextInputEditText>(R.id.editHeaderName)
-        val editValue = entryView.findViewById<TextInputEditText>(R.id.editHeaderValue)
-        val btnRemoveHeader = entryView.findViewById<ImageButton>(R.id.btnRemoveHeader)
-
-        editName.setText(initialKey)
-        editValue.setText(initialValue)
-
-        var currentKey = initialKey
-
-        editName.doAfterTextChanged { s ->
-            val newKey = s?.toString() ?: ""
-            if (newKey != currentKey) {
-                settings.customHeaders = settings.customHeaders?.minus(currentKey)
-                if (newKey.isNotEmpty()) {
-                    settings.customHeaders =
-                        settings.customHeaders.orEmpty() + (newKey to (editValue.text?.toString()
-                            ?: ""))
-                }
-                currentKey = newKey
-            }
-        }
-
-        editValue.doAfterTextChanged { s ->
-            val key = editName.text?.toString() ?: ""
-            if (key.isNotEmpty()) {
-                settings.customHeaders =
-                    settings.customHeaders.orEmpty() + (key to (s?.toString() ?: ""))
-            }
-        }
-
-        btnRemoveHeader.setOnClickListener {
-            settings.customHeaders = settings.customHeaders?.minus(currentKey)
-            container.removeView(entryView)
-            onSettingChanged?.invoke(settingKey)
-        }
-
-        container.addView(entryView)
-        if (initialKey.isEmpty()) editName.requestFocus()
     }
 
     private fun setupBooleanWithCredentials(
@@ -354,9 +253,7 @@ class SettingViewFactory(
                 layout.visibility = if (isChecked) View.VISIBLE else View.GONE
                 if (isChecked) editUsername.post { editUsername.requestFocus() }
                 updateUndoVisibility(btnUndo, setting, settings)
-                onSettingChanged?.invoke(setting.key)
             }
-            Unit
         }
 
         syncUi()

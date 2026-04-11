@@ -151,20 +151,13 @@
     <string name="select_setting_to_override">সেটিং নির্বাচন করুন</string>
     <string name="add_override">ওভাররাইড যোগ করুন</string>
     <string name="remove_override">ওভাররাইড সরান</string>
-    <string name="overridden_settings">ওভাররাইড করা সেটিংস</string>
-
-    <string name="header_name">নাম</string>
-    <string name="header_value">মান</string>
-    <string name="add">যোগ করুন</string>
+    <string name="overridden_settings">ওভাররাইড করা সেটিংস</string>    <string name="add">যোগ করুন</string>
     <string name="remove">সরান</string>
 
     <string name="setting_long_click_share">দীর্ঘ চাপে প্রসঙ্গ মেনু</string>
     <string name="setting_pull_to_refresh">টেনে রিফ্রেশ</string>
     <string name="setting_disable_screenshots">স্ক্রিনশট ব্লক করুন</string>
-    <string name="setting_always_https">শুধু HTTPS</string>
-    <string name="setting_custom_headers">কাস্টম হেডার</string>
-    <string name="setting_basic_auth">HTTP অনুমোদন</string>
-    <string name="setting_dynamic_status_bar">ডায়নামিক স্ট্যাটাস বার</string>
+    <string name="setting_always_https">শুধু HTTPS</string>    <string name="setting_basic_auth">HTTP অনুমোদন</string>    <string name="setting_dynamic_status_bar">ডায়নামিক স্ট্যাটাস বার</string>
     <string name="setting_floating_controls">ভাসমান নিয়ন্ত্রণ</string>
 
     <string name="groups">গ্রুপ</string>
@@ -217,8 +210,8 @@
     <string name="tracker_protection_strict">কঠোর</string>
     <string name="setting_fingerprinting_protection">ফিঙ্গারপ্রিন্টিং সুরক্ষা</string>
     <string name="setting_global_privacy_control">GPC সিগন্যাল</string>
-    <string name="setting_requires_peel_restart">এই সেটিং Peel রিস্টার্ট করার পর কার্যকর হবে</string>
-    <string name="setting_requires_webapp_restart">এই সেটিং অ্যাপ রিস্টার্ট করার পর কার্যকর হবে</string>
+    <string name="setting_requires_peel_restart">পরিবর্তনগুলো Peel রিস্টার্ট করার পর কার্যকর হবে</string>
+    <string name="setting_requires_webapp_restart">পরিবর্তনগুলো অ্যাপ রিস্টার্ট করার পর কার্যকর হবে</string>
 
     <string name="extensions">এক্সটেনশন</string>
     <string name="no_extensions_installed">কোনো এক্সটেনশন ইনস্টল করা নেই।\n+ ট্যাপ করে উপলব্ধ এক্সটেনশন দেখুন।</string>

@@ -1,5 +1,7 @@
 package wtf.mazy.peel.activities
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.view.Gravity
 import android.view.LayoutInflater
@@ -12,7 +14,6 @@ import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.progressindicator.CircularProgressIndicator
-import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.NonCancellable
@@ -26,6 +27,7 @@ import wtf.mazy.peel.model.IconCache
 import wtf.mazy.peel.model.SettingDefinition
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.model.WebAppGroup
+import wtf.mazy.peel.model.WebAppSettings
 import wtf.mazy.peel.shortcut.FetchCandidate
 import wtf.mazy.peel.shortcut.FetchResult
 import wtf.mazy.peel.shortcut.HeadlessFetcher
@@ -54,7 +56,7 @@ class WebAppSettingsActivity :
     private var fetchDialogText: TextView? = null
     private var activeFetcher: HeadlessFetcher? = null
     private var fetchGeneration: Int = 0
-    private var currentSnackbar: Snackbar? = null
+    private lateinit var originalSettingsSnapshot: WebAppSettings
 
     override fun onCreate(savedInstanceState: Bundle?) {
         iconEditor = IconEditorController(this, { binding.imgWebAppIcon }) { modifiedWebapp }
@@ -77,6 +79,7 @@ class WebAppSettingsActivity :
         }
         val baseWebapp = originalWebapp ?: return
         modifiedWebapp = WebApp(baseWebapp)
+        originalSettingsSnapshot = baseWebapp.settings.deepCopy()
         val editableWebapp =
             modifiedWebapp
                 ?: run {
@@ -448,14 +451,20 @@ class WebAppSettingsActivity :
                 modifiedWebapp.settings,
                 binding.linearLayoutOverrides,
                 binding.btnAddOverride,
-                ::onSettingChanged,
             )
         overrideController.setup()
     }
 
-    private fun onSettingChanged(key: String) {
-        currentSnackbar =
-            ApplyTimingRegistry.showSnackbarIfNeeded(key, binding.root, currentSnackbar)
+    override fun finish() {
+        modifiedWebapp?.let {
+            val changed = ApplyTimingRegistry.getChangedKeys(originalSettingsSnapshot, it.settings)
+            val timing = ApplyTimingRegistry.getHighestTiming(changed)
+            setResult(
+                Activity.RESULT_OK,
+                Intent().putExtra(ApplyTimingRegistry.EXTRA_APPLY_TIMING, timing.name)
+            )
+        }
+        super.finish()
     }
 
     override fun onSettingSelected(setting: SettingDefinition) {

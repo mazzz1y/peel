@@ -73,7 +73,6 @@ class HeadlessFetcher(
     private val appContext = activity.applicationContext
     private val handler = Handler(Looper.getMainLooper())
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
-    private var customHeaders: Map<String, String> = emptyMap()
     private var desktopMode = false
     private var finished = false
     private var geckoView: GeckoView? = null
@@ -85,12 +84,7 @@ class HeadlessFetcher(
     private var requestCounter = 0
 
     fun start() {
-        val headers = mutableMapOf<String, String>()
-        settings.customHeaders?.forEach { (key, value) ->
-            if (!key.equals("User-Agent", ignoreCase = true)) headers[key] = value
-        }
         desktopMode = settings.isRequestDesktop == true
-        customHeaders = headers
 
         var loadUrl = url
         if (loadUrl.startsWith("http://") && settings.isAlwaysHttps == true)
@@ -342,16 +336,7 @@ class HeadlessFetcher(
     }
 
     private fun loadUri(session: GeckoSession, url: String) {
-        if (customHeaders.isNotEmpty()) {
-            session.load(
-                GeckoSession.Loader()
-                    .uri(url)
-                    .additionalHeaders(customHeaders)
-                    .headerFilter(GeckoSession.HEADER_FILTER_UNRESTRICTED_UNSAFE)
-            )
-        } else {
-            session.loadUri(url)
-        }
+        session.loadUri(url)
     }
 
     private fun parsePageInfo(msg: JSONObject): PageInfo {

@@ -1,10 +1,11 @@
 package wtf.mazy.peel.activities
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
-import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -14,6 +15,7 @@ import wtf.mazy.peel.model.ApplyTimingRegistry
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.SettingDefinition
 import wtf.mazy.peel.model.WebAppGroup
+import wtf.mazy.peel.model.WebAppSettings
 import wtf.mazy.peel.ui.IconEditorController
 import wtf.mazy.peel.ui.dialog.InputDialogConfig
 import wtf.mazy.peel.ui.dialog.OverridePickerDialog
@@ -29,7 +31,7 @@ class GroupSettingsActivity :
     private var originalGroup: WebAppGroup? = null
     private var modifiedGroup: WebAppGroup? = null
     private lateinit var iconEditor: IconEditorController
-    private var currentSnackbar: Snackbar? = null
+    private lateinit var originalSettingsSnapshot: WebAppSettings
 
     override fun onCreate(savedInstanceState: Bundle?) {
         iconEditor = IconEditorController(this, { binding.imgGroupIcon }) { modifiedGroup }
@@ -46,6 +48,7 @@ class GroupSettingsActivity :
         }
 
         modifiedGroup = WebAppGroup(originalGroup!!)
+        originalSettingsSnapshot = originalGroup!!.settings.deepCopy()
         binding.group = modifiedGroup
 
         binding.imgGroupIcon.setOnClickListener { iconEditor.onIconTap() }
@@ -69,6 +72,18 @@ class GroupSettingsActivity :
                 }
             }
         }
+    }
+
+    override fun finish() {
+        modifiedGroup?.let {
+            val changed = ApplyTimingRegistry.getChangedKeys(originalSettingsSnapshot, it.settings)
+            val timing = ApplyTimingRegistry.getHighestTiming(changed)
+            setResult(
+                Activity.RESULT_OK,
+                Intent().putExtra(ApplyTimingRegistry.EXTRA_APPLY_TIMING, timing.name)
+            )
+        }
+        super.finish()
     }
 
     override fun inflateBinding(layoutInflater: LayoutInflater): GroupSettingsBinding {
@@ -111,14 +126,8 @@ class GroupSettingsActivity :
                 group.settings,
                 binding.linearLayoutOverrides,
                 binding.btnAddOverride,
-                ::onSettingChanged,
             )
         overrideController.setup()
-    }
-
-    private fun onSettingChanged(key: String) {
-        currentSnackbar =
-            ApplyTimingRegistry.showSnackbarIfNeeded(key, binding.root, currentSnackbar)
     }
 
     override fun onSettingSelected(setting: SettingDefinition) {

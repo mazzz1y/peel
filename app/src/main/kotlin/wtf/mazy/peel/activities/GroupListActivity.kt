@@ -14,6 +14,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.addCallback
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.lifecycle.Lifecycle
@@ -29,6 +30,8 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.materialswitch.MaterialSwitch
 import kotlinx.coroutines.launch
 import wtf.mazy.peel.R
+import wtf.mazy.peel.model.ApplyTiming
+import wtf.mazy.peel.model.ApplyTimingRegistry
 import wtf.mazy.peel.model.BackupManager
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.WebApp
@@ -41,6 +44,7 @@ import wtf.mazy.peel.ui.dialog.showSandboxInputDialog
 import wtf.mazy.peel.ui.dragReorderCallback
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.NotificationUtils
+import wtf.mazy.peel.util.restartApp
 import java.util.Collections
 
 class GroupListActivity : AppCompatActivity() {
@@ -57,6 +61,16 @@ class GroupListActivity : AppCompatActivity() {
     private val checkIconColor by lazy {
         MaterialColors.getColor(window.decorView, androidx.appcompat.R.attr.colorPrimary, 0)
     }
+
+    private val settingsLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            val timingName = result.data?.getStringExtra(ApplyTimingRegistry.EXTRA_APPLY_TIMING) ?: return@registerForActivityResult
+            val timing = ApplyTiming.valueOf(timingName)
+            ApplyTimingRegistry.showSnackbarForTiming(
+                timing,
+                findViewById(android.R.id.content),
+            ) { restartApp(this) }
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.AppTheme)
@@ -422,7 +436,7 @@ class GroupListActivity : AppCompatActivity() {
             holder.itemView.setOnClickListener {
                 val intent = Intent(this@GroupListActivity, GroupSettingsActivity::class.java)
                 intent.putExtra(Const.INTENT_GROUP_UUID, group.uuid)
-                startActivity(intent)
+                settingsLauncher.launch(intent)
             }
             holder.iconView.setOnClickListener { enterSelectionMode(group.uuid) }
             holder.menuButton.setOnClickListener { view -> showPopupMenu(view, group) }
@@ -524,7 +538,7 @@ class GroupListActivity : AppCompatActivity() {
                         val intent =
                             Intent(this@GroupListActivity, GroupSettingsActivity::class.java)
                         intent.putExtra(Const.INTENT_GROUP_UUID, group.uuid)
-                        startActivity(intent)
+                        settingsLauncher.launch(intent)
                         true
                     }
 

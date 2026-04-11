@@ -151,20 +151,13 @@
     <string name="select_setting_to_override">設定を選択</string>
     <string name="add_override">オーバーライドを追加</string>
     <string name="remove_override">オーバーライドを削除</string>
-    <string name="overridden_settings">オーバーライド設定</string>
-
-    <string name="header_name">名前</string>
-    <string name="header_value">値</string>
-    <string name="add">追加</string>
+    <string name="overridden_settings">オーバーライド設定</string>    <string name="add">追加</string>
     <string name="remove">削除</string>
 
     <string name="setting_long_click_share">長押しコンテキストメニュー</string>
     <string name="setting_pull_to_refresh">引いて更新</string>
     <string name="setting_disable_screenshots">スクリーンショットをブロック</string>
-    <string name="setting_always_https">HTTPSのみ</string>
-    <string name="setting_custom_headers">カスタムヘッダー</string>
-    <string name="setting_basic_auth">HTTP 認証</string>
-    <string name="setting_dynamic_status_bar">ダイナミックステータスバー</string>
+    <string name="setting_always_https">HTTPSのみ</string>    <string name="setting_basic_auth">HTTP 認証</string>    <string name="setting_dynamic_status_bar">ダイナミックステータスバー</string>
     <string name="setting_floating_controls">フローティングコントロール</string>
 
     <string name="groups">グループ</string>
@@ -216,8 +209,8 @@
     <string name="tracker_protection_strict">厳格</string>
     <string name="setting_fingerprinting_protection">フィンガープリント防止</string>
     <string name="setting_global_privacy_control">GPCシグナル</string>
-    <string name="setting_requires_peel_restart">この設定はPeelの再起動後に有効になります</string>
-    <string name="setting_requires_webapp_restart">この設定はアプリの再起動後に有効になります</string>
+    <string name="setting_requires_peel_restart">変更はPeelの再起動後に有効になります</string>
+    <string name="setting_requires_webapp_restart">変更はアプリの再起動後に有効になります</string>
 
     <string name="extensions">拡張機能</string>
     <string name="no_extensions_installed">拡張機能がインストールされていません。\n+ をタップして利用可能な拡張機能を参照してください。</string>

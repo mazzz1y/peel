@@ -151,20 +151,13 @@
     <string name="select_setting_to_override">选择设置</string>
     <string name="add_override">添加覆盖</string>
     <string name="remove_override">删除覆盖</string>
-    <string name="overridden_settings">已覆盖的设置</string>
-
-    <string name="header_name">名称</string>
-    <string name="header_value">值</string>
-    <string name="add">添加</string>
+    <string name="overridden_settings">已覆盖的设置</string>    <string name="add">添加</string>
     <string name="remove">删除</string>
 
     <string name="setting_long_click_share">长按快捷菜单</string>
     <string name="setting_pull_to_refresh">下拉刷新</string>
     <string name="setting_disable_screenshots">禁止截屏</string>
-    <string name="setting_always_https">仅 HTTPS</string>
-    <string name="setting_custom_headers">自定义请求头</string>
-    <string name="setting_basic_auth">HTTP 授权</string>
-    <string name="setting_dynamic_status_bar">动态状态栏</string>
+    <string name="setting_always_https">仅 HTTPS</string>    <string name="setting_basic_auth">HTTP 授权</string>    <string name="setting_dynamic_status_bar">动态状态栏</string>
     <string name="setting_floating_controls">浮动控件</string>
 
     <string name="groups">分组</string>
@@ -216,8 +209,8 @@
     <string name="tracker_protection_strict">严格</string>
     <string name="setting_fingerprinting_protection">指纹保护</string>
     <string name="setting_global_privacy_control">GPC 信号</string>
-    <string name="setting_requires_peel_restart">此设置在重启 Peel 后生效</string>
-    <string name="setting_requires_webapp_restart">此设置在重启应用后生效</string>
+    <string name="setting_requires_peel_restart">更改在重启 Peel 后生效</string>
+    <string name="setting_requires_webapp_restart">更改在重启应用后生效</string>
 
     <string name="extensions">扩展</string>
     <string name="no_extensions_installed">未安装扩展。\n点击 + 浏览可用扩展。</string>

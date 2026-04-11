@@ -151,20 +151,13 @@
     <string name="select_setting_to_override">Selecionar configuração</string>
     <string name="add_override">Adicionar substituição</string>
     <string name="remove_override">Remover substituição</string>
-    <string name="overridden_settings">Configurações substituídas</string>
-
-    <string name="header_name">Nome</string>
-    <string name="header_value">Valor</string>
-    <string name="add">Adicionar</string>
+    <string name="overridden_settings">Configurações substituídas</string>    <string name="add">Adicionar</string>
     <string name="remove">Remover</string>
 
     <string name="setting_long_click_share">Menu de contexto</string>
     <string name="setting_pull_to_refresh">Puxar para atualizar</string>
     <string name="setting_disable_screenshots">Bloquear capturas de tela</string>
-    <string name="setting_always_https">Apenas HTTPS</string>
-    <string name="setting_custom_headers">Cabeçalhos personalizados</string>
-    <string name="setting_basic_auth">Autorização HTTP</string>
-    <string name="setting_dynamic_status_bar">Barra de status dinâmica</string>
+    <string name="setting_always_https">Apenas HTTPS</string>    <string name="setting_basic_auth">Autorização HTTP</string>    <string name="setting_dynamic_status_bar">Barra de status dinâmica</string>
     <string name="setting_floating_controls">Controles flutuantes</string>
 
     <string name="groups">Grupos</string>
@@ -217,8 +210,8 @@
     <string name="tracker_protection_strict">Rigorosa</string>
     <string name="setting_fingerprinting_protection">Proteção contra impressão digital</string>
     <string name="setting_global_privacy_control">Sinal GPC</string>
-    <string name="setting_requires_peel_restart">Esta configuração terá efeito após reiniciar o Peel</string>
-    <string name="setting_requires_webapp_restart">Esta configuração terá efeito após reiniciar os apps</string>
+    <string name="setting_requires_peel_restart">As alterações terão efeito após reiniciar o Peel</string>
+    <string name="setting_requires_webapp_restart">As alterações terão efeito após reiniciar os apps</string>
 
     <string name="extensions">Extensões</string>
     <string name="no_extensions_installed">Nenhuma extensão instalada.\nToque em + para explorar extensões disponíveis.</string>

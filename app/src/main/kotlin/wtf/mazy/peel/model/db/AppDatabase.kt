@@ -4,31 +4,14 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import androidx.room.TypeConverter
-import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
-import kotlinx.serialization.json.Json
-
-class StringMapConverter {
-    @TypeConverter
-    fun fromStringMap(map: Map<String, String>?): String? {
-        return map?.let { Json.encodeToString(it) }
-    }
-
-    @TypeConverter
-    fun toStringMap(json: String?): Map<String, String>? {
-        if (json == null) return null
-        return Json.decodeFromString<Map<String, String>>(json)
-    }
-}
 
 @Database(
     entities = [WebAppEntity::class, WebAppGroupEntity::class],
-    version = 11,
+    version = 12,
     exportSchema = true,
 )
-@TypeConverters(StringMapConverter::class)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun webAppDao(): WebAppDao
@@ -156,7 +139,6 @@ abstract class AppDatabase : RoomDatabase() {
             "isClearCache" to "INTEGER",
             "isAlwaysHttps" to "INTEGER",
             "isAllowLocationAccess" to "INTEGER",
-            "customHeaders" to "TEXT",
             "isAutoReload" to "INTEGER",
             "timeAutoReload" to "INTEGER",
             "colorScheme" to "INTEGER",
@@ -355,6 +337,13 @@ abstract class AppDatabase : RoomDatabase() {
                 }
             }
 
+        val MIGRATION_11_12 =
+            object : Migration(11, 12) {
+                override fun migrate(db: SupportSQLiteDatabase) {
+                    recreateTablesCanonical(db)
+                }
+            }
+
         fun getInstance(context: Context): AppDatabase {
             return instance
                 ?: synchronized(this) { instance ?: buildDatabase(context).also { instance = it } }
@@ -377,6 +366,7 @@ abstract class AppDatabase : RoomDatabase() {
                     MIGRATION_8_9,
                     MIGRATION_9_10,
                     MIGRATION_10_11,
+                    MIGRATION_11_12,
                 )
                 .allowMainThreadQueries()
                 .build()

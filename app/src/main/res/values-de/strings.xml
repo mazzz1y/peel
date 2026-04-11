@@ -120,20 +120,14 @@
     <string name="select_setting_to_override">Einstellung wählen</string>
     <string name="add_override">Überschreibung hinzufügen</string>
     <string name="remove_override">Überschreibung entfernen</string>
-    <string name="overridden_settings">Einstellungsüberschreibungen</string>
-    <string name="header_name">Name</string>
-    <string name="header_value">Wert</string>
-    <string name="add">Hinzufügen</string>
+    <string name="overridden_settings">Einstellungsüberschreibungen</string>    <string name="add">Hinzufügen</string>
     <string name="remove">Entfernen</string>
     <string name="clone">Klonen</string>
 
     <string name="setting_long_click_share">Kontextmenü bei langem Drücken</string>
     <string name="setting_pull_to_refresh">Zum Aktualisieren ziehen</string>
     <string name="setting_disable_screenshots">Screenshots deaktivieren</string>
-    <string name="setting_always_https">Immer HTTPS</string>
-    <string name="setting_custom_headers">Benutzerdefinierte Header</string>
-    <string name="setting_basic_auth">HTTP-Autorisierung</string>
-    <string name="setting_dynamic_status_bar">Dynamische Statusleistenfarbe</string>
+    <string name="setting_always_https">Immer HTTPS</string>    <string name="setting_basic_auth">HTTP-Autorisierung</string>    <string name="setting_dynamic_status_bar">Dynamische Statusleistenfarbe</string>
 
     <string name="groups">Gruppen</string>
     <string name="group">Gruppe</string>
@@ -214,8 +208,8 @@
     <string name="tracker_protection_strict">Streng</string>
     <string name="setting_fingerprinting_protection">Fingerprinting-Schutz</string>
     <string name="setting_global_privacy_control">GPC-Signal</string>
-    <string name="setting_requires_peel_restart">Diese Einstellung wird nach einem Neustart von Peel wirksam</string>
-    <string name="setting_requires_webapp_restart">Diese Einstellung wird nach einem Neustart der Apps wirksam</string>
+    <string name="setting_requires_peel_restart">Änderungen werden nach einem Neustart von Peel wirksam</string>
+    <string name="setting_requires_webapp_restart">Änderungen werden nach einem Neustart der Apps wirksam</string>
 
     <string name="extensions">Erweiterungen</string>
     <string name="no_extensions_installed">Keine Erweiterungen installiert.\nTippen Sie auf + um verfügbare Erweiterungen zu durchsuchen.</string>

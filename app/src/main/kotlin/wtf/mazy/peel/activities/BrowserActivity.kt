@@ -39,7 +39,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.mozilla.geckoview.GeckoSession
-import org.mozilla.geckoview.GeckoSession.Loader
 import org.mozilla.geckoview.GeckoSessionSettings
 import wtf.mazy.peel.R
 import wtf.mazy.peel.browser.BrowserContextMenu
@@ -97,7 +96,6 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
     private var progressBar: ProgressBar? = null
     private var swipeRefreshLayout: VerticalSwipeRefreshLayout? = null
     override var currentlyReloading = true
-    private var customHeaders: Map<String, String>? = null
     override var filePathCallback: ((Array<Uri>?) -> Unit)? = null
     private var historyPurged = false
     override var canGoBack = false
@@ -511,17 +509,7 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
         if (url.startsWith("http://") && effectiveSettings.isAlwaysHttps == true) {
             finalUrl = url.replaceFirst("http://", "https://")
         }
-        val headers = customHeaders
-        if (headers.isNullOrEmpty()) {
-            geckoSession?.loadUri(finalUrl)
-        } else {
-            geckoSession?.load(
-                Loader()
-                    .uri(finalUrl)
-                    .additionalHeaders(headers)
-                    .headerFilter(GeckoSession.HEADER_FILTER_UNRESTRICTED_UNSAFE)
-            )
-        }
+        geckoSession?.loadUri(finalUrl)
     }
 
     private fun showToast(message: String) {
@@ -836,7 +824,6 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
     }
 
     private fun applyVisualSettings(settings: WebAppSettings) {
-        customHeaders = buildCustomHeaders(settings)
         applyWindowFlags(settings)
         setupPullToRefresh(settings)
         applyColorScheme()
@@ -884,12 +871,7 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
     }
 
     private fun reloadCurrentPage() {
-        val url = currentUrl
-        if (url.isNotEmpty() && customHeaders?.isNotEmpty() == true) {
-            loadURL(url)
-        } else {
-            geckoSession?.reload()
-        }
+        geckoSession?.reload()
     }
 
     private fun resetHistoryAfterAuthReturn() {
@@ -1107,14 +1089,6 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
                 null
             }
         }.toTypedArray()
-    }
-
-    private fun buildCustomHeaders(settings: WebAppSettings): Map<String, String> {
-        val extraHeaders = mutableMapOf("X-Requested-With" to "")
-        settings.customHeaders?.forEach { (key, value) ->
-            extraHeaders[key] = value
-        }
-        return extraHeaders.toMap()
     }
 
     private fun applyTaskSnapshotProtection() {

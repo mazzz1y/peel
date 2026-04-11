@@ -151,20 +151,13 @@
     <string name="select_setting_to_override">Выберите настройку</string>
     <string name="add_override">Добавить переопределение</string>
     <string name="remove_override">Удалить переопределение</string>
-    <string name="overridden_settings">Переопределённые настройки</string>
-
-    <string name="header_name">Название</string>
-    <string name="header_value">Значение</string>
-    <string name="add">Добавить</string>
+    <string name="overridden_settings">Переопределённые настройки</string>    <string name="add">Добавить</string>
     <string name="remove">Удалить</string>
 
     <string name="setting_long_click_share">Контекстное меню</string>
     <string name="setting_pull_to_refresh">Обновление свайпом вниз</string>
     <string name="setting_disable_screenshots">Блокировать скриншоты</string>
-    <string name="setting_always_https">Только HTTPS</string>
-    <string name="setting_custom_headers">Пользовательские HTTP заголовки</string>
-    <string name="setting_basic_auth">HTTP Авторизация</string>
-    <string name="setting_dynamic_status_bar">Динамическая строка состояния</string>
+    <string name="setting_always_https">Только HTTPS</string>    <string name="setting_basic_auth">HTTP Авторизация</string>    <string name="setting_dynamic_status_bar">Динамическая строка состояния</string>
     <string name="setting_floating_controls">Плавающие кнопки</string>
 
     <string name="groups">Группы</string>
@@ -219,8 +212,8 @@
     <string name="tracker_protection_strict">Строгий</string>
     <string name="setting_fingerprinting_protection">Защита от фингерпринтинга</string>
     <string name="setting_global_privacy_control">Сигнал GPC</string>
-    <string name="setting_requires_peel_restart">Настройка вступит в силу после перезапуска Peel</string>
-    <string name="setting_requires_webapp_restart">Настройка вступит в силу после перезапуска приложений</string>
+    <string name="setting_requires_peel_restart">Изменения вступят в силу после перезапуска Peel</string>
+    <string name="setting_requires_webapp_restart">Изменения вступят в силу после перезапуска приложений</string>
 
     <string name="extensions">Расширения</string>
     <string name="no_extensions_installed">Расширения не установлены.\nНажмите + чтобы просмотреть доступные расширения.</string>

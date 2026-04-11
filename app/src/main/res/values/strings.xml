@@ -171,11 +171,7 @@
     <string name="select_setting_to_override">Select setting</string>
     <string name="add_override">Add Override</string>
     <string name="remove_override">Remove Override</string>
-    <string name="overridden_settings">Settings Override</string>
-
-    <string name="header_name">Name</string>
-    <string name="header_value">Value</string>
-    <string name="add">Add</string>
+    <string name="overridden_settings">Settings Override</string>    <string name="add">Add</string>
     <string name="remove">Remove</string>
 
     <string name="setting_long_click_share">Long-press context menu</string>
@@ -198,14 +194,12 @@
     <string name="setting_fingerprinting_protection">Fingerprinting protection</string>
     <string name="setting_block_local_network">Block local network access</string>
     <string name="setting_block_webrtc_ip_leak">Prevent WebRTC IP leaks</string>
-    <string name="setting_always_https">HTTPS only</string>
-    <string name="setting_custom_headers">Custom headers</string>
-    <string name="setting_basic_auth">HTTP Authorization</string>
+    <string name="setting_always_https">HTTPS only</string>    <string name="setting_basic_auth">HTTP Authorization</string>
     <string name="setting_dynamic_status_bar">Dynamic status bar</string>
 
     <string name="setting_floating_controls">Floating controls</string>
-    <string name="setting_requires_peel_restart">This setting takes effect after Peel restart</string>
-    <string name="setting_requires_webapp_restart">This setting takes effect after webapps restart</string>
+    <string name="setting_requires_peel_restart">Changes take effect after Peel restart</string>
+    <string name="setting_requires_webapp_restart">Changes take effect after webapps restart</string>
     <string name="restart">Restart</string>
 
     <string name="groups">Groups</string>
