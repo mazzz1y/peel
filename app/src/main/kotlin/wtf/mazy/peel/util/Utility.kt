@@ -2,8 +2,6 @@ package wtf.mazy.peel.util
 
 import android.app.Activity
 import android.content.Intent
-import android.os.Handler
-import android.os.Looper
 import android.webkit.URLUtil
 import java.net.URLDecoder
 import java.text.BreakIterator
@@ -37,11 +35,10 @@ fun leadingEmojis(text: String, max: Int): String? {
 }
 
 fun restartApp(activity: Activity) {
-    val intent = activity.packageManager.getLaunchIntentForPackage(activity.packageName)?.apply {
-        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-    }
-    intent?.let { activity.startActivity(it) }
-    Handler(Looper.getMainLooper()).postDelayed({ exitProcess(0) }, 200)
+    val intent = activity.packageManager.getLaunchIntentForPackage(activity.packageName) ?: return
+    val componentName = intent.component ?: return
+    activity.startActivity(Intent.makeRestartActivityTask(componentName))
+    exitProcess(0)
 }
 
 object Utility {
