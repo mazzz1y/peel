@@ -40,6 +40,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.mozilla.geckoview.GeckoSession
 import org.mozilla.geckoview.GeckoSessionSettings
+import org.mozilla.geckoview.StorageController
 import wtf.mazy.peel.R
 import wtf.mazy.peel.browser.BrowserContextMenu
 import wtf.mazy.peel.browser.DownloadHandler
@@ -354,16 +355,15 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
         }
         sessionExtensionActions.dismissPopup()
 
-        if (settings.isClearCache == true) {
-            val runtime = GeckoRuntimeProvider.getRuntime(this)
-            runtime.storageController.clearData(org.mozilla.geckoview.StorageController.ClearFlags.ALL_CACHES)
-        }
-
         biometricController.onStop()
     }
 
     override fun onDestroy() {
         liveInstances.remove(this)
+        if (isFinishing && effectiveSettings.isClearCache == true && liveInstances.isEmpty()) {
+            val runtime = GeckoRuntimeProvider.getRuntime(this)
+            runtime.storageController.clearData(StorageController.ClearFlags.ALL_CACHES)
+        }
         launchOverlayController.release()
         biometricController.unregisterReceiver()
         systemBarController.release()
