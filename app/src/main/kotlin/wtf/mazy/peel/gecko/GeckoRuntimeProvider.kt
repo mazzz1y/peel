@@ -210,16 +210,20 @@ object GeckoRuntimeProvider {
         return rt
     }
 
+    private fun pref(key: String, value: Any) = "  $key: $value"
+
     private fun writeGeckoConfig(
         context: Context,
         defaults: WebAppSettings,
     ): String? {
         val prefs = buildList {
             if (defaults.isBlockWebRtcIpLeak == true) {
-                add("  media.peerconnection.ice.default_address_only: true")
-                add("  media.peerconnection.ice.no_host: true")
+                add(pref("media.peerconnection.ice.default_address_only", true))
+                add(pref("media.peerconnection.ice.no_host", true))
             }
-
+            if (defaults.isDisableQuic == true) {
+                add(pref("network.http.http3.enable", false))
+            }
         }
         if (prefs.isEmpty()) return null
         val file = File(context.filesDir, GECKO_CONFIG_FILE)

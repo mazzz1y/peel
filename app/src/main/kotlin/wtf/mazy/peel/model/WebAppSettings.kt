@@ -33,6 +33,7 @@ data class WebAppSettings(
     var isFingerprintingProtection: Boolean? = null,
     var isBlockLocalNetwork: Boolean? = null,
     var isBlockWebRtcIpLeak: Boolean? = null,
+    var isDisableQuic: Boolean? = null,
     var isUseBasicAuth: Boolean? = null,
     var basicAuthUsername: String? = null,
     var basicAuthPassword: String? = null,

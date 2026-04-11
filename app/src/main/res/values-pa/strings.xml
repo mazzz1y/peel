@@ -237,4 +237,5 @@
         <item quantity="one">%d ਗਰੁੱਪ</item>
         <item quantity="other">%d ਗਰੁੱਪ</item>
     </plurals>
+    <string name="setting_disable_quic">QUIC ਅਯੋਗ ਕਰੋ</string>
 </resources>

@@ -253,4 +253,5 @@
         <item quantity="many">%d групп</item>
         <item quantity="other">%d групп</item>
     </plurals>
+    <string name="setting_disable_quic">Отключить QUIC</string>
 </resources>

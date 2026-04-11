@@ -161,6 +161,7 @@ abstract class AppDatabase : RoomDatabase() {
             "isFingerprintingProtection" to "INTEGER",
             "isBlockLocalNetwork" to "INTEGER",
             "isBlockWebRtcIpLeak" to "INTEGER",
+            "isDisableQuic" to "INTEGER",
             "isUseBasicAuth" to "INTEGER",
             "basicAuthUsername" to "TEXT",
             "basicAuthPassword" to "TEXT",

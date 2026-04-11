@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 12,
-    "identityHash": "6c441fd13ac5aae8347392867e82da5f",
+    "identityHash": "f21fce2a3e0b09fedccc135aff5d7891",
     "entities": [
       {
         "tableName": "webapps",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uuid` TEXT NOT NULL, `baseUrl` TEXT NOT NULL, `title` TEXT NOT NULL, `isUseContainer` INTEGER NOT NULL, `isEphemeralSandbox` INTEGER NOT NULL, `order` INTEGER NOT NULL, `groupUuid` TEXT, `isOpenUrlExternal` INTEGER, `isAllowJs` INTEGER, `isRequestDesktop` INTEGER, `isClearCache` INTEGER, `isAlwaysHttps` INTEGER, `isAllowLocationAccess` INTEGER, `isAutoReload` INTEGER, `timeAutoReload` INTEGER, `colorScheme` INTEGER, `isDrmAllowed` INTEGER, `isShowFullscreen` INTEGER, `isKeepAwake` INTEGER, `isCameraPermission` INTEGER, `isMicrophonePermission` INTEGER, `isBiometricProtection` INTEGER, `isAllowMediaPlaybackInBackground` INTEGER, `isLongClickShare` INTEGER, `isShowProgressbar` INTEGER, `isDisableScreenshots` INTEGER, `isPullToRefresh` INTEGER, `isSafeBrowsing` INTEGER, `isDynamicStatusBar` INTEGER, `isShowNotification` INTEGER, `isAppLinksPermission` INTEGER, `isGlobalPrivacyControl` INTEGER, `isFingerprintingProtection` INTEGER, `isBlockLocalNetwork` INTEGER, `isBlockWebRtcIpLeak` INTEGER, `isUseBasicAuth` INTEGER, `basicAuthUsername` TEXT, `basicAuthPassword` TEXT, PRIMARY KEY(`uuid`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uuid` TEXT NOT NULL, `baseUrl` TEXT NOT NULL, `title` TEXT NOT NULL, `isUseContainer` INTEGER NOT NULL, `isEphemeralSandbox` INTEGER NOT NULL, `order` INTEGER NOT NULL, `groupUuid` TEXT, `isOpenUrlExternal` INTEGER, `isAllowJs` INTEGER, `isRequestDesktop` INTEGER, `isClearCache` INTEGER, `isAlwaysHttps` INTEGER, `isAllowLocationAccess` INTEGER, `isAutoReload` INTEGER, `timeAutoReload` INTEGER, `colorScheme` INTEGER, `isDrmAllowed` INTEGER, `isShowFullscreen` INTEGER, `isKeepAwake` INTEGER, `isCameraPermission` INTEGER, `isMicrophonePermission` INTEGER, `isBiometricProtection` INTEGER, `isAllowMediaPlaybackInBackground` INTEGER, `isLongClickShare` INTEGER, `isShowProgressbar` INTEGER, `isDisableScreenshots` INTEGER, `isPullToRefresh` INTEGER, `isSafeBrowsing` INTEGER, `isDynamicStatusBar` INTEGER, `isShowNotification` INTEGER, `isAppLinksPermission` INTEGER, `isGlobalPrivacyControl` INTEGER, `isFingerprintingProtection` INTEGER, `isBlockLocalNetwork` INTEGER, `isBlockWebRtcIpLeak` INTEGER, `isDisableQuic` INTEGER, `isUseBasicAuth` INTEGER, `basicAuthUsername` TEXT, `basicAuthPassword` TEXT, PRIMARY KEY(`uuid`))",
         "fields": [
           {
             "fieldPath": "uuid",
@@ -190,6 +190,11 @@
             "affinity": "INTEGER"
           },
           {
+            "fieldPath": "settings.isDisableQuic",
+            "columnName": "isDisableQuic",
+            "affinity": "INTEGER"
+          },
+          {
             "fieldPath": "settings.isUseBasicAuth",
             "columnName": "isUseBasicAuth",
             "affinity": "INTEGER"
@@ -214,7 +219,7 @@
       },
       {
         "tableName": "webapp_groups",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uuid` TEXT NOT NULL, `title` TEXT NOT NULL, `order` INTEGER NOT NULL, `isUseContainer` INTEGER NOT NULL, `isEphemeralSandbox` INTEGER NOT NULL, `isOpenUrlExternal` INTEGER, `isAllowJs` INTEGER, `isRequestDesktop` INTEGER, `isClearCache` INTEGER, `isAlwaysHttps` INTEGER, `isAllowLocationAccess` INTEGER, `isAutoReload` INTEGER, `timeAutoReload` INTEGER, `colorScheme` INTEGER, `isDrmAllowed` INTEGER, `isShowFullscreen` INTEGER, `isKeepAwake` INTEGER, `isCameraPermission` INTEGER, `isMicrophonePermission` INTEGER, `isBiometricProtection` INTEGER, `isAllowMediaPlaybackInBackground` INTEGER, `isLongClickShare` INTEGER, `isShowProgressbar` INTEGER, `isDisableScreenshots` INTEGER, `isPullToRefresh` INTEGER, `isSafeBrowsing` INTEGER, `isDynamicStatusBar` INTEGER, `isShowNotification` INTEGER, `isAppLinksPermission` INTEGER, `isGlobalPrivacyControl` INTEGER, `isFingerprintingProtection` INTEGER, `isBlockLocalNetwork` INTEGER, `isBlockWebRtcIpLeak` INTEGER, `isUseBasicAuth` INTEGER, `basicAuthUsername` TEXT, `basicAuthPassword` TEXT, PRIMARY KEY(`uuid`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uuid` TEXT NOT NULL, `title` TEXT NOT NULL, `order` INTEGER NOT NULL, `isUseContainer` INTEGER NOT NULL, `isEphemeralSandbox` INTEGER NOT NULL, `isOpenUrlExternal` INTEGER, `isAllowJs` INTEGER, `isRequestDesktop` INTEGER, `isClearCache` INTEGER, `isAlwaysHttps` INTEGER, `isAllowLocationAccess` INTEGER, `isAutoReload` INTEGER, `timeAutoReload` INTEGER, `colorScheme` INTEGER, `isDrmAllowed` INTEGER, `isShowFullscreen` INTEGER, `isKeepAwake` INTEGER, `isCameraPermission` INTEGER, `isMicrophonePermission` INTEGER, `isBiometricProtection` INTEGER, `isAllowMediaPlaybackInBackground` INTEGER, `isLongClickShare` INTEGER, `isShowProgressbar` INTEGER, `isDisableScreenshots` INTEGER, `isPullToRefresh` INTEGER, `isSafeBrowsing` INTEGER, `isDynamicStatusBar` INTEGER, `isShowNotification` INTEGER, `isAppLinksPermission` INTEGER, `isGlobalPrivacyControl` INTEGER, `isFingerprintingProtection` INTEGER, `isBlockLocalNetwork` INTEGER, `isBlockWebRtcIpLeak` INTEGER, `isDisableQuic` INTEGER, `isUseBasicAuth` INTEGER, `basicAuthUsername` TEXT, `basicAuthPassword` TEXT, PRIMARY KEY(`uuid`))",
         "fields": [
           {
             "fieldPath": "uuid",
@@ -387,6 +392,11 @@
             "affinity": "INTEGER"
           },
           {
+            "fieldPath": "settings.isDisableQuic",
+            "columnName": "isDisableQuic",
+            "affinity": "INTEGER"
+          },
+          {
             "fieldPath": "settings.isUseBasicAuth",
             "columnName": "isUseBasicAuth",
             "affinity": "INTEGER"
@@ -412,7 +422,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '6c441fd13ac5aae8347392867e82da5f')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'f21fce2a3e0b09fedccc135aff5d7891')"
     ]
   }
 }

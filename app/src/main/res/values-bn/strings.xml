@@ -247,4 +247,5 @@
         <item quantity="one">%d টি গ্রুপ</item>
         <item quantity="other">%d টি গ্রুপ</item>
     </plurals>
+    <string name="setting_disable_quic">QUIC নিষ্ক্রিয় করুন</string>
 </resources>

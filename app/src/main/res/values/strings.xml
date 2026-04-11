@@ -254,4 +254,5 @@
     <string name="update_extension_confirm_title">Update extension?</string>
     <string name="update_extension_permission_summary">%1$s is requesting new permissions:</string>
     <string name="install">Install</string>
+    <string name="setting_disable_quic">Disable QUIC</string>
 </resources>

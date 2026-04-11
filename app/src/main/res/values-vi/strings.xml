@@ -244,4 +244,5 @@
     <plurals name="import_groups_count">
         <item quantity="other">%d nhóm</item>
     </plurals>
+    <string name="setting_disable_quic">Tắt QUIC</string>
 </resources>

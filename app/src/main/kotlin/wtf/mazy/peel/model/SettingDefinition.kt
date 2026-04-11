@@ -99,6 +99,7 @@ object ApplyTimingRegistry {
         "isFingerprintingProtection",
         "isBlockLocalNetwork",
         "isBlockWebRtcIpLeak",
+        "isDisableQuic",
     )
 
     fun getTiming(key: String): ApplyTiming = when (key) {
@@ -313,6 +314,12 @@ object SettingRegistry {
                 SettingCategory.ADVANCED,
                 usernameField = SettingField(WebAppSettings::basicAuthUsername, ""),
                 passwordField = SettingField(WebAppSettings::basicAuthPassword, ""),
+            ),
+            SettingDefinition.BooleanSetting(
+                SettingField(WebAppSettings::isDisableQuic, false),
+                R.string.setting_disable_quic,
+                SettingCategory.ADVANCED,
+                globalOnly = true,
             ),
         )
 

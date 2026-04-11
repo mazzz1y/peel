@@ -245,4 +245,5 @@
         <item quantity="one">%d gruppo</item>
         <item quantity="other">%d gruppi</item>
     </plurals>
+    <string name="setting_disable_quic">Disabilita QUIC</string>
 </resources>
