@@ -3,7 +3,6 @@
     <string name="action_settings">Cài đặt</string>
     <string name="global_settings">Cài đặt toàn cục</string>
     <string name="save">Lưu</string>
-
     <string name="open_external_links_in_browser_app">Hỏi khi mở liên kết bên ngoài</string>
     <string name="allow_javascript">Cho phép JavaScript</string>
     <string name="clear_cache_after_usage">Xóa bộ nhớ đệm khi thoát</string>
@@ -24,11 +23,10 @@
     <string name="fetch_step_loading_host">Đang lấy siêu dữ liệu…</string>
     <string name="fetch_step_downloading_icons">Đang tải biểu tượng…</string>
     <string name="fetch_step_downloading_manifest">Đang tải tệp kê khai…</string>
-
     <string name="web_app_settings">Cài đặt ứng dụng web</string>
     <string name="permissions">Quyền</string>
     <string name="content">Nội dung</string>
-    <string name="security">Bảo mật</string>
+    <string name="protection">Bảo vệ</string>
     <string name="advanced">Nâng cao</string>
     <string name="appearance">Giao diện</string>
     <string name="import_failed">Không thể khôi phục bản sao lưu</string>
@@ -45,7 +43,6 @@
     <string name="import_destination_group">Nhóm đích</string>
     <string name="import_mapping_empty">Không tìm thấy ứng dụng trong tệp này.</string>
     <string name="import_count_message">Đã nhập %1$d ứng dụng</string>
-
     <string name="n_apps_selected">Đã chọn %1$d</string>
     <string name="share_no_selection">Chọn ít nhất một ứng dụng</string>
     <string name="share_secrets_title">Phát hiện bí mật</string>
@@ -55,7 +52,6 @@
     <string name="remove_apps_title">Xóa ứng dụng</string>
     <string name="remove_apps_confirm">Xóa %1$d ứng dụng đã chọn?</string>
     <string name="n_apps_removed">Đã xóa %1$d ứng dụng</string>
-
     <string name="export_share_failed">Không thể chuẩn bị tệp để chia sẻ</string>
     <string name="backup_save_failed">Không thể lưu bản sao lưu</string>
     <string name="backup_saved">Đã lưu bản sao lưu</string>
@@ -83,7 +79,7 @@
     <string name="color_scheme_dark">Tối</string>
     <string name="webapp_already_deleted">Ứng dụng web này đã bị xóa. Bạn có thể xóa lối tắt này</string>
     <string name="global_web_app_settings">Cài đặt toàn cục ứng dụng web</string>
-    <string name="general">Chung</string>
+    <string name="behavior">Hành vi</string>
     <string name="backup">Sao lưu</string>
     <string name="import_data">Nhập</string>
     <string name="export_data">Xuất</string>
@@ -115,7 +111,6 @@
     <string name="open_app_links">Mở liên kết trong ứng dụng bên ngoài</string>
     <string name="permission_prompt_open_app">Mở liên kết này trong ứng dụng bên ngoài?\n\n%1$s</string>
     <string name="no_app_found">Không tìm thấy ứng dụng cho liên kết này</string>
-
     <string name="create_shortcut">Tạo lối tắt</string>
     <string name="create">Tạo</string>
     <string name="back">Quay lại</string>
@@ -127,7 +122,6 @@
     <string name="allow_media_playback_in_background">Phát nền</string>
     <string name="media_channel_name">Phát phương tiện</string>
     <string name="media_channel_description">Điều khiển phát phương tiện nền</string>
-
     <string name="more">Thêm</string>
     <string name="cancel">Hủy</string>
     <string name="ok">OK</string>
@@ -135,31 +129,28 @@
     <string name="no_biometric_devices">Thiết bị của bạn không hỗ trợ xác thực sinh trắc học</string>
     <string name="no_biometric_keys_enrolled">Thiết bị hỗ trợ sinh trắc học nhưng chưa được thiết lập</string>
     <string name="browser_launch_failed">Không thể khởi chạy ứng dụng web</string>
-
     <string name="undo">Hoàn tác</string>
     <string name="x_was_removed">%1$s đã bị xóa</string>
     <string name="username">Tên người dùng</string>
     <string name="password">Mật khẩu</string>
-
     <string name="app_info">Giới thiệu</string>
     <string name="about_description">Trình duyệt nhẹ cho ứng dụng web\nHỗ trợ bởi Mozilla GeckoView</string>
-
     <string name="delete">Xóa</string>
     <string name="settings">Cài đặt</string>
     <string name="app_icon">Biểu tượng ứng dụng</string>
-
     <string name="select_setting_to_override">Chọn cài đặt</string>
     <string name="add_override">Thêm ghi đè</string>
     <string name="remove_override">Xóa ghi đè</string>
-    <string name="overridden_settings">Cài đặt đã ghi đè</string>    <string name="add">Thêm</string>
+    <string name="overridden_settings">Cài đặt đã ghi đè</string>
+    <string name="add">Thêm</string>
     <string name="remove">Xóa</string>
-
     <string name="setting_long_click_share">Menu ngữ cảnh nhấn giữ</string>
     <string name="setting_pull_to_refresh">Kéo xuống để làm mới</string>
     <string name="setting_disable_screenshots">Chặn chụp màn hình</string>
-    <string name="setting_always_https">Chỉ HTTPS</string>    <string name="setting_basic_auth">Xác thực HTTP</string>    <string name="setting_dynamic_status_bar">Thanh trạng thái động</string>
+    <string name="setting_always_https">Chỉ HTTPS</string>
+    <string name="setting_basic_auth">Xác thực HTTP</string>
+    <string name="setting_dynamic_status_bar">Thanh trạng thái động</string>
     <string name="setting_floating_controls">Điều khiển nổi</string>
-
     <string name="groups">Nhóm</string>
     <string name="group">Nhóm</string>
     <string name="add_group">Thêm nhóm</string>
@@ -195,7 +186,7 @@
     <string name="import_group_share_description">Nhóm «%1$s» với %2$s ứng dụng đã được chia sẻ với bạn. Nhấn vào nhóm để mở rộng và chọn ứng dụng để nhập:</string>
     <string name="import_group_share_description_multi">%1$s nhóm với %2$s ứng dụng đã được chia sẻ với bạn. Nhấn vào từng nhóm để mở rộng và chọn ứng dụng để nhập:</string>
     <string name="n_groups_selected">Đã chọn %1$d nhóm</string>
-    <string name="global_privacy">Quyền riêng tư toàn cục</string>
+    <string name="network_privacy">Mạng và quyền riêng tư</string>
     <string name="group_not_found">Nhóm này không còn khả dụng</string>
     <string name="icon_dimensions_source">%1$dx%2$d · %3$s</string>
     <string name="open_in_current_session">Mở trong phiên hiện tại</string>
@@ -211,7 +202,6 @@
     <string name="setting_global_privacy_control">Tín hiệu GPC</string>
     <string name="setting_requires_peel_restart">Thay đổi có hiệu lực sau khi khởi động lại Peel</string>
     <string name="setting_requires_webapp_restart">Thay đổi có hiệu lực sau khi khởi động lại ứng dụng</string>
-
     <string name="extensions">Tiện ích mở rộng</string>
     <string name="no_extensions_installed">Chưa cài tiện ích nào.\nNhấn + để duyệt tiện ích có sẵn.</string>
     <string name="available_extensions">Tiện ích có sẵn</string>

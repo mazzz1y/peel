@@ -20,7 +20,8 @@ class GroupLineDecoration : RecyclerView.ItemDecoration() {
         lineWidthPx = 2f * density
         // icon center: 12dp card margin + 16dp padding + 22dp half icon = 50dp
         iconCenterXPx = 50f * density
-        paint.color = MaterialColors.getColor(parent, com.google.android.material.R.attr.colorOutlineVariant)
+        paint.color =
+            MaterialColors.getColor(parent, com.google.android.material.R.attr.colorOutlineVariant)
         initialized = true
     }
 
@@ -39,7 +40,9 @@ class GroupLineDecoration : RecyclerView.ItemDecoration() {
 
             val shouldConnect =
                 (adapter.isExpandedGroupHeader(pos) && adapter.isGroupedApp(nextPos)) ||
-                (adapter.isGroupedApp(pos) && !adapter.isLastGroupedApp(pos) && adapter.isGroupedApp(nextPos))
+                        (adapter.isGroupedApp(pos) && !adapter.isLastGroupedApp(pos) && adapter.isGroupedApp(
+                            nextPos
+                        ))
 
             if (shouldConnect) {
                 val top = child.bottom.toFloat()

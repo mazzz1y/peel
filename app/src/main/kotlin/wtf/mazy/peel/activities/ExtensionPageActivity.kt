@@ -39,7 +39,8 @@ class ExtensionPageActivity : AppCompatActivity() {
             val extensionId = intent.getStringExtra(EXTRA_EXTENSION_ID) ?: run { finish(); return }
             lifecycleScope.launch {
                 val extensions = GeckoRuntimeProvider.listUserExtensions(this@ExtensionPageActivity)
-                val ext = extensions.find { it.id == extensionId } ?: run { finish(); return@launch }
+                val ext =
+                    extensions.find { it.id == extensionId } ?: run { finish(); return@launch }
                 val optionsUrl = ext.metaData.optionsPageUrl ?: run { finish(); return@launch }
                 supportActionBar?.title = ext.metaData.name ?: ext.id
                 openSession(optionsUrl)

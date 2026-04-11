@@ -136,7 +136,8 @@ class ImportActivity : AppCompatActivity() {
             }
         }
 
-        val appsText = resources.getQuantityString(R.plurals.import_apps_count, websites.size, websites.size)
+        val appsText =
+            resources.getQuantityString(R.plurals.import_apps_count, websites.size, websites.size)
         val descriptionRes = when {
             groupShareMode -> R.string.import_group_share_description
             hasGroups && !singleApp -> R.string.import_mapping_description
@@ -146,7 +147,8 @@ class ImportActivity : AppCompatActivity() {
         }
         if (groupShareMode) {
             val groupsCount = parsed.backupData.groups.size
-            val groupsText = resources.getQuantityString(R.plurals.import_groups_count, groupsCount, groupsCount)
+            val groupsText =
+                resources.getQuantityString(R.plurals.import_groups_count, groupsCount, groupsCount)
             if (groupsCount > 1) {
                 descriptionView.text = getString(
                     R.string.import_group_share_description_multi,

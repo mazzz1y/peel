@@ -4,7 +4,6 @@
     <string name="clear_cache_after_usage">Cache nach Benutzung löschen</string>
     <string name="save">Speichern</string>
     <string name="action_settings">Einstellungen</string>
-
     <string name="open_external_links_in_browser_app">Bei externen Links nachfragen</string>
     <string name="allow_javascript">Javascript zulassen</string>
     <string name="enter_valid_url">Bitte geben Sie eine gültige URL an</string>
@@ -29,7 +28,6 @@
     <string name="import_destination_group">Zielgruppe</string>
     <string name="import_mapping_empty">Keine Apps in dieser Datei gefunden.</string>
     <string name="import_count_message">%1$d App(s) importiert</string>
-
     <string name="n_apps_selected">%1$d ausgewählt</string>
     <string name="share_no_selection">Wähle mindestens eine App</string>
     <string name="share_secrets_title">Geheimnisse erkannt</string>
@@ -39,7 +37,6 @@
     <string name="remove_apps_title">Apps entfernen</string>
     <string name="remove_apps_confirm">%1$d ausgewählte App(s) entfernen?</string>
     <string name="n_apps_removed">%1$d App(s) entfernt</string>
-
     <string name="export_share_failed">Datei konnte nicht zum Teilen vorbereitet werden</string>
     <string name="backup_save_failed">Sicherung konnte nicht gespeichert werden</string>
     <string name="backup_saved">Sicherung gespeichert</string>
@@ -49,7 +46,6 @@
     <string name="no_filemanager">Bitte installieren Sie einen Datei-Manager</string>
     <string name="allow_location_access">Standortzugriff erlauben</string>
     <string name="allow_drm_content">DRM-Inhalte erlauben</string>
-
     <string name="file_download">Datei wird heruntergeladen…</string>
     <string name="download_in_progress">Wird heruntergeladen…</string>
     <string name="download_complete">Download abgeschlossen — tippen zum Öffnen</string>
@@ -65,7 +61,7 @@
     <string name="color_scheme_dark">Dunkel</string>
     <string name="webapp_already_deleted">Diese Web-App wurde gelöscht. Sie können diese Verknüpfung löschen</string>
     <string name="global_web_app_settings">Globale Web-App-Einstellungen</string>
-    <string name="general">Allgemeines</string>
+    <string name="behavior">Verhalten</string>
     <string name="backup">Backup</string>
     <string name="enable_sandbox">Sandbox aktivieren</string>
     <string name="ephemeral_sandbox">Flüchtiger Speicher</string>
@@ -80,7 +76,7 @@
     <string name="back">Zurück</string>
     <string name="share">Teilen</string>
     <string name="bioprompt_restricted_webapp">Zugriffsbeschränkung</string>
-    <string name="enable_access_restriction">Zugriffsbeschränkung aktivieren</string>
+    <string name="enable_access_restriction">Biometrische Sperre</string>
     <string name="allow_media_playback_in_background">Medienwiedergabe im Hintergrund zulassen</string>
     <string name="more">Mehr</string>
     <string name="cancel">Abbrechen</string>
@@ -89,12 +85,10 @@
     <string name="no_biometric_devices">Ihr Gerät unterstützt keine biometrische Authentifizierung</string>
     <string name="no_biometric_keys_enrolled">Ihr Gerät unterstützt biometrische Authentifizierung, aber bisher wurde keine Aktivierungsmethode festgelegt</string>
     <string name="browser_launch_failed">Web-App konnte nicht gestartet werden</string>
-
     <string name="undo">Rückgängig</string>
     <string name="x_was_removed">%1$s wurde entfernt</string>
     <string name="username">Benutzername</string>
     <string name="password">Passwort</string>
-
     <string name="fetch_failed">Daten konnten nicht von der Website abgerufen werden</string>
     <string name="fetch_icon_title">Von Website abrufen</string>
     <string name="fetch_step_loading">Verbinden…</string>
@@ -103,7 +97,7 @@
     <string name="fetch_step_downloading_manifest">Manifest herunterladen…</string>
     <string name="permissions">Berechtigungen</string>
     <string name="advanced">Erweitert</string>
-    <string name="appearance">Erscheinungsbild</string>
+    <string name="appearance">Darstellung</string>
     <string name="import_btn">Importieren</string>
     <string name="import_data">Importieren</string>
     <string name="export_data">Exportieren</string>
@@ -113,22 +107,22 @@
     <string name="clear_browsing_data">Browserdaten</string>
     <string name="clear_sandbox_storage">Sandbox-Speicher einschließen</string>
     <string name="factory_reset">Werksreset</string>
-
     <string name="delete">Löschen</string>
     <string name="settings">Einstellungen</string>
     <string name="app_icon">App-Symbol</string>
     <string name="select_setting_to_override">Einstellung wählen</string>
     <string name="add_override">Überschreibung hinzufügen</string>
     <string name="remove_override">Überschreibung entfernen</string>
-    <string name="overridden_settings">Einstellungsüberschreibungen</string>    <string name="add">Hinzufügen</string>
+    <string name="overridden_settings">Einstellungsüberschreibungen</string>
+    <string name="add">Hinzufügen</string>
     <string name="remove">Entfernen</string>
     <string name="clone">Klonen</string>
-
     <string name="setting_long_click_share">Kontextmenü bei langem Drücken</string>
     <string name="setting_pull_to_refresh">Zum Aktualisieren ziehen</string>
     <string name="setting_disable_screenshots">Screenshots deaktivieren</string>
-    <string name="setting_always_https">Immer HTTPS</string>    <string name="setting_basic_auth">HTTP-Autorisierung</string>    <string name="setting_dynamic_status_bar">Dynamische Statusleistenfarbe</string>
-
+    <string name="setting_always_https">Immer HTTPS</string>
+    <string name="setting_basic_auth">HTTP-Autorisierung</string>
+    <string name="setting_dynamic_status_bar">Dynamische Statusleistenfarbe</string>
     <string name="groups">Gruppen</string>
     <string name="group">Gruppe</string>
     <string name="add_group">Gruppe hinzufügen</string>
@@ -145,7 +139,6 @@
     <string name="delete_group_confirm">Gruppe \"%1$s\" löschen?</string>
     <string name="ungroup_apps_on_delete">Apps zu „Ohne Gruppe" verschieben</string>
     <string name="setting_floating_controls">Schwebende Steuerung</string>
-
     <string name="bioprompt_not_recognized">Nicht erkannt. Versuchen Sie es erneut</string>
     <string name="choose_icon">Symbol und Titel auswählen</string>
     <string name="manifest_start_url_title">URL aktualisieren?</string>
@@ -171,7 +164,7 @@
     <string name="no_app_found">Keine App für diesen Link gefunden</string>
     <string name="permission_prompt_microphone">%1$s Zugriff auf das Mikrofon erlauben?</string>
     <string name="retry">Erneut versuchen</string>
-    <string name="security">Sicherheit</string>
+    <string name="protection">Schutz</string>
 
     <plurals name="group_app_count">
         <item quantity="one">%d App</item>
@@ -192,7 +185,7 @@
     <string name="import_group_share_description">Die Gruppe „%1$s" mit %2$s App wurde mit dir geteilt. Tippe auf die Gruppe, um sie zu erweitern und Apps zum Importieren auszuwählen:</string>
     <string name="import_group_share_description_multi">%1$s mit %2$s wurden mit dir geteilt. Tippe auf jede Gruppe, um sie zu erweitern und Apps zum Importieren auszuwählen:</string>
     <string name="n_groups_selected">%1$d Gruppe(n) ausgewählt</string>
-    <string name="global_privacy">Globaler Datenschutz</string>
+    <string name="network_privacy">Netzwerk &amp; Datenschutz</string>
     <string name="group_not_found">Die Gruppe ist nicht mehr verfügbar</string>
     <string name="icon_dimensions_source">%1$dx%2$d · %3$s</string>
     <string name="open_in_current_session">In aktueller Sitzung öffnen</string>
@@ -210,7 +203,6 @@
     <string name="setting_global_privacy_control">GPC-Signal</string>
     <string name="setting_requires_peel_restart">Änderungen werden nach einem Neustart von Peel wirksam</string>
     <string name="setting_requires_webapp_restart">Änderungen werden nach einem Neustart der Apps wirksam</string>
-
     <string name="extensions">Erweiterungen</string>
     <string name="no_extensions_installed">Keine Erweiterungen installiert.\nTippen Sie auf + um verfügbare Erweiterungen zu durchsuchen.</string>
     <string name="available_extensions">Verfügbare Erweiterungen</string>

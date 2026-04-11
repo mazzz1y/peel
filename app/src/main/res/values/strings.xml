@@ -2,7 +2,6 @@
     <string name="action_settings">Settings</string>
     <string name="global_settings">Global Settings</string>
     <string name="save">Save</string>
-
     <string name="open_external_links_in_browser_app">Prompt for external links</string>
     <string name="allow_javascript">Allow JavaScript</string>
     <string name="clear_cache_after_usage">Clear cache on exit</string>
@@ -25,12 +24,11 @@
     <string name="manifest_start_url_update">Update</string>
     <string name="manifest_start_url_keep">Keep current</string>
     <string name="redirect_url_message">This website redirects to a different address:\n\n%1$s\n\nWould you like to update the URL? You can always change it later in the app settings.</string>
-
     <string name="web_app_settings">Web App Settings</string>
     <string name="permissions">Permissions</string>
     <string name="content">Content</string>
-    <string name="security">Security</string>
-    <string name="global_privacy">Global Privacy</string>
+    <string name="protection">Protection</string>
+    <string name="network_privacy">Network &amp; Privacy</string>
     <string name="advanced">Advanced</string>
     <string name="appearance">Appearance</string>
     <string name="import_failed">Backup could not be restored</string>
@@ -57,7 +55,6 @@
     <string name="import_destination_group">Destination group</string>
     <string name="import_mapping_empty">No apps found in this file.</string>
     <string name="import_count_message">Imported %1$d app(s)</string>
-
     <string name="n_apps_selected">%1$d selected</string>
     <string name="n_groups_selected">%1$d group(s) selected</string>
     <string name="share_no_selection">Select at least one app</string>
@@ -68,7 +65,6 @@
     <string name="remove_apps_title">Remove apps</string>
     <string name="remove_apps_confirm">Remove %1$d selected app(s)?</string>
     <string name="n_apps_removed">%1$d app(s) removed</string>
-
     <string name="export_share_failed">Could not prepare file for sharing</string>
     <string name="backup_save_failed">Could not save backup</string>
     <string name="backup_saved">Backup saved</string>
@@ -97,7 +93,7 @@
     <string name="color_scheme_dark">Dark</string>
     <string name="webapp_already_deleted">This Web App is no longer available. You can delete this shortcut</string>
     <string name="global_web_app_settings">Global Web App Settings</string>
-    <string name="general">General</string>
+    <string name="behavior">Behavior</string>
     <string name="backup">Backup</string>
     <string name="import_data">Import</string>
     <string name="export_data">Export</string>
@@ -128,9 +124,7 @@
     <string name="permission_prompt_location">Allow %1$s to access your location?</string>
     <string name="open_app_links">Open links in external apps</string>
     <string name="permission_prompt_open_app">Open this link in an external app?\n\n%1$s</string>
-
     <string name="no_app_found">No app found to handle this link</string>
-
     <string name="create_shortcut">Create shortcut</string>
     <string name="create">Create</string>
     <string name="back">Back</string>
@@ -142,7 +136,6 @@
     <string name="allow_media_playback_in_background">Background playback</string>
     <string name="media_channel_name">Media Playback</string>
     <string name="media_channel_description">Controls for background media playback</string>
-
     <string name="more">More</string>
     <string name="cancel">Cancel</string>
     <string name="ok">OK</string>
@@ -150,12 +143,10 @@
     <string name="no_biometric_devices">Your device does not support biometric authentication</string>
     <string name="no_biometric_keys_enrolled">Your device supports biometric authentication, but no method is enrolled</string>
     <string name="browser_launch_failed">Web App could not be started</string>
-
     <string name="undo">Undo</string>
     <string name="x_was_removed">%1$s was removed</string>
     <string name="username">Username</string>
     <string name="password">Password</string>
-
     <string name="app_info">About</string>
     <string name="about_version">%1$s</string>
     <string name="about_engine">GeckoView %1$s</string>
@@ -163,17 +154,15 @@
     <string name="about_github">GitHub</string>
     <string name="about_fdroid">F-Droid</string>
     <string name="about_license">GNU GPL v3</string>
-
     <string name="delete">Delete</string>
     <string name="settings">Settings</string>
     <string name="app_icon">App icon</string>
-
     <string name="select_setting_to_override">Select setting</string>
     <string name="add_override">Add Override</string>
     <string name="remove_override">Remove Override</string>
-    <string name="overridden_settings">Settings Override</string>    <string name="add">Add</string>
+    <string name="overridden_settings">Settings Override</string>
+    <string name="add">Add</string>
     <string name="remove">Remove</string>
-
     <string name="setting_long_click_share">Long-press context menu</string>
     <string name="context_menu_open_link">Open in browser</string>
     <string name="context_menu_copy_link">Copy link address</string>
@@ -194,14 +183,13 @@
     <string name="setting_fingerprinting_protection">Fingerprinting protection</string>
     <string name="setting_block_local_network">Block local network access</string>
     <string name="setting_block_webrtc_ip_leak">Prevent WebRTC IP leaks</string>
-    <string name="setting_always_https">HTTPS only</string>    <string name="setting_basic_auth">HTTP Authorization</string>
+    <string name="setting_always_https">HTTPS only</string>
+    <string name="setting_basic_auth">HTTP authorization</string>
     <string name="setting_dynamic_status_bar">Dynamic status bar</string>
-
     <string name="setting_floating_controls">Floating controls</string>
     <string name="setting_requires_peel_restart">Changes take effect after Peel restart</string>
     <string name="setting_requires_webapp_restart">Changes take effect after webapps restart</string>
     <string name="restart">Restart</string>
-
     <string name="groups">Groups</string>
     <string name="group">Group</string>
     <string name="add_group">Add Group</string>
@@ -227,7 +215,6 @@
     </plurals>
     <string name="search">Search</string>
     <string name="no_search_results">No apps found</string>
-
     <string name="extensions">Extensions</string>
     <string name="no_extensions_installed">No extensions installed</string>
     <string name="available_extensions">Available extensions</string>

@@ -229,8 +229,9 @@ class HeadlessFetcher(
             for (path in fallbacks) {
                 val fallbackUrl = originOf(pageUrl) + path
                 if (!isAllowedRemoteUrl(fallbackUrl)) continue
-                val text = sendCommand(JSONObject().put("cmd", "fetch-manifest").put("url", fallbackUrl))
-                    ?.optString("text", "") ?: ""
+                val text =
+                    sendCommand(JSONObject().put("cmd", "fetch-manifest").put("url", fallbackUrl))
+                        ?.optString("text", "") ?: ""
                 manifest = parseManifest(text)
                 if (manifest != null) {
                     manifestUrlUsed = fallbackUrl

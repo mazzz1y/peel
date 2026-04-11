@@ -69,9 +69,9 @@ import wtf.mazy.peel.ui.browser.BiometricUnlockController
 import wtf.mazy.peel.ui.browser.LaunchOverlayController
 import wtf.mazy.peel.ui.browser.SystemBarController
 import wtf.mazy.peel.ui.dialog.InputDialogConfig
+import wtf.mazy.peel.ui.dialog.showInputDialogRaw
 import wtf.mazy.peel.ui.extensions.ExtensionPickerDialog
 import wtf.mazy.peel.ui.extensions.SessionExtensionActions
-import wtf.mazy.peel.ui.dialog.showInputDialogRaw
 import wtf.mazy.peel.util.BrowserLauncher
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.HostIdentity

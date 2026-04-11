@@ -44,9 +44,13 @@ class SettingsActivity : ToolbarBaseActivity<GlobalSettingsBinding>() {
     }
 
     override fun finish() {
-        val changed = ApplyTimingRegistry.getChangedKeys(originalSnapshot, editableSettings.settings)
+        val changed =
+            ApplyTimingRegistry.getChangedKeys(originalSnapshot, editableSettings.settings)
         val timing = ApplyTimingRegistry.getHighestTiming(changed)
-        setResult(Activity.RESULT_OK, Intent().putExtra(ApplyTimingRegistry.EXTRA_APPLY_TIMING, timing.name))
+        setResult(
+            Activity.RESULT_OK,
+            Intent().putExtra(ApplyTimingRegistry.EXTRA_APPLY_TIMING, timing.name)
+        )
         super.finish()
     }
 

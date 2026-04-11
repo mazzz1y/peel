@@ -36,8 +36,9 @@ class ImportDialogHelper(
             val selectedUuids = data.getStringArrayExtra(ImportActivity.RESULT_SELECTED_UUIDS)
                 ?.toSet() ?: return@registerForActivityResult
             if (pendingGroupShare) {
-                val selectedGroupUuids = data.getStringArrayExtra(ImportActivity.RESULT_SELECTED_GROUP_UUIDS)
-                    ?.toSet() ?: return@registerForActivityResult
+                val selectedGroupUuids =
+                    data.getStringArrayExtra(ImportActivity.RESULT_SELECTED_GROUP_UUIDS)
+                        ?.toSet() ?: return@registerForActivityResult
                 performGroupSharedImport(parsed, selectedUuids, selectedGroupUuids)
             } else {
                 val groupUuid = data.getStringExtra(ImportActivity.RESULT_GROUP_UUID)

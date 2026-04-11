@@ -64,7 +64,8 @@ class GroupListActivity : AppCompatActivity() {
 
     private val settingsLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            val timingName = result.data?.getStringExtra(ApplyTimingRegistry.EXTRA_APPLY_TIMING) ?: return@registerForActivityResult
+            val timingName = result.data?.getStringExtra(ApplyTimingRegistry.EXTRA_APPLY_TIMING)
+                ?: return@registerForActivityResult
             val timing = ApplyTiming.valueOf(timingName)
             ApplyTimingRegistry.showSnackbarForTiming(
                 timing,

@@ -118,7 +118,8 @@ class DataManager private constructor() {
     val isReady: StateFlow<Boolean> = _isReady.asStateFlow()
 
     @Volatile
-    private var currentState: DataState = DataState(emptyList(), emptyList(), createDefaultSettings())
+    private var currentState: DataState =
+        DataState(emptyList(), emptyList(), createDefaultSettings())
 
     init {
         scope.launch {

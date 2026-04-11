@@ -3,7 +3,6 @@
     <string name="action_settings">Настройки</string>
     <string name="global_settings">Глобальные настройки</string>
     <string name="save">Сохранить</string>
-
     <string name="open_external_links_in_browser_app">Спрашивать о внешних ссылках</string>
     <string name="allow_javascript">Разрешить JavaScript</string>
     <string name="clear_cache_after_usage">Очищать кеш при выходе</string>
@@ -24,11 +23,10 @@
     <string name="fetch_step_loading_host">Загрузка метаданных…</string>
     <string name="fetch_step_downloading_icons">Загрузка иконок…</string>
     <string name="fetch_step_downloading_manifest">Загрузка манифеста…</string>
-
     <string name="web_app_settings">Настройки веб-приложения</string>
     <string name="permissions">Разрешения</string>
     <string name="content">Содержимое</string>
-    <string name="security">Безопасность</string>
+    <string name="protection">Защита</string>
     <string name="advanced">Дополнительно</string>
     <string name="appearance">Внешний вид</string>
     <string name="import_failed">Не удалось восстановить резервную копию</string>
@@ -45,7 +43,6 @@
     <string name="import_destination_group">Группа назначения</string>
     <string name="import_mapping_empty">В этом файле нет приложений.</string>
     <string name="import_count_message">Импортировано %1$d приложение(ий)</string>
-
     <string name="n_apps_selected">Выбрано: %1$d</string>
     <string name="share_no_selection">Выберите хотя бы одно приложение</string>
     <string name="share_secrets_title">Конфиденциальные данные</string>
@@ -55,7 +52,6 @@
     <string name="remove_apps_title">Удалить приложения</string>
     <string name="remove_apps_confirm">Удалить %1$d выбранных приложений?</string>
     <string name="n_apps_removed">Удалено приложений: %1$d</string>
-
     <string name="export_share_failed">Не удалось подготовить файл для отправки</string>
     <string name="backup_save_failed">Не удалось сохранить резервную копию</string>
     <string name="backup_saved">Резервная копия сохранена</string>
@@ -83,7 +79,7 @@
     <string name="color_scheme_dark">Тёмная</string>
     <string name="webapp_already_deleted">Это веб-приложение удалено. Вы можете удалить этот ярлык</string>
     <string name="global_web_app_settings">Глобальные настройки веб-приложений</string>
-    <string name="general">Основное</string>
+    <string name="behavior">Поведение</string>
     <string name="backup">Резервная копия</string>
     <string name="import_data">Импорт</string>
     <string name="export_data">Экспорт</string>
@@ -115,7 +111,6 @@
     <string name="open_app_links">Открывать ссылки во внешних приложениях</string>
     <string name="permission_prompt_open_app">Открыть эту ссылку во внешнем приложении?\n\n%1$s</string>
     <string name="no_app_found">Приложение для этой ссылки не найдено</string>
-
     <string name="create_shortcut">Создать ярлык</string>
     <string name="create">Создать</string>
     <string name="back">Назад</string>
@@ -127,7 +122,6 @@
     <string name="allow_media_playback_in_background">Фоновое воспроизведение</string>
     <string name="media_channel_name">Воспроизведение медиа</string>
     <string name="media_channel_description">Управление фоновым воспроизведением медиа</string>
-
     <string name="more">Ещё</string>
     <string name="cancel">Отмена</string>
     <string name="ok">ОК</string>
@@ -135,31 +129,28 @@
     <string name="no_biometric_devices">Ваше устройство не поддерживает биометрическую аутентификацию</string>
     <string name="no_biometric_keys_enrolled">Ваше устройство поддерживает биометрию, но ни один метод не настроен</string>
     <string name="browser_launch_failed">Не удалось запустить веб-приложение</string>
-
     <string name="undo">Отменить</string>
     <string name="x_was_removed">%1$s удалено</string>
     <string name="username">Имя пользователя</string>
     <string name="password">Пароль</string>
-
     <string name="app_info">О приложении</string>
     <string name="about_description">Легковесный браузер для веб-приложений\nНа базе Mozilla GeckoView</string>
-
     <string name="delete">Удалить</string>
     <string name="settings">Настройки</string>
     <string name="app_icon">Иконка приложения</string>
-
     <string name="select_setting_to_override">Выберите настройку</string>
     <string name="add_override">Добавить переопределение</string>
     <string name="remove_override">Удалить переопределение</string>
-    <string name="overridden_settings">Переопределённые настройки</string>    <string name="add">Добавить</string>
+    <string name="overridden_settings">Переопределённые настройки</string>
+    <string name="add">Добавить</string>
     <string name="remove">Удалить</string>
-
     <string name="setting_long_click_share">Контекстное меню</string>
     <string name="setting_pull_to_refresh">Обновление свайпом вниз</string>
     <string name="setting_disable_screenshots">Блокировать скриншоты</string>
-    <string name="setting_always_https">Только HTTPS</string>    <string name="setting_basic_auth">HTTP Авторизация</string>    <string name="setting_dynamic_status_bar">Динамическая строка состояния</string>
+    <string name="setting_always_https">Только HTTPS</string>
+    <string name="setting_basic_auth">HTTP авторизация</string>
+    <string name="setting_dynamic_status_bar">Динамическая строка состояния</string>
     <string name="setting_floating_controls">Плавающие кнопки</string>
-
     <string name="groups">Группы</string>
     <string name="group">Группа</string>
     <string name="add_group">Добавить группу</string>
@@ -198,7 +189,7 @@
     <string name="import_group_share_description">Группа «%1$s» с %2$s была отправлена вам. Нажмите на группу, чтобы развернуть и выбрать приложения для импорта:</string>
     <string name="import_group_share_description_multi">%1$s с %2$s были отправлены вам. Нажмите на каждую группу, чтобы развернуть и выбрать приложения для импорта:</string>
     <string name="n_groups_selected">Выбрано групп: %1$d</string>
-    <string name="global_privacy">Глобальная приватность</string>
+    <string name="network_privacy">Сеть и конфиденциальность</string>
     <string name="group_not_found">Группа больше недоступна</string>
     <string name="icon_dimensions_source">%1$dx%2$d · %3$s</string>
     <string name="open_in_current_session">Открыть в текущей сессии</string>
@@ -214,7 +205,6 @@
     <string name="setting_global_privacy_control">Сигнал GPC</string>
     <string name="setting_requires_peel_restart">Изменения вступят в силу после перезапуска Peel</string>
     <string name="setting_requires_webapp_restart">Изменения вступят в силу после перезапуска приложений</string>
-
     <string name="extensions">Расширения</string>
     <string name="no_extensions_installed">Расширения не установлены.\nНажмите + чтобы просмотреть доступные расширения.</string>
     <string name="available_extensions">Доступные расширения</string>

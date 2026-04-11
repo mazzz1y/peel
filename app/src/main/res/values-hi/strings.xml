@@ -3,7 +3,6 @@
     <string name="action_settings">सेटिंग्स</string>
     <string name="global_settings">वैश्विक सेटिंग्स</string>
     <string name="save">सहेजें</string>
-
     <string name="open_external_links_in_browser_app">बाहरी लिंक के लिए पूछें</string>
     <string name="allow_javascript">JavaScript अनुमति दें</string>
     <string name="clear_cache_after_usage">बंद करने पर कैश साफ़ करें</string>
@@ -24,11 +23,10 @@
     <string name="fetch_step_loading_host">मेटाडेटा प्राप्त हो रहा है…</string>
     <string name="fetch_step_downloading_icons">आइकन डाउनलोड हो रहे हैं…</string>
     <string name="fetch_step_downloading_manifest">मैनिफ़ेस्ट डाउनलोड हो रहा है…</string>
-
     <string name="web_app_settings">वेब ऐप सेटिंग्स</string>
     <string name="permissions">अनुमतियां</string>
     <string name="content">सामग्री</string>
-    <string name="security">सुरक्षा</string>
+    <string name="protection">सुरक्षा</string>
     <string name="advanced">उन्नत</string>
     <string name="appearance">दिखावट</string>
     <string name="import_failed">बैकअप पुनर्स्थापित नहीं हो सका</string>
@@ -45,7 +43,6 @@
     <string name="import_destination_group">गंतव्य समूह</string>
     <string name="import_mapping_empty">इस फ़ाइल में कोई ऐप नहीं मिला।</string>
     <string name="import_count_message">%1$d ऐप आयात किए गए</string>
-
     <string name="n_apps_selected">%1$d चयनित</string>
     <string name="share_no_selection">कम से कम एक ऐप चुनें</string>
     <string name="share_secrets_title">गोपनीय जानकारी पाई गई</string>
@@ -55,7 +52,6 @@
     <string name="remove_apps_title">ऐप्स हटाएँ</string>
     <string name="remove_apps_confirm">%1$d चयनित ऐप्स हटाएँ?</string>
     <string name="n_apps_removed">%1$d ऐप हटाए गए</string>
-
     <string name="export_share_failed">साझा करने के लिए फ़ाइल तैयार नहीं हो सकी</string>
     <string name="backup_save_failed">बैकअप सहेजा नहीं जा सका</string>
     <string name="backup_saved">बैकअप सहेजा गया</string>
@@ -83,7 +79,7 @@
     <string name="color_scheme_dark">गहरा</string>
     <string name="webapp_already_deleted">यह वेब ऐप हटा दिया गया है। आप यह शॉर्टकट हटा सकते हैं।</string>
     <string name="global_web_app_settings">वैश्विक वेब ऐप सेटिंग्स</string>
-    <string name="general">सामान्य</string>
+    <string name="behavior">व्यवहार</string>
     <string name="backup">बैकअप</string>
     <string name="import_data">आयात</string>
     <string name="export_data">निर्यात</string>
@@ -115,7 +111,6 @@
     <string name="open_app_links">बाहरी ऐप्स में लिंक खोलें</string>
     <string name="permission_prompt_open_app">इस लिंक को बाहरी ऐप में खोलें?\n\n%1$s</string>
     <string name="no_app_found">इस लिंक के लिए कोई ऐप नहीं मिला</string>
-
     <string name="create_shortcut">शॉर्टकट बनाएं</string>
     <string name="create">बनाएं</string>
     <string name="back">पीछे</string>
@@ -127,7 +122,6 @@
     <string name="allow_media_playback_in_background">बैकग्राउंड प्लेबैक</string>
     <string name="media_channel_name">मीडिया प्लेबैक</string>
     <string name="media_channel_description">बैकग्राउंड मीडिया प्लेबैक नियंत्रण</string>
-
     <string name="more">अधिक</string>
     <string name="cancel">रद्द करें</string>
     <string name="ok">ठीक</string>
@@ -135,31 +129,28 @@
     <string name="no_biometric_devices">आपका डिवाइस बायोमेट्रिक प्रमाणीकरण का समर्थन नहीं करता।</string>
     <string name="no_biometric_keys_enrolled">आपका डिवाइस बायोमेट्रिक्स का समर्थन करता है, लेकिन कोई विधि सेट नहीं है।</string>
     <string name="browser_launch_failed">वेब ऐप शुरू नहीं हो सका</string>
-
     <string name="undo">पूर्ववत</string>
     <string name="x_was_removed">%1$s हटा दिया गया।</string>
     <string name="username">उपयोगकर्ता नाम</string>
     <string name="password">पासवर्ड</string>
-
     <string name="app_info">जानकारी</string>
     <string name="about_description">वेब ऐप्स के लिए हल्का ब्राउज़र\nMozilla GeckoView द्वारा संचालित</string>
-
     <string name="delete">हटाएं</string>
     <string name="settings">सेटिंग्स</string>
     <string name="app_icon">ऐप आइकन</string>
-
     <string name="select_setting_to_override">सेटिंग चुनें</string>
     <string name="add_override">ओवरराइड जोड़ें</string>
     <string name="remove_override">ओवरराइड हटाएं</string>
-    <string name="overridden_settings">ओवरराइड की गई सेटिंग्स</string>    <string name="add">जोड़ें</string>
+    <string name="overridden_settings">ओवरराइड की गई सेटिंग्स</string>
+    <string name="add">जोड़ें</string>
     <string name="remove">हटाएं</string>
-
     <string name="setting_long_click_share">लंबा दबाकर संदर्भ मेनू</string>
     <string name="setting_pull_to_refresh">खींचकर रीफ़्रेश करें</string>
     <string name="setting_disable_screenshots">स्क्रीनशॉट अवरोधित करें</string>
-    <string name="setting_always_https">केवल HTTPS</string>    <string name="setting_basic_auth">HTTP प्राधिकरण</string>    <string name="setting_dynamic_status_bar">डायनामिक स्टेटस बार</string>
+    <string name="setting_always_https">केवल HTTPS</string>
+    <string name="setting_basic_auth">HTTP प्राधिकरण</string>
+    <string name="setting_dynamic_status_bar">डायनामिक स्टेटस बार</string>
     <string name="setting_floating_controls">फ़्लोटिंग नियंत्रण</string>
-
     <string name="groups">समूह</string>
     <string name="group">समूह</string>
     <string name="add_group">समूह जोड़ें</string>
@@ -196,7 +187,7 @@
     <string name="import_group_share_description">ग्रुप «%1$s» जिसमें %2$s ऐप हैं, आपके साथ साझा किया गया। ग्रुप पर टैप करके विस्तार करें और आयात करने के लिए ऐप चुनें:</string>
     <string name="import_group_share_description_multi">%1$s ग्रुप जिनमें %2$s ऐप हैं, आपके साथ साझा किए गए। प्रत्येक ग्रुप पर टैप करके विस्तार करें और आयात करने के लिए ऐप चुनें:</string>
     <string name="n_groups_selected">%1$d ग्रुप चयनित</string>
-    <string name="global_privacy">वैश्विक गोपनीयता</string>
+    <string name="network_privacy">नेटवर्क और गोपनीयता</string>
     <string name="group_not_found">यह ग्रुप अब उपलब्ध नहीं है</string>
     <string name="icon_dimensions_source">%1$dx%2$d · %3$s</string>
     <string name="open_in_current_session">वर्तमान सत्र में खोलें</string>
@@ -212,7 +203,6 @@
     <string name="setting_global_privacy_control">GPC सिग्नल</string>
     <string name="setting_requires_peel_restart">परिवर्तन Peel रीस्टार्ट के बाद लागू होंगे</string>
     <string name="setting_requires_webapp_restart">परिवर्तन ऐप रीस्टार्ट के बाद लागू होंगे</string>
-
     <string name="extensions">एक्सटेंशन</string>
     <string name="no_extensions_installed">कोई एक्सटेंशन इंस्टॉल नहीं है।\n+ टैप करके उपलब्ध एक्सटेंशन देखें।</string>
     <string name="available_extensions">उपलब्ध एक्सटेंशन</string>

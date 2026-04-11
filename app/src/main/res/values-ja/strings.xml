@@ -3,7 +3,6 @@
     <string name="action_settings">設定</string>
     <string name="global_settings">グローバル設定</string>
     <string name="save">保存</string>
-
     <string name="open_external_links_in_browser_app">外部リンクを開く前に確認</string>
     <string name="allow_javascript">JavaScriptを許可</string>
     <string name="clear_cache_after_usage">終了時にキャッシュを消去</string>
@@ -24,11 +23,10 @@
     <string name="fetch_step_loading_host">メタデータを取得中…</string>
     <string name="fetch_step_downloading_icons">アイコンをダウンロード中…</string>
     <string name="fetch_step_downloading_manifest">マニフェストをダウンロード中…</string>
-
     <string name="web_app_settings">ウェブアプリ設定</string>
     <string name="permissions">権限</string>
     <string name="content">コンテンツ</string>
-    <string name="security">セキュリティ</string>
+    <string name="protection">保護</string>
     <string name="advanced">詳細</string>
     <string name="appearance">外観</string>
     <string name="import_failed">バックアップを復元できませんでした</string>
@@ -45,7 +43,6 @@
     <string name="import_destination_group">インポート先グループ</string>
     <string name="import_mapping_empty">このファイルにアプリが見つかりません。</string>
     <string name="import_count_message">%1$d個のアプリをインポートしました</string>
-
     <string name="n_apps_selected">%1$d件選択</string>
     <string name="share_no_selection">アプリを1つ以上選択してください</string>
     <string name="share_secrets_title">機密情報を検出</string>
@@ -55,7 +52,6 @@
     <string name="remove_apps_title">アプリを削除</string>
     <string name="remove_apps_confirm">選択した%1$d個のアプリを削除しますか？</string>
     <string name="n_apps_removed">%1$d個のアプリを削除しました</string>
-
     <string name="export_share_failed">共有用のファイルを準備できませんでした</string>
     <string name="backup_save_failed">バックアップを保存できませんでした</string>
     <string name="backup_saved">バックアップを保存しました</string>
@@ -83,7 +79,7 @@
     <string name="color_scheme_dark">ダーク</string>
     <string name="webapp_already_deleted">このウェブアプリは削除されました。このショートカットを削除できます</string>
     <string name="global_web_app_settings">グローバルウェブアプリ設定</string>
-    <string name="general">一般</string>
+    <string name="behavior">動作</string>
     <string name="backup">バックアップ</string>
     <string name="import_data">インポート</string>
     <string name="export_data">エクスポート</string>
@@ -115,7 +111,6 @@
     <string name="open_app_links">外部アプリでリンクを開く</string>
     <string name="permission_prompt_open_app">このリンクを外部アプリで開きますか？\n\n%1$s</string>
     <string name="no_app_found">このリンクに対応するアプリが見つかりません</string>
-
     <string name="create_shortcut">ショートカットを作成</string>
     <string name="create">作成</string>
     <string name="back">戻る</string>
@@ -127,7 +122,6 @@
     <string name="allow_media_playback_in_background">バックグラウンド再生</string>
     <string name="media_channel_name">メディア再生</string>
     <string name="media_channel_description">バックグラウンドメディア再生コントロール</string>
-
     <string name="more">その他</string>
     <string name="cancel">キャンセル</string>
     <string name="ok">OK</string>
@@ -135,31 +129,28 @@
     <string name="no_biometric_devices">お使いのデバイスは生体認証に対応していません</string>
     <string name="no_biometric_keys_enrolled">お使いのデバイスは生体認証に対応していますが、設定されていません</string>
     <string name="browser_launch_failed">ウェブアプリを起動できませんでした</string>
-
     <string name="undo">元に戻す</string>
     <string name="x_was_removed">%1$sが削除されました</string>
     <string name="username">ユーザー名</string>
     <string name="password">パスワード</string>
-
     <string name="app_info">このアプリについて</string>
     <string name="about_description">ウェブアプリ向け軽量ブラウザ\nMozilla GeckoView 搭載</string>
-
     <string name="delete">削除</string>
     <string name="settings">設定</string>
     <string name="app_icon">アプリアイコン</string>
-
     <string name="select_setting_to_override">設定を選択</string>
     <string name="add_override">オーバーライドを追加</string>
     <string name="remove_override">オーバーライドを削除</string>
-    <string name="overridden_settings">オーバーライド設定</string>    <string name="add">追加</string>
+    <string name="overridden_settings">オーバーライド設定</string>
+    <string name="add">追加</string>
     <string name="remove">削除</string>
-
     <string name="setting_long_click_share">長押しコンテキストメニュー</string>
     <string name="setting_pull_to_refresh">引いて更新</string>
     <string name="setting_disable_screenshots">スクリーンショットをブロック</string>
-    <string name="setting_always_https">HTTPSのみ</string>    <string name="setting_basic_auth">HTTP 認証</string>    <string name="setting_dynamic_status_bar">ダイナミックステータスバー</string>
+    <string name="setting_always_https">HTTPSのみ</string>
+    <string name="setting_basic_auth">HTTP 認証</string>
+    <string name="setting_dynamic_status_bar">ダイナミックステータスバー</string>
     <string name="setting_floating_controls">フローティングコントロール</string>
-
     <string name="groups">グループ</string>
     <string name="group">グループ</string>
     <string name="add_group">グループを追加</string>
@@ -195,7 +186,7 @@
     <string name="import_group_share_description">グループ「%1$s」（%2$s個のアプリ）が共有されました。グループをタップして展開し、インポートするアプリを選択してください：</string>
     <string name="import_group_share_description_multi">%1$s個のグループ（%2$s個のアプリ）が共有されました。各グループをタップして展開し、インポートするアプリを選択してください：</string>
     <string name="n_groups_selected">%1$d個のグループを選択</string>
-    <string name="global_privacy">グローバルプライバシー</string>
+    <string name="network_privacy">ネットワークとプライバシー</string>
     <string name="group_not_found">このグループはもう利用できません</string>
     <string name="icon_dimensions_source">%1$dx%2$d · %3$s</string>
     <string name="open_in_current_session">現在のセッションで開く</string>
@@ -211,7 +202,6 @@
     <string name="setting_global_privacy_control">GPCシグナル</string>
     <string name="setting_requires_peel_restart">変更はPeelの再起動後に有効になります</string>
     <string name="setting_requires_webapp_restart">変更はアプリの再起動後に有効になります</string>
-
     <string name="extensions">拡張機能</string>
     <string name="no_extensions_installed">拡張機能がインストールされていません。\n+ をタップして利用可能な拡張機能を参照してください。</string>
     <string name="available_extensions">利用可能な拡張機能</string>

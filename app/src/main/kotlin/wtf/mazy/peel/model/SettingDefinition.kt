@@ -69,12 +69,12 @@ sealed class SettingDefinition(
 }
 
 enum class SettingCategory(@param:StringRes val displayNameResId: Int) {
-    GENERAL(R.string.general),
     APPEARANCE(R.string.appearance),
+    BEHAVIOR(R.string.behavior),
     PERMISSIONS(R.string.permissions),
     CONTENT(R.string.content),
-    SECURITY(R.string.security),
-    GLOBAL_PRIVACY(R.string.global_privacy),
+    NETWORK_PRIVACY(R.string.network_privacy),
+    PROTECTION(R.string.protection),
     ADVANCED(R.string.advanced),
 }
 
@@ -147,48 +147,6 @@ object SettingRegistry {
 
     private val ALL_SETTINGS: List<SettingDefinition> =
         listOf(
-            // General
-            SettingDefinition.BooleanSetting(
-                SettingField(WebAppSettings::isAllowJs, true),
-                R.string.allow_javascript,
-                SettingCategory.GENERAL,
-            ),
-            SettingDefinition.BooleanSetting(
-                SettingField(WebAppSettings::isRequestDesktop, false),
-                R.string.request_website_in_desktop_version,
-                SettingCategory.GENERAL,
-            ),
-            SettingDefinition.BooleanSetting(
-                SettingField(WebAppSettings::isOpenUrlExternal, true),
-                R.string.open_external_links_in_browser_app,
-                SettingCategory.GENERAL,
-            ),
-            SettingDefinition.BooleanSetting(
-                SettingField(WebAppSettings::isLongClickShare, true),
-                R.string.setting_long_click_share,
-                SettingCategory.GENERAL,
-            ),
-            SettingDefinition.BooleanSetting(
-                SettingField(WebAppSettings::isPullToRefresh, true),
-                R.string.setting_pull_to_refresh,
-                SettingCategory.GENERAL,
-            ),
-            SettingDefinition.BooleanSetting(
-                SettingField(WebAppSettings::isShowNotification, true),
-                R.string.setting_floating_controls,
-                SettingCategory.GENERAL,
-            ),
-            SettingDefinition.BooleanSetting(
-                SettingField(WebAppSettings::isKeepAwake, false),
-                R.string.keep_screen_awake,
-                SettingCategory.GENERAL,
-            ),
-            SettingDefinition.BooleanWithIntSetting(
-                SettingField(WebAppSettings::isAutoReload, false),
-                R.string.webapp_autoreload,
-                SettingCategory.GENERAL,
-                intField = SettingField(WebAppSettings::timeAutoReload, 60),
-            ),
             // Appearance
             SettingDefinition.TriStateSetting(
                 SettingField(WebAppSettings::colorScheme, WebAppSettings.COLOR_SCHEME_AUTO),
@@ -212,6 +170,43 @@ object SettingRegistry {
                 SettingField(WebAppSettings::isShowFullscreen, false),
                 R.string.show_fullscreen,
                 SettingCategory.APPEARANCE,
+            ),
+            SettingDefinition.BooleanSetting(
+                SettingField(WebAppSettings::isPullToRefresh, true),
+                R.string.setting_pull_to_refresh,
+                SettingCategory.APPEARANCE,
+            ),
+            SettingDefinition.BooleanSetting(
+                SettingField(WebAppSettings::isShowNotification, true),
+                R.string.setting_floating_controls,
+                SettingCategory.APPEARANCE,
+            ),
+            SettingDefinition.BooleanSetting(
+                SettingField(WebAppSettings::isLongClickShare, true),
+                R.string.setting_long_click_share,
+                SettingCategory.APPEARANCE,
+            ),
+            // Behavior
+            SettingDefinition.BooleanSetting(
+                SettingField(WebAppSettings::isRequestDesktop, false),
+                R.string.request_website_in_desktop_version,
+                SettingCategory.BEHAVIOR,
+            ),
+            SettingDefinition.BooleanSetting(
+                SettingField(WebAppSettings::isOpenUrlExternal, true),
+                R.string.open_external_links_in_browser_app,
+                SettingCategory.BEHAVIOR,
+            ),
+            SettingDefinition.BooleanSetting(
+                SettingField(WebAppSettings::isKeepAwake, false),
+                R.string.keep_screen_awake,
+                SettingCategory.BEHAVIOR,
+            ),
+            SettingDefinition.BooleanWithIntSetting(
+                SettingField(WebAppSettings::isAutoReload, false),
+                R.string.webapp_autoreload,
+                SettingCategory.BEHAVIOR,
+                intField = SettingField(WebAppSettings::timeAutoReload, 60),
             ),
             // Permissions
             SettingDefinition.TriStateSetting(
@@ -245,20 +240,14 @@ object SettingRegistry {
                 R.string.allow_media_playback_in_background,
                 SettingCategory.CONTENT,
             ),
-            // Security
-            SettingDefinition.BooleanSetting(
-                SettingField(WebAppSettings::isAlwaysHttps, true),
-                R.string.setting_always_https,
-                SettingCategory.SECURITY,
-            ),
-
+            // Network & Privacy
             SettingDefinition.TriStateSetting(
                 SettingField(
                     WebAppSettings::isSafeBrowsing,
                     WebAppSettings.TRACKER_PROTECTION_DEFAULT
                 ),
                 R.string.setting_tracker_protection,
-                SettingCategory.GLOBAL_PRIVACY,
+                SettingCategory.NETWORK_PRIVACY,
                 globalOnly = true,
                 valueOff = WebAppSettings.TRACKER_PROTECTION_NONE,
                 valueMid = WebAppSettings.TRACKER_PROTECTION_DEFAULT,
@@ -270,44 +259,49 @@ object SettingRegistry {
             SettingDefinition.BooleanSetting(
                 SettingField(WebAppSettings::isGlobalPrivacyControl, true),
                 R.string.setting_global_privacy_control,
-                SettingCategory.GLOBAL_PRIVACY,
+                SettingCategory.NETWORK_PRIVACY,
                 globalOnly = true,
             ),
             SettingDefinition.BooleanSetting(
                 SettingField(WebAppSettings::isFingerprintingProtection, true),
                 R.string.setting_fingerprinting_protection,
-                SettingCategory.GLOBAL_PRIVACY,
+                SettingCategory.NETWORK_PRIVACY,
                 globalOnly = true,
             ),
             SettingDefinition.BooleanSetting(
                 SettingField(WebAppSettings::isBlockLocalNetwork, true),
                 R.string.setting_block_local_network,
-                SettingCategory.GLOBAL_PRIVACY,
+                SettingCategory.NETWORK_PRIVACY,
                 globalOnly = true,
             ),
             SettingDefinition.BooleanSetting(
                 SettingField(WebAppSettings::isBlockWebRtcIpLeak, true),
                 R.string.setting_block_webrtc_ip_leak,
-                SettingCategory.GLOBAL_PRIVACY,
+                SettingCategory.NETWORK_PRIVACY,
                 globalOnly = true,
             ),
             SettingDefinition.BooleanSetting(
+                SettingField(WebAppSettings::isAlwaysHttps, true),
+                R.string.setting_always_https,
+                SettingCategory.NETWORK_PRIVACY,
+            ),
+            // Protection
+            SettingDefinition.BooleanSetting(
                 SettingField(WebAppSettings::isBiometricProtection, false),
                 R.string.enable_access_restriction,
-                SettingCategory.SECURITY,
+                SettingCategory.PROTECTION,
             ),
             SettingDefinition.BooleanSetting(
                 SettingField(WebAppSettings::isDisableScreenshots, false),
                 R.string.setting_disable_screenshots,
-                SettingCategory.SECURITY,
-            ),
-            SettingDefinition.BooleanSetting(
-                SettingField(WebAppSettings::isClearCache, false),
-                R.string.clear_cache_after_usage,
-                SettingCategory.SECURITY,
-                globalOnly = true,
+                SettingCategory.PROTECTION,
             ),
             // Advanced
+            SettingDefinition.BooleanSetting(
+                SettingField(WebAppSettings::isAllowJs, true),
+                R.string.allow_javascript,
+                SettingCategory.ADVANCED,
+            ),
             SettingDefinition.BooleanWithCredentialsSetting(
                 SettingField(WebAppSettings::isUseBasicAuth, false),
                 R.string.setting_basic_auth,
@@ -318,6 +312,12 @@ object SettingRegistry {
             SettingDefinition.BooleanSetting(
                 SettingField(WebAppSettings::isDisableQuic, false),
                 R.string.setting_disable_quic,
+                SettingCategory.ADVANCED,
+                globalOnly = true,
+            ),
+            SettingDefinition.BooleanSetting(
+                SettingField(WebAppSettings::isClearCache, false),
+                R.string.clear_cache_after_usage,
                 SettingCategory.ADVANCED,
                 globalOnly = true,
             ),

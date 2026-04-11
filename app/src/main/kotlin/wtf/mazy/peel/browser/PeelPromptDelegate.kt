@@ -132,7 +132,12 @@ class PeelPromptDelegate(private val host: SessionHost) : GeckoSession.PromptDel
                 if (nested != null) {
                     if (c.label.isNotEmpty()) {
                         val header = SpannableString(c.label).apply {
-                            setSpan(StyleSpan(android.graphics.Typeface.BOLD), 0, length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                            setSpan(
+                                StyleSpan(android.graphics.Typeface.BOLD),
+                                0,
+                                length,
+                                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                            )
                         }
                         labels.add(header)
                         choices.add(c)
@@ -180,8 +185,10 @@ class PeelPromptDelegate(private val host: SessionHost) : GeckoSession.PromptDel
                         }
                         .show()
                 }
+
                 else -> {
-                    val initial = choices.indices.firstOrNull { enabled[it] && choices[it].selected } ?: -1
+                    val initial =
+                        choices.indices.firstOrNull { enabled[it] && choices[it].selected } ?: -1
                     builder
                         .setSingleChoiceItems(labelArray, initial) { dialog, which ->
                             if (!enabled[which]) {

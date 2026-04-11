@@ -3,7 +3,6 @@
     <string name="action_settings">Configurações</string>
     <string name="global_settings">Configurações globais</string>
     <string name="save">Salvar</string>
-
     <string name="open_external_links_in_browser_app">Perguntar sobre links externos</string>
     <string name="allow_javascript">Permitir JavaScript</string>
     <string name="clear_cache_after_usage">Limpar cache ao sair</string>
@@ -24,11 +23,10 @@
     <string name="fetch_step_loading_host">Obtendo metadados…</string>
     <string name="fetch_step_downloading_icons">Baixando ícones…</string>
     <string name="fetch_step_downloading_manifest">Baixando manifesto…</string>
-
     <string name="web_app_settings">Configurações do Web App</string>
     <string name="permissions">Permissões</string>
     <string name="content">Conteúdo</string>
-    <string name="security">Segurança</string>
+    <string name="protection">Proteção</string>
     <string name="advanced">Avançado</string>
     <string name="appearance">Aparência</string>
     <string name="import_failed">Não foi possível restaurar o backup</string>
@@ -45,7 +43,6 @@
     <string name="import_destination_group">Grupo de destino</string>
     <string name="import_mapping_empty">Nenhum app encontrado neste arquivo.</string>
     <string name="import_count_message">%1$d app(s) importado(s)</string>
-
     <string name="n_apps_selected">%1$d selecionado(s)</string>
     <string name="share_no_selection">Selecione pelo menos um app</string>
     <string name="share_secrets_title">Segredos detectados</string>
@@ -55,7 +52,6 @@
     <string name="remove_apps_title">Remover apps</string>
     <string name="remove_apps_confirm">Remover %1$d app(s) selecionado(s)?</string>
     <string name="n_apps_removed">%1$d app(s) removido(s)</string>
-
     <string name="export_share_failed">Não foi possível preparar o arquivo para compartilhamento</string>
     <string name="backup_save_failed">Não foi possível salvar o backup</string>
     <string name="backup_saved">Backup salvo</string>
@@ -83,7 +79,7 @@
     <string name="color_scheme_dark">Escuro</string>
     <string name="webapp_already_deleted">Este Web App foi excluído. Você pode excluir este atalho</string>
     <string name="global_web_app_settings">Configurações globais do Web App</string>
-    <string name="general">Geral</string>
+    <string name="behavior">Comportamento</string>
     <string name="backup">Backup</string>
     <string name="import_data">Importar</string>
     <string name="export_data">Exportar</string>
@@ -115,7 +111,6 @@
     <string name="open_app_links">Abrir links em apps externos</string>
     <string name="permission_prompt_open_app">Abrir este link em um app externo?\n\n%1$s</string>
     <string name="no_app_found">Nenhum app encontrado para este link</string>
-
     <string name="create_shortcut">Criar atalho</string>
     <string name="create">Criar</string>
     <string name="back">Voltar</string>
@@ -127,7 +122,6 @@
     <string name="allow_media_playback_in_background">Reprodução em segundo plano</string>
     <string name="media_channel_name">Reprodução de mídia</string>
     <string name="media_channel_description">Controles de reprodução de mídia em segundo plano</string>
-
     <string name="more">Mais</string>
     <string name="cancel">Cancelar</string>
     <string name="ok">OK</string>
@@ -135,31 +129,28 @@
     <string name="no_biometric_devices">Seu dispositivo não suporta autenticação biométrica</string>
     <string name="no_biometric_keys_enrolled">Seu dispositivo suporta biometria, mas nenhum método foi configurado</string>
     <string name="browser_launch_failed">Não foi possível iniciar o Web App</string>
-
     <string name="undo">Desfazer</string>
     <string name="x_was_removed">%1$s foi removido</string>
     <string name="username">Nome de usuário</string>
     <string name="password">Senha</string>
-
     <string name="app_info">Sobre</string>
     <string name="about_description">Um navegador leve para aplicativos web\nMovido por Mozilla GeckoView</string>
-
     <string name="delete">Excluir</string>
     <string name="settings">Configurações</string>
     <string name="app_icon">Ícone do app</string>
-
     <string name="select_setting_to_override">Selecionar configuração</string>
     <string name="add_override">Adicionar substituição</string>
     <string name="remove_override">Remover substituição</string>
-    <string name="overridden_settings">Configurações substituídas</string>    <string name="add">Adicionar</string>
+    <string name="overridden_settings">Configurações substituídas</string>
+    <string name="add">Adicionar</string>
     <string name="remove">Remover</string>
-
     <string name="setting_long_click_share">Menu de contexto</string>
     <string name="setting_pull_to_refresh">Puxar para atualizar</string>
     <string name="setting_disable_screenshots">Bloquear capturas de tela</string>
-    <string name="setting_always_https">Apenas HTTPS</string>    <string name="setting_basic_auth">Autorização HTTP</string>    <string name="setting_dynamic_status_bar">Barra de status dinâmica</string>
+    <string name="setting_always_https">Apenas HTTPS</string>
+    <string name="setting_basic_auth">Autorização HTTP</string>
+    <string name="setting_dynamic_status_bar">Barra de status dinâmica</string>
     <string name="setting_floating_controls">Controles flutuantes</string>
-
     <string name="groups">Grupos</string>
     <string name="group">Grupo</string>
     <string name="add_group">Adicionar grupo</string>
@@ -196,7 +187,7 @@
     <string name="import_group_share_description">O grupo «%1$s» com %2$s foi compartilhado com você. Toque no grupo para expandir e escolher os apps a importar:</string>
     <string name="import_group_share_description_multi">%1$s com %2$s foram compartilhados com você. Toque em cada grupo para expandir e escolher os apps a importar:</string>
     <string name="n_groups_selected">%1$d grupo(s) selecionado(s)</string>
-    <string name="global_privacy">Privacidade global</string>
+    <string name="network_privacy">Rede e privacidade</string>
     <string name="group_not_found">O grupo não está mais disponível</string>
     <string name="icon_dimensions_source">%1$dx%2$d · %3$s</string>
     <string name="open_in_current_session">Abrir na sessão atual</string>
@@ -212,7 +203,6 @@
     <string name="setting_global_privacy_control">Sinal GPC</string>
     <string name="setting_requires_peel_restart">As alterações terão efeito após reiniciar o Peel</string>
     <string name="setting_requires_webapp_restart">As alterações terão efeito após reiniciar os apps</string>
-
     <string name="extensions">Extensões</string>
     <string name="no_extensions_installed">Nenhuma extensão instalada.\nToque em + para explorar extensões disponíveis.</string>
     <string name="available_extensions">Extensões disponíveis</string>

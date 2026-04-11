@@ -3,7 +3,6 @@
     <string name="action_settings">ਸੈਟਿੰਗਾਂ</string>
     <string name="global_settings">ਗਲੋਬਲ ਸੈਟਿੰਗਾਂ</string>
     <string name="save">ਸੇਵ ਕਰੋ</string>
-
     <string name="open_external_links_in_browser_app">ਬਾਹਰੀ ਲਿੰਕਾਂ ਲਈ ਪੁੱਛੋ</string>
     <string name="allow_javascript">JavaScript ਦੀ ਇਜਾਜ਼ਤ ਦਿਓ</string>
     <string name="clear_cache_after_usage">ਬੰਦ ਕਰਨ \'ਤੇ ਕੈਸ਼ ਸਾਫ਼ ਕਰੋ</string>
@@ -27,7 +26,7 @@
     <string name="web_app_settings">ਵੈੱਬ ਐਪ ਸੈਟਿੰਗਾਂ</string>
     <string name="permissions">ਇਜਾਜ਼ਤਾਂ</string>
     <string name="content">ਸਮੱਗਰੀ</string>
-    <string name="security">ਸੁਰੱਖਿਆ</string>
+    <string name="protection">ਸੁਰੱਖਿਆ</string>
     <string name="advanced">ਐਡਵਾਂਸਡ</string>
     <string name="appearance">ਦਿੱਖ</string>
     <string name="import_failed">ਬੈਕਅੱਪ ਬਹਾਲ ਨਹੀਂ ਹੋ ਸਕਿਆ</string>
@@ -44,7 +43,6 @@
     <string name="import_destination_group">ਮੰਜ਼ਿਲ ਸਮੂਹ</string>
     <string name="import_mapping_empty">ਇਸ ਫ਼ਾਈਲ ਵਿੱਚ ਕੋਈ ਐਪ ਨਹੀਂ ਮਿਲੀ।</string>
     <string name="import_count_message">%1$d ਐਪਾਂ ਆਯਾਤ ਕੀਤੀਆਂ</string>
-
     <string name="n_apps_selected">%1$d ਚੁਣੀਆਂ</string>
     <string name="share_no_selection">ਘੱਟੋ-ਘੱਟ ਇੱਕ ਐਪ ਚੁਣੋ</string>
     <string name="share_secrets_title">ਗੁਪਤ ਜਾਣਕਾਰੀ ਮਿਲੀ</string>
@@ -54,7 +52,6 @@
     <string name="remove_apps_title">ਐਪਾਂ ਹਟਾਓ</string>
     <string name="remove_apps_confirm">%1$d ਚੁਣੀਆਂ ਐਪਾਂ ਹਟਾਓ?</string>
     <string name="n_apps_removed">%1$d ਐਪਾਂ ਹਟਾਈਆਂ</string>
-
     <string name="export_share_failed">ਸਾਂਝਾ ਕਰਨ ਲਈ ਫ਼ਾਈਲ ਤਿਆਰ ਨਹੀਂ ਹੋ ਸਕੀ</string>
     <string name="backup_save_failed">ਬੈਕਅੱਪ ਸੁਰੱਖਿਅਤ ਨਹੀਂ ਹੋ ਸਕਿਆ</string>
     <string name="backup_saved">ਬੈਕਅੱਪ ਸੁਰੱਖਿਅਤ ਹੋ ਗਿਆ</string>
@@ -82,7 +79,7 @@
     <string name="color_scheme_dark">ਗੂੜ੍ਹਾ</string>
     <string name="webapp_already_deleted">ਇਹ ਵੈੱਬ ਐਪ ਮਿਟਾ ਦਿੱਤੀ ਗਈ ਹੈ। ਤੁਸੀਂ ਇਹ ਸ਼ਾਰਟਕੱਟ ਮਿਟਾ ਸਕਦੇ ਹੋ।</string>
     <string name="global_web_app_settings">ਗਲੋਬਲ ਵੈੱਬ ਐਪ ਸੈਟਿੰਗਾਂ</string>
-    <string name="general">ਆਮ</string>
+    <string name="behavior">ਵਿਹਾਰ</string>
     <string name="backup">ਬੈਕਅੱਪ</string>
     <string name="import_data">ਆਯਾਤ</string>
     <string name="export_data">ਨਿਰਯਾਤ</string>
@@ -144,12 +141,15 @@
     <string name="select_setting_to_override">ਸੈਟਿੰਗ ਚੁਣੋ</string>
     <string name="add_override">ਓਵਰਰਾਈਡ ਸ਼ਾਮਲ ਕਰੋ</string>
     <string name="remove_override">ਓਵਰਰਾਈਡ ਹਟਾਓ</string>
-    <string name="overridden_settings">ਓਵਰਰਾਈਡ ਕੀਤੀਆਂ ਸੈਟਿੰਗਾਂ</string>    <string name="add">ਸ਼ਾਮਲ ਕਰੋ</string>
+    <string name="overridden_settings">ਓਵਰਰਾਈਡ ਕੀਤੀਆਂ ਸੈਟਿੰਗਾਂ</string>
+    <string name="add">ਸ਼ਾਮਲ ਕਰੋ</string>
     <string name="remove">ਹਟਾਓ</string>
     <string name="setting_long_click_share">ਲੰਬਾ ਦਬਾ ਕੇ ਸੰਦਰਭ ਮੀਨੂ</string>
     <string name="setting_pull_to_refresh">ਖਿੱਚ ਕੇ ਤਾਜ਼ਾ ਕਰੋ</string>
     <string name="setting_disable_screenshots">ਸਕ੍ਰੀਨਸ਼ਾਟ ਬਲਾਕ ਕਰੋ</string>
-    <string name="setting_always_https">ਸਿਰਫ਼ HTTPS</string>    <string name="setting_basic_auth">HTTP ਅਧਿਕਾਰ</string>    <string name="setting_dynamic_status_bar">ਡਾਇਨਾਮਿਕ ਸਟੇਟਸ ਬਾਰ</string>
+    <string name="setting_always_https">ਸਿਰਫ਼ HTTPS</string>
+    <string name="setting_basic_auth">HTTP ਅਧਿਕਾਰ</string>
+    <string name="setting_dynamic_status_bar">ਡਾਇਨਾਮਿਕ ਸਟੇਟਸ ਬਾਰ</string>
     <string name="setting_floating_controls">ਫ਼ਲੋਟਿੰਗ ਕੰਟਰੋਲ</string>
     <string name="groups">ਗਰੁੱਪ</string>
     <string name="group">ਗਰੁੱਪ</string>
@@ -186,7 +186,7 @@
     <string name="import_group_share_description">ਗਰੁੱਪ «%1$s» ਜਿਸ ਵਿੱਚ %2$s ਐਪ ਹਨ, ਤੁਹਾਡੇ ਨਾਲ ਸਾਂਝਾ ਕੀਤਾ ਗਿਆ। ਗਰੁੱਪ ਤੇ ਟੈਪ ਕਰੋ ਅਤੇ ਆਯਾਤ ਕਰਨ ਲਈ ਐਪ ਚੁਣੋ:</string>
     <string name="import_group_share_description_multi">%1$s ਗਰੁੱਪ ਜਿਨ੍ਹਾਂ ਵਿੱਚ %2$s ਐਪ ਹਨ, ਤੁਹਾਡੇ ਨਾਲ ਸਾਂਝੇ ਕੀਤੇ ਗਏ। ਹਰ ਗਰੁੱਪ ਤੇ ਟੈਪ ਕਰੋ ਅਤੇ ਆਯਾਤ ਕਰਨ ਲਈ ਐਪ ਚੁਣੋ:</string>
     <string name="n_groups_selected">%1$d ਗਰੁੱਪ ਚੁਣੇ ਗਏ</string>
-    <string name="global_privacy">ਗਲੋਬਲ ਪ੍ਰਾਈਵੇਸੀ</string>
+    <string name="network_privacy">ਨੈੱਟਵਰਕ ਅਤੇ ਗੋਪਨੀਅਤਾ</string>
     <string name="group_not_found">ਇਹ ਗਰੁੱਪ ਹੁਣ ਉਪਲਬਧ ਨਹੀਂ ਹੈ</string>
     <string name="icon_dimensions_source">%1$dx%2$d · %3$s</string>
     <string name="open_in_current_session">ਮੌਜੂਦਾ ਸੈਸ਼ਨ ਵਿੱਚ ਖੋਲ੍ਹੋ</string>
@@ -202,7 +202,6 @@
     <string name="setting_global_privacy_control">GPC ਸਿਗਨਲ</string>
     <string name="setting_requires_peel_restart">ਤਬਦੀਲੀਆਂ Peel ਰੀਸਟਾਰਟ ਤੋਂ ਬਾਅਦ ਲਾਗੂ ਹੋਣਗੀਆਂ</string>
     <string name="setting_requires_webapp_restart">ਤਬਦੀਲੀਆਂ ਐਪ ਰੀਸਟਾਰਟ ਤੋਂ ਬਾਅਦ ਲਾਗੂ ਹੋਣਗੀਆਂ</string>
-
     <string name="extensions">ਐਕਸਟੈਂਸ਼ਨ</string>
     <string name="no_extensions_installed">ਕੋਈ ਐਕਸਟੈਂਸ਼ਨ ਇੰਸਟਾਲ ਨਹੀਂ ਹੈ।\n+ ਟੈਪ ਕਰਕੇ ਉਪਲਬਧ ਐਕਸਟੈਂਸ਼ਨ ਦੇਖੋ।</string>
     <string name="available_extensions">ਉਪਲਬਧ ਐਕਸਟੈਂਸ਼ਨ</string>

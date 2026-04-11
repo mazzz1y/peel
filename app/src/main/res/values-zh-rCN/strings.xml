@@ -3,7 +3,6 @@
     <string name="action_settings">设置</string>
     <string name="global_settings">全局设置</string>
     <string name="save">保存</string>
-
     <string name="open_external_links_in_browser_app">打开外部链接前询问</string>
     <string name="allow_javascript">允许 JavaScript</string>
     <string name="clear_cache_after_usage">退出时清除缓存</string>
@@ -24,11 +23,10 @@
     <string name="fetch_step_loading_host">获取元数据…</string>
     <string name="fetch_step_downloading_icons">下载图标…</string>
     <string name="fetch_step_downloading_manifest">下载清单…</string>
-
     <string name="web_app_settings">网页应用设置</string>
     <string name="permissions">权限</string>
     <string name="content">内容</string>
-    <string name="security">安全</string>
+    <string name="protection">保护</string>
     <string name="advanced">高级</string>
     <string name="appearance">外观</string>
     <string name="import_failed">无法恢复备份</string>
@@ -45,7 +43,6 @@
     <string name="import_destination_group">目标分组</string>
     <string name="import_mapping_empty">此文件中未找到应用。</string>
     <string name="import_count_message">已导入 %1$d 个应用</string>
-
     <string name="n_apps_selected">已选择 %1$d 个</string>
     <string name="share_no_selection">请至少选择一个应用</string>
     <string name="share_secrets_title">检测到密钥</string>
@@ -55,7 +52,6 @@
     <string name="remove_apps_title">移除应用</string>
     <string name="remove_apps_confirm">移除 %1$d 个已选应用？</string>
     <string name="n_apps_removed">已移除 %1$d 个应用</string>
-
     <string name="export_share_failed">无法准备分享文件</string>
     <string name="backup_save_failed">无法保存备份</string>
     <string name="backup_saved">备份已保存</string>
@@ -83,7 +79,7 @@
     <string name="color_scheme_dark">深色</string>
     <string name="webapp_already_deleted">此网页应用已删除。您可以删除此快捷方式</string>
     <string name="global_web_app_settings">全局网页应用设置</string>
-    <string name="general">常规</string>
+    <string name="behavior">行为</string>
     <string name="backup">备份</string>
     <string name="import_data">导入</string>
     <string name="export_data">导出</string>
@@ -115,7 +111,6 @@
     <string name="open_app_links">在外部应用中打开链接</string>
     <string name="permission_prompt_open_app">在外部应用中打开此链接？\n\n%1$s</string>
     <string name="no_app_found">未找到可处理此链接的应用</string>
-
     <string name="create_shortcut">创建快捷方式</string>
     <string name="create">创建</string>
     <string name="back">返回</string>
@@ -127,7 +122,6 @@
     <string name="allow_media_playback_in_background">后台播放</string>
     <string name="media_channel_name">媒体播放</string>
     <string name="media_channel_description">后台媒体播放控制</string>
-
     <string name="more">更多</string>
     <string name="cancel">取消</string>
     <string name="ok">确定</string>
@@ -135,31 +129,28 @@
     <string name="no_biometric_devices">您的设备不支持生物识别认证</string>
     <string name="no_biometric_keys_enrolled">您的设备支持生物识别认证，但尚未设置</string>
     <string name="browser_launch_failed">无法启动网页应用</string>
-
     <string name="undo">撤销</string>
     <string name="x_was_removed">%1$s 已删除</string>
     <string name="username">用户名</string>
     <string name="password">密码</string>
-
     <string name="app_info">关于</string>
     <string name="about_description">轻量级网络应用浏览器\n由 Mozilla GeckoView 驱动</string>
-
     <string name="delete">删除</string>
     <string name="settings">设置</string>
     <string name="app_icon">应用图标</string>
-
     <string name="select_setting_to_override">选择设置</string>
     <string name="add_override">添加覆盖</string>
     <string name="remove_override">删除覆盖</string>
-    <string name="overridden_settings">已覆盖的设置</string>    <string name="add">添加</string>
+    <string name="overridden_settings">已覆盖的设置</string>
+    <string name="add">添加</string>
     <string name="remove">删除</string>
-
     <string name="setting_long_click_share">长按快捷菜单</string>
     <string name="setting_pull_to_refresh">下拉刷新</string>
     <string name="setting_disable_screenshots">禁止截屏</string>
-    <string name="setting_always_https">仅 HTTPS</string>    <string name="setting_basic_auth">HTTP 授权</string>    <string name="setting_dynamic_status_bar">动态状态栏</string>
+    <string name="setting_always_https">仅 HTTPS</string>
+    <string name="setting_basic_auth">HTTP 授权</string>
+    <string name="setting_dynamic_status_bar">动态状态栏</string>
     <string name="setting_floating_controls">浮动控件</string>
-
     <string name="groups">分组</string>
     <string name="group">分组</string>
     <string name="add_group">添加分组</string>
@@ -195,7 +186,7 @@
     <string name="import_group_share_description">分组「%1$s」包含 %2$s 个应用已与你共享。点击分组展开并选择要导入的应用：</string>
     <string name="import_group_share_description_multi">%1$s 个分组包含 %2$s 个应用已与你共享。点击各分组展开并选择要导入的应用：</string>
     <string name="n_groups_selected">已选择 %1$d 个分组</string>
-    <string name="global_privacy">全局隐私</string>
+    <string name="network_privacy">网络与隐私</string>
     <string name="group_not_found">该分组已不可用</string>
     <string name="icon_dimensions_source">%1$dx%2$d · %3$s</string>
     <string name="open_in_current_session">在当前会话中打开</string>
@@ -211,7 +202,6 @@
     <string name="setting_global_privacy_control">GPC 信号</string>
     <string name="setting_requires_peel_restart">更改在重启 Peel 后生效</string>
     <string name="setting_requires_webapp_restart">更改在重启应用后生效</string>
-
     <string name="extensions">扩展</string>
     <string name="no_extensions_installed">未安装扩展。\n点击 + 浏览可用扩展。</string>
     <string name="available_extensions">可用扩展</string>

@@ -24,7 +24,6 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import org.mozilla.geckoview.WebExtension
-import kotlin.coroutines.resume
 import wtf.mazy.peel.R
 import wtf.mazy.peel.gecko.GeckoRuntimeProvider
 import wtf.mazy.peel.ui.ListPickerAdapter
@@ -36,6 +35,7 @@ import wtf.mazy.peel.ui.extensions.ExtensionIconCache
 import wtf.mazy.peel.ui.extensions.SessionExtensionActions
 import wtf.mazy.peel.util.NotificationUtils
 import java.io.File
+import kotlin.coroutines.resume
 
 class ExtensionsActivity : AppCompatActivity() {
 
@@ -122,6 +122,7 @@ class ExtensionsActivity : AppCompatActivity() {
                 updateAllExtensions()
                 true
             }
+
             else -> super.onOptionsItemSelected(item)
         }
     }
@@ -386,7 +387,7 @@ class ExtensionsActivity : AppCompatActivity() {
                 loadInstalledExtensions()
             } catch (e: Exception) {
                 val canceled = (e as? WebExtension.InstallException)?.code ==
-                    WebExtension.InstallException.ErrorCodes.ERROR_USER_CANCELED
+                        WebExtension.InstallException.ErrorCodes.ERROR_USER_CANCELED
                 if (!canceled) {
                     NotificationUtils.showToast(
                         this@ExtensionsActivity,

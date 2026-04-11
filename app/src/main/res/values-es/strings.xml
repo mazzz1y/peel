@@ -2,7 +2,6 @@
     <string name="action_settings">Configuraciones</string>
     <string name="global_settings">Ajustes generales</string>
     <string name="save">Guardar</string>
-
     <string name="open_external_links_in_browser_app">Preguntar por enlaces externos</string>
     <string name="allow_javascript">Permitir Javascript</string>
     <string name="clear_cache_after_usage">Eliminar el cache después del uso</string>
@@ -11,7 +10,6 @@
     <string name="empty_state_message">No hay aplicaciones web todavía.\nToca el botón + para añadir tu primera aplicación.</string>
     <string name="request_website_in_desktop_version">Solicitar el sitio web en versión de escritorio</string>
     <string name="shortcut_icon">Icono de acceso directo</string>
-
     <string name="app_info">Acerca de</string>
     <string name="about_description">Un navegador ligero para aplicaciones web\nImpulsado por Mozilla GeckoView</string>
     <string name="web_app_settings">Configuración de la aplicación web</string>
@@ -29,7 +27,6 @@
     <string name="import_destination_group">Grupo de destino</string>
     <string name="import_mapping_empty">No se encontraron apps en este archivo.</string>
     <string name="import_count_message">%1$d app(s) importada(s)</string>
-
     <string name="n_apps_selected">%1$d seleccionada(s)</string>
     <string name="share_no_selection">Selecciona al menos una app</string>
     <string name="share_secrets_title">Secretos detectados</string>
@@ -39,7 +36,6 @@
     <string name="remove_apps_title">Eliminar apps</string>
     <string name="remove_apps_confirm">¿Eliminar %1$d app(s) seleccionada(s)?</string>
     <string name="n_apps_removed">%1$d app(s) eliminada(s)</string>
-
     <string name="export_share_failed">No se pudo preparar el archivo para compartir</string>
     <string name="backup_save_failed">No se pudo guardar la copia de seguridad</string>
     <string name="backup_saved">Copia de seguridad guardada</string>
@@ -49,7 +45,6 @@
     <string name="no_filemanager">Por favor, instala un gestor de archivos</string>
     <string name="allow_location_access">Permitir el acceso a la ubicación</string>
     <string name="allow_drm_content">Permitir contenidos DRM</string>
-
     <string name="file_download">El archivo se está descargando...</string>
     <string name="download_in_progress">Descargando…</string>
     <string name="download_complete">Descarga completa — toca para abrir</string>
@@ -65,7 +60,7 @@
     <string name="color_scheme_dark">Oscuro</string>
     <string name="webapp_already_deleted">Esta aplicación web ya no está disponible. Puede eliminar este acceso directo</string>
     <string name="global_web_app_settings">Configuración general de la aplicación web</string>
-    <string name="general">General</string>
+    <string name="behavior">Comportamiento</string>
     <string name="backup">Copia de seguridad</string>
     <string name="enable_sandbox">Habilitar Sandbox</string>
     <string name="ephemeral_sandbox">Almacenamiento efímero</string>
@@ -80,7 +75,7 @@
     <string name="back">Volver</string>
     <string name="share">Compartir</string>
     <string name="bioprompt_restricted_webapp">Restricción de acceso</string>
-    <string name="enable_access_restriction">Activar la restricción de acceso</string>
+    <string name="enable_access_restriction">Bloqueo biométrico</string>
     <string name="allow_media_playback_in_background">Permitir la reproducción de medios en segundo plano</string>
     <string name="more">Más</string>
     <string name="cancel">Cancelar</string>
@@ -89,12 +84,10 @@
     <string name="no_biometric_devices">Su dispositivo no admite la autenticación biométrica</string>
     <string name="no_biometric_keys_enrolled">Su dispositivo admite la autenticación biométrica, pero aún no ha registrado ningún método</string>
     <string name="browser_launch_failed">La Aplicación Web no pudo ser iniciada</string>
-
     <string name="undo">Deshacer</string>
     <string name="x_was_removed">Se ha eliminado %1$s</string>
     <string name="username">Nombre de usuario</string>
     <string name="password">Contraseña</string>
-
     <string name="fetch_failed">No se pudieron obtener datos del sitio web</string>
     <string name="fetch_icon_title">Obtener del sitio web</string>
     <string name="fetch_step_loading">Conectando…</string>
@@ -113,22 +106,22 @@
     <string name="clear_browsing_data">Datos de navegación</string>
     <string name="clear_sandbox_storage">Incluir almacenamiento sandbox</string>
     <string name="factory_reset">Restablecer de fábrica</string>
-
     <string name="delete">Eliminar</string>
     <string name="settings">Configuración</string>
     <string name="app_icon">Icono de la aplicación</string>
     <string name="select_setting_to_override">Seleccionar ajuste</string>
     <string name="add_override">Añadir anulación</string>
     <string name="remove_override">Eliminar anulación</string>
-    <string name="overridden_settings">Anulaciones de configuración</string>    <string name="add">Añadir</string>
+    <string name="overridden_settings">Anulaciones de configuración</string>
+    <string name="add">Añadir</string>
     <string name="remove">Eliminar</string>
     <string name="clone">Clonar</string>
-
     <string name="setting_long_click_share">Menú contextual</string>
     <string name="setting_pull_to_refresh">Deslizar para actualizar</string>
     <string name="setting_disable_screenshots">Desactivar capturas de pantalla</string>
-    <string name="setting_always_https">Siempre HTTPS</string>    <string name="setting_basic_auth">Autorización HTTP</string>    <string name="setting_dynamic_status_bar">Color dinámico de barra de estado</string>
-
+    <string name="setting_always_https">Siempre HTTPS</string>
+    <string name="setting_basic_auth">Autorización HTTP</string>
+    <string name="setting_dynamic_status_bar">Color dinámico de barra de estado</string>
     <string name="groups">Grupos</string>
     <string name="group">Grupo</string>
     <string name="add_group">Agregar grupo</string>
@@ -145,7 +138,6 @@
     <string name="delete_group_confirm">&#191;Eliminar grupo \"%1$s\"?</string>
     <string name="ungroup_apps_on_delete">Mover apps a \"Sin grupo\"</string>
     <string name="setting_floating_controls">Controles flotantes</string>
-
     <string name="bioprompt_not_recognized">No reconocido. Inténtelo de nuevo</string>
     <string name="choose_icon">Elegir icono y título</string>
     <string name="manifest_start_url_title">¿Actualizar URL?</string>
@@ -171,7 +163,7 @@
     <string name="no_app_found">No se encontró una app para este enlace</string>
     <string name="permission_prompt_microphone">¿Permitir a %1$s acceder al micrófono?</string>
     <string name="retry">Reintentar</string>
-    <string name="security">Seguridad</string>
+    <string name="protection">Protección</string>
 
     <plurals name="group_app_count">
         <item quantity="one">%d app</item>
@@ -192,7 +184,7 @@
     <string name="import_group_share_description">El grupo «%1$s» con %2$s se compartió contigo. Toca el grupo para expandirlo y elegir las apps a importar:</string>
     <string name="import_group_share_description_multi">%1$s con %2$s se compartieron contigo. Toca cada grupo para expandirlo y elegir las apps a importar:</string>
     <string name="n_groups_selected">%1$d grupo(s) seleccionado(s)</string>
-    <string name="global_privacy">Privacidad global</string>
+    <string name="network_privacy">Red y privacidad</string>
     <string name="group_not_found">El grupo ya no está disponible</string>
     <string name="icon_dimensions_source">%1$dx%2$d · %3$s</string>
     <string name="open_in_current_session">Abrir en la sesión actual</string>
@@ -210,7 +202,6 @@
     <string name="setting_global_privacy_control">Señal GPC</string>
     <string name="setting_requires_peel_restart">Los cambios se aplican tras reiniciar Peel</string>
     <string name="setting_requires_webapp_restart">Los cambios se aplican tras reiniciar las apps</string>
-
     <string name="extensions">Extensiones</string>
     <string name="no_extensions_installed">No hay extensiones instaladas.\nToca + para explorar extensiones disponibles.</string>
     <string name="available_extensions">Extensiones disponibles</string>

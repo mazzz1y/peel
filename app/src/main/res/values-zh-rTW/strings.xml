@@ -3,7 +3,6 @@
     <string name="action_settings">設定</string>
     <string name="global_settings">全域設定</string>
     <string name="save">儲存</string>
-
     <string name="open_external_links_in_browser_app">開啟外部連結前詢問</string>
     <string name="allow_javascript">允許 JavaScript</string>
     <string name="clear_cache_after_usage">結束時清除快取</string>
@@ -24,11 +23,10 @@
     <string name="fetch_step_loading_host">取得中繼資料…</string>
     <string name="fetch_step_downloading_icons">下載圖示…</string>
     <string name="fetch_step_downloading_manifest">下載清單…</string>
-
     <string name="web_app_settings">網頁應用程式設定</string>
     <string name="permissions">權限</string>
     <string name="content">內容</string>
-    <string name="security">安全性</string>
+    <string name="protection">保護</string>
     <string name="advanced">進階</string>
     <string name="appearance">外觀</string>
     <string name="import_failed">無法還原備份</string>
@@ -45,7 +43,6 @@
     <string name="import_destination_group">目標群組</string>
     <string name="import_mapping_empty">此檔案中未找到應用程式。</string>
     <string name="import_count_message">已匯入 %1$d 個應用程式</string>
-
     <string name="n_apps_selected">已選取 %1$d 個</string>
     <string name="share_no_selection">請至少選取一個應用程式</string>
     <string name="share_secrets_title">偵測到密鑰</string>
@@ -55,7 +52,6 @@
     <string name="remove_apps_title">移除應用程式</string>
     <string name="remove_apps_confirm">移除 %1$d 個已選取的應用程式？</string>
     <string name="n_apps_removed">已移除 %1$d 個應用程式</string>
-
     <string name="export_share_failed">無法準備分享檔案</string>
     <string name="backup_save_failed">無法儲存備份</string>
     <string name="backup_saved">備份已儲存</string>
@@ -83,7 +79,7 @@
     <string name="color_scheme_dark">深色</string>
     <string name="webapp_already_deleted">此網頁應用程式已刪除。您可以刪除此捷徑</string>
     <string name="global_web_app_settings">全域網頁應用程式設定</string>
-    <string name="general">一般</string>
+    <string name="behavior">行為</string>
     <string name="backup">備份</string>
     <string name="import_data">匯入</string>
     <string name="export_data">匯出</string>
@@ -115,7 +111,6 @@
     <string name="open_app_links">在外部應用程式中開啟連結</string>
     <string name="permission_prompt_open_app">在外部應用程式中開啟此連結？\n\n%1$s</string>
     <string name="no_app_found">找不到可處理此連結的應用程式</string>
-
     <string name="create_shortcut">建立捷徑</string>
     <string name="create">建立</string>
     <string name="back">返回</string>
@@ -127,7 +122,6 @@
     <string name="allow_media_playback_in_background">背景播放</string>
     <string name="media_channel_name">媒體播放</string>
     <string name="media_channel_description">背景媒體播放控制</string>
-
     <string name="more">更多</string>
     <string name="cancel">取消</string>
     <string name="ok">確定</string>
@@ -135,31 +129,28 @@
     <string name="no_biometric_devices">您的裝置不支援生物辨識驗證</string>
     <string name="no_biometric_keys_enrolled">您的裝置支援生物辨識驗證，但尚未設定</string>
     <string name="browser_launch_failed">無法啟動網頁應用程式</string>
-
     <string name="undo">復原</string>
     <string name="x_was_removed">%1$s 已刪除</string>
     <string name="username">使用者名稱</string>
     <string name="password">密碼</string>
-
     <string name="app_info">關於</string>
     <string name="about_description">輕量級網路應用程式瀏覽器\n由 Mozilla GeckoView 驅動</string>
-
     <string name="delete">刪除</string>
     <string name="settings">設定</string>
     <string name="app_icon">應用程式圖示</string>
-
     <string name="select_setting_to_override">選擇設定</string>
     <string name="add_override">新增覆寫</string>
     <string name="remove_override">刪除覆寫</string>
-    <string name="overridden_settings">已覆寫的設定</string>    <string name="add">新增</string>
+    <string name="overridden_settings">已覆寫的設定</string>
+    <string name="add">新增</string>
     <string name="remove">刪除</string>
-
     <string name="setting_long_click_share">長按快捷選單</string>
     <string name="setting_pull_to_refresh">下拉重新整理</string>
     <string name="setting_disable_screenshots">禁止截圖</string>
-    <string name="setting_always_https">僅 HTTPS</string>    <string name="setting_basic_auth">HTTP 授權</string>    <string name="setting_dynamic_status_bar">動態狀態列</string>
+    <string name="setting_always_https">僅 HTTPS</string>
+    <string name="setting_basic_auth">HTTP 授權</string>
+    <string name="setting_dynamic_status_bar">動態狀態列</string>
     <string name="setting_floating_controls">浮動控制項</string>
-
     <string name="groups">群組</string>
     <string name="group">群組</string>
     <string name="add_group">新增群組</string>
@@ -195,7 +186,7 @@
     <string name="import_group_share_description">群組「%1$s」包含 %2$s 個應用程式已與你共享。點擊群組展開並選擇要匯入的應用程式：</string>
     <string name="import_group_share_description_multi">%1$s 個群組包含 %2$s 個應用程式已與你共享。點擊各群組展開並選擇要匯入的應用程式：</string>
     <string name="n_groups_selected">已選擇 %1$d 個群組</string>
-    <string name="global_privacy">全域隱私</string>
+    <string name="network_privacy">網路與隱私</string>
     <string name="group_not_found">此群組已不可用</string>
     <string name="icon_dimensions_source">%1$dx%2$d · %3$s</string>
     <string name="open_in_current_session">在目前工作階段中開啟</string>
@@ -211,7 +202,6 @@
     <string name="setting_global_privacy_control">GPC 訊號</string>
     <string name="setting_requires_peel_restart">變更在重新啟動 Peel 後生效</string>
     <string name="setting_requires_webapp_restart">變更在重新啟動應用程式後生效</string>
-
     <string name="extensions">擴充功能</string>
     <string name="no_extensions_installed">未安裝擴充功能。\n點選 + 瀏覽可用的擴充功能。</string>
     <string name="available_extensions">可用的擴充功能</string>
