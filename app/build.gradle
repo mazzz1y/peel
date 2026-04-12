@@ -19,8 +19,8 @@ android {
         resValue "string", "app_name", "Peel"
         minSdkVersion 28
         targetSdkVersion 36
-        versionCode project.hasProperty('VERSION_CODE') ? project.property('VERSION_CODE').toInteger() : 1
-        versionName project.hasProperty('VERSION_NAME') ? project.property('VERSION_NAME') : "dev"
+        versionCode 3102
+        versionName "v0.31.2"
         buildConfigField "String", "GECKOVIEW_VERSION", "\"$geckoviewVersion\""
     }
     buildFeatures {

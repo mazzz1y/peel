@@ -41,18 +41,11 @@ jobs:
           echo "KEYSTORE_PASS=${{ secrets.KEYSTORE_PASS }}" >> local.properties
           echo "ALIAS_PASS=${{ secrets.KEYSTORE_PASS }}" >> local.properties
       
-      - name: Get version from tag
+      - name: Get version info
         id: version
         run: |
-          TAG=${GITHUB_REF#refs/tags/v}
-          SEMVER=${TAG%%-*}
-          IFS='.' read -r MAJOR MINOR PATCH <<< "$SEMVER"
-          MAJOR=${MAJOR:-0}
-          MINOR=${MINOR:-0}
-          PATCH=${PATCH:-0}
-          CODE=$((MAJOR * 10000 + MINOR * 100 + PATCH))
-          echo "name=v$TAG" >> $GITHUB_OUTPUT
-          echo "code=$CODE" >> $GITHUB_OUTPUT
+          TAG=${GITHUB_REF#refs/tags/}
+          echo "name=$TAG" >> $GITHUB_OUTPUT
           if [[ "$TAG" == *-* ]]; then
             echo "prerelease=true" >> $GITHUB_OUTPUT
           else
@@ -60,7 +53,7 @@ jobs:
           fi
       
       - name: Build Release APK
-        run: ./gradlew assembleRelease -PVERSION_NAME=${{ steps.version.outputs.name }} -PVERSION_CODE=${{ steps.version.outputs.code }}
+        run: ./gradlew assembleRelease
 
       - name: Prepare release assets
         run: |
