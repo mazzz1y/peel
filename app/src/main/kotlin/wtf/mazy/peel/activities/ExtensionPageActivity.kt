@@ -3,8 +3,10 @@ package wtf.mazy.peel.activities
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.TypedValue
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.graphics.drawable.toDrawable
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.appbar.MaterialToolbar
 import kotlinx.coroutines.launch
@@ -18,10 +20,18 @@ class ExtensionPageActivity : AppCompatActivity() {
     private var geckoSession: GeckoSession? = null
     private var geckoView: GeckoView? = null
 
+    private val themeBackgroundColor: Int
+        get() {
+            val tv = TypedValue()
+            theme.resolveAttribute(android.R.attr.colorBackground, tv, true)
+            return tv.data
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.AppTheme)
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+        window.setBackgroundDrawable(themeBackgroundColor.toDrawable())
         setContentView(R.layout.activity_extension_page)
 
         val toolbar = findViewById<MaterialToolbar>(R.id.toolbar)
@@ -30,6 +40,7 @@ class ExtensionPageActivity : AppCompatActivity() {
         toolbar.setNavigationOnClickListener { finish() }
 
         geckoView = findViewById(R.id.gecko_view)
+        geckoView?.coverUntilFirstPaint(themeBackgroundColor)
 
         val url = intent.getStringExtra(EXTRA_URL)
         if (url != null) {

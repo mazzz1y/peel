@@ -1,6 +1,7 @@
 package wtf.mazy.peel.ui.extensions
 
 import android.os.Bundle
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -42,6 +43,9 @@ class ExtensionPopupBottomSheet : BottomSheetDialogFragment() {
         toolbar.setNavigationOnClickListener { dismissAllowingStateLoss() }
 
         geckoView = view.findViewById(R.id.popup_gecko_view)
+        val tv = TypedValue()
+        requireContext().theme.resolveAttribute(android.R.attr.colorBackground, tv, true)
+        geckoView?.coverUntilFirstPaint(tv.data)
         session?.let { geckoView?.setSession(it) }
     }
 
