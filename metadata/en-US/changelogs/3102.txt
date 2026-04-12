@@ -1,0 +1,8 @@
+* Fix white flicker in extension pages
+* Fix extensions button not hiding after all extensions uninstalled
+* Switch backup format to .peel.zip
+* Simplify HTTP auth dialog
+* Add send intent filter for zip files
+* Fix webapp icon not refreshing after redownload
+* "Open in browser" renamed to "Open externally"
+* Fix app restart
