@@ -19,8 +19,8 @@ android {
         resValue "string", "app_name", "Peel"
         minSdkVersion 28
         targetSdkVersion 36
-        versionCode 3103
-        versionName "v0.31.3"
+        versionCode 3104
+        versionName "0.31.4"
         buildConfigField "String", "GECKOVIEW_VERSION", "\"$geckoviewVersion\""
     }
     buildFeatures {
