@@ -41,8 +41,7 @@ interface SessionHost {
     fun showHttpAuthDialog(
         onResult: (username: String, password: String) -> Unit,
         onCancel: () -> Unit,
-        host: String?,
-        realm: String?,
+        url: String?,
     )
 
     fun loadURL(url: String)

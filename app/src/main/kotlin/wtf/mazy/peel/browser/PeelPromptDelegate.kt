@@ -110,8 +110,7 @@ class PeelPromptDelegate(private val host: SessionHost) : GeckoSession.PromptDel
                 result.complete(prompt.confirm(username, password))
             },
             onCancel = { result.complete(prompt.dismiss()) },
-            host = authUri,
-            realm = null,
+            url = authUri,
         )
         return result
     }

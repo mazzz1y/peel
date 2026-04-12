@@ -453,8 +453,7 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
     override fun showHttpAuthDialog(
         onResult: (username: String, password: String) -> Unit,
         onCancel: () -> Unit,
-        host: String?,
-        realm: String?,
+        url: String?,
     ) {
         var passwordInput: TextInputEditText? = null
         val dp8 = (resources.displayMetrics.density * 8).toInt()
@@ -463,7 +462,7 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
                 titleRes = R.string.setting_basic_auth,
                 hintRes = R.string.username,
                 allowEmpty = true,
-                message = "Host: ${host ?: "-"}\nRealm: ${realm ?: "-"}",
+                message = url ?: "",
                 onCancel = { onCancel() },
                 extraContent = { container ->
                     val passwordLayout = TextInputLayout(container.context).apply {
