@@ -172,7 +172,7 @@
         <item quantity="other">%d個のアプリ</item>
     </plurals>
 
-    <string name="context_menu_open_link">ブラウザで開く</string>
+    <string name="context_menu_open_link">外部で開く</string>
     <string name="context_menu_copy_link">リンクアドレスをコピー</string>
     <string name="context_menu_copy_link_text">リンクテキストをコピー</string>
     <string name="context_menu_share_link">リンクを共有</string>

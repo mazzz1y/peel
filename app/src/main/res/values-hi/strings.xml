@@ -173,7 +173,7 @@
         <item quantity="other">%d ऐप्स</item>
     </plurals>
 
-    <string name="context_menu_open_link">ब्राउज़र में खोलें</string>
+    <string name="context_menu_open_link">बाहरी रूप से खोलें</string>
     <string name="context_menu_copy_link">लिंक पते को कॉपी करें</string>
     <string name="context_menu_copy_link_text">लिंक लेख को कॉपी करें</string>
     <string name="context_menu_share_link">लिंक शेयर करें</string>

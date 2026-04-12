@@ -172,7 +172,7 @@
         <item quantity="other">%d ứng dụng</item>
     </plurals>
 
-    <string name="context_menu_open_link">Mở trong trình duyệt</string>
+    <string name="context_menu_open_link">Mở bên ngoài</string>
     <string name="context_menu_copy_link">Sao chép địa chỉ liên kết</string>
     <string name="context_menu_copy_link_text">Sao chép văn bản liên kết</string>
     <string name="context_menu_share_link">Chia sẻ đường liên kết</string>

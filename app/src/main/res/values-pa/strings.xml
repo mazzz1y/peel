@@ -172,7 +172,7 @@
         <item quantity="other">%d ਐਪਾਂ</item>
     </plurals>
 
-    <string name="context_menu_open_link">ਬ੍ਰਾਊਜ਼ਰ ਵਿੱਚ ਖੋਲ੍ਹੋ</string>
+    <string name="context_menu_open_link">ਬਾਹਰੀ ਤੌਰ ਤੇ ਖੋਲ੍ਹੋ</string>
     <string name="context_menu_copy_link">ਲਿੰਕ ਪਤਾ ਕਾਪੀ ਕਰੋ</string>
     <string name="context_menu_copy_link_text">ਲਿੰਕ ਲਿਖਤ ਕਾਪੀ ਕਰੋ</string>
     <string name="context_menu_share_link">ਲਿੰਕ ਸਾਂਝਾ ਕਰੋ</string>

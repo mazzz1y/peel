@@ -175,7 +175,7 @@
         <item quantity="other">%d приложений</item>
     </plurals>
 
-    <string name="context_menu_open_link">Открыть в браузере</string>
+    <string name="context_menu_open_link">Открыть в системе</string>
     <string name="context_menu_copy_link">Копировать адрес ссылки</string>
     <string name="context_menu_copy_link_text">Копировать текст ссылки</string>
     <string name="context_menu_share_link">Поделиться ссылкой</string>

@@ -164,7 +164,7 @@
     <string name="add">Add</string>
     <string name="remove">Remove</string>
     <string name="setting_long_click_share">Long-press context menu</string>
-    <string name="context_menu_open_link">Open in browser</string>
+    <string name="context_menu_open_link">Open externally</string>
     <string name="context_menu_copy_link">Copy link address</string>
     <string name="context_menu_copy_link_text">Copy link text</string>
     <string name="context_menu_share_link">Share link</string>

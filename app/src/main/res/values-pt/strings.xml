@@ -173,7 +173,7 @@
         <item quantity="other">%d apps</item>
     </plurals>
 
-    <string name="context_menu_open_link">Abrir no navegador</string>
+    <string name="context_menu_open_link">Abrir externamente</string>
     <string name="context_menu_copy_link">Copiar endereço do link</string>
     <string name="context_menu_copy_link_text">Copiar texto do link</string>
     <string name="context_menu_share_link">Compartilhar link</string>

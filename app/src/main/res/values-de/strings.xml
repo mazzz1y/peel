@@ -171,7 +171,7 @@
         <item quantity="other">%d Apps</item>
     </plurals>
 
-    <string name="context_menu_open_link">Im Browser öffnen</string>
+    <string name="context_menu_open_link">Extern öffnen</string>
     <string name="context_menu_copy_link">URL kopieren</string>
     <string name="context_menu_copy_link_text">Linktext kopieren</string>
     <string name="context_menu_share_link">Link teilen</string>

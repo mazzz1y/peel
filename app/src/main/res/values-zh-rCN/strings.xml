@@ -172,7 +172,7 @@
         <item quantity="other">%d 个应用</item>
     </plurals>
 
-    <string name="context_menu_open_link">在浏览器中打开</string>
+    <string name="context_menu_open_link">在外部打开</string>
     <string name="context_menu_copy_link">复制链接地址</string>
     <string name="context_menu_copy_link_text">复制链接文字</string>
     <string name="context_menu_share_link">分享链接</string>
