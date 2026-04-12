@@ -87,8 +87,8 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
     private val sessionExtensionActions by lazy {
         SessionExtensionActions(
             activity = this,
-            onExtensionsReady = { hasExtensions ->
-                if (hasExtensions) rebuildFloatingControls()
+            onExtensionsReady = { _ ->
+                rebuildFloatingControls()
             },
             onNavigateToUrl = ::loadURL,
         )
