@@ -39,6 +39,7 @@ object BackupArchiveCodec {
             val stream = App.appContext.contentResolver.openOutputStream(uri) ?: return false
             stream.use { outputStream ->
                 ZipOutputStream(outputStream).use { zip ->
+                    writeMarker(zip)
                     writeDataJson(zip, backupData)
                     websites.forEach { writeIconEntry(zip, it) }
                 }
@@ -56,12 +57,13 @@ object BackupArchiveCodec {
         extraIconOwners: List<IconOwner> = emptyList(),
     ): File? {
         return try {
-            val filename = buildFilename(prefix)
+            val filename = BackupPolicy.buildFilename(prefix)
             val file = File(App.appContext.cacheDir, "${BackupPolicy.SHARE_DIR}/$filename")
             file.parentFile?.mkdirs()
             if (file.exists()) file.delete()
             FileOutputStream(file).use { outputStream ->
                 ZipOutputStream(outputStream).use { zip ->
+                    writeMarker(zip)
                     writeDataJson(zip, backupData)
                     websites.forEach { writeIconEntry(zip, it) }
                     extraIconOwners.forEach { writeIconEntry(zip, it) }
@@ -84,6 +86,12 @@ object BackupArchiveCodec {
         }
     }
 
+    private fun writeMarker(zip: ZipOutputStream) {
+        zip.putNextEntry(ZipEntry(BackupPolicy.MARKER_ENTRY))
+        zip.write(BackupPolicy.BACKUP_VERSION.toByteArray())
+        zip.closeEntry()
+    }
+
     private fun writeDataJson(zip: ZipOutputStream, backupData: BackupData) {
         zip.putNextEntry(ZipEntry(BackupPolicy.DATA_ENTRY))
         zip.write(prettyJson.encodeToString(BackupData.serializer(), backupData).toByteArray())
@@ -104,11 +112,16 @@ object BackupArchiveCodec {
 
     private fun parseZipEntries(zip: ZipInputStream): ParsedBackup? {
         var jsonString: String? = null
+        var markerVersion: String? = null
         val icons = mutableMapOf<String, Bitmap>()
 
         var entry: ZipEntry? = zip.nextEntry
         while (entry != null) {
             when {
+                entry.name == BackupPolicy.MARKER_ENTRY -> {
+                    markerVersion = zip.readBytes().toString(Charsets.UTF_8).trim()
+                }
+
                 entry.name == BackupPolicy.DATA_ENTRY -> {
                     jsonString = zip.readBytes().toString(Charsets.UTF_8)
                 }
@@ -133,10 +146,7 @@ object BackupArchiveCodec {
                 return null
             }
         if (backupData.version != BackupPolicy.BACKUP_VERSION) return null
-        return ParsedBackup(backupData, icons)
+        return ParsedBackup(backupData, icons, markerVersion)
     }
 
-    private fun buildFilename(prefix: String): String {
-        return BackupPolicy.buildFilename(prefix)
-    }
 }

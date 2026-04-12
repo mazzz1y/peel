@@ -77,22 +77,16 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <!-- Modern content:// URIs (chat apps, Gmail, file managers) -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
-
                 <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-
-                <data android:mimeType="application/x-peel-backup" />
-                <data android:mimeType="application/octet-stream" />
+                <data
+                    android:host="*"
+                    android:mimeType="application/zip"
+                    android:scheme="content" />
             </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.SEND" />
-                <category android:name="android.intent.category.DEFAULT" />
-
-                <data android:mimeType="application/x-peel-backup" />
-                <data android:mimeType="application/octet-stream" />
-            </intent-filter>
+            <!-- Legacy file:// URIs and pathPattern matching -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -103,6 +97,9 @@
                     android:host="*"
                     android:scheme="file" />
                 <data android:scheme="content" />
+                <data android:pathPattern=".*\\.peel\\.zip" />
+                <data android:pathPattern=".*\\..*\\.peel\\.zip" />
+                <data android:pathPattern=".*\\..*\\..*\\.peel\\.zip" />
                 <data android:pathPattern=".*\\.peel" />
                 <data android:pathPattern=".*\\..*\\.peel" />
                 <data android:pathPattern=".*\\..*\\..*\\.peel" />

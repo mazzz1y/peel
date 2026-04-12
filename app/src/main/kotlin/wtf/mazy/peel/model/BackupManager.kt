@@ -18,6 +18,7 @@ enum class ImportMode {
 data class ParsedBackup(
     val backupData: BackupData,
     val icons: Map<String, android.graphics.Bitmap>,
+    val markerVersion: String? = null,
 )
 
 object BackupManager {
@@ -56,7 +57,7 @@ object BackupManager {
                 if (includeSecrets) surrogate else surrogate.copy(settings = surrogate.settings.withoutSecrets())
             },
         )
-        return BackupArchiveCodec.buildBackupFile(backupData, webApps, "share")
+        return BackupArchiveCodec.buildBackupFile(backupData, webApps, "app")
     }
 
     fun buildGroupShareFile(
@@ -80,7 +81,7 @@ object BackupManager {
         return BackupArchiveCodec.buildBackupFile(
             backupData = backupData,
             websites = webApps,
-            prefix = "group_share",
+            prefix = "group",
             extraIconOwners = groups,
         )
     }
