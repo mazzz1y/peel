@@ -86,6 +86,11 @@
                     android:mimeType="application/zip"
                     android:scheme="content" />
             </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="application/zip" />
+            </intent-filter>
             <!-- Legacy file:// URIs and pathPattern matching -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
