@@ -284,9 +284,11 @@ open class MediaPlaybackService : MediaSessionService() {
                         COMMAND_GET_METADATA,
                         COMMAND_GET_CURRENT_MEDIA_ITEM,
                     )
+            val validDurationUs = if (durationMs in 1..Long.MAX_VALUE / 1000) durationMs * 1000 else C.TIME_UNSET
+
             if (hasPrevious) commands.add(COMMAND_SEEK_TO_PREVIOUS)
             if (hasNext) commands.add(COMMAND_SEEK_TO_NEXT)
-            if (durationMs > 0) commands.add(COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM)
+            if (validDurationUs != C.TIME_UNSET) commands.add(COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM)
 
             return State.Builder()
                 .setAvailableCommands(commands.build())
@@ -298,7 +300,7 @@ open class MediaPlaybackService : MediaSessionService() {
                         MediaItemData.Builder("current")
                             .setMediaItem(mediaItem)
                             .setMediaMetadata(metadata)
-                            .setDurationUs(if (durationMs > 0) durationMs * 1000 else C.TIME_UNSET)
+                            .setDurationUs(validDurationUs)
                             .build()
                     )
                 )
