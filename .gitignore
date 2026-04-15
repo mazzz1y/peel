@@ -9,3 +9,5 @@ app/build/
 /captures
 .cxx
 app/release/
+app/src/main/play/
+.terraform/

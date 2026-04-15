@@ -10,25 +10,26 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      id-token: write
     
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       
       - name: Set up JDK 21
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: '21'
           distribution: 'temurin'
       
       - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
+        uses: android-actions/setup-android@v4
         with:
           accept-android-sdk-licenses: true
           log-accepted-android-sdk-licenses: false
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
+        uses: gradle/actions/setup-gradle@v6
       
       - name: Setup signing keystore
         run: |
@@ -40,7 +41,13 @@ jobs:
           echo "ALIAS_NAME=peel" >> local.properties
           echo "KEYSTORE_PASS=${{ secrets.KEYSTORE_PASS }}" >> local.properties
           echo "ALIAS_PASS=${{ secrets.KEYSTORE_PASS }}" >> local.properties
-      
+
+      # - name: Authenticate to Google Cloud
+      #   uses: google-github-actions/auth@v3
+      #   with:
+      #     workload_identity_provider: projects/29811119602/locations/global/workloadIdentityPools/github-actions/providers/github-repo
+      #     service_account: play-publisher@peel-android.iam.gserviceaccount.com
+
       - name: Get version info
         id: version
         run: |
@@ -52,6 +59,9 @@ jobs:
             echo "prerelease=false" >> $GITHUB_OUTPUT
           fi
       
+      # - name: Publish to Google Play
+      #   run: ./gradlew publishReleaseBundle
+
       - name: Build Release APK
         run: ./gradlew assembleRelease
 

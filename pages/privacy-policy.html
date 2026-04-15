@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Peel - Privacy Policy</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+            line-height: 1.6;
+            color: #1a1a1a;
+        }
+        h1 { font-size: 1.8rem; }
+        h2 { font-size: 1.3rem; margin-top: 2rem; }
+        table { border-collapse: collapse; width: 100%; margin: 1rem 0; }
+        th, td { border: 1px solid #ddd; padding: 0.5rem 0.75rem; text-align: left; }
+        th { background: #f5f5f5; }
+        a { color: #1a73e8; }
+    </style>
+</head>
+<body>
+    <h1>Peel - Privacy Policy</h1>
+    <p><strong>Last updated:</strong> April 2026</p>
+
+    <h2>Overview</h2>
+    <p>
+        Peel is an open-source Android app that turns websites into standalone, app-like experiences.
+        It is powered by GeckoView (Mozilla's browser engine).
+    </p>
+    <p>
+        Peel does not collect, store, or transmit any personal data to the developer or any third party.
+        There are no analytics, tracking SDKs, or telemetry of any kind.
+    </p>
+
+    <h2>Web Content</h2>
+    <p>
+        Peel is a web browser. Websites you visit may collect data according to their own privacy policies.
+        Peel provides privacy controls to help protect you, including:
+    </p>
+    <ul>
+        <li>Enhanced Tracking Protection</li>
+        <li>Global Privacy Control (GPC) signal</li>
+        <li>Fingerprinting protection</li>
+        <li>Local network access blocking</li>
+        <li>WebRTC IP leak prevention</li>
+        <li>HTTPS-only mode</li>
+    </ul>
+
+    <h2>Data Storage</h2>
+    <p>
+        All browsing data (cookies, local storage, cache) is stored locally on your device.
+        Peel supports per-app isolated sandboxes, meaning each web app can have its own
+        separate cookies and storage. You can clear this data at any time.
+    </p>
+    <p>
+        No browsing data is sent to the developer or any external server.
+    </p>
+
+    <h2>Permissions</h2>
+    <p>Peel requests the following Android permissions:</p>
+    <table>
+        <tr><th>Permission</th><th>Purpose</th></tr>
+        <tr><td>Internet</td><td>Loading web content (core functionality)</td></tr>
+        <tr><td>Camera</td><td>Websites requesting camera access (e.g. video calls, QR scanning)</td></tr>
+        <tr><td>Microphone</td><td>Websites requesting microphone access (e.g. voice messages, video calls)</td></tr>
+        <tr><td>Fine Location</td><td>Websites requesting precise GPS location (e.g. maps)</td></tr>
+        <tr><td>Coarse Location</td><td>Websites requesting approximate location</td></tr>
+        <tr><td>Storage (Android 12 and below)</td><td>Saving downloaded files and uploading files to websites</td></tr>
+        <tr><td>Notifications</td><td>Download progress and media playback notifications</td></tr>
+        <tr><td>Foreground Service</td><td>Background audio/video playback and file downloads</td></tr>
+        <tr><td>Audio Settings</td><td>Media playback volume control</td></tr>
+        <tr><td>Wake Lock</td><td>Preventing device sleep during media playback</td></tr>
+        <tr><td>Install Packages</td><td>Installing APK updates downloaded through the app</td></tr>
+    </table>
+    <p>
+        All permissions that provide access to sensitive data (camera, microphone, location)
+        require explicit user consent at runtime. Peel itself does not use these
+        permissions &mdash; they are passed through to websites that request them.
+    </p>
+
+    <h2>Third-Party Services</h2>
+    <p>
+        Peel does not include any third-party analytics, advertising, or tracking services.
+        The only third-party component is <a href="https://mozilla.github.io/geckoview/">GeckoView</a>,
+        Mozilla's browser engine, which is used to render web content.
+    </p>
+
+    <h2>Children's Privacy</h2>
+    <p>
+        Peel is not directed at children under the age of 13. We do not knowingly collect
+        any personal information from children.
+    </p>
+
+    <h2>Changes to This Policy</h2>
+    <p>
+        This privacy policy may be updated from time to time. Changes will be posted on this page
+        with an updated date. The source of this policy is available in the
+        <a href="https://github.com/mazzz1y/peel">Peel GitHub repository</a>.
+    </p>
+
+    <h2>Contact</h2>
+    <p>
+        If you have any questions about this privacy policy, contact us at
+        <a href="mailto:mazzz1y.dev@gmail.com">mazzz1y.dev@gmail.com</a>.
+    </p>
+</body>
+</html>

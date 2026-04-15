@@ -1,9 +1,12 @@
 import com.android.build.api.variant.FilterConfiguration
 
+import java.nio.file.Files
+
 plugins {
     id 'com.android.application'
     id 'com.google.devtools.ksp'
     id 'org.jetbrains.kotlin.plugin.serialization'
+    id 'com.github.triplet.play'
 }
 
 def geckoviewVersion = "149.0.20260318190823"
@@ -70,7 +73,7 @@ android {
 
     splits {
         abi {
-            enable true
+            enable !gradle.startParameter.taskNames.any { it.contains('bundle') || it.contains('publish') }
             reset()
             include "arm64-v8a", "armeabi-v7a", "x86_64"
             universalApk false
@@ -98,7 +101,6 @@ ksp {
     arg("room.schemaLocation", "$projectDir/schemas")
 }
 
-
 dependencies {
     implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.10.0'
     implementation "org.mozilla.geckoview:geckoview:$geckoviewVersion"
@@ -111,4 +113,88 @@ dependencies {
     implementation 'androidx.room:room-runtime:2.8.4'
     implementation 'androidx.room:room-ktx:2.8.4'
     ksp 'androidx.room:room-compiler:2.8.4'
+}
+
+def playDir = file("src/main/play")
+
+play {
+    def credPath = System.getenv("GOOGLE_APPLICATION_CREDENTIALS")
+    if (credPath != null) {
+        serviceAccountCredentials.set(file(credPath))
+    } else {
+        def playCredentialsFile = rootProject.file("service-account-credentials.json")
+        if (playCredentialsFile.exists()) {
+            serviceAccountCredentials.set(playCredentialsFile)
+        }
+    }
+    defaultToAppBundles.set(true)
+    track.set(android.defaultConfig.versionName.matches('.*-(alpha|beta|rc).*') ? "beta" : "production")
+}
+
+tasks.register('syncPlayMetadata') {
+    def metadataRoot = rootProject.file("metadata")
+    def versionCode = android.defaultConfig.versionCode
+
+    inputs.dir(metadataRoot)
+    outputs.dir(playDir)
+
+    doLast {
+        playDir.deleteDir()
+
+        metadataRoot.eachDir { localeDir ->
+            def locale = localeDir.name
+            def listingsDir = new File(playDir, "listings/${locale}")
+            listingsDir.mkdirs()
+
+            def titleFile = new File(localeDir, "title.txt")
+            if (titleFile.exists()) {
+                new File(listingsDir, "title.txt").text = titleFile.text
+            }
+
+            def shortDescFile = new File(localeDir, "short_description.txt")
+            if (shortDescFile.exists()) {
+                new File(listingsDir, "short-description.txt").text = shortDescFile.text
+            }
+
+            def fullDescFile = new File(localeDir, "full_description.txt")
+            if (fullDescFile.exists()) {
+                new File(listingsDir, "full-description.txt").text = fullDescFile.text
+            }
+
+            def graphicsDir = new File(listingsDir, "graphics")
+
+            def iconFile = new File(localeDir, "images/icon.png")
+            if (iconFile.exists()) {
+                graphicsDir.mkdirs()
+                Files.copy(iconFile.toPath(), new File(graphicsDir, "icon.png").toPath())
+            }
+
+            def phoneScreenshotsDir = new File(localeDir, "images/phoneScreenshots")
+            if (phoneScreenshotsDir.exists()) {
+                def destDir = new File(graphicsDir, "phone-screenshots")
+                destDir.mkdirs()
+                phoneScreenshotsDir.eachFile { img ->
+                    Files.copy(img.toPath(), new File(destDir, img.name).toPath())
+                }
+            }
+
+            def releaseNotesDir = new File(playDir, "release-notes/${locale}")
+            releaseNotesDir.mkdirs()
+            def changelogFile = new File(localeDir, "changelogs/${versionCode}.txt")
+            if (!changelogFile.exists()) {
+                throw new GradleException(
+                    "Changelog file not found: ${changelogFile.path}\n" +
+                    "Create metadata/${locale}/changelogs/${versionCode}.txt before publishing."
+                )
+            }
+            new File(releaseNotesDir, "production.txt").text = changelogFile.text
+            new File(releaseNotesDir, "beta.txt").text = changelogFile.text
+        }
+    }
+}
+
+tasks.configureEach { task ->
+    if (task.name.startsWith('publish') && task.name.contains('Bundle')) {
+        task.dependsOn('syncPlayMetadata')
+    }
 }
