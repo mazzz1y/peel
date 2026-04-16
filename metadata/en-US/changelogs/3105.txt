@@ -1,0 +1,2 @@
+- Fix external link prompt not triggering on link clicks
+- Fix media playback crash on live streams

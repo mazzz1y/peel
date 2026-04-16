@@ -51,8 +51,15 @@ jobs:
       - name: Get version info
         id: version
         run: |
-          TAG=${GITHUB_REF#refs/tags/}
-          echo "name=$TAG" >> $GITHUB_OUTPUT
+          TAG=${GITHUB_REF#refs/tags/v}
+          SEMVER=${TAG%%-*}
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$SEMVER"
+          MAJOR=${MAJOR:-0}
+          MINOR=${MINOR:-0}
+          PATCH=${PATCH:-0}
+          CODE=$((MAJOR * 10000 + MINOR * 100 + PATCH))
+          echo "name=v$TAG" >> $GITHUB_OUTPUT
+          echo "code=$CODE" >> $GITHUB_OUTPUT
           if [[ "$TAG" == *-* ]]; then
             echo "prerelease=true" >> $GITHUB_OUTPUT
           else
@@ -63,7 +70,7 @@ jobs:
       #   run: ./gradlew publishReleaseBundle
 
       - name: Build Release APK
-        run: ./gradlew assembleRelease
+        run: ./gradlew assembleRelease -PVERSION_NAME=${{ steps.version.outputs.name }} -PVERSION_CODE=${{ steps.version.outputs.code }}
 
       - name: Prepare release assets
         run: |
@@ -77,9 +84,14 @@ jobs:
 
       - name: Create Release
         run: |
+          CHANGELOG="metadata/en-US/changelogs/${{ steps.version.outputs.code }}.txt"
+          if [ ! -f "$CHANGELOG" ]; then
+            echo "::error::Changelog not found: $CHANGELOG"
+            exit 1
+          fi
           gh release create ${{ github.ref_name }} \
             --title "${{ steps.version.outputs.name }}" \
-            --generate-notes \
+            --notes-file "$CHANGELOG" \
             ${{ steps.version.outputs.prerelease == 'true' && '--prerelease' || '' }} \
             release-assets/*.apk
         env:
