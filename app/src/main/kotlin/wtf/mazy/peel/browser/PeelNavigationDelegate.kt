@@ -136,10 +136,9 @@ class PeelNavigationDelegate(private val host: SessionHost) : GeckoSession.Navig
     fun resetDialogState() {
         appLinkDialogShowing = false
         externalMenuShowing = false
-        isInitialLoad = true
     }
 
-    fun onInitialPageLoaded() {
+    fun onPageLoaded() {
         isInitialLoad = false
     }
 

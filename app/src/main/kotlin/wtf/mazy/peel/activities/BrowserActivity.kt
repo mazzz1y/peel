@@ -576,7 +576,7 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
 
     override fun onPageFullyLoaded() {
         closeStartupAuthTrackingIfInitialBaseLoaded()
-        navigationDelegate.onInitialPageLoaded()
+        navigationDelegate.onPageLoaded()
         lastLoadedUrl = currentUrl
         if (pageLoadHandled || biometricController.isPromptActive) return
         pageLoadHandled = true
