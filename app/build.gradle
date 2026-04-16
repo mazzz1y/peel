@@ -22,8 +22,8 @@ android {
         resValue "string", "app_name", "Peel"
         minSdkVersion 28
         targetSdkVersion 36
-        versionCode 3104
-        versionName "0.31.4"
+        versionCode 3105
+        versionName "0.31.5"
         buildConfigField "String", "GECKOVIEW_VERSION", "\"$geckoviewVersion\""
     }
     buildFeatures {
@@ -183,8 +183,8 @@ tasks.register('syncPlayMetadata') {
             def changelogFile = new File(localeDir, "changelogs/${versionCode}.txt")
             if (!changelogFile.exists()) {
                 throw new GradleException(
-                    "Changelog file not found: ${changelogFile.path}\n" +
-                    "Create metadata/${locale}/changelogs/${versionCode}.txt before publishing."
+                        "Changelog file not found: ${changelogFile.path}\n" +
+                                "Create metadata/${locale}/changelogs/${versionCode}.txt before publishing."
                 )
             }
             new File(releaseNotesDir, "production.txt").text = changelogFile.text

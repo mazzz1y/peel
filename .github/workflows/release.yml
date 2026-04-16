@@ -15,13 +15,13 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
-      
+
       - name: Set up JDK 21
         uses: actions/setup-java@v5
         with:
           java-version: '21'
           distribution: 'temurin'
-      
+
       - name: Set up Android SDK
         uses: android-actions/setup-android@v4
         with:
@@ -30,11 +30,11 @@ jobs:
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v6
-      
+
       - name: Setup signing keystore
         run: |
           echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > app/release.keystore
-      
+
       - name: Create local.properties
         run: |
           echo "KEYSTORE_FILE=release.keystore" > local.properties
@@ -74,7 +74,7 @@ jobs:
             cp "$apk" "release-assets/peel-${VERSION}-${abi}.apk"
           done
           ls -lh release-assets/
-      
+
       - name: Create Release
         run: |
           gh release create ${{ github.ref_name }} \

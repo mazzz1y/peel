@@ -94,7 +94,7 @@ open class MediaPlaybackService : MediaSessionService() {
             }
 
             ACTION_UPDATE_METADATA -> handleUpdateMetadata(intent)
-            ACTION_UPDATE_ARTWORK -> handleUpdateArtwork(intent)
+            ACTION_UPDATE_ARTWORK -> handleUpdateArtwork()
             ACTION_UPDATE_ACTIONS -> {
                 hasPrevious = intent.getBooleanExtra(EXTRA_HAS_PREVIOUS, false)
                 hasNext = intent.getBooleanExtra(EXTRA_HAS_NEXT, false)
@@ -169,7 +169,7 @@ open class MediaPlaybackService : MediaSessionService() {
         notifyPlayerChanged()
     }
 
-    private fun handleUpdateArtwork(intent: Intent) {
+    private fun handleUpdateArtwork() {
         val bmp = pendingArtwork ?: return
         pendingArtwork = null
         trackArtwork = bmp
@@ -284,7 +284,8 @@ open class MediaPlaybackService : MediaSessionService() {
                         COMMAND_GET_METADATA,
                         COMMAND_GET_CURRENT_MEDIA_ITEM,
                     )
-            val validDurationUs = if (durationMs in 1..Long.MAX_VALUE / 1000) durationMs * 1000 else C.TIME_UNSET
+            val validDurationUs =
+                if (durationMs in 1..Long.MAX_VALUE / 1000) durationMs * 1000 else C.TIME_UNSET
 
             if (hasPrevious) commands.add(COMMAND_SEEK_TO_PREVIOUS)
             if (hasNext) commands.add(COMMAND_SEEK_TO_NEXT)
