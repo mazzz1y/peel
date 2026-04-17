@@ -1,5 +1,7 @@
 package wtf.mazy.peel.ui.extensions
 
+import android.app.Dialog
+import android.content.DialogInterface
 import android.os.Bundle
 import android.util.TypedValue
 import android.view.LayoutInflater
@@ -9,6 +11,7 @@ import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import org.mozilla.geckoview.GeckoSession
 import org.mozilla.geckoview.GeckoView
@@ -30,6 +33,11 @@ class ExtensionPopupBottomSheet : BottomSheetDialogFragment() {
         if (session == null) dismissAllowingStateLoss()
     }
 
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog =
+        super.onCreateDialog(savedInstanceState).also {
+            (it as BottomSheetDialog).dismissWithAnimation = true
+        }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -44,7 +52,7 @@ class ExtensionPopupBottomSheet : BottomSheetDialogFragment() {
 
         geckoView = view.findViewById(R.id.popup_gecko_view)
         val tv = TypedValue()
-        requireContext().theme.resolveAttribute(android.R.attr.colorBackground, tv, true)
+        requireContext().theme.resolveAttribute(com.google.android.material.R.attr.colorSurface, tv, true)
         geckoView?.coverUntilFirstPaint(tv.data)
         session?.let { geckoView?.setSession(it) }
     }
@@ -60,16 +68,23 @@ class ExtensionPopupBottomSheet : BottomSheetDialogFragment() {
         behavior.isDraggable = false
         behavior.isFitToContents = false
         behavior.halfExpandedRatio = 0.90f
-        behavior.state = BottomSheetBehavior.STATE_HALF_EXPANDED
         behavior.skipCollapsed = true
+        behavior.state = BottomSheetBehavior.STATE_HIDDEN
+        bottomSheet.post {
+            behavior.state = BottomSheetBehavior.STATE_HALF_EXPANDED
+        }
     }
 
     override fun onDestroyView() {
         geckoView?.releaseSession()
         geckoView = null
+        super.onDestroyView()
+    }
+
+    override fun onDismiss(dialog: DialogInterface) {
         session?.close()
         session = null
-        super.onDestroyView()
+        super.onDismiss(dialog)
     }
 
     private data class Pending(val session: GeckoSession, val title: String?)
