@@ -53,12 +53,11 @@ jobs:
         run: |
           TAG=${GITHUB_REF#refs/tags/v}
           SEMVER=${TAG%%-*}
+          [[ "$SEMVER" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "::error::Invalid semver in tag: $TAG"; exit 1; }
           IFS='.' read -r MAJOR MINOR PATCH <<< "$SEMVER"
-          MAJOR=${MAJOR:-0}
-          MINOR=${MINOR:-0}
-          PATCH=${PATCH:-0}
           CODE=$((MAJOR * 10000 + MINOR * 100 + PATCH))
           echo "name=v$TAG" >> $GITHUB_OUTPUT
+          echo "version=$TAG" >> $GITHUB_OUTPUT
           echo "code=$CODE" >> $GITHUB_OUTPUT
           if [[ "$TAG" == *-* ]]; then
             echo "prerelease=true" >> $GITHUB_OUTPUT
@@ -70,7 +69,7 @@ jobs:
       #   run: ./gradlew publishReleaseBundle
 
       - name: Build Release APK
-        run: ./gradlew assembleRelease -PVERSION_NAME=${{ steps.version.outputs.name }} -PVERSION_CODE=${{ steps.version.outputs.code }}
+        run: ./gradlew assembleRelease -PVERSION_NAME=${{ steps.version.outputs.version }} -PVERSION_CODE=${{ steps.version.outputs.code }}
 
       - name: Prepare release assets
         run: |
