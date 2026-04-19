@@ -12,10 +12,14 @@ controls, separate from your browser.
 
 Powered by GeckoView (Mozilla's browser engine)
 
-<a href="https://apps.obtainium.imranr.dev/redirect.html?r=obtainium://add/https://github.com/mazzz1y/peel">
-<img src="https://github.com/ImranR98/Obtainium/blob/main/assets/graphics/badge_obtainium.png?raw=true"
-alt="Get it on Obtainium" align="center" height="54" />
-</a>
+[<img src="https://raw.githubusercontent.com/mazzz1y/fdroid/refs/heads/main/assets/f-repo.png"
+alt="Get it on my F-Droid repo"
+height="54">]
+(https://mazzz1y.github.io/fdroid/repo)
+[<img src="https://raw.githubusercontent.com/ImranR98/Obtainium/refs/heads/main/assets/graphics/badge_obtainium.png"
+alt="Get it on Obtainium"
+height="54">]
+(https://apps.obtainium.imranr.dev/redirect.html?r=obtainium://add/https://github.com/mazzz1y/peel)
 
 ## Features
 
@@ -39,7 +43,7 @@ alt="Get it on Obtainium" align="center" height="54" />
 ## Screenshots
 
 | ![Screenshot 1](.github/screenshots/1.png) | ![Screenshot 2](.github/screenshots/2.png) | ![Screenshot 3](.github/screenshots/3.png) | ![Screenshot 4](.github/screenshots/4.png) |
-|:------------------------------------------:|:------------------------------------------:|:------------------------------------------:|:------------------------------------------:|
+| :----------------------------------------: | :----------------------------------------: | :----------------------------------------: | :----------------------------------------: |
 
 ## Acknowledgments
 
