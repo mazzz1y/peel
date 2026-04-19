@@ -5,6 +5,7 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import kotlinx.serialization.json.Json
 import wtf.mazy.peel.model.BackupData
+import wtf.mazy.peel.model.IconCache
 import wtf.mazy.peel.model.IconOwner
 import wtf.mazy.peel.model.ParsedBackup
 import wtf.mazy.peel.model.WebApp
@@ -82,6 +83,7 @@ object BackupArchiveCodec {
             FileOutputStream(iconFile).use { output ->
                 bitmap.compress(Bitmap.CompressFormat.PNG, 100, output)
             }
+            IconCache.evict(uuid)
         } catch (_: Exception) {
         }
     }

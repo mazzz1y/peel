@@ -66,7 +66,8 @@ data class WebApp(var baseUrl: String, override val uuid: String = UUID.randomUU
             isEphemeralSandbox,
             order,
             hasCustomIcon,
-            iconFile.lastModified()
+            iconFile.lastModified(),
+            IconCache.version(uuid),
         )
 
     fun resolveContextId(): String? {
