@@ -4,18 +4,18 @@ Powered by GeckoView (Mozilla's browser engine).
 
 Features:
 
-* Add websites as standalone apps with automatic icon and title fetching
-* Launch web apps directly from your home screen with adaptive icons
-* App grouping with home screen group shortcuts
-* Per-group and per-app optional isolated sandbox with separate cookies and storage
-* Smart external link routing to other Peel apps or system browser
-* Privacy controls: GPC signal, fingerprinting protection, local network blocking, WebRTC IP leak prevention
-* Enhanced Tracking Protection, HTTPS-only mode
-* Lock sensitive web apps behind biometric authentication, block screenshots
-* Dynamic status bar color matching web content
-* Background media playback with full MediaSession support
-* Firefox extensions support
-* Pull-to-refresh
-* Set settings globally or override them per app
-* Export and import all web apps and settings
-* Written in Kotlin with Material 3 interface
+- Add websites as standalone apps with automatic icon and title fetching
+- Launch web apps directly from your home screen with adaptive icons
+- App grouping with home screen group shortcuts
+- Per-group and per-app optional isolated sandbox with separate cookies and storage
+- Smart external link routing to other Peel apps or system browser
+- Privacy controls: GPC signal, fingerprinting protection, local network blocking, WebRTC IP leak prevention
+- Enhanced Tracking Protection, HTTPS-only mode
+- Lock sensitive web apps behind biometric authentication, block screenshots
+- Dynamic status bar color matching web content
+- Background media playback with full MediaSession support
+- Firefox extensions support
+- Pull-to-refresh
+- Set settings globally or override them per app
+- Export and import all web apps and settings
+- Written in Kotlin with Material 3 interface

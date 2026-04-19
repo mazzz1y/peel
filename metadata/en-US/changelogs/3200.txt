@@ -1,0 +1,4 @@
+- Add F-Droid build (custom repo)
+- Customize icon padding when creating home screen shortcuts
+- Fix stale app icons in list after removing or replacing
+- Update GeckoView to 149.0.20260403
