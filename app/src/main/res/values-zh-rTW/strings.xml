@@ -113,6 +113,7 @@
     <string name="no_app_found">找不到可處理此連結的應用程式</string>
     <string name="create_shortcut">建立捷徑</string>
     <string name="create">建立</string>
+    <string name="fill_background">填滿背景</string>
     <string name="back">返回</string>
     <string name="clone">複製</string>
     <string name="share">分享</string>

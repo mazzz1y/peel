@@ -127,6 +127,7 @@
     <string name="no_app_found">No app found to handle this link</string>
     <string name="create_shortcut">Create shortcut</string>
     <string name="create">Create</string>
+    <string name="fill_background">Fill background</string>
     <string name="untitled_shortcut">Unknown</string>
     <string name="back">Back</string>
     <string name="clone">Clone</string>

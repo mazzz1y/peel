@@ -113,6 +113,7 @@
     <string name="no_app_found">このリンクに対応するアプリが見つかりません</string>
     <string name="create_shortcut">ショートカットを作成</string>
     <string name="create">作成</string>
+    <string name="fill_background">背景を塗る</string>
     <string name="back">戻る</string>
     <string name="clone">複製</string>
     <string name="share">共有</string>

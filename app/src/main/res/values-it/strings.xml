@@ -73,6 +73,7 @@
     <string name="allow_microphone_access">Consenti accesso al microfono</string>
     <string name="create_shortcut">Crea scorciatoia</string>
     <string name="create">Crea</string>
+    <string name="fill_background">Riempi sfondo</string>
     <string name="back">Indietro</string>
     <string name="share">Condividi</string>
     <string name="bioprompt_restricted_webapp">Restrizione di accesso</string>

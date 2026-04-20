@@ -113,6 +113,7 @@
     <string name="no_app_found">Nenhum app encontrado para este link</string>
     <string name="create_shortcut">Criar atalho</string>
     <string name="create">Criar</string>
+    <string name="fill_background">Preencher fundo</string>
     <string name="back">Voltar</string>
     <string name="clone">Clonar</string>
     <string name="share">Compartilhar</string>

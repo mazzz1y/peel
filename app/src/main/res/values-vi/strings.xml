@@ -113,6 +113,7 @@
     <string name="no_app_found">Không tìm thấy ứng dụng cho liên kết này</string>
     <string name="create_shortcut">Tạo lối tắt</string>
     <string name="create">Tạo</string>
+    <string name="fill_background">Tô nền</string>
     <string name="back">Quay lại</string>
     <string name="clone">Nhân bản</string>
     <string name="share">Chia sẻ</string>

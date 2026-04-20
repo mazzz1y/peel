@@ -113,6 +113,7 @@
     <string name="no_app_found">Приложение для этой ссылки не найдено</string>
     <string name="create_shortcut">Создать ярлык</string>
     <string name="create">Создать</string>
+    <string name="fill_background">Залить фон</string>
     <string name="back">Назад</string>
     <string name="clone">Клонировать</string>
     <string name="share">Поделиться</string>

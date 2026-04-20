@@ -72,6 +72,7 @@
     <string name="allow_microphone_access">Permitir el acceso al micrófono</string>
     <string name="create_shortcut">Crear acceso directo</string>
     <string name="create">Crear</string>
+    <string name="fill_background">Rellenar fondo</string>
     <string name="back">Volver</string>
     <string name="share">Compartir</string>
     <string name="bioprompt_restricted_webapp">Restricción de acceso</string>

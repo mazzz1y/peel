@@ -17,6 +17,7 @@ import androidx.core.graphics.createBitmap
 import androidx.core.graphics.drawable.IconCompat
 import androidx.core.graphics.scale
 import androidx.core.net.toUri
+import com.google.android.material.materialswitch.MaterialSwitch
 import com.google.android.material.slider.Slider
 import wtf.mazy.peel.R
 import wtf.mazy.peel.activities.TrampolineActivity
@@ -37,8 +38,8 @@ object ShortcutHelper {
 
     fun createShortcut(owner: IconOwner, activity: Activity) {
         if (!ShortcutManagerCompat.isRequestPinShortcutSupported(activity)) return
-        showCreateDialog(owner, activity) { name, logoSizeDp ->
-            pinShortcut(owner, activity, resolveTitle(name, owner), logoSizeDp)
+        showCreateDialog(owner, activity) { name, logoSizeDp, fillBackground ->
+            pinShortcut(owner, activity, resolveTitle(name, owner), logoSizeDp, fillBackground)
         }
     }
 
@@ -57,15 +58,17 @@ object ShortcutHelper {
     private fun showCreateDialog(
         owner: IconOwner,
         activity: Activity,
-        onConfirm: (name: String, logoSizeDp: Int) -> Unit,
+        onConfirm: (name: String, logoSizeDp: Int, fillBackground: Boolean) -> Unit,
     ) {
         val hasCustomIcon = owner.loadIcon() != null
         var preview: ImageView? = null
         var slider: Slider? = null
+        var fillSwitch: MaterialSwitch? = null
         var lastPreviewBitmap: Bitmap? = null
+        var fillBackground = false
 
         fun renderPreview(logoSizeDp: Int) {
-            val full = buildAdaptiveBitmap(owner, logoSizeDp)
+            val full = buildAdaptiveBitmap(owner, logoSizeDp, fillBackground)
             val cropped = cropToSafeZone(full)
             preview?.setImageBitmap(cropped)
             if (full !== cropped) full.recycle()
@@ -88,19 +91,27 @@ object ShortcutHelper {
                         .inflate(R.layout.dialog_shortcut_extras, container, false)
                     preview = extras.findViewById(R.id.preview)
                     slider = extras.findViewById(R.id.slider)
+                    fillSwitch = extras.findViewById(R.id.switchFillBackground)
+                    val fillRow = extras.findViewById<View>(R.id.fillBackgroundRow)
                     if (hasCustomIcon) {
                         slider?.addOnChangeListener { _, value, _ ->
                             renderPreview(value.toInt())
                         }
+                        fillSwitch?.isChecked = fillBackground
+                        fillSwitch?.setOnCheckedChangeListener { _, isChecked ->
+                            fillBackground = isChecked
+                            renderPreview(currentLogoSize())
+                        }
                     } else {
                         slider?.visibility = View.GONE
+                        fillRow.visibility = View.GONE
                     }
                     renderPreview(currentLogoSize())
                     container.addView(extras, 0)
                 },
             ),
         ) { nameInput, _ ->
-            onConfirm(nameInput.text.toString().trim(), currentLogoSize())
+            onConfirm(nameInput.text.toString().trim(), currentLogoSize(), fillBackground)
         }
     }
 
@@ -109,9 +120,10 @@ object ShortcutHelper {
         activity: Activity,
         title: String,
         logoSizeDp: Int = LOGO_SIZE,
+        fillBackground: Boolean = false,
     ) {
         val intent = buildIntent(owner, activity)
-        val icon = resolveIcon(owner, logoSizeDp)
+        val icon = resolveIcon(owner, logoSizeDp, fillBackground)
         val info = buildShortcutInfo(activity, owner.uuid, title, icon, intent)
         ShortcutManagerCompat.requestPinShortcut(activity, info, null)
         ShortcutManagerCompat.updateShortcuts(activity, listOf(info))
@@ -120,13 +132,21 @@ object ShortcutHelper {
     private fun resolveTitle(name: String, owner: IconOwner): String =
         name.ifEmpty { owner.title.ifEmpty { App.appContext.getString(R.string.untitled_shortcut) } }
 
-    private fun resolveIcon(owner: IconOwner, logoSizeDp: Int = LOGO_SIZE): IconCompat =
-        IconCompat.createWithAdaptiveBitmap(buildAdaptiveBitmap(owner, logoSizeDp))
+    private fun resolveIcon(
+        owner: IconOwner,
+        logoSizeDp: Int = LOGO_SIZE,
+        fillBackground: Boolean = false,
+    ): IconCompat =
+        IconCompat.createWithAdaptiveBitmap(buildAdaptiveBitmap(owner, logoSizeDp, fillBackground))
 
-    private fun buildAdaptiveBitmap(owner: IconOwner, logoSizeDp: Int): Bitmap {
+    private fun buildAdaptiveBitmap(
+        owner: IconOwner,
+        logoSizeDp: Int,
+        fillBackground: Boolean,
+    ): Bitmap {
         val bitmap = owner.loadIcon()
         return if (bitmap != null) {
-            resizeBitmapForAdaptiveIcon(bitmap, logoSizeDp)
+            resizeBitmapForAdaptiveIcon(bitmap, logoSizeDp, fillBackground)
         } else {
             LetterIconGenerator.generateForAdaptiveIcon(owner.title, owner.letterIconSeed)
         }
@@ -139,30 +159,47 @@ object ShortcutHelper {
         return Bitmap.createBitmap(bitmap, inset, inset, size, size)
     }
 
-    private fun resizeBitmapForAdaptiveIcon(bitmap: Bitmap, logoSizeDp: Int = LOGO_SIZE): Bitmap {
+    private fun resizeBitmapForAdaptiveIcon(
+        bitmap: Bitmap,
+        logoSizeDp: Int = LOGO_SIZE,
+        fillBackground: Boolean = false,
+    ): Bitmap {
         val density = App.appContext.resources.displayMetrics.density
         val iconSizePx = (ADAPTIVE_ICON_SIZE * density).toInt()
         val logoSizePx = (logoSizeDp * density).toInt()
 
-        val scale = min(logoSizePx.toFloat() / bitmap.width, logoSizePx.toFloat() / bitmap.height)
-        val scaledWidth = (bitmap.width * scale).toInt()
-        val scaledHeight = (bitmap.height * scale).toInt()
+        val trimmed = if (fillBackground) IconBackgroundExtender.trimTransparentEdges(bitmap) else null
+        val source = trimmed ?: bitmap
+        val hadPadding = trimmed != null && trimmed !== bitmap
 
-        val scaledBitmap = bitmap.scale(scaledWidth, scaledHeight)
+        val scale = min(logoSizePx.toFloat() / source.width, logoSizePx.toFloat() / source.height)
+        val scaledWidth = (source.width * scale).toInt()
+        val scaledHeight = (source.height * scale).toInt()
+
+        val scaledBitmap = source.scale(scaledWidth, scaledHeight)
 
         val finalBitmap = createBitmap(iconSizePx, iconSizePx)
         val canvas = Canvas(finalBitmap)
 
-        canvas.drawColor(Color.WHITE)
+        val left = (iconSizePx - scaledWidth) / 2
+        val top = (iconSizePx - scaledHeight) / 2
+
+        if (fillBackground) {
+            canvas.drawColor(IconBackgroundExtender.sampleBackgroundColor(source))
+            if (!hadPadding) {
+                IconBackgroundExtender.drawEdgeStretch(
+                    canvas, scaledBitmap, left, top, scaledWidth, scaledHeight, iconSizePx,
+                )
+            }
+        } else {
+            canvas.drawColor(Color.WHITE)
+        }
 
         val drawPaint = Paint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG)
-        val left = ((iconSizePx - scaledWidth) / 2).toFloat()
-        val top = ((iconSizePx - scaledHeight) / 2).toFloat()
-        canvas.drawBitmap(scaledBitmap, left, top, drawPaint)
+        canvas.drawBitmap(scaledBitmap, left.toFloat(), top.toFloat(), drawPaint)
 
-        if (scaledBitmap != bitmap) {
-            scaledBitmap.recycle()
-        }
+        if (scaledBitmap != source) scaledBitmap.recycle()
+        if (hadPadding) trimmed!!.recycle()
 
         return finalBitmap
     }
