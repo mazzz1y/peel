@@ -6,6 +6,8 @@ import android.os.Bundle
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
+import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.PopupMenu
 import android.widget.TextView
@@ -13,6 +15,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.materialswitch.MaterialSwitch
 import com.google.android.material.progressindicator.CircularProgressIndicator
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
@@ -58,8 +61,22 @@ class WebAppSettingsActivity :
     private var fetchGeneration: Int = 0
     private lateinit var originalSettingsSnapshot: WebAppSettings
 
+    private val imgWebAppIcon get() = binding.root.findViewById<ImageView>(R.id.imgWebAppIcon)
+    private val txtWebAppName get() = binding.root.findViewById<TextView>(R.id.txtWebAppName)
+    private val textBaseUrl get() = binding.root.findViewById<TextView>(R.id.textBaseUrl)
+    private val titleUrlBlock get() = binding.root.findViewById<View>(R.id.titleUrlBlock)
+    private val btnFetch get() = binding.root.findViewById<ImageView>(R.id.btnFetch)
+    private val sandboxLabel get() = binding.root.findViewById<TextView>(R.id.sandboxLabel)
+    private val switchSandbox get() = binding.root.findViewById<MaterialSwitch>(R.id.switchSandbox)
+    private val switchEphemeralSandbox get() = binding.root.findViewById<MaterialSwitch>(R.id.switchEphemeralSandbox)
+    private val ephemeralSandboxRow get() = binding.root.findViewById<LinearLayout>(R.id.ephemeralSandboxRow)
+    private val btnClearSandbox get() = binding.root.findViewById<ImageButton>(R.id.btnClearSandbox)
+    private val btnAddOverride get() = binding.root.findViewById<ImageButton>(R.id.btnAddOverride)
+    private val linearLayoutOverrides get() = binding.root.findViewById<LinearLayout>(R.id.linearLayoutOverrides)
+    private val sectionOverrideHeader get() = binding.root.findViewById<View>(R.id.sectionOverrideHeader)
+
     override fun onCreate(savedInstanceState: Bundle?) {
-        iconEditor = IconEditorController(this, { binding.imgWebAppIcon }) { modifiedWebapp }
+        iconEditor = IconEditorController(this, { imgWebAppIcon }) { modifiedWebapp }
         super.onCreate(savedInstanceState)
 
         setToolbarTitle(getString(R.string.web_app_settings))
@@ -86,12 +103,14 @@ class WebAppSettingsActivity :
                     finish()
                     return
                 }
-        binding.webapp = editableWebapp
-        binding.activity = this@WebAppSettingsActivity
-        binding.textBaseUrl.text = displayUrl(editableWebapp.baseUrl)
+        txtWebAppName.text = editableWebapp.title
+        textBaseUrl.text = displayUrl(editableWebapp.baseUrl)
+        sandboxLabel.setText(R.string.enable_sandbox)
+        switchSandbox.isChecked = editableWebapp.isUseContainer
+        switchEphemeralSandbox.isChecked = editableWebapp.isEphemeralSandbox
 
-        binding.imgWebAppIcon.setOnClickListener { iconEditor.onIconTap() }
-        binding.titleUrlBlock.setOnClickListener { showEditDialog(editableWebapp) }
+        imgWebAppIcon.setOnClickListener { iconEditor.onIconTap() }
+        titleUrlBlock.setOnClickListener { showEditDialog(editableWebapp) }
         setupFetchButton(editableWebapp)
         setupOverridePicker(editableWebapp)
         if (!isEditingDefaults) {
@@ -111,6 +130,7 @@ class WebAppSettingsActivity :
     override fun onPause() {
         super.onPause()
         modifiedWebapp?.let { webapp ->
+            webapp.settings.sanitize(asOverride = !isEditingDefaults)
             lifecycleScope.launch {
                 withContext(NonCancellable) {
                     if (isEditingDefaults) {
@@ -130,11 +150,10 @@ class WebAppSettingsActivity :
 
     private fun prepareGlobalWebAppScreen() {
         binding.sectionMainSettings.visibility = View.GONE
-        binding.sandboxRow.visibility = View.GONE
         binding.groupRow.visibility = View.GONE
         binding.groupDivider.visibility = View.GONE
-        binding.sectionOverrideHeader.visibility = View.GONE
-        binding.linearLayoutOverrides.visibility = View.GONE
+        sectionOverrideHeader.visibility = View.GONE
+        linearLayoutOverrides.visibility = View.GONE
         setToolbarTitle(getString(R.string.global_web_app_settings))
     }
 
@@ -167,8 +186,8 @@ class WebAppSettingsActivity :
         ) { nameInput, _ ->
             webapp.title = nameInput.text.toString().trim()
             webapp.baseUrl = urlInput?.text.toString().trim()
-            binding.txtWebAppName.text = webapp.title
-            binding.textBaseUrl.text = displayUrl(webapp.baseUrl)
+            txtWebAppName.text = webapp.title
+            textBaseUrl.text = displayUrl(webapp.baseUrl)
             iconEditor.refreshIcon()
         }
     }
@@ -210,15 +229,15 @@ class WebAppSettingsActivity :
         SandboxSwitchController(
             this,
             modifiedWebapp,
-            binding.switchSandbox,
-            binding.switchEphemeralSandbox,
-            binding.ephemeralSandboxRow,
-            binding.btnClearSandbox,
+            switchSandbox,
+            switchEphemeralSandbox,
+            ephemeralSandboxRow,
+            btnClearSandbox,
         ).setup()
     }
 
     private fun setupFetchButton(modifiedWebapp: WebApp) {
-        binding.btnFetch.setOnClickListener {
+        btnFetch.setOnClickListener {
             if (fetchDialog == null) fetchIconAndName(modifiedWebapp)
         }
     }
@@ -416,7 +435,7 @@ class WebAppSettingsActivity :
     ) {
         dismissFetchProgress()
         if (!candidate.title.isNullOrEmpty()) {
-            binding.txtWebAppName.setText(candidate.title)
+            txtWebAppName.text = candidate.title
             webapp.title = candidate.title
         }
         if (candidate.icon != null) {
@@ -436,7 +455,7 @@ class WebAppSettingsActivity :
             .setMessage(message)
             .setPositiveButton(R.string.manifest_start_url_update) { _, _ ->
                 webapp.baseUrl = suggestedUrl
-                binding.textBaseUrl.text = displayUrl(suggestedUrl)
+                textBaseUrl.text = displayUrl(suggestedUrl)
             }
             .setNegativeButton(R.string.manifest_start_url_keep, null)
             .show()
@@ -449,8 +468,8 @@ class WebAppSettingsActivity :
             OverridePickerController(
                 this,
                 modifiedWebapp.settings,
-                binding.linearLayoutOverrides,
-                binding.btnAddOverride,
+                linearLayoutOverrides,
+                btnAddOverride,
             )
         overrideController.setup()
     }

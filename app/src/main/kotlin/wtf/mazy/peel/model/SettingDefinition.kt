@@ -33,18 +33,40 @@ sealed class SettingDefinition(
         globalOnly: Boolean = false,
     ) : SettingDefinition(toggle, displayNameResId, category, globalOnly)
 
-    class TriStateSetting(
+    class ChoiceSetting(
         toggle: SettingField,
         @StringRes displayNameResId: Int,
         category: SettingCategory,
         globalOnly: Boolean = false,
-        val valueOff: Int = 0,
-        val valueMid: Int = 1,
-        val valueOn: Int = 2,
-        @param:StringRes val labelOff: Int = R.string.permission_deny,
-        @param:StringRes val labelMid: Int = R.string.permission_ask,
-        @param:StringRes val labelOn: Int = R.string.permission_allow,
-    ) : SettingDefinition(toggle, displayNameResId, category, globalOnly)
+        val values: IntArray,
+        @StringRes val labels: IntArray,
+    ) : SettingDefinition(toggle, displayNameResId, category, globalOnly) {
+        init {
+            require(values.size == labels.size) { "values and labels count must match" }
+            require(values.isNotEmpty()) { "at least one choice required" }
+        }
+
+        companion object {
+            fun permissionChoice(
+                toggle: SettingField,
+                @StringRes displayNameResId: Int,
+                category: SettingCategory,
+                globalOnly: Boolean = false,
+            ) = ChoiceSetting(
+                toggle, displayNameResId, category, globalOnly,
+                values = intArrayOf(
+                    WebAppSettings.PERMISSION_OFF,
+                    WebAppSettings.PERMISSION_ASK,
+                    WebAppSettings.PERMISSION_ON,
+                ),
+                labels = intArrayOf(
+                    R.string.permission_deny,
+                    R.string.permission_ask,
+                    R.string.permission_allow,
+                ),
+            )
+        }
+    }
 
     class BooleanWithIntSetting(
         toggle: SettingField,
@@ -148,13 +170,20 @@ object SettingRegistry {
     private val ALL_SETTINGS: List<SettingDefinition> =
         listOf(
             // Appearance
-            SettingDefinition.TriStateSetting(
+            SettingDefinition.ChoiceSetting(
                 SettingField(WebAppSettings::colorScheme, WebAppSettings.COLOR_SCHEME_AUTO),
                 R.string.setting_color_scheme,
                 SettingCategory.APPEARANCE,
-                labelOff = R.string.color_scheme_auto,
-                labelMid = R.string.color_scheme_light,
-                labelOn = R.string.color_scheme_dark,
+                values = intArrayOf(
+                    WebAppSettings.COLOR_SCHEME_AUTO,
+                    WebAppSettings.COLOR_SCHEME_LIGHT,
+                    WebAppSettings.COLOR_SCHEME_DARK,
+                ),
+                labels = intArrayOf(
+                    R.string.color_scheme_auto,
+                    R.string.color_scheme_light,
+                    R.string.color_scheme_dark,
+                ),
             ),
             SettingDefinition.BooleanSetting(
                 SettingField(WebAppSettings::isDynamicStatusBar, true),
@@ -209,22 +238,22 @@ object SettingRegistry {
                 intField = SettingField(WebAppSettings::timeAutoReload, 60),
             ),
             // Permissions
-            SettingDefinition.TriStateSetting(
+            SettingDefinition.ChoiceSetting.permissionChoice(
                 SettingField(WebAppSettings::isCameraPermission, WebAppSettings.PERMISSION_ASK),
                 R.string.allow_camera_access,
                 SettingCategory.PERMISSIONS,
             ),
-            SettingDefinition.TriStateSetting(
+            SettingDefinition.ChoiceSetting.permissionChoice(
                 SettingField(WebAppSettings::isMicrophonePermission, WebAppSettings.PERMISSION_ASK),
                 R.string.allow_microphone_access,
                 SettingCategory.PERMISSIONS,
             ),
-            SettingDefinition.TriStateSetting(
+            SettingDefinition.ChoiceSetting.permissionChoice(
                 SettingField(WebAppSettings::isAllowLocationAccess, WebAppSettings.PERMISSION_ASK),
                 R.string.allow_location_access,
                 SettingCategory.PERMISSIONS,
             ),
-            SettingDefinition.TriStateSetting(
+            SettingDefinition.ChoiceSetting.permissionChoice(
                 SettingField(WebAppSettings::isAppLinksPermission, WebAppSettings.PERMISSION_ASK),
                 R.string.open_app_links,
                 SettingCategory.PERMISSIONS,
@@ -241,7 +270,7 @@ object SettingRegistry {
                 SettingCategory.CONTENT,
             ),
             // Network & Privacy
-            SettingDefinition.TriStateSetting(
+            SettingDefinition.ChoiceSetting(
                 SettingField(
                     WebAppSettings::isSafeBrowsing,
                     WebAppSettings.TRACKER_PROTECTION_DEFAULT
@@ -249,12 +278,16 @@ object SettingRegistry {
                 R.string.setting_tracker_protection,
                 SettingCategory.NETWORK_PRIVACY,
                 globalOnly = true,
-                valueOff = WebAppSettings.TRACKER_PROTECTION_NONE,
-                valueMid = WebAppSettings.TRACKER_PROTECTION_DEFAULT,
-                valueOn = WebAppSettings.TRACKER_PROTECTION_STRICT,
-                labelOff = R.string.tracker_protection_none,
-                labelMid = R.string.tracker_protection_default,
-                labelOn = R.string.tracker_protection_strict,
+                values = intArrayOf(
+                    WebAppSettings.TRACKER_PROTECTION_NONE,
+                    WebAppSettings.TRACKER_PROTECTION_DEFAULT,
+                    WebAppSettings.TRACKER_PROTECTION_STRICT,
+                ),
+                labels = intArrayOf(
+                    R.string.tracker_protection_none,
+                    R.string.tracker_protection_default,
+                    R.string.tracker_protection_strict,
+                ),
             ),
             SettingDefinition.BooleanSetting(
                 SettingField(WebAppSettings::isGlobalPrivacyControl, true),

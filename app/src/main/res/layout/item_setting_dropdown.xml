@@ -1,17 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    style="@style/SettingsItemContainer"
-    android:gravity="center_vertical"
-    android:minHeight="56dp"
-    android:orientation="horizontal">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    style="@style/SettingsRow.Inline">
 
     <TextView
         android:id="@+id/textSettingName"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:textColor="?attr/colorOnSurface"
-        android:textSize="@dimen/settings_text_size" />
+        android:textAppearance="?attr/textAppearanceBodyLarge" />
 
     <ImageButton
         android:id="@+id/btnUndo"
@@ -23,20 +20,16 @@
         android:src="@drawable/ic_undo_24dp"
         android:visibility="gone" />
 
-    <TextView
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/txtDropdownValue"
+        style="@style/Widget.Material3.Button.OutlinedButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="?attr/selectableItemBackground"
-        android:drawableEnd="@drawable/ic_expand_more_24dp"
-        android:drawablePadding="4dp"
         android:ellipsize="end"
-        android:gravity="end"
         android:maxLines="1"
-        android:paddingVertical="8dp"
-        android:paddingStart="8dp"
-        android:textColor="?attr/colorOnSurfaceVariant"
-        android:textSize="@dimen/settings_text_size" />
+        app:icon="@drawable/ic_expand_more_24dp"
+        app:iconGravity="end"
+        app:iconSize="18dp" />
 
     <ImageButton
         android:id="@+id/btnRemoveOverride"

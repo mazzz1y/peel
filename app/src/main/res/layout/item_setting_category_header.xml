@@ -3,8 +3,7 @@
     android:id="@+id/text_category"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingTop="8dp"
+    android:paddingTop="16dp"
     android:paddingBottom="8dp"
-    android:textColor="?attr/colorOnSurfaceVariant"
-    android:textSize="@dimen/settings_text_size"
-    android:textStyle="bold" />
+    android:textAppearance="?attr/textAppearanceLabelLarge"
+    android:textColor="?attr/colorPrimary" />

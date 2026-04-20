@@ -3,12 +3,14 @@ package wtf.mazy.peel.activities
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import androidx.activity.addCallback
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.widget.NestedScrollView
+import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
 import wtf.mazy.peel.databinding.ActivityToolbarBaseBinding
 
@@ -46,6 +48,28 @@ abstract class ToolbarBaseActivity<VB : ViewBinding> : AppCompatActivity() {
     }
 
     protected fun setupKeyboardPadding(scrollView: NestedScrollView) {
+        setupKeyboardPadding(scrollView as ViewGroup) { container, bottom ->
+            val content = container.getChildAt(0) ?: return@setupKeyboardPadding
+            content.setPadding(content.paddingLeft, content.paddingTop, content.paddingRight, bottom)
+        }
+    }
+
+    protected fun setupKeyboardPadding(recyclerView: RecyclerView) {
+        val baseBottom = recyclerView.paddingBottom
+        setupKeyboardPadding(recyclerView as ViewGroup) { _, bottom ->
+            recyclerView.setPadding(
+                recyclerView.paddingLeft,
+                recyclerView.paddingTop,
+                recyclerView.paddingRight,
+                baseBottom + bottom,
+            )
+        }
+    }
+
+    private fun setupKeyboardPadding(
+        scrollContainer: ViewGroup,
+        applyBottomPadding: (ViewGroup, Int) -> Unit,
+    ) {
         var keyboardHeight = 0
         val contentView = baseBinding.activityContent
 
@@ -54,37 +78,36 @@ abstract class ToolbarBaseActivity<VB : ViewBinding> : AppCompatActivity() {
             val navBottom = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
             keyboardHeight = (imeBottom - navBottom).coerceAtLeast(0)
 
-            updateContentPadding(scrollView, keyboardHeight)
+            applyBottomPadding(scrollContainer, keyboardHeight)
 
             if (keyboardHeight > 0) {
-                scrollView.post { scrollToFocused(scrollView, keyboardHeight) }
+                scrollContainer.post { scrollToFocused(scrollContainer, keyboardHeight) }
             }
 
             ViewCompat.onApplyWindowInsets(view, insets)
         }
 
-        scrollView.viewTreeObserver.addOnGlobalFocusChangeListener { _, newFocus ->
-            if (keyboardHeight > 0 && newFocus != null && newFocus.isDescendantOf(scrollView)) {
-                scrollView.post { scrollToFocused(scrollView, keyboardHeight) }
+        scrollContainer.viewTreeObserver.addOnGlobalFocusChangeListener { _, newFocus ->
+            if (keyboardHeight > 0 && newFocus != null && newFocus.isDescendantOf(scrollContainer)) {
+                scrollContainer.post { scrollToFocused(scrollContainer, keyboardHeight) }
             }
         }
     }
 
-    private fun updateContentPadding(scrollView: NestedScrollView, bottom: Int) {
-        val content = scrollView.getChildAt(0) ?: return
-        content.setPadding(content.paddingLeft, content.paddingTop, content.paddingRight, bottom)
-    }
-
-    private fun scrollToFocused(scrollView: NestedScrollView, keyboardHeight: Int) {
+    private fun scrollToFocused(scrollContainer: ViewGroup, keyboardHeight: Int) {
         val focused = currentFocus ?: return
-        if (!focused.isDescendantOf(scrollView)) return
+        if (!focused.isDescendantOf(scrollContainer)) return
 
         val focusedBottom = focused.screenY() + focused.height
-        val visibleBottom = scrollView.screenY() + scrollView.height - keyboardHeight
+        val visibleBottom = scrollContainer.screenY() + scrollContainer.height - keyboardHeight
         val overflow = focusedBottom - visibleBottom
 
         if (overflow > 0) {
-            scrollView.smoothScrollBy(0, overflow + (16 * resources.displayMetrics.density).toInt())
+            val dy = overflow + (16 * resources.displayMetrics.density).toInt()
+            when (scrollContainer) {
+                is NestedScrollView -> scrollContainer.smoothScrollBy(0, dy)
+                is RecyclerView -> scrollContainer.smoothScrollBy(0, dy)
+            }
         }
     }
 

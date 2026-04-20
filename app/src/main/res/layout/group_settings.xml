@@ -1,13 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <data>
-
-        <variable
-            name="group"
-            type="wtf.mazy.peel.model.WebAppGroup" />
-    </data>
-
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -32,146 +25,11 @@
                 android:layout_marginEnd="@dimen/margin_activity"
                 android:orientation="vertical">
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
-                    android:gravity="center_horizontal"
-                    android:orientation="vertical">
+                <include layout="@layout/include_settings_icon_title" />
 
-                    <ImageView
-                        android:id="@+id/imgGroupIcon"
-                        android:layout_width="96dp"
-                        android:layout_height="96dp"
-                        android:layout_gravity="center_horizontal"
-                        android:layout_marginTop="32dp"
-                        android:layout_marginBottom="16dp"
-                        android:clickable="true"
-                        android:contentDescription="@string/app_icon"
-                        android:focusable="true"
-                        android:scaleType="fitCenter" />
+                <include layout="@layout/include_settings_sandbox_rows" />
 
-                    <LinearLayout
-                        android:id="@+id/titleBlock"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:clickable="true"
-                        android:focusable="true"
-                        android:gravity="center_horizontal"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:id="@+id/txtGroupName"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginBottom="16dp"
-                            android:fontFamily="sans-serif"
-                            android:gravity="center"
-                            android:text="@{group.title}"
-                            android:textAppearance="?attr/textAppearanceTitleLarge" />
-
-                    </LinearLayout>
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/sandboxRow"
-                    style="@style/SettingsItemContainer"
-                    android:gravity="center_vertical"
-                    android:minHeight="56dp"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="@string/group_sandbox"
-                        android:textColor="?attr/colorOnSurface"
-                        android:textSize="@dimen/settings_text_size" />
-
-                    <ImageButton
-                        android:id="@+id/btnClearSandbox"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:background="?attr/selectableItemBackgroundBorderless"
-                        android:contentDescription="@string/clear_sandbox_data"
-                        android:padding="16dp"
-                        android:src="@drawable/ic_delete_black_24dp"
-                        android:visibility="gone" />
-
-                    <com.google.android.material.materialswitch.MaterialSwitch
-                        android:id="@+id/switchSandbox"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:checked="@{group.useContainer}" />
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/ephemeralSandboxRow"
-                    style="@style/SettingsItemContainer"
-                    android:gravity="center_vertical"
-                    android:minHeight="56dp"
-                    android:orientation="horizontal"
-                    android:visibility="gone">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="@string/ephemeral_sandbox"
-                        android:textColor="?attr/colorOnSurface"
-                        android:textSize="@dimen/settings_text_size" />
-
-                    <com.google.android.material.materialswitch.MaterialSwitch
-                        android:id="@+id/switchEphemeralSandbox"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:checked="@{group.ephemeralSandbox}" />
-
-                </LinearLayout>
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginTop="@dimen/settings_divider_margin_top"
-                    android:layout_marginBottom="@dimen/settings_divider_margin_bottom"
-                    android:background="?android:attr/listDivider" />
-
-                <LinearLayout
-                    android:id="@+id/sectionOverrideHeader"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
-
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="@string/overridden_settings"
-                        android:textColor="?attr/colorOnSurfaceVariant"
-                        android:textSize="@dimen/settings_text_size"
-                        android:textStyle="bold" />
-
-                    <ImageButton
-                        android:id="@+id/btnAddOverride"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:background="?attr/selectableItemBackgroundBorderless"
-                        android:contentDescription="@string/add_override"
-                        android:paddingHorizontal="16dp"
-                        android:paddingVertical="8dp"
-                        android:src="@drawable/ic_add_24dp" />
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/linearLayoutOverrides"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:paddingTop="8dp" />
+                <include layout="@layout/include_settings_override_section" />
 
             </LinearLayout>
         </androidx.core.widget.NestedScrollView>

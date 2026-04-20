@@ -4,8 +4,14 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.View
+import android.widget.ImageButton
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.TextView
 import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.materialswitch.MaterialSwitch
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -33,8 +39,19 @@ class GroupSettingsActivity :
     private lateinit var iconEditor: IconEditorController
     private lateinit var originalSettingsSnapshot: WebAppSettings
 
+    private val imgGroupIcon get() = binding.root.findViewById<ImageView>(R.id.imgGroupIcon)
+    private val txtGroupName get() = binding.root.findViewById<TextView>(R.id.txtGroupName)
+    private val titleBlock get() = binding.root.findViewById<View>(R.id.titleBlock)
+    private val sandboxLabel get() = binding.root.findViewById<TextView>(R.id.sandboxLabel)
+    private val switchSandbox get() = binding.root.findViewById<MaterialSwitch>(R.id.switchSandbox)
+    private val switchEphemeralSandbox get() = binding.root.findViewById<MaterialSwitch>(R.id.switchEphemeralSandbox)
+    private val ephemeralSandboxRow get() = binding.root.findViewById<LinearLayout>(R.id.ephemeralSandboxRow)
+    private val btnClearSandbox get() = binding.root.findViewById<ImageButton>(R.id.btnClearSandbox)
+    private val btnAddOverride get() = binding.root.findViewById<ImageButton>(R.id.btnAddOverride)
+    private val linearLayoutOverrides get() = binding.root.findViewById<LinearLayout>(R.id.linearLayoutOverrides)
+
     override fun onCreate(savedInstanceState: Bundle?) {
-        iconEditor = IconEditorController(this, { binding.imgGroupIcon }) { modifiedGroup }
+        iconEditor = IconEditorController(this, { imgGroupIcon }) { modifiedGroup }
         super.onCreate(savedInstanceState)
         setToolbarTitle(getString(R.string.group_settings))
 
@@ -49,10 +66,13 @@ class GroupSettingsActivity :
 
         modifiedGroup = WebAppGroup(originalGroup!!)
         originalSettingsSnapshot = originalGroup!!.settings.deepCopy()
-        binding.group = modifiedGroup
+        txtGroupName.text = modifiedGroup?.title
+        sandboxLabel.setText(R.string.group_sandbox)
+        switchSandbox.isChecked = modifiedGroup?.isUseContainer == true
+        switchEphemeralSandbox.isChecked = modifiedGroup?.isEphemeralSandbox == true
 
-        binding.imgGroupIcon.setOnClickListener { iconEditor.onIconTap() }
-        binding.titleBlock.setOnClickListener { modifiedGroup?.let { showEditDialog(it) } }
+        imgGroupIcon.setOnClickListener { iconEditor.onIconTap() }
+        titleBlock.setOnClickListener { modifiedGroup?.let { showEditDialog(it) } }
         iconEditor.refreshIcon()
 
         setupSandboxSwitch()
@@ -66,6 +86,7 @@ class GroupSettingsActivity :
             if (it.title.isBlank()) {
                 it.title = originalGroup?.title ?: ""
             }
+            it.settings.sanitize(asOverride = true)
             lifecycleScope.launch {
                 withContext(NonCancellable) {
                     DataManager.instance.replaceGroup(it)
@@ -99,7 +120,7 @@ class GroupSettingsActivity :
             ),
         ) { name ->
             group.title = name
-            binding.txtGroupName.text = name
+            txtGroupName.text = name
             iconEditor.refreshIcon()
         }
     }
@@ -109,10 +130,10 @@ class GroupSettingsActivity :
         SandboxSwitchController(
             this,
             group,
-            binding.switchSandbox,
-            binding.switchEphemeralSandbox,
-            binding.ephemeralSandboxRow,
-            binding.btnClearSandbox,
+            switchSandbox,
+            switchEphemeralSandbox,
+            ephemeralSandboxRow,
+            btnClearSandbox,
         ).setup()
     }
 
@@ -124,8 +145,8 @@ class GroupSettingsActivity :
             OverridePickerController(
                 this,
                 group.settings,
-                binding.linearLayoutOverrides,
-                binding.btnAddOverride,
+                linearLayoutOverrides,
+                btnAddOverride,
             )
         overrideController.setup()
     }

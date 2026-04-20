@@ -114,5 +114,45 @@ data class WebAppSettings(
         return ALL_KEYS.filter { getValue(it) != null }
     }
 
+    fun sanitize(asOverride: Boolean = false) {
+        for (setting in SettingRegistry.getAllSettings()) {
+            when (setting) {
+                is SettingDefinition.BooleanWithIntSetting -> {
+                    val enabled = getValue(setting.key) as? Boolean ?: false
+                    if (!enabled) continue
+                    val intKey = setting.intField.key
+                    val value = getValue(intKey) as? Int
+                    if (value == null || value <= 0) {
+                        if (asOverride) {
+                            setValue(setting.key, null)
+                            setValue(intKey, null)
+                        } else {
+                            setValue(setting.key, false)
+                            setValue(intKey, setting.intField.defaultValue)
+                        }
+                    }
+                }
+
+                is SettingDefinition.BooleanWithCredentialsSetting -> {
+                    val enabled = getValue(setting.key) as? Boolean ?: false
+                    if (!enabled) continue
+                    val username = (getValue(setting.usernameField.key) as? String).orEmpty()
+                    val password = (getValue(setting.passwordField.key) as? String).orEmpty()
+                    if (username.isEmpty() && password.isEmpty()) {
+                        if (asOverride) {
+                            setValue(setting.key, null)
+                            setValue(setting.usernameField.key, null)
+                            setValue(setting.passwordField.key, null)
+                        } else {
+                            setValue(setting.key, false)
+                        }
+                    }
+                }
+
+                else -> Unit
+            }
+        }
+    }
+
     fun deepCopy() = copy()
 }

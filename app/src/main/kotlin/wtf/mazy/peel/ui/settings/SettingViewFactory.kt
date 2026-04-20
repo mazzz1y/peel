@@ -10,6 +10,7 @@ import android.widget.LinearLayout
 import android.widget.PopupMenu
 import android.widget.TextView
 import androidx.core.widget.doAfterTextChanged
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.materialswitch.MaterialSwitch
 import com.google.android.material.textfield.TextInputEditText
 import wtf.mazy.peel.R
@@ -31,37 +32,24 @@ class SettingViewFactory(
         setting: SettingDefinition,
         settings: WebAppSettings,
     ): View {
-        return when (setting) {
-            is SettingDefinition.BooleanSetting ->
-                inflate(R.layout.item_setting_boolean, container) {
-                    setupBoolean(it, setting, settings)
-                }
-
-            is SettingDefinition.TriStateSetting ->
-                inflate(R.layout.item_setting_dropdown, container) {
-                    setupDropdown(it, setting, settings)
-                }
-
-            is SettingDefinition.BooleanWithIntSetting ->
-                inflate(R.layout.item_setting_boolean_int, container) {
-                    setupBooleanWithInt(it, setting, settings)
-                }
-
-            is SettingDefinition.BooleanWithCredentialsSetting ->
-                inflate(R.layout.item_setting_boolean_credentials, container) {
-                    setupBooleanWithCredentials(it, setting, settings)
-                }
+        val layoutRes = when (setting) {
+            is SettingDefinition.BooleanSetting -> R.layout.item_setting_boolean
+            is SettingDefinition.ChoiceSetting -> R.layout.item_setting_dropdown
+            is SettingDefinition.BooleanWithIntSetting -> R.layout.item_setting_boolean_int
+            is SettingDefinition.BooleanWithCredentialsSetting -> R.layout.item_setting_boolean_credentials
         }
+        val view = inflater.inflate(layoutRes, container, false)
+        bindView(view, setting, settings)
+        return view
     }
 
-    private inline fun inflate(
-        layoutRes: Int,
-        container: LinearLayout,
-        setup: (View) -> Unit
-    ): View {
-        val view = inflater.inflate(layoutRes, container, false)
-        setup(view)
-        return view
+    fun bindView(view: View, setting: SettingDefinition, settings: WebAppSettings) {
+        when (setting) {
+            is SettingDefinition.BooleanSetting -> setupBoolean(view, setting, settings)
+            is SettingDefinition.ChoiceSetting -> setupDropdown(view, setting, settings)
+            is SettingDefinition.BooleanWithIntSetting -> setupBooleanWithInt(view, setting, settings)
+            is SettingDefinition.BooleanWithCredentialsSetting -> setupBooleanWithCredentials(view, setting, settings)
+        }
     }
 
     private fun setupBoolean(
@@ -93,43 +81,35 @@ class SettingViewFactory(
 
     private fun setupDropdown(
         view: View,
-        setting: SettingDefinition.TriStateSetting,
+        setting: SettingDefinition.ChoiceSetting,
         settings: WebAppSettings,
     ) {
         val context = view.context
         val textName = view.findViewById<TextView>(R.id.textSettingName)
-        val txtValue = view.findViewById<TextView>(R.id.txtDropdownValue)
+        val txtValue = view.findViewById<MaterialButton>(R.id.txtDropdownValue)
         val btnRemove = view.findViewById<ImageButton>(R.id.btnRemoveOverride)
         val btnUndo = view.findViewById<ImageButton>(R.id.btnUndo)
 
         textName.text = context.getString(setting.displayNameResId)
 
-        val labels = arrayOf(
-            context.getString(setting.labelOff),
-            context.getString(setting.labelMid),
-            context.getString(setting.labelOn),
-        )
-        val values = intArrayOf(
-            setting.valueOff,
-            setting.valueMid,
-            setting.valueOn,
-        )
+        val labels = setting.labels.map { context.getString(it) }.toTypedArray()
 
-        fun labelForValue(value: Int): String =
-            labels[values.indexOf(value).coerceAtLeast(0)]
+        fun currentIndex(): Int {
+            val current = settings.getValue(setting.key) as? Int ?: setting.values[0]
+            return setting.values.indexOf(current).coerceAtLeast(0)
+        }
 
         fun syncUi() {
-            val current = settings.getValue(setting.key) as? Int ?: setting.valueOff
-            txtValue.text = labelForValue(current)
+            txtValue.text = labels[currentIndex()]
         }
 
         syncUi()
 
-        txtValue.setOnClickListener { anchor ->
-            val popup = PopupMenu(context, anchor, Gravity.END)
-            labels.forEachIndexed { index, label -> popup.menu.add(0, index, index, label) }
+        txtValue.setOnClickListener {
+            val popup = PopupMenu(context, txtValue, Gravity.END)
+            labels.forEachIndexed { i, label -> popup.menu.add(0, i, i, label) }
             popup.setOnMenuItemClickListener { item ->
-                settings.setValue(setting.key, values[item.itemId])
+                settings.setValue(setting.key, setting.values[item.itemId])
                 syncUi()
                 updateUndoVisibility(btnUndo, setting, settings)
                 true

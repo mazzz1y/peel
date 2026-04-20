@@ -15,6 +15,5 @@
     <dimen name="settings_divider_margin_top">8dp</dimen>
     <dimen name="settings_divider_margin_bottom">16dp</dimen>
     <dimen name="divider_height">1dp</dimen>
-    <dimen name="settings_text_size">16sp</dimen>
     <dimen name="webapp_list_item_total_height">86dp</dimen>
 </resources>

@@ -8,27 +8,16 @@
         android:layout_height="match_parent"
         tools:context=".activities.SettingsActivity">
 
-        <androidx.core.widget.NestedScrollView
-            android:id="@+id/scrollView"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerSettings"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginTop="@dimen/margin_activity"
-            android:layout_marginBottom="@dimen/margin_activity"
-            android:fadeScrollbars="true"
-            android:fillViewport="true"
-            android:isScrollContainer="true"
-            android:scrollbarFadeDuration="300"
-            android:scrollbarStyle="outsideOverlay">
-
-            <LinearLayout
-                android:id="@+id/linearLayoutGlobalSettings"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/margin_activity"
-                android:layout_marginEnd="@dimen/margin_activity"
-                android:orientation="vertical" />
-
-        </androidx.core.widget.NestedScrollView>
+            android:clipToPadding="false"
+            android:paddingHorizontal="@dimen/margin_activity"
+            android:paddingTop="@dimen/margin_activity"
+            android:paddingBottom="@dimen/margin_activity"
+            android:scrollbarStyle="outsideOverlay"
+            android:scrollbars="vertical" />
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>

@@ -1,18 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    style="@style/SettingsItemContainer"
-    android:gravity="center_vertical"
-    android:minHeight="56dp"
-    android:orientation="horizontal">
+    style="@style/SettingsRow.Inline">
 
     <TextView
         android:id="@+id/textSettingName"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:text="Setting Name"
-        android:textColor="?attr/colorOnSurface"
-        android:textSize="@dimen/settings_text_size" />
+        android:textAppearance="?attr/textAppearanceBodyLarge" />
 
     <ImageButton
         android:id="@+id/btnUndo"
