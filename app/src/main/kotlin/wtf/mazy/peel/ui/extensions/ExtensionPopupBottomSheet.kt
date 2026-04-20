@@ -87,6 +87,11 @@ class ExtensionPopupBottomSheet : BottomSheetDialogFragment() {
         super.onDismiss(dialog)
     }
 
+    fun dismissImmediately() {
+        (dialog as? BottomSheetDialog)?.dismissWithAnimation = false
+        dismissAllowingStateLoss()
+    }
+
     private data class Pending(val session: GeckoSession, val title: String?)
 
     companion object {

@@ -110,7 +110,7 @@ class SessionExtensionActions(
     internal fun dismissPopup() {
         activity.supportFragmentManager
             .findFragmentByTag(ExtensionPopupBottomSheet.TAG)
-            ?.let { (it as? ExtensionPopupBottomSheet)?.dismiss() }
+            ?.let { (it as? ExtensionPopupBottomSheet)?.dismissImmediately() }
     }
 
     private fun createPopupSession(extension: WebExtension): GeckoResult<GeckoSession> {
