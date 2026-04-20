@@ -1,0 +1,7 @@
+- Fill background option for shortcut icons
+- Skip external link dialog for downloads
+- Fix redirect-back loop after dismissing external link dialog
+- Refresh settings UI with Material 3 styling
+- Fix settings undo not persisting after scroll
+- Fix extension popup crash
+- Fix floating controls shadow artifact
