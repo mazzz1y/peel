@@ -1,10 +1,13 @@
 package wtf.mazy.peel.ui.settings
 
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.CompoundButton
+import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.PopupMenu
@@ -13,6 +16,7 @@ import androidx.core.widget.doAfterTextChanged
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.materialswitch.MaterialSwitch
 import com.google.android.material.textfield.TextInputEditText
+import java.util.WeakHashMap
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.SettingDefinition
 import wtf.mazy.peel.model.WebAppSettings
@@ -25,6 +29,21 @@ class SettingViewFactory(
         data object GlobalDefaults : ButtonStrategy
 
         class Override(val onRemove: (SettingDefinition) -> Unit) : ButtonStrategy
+    }
+
+    private val watchers = WeakHashMap<EditText, TextWatcher>()
+
+    private fun EditText.replaceWatcher(action: (Editable?) -> Unit) {
+        watchers.remove(this)?.let { removeTextChangedListener(it) }
+        watchers[this] = doAfterTextChanged(action)
+    }
+
+    private fun resetWidgetListeners(view: View) {
+        view.findViewById<MaterialSwitch?>(R.id.switchSetting)?.setOnCheckedChangeListener(null)
+        view.findViewById<EditText?>(R.id.editTextNumber)?.apply {
+            onFocusChangeListener = null
+            setOnEditorActionListener(null)
+        }
     }
 
     fun createView(
@@ -62,6 +81,7 @@ class SettingViewFactory(
         val btnRemove = view.findViewById<ImageButton>(R.id.btnRemoveOverride)
         val btnUndo = view.findViewById<ImageButton>(R.id.btnUndo)
 
+        resetWidgetListeners(view)
         textName.text = view.context.getString(setting.displayNameResId)
         switch.isChecked = settings.getValue(setting.key) as? Boolean ?: false
 
@@ -136,6 +156,7 @@ class SettingViewFactory(
 
         val intKey = setting.intField.key
         val intDefault = setting.intField.defaultValue as? Int ?: 0
+        resetWidgetListeners(view)
         textName.text = view.context.getString(setting.displayNameResId)
 
         fun ensureIntDefault() {
@@ -154,8 +175,8 @@ class SettingViewFactory(
 
         var listenersActive = false
 
-        editText.doAfterTextChanged { s ->
-            if (!listenersActive) return@doAfterTextChanged
+        editText.replaceWatcher { s ->
+            if (!listenersActive) return@replaceWatcher
             settings.setValue(intKey, s?.toString()?.toIntOrNull() ?: intDefault)
             updateUndoVisibility(btnUndo, setting, settings)
         }
@@ -214,6 +235,7 @@ class SettingViewFactory(
 
         val usernameKey = setting.usernameField.key
         val passwordKey = setting.passwordField.key
+        resetWidgetListeners(view)
         textName.text = view.context.getString(setting.displayNameResId)
 
         fun syncUi() {
@@ -237,13 +259,13 @@ class SettingViewFactory(
         }
 
         syncUi()
-        editUsername.doAfterTextChanged { s ->
-            if (!listenersActive) return@doAfterTextChanged
+        editUsername.replaceWatcher { s ->
+            if (!listenersActive) return@replaceWatcher
             settings.setValue(usernameKey, s?.toString() ?: "")
             updateUndoVisibility(btnUndo, setting, settings)
         }
-        editPassword.doAfterTextChanged { s ->
-            if (!listenersActive) return@doAfterTextChanged
+        editPassword.replaceWatcher { s ->
+            if (!listenersActive) return@replaceWatcher
             settings.setValue(passwordKey, s?.toString() ?: "")
             updateUndoVisibility(btnUndo, setting, settings)
         }
