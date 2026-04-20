@@ -45,6 +45,7 @@ interface SessionHost {
     )
 
     fun loadURL(url: String)
+    fun dismissRedirectToFallback(fallback: String)
     fun showConnectionError(description: String, url: String)
     fun updateStatusBarColor(color: Int)
     fun findPeelAppMatches(url: String): List<WebApp>

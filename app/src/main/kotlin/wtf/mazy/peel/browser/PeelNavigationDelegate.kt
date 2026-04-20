@@ -69,10 +69,15 @@ class PeelNavigationDelegate(private val host: SessionHost) : GeckoSession.Navig
             val peelMatches = host.findPeelAppMatches(url)
             val isExternal = HostIdentity.affinity(host.baseUrl, url) <= HostIdentity.TLD_ONLY
 
+            if (isExternal && isExplicitDownload(url)) {
+                return GeckoResult.fromValue(AllowOrDeny.ALLOW)
+            }
+
             if (peelMatches.isNotEmpty() || isExternal) {
                 if (!externalMenuShowing) {
                     externalMenuShowing = true
                     val redirect = request.isRedirect
+                    val fallback = host.lastLoadedUrl.ifEmpty { host.baseUrl }
                     host.runOnUi {
                         host.showExternalLinkMenu(url) { result ->
                             externalMenuShowing = false
@@ -87,10 +92,7 @@ class PeelNavigationDelegate(private val host: SessionHost) : GeckoSession.Navig
                                 }
 
                                 ExternalLinkResult.DISMISSED -> {
-                                    if (redirect) {
-                                        val fallback = host.lastLoadedUrl.ifEmpty { host.baseUrl }
-                                        host.loadURL(fallback)
-                                    }
+                                    if (redirect) host.dismissRedirectToFallback(fallback)
                                 }
 
                                 is ExternalLinkResult.OpenInPeelApp -> {
@@ -170,5 +172,12 @@ class PeelNavigationDelegate(private val host: SessionHost) : GeckoSession.Navig
         if (url.length <= maxLen) return url
         val tail = 10
         return url.take(maxLen - tail - 1) + "…" + url.takeLast(tail)
+    }
+
+    private fun isExplicitDownload(url: String): Boolean {
+        val query = url.substringAfter('?', "").lowercase()
+        if (query.isEmpty()) return false
+        return "response-content-disposition=attachment" in query ||
+            "rscd=attachment" in query
     }
 }

@@ -516,11 +516,13 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
     }
 
     override fun loadURL(url: String) {
-        var finalUrl = url
-        if (url.startsWith("http://") && effectiveSettings.isAlwaysHttps == true) {
-            finalUrl = url.replaceFirst("http://", "https://")
-        }
+        val finalUrl = if (url.startsWith("http://") && effectiveSettings.isAlwaysHttps == true)
+            url.replaceFirst("http://", "https://") else url
         geckoSession?.loadUri(finalUrl)
+    }
+
+    override fun dismissRedirectToFallback(fallback: String) {
+        if (canGoBack) geckoSession?.goBack() else loadURL(fallback)
     }
 
     private fun showToast(message: String) {
