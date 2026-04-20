@@ -196,7 +196,7 @@
     <string name="setting_block_webrtc_ip_leak">Bloquear filtración IP por WebRTC</string>
     <string name="setting_tracker_protection">Protección contra rastreadores</string>
     <string name="tracker_protection_none">Ninguna</string>
-    <string name="tracker_protection_default">Predeterminado</string>
+    <string name="tracker_protection_default">Estándar</string>
     <string name="tracker_protection_strict">Estricto</string>
     <string name="setting_fingerprinting_protection">Protección contra huellas digitales</string>
     <string name="setting_global_privacy_control">Señal GPC</string>

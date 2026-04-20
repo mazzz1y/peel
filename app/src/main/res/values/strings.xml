@@ -178,7 +178,7 @@
     <string name="setting_disable_screenshots">Block screenshots</string>
     <string name="setting_tracker_protection">Tracker protection</string>
     <string name="tracker_protection_none">None</string>
-    <string name="tracker_protection_default">Default</string>
+    <string name="tracker_protection_default">Standard</string>
     <string name="tracker_protection_strict">Strict</string>
     <string name="setting_global_privacy_control">Global Privacy Control (GPC)</string>
     <string name="setting_fingerprinting_protection">Fingerprinting protection</string>

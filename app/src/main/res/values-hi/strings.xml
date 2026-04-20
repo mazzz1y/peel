@@ -197,7 +197,7 @@
     <string name="setting_block_webrtc_ip_leak">WebRTC IP लीक ब्लॉक करें</string>
     <string name="setting_tracker_protection">ट्रैकर सुरक्षा</string>
     <string name="tracker_protection_none">कोई नहीं</string>
-    <string name="tracker_protection_default">डिफ़ॉल्ट</string>
+    <string name="tracker_protection_default">मानक</string>
     <string name="tracker_protection_strict">सख्त</string>
     <string name="setting_fingerprinting_protection">फ़िंगरप्रिंटिंग सुरक्षा</string>
     <string name="setting_global_privacy_control">GPC सिग्नल</string>

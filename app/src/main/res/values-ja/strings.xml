@@ -196,7 +196,7 @@
     <string name="setting_block_webrtc_ip_leak">WebRTC IPリークをブロック</string>
     <string name="setting_tracker_protection">トラッカー保護</string>
     <string name="tracker_protection_none">なし</string>
-    <string name="tracker_protection_default">デフォルト</string>
+    <string name="tracker_protection_default">標準</string>
     <string name="tracker_protection_strict">厳格</string>
     <string name="setting_fingerprinting_protection">フィンガープリント防止</string>
     <string name="setting_global_privacy_control">GPCシグナル</string>

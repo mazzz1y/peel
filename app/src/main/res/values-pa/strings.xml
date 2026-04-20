@@ -196,7 +196,7 @@
     <string name="setting_block_webrtc_ip_leak">WebRTC IP ਲੀਕ ਬਲਾਕ</string>
     <string name="setting_tracker_protection">ਟ੍ਰੈਕਰ ਸੁਰੱਖਿਆ</string>
     <string name="tracker_protection_none">ਕੋਈ ਨਹੀਂ</string>
-    <string name="tracker_protection_default">ਡਿਫ਼ਾਲਟ</string>
+    <string name="tracker_protection_default">ਮਿਆਰੀ</string>
     <string name="tracker_protection_strict">ਸਖ਼ਤ</string>
     <string name="setting_fingerprinting_protection">ਫਿੰਗਰਪ੍ਰਿੰਟਿੰਗ ਸੁਰੱਖਿਆ</string>
     <string name="setting_global_privacy_control">GPC ਸਿਗਨਲ</string>

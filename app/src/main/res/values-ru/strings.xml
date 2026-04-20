@@ -199,7 +199,7 @@
     <string name="setting_block_webrtc_ip_leak">Блокировка утечки IP через WebRTC</string>
     <string name="setting_tracker_protection">Защита от трекеров</string>
     <string name="tracker_protection_none">Нет</string>
-    <string name="tracker_protection_default">По умолчанию</string>
+    <string name="tracker_protection_default">Стандарт</string>
     <string name="tracker_protection_strict">Строгий</string>
     <string name="setting_fingerprinting_protection">Защита от фингерпринтинга</string>
     <string name="setting_global_privacy_control">Сигнал GPC</string>

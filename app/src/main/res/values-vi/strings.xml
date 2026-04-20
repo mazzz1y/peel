@@ -196,7 +196,7 @@
     <string name="setting_block_webrtc_ip_leak">Chặn rò rỉ IP qua WebRTC</string>
     <string name="setting_tracker_protection">Bảo vệ chống theo dõi</string>
     <string name="tracker_protection_none">Không</string>
-    <string name="tracker_protection_default">Mặc định</string>
+    <string name="tracker_protection_default">Tiêu chuẩn</string>
     <string name="tracker_protection_strict">Nghiêm ngặt</string>
     <string name="setting_fingerprinting_protection">Bảo vệ chống dấu vân tay</string>
     <string name="setting_global_privacy_control">Tín hiệu GPC</string>

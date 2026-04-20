@@ -196,7 +196,7 @@
     <string name="setting_block_webrtc_ip_leak">封鎖 WebRTC IP 洩漏</string>
     <string name="setting_tracker_protection">追蹤器保護</string>
     <string name="tracker_protection_none">無</string>
-    <string name="tracker_protection_default">預設</string>
+    <string name="tracker_protection_default">標準</string>
     <string name="tracker_protection_strict">嚴格</string>
     <string name="setting_fingerprinting_protection">指紋保護</string>
     <string name="setting_global_privacy_control">GPC 訊號</string>
