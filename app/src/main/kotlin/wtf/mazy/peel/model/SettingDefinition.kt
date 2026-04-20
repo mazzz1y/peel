@@ -39,7 +39,7 @@ sealed class SettingDefinition(
         category: SettingCategory,
         globalOnly: Boolean = false,
         val values: IntArray,
-        @StringRes val labels: IntArray,
+        @param:StringRes val labels: IntArray,
     ) : SettingDefinition(toggle, displayNameResId, category, globalOnly) {
         init {
             require(values.size == labels.size) { "values and labels count must match" }
