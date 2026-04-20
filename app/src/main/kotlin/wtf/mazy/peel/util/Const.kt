@@ -1,9 +1,6 @@
 package wtf.mazy.peel.util
 
 object Const {
-    const val DESKTOP_USER_AGENT: String =
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:137.0) Gecko/20100101 Firefox/137.0"
-
     const val INTENT_WEBAPP_UUID: String = "webappUUID"
     const val INTENT_TARGET_URL: String = "target_url"
     const val INTENT_GROUP_UUID: String = "groupUUID"

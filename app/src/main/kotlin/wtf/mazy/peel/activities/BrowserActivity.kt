@@ -804,6 +804,10 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
                     userAgentMode(GeckoSessionSettings.USER_AGENT_MODE_DESKTOP)
                     viewportMode(GeckoSessionSettings.VIEWPORT_MODE_DESKTOP)
                 }
+                val customUa = settings.customUserAgent
+                if (settings.isUseCustomUserAgent == true && !customUa.isNullOrBlank()) {
+                    userAgentOverride(customUa)
+                }
                 if (contextId != null) contextId(contextId)
                 usePrivateMode(webapp.resolvePrivateMode())
             }

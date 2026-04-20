@@ -114,6 +114,8 @@
     <string name="create_shortcut">建立捷徑</string>
     <string name="create">建立</string>
     <string name="fill_background">填滿背景</string>
+    <string name="custom_user_agent">覆寫 User-Agent</string>
+    <string name="user_agent_hint">User-Agent 字串</string>
     <string name="back">返回</string>
     <string name="clone">複製</string>
     <string name="share">分享</string>

@@ -114,6 +114,8 @@
     <string name="create_shortcut">Criar atalho</string>
     <string name="create">Criar</string>
     <string name="fill_background">Preencher fundo</string>
+    <string name="custom_user_agent">Substituir user agent</string>
+    <string name="user_agent_hint">String do user agent</string>
     <string name="back">Voltar</string>
     <string name="clone">Clonar</string>
     <string name="share">Compartilhar</string>

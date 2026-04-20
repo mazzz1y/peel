@@ -114,6 +114,8 @@
     <string name="create_shortcut">ਸ਼ਾਰਟਕੱਟ ਬਣਾਓ</string>
     <string name="create">ਬਣਾਓ</string>
     <string name="fill_background">ਪਿਛੋਕੜ ਭਰੋ</string>
+    <string name="custom_user_agent">User-Agent ਓਵਰਰਾਈਡ ਕਰੋ</string>
+    <string name="user_agent_hint">User-Agent ਸਤਰ</string>
     <string name="back">ਪਿੱਛੇ</string>
     <string name="clone">ਕਲੋਨ</string>
     <string name="share">ਸਾਂਝਾ ਕਰੋ</string>

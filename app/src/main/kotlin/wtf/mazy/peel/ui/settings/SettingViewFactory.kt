@@ -56,6 +56,7 @@ class SettingViewFactory(
             is SettingDefinition.ChoiceSetting -> R.layout.item_setting_dropdown
             is SettingDefinition.BooleanWithIntSetting -> R.layout.item_setting_boolean_int
             is SettingDefinition.BooleanWithCredentialsSetting -> R.layout.item_setting_boolean_credentials
+            is SettingDefinition.BooleanWithStringSetting -> R.layout.item_setting_boolean_string
         }
         val view = inflater.inflate(layoutRes, container, false)
         bindView(view, setting, settings)
@@ -68,6 +69,7 @@ class SettingViewFactory(
             is SettingDefinition.ChoiceSetting -> setupDropdown(view, setting, settings)
             is SettingDefinition.BooleanWithIntSetting -> setupBooleanWithInt(view, setting, settings)
             is SettingDefinition.BooleanWithCredentialsSetting -> setupBooleanWithCredentials(view, setting, settings)
+            is SettingDefinition.BooleanWithStringSetting -> setupBooleanWithString(view, setting, settings)
         }
     }
 
@@ -267,6 +269,57 @@ class SettingViewFactory(
         editPassword.replaceWatcher { s ->
             if (!listenersActive) return@replaceWatcher
             settings.setValue(passwordKey, s?.toString() ?: "")
+            updateUndoVisibility(btnUndo, setting, settings)
+        }
+        switch.setOnCheckedChangeListener(switchListener)
+        listenersActive = true
+
+        configureButtons(btnRemove, btnUndo, setting, settings) {
+            listenersActive = false
+            syncUi()
+            listenersActive = true
+        }
+    }
+
+    private fun setupBooleanWithString(
+        view: View,
+        setting: SettingDefinition.BooleanWithStringSetting,
+        settings: WebAppSettings,
+    ) {
+        val textName = view.findViewById<TextView>(R.id.textSettingName)
+        val switch = view.findViewById<MaterialSwitch>(R.id.switchSetting)
+        val btnRemove = view.findViewById<ImageButton>(R.id.btnRemoveOverride)
+        val btnUndo = view.findViewById<ImageButton>(R.id.btnUndo)
+        val layout = view.findViewById<View>(R.id.layoutUserAgentInput)
+        val editText = view.findViewById<TextInputEditText>(R.id.editUserAgent)
+
+        val stringKey = setting.stringField.key
+        resetWidgetListeners(view)
+        textName.text = view.context.getString(setting.displayNameResId)
+
+        fun syncUi() {
+            val boolVal = settings.getValue(setting.key) as? Boolean ?: false
+            switch.isChecked = boolVal
+            editText.setText(settings.getValue(stringKey) as? String ?: "")
+            layout.visibility = if (boolVal) View.VISIBLE else View.GONE
+            updateUndoVisibility(btnUndo, setting, settings)
+        }
+
+        var listenersActive = false
+
+        val switchListener = { _: CompoundButton?, isChecked: Boolean ->
+            if (listenersActive) {
+                settings.setValue(setting.key, isChecked)
+                layout.visibility = if (isChecked) View.VISIBLE else View.GONE
+                if (isChecked) editText.post { editText.requestFocus() }
+                updateUndoVisibility(btnUndo, setting, settings)
+            }
+        }
+
+        syncUi()
+        editText.replaceWatcher { s ->
+            if (!listenersActive) return@replaceWatcher
+            settings.setValue(stringKey, s?.toString() ?: "")
             updateUndoVisibility(btnUndo, setting, settings)
         }
         switch.setOnCheckedChangeListener(switchListener)

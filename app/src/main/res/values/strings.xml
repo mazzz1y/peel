@@ -128,6 +128,8 @@
     <string name="create_shortcut">Create shortcut</string>
     <string name="create">Create</string>
     <string name="fill_background">Fill background</string>
+    <string name="custom_user_agent">Override User-Agent</string>
+    <string name="user_agent_hint">User agent string</string>
     <string name="untitled_shortcut">Unknown</string>
     <string name="back">Back</string>
     <string name="clone">Clone</string>

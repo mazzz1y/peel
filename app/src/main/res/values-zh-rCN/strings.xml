@@ -114,6 +114,8 @@
     <string name="create_shortcut">创建快捷方式</string>
     <string name="create">创建</string>
     <string name="fill_background">填充背景</string>
+    <string name="custom_user_agent">覆盖 User-Agent</string>
+    <string name="user_agent_hint">User-Agent 字符串</string>
     <string name="back">返回</string>
     <string name="clone">克隆</string>
     <string name="share">分享</string>

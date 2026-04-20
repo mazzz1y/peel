@@ -114,6 +114,8 @@
     <string name="create_shortcut">শর্টকাট তৈরি করুন</string>
     <string name="create">তৈরি করুন</string>
     <string name="fill_background">পটভূমি পূরণ করুন</string>
+    <string name="custom_user_agent">User-Agent ওভাররাইড করুন</string>
+    <string name="user_agent_hint">User-Agent স্ট্রিং</string>
     <string name="back">পেছনে</string>
     <string name="clone">ক্লোন</string>
     <string name="share">শেয়ার</string>

@@ -37,6 +37,8 @@ data class WebAppSettings(
     var isUseBasicAuth: Boolean? = null,
     var basicAuthUsername: String? = null,
     var basicAuthPassword: String? = null,
+    var isUseCustomUserAgent: Boolean? = null,
+    var customUserAgent: String? = null,
 ) {
     companion object {
         const val PERMISSION_OFF = 0
@@ -143,6 +145,20 @@ data class WebAppSettings(
                             setValue(setting.key, null)
                             setValue(setting.usernameField.key, null)
                             setValue(setting.passwordField.key, null)
+                        } else {
+                            setValue(setting.key, false)
+                        }
+                    }
+                }
+
+                is SettingDefinition.BooleanWithStringSetting -> {
+                    val enabled = getValue(setting.key) as? Boolean ?: false
+                    if (!enabled) continue
+                    val value = (getValue(setting.stringField.key) as? String).orEmpty()
+                    if (value.isEmpty()) {
+                        if (asOverride) {
+                            setValue(setting.key, null)
+                            setValue(setting.stringField.key, null)
                         } else {
                             setValue(setting.key, false)
                         }

@@ -88,6 +88,16 @@ sealed class SettingDefinition(
         override val allFields
             get() = listOf(primaryField, usernameField, passwordField)
     }
+
+    class BooleanWithStringSetting(
+        toggle: SettingField,
+        @StringRes displayNameResId: Int,
+        category: SettingCategory,
+        val stringField: SettingField,
+    ) : SettingDefinition(toggle, displayNameResId, category) {
+        override val allFields
+            get() = listOf(primaryField, stringField)
+    }
 }
 
 enum class SettingCategory(@param:StringRes val displayNameResId: Int) {
@@ -113,6 +123,8 @@ object ApplyTimingRegistry {
         "isLongClickShare",
         "isDynamicStatusBar",
         "isAllowMediaPlaybackInBackground",
+        "isUseCustomUserAgent",
+        "customUserAgent",
     )
 
     private val PEEL_RESTART_KEYS = setOf(
@@ -341,6 +353,12 @@ object SettingRegistry {
                 SettingCategory.ADVANCED,
                 usernameField = SettingField(WebAppSettings::basicAuthUsername, ""),
                 passwordField = SettingField(WebAppSettings::basicAuthPassword, ""),
+            ),
+            SettingDefinition.BooleanWithStringSetting(
+                SettingField(WebAppSettings::isUseCustomUserAgent, false),
+                R.string.custom_user_agent,
+                SettingCategory.ADVANCED,
+                stringField = SettingField(WebAppSettings::customUserAgent, ""),
             ),
             SettingDefinition.BooleanSetting(
                 SettingField(WebAppSettings::isDisableQuic, false),

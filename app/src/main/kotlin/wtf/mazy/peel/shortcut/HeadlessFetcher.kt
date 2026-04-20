@@ -74,6 +74,7 @@ class HeadlessFetcher(
     private val handler = Handler(Looper.getMainLooper())
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     private var desktopMode = false
+    private var customUserAgent: String? = null
     private var finished = false
     private var geckoView: GeckoView? = null
     private var geckoSession: GeckoSession? = null
@@ -85,6 +86,7 @@ class HeadlessFetcher(
 
     fun start() {
         desktopMode = settings.isRequestDesktop == true
+        customUserAgent = if (settings.isUseCustomUserAgent == true) settings.customUserAgent else null
 
         var loadUrl = url
         if (loadUrl.startsWith("http://") && settings.isAlwaysHttps == true)
@@ -121,6 +123,10 @@ class HeadlessFetcher(
                     if (desktopMode) {
                         userAgentMode(GeckoSessionSettings.USER_AGENT_MODE_DESKTOP)
                         viewportMode(GeckoSessionSettings.VIEWPORT_MODE_DESKTOP)
+                    }
+                    val customUa = customUserAgent
+                    if (!customUa.isNullOrBlank()) {
+                        userAgentOverride(customUa)
                     }
                     if (contextId != null) contextId(contextId)
                     usePrivateMode(usePrivateMode)

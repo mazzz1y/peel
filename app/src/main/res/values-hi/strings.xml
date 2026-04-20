@@ -114,6 +114,8 @@
     <string name="create_shortcut">शॉर्टकट बनाएं</string>
     <string name="create">बनाएं</string>
     <string name="fill_background">पृष्ठभूमि भरें</string>
+    <string name="custom_user_agent">User-Agent ओवरराइड करें</string>
+    <string name="user_agent_hint">User-Agent स्ट्रिंग</string>
     <string name="back">पीछे</string>
     <string name="clone">क्लोन</string>
     <string name="share">साझा करें</string>

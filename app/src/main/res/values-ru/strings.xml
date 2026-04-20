@@ -114,6 +114,8 @@
     <string name="create_shortcut">Создать ярлык</string>
     <string name="create">Создать</string>
     <string name="fill_background">Залить фон</string>
+    <string name="custom_user_agent">Переопределить User-Agent</string>
+    <string name="user_agent_hint">Строка User-Agent</string>
     <string name="back">Назад</string>
     <string name="clone">Клонировать</string>
     <string name="share">Поделиться</string>

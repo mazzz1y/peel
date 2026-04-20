@@ -74,6 +74,8 @@
     <string name="create_shortcut">Verknüpfung erstellen</string>
     <string name="create">Erstellen</string>
     <string name="fill_background">Hintergrund füllen</string>
+    <string name="custom_user_agent">User-Agent überschreiben</string>
+    <string name="user_agent_hint">User-Agent-Zeichenkette</string>
     <string name="back">Zurück</string>
     <string name="share">Teilen</string>
     <string name="bioprompt_restricted_webapp">Zugriffsbeschränkung</string>

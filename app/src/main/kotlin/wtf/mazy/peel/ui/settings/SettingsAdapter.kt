@@ -22,6 +22,7 @@ class SettingsAdapter(
             is SettingDefinition.ChoiceSetting -> TYPE_DROPDOWN
             is SettingDefinition.BooleanWithIntSetting -> TYPE_BOOLEAN_INT
             is SettingDefinition.BooleanWithCredentialsSetting -> TYPE_BOOLEAN_CREDENTIALS
+            is SettingDefinition.BooleanWithStringSetting -> TYPE_BOOLEAN_STRING
         }
     }
 
@@ -34,6 +35,7 @@ class SettingsAdapter(
             TYPE_DROPDOWN -> R.layout.item_setting_dropdown
             TYPE_BOOLEAN_INT -> R.layout.item_setting_boolean_int
             TYPE_BOOLEAN_CREDENTIALS -> R.layout.item_setting_boolean_credentials
+            TYPE_BOOLEAN_STRING -> R.layout.item_setting_boolean_string
             else -> error("Unknown view type $viewType")
         }
         val view = inflater.inflate(layoutRes, parent, false)
@@ -59,5 +61,6 @@ class SettingsAdapter(
         private const val TYPE_DROPDOWN = 3
         private const val TYPE_BOOLEAN_INT = 4
         private const val TYPE_BOOLEAN_CREDENTIALS = 5
+        private const val TYPE_BOOLEAN_STRING = 6
     }
 }

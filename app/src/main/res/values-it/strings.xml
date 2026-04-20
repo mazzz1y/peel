@@ -74,6 +74,8 @@
     <string name="create_shortcut">Crea scorciatoia</string>
     <string name="create">Crea</string>
     <string name="fill_background">Riempi sfondo</string>
+    <string name="custom_user_agent">Sovrascrivi user agent</string>
+    <string name="user_agent_hint">Stringa user agent</string>
     <string name="back">Indietro</string>
     <string name="share">Condividi</string>
     <string name="bioprompt_restricted_webapp">Restrizione di accesso</string>
