@@ -325,9 +325,21 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
             webappUuid = uuid,
             onHome = { loadURL(webapp.baseUrl) },
             onReload = ::reloadCurrentPage,
+            onShare = { shareCurrentUrl() },
             onExtensions = if (SessionExtensionActions.hasExtensions)
                 ({ ExtensionPickerDialog.show(this, sessionExtensionActions) }) else null,
-            getCurrentUrl = { currentUrl },
+        )
+    }
+
+    private fun shareCurrentUrl() {
+        startActivity(
+            Intent.createChooser(
+                Intent(Intent.ACTION_SEND).apply {
+                    type = "text/plain"
+                    putExtra(Intent.EXTRA_TEXT, currentUrl)
+                },
+                null,
+            ),
         )
     }
 

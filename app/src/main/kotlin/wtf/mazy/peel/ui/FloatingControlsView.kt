@@ -1,13 +1,17 @@
 package wtf.mazy.peel.ui
 
 import android.annotation.SuppressLint
-import android.content.Intent
 import android.content.SharedPreferences
+import android.graphics.Outline
 import android.view.MotionEvent
 import android.view.View
+import android.view.ViewConfiguration
+import android.view.ViewOutlineProvider
 import android.widget.FrameLayout
 import android.widget.ImageButton
+import androidx.annotation.DrawableRes
 import androidx.appcompat.view.ContextThemeWrapper
+import androidx.core.content.ContextCompat
 import androidx.core.content.edit
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -39,28 +43,41 @@ private class FloatingButtonPrefs(webappUuid: String, parent: FrameLayout) {
 class FloatingControlsView(
     private val parent: FrameLayout,
     webappUuid: String,
-    private val onHome: () -> Unit,
-    private val onReload: () -> Unit,
-    private val onExtensions: (() -> Unit)? = null,
-    private val getCurrentUrl: () -> String,
+    onHome: () -> Unit,
+    onReload: () -> Unit,
+    onShare: () -> Unit,
+    onExtensions: (() -> Unit)? = null,
 ) {
+    private data class Action(@DrawableRes val iconRes: Int, val onClick: () -> Unit)
+
     private val buttonPrefs = FloatingButtonPrefs(webappUuid, parent)
     private val themedContext =
         ContextThemeWrapper(parent.context, R.style.ThemeOverlay_App_FloatingControls)
     private val density = parent.resources.displayMetrics.density
-    private val buttonSizePx = (40 * density).toInt()
-    private val gapPx = (8 * density).toInt()
+    private val buttonSizePx = (BUTTON_SIZE_DP * density).toInt()
+    private val gapPx = (BUTTON_GAP_DP * density).toInt()
     private val stepPx = buttonSizePx + gapPx
-    private val marginPx = (8 * density).toInt()
+    private val marginPx = (EDGE_MARGIN_DP * density).toInt()
+    private val shadowColor =
+        ContextCompat.getColor(parent.context, R.color.floating_controls_shadow)
+
+    private val actions = buildList {
+        add(Action(R.drawable.ic_symbols_home_24, onHome))
+        add(Action(R.drawable.ic_symbols_share_24, onShare))
+        add(Action(R.drawable.ic_symbols_refresh_24, onReload))
+        onExtensions?.let { add(Action(R.drawable.ic_symbols_extension_24, it)) }
+    }
 
     private val trigger = createButton(R.drawable.ic_symbols_more_vert_24)
-    private val actionButtons = buildList {
-        add(createButton(R.drawable.ic_symbols_home_24))
-        add(createButton(R.drawable.ic_symbols_share_24))
-        add(createButton(R.drawable.ic_symbols_refresh_24))
-        if (onExtensions != null) add(createButton(R.drawable.ic_symbols_extension_24))
+    private val actionButtons = actions.map { action ->
+        createButton(action.iconRes).apply {
+            setOnClickListener { collapse(); action.onClick() }
+        }
     }
     private val allViews = actionButtons + trigger
+
+    private var statusInsetTopCached = 0
+    private var navInsetBottomCached = 0
 
     private val layoutChangeListener =
         View.OnLayoutChangeListener { _, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
@@ -77,30 +94,39 @@ class FloatingControlsView(
     private var touchStartY = 0f
     private var triggerStartX = 0f
     private var triggerStartY = 0f
-    private val statusInsetTop: Int
-        get() = ViewCompat.getRootWindowInsets(parent)
-            ?.getInsets(WindowInsetsCompat.Type.statusBars())?.top ?: 0
-    private val navInsetBottom: Int
-        get() = ViewCompat.getRootWindowInsets(parent)
-            ?.getInsets(WindowInsetsCompat.Type.navigationBars())?.bottom ?: 0
+    private var animationGen = 0L
 
     init {
+        refreshInsets()
+        ViewCompat.setOnApplyWindowInsetsListener(parent) { _, insets ->
+            val sys = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            statusInsetTopCached = sys.top
+            navInsetBottomCached = sys.bottom
+            insets
+        }
         actionButtons.forEach { btn ->
             btn.alpha = 0f
             btn.visibility = View.GONE
             parent.addView(btn)
         }
         parent.addView(trigger)
-        setupTouchHandling()
-        setupActions()
+        setupTriggerGesture()
         trigger.post { applyPosition() }
         parent.addOnLayoutChangeListener(layoutChangeListener)
     }
 
     fun remove() {
         savePosition()
+        ViewCompat.setOnApplyWindowInsetsListener(parent, null)
         parent.removeOnLayoutChangeListener(layoutChangeListener)
         allViews.forEach { parent.removeView(it) }
+    }
+
+    private fun refreshInsets() {
+        val insets = ViewCompat.getRootWindowInsets(parent) ?: return
+        val sys = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+        statusInsetTopCached = sys.top
+        navInsetBottomCached = sys.bottom
     }
 
     private fun createButton(iconRes: Int): ImageButton {
@@ -109,15 +135,21 @@ class FloatingControlsView(
             setBackgroundResource(R.drawable.fab_circle_bg)
             setImageResource(iconRes)
             scaleType = android.widget.ImageView.ScaleType.CENTER_INSIDE
-            elevation = 12 * density
+            elevation = ELEVATION_DP * density
+            outlineProvider = CircleOutlineProvider
+            clipToOutline = true
+            outlineAmbientShadowColor = shadowColor
+            outlineSpotShadowColor = shadowColor
         }
     }
 
     @SuppressLint("ClickableViewAccessibility")
-    private fun setupTouchHandling() {
-        val dragThreshold = 10 * density
+    private fun setupTriggerGesture() {
+        val dragThreshold = ViewConfiguration.get(themedContext).scaledTouchSlop.toFloat()
 
-        trigger.setOnTouchListener { _, event ->
+        trigger.setOnClickListener { toggle() }
+
+        trigger.setOnTouchListener { v, event ->
             when (event.actionMasked) {
                 MotionEvent.ACTION_DOWN -> {
                     isDragging = false
@@ -142,7 +174,7 @@ class FloatingControlsView(
                 }
 
                 MotionEvent.ACTION_UP -> {
-                    if (isDragging) savePosition() else toggle()
+                    if (isDragging) savePosition() else v.performClick()
                     true
                 }
 
@@ -152,29 +184,9 @@ class FloatingControlsView(
         }
     }
 
-    private fun setupActions() {
-        actionButtons[0].setOnClickListener { collapse(); onHome() }
-        actionButtons[1].setOnClickListener {
-            collapse()
-            parent.context.startActivity(
-                Intent.createChooser(
-                    Intent(Intent.ACTION_SEND).apply {
-                        type = "text/plain"
-                        putExtra(Intent.EXTRA_TEXT, getCurrentUrl())
-                    },
-                    null,
-                ),
-            )
-        }
-        actionButtons[2].setOnClickListener { collapse(); onReload() }
-        if (onExtensions != null && actionButtons.size > 3) {
-            actionButtons[3].setOnClickListener { collapse(); onExtensions.invoke() }
-        }
-    }
-
     private fun applyPosition() {
         val (x, y) = buttonPrefs.load()?.let { (fx, fy) -> fx * parent.width to fy * parent.height }
-            ?: ((parent.width - buttonSizePx - marginPx).toFloat() to parent.height * 0.25f)
+            ?: ((parent.width - buttonSizePx - marginPx).toFloat() to parent.height * DEFAULT_Y_FRACTION)
         moveTriggerTo(x, y)
     }
 
@@ -186,8 +198,8 @@ class FloatingControlsView(
     private fun moveTriggerTo(x: Float, y: Float) {
         trigger.x = x.coerceIn(0f, (parent.width - buttonSizePx).toFloat())
         trigger.y = y.coerceIn(
-            statusInsetTop.toFloat(),
-            (parent.height - navInsetBottom - buttonSizePx).toFloat(),
+            statusInsetTopCached.toFloat(),
+            (parent.height - navInsetBottomCached - buttonSizePx).toFloat(),
         )
     }
 
@@ -195,10 +207,10 @@ class FloatingControlsView(
         if (expanded) collapse() else expand()
     }
 
-    private fun isInTopHalf(): Boolean {
+    private fun shouldExpandDown(): Boolean {
         val requiredSpace = stepPx * actionButtons.size
-        val spaceAbove = trigger.y - statusInsetTop
-        val spaceBelow = parent.height - navInsetBottom - (trigger.y + buttonSizePx)
+        val spaceAbove = trigger.y - statusInsetTopCached
+        val spaceBelow = parent.height - navInsetBottomCached - (trigger.y + buttonSizePx)
         val preferDown = trigger.y + buttonSizePx / 2f < parent.height / 2f
         if (preferDown && spaceBelow >= requiredSpace) return true
         if (!preferDown && spaceAbove >= requiredSpace) return false
@@ -216,24 +228,46 @@ class FloatingControlsView(
     }
 
     private fun expand() {
+        animationGen++
         expanded = true
-        expandDown = isInTopHalf()
+        expandDown = shouldExpandDown()
         positionActions()
 
         actionButtons.forEach { btn ->
+            btn.animate().cancel()
             btn.visibility = View.VISIBLE
-            btn.alpha = 0f
-            btn.animate().alpha(1f).setDuration(150).start()
+            btn.animate().alpha(1f).setDuration(ANIM_DURATION_MS).withEndAction(null).start()
         }
-        trigger.animate().rotation(90f).setDuration(150).start()
+        trigger.animate().cancel()
+        trigger.animate().rotation(TRIGGER_EXPAND_ROTATION).setDuration(ANIM_DURATION_MS).start()
     }
 
     private fun collapse() {
+        val gen = ++animationGen
         expanded = false
         actionButtons.forEach { btn ->
-            btn.animate().alpha(0f).setDuration(150).withEndAction { btn.visibility = View.GONE }
-                .start()
+            btn.animate().cancel()
+            btn.animate().alpha(0f).setDuration(ANIM_DURATION_MS).withEndAction {
+                if (gen == animationGen) btn.visibility = View.GONE
+            }.start()
         }
-        trigger.animate().rotation(0f).setDuration(150).start()
+        trigger.animate().cancel()
+        trigger.animate().rotation(0f).setDuration(ANIM_DURATION_MS).start()
+    }
+
+    private companion object {
+        const val BUTTON_SIZE_DP = 40
+        const val BUTTON_GAP_DP = 8
+        const val EDGE_MARGIN_DP = 8
+        const val ELEVATION_DP = 8
+        const val ANIM_DURATION_MS = 150L
+        const val DEFAULT_Y_FRACTION = 0.25f
+        const val TRIGGER_EXPAND_ROTATION = 90f
+
+        val CircleOutlineProvider = object : ViewOutlineProvider() {
+            override fun getOutline(view: View, outline: Outline) {
+                outline.setOval(0, 0, view.width, view.height)
+            }
+        }
     }
 }
