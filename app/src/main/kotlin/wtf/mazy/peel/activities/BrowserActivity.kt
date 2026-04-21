@@ -621,6 +621,10 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
         }
     }
 
+    override fun openExtensionPage(url: String) {
+        startActivity(ExtensionPageActivity.intentForUrl(this, url, ""))
+    }
+
     override fun startExternalIntent(uri: Uri) {
         val url = uri.toString()
         val intent = buildIntentForUrl(url)

@@ -41,6 +41,11 @@ class PeelNavigationDelegate(private val host: SessionHost) : GeckoSession.Navig
             return GeckoResult.fromValue(AllowOrDeny.DENY)
         }
 
+        if (url.startsWith("moz-extension://")) {
+            host.runOnUi { host.openExtensionPage(url) }
+            return GeckoResult.fromValue(AllowOrDeny.DENY)
+        }
+
         if (!url.startsWith("http://") &&
             !url.startsWith("https://") &&
             !url.startsWith("file://") &&

@@ -55,6 +55,7 @@ interface SessionHost {
     )
 
     fun startExternalIntent(uri: Uri)
+    fun openExtensionPage(url: String)
     fun showPermissionDialog(message: CharSequence, onResult: (PermissionResult) -> Unit)
 
     val themeBackgroundColor: Int
