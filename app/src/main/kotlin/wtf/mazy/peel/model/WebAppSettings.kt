@@ -39,6 +39,8 @@ data class WebAppSettings(
     var basicAuthPassword: String? = null,
     var isUseCustomUserAgent: Boolean? = null,
     var customUserAgent: String? = null,
+    var isUseCustomLocale: Boolean? = null,
+    var customLocale: String? = null,
 ) {
     companion object {
         const val PERMISSION_OFF = 0

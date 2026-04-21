@@ -116,6 +116,8 @@
     <string name="fill_background">Tô nền</string>
     <string name="custom_user_agent">Ghi đè User-Agent</string>
     <string name="user_agent_hint">Chuỗi User-Agent</string>
+    <string name="custom_locale">Ghi đè locale</string>
+    <string name="custom_locale_hint">ví dụ: en-US, fr</string>
     <string name="back">Quay lại</string>
     <string name="clone">Nhân bản</string>
     <string name="share">Chia sẻ</string>

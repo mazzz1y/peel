@@ -290,12 +290,13 @@ class SettingViewFactory(
         val switch = view.findViewById<MaterialSwitch>(R.id.switchSetting)
         val btnRemove = view.findViewById<ImageButton>(R.id.btnRemoveOverride)
         val btnUndo = view.findViewById<ImageButton>(R.id.btnUndo)
-        val layout = view.findViewById<View>(R.id.layoutUserAgentInput)
-        val editText = view.findViewById<TextInputEditText>(R.id.editUserAgent)
+        val layout = view.findViewById<View>(R.id.layoutStringInput)
+        val editText = view.findViewById<TextInputEditText>(R.id.editStringValue)
 
         val stringKey = setting.stringField.key
         resetWidgetListeners(view)
         textName.text = view.context.getString(setting.displayNameResId)
+        editText.hint = view.context.getString(setting.hintResId)
 
         fun syncUi() {
             val boolVal = settings.getValue(setting.key) as? Boolean ?: false

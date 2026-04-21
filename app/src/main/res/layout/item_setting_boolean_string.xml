@@ -42,7 +42,7 @@
     </LinearLayout>
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/layoutUserAgentInput"
+        android:id="@+id/layoutStringInput"
         style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -51,10 +51,9 @@
         app:hintEnabled="false">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/editUserAgent"
+            android:id="@+id/editStringValue"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/user_agent_hint"
             android:inputType="textNoSuggestions"
             android:maxLines="3" />
 

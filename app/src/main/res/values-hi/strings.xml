@@ -116,6 +116,8 @@
     <string name="fill_background">पृष्ठभूमि भरें</string>
     <string name="custom_user_agent">User-Agent ओवरराइड करें</string>
     <string name="user_agent_hint">User-Agent स्ट्रिंग</string>
+    <string name="custom_locale">लोकेल ओवरराइड करें</string>
+    <string name="custom_locale_hint">उदा. en-US, fr</string>
     <string name="back">पीछे</string>
     <string name="clone">क्लोन</string>
     <string name="share">साझा करें</string>

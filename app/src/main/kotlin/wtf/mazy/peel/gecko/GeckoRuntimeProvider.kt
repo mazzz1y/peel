@@ -204,6 +204,9 @@ object GeckoRuntimeProvider {
                     .cookieBehavior(ContentBlocking.CookieBehavior.ACCEPT_FIRST_PARTY)
                     .build()
             )
+        if (defaults.isUseCustomLocale == true) {
+            parseLocales(defaults.customLocale)?.let { builder.locales(it) }
+        }
         writeGeckoConfig(context, defaults)?.let { builder.configFilePath(it) }
         val rt = GeckoRuntime.create(context, builder.build())
         rt.settings.setFingerprintingProtection(defaults.isFingerprintingProtection == true)
@@ -211,6 +214,11 @@ object GeckoRuntimeProvider {
     }
 
     private fun pref(key: String, value: Any) = "  $key: $value"
+
+    private fun parseLocales(raw: String?): Array<String>? {
+        val list = raw?.split(',')?.mapNotNull { it.trim().takeIf(String::isNotEmpty) }.orEmpty()
+        return list.takeIf { it.isNotEmpty() }?.toTypedArray()
+    }
 
     private fun writeGeckoConfig(
         context: Context,

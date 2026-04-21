@@ -130,6 +130,8 @@
     <string name="fill_background">Fill background</string>
     <string name="custom_user_agent">Override User-Agent</string>
     <string name="user_agent_hint">User agent string</string>
+    <string name="custom_locale">Override locale</string>
+    <string name="custom_locale_hint">e.g. en-US, fr</string>
     <string name="untitled_shortcut">Unknown</string>
     <string name="back">Back</string>
     <string name="clone">Clone</string>

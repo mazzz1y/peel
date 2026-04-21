@@ -116,6 +116,8 @@
     <string name="fill_background">背景を塗る</string>
     <string name="custom_user_agent">User-Agent を上書き</string>
     <string name="user_agent_hint">User-Agent 文字列</string>
+    <string name="custom_locale">ロケールを上書き</string>
+    <string name="custom_locale_hint">例: en-US, fr</string>
     <string name="back">戻る</string>
     <string name="clone">複製</string>
     <string name="share">共有</string>

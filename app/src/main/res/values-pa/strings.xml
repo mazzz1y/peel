@@ -116,6 +116,8 @@
     <string name="fill_background">ਪਿਛੋਕੜ ਭਰੋ</string>
     <string name="custom_user_agent">User-Agent ਓਵਰਰਾਈਡ ਕਰੋ</string>
     <string name="user_agent_hint">User-Agent ਸਤਰ</string>
+    <string name="custom_locale">ਲੋਕੇਲ ਓਵਰਰਾਈਡ ਕਰੋ</string>
+    <string name="custom_locale_hint">ਉਦਾ. en-US, fr</string>
     <string name="back">ਪਿੱਛੇ</string>
     <string name="clone">ਕਲੋਨ</string>
     <string name="share">ਸਾਂਝਾ ਕਰੋ</string>

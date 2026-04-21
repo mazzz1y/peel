@@ -94,7 +94,9 @@ sealed class SettingDefinition(
         @StringRes displayNameResId: Int,
         category: SettingCategory,
         val stringField: SettingField,
-    ) : SettingDefinition(toggle, displayNameResId, category) {
+        @param:StringRes val hintResId: Int,
+        globalOnly: Boolean = false,
+    ) : SettingDefinition(toggle, displayNameResId, category, globalOnly) {
         override val allFields
             get() = listOf(primaryField, stringField)
     }
@@ -134,6 +136,8 @@ object ApplyTimingRegistry {
         "isBlockLocalNetwork",
         "isBlockWebRtcIpLeak",
         "isDisableQuic",
+        "isUseCustomLocale",
+        "customLocale",
     )
 
     fun getTiming(key: String): ApplyTiming = when (key) {
@@ -359,6 +363,15 @@ object SettingRegistry {
                 R.string.custom_user_agent,
                 SettingCategory.ADVANCED,
                 stringField = SettingField(WebAppSettings::customUserAgent, ""),
+                hintResId = R.string.user_agent_hint,
+            ),
+            SettingDefinition.BooleanWithStringSetting(
+                SettingField(WebAppSettings::isUseCustomLocale, false),
+                R.string.custom_locale,
+                SettingCategory.ADVANCED,
+                stringField = SettingField(WebAppSettings::customLocale, ""),
+                hintResId = R.string.custom_locale_hint,
+                globalOnly = true,
             ),
             SettingDefinition.BooleanSetting(
                 SettingField(WebAppSettings::isDisableQuic, false),

@@ -9,7 +9,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(
     entities = [WebAppEntity::class, WebAppGroupEntity::class],
-    version = 13,
+    version = 14,
     exportSchema = true,
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -167,6 +167,8 @@ abstract class AppDatabase : RoomDatabase() {
             "basicAuthPassword" to "TEXT",
             "isUseCustomUserAgent" to "INTEGER",
             "customUserAgent" to "TEXT",
+            "isUseCustomLocale" to "INTEGER",
+            "customLocale" to "TEXT",
         )
 
         private val SETTINGS_COLS =
@@ -354,6 +356,13 @@ abstract class AppDatabase : RoomDatabase() {
                 }
             }
 
+        val MIGRATION_13_14 =
+            object : Migration(13, 14) {
+                override fun migrate(db: SupportSQLiteDatabase) {
+                    ensureSettingsColumns(db)
+                }
+            }
+
         fun getInstance(context: Context): AppDatabase {
             return instance
                 ?: synchronized(this) { instance ?: buildDatabase(context).also { instance = it } }
@@ -378,6 +387,7 @@ abstract class AppDatabase : RoomDatabase() {
                     MIGRATION_10_11,
                     MIGRATION_11_12,
                     MIGRATION_12_13,
+                    MIGRATION_13_14,
                 )
                 .allowMainThreadQueries()
                 .build()

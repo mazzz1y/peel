@@ -75,6 +75,8 @@
     <string name="fill_background">Rellenar fondo</string>
     <string name="custom_user_agent">Anular user agent</string>
     <string name="user_agent_hint">Cadena del user agent</string>
+    <string name="custom_locale">Anular configuración regional</string>
+    <string name="custom_locale_hint">ej. en-US, fr</string>
     <string name="back">Volver</string>
     <string name="share">Compartir</string>
     <string name="bioprompt_restricted_webapp">Restricción de acceso</string>

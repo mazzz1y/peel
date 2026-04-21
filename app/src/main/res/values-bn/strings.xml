@@ -116,6 +116,8 @@
     <string name="fill_background">পটভূমি পূরণ করুন</string>
     <string name="custom_user_agent">User-Agent ওভাররাইড করুন</string>
     <string name="user_agent_hint">User-Agent স্ট্রিং</string>
+    <string name="custom_locale">লোকেল ওভাররাইড করুন</string>
+    <string name="custom_locale_hint">যেমন en-US, fr</string>
     <string name="back">পেছনে</string>
     <string name="clone">ক্লোন</string>
     <string name="share">শেয়ার</string>
