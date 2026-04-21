@@ -5,13 +5,12 @@ import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.launch
 import wtf.mazy.peel.R
 import wtf.mazy.peel.gecko.GeckoRuntimeProvider
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.WebApp
-import wtf.mazy.peel.ui.ListPickerAdapter
+import wtf.mazy.peel.ui.PickerDialog
 import wtf.mazy.peel.util.BrowserLauncher
 import wtf.mazy.peel.util.Const
 
@@ -56,15 +55,22 @@ class TrampolineActivity : AppCompatActivity() {
     }
 
     private fun showPickerDialog(title: String, apps: List<WebApp>) {
-        val adapter = ListPickerAdapter(apps) { webapp, icon, name, detail ->
+        PickerDialog.show(
+            activity = this,
+            title = title,
+            items = apps,
+            onPick = { webapp ->
+                BrowserLauncher.launch(webapp, this)
+                finish()
+            },
+            configure = {
+                setOnCancelListener { finish() }
+                setOnDismissListener { finish() }
+            },
+        ) { webapp, icon, name, detail ->
             name.text = webapp.title
             icon.setImageBitmap(webapp.resolveIcon())
             detail.visibility = View.GONE
         }
-
-        MaterialAlertDialogBuilder(this).setTitle(title).setAdapter(adapter) { _, position ->
-            BrowserLauncher.launch(apps[position], this)
-            finish()
-        }.setOnCancelListener { finish() }.setOnDismissListener { finish() }.show()
     }
 }

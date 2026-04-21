@@ -235,8 +235,17 @@ class DataManager private constructor() {
         )
     }
 
+    private val transientApps = mutableMapOf<String, WebApp>()
+
+    fun registerTransientWebApp(baseUrl: String, title: String): String {
+        val app = WebApp(baseUrl = baseUrl).apply { this.title = title }
+        transientApps[app.uuid] = app
+        return app.uuid
+    }
+
     fun getWebApp(uuid: String): WebApp? =
-        currentState.websites.find { it.uuid == uuid }?.let { WebApp(it) }
+        transientApps[uuid]?.let { WebApp(it) }
+            ?: currentState.websites.find { it.uuid == uuid }?.let { WebApp(it) }
 
     fun getWebsites(): List<WebApp> = currentState.websites.map { WebApp(it) }
 

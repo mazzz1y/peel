@@ -4,7 +4,7 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import wtf.mazy.peel.R
-import wtf.mazy.peel.ui.ListPickerAdapter
+import wtf.mazy.peel.ui.PickerDialog
 
 object ExtensionPickerDialog {
     fun show(activity: AppCompatActivity, sessionActions: SessionExtensionActions) {
@@ -18,22 +18,18 @@ object ExtensionPickerDialog {
             return
         }
 
-        val pickerAdapter = ListPickerAdapter(entries) { entry, icon, name, detail ->
+        PickerDialog.show(
+            activity = activity,
+            title = activity.getString(R.string.extensions),
+            items = entries,
+            onPick = { it.clickable.click() },
+            configure = { setNegativeButton(R.string.cancel, null) },
+        ) { entry, icon, name, detail ->
             val actionTitle = entry.display.title?.takeIf { it.isNotBlank() }
             val extName = entry.extension.metaData.name ?: entry.extension.id
             name.text = actionTitle ?: extName
             detail.visibility = View.GONE
             ExtensionIconCache.bind(icon, activity, entry.extension.id, extName)
         }
-
-        var dialog: androidx.appcompat.app.AlertDialog? = null
-        dialog = MaterialAlertDialogBuilder(activity)
-            .setTitle(R.string.extensions)
-            .setAdapter(pickerAdapter) { _, position ->
-                dialog?.dismiss()
-                entries[position].clickable.click()
-            }
-            .setNegativeButton(R.string.cancel, null)
-            .show()
     }
 }

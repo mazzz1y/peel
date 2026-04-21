@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingVertical="6dp">
+
+    <ImageView
+        android:layout_width="8dp"
+        android:layout_height="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="16dp"
+        android:importantForAccessibility="no"
+        android:src="@drawable/ic_dot_8" />
+
+    <TextView
+        android:id="@+id/permissionLabel"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:textAppearance="?attr/textAppearanceBodyMedium"
+        android:textColor="?attr/colorOnSurface" />
+
+</LinearLayout>

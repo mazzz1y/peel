@@ -37,7 +37,7 @@ import wtf.mazy.peel.shortcut.HeadlessFetcher
 import wtf.mazy.peel.shortcut.LetterIconGenerator
 import wtf.mazy.peel.shortcut.ShortcutHelper
 import wtf.mazy.peel.ui.IconEditorController
-import wtf.mazy.peel.ui.ListPickerAdapter
+import wtf.mazy.peel.ui.PickerDialog
 import wtf.mazy.peel.ui.dialog.InputDialogConfig
 import wtf.mazy.peel.ui.dialog.OverridePickerDialog
 import wtf.mazy.peel.ui.dialog.showInputDialogRaw
@@ -384,47 +384,38 @@ class WebAppSettingsActivity :
         val defaultIconSizePx = (resources.displayMetrics.density * 48).toInt()
         val colorSeed = webapp.letterIconSeed
 
-        val adapter =
-            ListPickerAdapter(candidates) { candidate, iconView, nameView, detailView ->
-                val title = candidate.title ?: candidate.source
-                nameView.text = title
-                val bmp = candidate.icon
-                if (bmp != null) {
-                    iconView.setImageBitmap(bmp)
-                    detailView.text = getString(
-                        R.string.icon_dimensions_source,
-                        bmp.width,
-                        bmp.height,
-                        candidate.source
-                    )
-                    detailView.visibility = View.VISIBLE
-                } else {
-                    iconView.setImageBitmap(
-                        LetterIconGenerator.generate(title, colorSeed, defaultIconSizePx)
-                    )
-                    detailView.visibility = View.GONE
+        PickerDialog.show(
+            activity = this,
+            title = getString(R.string.choose_icon),
+            items = candidates,
+            onPick = { candidate -> applyFetchResult(webapp, candidate, urlSuggestion) },
+            configure = {
+                setOnCancelListener {
+                    urlSuggestion?.let { (url, messageResId) ->
+                        promptUrlUpdate(webapp, url, messageResId)
+                    }
                 }
-            }
-
-        MaterialAlertDialogBuilder(this)
-            .setTitle(R.string.choose_icon)
-            .setAdapter(adapter) { _, which ->
-                applyFetchResult(
-                    webapp,
-                    candidates[which],
-                    urlSuggestion
+            },
+        ) { candidate, iconView, nameView, detailView ->
+            val title = candidate.title ?: candidate.source
+            nameView.text = title
+            val bmp = candidate.icon
+            if (bmp != null) {
+                iconView.setImageBitmap(bmp)
+                detailView.text = getString(
+                    R.string.icon_dimensions_source,
+                    bmp.width,
+                    bmp.height,
+                    candidate.source
                 )
+                detailView.visibility = View.VISIBLE
+            } else {
+                iconView.setImageBitmap(
+                    LetterIconGenerator.generate(title, colorSeed, defaultIconSizePx)
+                )
+                detailView.visibility = View.GONE
             }
-            .setOnCancelListener {
-                urlSuggestion?.let { (url, messageResId) ->
-                    promptUrlUpdate(
-                        webapp,
-                        url,
-                        messageResId
-                    )
-                }
-            }
-            .show()
+        }
     }
 
     private fun applyFetchResult(

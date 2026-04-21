@@ -2,6 +2,8 @@ package wtf.mazy.peel.gecko
 
 import android.content.Context
 import android.util.Log
+import androidx.annotation.StringRes
+import androidx.appcompat.app.AppCompatActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -17,9 +19,15 @@ import org.mozilla.geckoview.GeckoRuntimeSettings
 import org.mozilla.geckoview.WebExtension
 import org.mozilla.geckoview.WebExtensionController
 import wtf.mazy.peel.BuildConfig
+import wtf.mazy.peel.R
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.WebAppSettings
+import wtf.mazy.peel.ui.extensions.ExtensionIconCache
+import wtf.mazy.peel.ui.extensions.ExtensionPermissionPrompt
+import wtf.mazy.peel.ui.extensions.SessionExtensionActions
+import wtf.mazy.peel.util.ForegroundActivityTracker
 import java.io.File
+import java.util.concurrent.CopyOnWriteArraySet
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -29,30 +37,9 @@ object GeckoRuntimeProvider {
     const val THEME_COLOR_APP = "themeColor"
     const val PAGE_INFO_APP = "pageInfo"
 
-    @Volatile
-    var installPromptHandler: (suspend (
-        WebExtension,
-        Array<String>,
-        Array<String>,
-    ) -> Boolean)? = null
-
-    @Volatile
-    var updatePromptHandler: (suspend (
-        WebExtension,
-        Array<String>,
-        Array<String>,
-    ) -> Boolean)? = null
-
     private val installMutex = Mutex()
 
-    private var promptJob = SupervisorJob()
-    private var promptScope = CoroutineScope(promptJob + Dispatchers.Main.immediate)
-
-    fun cancelPromptScope() {
-        promptJob.cancel()
-        promptJob = SupervisorJob()
-        promptScope = CoroutineScope(promptJob + Dispatchers.Main.immediate)
-    }
+    private val promptScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
 
     @Volatile
     private var runtime: GeckoRuntime? = null
@@ -65,13 +52,77 @@ object GeckoRuntimeProvider {
 
     private val initStarted = AtomicBoolean(false)
 
+    private val extensionStateListeners = CopyOnWriteArraySet<ExtensionStateListener>()
+
+    fun addExtensionStateListener(listener: ExtensionStateListener) {
+        extensionStateListeners.add(listener)
+    }
+
+    fun removeExtensionStateListener(listener: ExtensionStateListener) {
+        extensionStateListeners.remove(listener)
+    }
+
     fun getRuntime(context: Context): GeckoRuntime {
         return runtime ?: synchronized(this) {
             runtime ?: createRuntime(context.applicationContext).also { rt ->
                 runtime = rt
                 setupPromptDelegate(rt)
+                setupAddonManagerDelegate(rt, context.applicationContext)
             }
         }
+    }
+
+    private suspend fun showPrompt(
+        ext: WebExtension,
+        permissions: Array<String>,
+        origins: Array<String>,
+        @StringRes titleRes: Int,
+        @StringRes summaryRes: Int,
+        @StringRes positiveRes: Int,
+        showEvenIfEmpty: Boolean,
+    ): Boolean {
+        val activity = ForegroundActivityTracker.current as? AppCompatActivity ?: return false
+        return ExtensionPermissionPrompt.confirm(
+            activity = activity,
+            title = activity.getString(titleRes),
+            summaryRes = summaryRes,
+            ext = ext,
+            permissions = permissions,
+            origins = origins,
+            showEvenIfEmpty = showEvenIfEmpty,
+            positiveRes = positiveRes,
+        )
+    }
+
+    private fun notifyExtensionStateChanged(event: ExtensionStateEvent) {
+        SessionExtensionActions.extensionsChanged = true
+        extensionStateListeners.forEach { it.onExtensionStateChanged(event) }
+    }
+
+    private fun setupAddonManagerDelegate(rt: GeckoRuntime, context: Context) {
+        rt.webExtensionController.setAddonManagerDelegate(
+            object : WebExtensionController.AddonManagerDelegate {
+                override fun onInstalled(extension: WebExtension) {
+                    promptScope.launch {
+                        ExtensionIconCache.refreshFromExtension(context, extension)
+                    }
+                    notifyExtensionStateChanged(ExtensionStateEvent.ADDED)
+                }
+
+                override fun onUninstalled(extension: WebExtension) {
+                    ExtensionIconCache.delete(context, extension.id)
+                    notifyExtensionStateChanged(ExtensionStateEvent.REMOVED)
+                }
+
+                override fun onDisabled(extension: WebExtension) {
+                    notifyExtensionStateChanged(ExtensionStateEvent.TOGGLED)
+                }
+
+                override fun onEnabled(extension: WebExtension) {
+                    notifyExtensionStateChanged(ExtensionStateEvent.TOGGLED)
+                }
+            },
+        )
     }
 
     fun initAsync(context: Context) {
@@ -117,15 +168,17 @@ object GeckoRuntimeProvider {
                 origins: Array<String>,
                 dataCollectionPermissions: Array<String>,
             ): GeckoResult<WebExtension.PermissionPromptResponse>? {
-                val handler = installPromptHandler
-                    ?: return GeckoResult.fromValue(denyResponse())
                 val result = GeckoResult<WebExtension.PermissionPromptResponse>()
                 promptScope.launch {
-                    val allowed = try {
-                        handler(extension, permissions, origins)
-                    } catch (_: Exception) {
-                        false
-                    }
+                    val allowed = runCatching {
+                        showPrompt(
+                            extension, permissions, origins,
+                            titleRes = R.string.install_extension_confirm_title,
+                            summaryRes = R.string.install_extension_permission_summary,
+                            positiveRes = R.string.install,
+                            showEvenIfEmpty = true,
+                        )
+                    }.getOrDefault(false)
                     result.complete(if (allowed) allowResponse() else denyResponse())
                 }
                 return result
@@ -137,15 +190,17 @@ object GeckoRuntimeProvider {
                 newOrigins: Array<String>,
                 newDataCollectionPermissions: Array<String>,
             ): GeckoResult<AllowOrDeny>? {
-                val handler = updatePromptHandler
-                    ?: return GeckoResult.fromValue(AllowOrDeny.DENY)
                 val result = GeckoResult<AllowOrDeny>()
                 promptScope.launch {
-                    val allowed = try {
-                        handler(extension, newPermissions, newOrigins)
-                    } catch (_: Exception) {
-                        false
-                    }
+                    val allowed = runCatching {
+                        showPrompt(
+                            extension, newPermissions, newOrigins,
+                            titleRes = R.string.update_extension_confirm_title,
+                            summaryRes = R.string.update_extension_permission_summary,
+                            positiveRes = R.string.extension_update,
+                            showEvenIfEmpty = false,
+                        )
+                    }.getOrDefault(false)
                     result.complete(if (allowed) AllowOrDeny.ALLOW else AllowOrDeny.DENY)
                 }
                 return result
@@ -193,6 +248,7 @@ object GeckoRuntimeProvider {
             .javaScriptEnabled(true)
             .consoleOutput(BuildConfig.DEBUG)
             .aboutConfigEnabled(BuildConfig.DEBUG)
+            .extensionsWebAPIEnabled(true)
             .preferredColorScheme(GeckoRuntimeSettings.COLOR_SCHEME_SYSTEM)
             .globalPrivacyControlEnabled(defaults.isGlobalPrivacyControl == true)
             .setLnaEnabled(lna)

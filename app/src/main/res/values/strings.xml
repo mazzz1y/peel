@@ -223,7 +223,8 @@
     <string name="no_search_results">No apps found</string>
     <string name="extensions">Extensions</string>
     <string name="no_extensions_installed">No extensions installed</string>
-    <string name="available_extensions">Available extensions</string>
+    <string name="recommended_extensions">Recommended extensions</string>
+    <string name="browse_all_extensions">Browse all</string>
     <string name="install_extension_confirm">Install \"%1$s\"?</string>
     <string name="extension_permissions">This extension requires:</string>
     <string name="uninstall_extension">Uninstall</string>
@@ -233,10 +234,9 @@
     <string name="extension_updated_to">Updated to %1$s</string>
     <string name="extension_already_up_to_date">Already up to date</string>
     <string name="update_all_extensions">Update all</string>
-    <string name="installing_extension">Installing\u2026</string>
+    <string name="loading_extension">Loading…</string>
     <string name="loading_extensions">Loading\u2026</string>
     <string name="install_extension_error">Failed to install extension</string>
-    <string name="all_extensions_installed">All recommended extensions are already installed</string>
     <string name="extensions_update_summary">%1$d updated, %2$d up to date</string>
     <string name="extensions_update_summary_with_failed">%1$d updated, %2$d up to date, %3$d failed</string>
     <string name="install_extension_confirm_title">Install extension?</string>

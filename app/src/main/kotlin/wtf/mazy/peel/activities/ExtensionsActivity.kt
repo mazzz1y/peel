@@ -1,41 +1,39 @@
 package wtf.mazy.peel.activities
 
+import android.content.Intent
 import android.os.Bundle
-import android.text.style.BulletSpan
 import android.util.Log
-import android.util.TypedValue
 import android.view.View
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.text.buildSpannedString
-import androidx.core.text.inSpans
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.MaterialToolbar
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import org.mozilla.geckoview.WebExtension
 import wtf.mazy.peel.R
 import wtf.mazy.peel.gecko.GeckoRuntimeProvider
-import wtf.mazy.peel.ui.ListPickerAdapter
+import wtf.mazy.peel.model.DataManager
+import wtf.mazy.peel.ui.PickerDialog
 import wtf.mazy.peel.ui.common.LoadingDialogController
 import wtf.mazy.peel.ui.extensions.AmoExtensionsRepository
 import wtf.mazy.peel.ui.extensions.AmoExtensionsRepository.AmoExtension
 import wtf.mazy.peel.ui.extensions.ExtensionAdapter
 import wtf.mazy.peel.ui.extensions.ExtensionIconCache
-import wtf.mazy.peel.ui.extensions.SessionExtensionActions
+import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.NotificationUtils
 import java.io.File
-import kotlin.coroutines.resume
 
 class ExtensionsActivity : AppCompatActivity() {
 
@@ -45,6 +43,8 @@ class ExtensionsActivity : AppCompatActivity() {
     private lateinit var toolbar: MaterialToolbar
     private lateinit var fab: FloatingActionButton
     private lateinit var loader: LoadingDialogController
+
+    private var cachedRecommended: List<AmoExtension>? = null
 
     private val filePickerLauncher = registerForActivityResult(
         ActivityResultContracts.OpenDocument()
@@ -107,8 +107,6 @@ class ExtensionsActivity : AppCompatActivity() {
             )
             true
         }
-
-        loadInstalledExtensions()
     }
 
     override fun onCreateOptionsMenu(menu: android.view.Menu): Boolean {
@@ -127,103 +125,14 @@ class ExtensionsActivity : AppCompatActivity() {
         }
     }
 
-    override fun onStart() {
-        super.onStart()
-        GeckoRuntimeProvider.installPromptHandler = { ext, permissions, origins ->
-            confirmPermissionPrompt(
-                title = getString(R.string.install_extension_confirm_title),
-                summaryRes = R.string.install_extension_permission_summary,
-                ext = ext,
-                permissions = permissions,
-                origins = origins,
-                showEvenIfEmpty = true,
-                positiveRes = R.string.install,
-            )
-        }
-        GeckoRuntimeProvider.updatePromptHandler = { ext, permissions, origins ->
-            confirmPermissionPrompt(
-                title = getString(R.string.update_extension_confirm_title),
-                summaryRes = R.string.update_extension_permission_summary,
-                ext = ext,
-                permissions = permissions,
-                origins = origins,
-                showEvenIfEmpty = false,
-                positiveRes = R.string.extension_update,
-            )
-        }
-    }
-
-    override fun onStop() {
-        GeckoRuntimeProvider.installPromptHandler = null
-        GeckoRuntimeProvider.updatePromptHandler = null
-        GeckoRuntimeProvider.cancelPromptScope()
-        super.onStop()
+    override fun onResume() {
+        super.onResume()
+        loadInstalledExtensions()
     }
 
     override fun onDestroy() {
         loader.dismiss()
         super.onDestroy()
-    }
-
-    private suspend fun confirmPermissionPrompt(
-        title: String,
-        summaryRes: Int,
-        ext: WebExtension,
-        permissions: Array<String>,
-        origins: Array<String>,
-        showEvenIfEmpty: Boolean,
-        positiveRes: Int,
-    ): Boolean {
-        if (isFinishing || isDestroyed) return false
-        if (!showEvenIfEmpty && permissions.isEmpty() && origins.isEmpty()) {
-            return true
-        }
-        val name = ext.metaData.name ?: ext.id
-        val bulletGapPx = TypedValue.applyDimension(
-            TypedValue.COMPLEX_UNIT_DIP, 8f, resources.displayMetrics,
-        ).toInt()
-        val message = buildSpannedString {
-            append(getString(summaryRes, name))
-            append("\n\n")
-            if (permissions.isEmpty() && origins.isEmpty()) {
-                append(getString(R.string.install_extension_no_permissions))
-            } else {
-                if (permissions.isNotEmpty()) {
-                    append(getString(R.string.install_extension_permissions_header))
-                    append('\n')
-                    permissions.forEachIndexed { index, perm ->
-                        inSpans(BulletSpan(bulletGapPx)) { append(perm) }
-                        if (index != permissions.lastIndex) append('\n')
-                    }
-                }
-                if (origins.isNotEmpty()) {
-                    if (permissions.isNotEmpty()) append("\n\n")
-                    append(getString(R.string.install_extension_origins_header))
-                    append('\n')
-                    origins.forEachIndexed { index, origin ->
-                        inSpans(BulletSpan(bulletGapPx)) { append(origin) }
-                        if (index != origins.lastIndex) append('\n')
-                    }
-                }
-            }
-        }
-        return suspendCancellableCoroutine { cont ->
-            val dialog = MaterialAlertDialogBuilder(this)
-                .setTitle(title)
-                .setMessage(message)
-                .setPositiveButton(positiveRes) { _, _ ->
-                    if (!cont.isCompleted) cont.resume(true)
-                }
-                .setNegativeButton(R.string.cancel) { _, _ ->
-                    if (!cont.isCompleted) cont.resume(false)
-                }
-                .setOnCancelListener {
-                    if (!cont.isCompleted) cont.resume(false)
-                }
-                .create()
-            dialog.show()
-            cont.invokeOnCancellation { dialog.dismiss() }
-        }
     }
 
     private fun loadInstalledExtensions() {
@@ -233,7 +142,6 @@ class ExtensionsActivity : AppCompatActivity() {
             val isEmpty = extensions.isEmpty()
             emptyStateText.visibility = if (isEmpty) View.VISIBLE else View.GONE
             recyclerView.visibility = if (isEmpty) View.GONE else View.VISIBLE
-            SessionExtensionActions.extensionsChanged = true
         }
     }
 
@@ -329,55 +237,62 @@ class ExtensionsActivity : AppCompatActivity() {
     }
 
     private fun showAvailableExtensions() {
+        val cached = cachedRecommended
+        if (cached != null) {
+            lifecycleScope.launch { proceedWithRecommended(cached) }
+            return
+        }
         loader.show(R.string.loading_extensions)
         lifecycleScope.launch {
-            val installed = GeckoRuntimeProvider.listUserExtensions(this@ExtensionsActivity)
-                .map { it.id }.toSet()
             val available = AmoExtensionsRepository.fetchRecommended(this@ExtensionsActivity)
             loader.dismiss()
+            if (available.isNotEmpty()) cachedRecommended = available
+            proceedWithRecommended(available)
+        }
+    }
 
-            if (available.isEmpty()) {
-                NotificationUtils.showToast(
-                    this@ExtensionsActivity,
-                    getString(R.string.install_extension_error),
-                    Toast.LENGTH_SHORT,
-                )
-                return@launch
-            }
-
-            val filtered = available.filter { it.guid !in installed }
-            if (filtered.isEmpty()) {
-                NotificationUtils.showToast(
-                    this@ExtensionsActivity,
-                    getString(R.string.all_extensions_installed),
-                    Toast.LENGTH_SHORT,
-                )
-                return@launch
-            }
+    private suspend fun proceedWithRecommended(available: List<AmoExtension>) {
+        val installed = GeckoRuntimeProvider.listUserExtensions(this@ExtensionsActivity)
+            .map { it.id }.toSet()
+        val filtered = available.filter { it.guid !in installed }
+        if (filtered.isEmpty()) {
+            openAmo()
+        } else {
             showExtensionPicker(filtered)
         }
     }
 
     private fun showExtensionPicker(extensions: List<AmoExtension>) {
-        val pickerAdapter = ListPickerAdapter(extensions) { ext, icon, name, detail ->
+        val dialog = PickerDialog.show(
+            activity = this,
+            title = getString(R.string.recommended_extensions),
+            items = extensions,
+            onPick = { installExtension(it.downloadUrl) },
+            configure = {
+                setNeutralButton(R.string.browse_all_extensions) { _, _ -> openAmo() }
+                setNegativeButton(R.string.cancel, null)
+            },
+        ) { ext, icon, name, detail ->
             name.text = ext.name
             detail.visibility = View.GONE
             ExtensionIconCache.bind(icon, this, ext.guid, ext.name)
         }
+        (dialog.getButton(AlertDialog.BUTTON_NEUTRAL) as? MaterialButton)
+            ?.setIconResource(R.drawable.ic_symbols_open_in_new_24)
+    }
 
-        var dialog: androidx.appcompat.app.AlertDialog? = null
-        dialog = MaterialAlertDialogBuilder(this)
-            .setTitle(R.string.available_extensions)
-            .setAdapter(pickerAdapter) { _, position ->
-                dialog?.dismiss()
-                installExtension(extensions[position].downloadUrl)
-            }
-            .setNegativeButton(R.string.cancel, null)
-            .show()
+    private fun openAmo() {
+        val uuid = DataManager.instance.registerTransientWebApp(
+            baseUrl = AMO_URL, title = getString(R.string.extensions),
+        )
+        startActivity(
+            Intent(this, BrowserActivity::class.java)
+                .putExtra(Const.INTENT_WEBAPP_UUID, uuid)
+        )
     }
 
     private fun installExtension(uri: String) {
-        loader.show(R.string.installing_extension)
+        loader.show(R.string.loading_extension)
         lifecycleScope.launch {
             try {
                 val installed = withTimeout(60_000) {
@@ -403,5 +318,6 @@ class ExtensionsActivity : AppCompatActivity() {
 
     companion object {
         private const val TAG = "ExtensionsActivity"
+        private const val AMO_URL = "https://addons.mozilla.org/android/"
     }
 }

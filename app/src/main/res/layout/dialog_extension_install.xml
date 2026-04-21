@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingHorizontal="24dp"
+    android:paddingTop="@dimen/dialog_list_top_padding">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/extensionInstallSummary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?attr/textAppearanceBodyMedium"
+            android:textColor="?attr/colorOnSurface" />
+
+        <TextView
+            android:id="@+id/permissionsHeader"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/install_extension_permissions_header"
+            android:textAppearance="?attr/textAppearanceTitleSmall"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:visibility="gone" />
+
+        <LinearLayout
+            android:id="@+id/permissionsList"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:orientation="vertical"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/originsHeader"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/install_extension_origins_header"
+            android:textAppearance="?attr/textAppearanceTitleSmall"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:visibility="gone" />
+
+        <LinearLayout
+            android:id="@+id/originsList"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:orientation="vertical"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/noPermissionsText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/install_extension_no_permissions"
+            android:textAppearance="?attr/textAppearanceBodyMedium"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:visibility="gone" />
+
+    </LinearLayout>
+
+</ScrollView>

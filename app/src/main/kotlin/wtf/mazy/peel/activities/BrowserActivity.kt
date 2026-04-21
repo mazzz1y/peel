@@ -55,6 +55,8 @@ import wtf.mazy.peel.browser.PeelPromptDelegate
 import wtf.mazy.peel.browser.PermissionResult
 import wtf.mazy.peel.browser.SessionHost
 import wtf.mazy.peel.browser.StartupAuthReturnTracker
+import wtf.mazy.peel.gecko.ExtensionStateEvent
+import wtf.mazy.peel.gecko.ExtensionStateListener
 import wtf.mazy.peel.gecko.GeckoRuntimeProvider
 import wtf.mazy.peel.gecko.NestedGeckoView
 import wtf.mazy.peel.gecko.VerticalSwipeRefreshLayout
@@ -63,7 +65,7 @@ import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.model.WebAppSettings
 import wtf.mazy.peel.ui.FloatingControlsView
-import wtf.mazy.peel.ui.ListPickerAdapter
+import wtf.mazy.peel.ui.PickerDialog
 import wtf.mazy.peel.ui.browser.AutoReloadController
 import wtf.mazy.peel.ui.browser.BiometricUnlockController
 import wtf.mazy.peel.ui.browser.LaunchOverlayController
@@ -92,6 +94,15 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
             },
             onNavigateToUrl = ::loadURL,
         )
+    }
+
+    private val extensionStateListener = ExtensionStateListener { event ->
+        val session = geckoSession ?: return@ExtensionStateListener
+        sessionExtensionActions.attach(session)
+        SessionExtensionActions.extensionsChanged = false
+        if (event == ExtensionStateEvent.ADDED || event == ExtensionStateEvent.REMOVED) {
+            session.reload()
+        }
     }
 
     private var progressBar: ProgressBar? = null
@@ -259,6 +270,7 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
 
     override fun onStart() {
         super.onStart()
+        GeckoRuntimeProvider.addExtensionStateListener(extensionStateListener)
         geckoSession?.let { session ->
             session.setActive(true)
             GeckoRuntimeProvider.getRuntime(this)
@@ -352,6 +364,7 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
 
     override fun onStop() {
         super.onStop()
+        GeckoRuntimeProvider.removeExtensionStateListener(extensionStateListener)
         if (!isStartupComplete) {
             biometricController.onStop(); return
         }
@@ -1040,7 +1053,12 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
                     .associateWith { DataManager.instance.queryGroup(it)?.title }
             } else emptyMap()
 
-            val adapter = ListPickerAdapter(apps) { webapp, icon, name, detail ->
+            PickerDialog.show(
+                activity = this@BrowserActivity,
+                title = getString(R.string.open_in_peel),
+                items = apps,
+                onPick = { webapp -> launchWebApp(webapp, url) },
+            ) { webapp, icon, name, detail ->
                 name.text = webapp.title
                 icon.setImageBitmap(webapp.resolveIcon())
                 if (hasGroups) {
@@ -1049,13 +1067,6 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
                     detail.visibility = View.VISIBLE
                 }
             }
-            val dialog = MaterialAlertDialogBuilder(this@BrowserActivity)
-                .setTitle(R.string.open_in_peel)
-                .setAdapter(adapter) { _, position -> launchWebApp(apps[position], url) }
-                .show()
-            dialog.listView?.layoutParams?.height =
-                MenuDialogHelper.dpToPx(this@BrowserActivity, MAX_PEEL_PICKER_HEIGHT_DP)
-            dialog.listView?.requestLayout()
         }
     }
 
@@ -1125,7 +1136,6 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
     companion object {
         private const val UI_ANIMATION_DURATION_MS = 300L
         private const val OVERLAY_HIDE_FALLBACK_MS = 800L
-        private const val MAX_PEEL_PICKER_HEIGHT_DP = 400f
 
         private val liveInstances = mutableSetOf<BrowserActivity>()
 

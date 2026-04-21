@@ -5,12 +5,11 @@ import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.launch
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.WebApp
-import wtf.mazy.peel.ui.ListPickerAdapter
+import wtf.mazy.peel.ui.PickerDialog
 import wtf.mazy.peel.util.BrowserLauncher
 import wtf.mazy.peel.util.HostIdentity
 import wtf.mazy.peel.util.NotificationUtils
@@ -61,24 +60,23 @@ class ShareReceiverActivity : AppCompatActivity() {
 
     private fun showPickerDialog(apps: List<WebApp>, url: String) {
         val hasGroups = DataManager.instance.getGroups().isNotEmpty()
-        val adapter =
-            ListPickerAdapter(apps) { webapp, icon, name, detail ->
-                name.text = webapp.title
-                icon.setImageBitmap(webapp.resolveIcon())
-                if (hasGroups) {
-                    detail.text = webapp.groupUuid?.let { DataManager.instance.getGroup(it)?.title }
-                        ?.let { shortLabel(it) } ?: getString(R.string.ungrouped)
-                    detail.visibility = View.VISIBLE
-                }
+        PickerDialog.show(
+            activity = this,
+            title = getString(R.string.open_in_peel),
+            items = apps,
+            onPick = { webapp -> BrowserLauncher.launch(webapp, this, url) },
+            configure = {
+                setOnCancelListener { finish() }
+                setOnDismissListener { finish() }
+            },
+        ) { webapp, icon, name, detail ->
+            name.text = webapp.title
+            icon.setImageBitmap(webapp.resolveIcon())
+            if (hasGroups) {
+                detail.text = webapp.groupUuid?.let { DataManager.instance.getGroup(it)?.title }
+                    ?.let { shortLabel(it) } ?: getString(R.string.ungrouped)
+                detail.visibility = View.VISIBLE
             }
-
-        MaterialAlertDialogBuilder(this)
-            .setTitle(R.string.open_in_peel)
-            .setAdapter(adapter) { _, position ->
-                BrowserLauncher.launch(apps[position], this, url)
-            }
-            .setOnCancelListener { finish() }
-            .setOnDismissListener { finish() }
-            .show()
+        }
     }
 }
