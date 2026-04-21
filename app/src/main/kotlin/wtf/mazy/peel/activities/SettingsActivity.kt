@@ -34,7 +34,6 @@ class SettingsActivity : ToolbarBaseActivity<GlobalSettingsBinding>() {
 
     override fun onPause() {
         super.onPause()
-        editableSettings.settings.sanitize()
         lifecycleScope.launch {
             withContext(NonCancellable) {
                 DataManager.instance.setDefaultSettings(editableSettings)
@@ -43,6 +42,7 @@ class SettingsActivity : ToolbarBaseActivity<GlobalSettingsBinding>() {
     }
 
     override fun finish() {
+        editableSettings.settings.sanitize()
         val changed =
             ApplyTimingRegistry.getChangedKeys(originalSnapshot, editableSettings.settings)
         val timing = ApplyTimingRegistry.getHighestTiming(changed)

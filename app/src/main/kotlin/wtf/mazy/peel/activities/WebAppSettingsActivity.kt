@@ -130,7 +130,6 @@ class WebAppSettingsActivity :
     override fun onPause() {
         super.onPause()
         modifiedWebapp?.let { webapp ->
-            webapp.settings.sanitize(asOverride = !isEditingDefaults)
             lifecycleScope.launch {
                 withContext(NonCancellable) {
                     if (isEditingDefaults) {
@@ -476,6 +475,7 @@ class WebAppSettingsActivity :
 
     override fun finish() {
         modifiedWebapp?.let {
+            it.settings.sanitize(asOverride = !isEditingDefaults)
             val changed = ApplyTimingRegistry.getChangedKeys(originalSettingsSnapshot, it.settings)
             val timing = ApplyTimingRegistry.getHighestTiming(changed)
             setResult(

@@ -86,7 +86,6 @@ class GroupSettingsActivity :
             if (it.title.isBlank()) {
                 it.title = originalGroup?.title ?: ""
             }
-            it.settings.sanitize(asOverride = true)
             lifecycleScope.launch {
                 withContext(NonCancellable) {
                     DataManager.instance.replaceGroup(it)
@@ -97,6 +96,7 @@ class GroupSettingsActivity :
 
     override fun finish() {
         modifiedGroup?.let {
+            it.settings.sanitize(asOverride = true)
             val changed = ApplyTimingRegistry.getChangedKeys(originalSettingsSnapshot, it.settings)
             val timing = ApplyTimingRegistry.getHighestTiming(changed)
             setResult(
