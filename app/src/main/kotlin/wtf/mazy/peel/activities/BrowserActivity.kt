@@ -1125,6 +1125,8 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
 
         private val liveInstances = mutableSetOf<BrowserActivity>()
 
+        fun hasLiveInstances(): Boolean = liveInstances.isNotEmpty()
+
         fun finishByUuid(uuid: String) {
             liveInstances.filter { it.webappUuid == uuid }.forEach { it.finish() }
         }

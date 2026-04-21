@@ -4,6 +4,7 @@ import android.view.View
 import androidx.annotation.StringRes
 import com.google.android.material.snackbar.Snackbar
 import wtf.mazy.peel.R
+import wtf.mazy.peel.activities.BrowserActivity
 import kotlin.reflect.KMutableProperty1
 
 data class SettingField(
@@ -169,6 +170,7 @@ object ApplyTimingRegistry {
         restartAction: (() -> Unit)? = null,
     ): Snackbar? {
         if (timing == ApplyTiming.IMMEDIATE) return null
+        if (timing == ApplyTiming.WEBAPP_RESTART && !BrowserActivity.hasLiveInstances()) return null
         val message = when (timing) {
             ApplyTiming.PEEL_RESTART -> R.string.setting_requires_peel_restart
             ApplyTiming.WEBAPP_RESTART -> R.string.setting_requires_webapp_restart
