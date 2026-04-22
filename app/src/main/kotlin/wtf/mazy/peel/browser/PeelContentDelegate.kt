@@ -78,6 +78,10 @@ class PeelContentDelegate(
         host.onFirstContentfulPaint()
     }
 
+    override fun onCloseRequest(session: GeckoSession) {
+        host.runOnUi { host.goBackOrFinish() }
+    }
+
     companion object {
         private val rgbRegex = Regex("""rgba?\(\s*(\d+)[\s,]+(\d+)[\s,]+(\d+)""")
 

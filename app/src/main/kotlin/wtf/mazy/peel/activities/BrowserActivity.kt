@@ -49,6 +49,7 @@ import wtf.mazy.peel.browser.ExternalLinkResult
 import wtf.mazy.peel.browser.MenuDialogHelper
 import wtf.mazy.peel.browser.PeelContentDelegate
 import wtf.mazy.peel.browser.PeelNavigationDelegate
+import wtf.mazy.peel.browser.parseIntentUri
 import wtf.mazy.peel.browser.PeelPermissionDelegate
 import wtf.mazy.peel.browser.PeelProgressDelegate
 import wtf.mazy.peel.browser.PeelPromptDelegate
@@ -538,6 +539,10 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
         if (canGoBack) geckoSession?.goBack() else loadURL(fallback)
     }
 
+    override fun goBackOrFinish() {
+        if (canGoBack) geckoSession?.goBack() else finish()
+    }
+
     private fun showToast(message: String) {
         NotificationUtils.showToast(this, message)
     }
@@ -570,7 +575,7 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
             .setMessage(getString(R.string.connection_error, description))
             .setPositiveButton(R.string.retry) { _, _ -> loadURL(url) }
             .setNegativeButton(if (canGoBack) R.string.back else R.string.exit) { _, _ ->
-                if (canGoBack) geckoSession?.goBack() else finish()
+                goBackOrFinish()
             }
             .setCancelable(false)
             .show()
@@ -603,7 +608,7 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
 
     override fun onPageFullyLoaded() {
         closeStartupAuthTrackingIfInitialBaseLoaded()
-        navigationDelegate.onPageLoaded()
+        navigationDelegate.onPageLoadFinished()
         lastLoadedUrl = currentUrl
         if (pageLoadHandled || biometricController.isPromptActive) return
         pageLoadHandled = true
@@ -618,46 +623,21 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
         }
     }
 
-    private fun buildIntentForUrl(url: String): Intent? {
-        return try {
-            if (url.startsWith("intent://") || url.startsWith("intent:")) {
-                Intent.parseUri(url, Intent.URI_INTENT_SCHEME).apply {
-                    selector = null
-                    addCategory(Intent.CATEGORY_BROWSABLE)
-                    component = null
-                }
-            } else {
-                Intent(Intent.ACTION_VIEW, url.toUri())
-            }
-        } catch (_: Exception) {
-            null
-        }
-    }
-
-    override fun openExtensionPage(url: String) {
-        startActivity(ExtensionPageActivity.intentForUrl(this, url, ""))
-    }
-
     override fun startExternalIntent(uri: Uri) {
         val url = uri.toString()
-        val intent = buildIntentForUrl(url)
-        if (intent == null) {
-            showToast(getString(R.string.no_app_found))
-            return
-        }
-        try {
-            startActivity(intent)
-        } catch (_: ActivityNotFoundException) {
-            val fallback = buildIntentForUrl(url)
-                ?.getStringExtra("browser_fallback_url")
-            if (fallback != null && (fallback.startsWith("https://") || fallback.startsWith("http://"))) {
-                loadURL(fallback)
-            } else {
-                showToast(getString(R.string.no_app_found))
-            }
-        } catch (_: Exception) {
-            showToast(getString(R.string.no_app_found))
-        }
+        val intent = parseIntentUri(url)
+            ?: runCatching { Intent(Intent.ACTION_VIEW, uri) }.getOrNull()
+        if (intent != null && tryStartActivity(intent)) return
+        showToast(getString(R.string.no_app_found))
+    }
+
+    private fun tryStartActivity(intent: Intent): Boolean = try {
+        startActivity(intent)
+        true
+    } catch (_: ActivityNotFoundException) {
+        false
+    } catch (_: Exception) {
+        false
     }
 
     override val themeBackgroundColor: Int
@@ -729,6 +709,7 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
             getRuntime = { GeckoRuntimeProvider.getRuntime(this) },
             scope = lifecycleScope,
             webappName = webapp.title,
+            host = this,
         )
         navigationDelegate = PeelNavigationDelegate(this)
         permissionDelegate = PeelPermissionDelegate(this)

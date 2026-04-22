@@ -110,6 +110,7 @@
     <string name="permission_prompt_location">%1$s ਨੂੰ ਟਿਕਾਣਾ ਐਕਸੈਸ ਦੀ ਇਜਾਜ਼ਤ ਦਿਓ?</string>
     <string name="open_app_links">ਬਾਹਰੀ ਐਪਾਂ ਵਿੱਚ ਲਿੰਕ ਖੋਲ੍ਹੋ</string>
     <string name="permission_prompt_open_app">ਇਸ ਲਿੰਕ ਨੂੰ ਬਾਹਰੀ ਐਪ ਵਿੱਚ ਖੋਲ੍ਹਣਾ ਹੈ?\n\n%1$s</string>
+    <string name="permission_prompt_open_app_intent">%1$s ਵਿੱਚ ਖੋਲ੍ਹਣਾ ਹੈ?</string>
     <string name="no_app_found">ਇਸ ਲਿੰਕ ਲਈ ਕੋਈ ਐਪ ਨਹੀਂ ਮਿਲੀ</string>
     <string name="create_shortcut">ਸ਼ਾਰਟਕੱਟ ਬਣਾਓ</string>
     <string name="create">ਬਣਾਓ</string>

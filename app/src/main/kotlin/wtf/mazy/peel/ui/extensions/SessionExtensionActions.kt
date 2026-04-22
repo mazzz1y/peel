@@ -10,6 +10,7 @@ import org.mozilla.geckoview.GeckoSession
 import org.mozilla.geckoview.GeckoSessionSettings
 import org.mozilla.geckoview.WebExtension
 import wtf.mazy.peel.activities.ExtensionPageActivity
+import wtf.mazy.peel.browser.SessionHost
 import wtf.mazy.peel.gecko.GeckoRuntimeProvider
 
 class SessionExtensionActions(
@@ -86,9 +87,28 @@ class SessionExtensionActions(
                 ): GeckoResult<GeckoSession> = createPopupSession(extension)
             }
 
+            val sessionTabDelegate = object : WebExtension.SessionTabDelegate {
+                override fun onUpdateTab(
+                    extension: WebExtension,
+                    targetSession: GeckoSession,
+                    details: WebExtension.UpdateTabDetails,
+                ): GeckoResult<AllowOrDeny> =
+                    GeckoResult.fromValue(AllowOrDeny.ALLOW)
+
+                override fun onCloseTab(
+                    source: WebExtension?,
+                    targetSession: GeckoSession,
+                ): GeckoResult<AllowOrDeny> {
+                    val host = activity as? SessionHost
+                    host?.runOnUi { host.goBackOrFinish() }
+                    return GeckoResult.fromValue(AllowOrDeny.ALLOW)
+                }
+            }
+
             val controller = session.webExtensionController
             for (ext in extensions) {
                 controller.setActionDelegate(ext, sessionDelegate)
+                controller.setTabDelegate(ext, sessionTabDelegate)
                 attachedSessions += ext to session
             }
         }
@@ -99,6 +119,7 @@ class SessionExtensionActions(
         attachJob = null
         for ((ext, session) in attachedSessions) {
             session.webExtensionController.setActionDelegate(ext, null)
+            session.webExtensionController.setTabDelegate(ext, null)
         }
         attachedSessions.clear()
         overrides.clear()

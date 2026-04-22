@@ -29,6 +29,7 @@ class DownloadHandler(
     private val getRuntime: () -> GeckoRuntime,
     private val scope: CoroutineScope,
     private val webappName: String,
+    private val host: SessionHost,
 ) {
     private var promptShowing = false
 
@@ -107,7 +108,9 @@ class DownloadHandler(
         }
         showDownloadPrompt(fileName) { allowed ->
             if (!allowed) {
-                body.close(); return@showDownloadPrompt
+                body.close()
+                host.dismissRedirectToFallback(host.lastLoadedUrl.ifEmpty { host.baseUrl })
+                return@showDownloadPrompt
             }
             DownloadService.start(activity, fileName, mimeType, contentLength, webappName, body)
         }

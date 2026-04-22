@@ -110,6 +110,7 @@
     <string name="permission_prompt_location">Permitir %1$s acessar a localização?</string>
     <string name="open_app_links">Abrir links em apps externos</string>
     <string name="permission_prompt_open_app">Abrir este link em um app externo?\n\n%1$s</string>
+    <string name="permission_prompt_open_app_intent">Abrir em %1$s?</string>
     <string name="no_app_found">Nenhum app encontrado para este link</string>
     <string name="create_shortcut">Criar atalho</string>
     <string name="create">Criar</string>

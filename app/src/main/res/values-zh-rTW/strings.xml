@@ -110,6 +110,7 @@
     <string name="permission_prompt_location">允許 %1$s 存取位置？</string>
     <string name="open_app_links">在外部應用程式中開啟連結</string>
     <string name="permission_prompt_open_app">在外部應用程式中開啟此連結？\n\n%1$s</string>
+    <string name="permission_prompt_open_app_intent">在 %1$s 中開啟？</string>
     <string name="no_app_found">找不到可處理此連結的應用程式</string>
     <string name="create_shortcut">建立捷徑</string>
     <string name="create">建立</string>
