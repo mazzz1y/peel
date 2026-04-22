@@ -161,13 +161,13 @@ object GeckoRuntimeProvider {
     private fun denyResponse() = WebExtension.PermissionPromptResponse(false, false, false)
 
     private fun setupPromptDelegate(rt: GeckoRuntime) {
-        rt.webExtensionController.setPromptDelegate(object : WebExtensionController.PromptDelegate {
+        rt.webExtensionController.promptDelegate = object : WebExtensionController.PromptDelegate {
             override fun onInstallPromptRequest(
                 extension: WebExtension,
                 permissions: Array<String>,
                 origins: Array<String>,
                 dataCollectionPermissions: Array<String>,
-            ): GeckoResult<WebExtension.PermissionPromptResponse>? {
+            ): GeckoResult<WebExtension.PermissionPromptResponse> {
                 val result = GeckoResult<WebExtension.PermissionPromptResponse>()
                 promptScope.launch {
                     val allowed = runCatching {
@@ -189,7 +189,7 @@ object GeckoRuntimeProvider {
                 newPermissions: Array<String>,
                 newOrigins: Array<String>,
                 newDataCollectionPermissions: Array<String>,
-            ): GeckoResult<AllowOrDeny>? {
+            ): GeckoResult<AllowOrDeny> {
                 val result = GeckoResult<AllowOrDeny>()
                 promptScope.launch {
                     val allowed = runCatching {
@@ -205,7 +205,7 @@ object GeckoRuntimeProvider {
                 }
                 return result
             }
-        })
+        }
     }
 
     suspend fun ensureThemeColorExtension(context: Context): WebExtension? {

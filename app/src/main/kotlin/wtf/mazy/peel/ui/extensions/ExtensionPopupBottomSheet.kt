@@ -52,7 +52,11 @@ class ExtensionPopupBottomSheet : BottomSheetDialogFragment() {
 
         geckoView = view.findViewById(R.id.popup_gecko_view)
         val tv = TypedValue()
-        requireContext().theme.resolveAttribute(com.google.android.material.R.attr.colorSurface, tv, true)
+        requireContext().theme.resolveAttribute(
+            com.google.android.material.R.attr.colorSurface,
+            tv,
+            true
+        )
         geckoView?.coverUntilFirstPaint(tv.data)
         session?.let { geckoView?.setSession(it) }
     }

@@ -47,8 +47,13 @@ class SettingsAdapter(
             is SettingsListItem.Header -> {
                 (holder.itemView as TextView).setText(item.category.displayNameResId)
             }
+
             is SettingsListItem.Divider -> Unit
-            is SettingsListItem.Setting -> factory.bindView(holder.itemView, item.definition, settings)
+            is SettingsListItem.Setting -> factory.bindView(
+                holder.itemView,
+                item.definition,
+                settings
+            )
         }
     }
 

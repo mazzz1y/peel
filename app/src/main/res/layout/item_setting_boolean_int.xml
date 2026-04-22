@@ -3,8 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     style="@style/SettingsItemContainer">
 
-    <LinearLayout
-        style="@style/SettingsRow.Inline">
+    <LinearLayout style="@style/SettingsRow.Inline">
 
         <TextView
             android:id="@+id/textSettingName"

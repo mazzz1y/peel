@@ -48,7 +48,10 @@ class PeelNavigationDelegate(private val host: SessionHost) : GeckoSession.Navig
         }
     }
 
-    override fun onLoadRequest(session: GeckoSession, request: LoadRequest): GeckoResult<AllowOrDeny> {
+    override fun onLoadRequest(
+        session: GeckoSession,
+        request: LoadRequest
+    ): GeckoResult<AllowOrDeny> {
         val url = request.uri
         val settings = host.effectiveSettings
 
@@ -58,6 +61,7 @@ class PeelNavigationDelegate(private val host: SessionHost) : GeckoSession.Navig
                 handleAppLink(url, settings, request)
                 deny()
             }
+
             settings.isAlwaysHttps == true && url.startsWith("http://") -> redirectToHttps(url)
             isPassthroughScheme(url) -> allow()
             settings.isOpenUrlExternal == true -> handleExternalRouting(url, request)
@@ -240,13 +244,13 @@ class PeelNavigationDelegate(private val host: SessionHost) : GeckoSession.Navig
 
         private fun isSpuriousError(error: WebRequestError): Boolean =
             error.code == WebRequestError.ERROR_UNKNOWN &&
-                error.category == WebRequestError.ERROR_CATEGORY_UNKNOWN
+                    error.category == WebRequestError.ERROR_CATEGORY_UNKNOWN
 
         private fun isExplicitDownload(url: String): Boolean {
             val query = url.substringAfter('?', "").lowercase()
             if (query.isEmpty()) return false
             return "response-content-disposition=attachment" in query ||
-                "rscd=attachment" in query
+                    "rscd=attachment" in query
         }
 
         private fun truncateUrl(url: String, maxLen: Int = 80, tail: Int = 10): String {

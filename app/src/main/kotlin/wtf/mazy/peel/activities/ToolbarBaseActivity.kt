@@ -50,7 +50,12 @@ abstract class ToolbarBaseActivity<VB : ViewBinding> : AppCompatActivity() {
     protected fun setupKeyboardPadding(scrollView: NestedScrollView) {
         setupKeyboardPadding(scrollView as ViewGroup) { container, bottom ->
             val content = container.getChildAt(0) ?: return@setupKeyboardPadding
-            content.setPadding(content.paddingLeft, content.paddingTop, content.paddingRight, bottom)
+            content.setPadding(
+                content.paddingLeft,
+                content.paddingTop,
+                content.paddingRight,
+                bottom
+            )
         }
     }
 

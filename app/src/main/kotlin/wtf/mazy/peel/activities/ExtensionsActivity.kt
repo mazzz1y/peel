@@ -152,7 +152,7 @@ class ExtensionsActivity : AppCompatActivity() {
                     GeckoRuntimeProvider.updateExtension(this@ExtensionsActivity, ext)
                 if (updated != null) {
                     ExtensionIconCache.refreshFromExtension(this@ExtensionsActivity, updated)
-                    val version = updated.metaData.version.orEmpty()
+                    val version = updated.metaData.version
                     NotificationUtils.showToast(
                         this@ExtensionsActivity,
                         getString(R.string.extension_updated_to, version),

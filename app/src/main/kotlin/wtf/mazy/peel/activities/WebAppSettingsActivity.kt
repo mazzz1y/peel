@@ -470,7 +470,7 @@ class WebAppSettingsActivity :
             val changed = ApplyTimingRegistry.getChangedKeys(originalSettingsSnapshot, it.settings)
             val timing = ApplyTimingRegistry.getHighestTiming(changed)
             setResult(
-                Activity.RESULT_OK,
+                RESULT_OK,
                 Intent().putExtra(ApplyTimingRegistry.EXTRA_APPLY_TIMING, timing.name)
             )
         }

@@ -86,7 +86,8 @@ class HeadlessFetcher(
 
     fun start() {
         desktopMode = settings.isRequestDesktop == true
-        customUserAgent = if (settings.isUseCustomUserAgent == true) settings.customUserAgent else null
+        customUserAgent =
+            if (settings.isUseCustomUserAgent == true) settings.customUserAgent else null
 
         var loadUrl = url
         if (loadUrl.startsWith("http://") && settings.isAlwaysHttps == true)

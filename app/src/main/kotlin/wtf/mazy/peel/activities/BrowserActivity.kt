@@ -169,10 +169,9 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
 
     private val downloadCompleteReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
-            val fileName = intent.getStringExtra(DownloadService.EXTRA_FILE_NAME) ?: return
             val uriString = intent.getStringExtra(DownloadService.EXTRA_URI) ?: return
             val mimeType = intent.getStringExtra(DownloadService.EXTRA_MIME_TYPE)
-            showDownloadSnackbar(fileName, Uri.parse(uriString), mimeType)
+            showDownloadSnackbar(uriString.toUri(), mimeType)
         }
     }
 
@@ -547,7 +546,7 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
         NotificationUtils.showToast(this, message)
     }
 
-    private fun showDownloadSnackbar(fileName: String, uri: Uri, mimeType: String?) {
+    private fun showDownloadSnackbar(uri: Uri, mimeType: String?) {
         val root = findViewById<View>(android.R.id.content)
         Snackbar.make(root, getString(R.string.download_complete), Snackbar.LENGTH_LONG)
             .setAction(getString(R.string.open)) {

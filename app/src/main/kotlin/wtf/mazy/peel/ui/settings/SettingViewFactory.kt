@@ -16,10 +16,10 @@ import androidx.core.widget.doAfterTextChanged
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.materialswitch.MaterialSwitch
 import com.google.android.material.textfield.TextInputEditText
-import java.util.WeakHashMap
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.SettingDefinition
 import wtf.mazy.peel.model.WebAppSettings
+import java.util.WeakHashMap
 
 class SettingViewFactory(
     private val inflater: LayoutInflater,
@@ -67,9 +67,23 @@ class SettingViewFactory(
         when (setting) {
             is SettingDefinition.BooleanSetting -> setupBoolean(view, setting, settings)
             is SettingDefinition.ChoiceSetting -> setupDropdown(view, setting, settings)
-            is SettingDefinition.BooleanWithIntSetting -> setupBooleanWithInt(view, setting, settings)
-            is SettingDefinition.BooleanWithCredentialsSetting -> setupBooleanWithCredentials(view, setting, settings)
-            is SettingDefinition.BooleanWithStringSetting -> setupBooleanWithString(view, setting, settings)
+            is SettingDefinition.BooleanWithIntSetting -> setupBooleanWithInt(
+                view,
+                setting,
+                settings
+            )
+
+            is SettingDefinition.BooleanWithCredentialsSetting -> setupBooleanWithCredentials(
+                view,
+                setting,
+                settings
+            )
+
+            is SettingDefinition.BooleanWithStringSetting -> setupBooleanWithString(
+                view,
+                setting,
+                settings
+            )
         }
     }
 

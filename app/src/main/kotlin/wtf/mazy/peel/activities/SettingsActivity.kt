@@ -47,7 +47,7 @@ class SettingsActivity : ToolbarBaseActivity<GlobalSettingsBinding>() {
             ApplyTimingRegistry.getChangedKeys(originalSnapshot, editableSettings.settings)
         val timing = ApplyTimingRegistry.getHighestTiming(changed)
         setResult(
-            Activity.RESULT_OK,
+            RESULT_OK,
             Intent().putExtra(ApplyTimingRegistry.EXTRA_APPLY_TIMING, timing.name)
         )
         super.finish()

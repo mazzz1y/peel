@@ -153,7 +153,8 @@ object ShortcutHelper {
     }
 
     private fun cropToSafeZone(bitmap: Bitmap): Bitmap {
-        val inset = bitmap.width * (ADAPTIVE_ICON_SIZE - ADAPTIVE_SAFE_ZONE) / 2 / ADAPTIVE_ICON_SIZE
+        val inset =
+            bitmap.width * (ADAPTIVE_ICON_SIZE - ADAPTIVE_SAFE_ZONE) / 2 / ADAPTIVE_ICON_SIZE
         val size = bitmap.width - inset * 2
         if (size <= 0 || inset <= 0) return bitmap
         return Bitmap.createBitmap(bitmap, inset, inset, size, size)
@@ -168,7 +169,8 @@ object ShortcutHelper {
         val iconSizePx = (ADAPTIVE_ICON_SIZE * density).toInt()
         val logoSizePx = (logoSizeDp * density).toInt()
 
-        val trimmed = if (fillBackground) IconBackgroundExtender.trimTransparentEdges(bitmap) else null
+        val trimmed =
+            if (fillBackground) IconBackgroundExtender.trimTransparentEdges(bitmap) else null
         val source = trimmed ?: bitmap
         val hadPadding = trimmed != null && trimmed !== bitmap
 
