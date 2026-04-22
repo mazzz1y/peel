@@ -1,0 +1,8 @@
+- Add custom user agent option
+- Add custom locale setting
+- Rework extensions install flow with Material 3 dialog and AMO browse-all
+- Support uBlock Origin block page and "Close this window" action
+- Open intent:// links in their target app with a confirmation prompt
+- Skip spurious restart snackbar when no webapps are running
+- Fix moz-extension links opening external app dialog
+- Update GeckoView to 150.0.20260415
