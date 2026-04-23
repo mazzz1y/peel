@@ -109,7 +109,6 @@ class DownloadHandler(
         showDownloadPrompt(fileName) { allowed ->
             if (!allowed) {
                 body.close()
-                host.dismissRedirectToFallback(host.lastLoadedUrl.ifEmpty { host.baseUrl })
                 return@showDownloadPrompt
             }
             DownloadService.start(activity, fileName, mimeType, contentLength, webappName, body)
