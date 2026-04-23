@@ -1,6 +1,7 @@
 package wtf.mazy.peel.gecko
 
 import android.content.Context
+import android.os.LocaleList
 import android.util.Log
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
@@ -27,6 +28,7 @@ import wtf.mazy.peel.ui.extensions.ExtensionPermissionPrompt
 import wtf.mazy.peel.ui.extensions.SessionExtensionActions
 import wtf.mazy.peel.util.ForegroundActivityTracker
 import java.io.File
+import java.util.Locale
 import java.util.concurrent.CopyOnWriteArraySet
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.resume
@@ -260,9 +262,12 @@ object GeckoRuntimeProvider {
                     .cookieBehavior(ContentBlocking.CookieBehavior.ACCEPT_FIRST_PARTY)
                     .build()
             )
-        if (defaults.isUseCustomLocale == true) {
-            parseLocales(defaults.customLocale)?.let { builder.locales(it) }
+        val resolvedLocales = if (defaults.isUseCustomLocale == true) {
+            parseLocales(defaults.customLocale) ?: systemLocalesAsArray()
+        } else {
+            systemLocalesAsArray()
         }
+        builder.locales(resolvedLocales)
         writeGeckoConfig(context, defaults)?.let { builder.configFilePath(it) }
         val rt = GeckoRuntime.create(context, builder.build())
         rt.settings.setFingerprintingProtection(defaults.isFingerprintingProtection == true)
@@ -274,6 +279,12 @@ object GeckoRuntimeProvider {
     private fun parseLocales(raw: String?): Array<String>? {
         val list = raw?.split(',')?.mapNotNull { it.trim().takeIf(String::isNotEmpty) }.orEmpty()
         return list.takeIf { it.isNotEmpty() }?.toTypedArray()
+    }
+
+    private fun systemLocalesAsArray(): Array<String> {
+        val list = LocaleList.getDefault()
+        if (list.isEmpty) return arrayOf(Locale.getDefault().toLanguageTag())
+        return Array(list.size()) { i -> list[i].toLanguageTag() }
     }
 
     private fun writeGeckoConfig(
