@@ -21,33 +21,38 @@ object MenuDialogHelper {
                 dpToPx(context, 16f),
                 dpToPx(context, 14f)
             )
-            if (title != null) {
-                addView(TextView(context).apply {
-                    text = title
-                    maxLines = 1
-                    ellipsize = TextUtils.TruncateAt.END
-                    setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f)
-                    setTextColor(
-                        resolveThemeColor(
-                            context,
-                            com.google.android.material.R.attr.colorOnSurface
-                        )
-                    )
-                })
-            }
             addView(TextView(context).apply {
-                text = url
+                text = title ?: url
                 maxLines = 1
-                ellipsize = TextUtils.TruncateAt.MIDDLE
-                setTextSize(TypedValue.COMPLEX_UNIT_SP, 12f)
+                ellipsize =
+                    if (title != null) TextUtils.TruncateAt.END else TextUtils.TruncateAt.MIDDLE
+                setTextAppearance(
+                    com.google.android.material.R.style.TextAppearance_Material3_TitleSmall
+                )
                 setTextColor(
                     resolveThemeColor(
                         context,
-                        com.google.android.material.R.attr.colorOnSurfaceVariant
+                        com.google.android.material.R.attr.colorOnSurface
                     )
                 )
-                if (title != null) setPadding(0, dpToPx(context, 2f), 0, 0)
             })
+            if (title != null) {
+                addView(TextView(context).apply {
+                    text = url
+                    maxLines = 1
+                    ellipsize = TextUtils.TruncateAt.MIDDLE
+                    setTextAppearance(
+                        com.google.android.material.R.style.TextAppearance_Material3_BodySmall
+                    )
+                    setTextColor(
+                        resolveThemeColor(
+                            context,
+                            com.google.android.material.R.attr.colorOnSurfaceVariant
+                        )
+                    )
+                    setPadding(0, dpToPx(context, 2f), 0, 0)
+                })
+            }
         }
 
     fun buildDivider(context: Context): View = View(context).apply {

@@ -29,7 +29,6 @@ class DownloadHandler(
     private val getRuntime: () -> GeckoRuntime,
     private val scope: CoroutineScope,
     private val webappName: String,
-    private val host: SessionHost,
 ) {
     private var promptShowing = false
 
@@ -163,10 +162,11 @@ class DownloadHandler(
     private fun resolveFileName(
         url: String, contentDisposition: String?, mimeType: String?,
     ): String {
-        val name = when {
-            url.startsWith("blob:") || url.startsWith("data:") -> "download"
-            else -> getFileNameFromDownload(url, contentDisposition, mimeType) ?: "download"
-        }
+        val name = getFileNameFromDownload(null, contentDisposition, mimeType)
+            ?: when {
+                url.startsWith("blob:") || url.startsWith("data:") -> "download"
+                else -> getFileNameFromDownload(url, null, mimeType) ?: "download"
+            }
         if ('.' in name || mimeType == null) return name
         val ext = MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType)
         return if (ext != null) "$name.$ext" else name

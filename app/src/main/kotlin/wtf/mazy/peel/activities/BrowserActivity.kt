@@ -6,7 +6,6 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.net.Uri
@@ -14,79 +13,54 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.TypedValue
 import android.view.View
-import android.view.WindowManager
-import android.widget.LinearLayout
-import android.widget.ProgressBar
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
-import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toDrawable
 import androidx.core.net.toUri
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
-import com.google.android.material.textfield.TextInputEditText
-import com.google.android.material.textfield.TextInputLayout
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.mozilla.geckoview.GeckoSession
-import org.mozilla.geckoview.GeckoSessionSettings
 import org.mozilla.geckoview.StorageController
 import wtf.mazy.peel.R
+import wtf.mazy.peel.browser.BaseSessionHost
 import wtf.mazy.peel.browser.BrowserContextMenu
 import wtf.mazy.peel.browser.DownloadHandler
 import wtf.mazy.peel.browser.DownloadService
-import wtf.mazy.peel.browser.ExternalLinkResult
-import wtf.mazy.peel.browser.MenuDialogHelper
 import wtf.mazy.peel.browser.PeelContentDelegate
 import wtf.mazy.peel.browser.PeelNavigationDelegate
-import wtf.mazy.peel.browser.parseIntentUri
 import wtf.mazy.peel.browser.PeelPermissionDelegate
 import wtf.mazy.peel.browser.PeelProgressDelegate
 import wtf.mazy.peel.browser.PeelPromptDelegate
-import wtf.mazy.peel.browser.PermissionResult
-import wtf.mazy.peel.browser.SessionHost
 import wtf.mazy.peel.browser.StartupAuthReturnTracker
 import wtf.mazy.peel.gecko.ExtensionStateEvent
 import wtf.mazy.peel.gecko.ExtensionStateListener
 import wtf.mazy.peel.gecko.GeckoRuntimeProvider
 import wtf.mazy.peel.gecko.NestedGeckoView
-import wtf.mazy.peel.gecko.VerticalSwipeRefreshLayout
 import wtf.mazy.peel.media.MediaPlaybackManager
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.model.WebAppSettings
 import wtf.mazy.peel.ui.FloatingControlsView
-import wtf.mazy.peel.ui.PickerDialog
 import wtf.mazy.peel.ui.browser.AutoReloadController
 import wtf.mazy.peel.ui.browser.BiometricUnlockController
 import wtf.mazy.peel.ui.browser.LaunchOverlayController
 import wtf.mazy.peel.ui.browser.SystemBarController
-import wtf.mazy.peel.ui.dialog.InputDialogConfig
-import wtf.mazy.peel.ui.dialog.showInputDialogRaw
+import wtf.mazy.peel.ui.dialog.ExternalLinkMenu
 import wtf.mazy.peel.ui.extensions.ExtensionPickerDialog
 import wtf.mazy.peel.ui.extensions.SessionExtensionActions
 import wtf.mazy.peel.util.BrowserLauncher
 import wtf.mazy.peel.util.Const
-import wtf.mazy.peel.util.HostIdentity
 import wtf.mazy.peel.util.NotificationUtils
 import wtf.mazy.peel.util.normalizedHost
-import wtf.mazy.peel.util.shortLabel
 
-class BrowserActivity : AppCompatActivity(), SessionHost {
+class BrowserActivity : BaseSessionHost() {
     var webappUuid: String? = null
 
-    private var geckoView: NestedGeckoView? = null
-    private var geckoSession: GeckoSession? = null
     private val sessionExtensionActions by lazy {
         SessionExtensionActions(
             activity = this,
@@ -106,63 +80,28 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
         }
     }
 
-    private var progressBar: ProgressBar? = null
-    private var swipeRefreshLayout: VerticalSwipeRefreshLayout? = null
-    override var currentlyReloading = true
-    override var filePathCallback: ((Array<Uri>?) -> Unit)? = null
     private var historyPurged = false
-    override var canGoBack = false
+    override var canGoBack: Boolean = false
         set(value) {
             if (historyPurged && value) return
             field = value
         }
     var currentUrl = ""
-    override var lastLoadedUrl = ""
+
+    init {
+        currentlyReloading = true
+    }
 
     private val launchedFromMenu by lazy {
         intent.getBooleanExtra(Const.INTENT_LAUNCHED_FROM_MENU, false)
     }
 
-    private val filePickerLauncher =
-        registerForActivityResult(StartActivityForResult()) { result ->
-            val callback = filePathCallback ?: return@registerForActivityResult
-            filePathCallback = null
-            if (result?.resultCode != RESULT_OK) {
-                PeelPromptDelegate.consumeCaptureUri()
-                callback.invoke(null)
-                return@registerForActivityResult
-            }
-            val contentUris = extractUris(result.data)
-            if (contentUris.isNullOrEmpty()) {
-                val captured = PeelPromptDelegate.consumeCaptureUri()
-                callback.invoke(captured?.let { arrayOf(it) })
-                return@registerForActivityResult
-            }
-            lifecycleScope.launch {
-                val fileUris = withContext(Dispatchers.IO) { resolveToFileUris(contentUris) }
-                if (fileUris.isNotEmpty()) {
-                    callback.invoke(fileUris)
-                } else {
-                    val captured = PeelPromptDelegate.consumeCaptureUri()
-                    callback.invoke(captured?.let { arrayOf(it) })
-                }
-            }
-        }
-    private var pendingPermissionCallback: ((Boolean) -> Unit)? = null
     private val mainHandler = Handler(Looper.getMainLooper())
-    private val permissionLauncher =
-        registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { results ->
-            val allGranted = results.isNotEmpty() && results.values.all { it }
-            pendingPermissionCallback?.invoke(allGranted)
-            pendingPermissionCallback = null
-        }
 
     private val webapp: WebApp
         get() = DataManager.instance.getWebApp(webappUuid!!)!!
 
     private var floatingControls: FloatingControlsView? = null
-    private lateinit var downloadHandler: DownloadHandler
-    private lateinit var navigationDelegate: PeelNavigationDelegate
     private lateinit var permissionDelegate: PeelPermissionDelegate
     private lateinit var promptDelegate: PeelPromptDelegate
     private var contextMenu: BrowserContextMenu? = null
@@ -227,8 +166,8 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
         liveInstances.add(this)
 
         window.setBackgroundDrawable(themeBackgroundColor.toDrawable())
-        setContentView(R.layout.activity_browser)
-        findViewById<View>(R.id.launchOverlay)?.let { overlay ->
+        setupSessionHostLayout(showToolbar = false)
+        launchOverlay?.let { overlay ->
             overlay.setBackgroundColor(themeBackgroundColor)
             overlay.alpha = 1f
             overlay.visibility = View.VISIBLE
@@ -333,7 +272,7 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
 
     private fun createFloatingControls(uuid: String): FloatingControlsView {
         return FloatingControlsView(
-            parent = findViewById(R.id.browser_root),
+            parent = findViewById(R.id.browserContent),
             webappUuid = uuid,
             onHome = { loadURL(webapp.baseUrl) },
             onReload = ::reloadCurrentPage,
@@ -463,84 +402,16 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
     override val baseUrl: String
         get() = webapp.baseUrl
 
-    override val hostProgressBar: ProgressBar?
-        get() = progressBar
+    override val sessionContextId: String?
+        get() = webapp.resolveContextId()
+    override val sessionPrivateMode: Boolean
+        get() = webapp.resolvePrivateMode()
 
-    override var hostOrientation: Int
-        get() = requestedOrientation
-        set(value) {
-            requestedOrientation = value
-        }
-
-    override val hostWindow: android.view.Window
-        get() = window
-
-    override fun showHttpAuthDialog(
-        onResult: (username: String, password: String) -> Unit,
-        onCancel: () -> Unit,
-        url: String?,
-    ) {
-        var passwordInput: TextInputEditText? = null
-        val dp8 = (resources.displayMetrics.density * 8).toInt()
-        showInputDialogRaw(
-            InputDialogConfig(
-                titleRes = R.string.setting_basic_auth,
-                hintRes = R.string.username,
-                allowEmpty = true,
-                message = url ?: "",
-                onCancel = { onCancel() },
-                extraContent = { container ->
-                    val passwordLayout = TextInputLayout(container.context).apply {
-                        hint = getString(R.string.password)
-                        endIconMode = TextInputLayout.END_ICON_PASSWORD_TOGGLE
-                        layoutParams = LinearLayout.LayoutParams(
-                            LinearLayout.LayoutParams.MATCH_PARENT,
-                            LinearLayout.LayoutParams.WRAP_CONTENT,
-                        ).apply { topMargin = dp8 }
-                    }
-                    passwordInput = TextInputEditText(passwordLayout.context).apply {
-                        inputType =
-                            android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_VARIATION_PASSWORD
-                        isSingleLine = true
-                    }
-                    passwordLayout.addView(passwordInput)
-                    container.addView(passwordLayout)
-                },
-            ),
-        ) { usernameInput, _ ->
-            onResult(
-                usernameInput.text.toString(),
-                passwordInput?.text?.toString().orEmpty(),
-            )
-        }
-    }
-
-    private fun applyColorScheme() {
-        val settings = effectiveSettings
-        val scheme = settings.colorScheme ?: WebAppSettings.COLOR_SCHEME_AUTO
-
-        val nightMode = when (scheme) {
-            WebAppSettings.COLOR_SCHEME_LIGHT -> AppCompatDelegate.MODE_NIGHT_NO
-            WebAppSettings.COLOR_SCHEME_DARK -> AppCompatDelegate.MODE_NIGHT_YES
-            else -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
-        }
-        getDelegate().localNightMode = nightMode
-
-    }
-
-    override fun loadURL(url: String) {
-        val finalUrl = if (url.startsWith("http://") && effectiveSettings.isAlwaysHttps == true)
-            url.replaceFirst("http://", "https://") else url
-        geckoSession?.loadUri(finalUrl)
-    }
-
-    override fun dismissRedirectToFallback(fallback: String) {
-        if (canGoBack) geckoSession?.goBack() else loadURL(fallback)
-    }
-
-    override fun goBackOrFinish() {
-        if (canGoBack) geckoSession?.goBack() else finish()
-    }
+    override val externalLinkExcludeUuid: String?
+        get() = webappUuid
+    override val externalLinkPeelApps: List<WebApp>
+        get() = cachedPeelApps
+    override val externalLinkIncludeLoadHere: Boolean = true
 
     private fun showToast(message: String) {
         NotificationUtils.showToast(this, message)
@@ -569,15 +440,7 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
             finish()
             return
         }
-        MaterialAlertDialogBuilder(this)
-            .setTitle(R.string.site_not_found)
-            .setMessage(getString(R.string.connection_error, description))
-            .setPositiveButton(R.string.retry) { _, _ -> loadURL(url) }
-            .setNegativeButton(if (canGoBack) R.string.back else R.string.exit) { _, _ ->
-                goBackOrFinish()
-            }
-            .setCancelable(false)
-            .show()
+        super.showConnectionError(description, url)
     }
 
     override fun updateStatusBarColor(color: Int) {
@@ -606,8 +469,8 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
     }
 
     override fun onPageFullyLoaded() {
+        super.onPageFullyLoaded()
         closeStartupAuthTrackingIfInitialBaseLoaded()
-        navigationDelegate.onPageLoadFinished()
         lastLoadedUrl = currentUrl
         if (pageLoadHandled || biometricController.isPromptActive) return
         pageLoadHandled = true
@@ -622,77 +485,12 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
         }
     }
 
-    override fun startExternalIntent(uri: Uri) {
-        val url = uri.toString()
-        val intent = parseIntentUri(url)
-            ?: runCatching { Intent(Intent.ACTION_VIEW, uri) }.getOrNull()
-        if (intent != null && tryStartActivity(intent)) return
-        showToast(getString(R.string.no_app_found))
-    }
-
-    private fun tryStartActivity(intent: Intent): Boolean = try {
-        startActivity(intent)
-        true
-    } catch (_: ActivityNotFoundException) {
-        false
-    } catch (_: Exception) {
-        false
-    }
-
-    override val themeBackgroundColor: Int
-        get() {
-            val tv = TypedValue()
-            theme.resolveAttribute(android.R.attr.colorBackground, tv, true)
-            return tv.data
-        }
-
-    override fun runOnUi(action: Runnable) = runOnUiThread(action)
-
-    override fun launchFilePicker(intent: Intent?): Boolean {
-        val safeIntent = intent ?: return false
-        return try {
-            filePickerLauncher.launch(safeIntent)
-            true
-        } catch (_: Exception) {
-            false
-        }
-    }
-
     override fun hideSystemBars() {
         systemBarController.hide()
     }
 
     override fun showSystemBars() {
         systemBarController.show(effectiveSettings.isShowFullscreen == true)
-    }
-
-    override fun requestOsPermissions(
-        permissions: Array<String>,
-        onResult: (granted: Boolean) -> Unit,
-    ) {
-        pendingPermissionCallback = onResult
-        permissionLauncher.launch(permissions)
-    }
-
-    override fun hasPermissions(vararg permissions: String): Boolean {
-        return permissions.all {
-            ContextCompat.checkSelfPermission(this, it) == PackageManager.PERMISSION_GRANTED
-        }
-    }
-
-    override fun showPermissionDialog(message: CharSequence, onResult: (PermissionResult) -> Unit) {
-        MaterialAlertDialogBuilder(this)
-            .setMessage(message)
-            .setCancelable(false)
-            .setPositiveButton(R.string.permission_prompt_allow) { dialog, _ ->
-                dialog.dismiss()
-                onResult(PermissionResult.ALLOW)
-            }
-            .setNegativeButton(R.string.permission_prompt_deny) { dialog, _ ->
-                dialog.dismiss()
-                onResult(PermissionResult.DENY)
-            }
-            .show()
     }
 
     private fun setupGeckoView() {
@@ -708,7 +506,6 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
             getRuntime = { GeckoRuntimeProvider.getRuntime(this) },
             scope = lifecycleScope,
             webappName = webapp.title,
-            host = this,
         )
         navigationDelegate = PeelNavigationDelegate(this)
         permissionDelegate = PeelPermissionDelegate(this)
@@ -734,7 +531,7 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
         navigationDelegate.browsingExternally = false
         permissionDelegate.clearPagePermissions()
         promptDelegate.clearAutoAuth()
-        geckoView?.resetScrollPosition()
+        (geckoView as? NestedGeckoView)?.resetScrollPosition()
         autoReloadController.stop()
         startupAuthReturnTracker = StartupAuthReturnTracker(webapp.baseUrl)
         isStartupAuthTrackingActive = true
@@ -758,7 +555,7 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
         session.permissionDelegate = permissionDelegate
         session.promptDelegate = promptDelegate
 
-        val nestedView = geckoView
+        val nestedView = geckoView as? NestedGeckoView
         if (nestedView != null) {
             session.scrollDelegate = object : GeckoSession.ScrollDelegate {
                 override fun onScrollChanged(session: GeckoSession, scrollX: Int, scrollY: Int) {
@@ -791,32 +588,6 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
         }
     }
 
-    private fun createSession(settings: WebAppSettings): GeckoSession {
-        val contextId = webapp.resolveContextId()
-
-        val sessionSettings = GeckoSessionSettings.Builder()
-            .allowJavascript(settings.isAllowJs == true)
-            .apply {
-                if (settings.isRequestDesktop == true) {
-                    userAgentMode(GeckoSessionSettings.USER_AGENT_MODE_DESKTOP)
-                    viewportMode(GeckoSessionSettings.VIEWPORT_MODE_DESKTOP)
-                }
-                val customUa = settings.customUserAgent
-                if (settings.isUseCustomUserAgent == true && !customUa.isNullOrBlank()) {
-                    userAgentOverride(customUa)
-                }
-                if (contextId != null) contextId(contextId)
-                usePrivateMode(webapp.resolvePrivateMode())
-            }
-            .build()
-
-        val session = GeckoSession(sessionSettings)
-        session.settings.useTrackingProtection =
-            settings.isSafeBrowsing != null && settings.isSafeBrowsing != WebAppSettings.TRACKER_PROTECTION_NONE
-
-        return session
-    }
-
     private fun setupMediaPlayback(settings: WebAppSettings) {
         if (settings.isAllowMediaPlaybackInBackground != true) return
         val session = geckoSession ?: return
@@ -846,46 +617,11 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
         )
     }
 
-    private fun applyWindowFlags(settings: WebAppSettings) {
-        if (settings.isKeepAwake == true) {
-            window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-        } else {
-            window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-        }
-        if (settings.isDisableScreenshots == true) {
-            window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
-        } else {
-            window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
-        }
-    }
-
     private fun bindViews() {
         findViewById<View>(R.id.browser_root)?.setBackgroundColor(themeBackgroundColor)
         findViewById<View>(R.id.browserContent)?.setBackgroundColor(themeBackgroundColor)
-        geckoView = findViewById(R.id.geckoview)
-        val overlay = findViewById<View>(R.id.launchOverlay)
-        launchOverlayController.attach(overlay, themeBackgroundColor)
+        launchOverlay?.let { launchOverlayController.attach(it, themeBackgroundColor) }
         launchOverlayController.arm { systemBarController.suppressNextAnimation = true }
-        progressBar = findViewById(R.id.progressBar)
-        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout)
-    }
-
-    private fun setupPullToRefresh(settings: WebAppSettings) {
-        if (settings.isPullToRefresh == true) {
-            swipeRefreshLayout?.apply {
-                isEnabled = true
-                setOnRefreshListener {
-                    reloadCurrentPage()
-                    isRefreshing = false
-                }
-            }
-        } else {
-            swipeRefreshLayout?.isEnabled = false
-        }
-    }
-
-    private fun reloadCurrentPage() {
-        geckoSession?.reload()
     }
 
     private fun resetHistoryAfterAuthReturn() {
@@ -924,134 +660,17 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
         }
     }
 
-    override fun showExternalLinkMenu(
-        url: String,
-        onResult: (ExternalLinkResult) -> Unit,
-    ) {
-        var dialog: androidx.appcompat.app.AlertDialog? = null
-        fun dismiss(result: ExternalLinkResult) {
-            dialog?.dismiss()
-            onResult(result)
-        }
-
-        val content = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            addView(
-                MenuDialogHelper.buildHeader(
-                    this@BrowserActivity,
-                    null,
-                    MenuDialogHelper.displayUrl(url)
-                )
-            )
-            addView(MenuDialogHelper.buildDivider(this@BrowserActivity))
-            val icon = bestPeelMatchIcon(url)
-            val iconClick = if (icon != null) {
-                { dismiss(ExternalLinkResult.OpenInPeelApp { openInBestPeelMatch(url) }) }
-            } else null
-            addView(
-                MenuDialogHelper.buildActionRow(
-                    this@BrowserActivity,
-                    getString(R.string.open_in_peel),
-                    icon,
-                    iconClick
-                ) {
-                    dismiss(ExternalLinkResult.OpenInPeelApp { openInPeel(url) })
-                })
-            addView(
-                MenuDialogHelper.buildActionRow(
-                    this@BrowserActivity,
-                    getString(R.string.open_in_current_session)
-                ) {
-                    dismiss(ExternalLinkResult.LOAD_HERE)
-                })
-            addView(
-                MenuDialogHelper.buildActionRow(
-                    this@BrowserActivity,
-                    getString(R.string.open_in_system)
-                ) {
-                    dismiss(ExternalLinkResult.OPEN_IN_SYSTEM)
-                })
-        }
-
-        dialog = MaterialAlertDialogBuilder(this)
-            .setView(content)
-            .setOnCancelListener {
-                onResult(ExternalLinkResult.DISMISSED)
-            }
-            .show()
-    }
-
     private fun bestPeelMatchIcon(url: String): Bitmap? {
-        val currentUuid = webappUuid ?: return null
-        return bestPeelMatch(url, currentUuid)?.resolveIcon()
-    }
-
-    private fun bestPeelMatch(url: String, currentUuid: String): WebApp? =
-        bestPeelMatchFrom(cachedPeelApps, url, currentUuid)
-
-    private fun bestPeelMatchFrom(
-        apps: List<WebApp>,
-        url: String,
-        currentUuid: String,
-    ): WebApp? {
-        val scores = apps
-            .filter { it.uuid != currentUuid }
-            .associateWith { HostIdentity.affinity(it.baseUrl, url) }
-        val topScore = scores.values.maxOrNull() ?: return null
-        if (topScore <= HostIdentity.TLD_ONLY) return null
-        val topMatches = scores.filterValues { it == topScore }
-        if (topMatches.size != 1) return null
-        return topMatches.keys.first()
+        return ExternalLinkMenu.bestPeelMatch(cachedPeelApps, url, webappUuid)?.resolveIcon()
     }
 
     private fun openInBestPeelMatch(url: String) {
-        val currentUuid = webappUuid ?: return
-        lifecycleScope.launch {
-            val apps = DataManager.instance.queryAllWebApps()
-            val match = bestPeelMatchFrom(apps, url, currentUuid) ?: return@launch
-            launchWebApp(match, url)
-        }
+        val match = ExternalLinkMenu.bestPeelMatch(cachedPeelApps, url, webappUuid) ?: return
+        BrowserLauncher.launch(match, this, url)
     }
 
     private fun openInPeel(url: String) {
-        val currentUuid = webappUuid ?: return
-        lifecycleScope.launch {
-            val allApps = DataManager.instance.queryAllWebApps()
-            val apps = allApps
-                .filter { it.uuid != currentUuid }
-                .sortedWith(compareByDescending<WebApp> {
-                    HostIdentity.affinity(it.baseUrl, url)
-                }.thenBy { it.title })
-            if (apps.isEmpty()) {
-                showToast(getString(R.string.no_web_apps_available))
-                return@launch
-            }
-
-            val hasGroups = apps.any { it.groupUuid != null }
-            val groupTitles = if (hasGroups) {
-                apps.mapNotNull { it.groupUuid }.distinct()
-                    .associateWith { DataManager.instance.queryGroup(it)?.title }
-            } else emptyMap()
-
-            PickerDialog.show(
-                activity = this@BrowserActivity,
-                title = getString(R.string.open_in_peel),
-                items = apps,
-                onPick = { webapp -> launchWebApp(webapp, url) },
-            ) { webapp, icon, name, detail ->
-                name.text = webapp.title
-                icon.setImageBitmap(webapp.resolveIcon())
-                if (hasGroups) {
-                    detail.text = webapp.groupUuid?.let { groupTitles[it] }
-                        ?.let { shortLabel(it) } ?: getString(R.string.ungrouped)
-                    detail.visibility = View.VISIBLE
-                }
-            }
-        }
-    }
-
-    private fun launchWebApp(webapp: WebApp, url: String) {
-        BrowserLauncher.launch(webapp, this, url)
+        ExternalLinkMenu.openInPeelPicker(this, url, webappUuid)
     }
 
     private fun setupBackNavigation() {
@@ -1078,30 +697,6 @@ class BrowserActivity : AppCompatActivity(), SessionHost {
 
     private fun sharedUrlFromIntent(): String? =
         intent.getStringExtra(Const.INTENT_TARGET_URL)
-
-    private fun extractUris(intent: Intent?): Array<Uri>? =
-        intent?.data?.let { arrayOf(it) }
-            ?: intent?.clipData?.let { clip -> Array(clip.itemCount) { clip.getItemAt(it).uri } }
-
-    private fun resolveToFileUris(uris: Array<Uri>): Array<Uri> {
-        val picksDir = java.io.File(cacheDir, "picks").apply { mkdirs() }
-        picksDir.listFiles()?.forEach { it.delete() }
-        return uris.mapNotNull { uri ->
-            if (uri.scheme == "file") return@mapNotNull uri
-            try {
-                val mimeType = contentResolver.getType(uri)
-                val ext = android.webkit.MimeTypeMap.getSingleton()
-                    .getExtensionFromMimeType(mimeType) ?: "bin"
-                val dest = java.io.File.createTempFile("pick_", ".$ext", picksDir)
-                contentResolver.openInputStream(uri)?.use { input ->
-                    dest.outputStream().use { output -> input.copyTo(output) }
-                }
-                Uri.fromFile(dest)
-            } catch (_: Exception) {
-                null
-            }
-        }.toTypedArray()
-    }
 
     private fun applyTaskSnapshotProtection() {
         val shouldProtect = effectiveSettings.isBiometricProtection == true

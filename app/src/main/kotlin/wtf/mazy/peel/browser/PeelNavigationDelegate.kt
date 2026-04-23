@@ -11,6 +11,7 @@ import org.mozilla.geckoview.WebRequestError
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.WebAppSettings
 import wtf.mazy.peel.util.HostIdentity
+import wtf.mazy.peel.util.normalizedHost
 import wtf.mazy.peel.util.withMonoSpan
 
 internal fun parseIntentUri(url: String): Intent? {
@@ -97,6 +98,8 @@ class PeelNavigationDelegate(private val host: SessionHost) : GeckoSession.Navig
         if (browsingExternally || isInitialLoad) {
             return if (request.target == TARGET_WINDOW_NEW) deny() else allow()
         }
+
+        if (isSameOrigin(host.baseUrl, url)) return allow()
 
         val isExternal = HostIdentity.affinity(host.baseUrl, url) <= HostIdentity.TLD_ONLY
         if (isExternal && isExplicitDownload(url)) return allow()
@@ -245,6 +248,17 @@ class PeelNavigationDelegate(private val host: SessionHost) : GeckoSession.Navig
         private fun isSpuriousError(error: WebRequestError): Boolean =
             error.code == WebRequestError.ERROR_UNKNOWN &&
                     error.category == WebRequestError.ERROR_CATEGORY_UNKNOWN
+
+        private fun isSameOrigin(base: String, url: String): Boolean {
+            val baseHost = base.normalizedHost() ?: return false
+            val targetHost = url.normalizedHost() ?: return false
+            return baseHost == targetHost && schemeOf(base) == schemeOf(url)
+        }
+
+        private fun schemeOf(url: String): String? {
+            val end = url.indexOf("://").takeIf { it > 0 } ?: return null
+            return url.substring(0, end)
+        }
 
         private fun isExplicitDownload(url: String): Boolean {
             val query = url.substringAfter('?', "").lowercase()
