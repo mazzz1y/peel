@@ -158,8 +158,9 @@
     <string name="about_version">%1$s</string>
     <string name="about_engine">GeckoView %1$s</string>
     <string name="about_description">A lightweight browser for web apps\nPowered by Mozilla GeckoView</string>
-    <string name="about_github">GitHub</string>
-    <string name="about_fdroid">F-Droid</string>
+    <string name="about_github" translatable="false">GitHub</string>
+    <string name="about_fdroid" translatable="false">F-Droid</string>
+    <string name="about_google_play" translatable="false">Google Play</string>
     <string name="about_license">GNU GPL v3</string>
     <string name="delete">Delete</string>
     <string name="settings">Settings</string>
