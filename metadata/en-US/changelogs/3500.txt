@@ -1,0 +1,6 @@
+- Fix back navigation after declining a download
+- Reset locale to system default when custom locale override is disabled
+- Unify extension and browser session handling
+- Show proper file names for downloads
+- Activate F-Droid link and add Google Play button to the about dialog
+- Open external link prompt when clicking links inside extension pages
