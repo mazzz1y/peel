@@ -91,7 +91,7 @@ class FloatingControlsView(
     init {
         actionButtons.forEach { btn ->
             btn.alpha = 0f
-            btn.visibility = View.GONE
+            btn.isClickable = false
             parent.addView(btn)
         }
         parent.addView(trigger)
@@ -225,7 +225,7 @@ class FloatingControlsView(
         positionActions()
         actionButtons.forEach { btn ->
             btn.animate().cancel()
-            btn.visibility = View.VISIBLE
+            btn.isClickable = true
             btn.animate().alpha(1f).setDuration(ANIM_DURATION_MS).start()
         }
         trigger.animate().cancel()
@@ -236,9 +236,8 @@ class FloatingControlsView(
         expanded = false
         actionButtons.forEach { btn ->
             btn.animate().cancel()
-            btn.animate().alpha(0f).setDuration(ANIM_DURATION_MS)
-                .withEndAction { if (!expanded) btn.visibility = View.GONE }
-                .start()
+            btn.isClickable = false
+            btn.animate().alpha(0f).setDuration(ANIM_DURATION_MS).start()
         }
         trigger.animate().cancel()
         trigger.animate().rotation(0f).setDuration(ANIM_DURATION_MS).start()
