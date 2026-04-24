@@ -9,7 +9,6 @@ import android.view.View
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
-import android.widget.PopupMenu
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -29,7 +28,6 @@ import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.IconCache
 import wtf.mazy.peel.model.SettingDefinition
 import wtf.mazy.peel.model.WebApp
-import wtf.mazy.peel.model.WebAppGroup
 import wtf.mazy.peel.model.WebAppSettings
 import wtf.mazy.peel.shortcut.FetchCandidate
 import wtf.mazy.peel.shortcut.FetchResult
@@ -38,6 +36,7 @@ import wtf.mazy.peel.shortcut.LetterIconGenerator
 import wtf.mazy.peel.shortcut.ShortcutHelper
 import wtf.mazy.peel.ui.IconEditorController
 import wtf.mazy.peel.ui.PickerDialog
+import wtf.mazy.peel.ui.bindDropdown
 import wtf.mazy.peel.ui.dialog.InputDialogConfig
 import wtf.mazy.peel.ui.dialog.OverridePickerDialog
 import wtf.mazy.peel.ui.dialog.showInputDialogRaw
@@ -201,27 +200,22 @@ class WebAppSettingsActivity :
 
         binding.groupRow.visibility = View.VISIBLE
         binding.groupDivider.visibility = View.VISIBLE
-        updateGroupLabel(webapp)
 
-        binding.txtGroupName.setOnClickListener { showGroupPicker(webapp, groups) }
-    }
+        val labels = groups.map { it.title } + getString(R.string.ungrouped)
+        val ungroupedIndex = groups.size
 
-    private fun updateGroupLabel(webapp: WebApp) {
-        val groupName = webapp.groupUuid?.let { DataManager.instance.getGroup(it)?.title }
-        binding.txtGroupName.text = groupName ?: getString(R.string.ungrouped)
-    }
-
-    private fun showGroupPicker(webapp: WebApp, groups: List<WebAppGroup>) {
-        val popup = PopupMenu(this, binding.txtGroupName, Gravity.END)
-        groups.forEachIndexed { index, group -> popup.menu.add(0, index, index, group.title) }
-        popup.menu.add(0, groups.size, groups.size, getString(R.string.ungrouped))
-
-        popup.setOnMenuItemClickListener { item ->
-            webapp.groupUuid = if (item.itemId < groups.size) groups[item.itemId].uuid else null
-            updateGroupLabel(webapp)
-            true
-        }
-        popup.show()
+        binding.btnGroupPicker.bindDropdown(
+            items = labels,
+            currentIndex = {
+                val uuid = webapp.groupUuid
+                if (uuid == null) ungroupedIndex
+                else groups.indexOfFirst { it.uuid == uuid }
+                    .takeIf { it >= 0 } ?: ungroupedIndex
+            },
+            onSelected = { i ->
+                webapp.groupUuid = if (i < groups.size) groups[i].uuid else null
+            },
+        )
     }
 
     private fun setupSandboxSwitch(modifiedWebapp: WebApp) {

@@ -41,30 +41,20 @@
                         android:visibility="gone">
 
                         <TextView
-                            android:layout_width="wrap_content"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
+                            android:layout_weight="1"
                             android:text="@string/group"
                             android:textAppearance="?attr/textAppearanceBodyLarge" />
 
-                        <View
-                            android:layout_width="0dp"
-                            android:layout_height="0dp"
-                            android:layout_weight="1" />
-
-                        <TextView
-                            android:id="@+id/txtGroupName"
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnGroupPicker"
+                            style="@style/Widget.Material3.Button.OutlinedButton"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:background="?attr/selectableItemBackground"
-                            android:drawableEnd="@drawable/ic_expand_more_24dp"
-                            android:drawablePadding="4dp"
                             android:ellipsize="end"
                             android:maxLines="1"
-                            android:paddingVertical="8dp"
-                            android:paddingStart="8dp"
-                            android:text="@string/ungrouped"
-                            android:textAppearance="?attr/textAppearanceLabelLarge"
-                            android:textColor="?attr/colorOnSurfaceVariant" />
+                            android:text="@string/ungrouped" />
 
                     </LinearLayout>
 

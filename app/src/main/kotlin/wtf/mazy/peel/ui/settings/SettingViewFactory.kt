@@ -2,7 +2,6 @@ package wtf.mazy.peel.ui.settings
 
 import android.text.Editable
 import android.text.TextWatcher
-import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.inputmethod.EditorInfo
@@ -10,7 +9,6 @@ import android.widget.CompoundButton
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.LinearLayout
-import android.widget.PopupMenu
 import android.widget.TextView
 import androidx.core.widget.doAfterTextChanged
 import com.google.android.material.button.MaterialButton
@@ -19,6 +17,7 @@ import com.google.android.material.textfield.TextInputEditText
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.SettingDefinition
 import wtf.mazy.peel.model.WebAppSettings
+import wtf.mazy.peel.ui.bindDropdown
 import java.util.WeakHashMap
 
 class SettingViewFactory(
@@ -127,34 +126,24 @@ class SettingViewFactory(
         val btnUndo = view.findViewById<ImageButton>(R.id.btnUndo)
 
         textName.text = context.getString(setting.displayNameResId)
-
-        val labels = setting.labels.map { context.getString(it) }.toTypedArray()
+        val labels = setting.labels.map { context.getString(it) }
 
         fun currentIndex(): Int {
             val current = settings.getValue(setting.key) as? Int ?: setting.values[0]
             return setting.values.indexOf(current).coerceAtLeast(0)
         }
 
-        fun syncUi() {
-            txtValue.text = labels[currentIndex()]
-        }
-
-        syncUi()
-
-        txtValue.setOnClickListener {
-            val popup = PopupMenu(context, txtValue, Gravity.END)
-            labels.forEachIndexed { i, label -> popup.menu.add(0, i, i, label) }
-            popup.setOnMenuItemClickListener { item ->
-                settings.setValue(setting.key, setting.values[item.itemId])
-                syncUi()
+        txtValue.bindDropdown(
+            items = labels,
+            currentIndex = ::currentIndex,
+            onSelected = { i ->
+                settings.setValue(setting.key, setting.values[i])
                 updateUndoVisibility(btnUndo, setting, settings)
-                true
-            }
-            popup.show()
-        }
+            },
+        )
 
         configureButtons(btnRemove, btnUndo, setting, settings) {
-            syncUi()
+            txtValue.text = labels[currentIndex()]
         }
     }
 
