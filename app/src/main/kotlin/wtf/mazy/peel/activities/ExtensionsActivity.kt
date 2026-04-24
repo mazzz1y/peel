@@ -33,6 +33,7 @@ import wtf.mazy.peel.ui.extensions.ExtensionAdapter
 import wtf.mazy.peel.ui.extensions.ExtensionIconCache
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.NotificationUtils
+import wtf.mazy.peel.util.withBoldSpan
 import java.io.File
 
 class ExtensionsActivity : AppCompatActivity() {
@@ -218,7 +219,7 @@ class ExtensionsActivity : AppCompatActivity() {
     private fun confirmUninstall(ext: WebExtension) {
         val name = ext.metaData.name ?: ext.id
         MaterialAlertDialogBuilder(this)
-            .setMessage(getString(R.string.uninstall_extension_confirm, name))
+            .setMessage(getString(R.string.uninstall_extension_confirm, name).withBoldSpan(name))
             .setPositiveButton(R.string.uninstall_extension) { _, _ ->
                 lifecycleScope.launch {
                     try {

@@ -19,6 +19,7 @@ import org.mozilla.geckoview.WebResponse
 import wtf.mazy.peel.R
 import wtf.mazy.peel.util.NotificationUtils.showToast
 import wtf.mazy.peel.util.Utility.getFileNameFromDownload
+import wtf.mazy.peel.util.withBoldSpan
 import wtf.mazy.peel.util.withMonoSpan
 import java.io.ByteArrayInputStream
 import java.io.File
@@ -146,6 +147,7 @@ class DownloadHandler(
         promptShowing = true
         val message = activity.getString(R.string.permission_prompt_download, fileName)
             .withMonoSpan(fileName)
+            .withBoldSpan(fileName)
         MaterialAlertDialogBuilder(activity)
             .setMessage(message)
             .setCancelable(false)

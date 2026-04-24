@@ -5,6 +5,7 @@ import org.mozilla.geckoview.GeckoResult
 import org.mozilla.geckoview.GeckoSession
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.WebAppSettings
+import wtf.mazy.peel.util.withBoldSpan
 
 class PeelPermissionDelegate(private val host: SessionHost) : GeckoSession.PermissionDelegate {
 
@@ -172,7 +173,7 @@ class PeelPermissionDelegate(private val host: SessionHost) : GeckoSession.Permi
                         return@ensureOsPermission
                     }
                     host.showPermissionDialog(
-                        host.getString(promptResId, trimmedName)
+                        host.getString(promptResId, trimmedName).withBoldSpan(trimmedName)
                     ) { result ->
                         when (result) {
                             PermissionResult.ALLOW -> {

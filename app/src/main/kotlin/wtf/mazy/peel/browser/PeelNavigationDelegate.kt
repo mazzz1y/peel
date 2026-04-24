@@ -12,6 +12,7 @@ import wtf.mazy.peel.R
 import wtf.mazy.peel.model.WebAppSettings
 import wtf.mazy.peel.util.HostIdentity
 import wtf.mazy.peel.util.normalizedHost
+import wtf.mazy.peel.util.withBoldSpan
 import wtf.mazy.peel.util.withMonoSpan
 
 internal fun parseIntentUri(url: String): Intent? {
@@ -206,10 +207,12 @@ class PeelNavigationDelegate(private val host: SessionHost) : GeckoSession.Navig
         if (targetPackage != null) {
             return host.getString(R.string.permission_prompt_open_app_intent, targetPackage)
                 .withMonoSpan(targetPackage)
+                .withBoldSpan(targetPackage)
         }
         val truncated = truncateUrl(display)
         return host.getString(R.string.permission_prompt_open_app, truncated)
             .withMonoSpan(truncated)
+            .withBoldSpan(truncated)
     }
 
     private fun redirectToHttps(url: String): GeckoResult<AllowOrDeny> {

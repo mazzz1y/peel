@@ -45,6 +45,7 @@ import wtf.mazy.peel.ui.dragReorderCallback
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.NotificationUtils
 import wtf.mazy.peel.util.restartApp
+import wtf.mazy.peel.util.withBoldSpan
 import java.util.Collections
 
 class GroupListActivity : AppCompatActivity() {
@@ -184,7 +185,7 @@ class GroupListActivity : AppCompatActivity() {
         val message = dialogView.findViewById<TextView>(R.id.delete_group_message)
         val switchUngroup = dialogView.findViewById<MaterialSwitch>(R.id.switchUngroupApps)
 
-        message.text = getString(R.string.delete_group_confirm, group.title)
+        message.text = getString(R.string.delete_group_confirm, group.title).withBoldSpan(group.title)
 
         MaterialAlertDialogBuilder(this)
             .setTitle(getString(R.string.delete_group_title))

@@ -11,6 +11,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.suspendCancellableCoroutine
 import org.mozilla.geckoview.WebExtension
 import wtf.mazy.peel.R
+import wtf.mazy.peel.util.withBoldSpan
 import kotlin.coroutines.resume
 
 object ExtensionPermissionPrompt {
@@ -33,7 +34,7 @@ object ExtensionPermissionPrompt {
         val inflater = LayoutInflater.from(activity)
         val view = inflater.inflate(R.layout.dialog_extension_install, null)
         view.findViewById<TextView>(R.id.extensionInstallSummary).text =
-            activity.getString(summaryRes, name)
+            activity.getString(summaryRes, name).withBoldSpan(name)
 
         populateSection(
             inflater = inflater,

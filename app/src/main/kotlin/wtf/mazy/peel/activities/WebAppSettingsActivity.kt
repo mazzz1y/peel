@@ -45,6 +45,7 @@ import wtf.mazy.peel.ui.settings.SandboxSwitchController
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.NotificationUtils.showToast
 import wtf.mazy.peel.util.displayUrl
+import wtf.mazy.peel.util.withBoldSpan
 import wtf.mazy.peel.util.withMonoSpan
 
 class WebAppSettingsActivity :
@@ -433,7 +434,9 @@ class WebAppSettingsActivity :
 
     private fun promptUrlUpdate(webapp: WebApp, suggestedUrl: String, messageResId: Int) {
         if (suggestedUrl.trimEnd('/') == webapp.baseUrl.trimEnd('/')) return
-        val message = getString(messageResId, suggestedUrl).withMonoSpan(suggestedUrl)
+        val message = getString(messageResId, suggestedUrl)
+            .withMonoSpan(suggestedUrl)
+            .withBoldSpan(suggestedUrl)
         MaterialAlertDialogBuilder(this)
             .setTitle(R.string.manifest_start_url_title)
             .setMessage(message)
