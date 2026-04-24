@@ -16,6 +16,8 @@ import androidx.activity.result.contract.ActivityResultContracts.StartActivityFo
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.appbar.MaterialToolbar
@@ -47,6 +49,10 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost {
     protected var launchOverlay: View? = null
     protected var appBar: AppBarLayout? = null
     protected var toolbar: MaterialToolbar? = null
+    protected var statusBarScrim: View? = null
+    protected var navigationBarScrim: View? = null
+    protected var browserContent: View? = null
+    var isFullscreen: Boolean = false
     protected lateinit var navigationDelegate: PeelNavigationDelegate
     protected lateinit var downloadHandler: DownloadHandler
     protected var pendingPermissionCallback: ((Boolean) -> Unit)? = null
@@ -271,14 +277,51 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost {
     }
 
     protected fun setupSessionHostLayout(showToolbar: Boolean) {
-        setContentView(R.layout.activity_session_host)
+        setContentView(
+            if (showToolbar) R.layout.activity_extension_page
+            else R.layout.activity_browser
+        )
         geckoView = findViewById(R.id.geckoview)
         progressBar = findViewById(R.id.progressBar)
         swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout)
         launchOverlay = findViewById(R.id.launchOverlay)
+        browserContent = findViewById(R.id.browserContent)
         appBar = findViewById(R.id.appBar)
         toolbar = findViewById(R.id.toolbar)
-        appBar?.visibility = if (showToolbar) View.VISIBLE else View.GONE
+        statusBarScrim = findViewById(R.id.statusBarScrim)
+        navigationBarScrim = findViewById(R.id.navigationBarScrim)
+
+        if (showToolbar) installToolbarInsetsListener()
+        else installEdgeToEdgeInsetsListener()
+    }
+
+    private fun installEdgeToEdgeInsetsListener() {
+        val root = findViewById<View>(R.id.browser_root) ?: return
+        ViewCompat.setOnApplyWindowInsetsListener(root) { _, insets ->
+            val sys = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            val ime = insets.getInsets(WindowInsetsCompat.Type.ime())
+            statusBarScrim?.let {
+                it.layoutParams.height = sys.top
+                it.requestLayout()
+            }
+            navigationBarScrim?.let {
+                it.layoutParams.height = sys.bottom
+                it.requestLayout()
+            }
+            val topPad = if (isFullscreen) 0 else sys.top
+            val bottomPad = maxOf(sys.bottom, ime.bottom)
+            browserContent?.setPadding(0, topPad, 0, bottomPad)
+            WindowInsetsCompat.CONSUMED
+        }
+    }
+
+    private fun installToolbarInsetsListener() {
+        val content = browserContent ?: return
+        ViewCompat.setOnApplyWindowInsetsListener(content) { v, insets ->
+            val imeBottom = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom
+            v.setPadding(v.paddingLeft, v.paddingTop, v.paddingRight, imeBottom)
+            insets
+        }
     }
 
     protected open val sessionContextId: String? = null

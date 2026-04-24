@@ -7,45 +7,23 @@ import androidx.core.graphics.ColorUtils
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
-import wtf.mazy.peel.R
 
 class SystemBarController(
     private val window: Window,
     private val getThemeColor: () -> Int,
+    private val setFullscreen: (Boolean) -> Unit,
 ) {
     private var statusBarScrim: View? = null
     private var navigationBarScrim: View? = null
-    private var contentView: View? = null
     private var currentBarColor: Int? = null
     private var barColorAnimator: ValueAnimator? = null
-    private var isFullscreen = false
     var suppressNextAnimation = false
 
-    fun attach(rootView: View, applyDynamicColor: Boolean) {
-        statusBarScrim = rootView.findViewById(R.id.statusBarScrim)
-        navigationBarScrim = rootView.findViewById(R.id.navigationBarScrim)
-        contentView = rootView.findViewById(R.id.browserContent)
+    fun attach(statusBarScrim: View?, navigationBarScrim: View?, applyDynamicColor: Boolean) {
+        this.statusBarScrim = statusBarScrim
+        this.navigationBarScrim = navigationBarScrim
         if (applyDynamicColor) {
             applyColor(getThemeColor())
-        }
-        ViewCompat.setOnApplyWindowInsetsListener(rootView) { _, insets ->
-            val systemInsets = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            val imeInsets = insets.getInsets(WindowInsetsCompat.Type.ime())
-            statusBarScrim?.apply {
-                layoutParams.height = systemInsets.top
-                requestLayout()
-            }
-            navigationBarScrim?.apply {
-                layoutParams.height = systemInsets.bottom
-                requestLayout()
-            }
-            val bottom = maxOf(systemInsets.bottom, imeInsets.bottom)
-            if (!isFullscreen) {
-                contentView?.setPadding(0, systemInsets.top, 0, bottom)
-            } else {
-                contentView?.setPadding(0, 0, 0, bottom)
-            }
-            WindowInsetsCompat.CONSUMED
         }
     }
 
@@ -69,19 +47,19 @@ class SystemBarController(
     }
 
     fun hide() {
-        isFullscreen = true
+        setFullscreen(true)
         statusBarScrim?.visibility = View.GONE
         navigationBarScrim?.visibility = View.GONE
-        contentView?.setPadding(0, 0, 0, 0)
         val controller = WindowInsetsControllerCompat(window, window.decorView)
         controller.hide(WindowInsetsCompat.Type.systemBars())
         controller.systemBarsBehavior =
             WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        ViewCompat.requestApplyInsets(window.decorView)
     }
 
     fun show(stayFullscreen: Boolean) {
         if (stayFullscreen) return
-        isFullscreen = false
+        setFullscreen(false)
         statusBarScrim?.visibility = View.VISIBLE
         navigationBarScrim?.visibility = View.VISIBLE
         val controller = WindowInsetsControllerCompat(window, window.decorView)

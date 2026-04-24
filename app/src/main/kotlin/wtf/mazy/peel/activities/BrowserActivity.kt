@@ -127,7 +127,11 @@ class BrowserActivity : BaseSessionHost() {
     private var cachedPeelApps: List<WebApp> = emptyList()
 
     private val systemBarController by lazy {
-        SystemBarController(window, ::themeBackgroundColor)
+        SystemBarController(
+            window = window,
+            getThemeColor = ::themeBackgroundColor,
+            setFullscreen = { isFullscreen = it },
+        )
     }
 
     private val launchOverlayController = LaunchOverlayController(
@@ -497,7 +501,8 @@ class BrowserActivity : BaseSessionHost() {
         val settings = effectiveSettings
         bindViews()
         systemBarController.attach(
-            rootView = findViewById(R.id.browser_root),
+            statusBarScrim = statusBarScrim,
+            navigationBarScrim = navigationBarScrim,
             applyDynamicColor = settings.isDynamicStatusBar == true,
         )
 
@@ -619,7 +624,7 @@ class BrowserActivity : BaseSessionHost() {
 
     private fun bindViews() {
         findViewById<View>(R.id.browser_root)?.setBackgroundColor(themeBackgroundColor)
-        findViewById<View>(R.id.browserContent)?.setBackgroundColor(themeBackgroundColor)
+        browserContent?.setBackgroundColor(themeBackgroundColor)
         launchOverlay?.let { launchOverlayController.attach(it, themeBackgroundColor) }
         launchOverlayController.arm { systemBarController.suppressNextAnimation = true }
     }

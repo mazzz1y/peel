@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/browser_root"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBar"
@@ -12,7 +13,6 @@
         android:layout_height="wrap_content"
         android:background="?attr/colorSurfaceContainer"
         android:fitsSystemWindows="true"
-        android:visibility="gone"
         app:liftOnScroll="false">
 
         <com.google.android.material.appbar.MaterialToolbar
@@ -65,21 +65,5 @@
             tools:ignore="UnusedAttribute" />
 
     </FrameLayout>
-
-    <View
-        android:id="@+id/statusBarScrim"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_gravity="top"
-        android:elevation="10dp"
-        android:outlineProvider="none" />
-
-    <View
-        android:id="@+id/navigationBarScrim"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_gravity="bottom"
-        android:elevation="10dp"
-        android:outlineProvider="none" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
