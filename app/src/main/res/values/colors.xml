@@ -1,5 +1,5 @@
 <resources>
-    <color name="floating_controls_icon">#E6E1E5</color>
+    <color name="floating_controls_icon">#FFFFFF</color>
     <color name="floating_controls_ripple">#33FFFFFF</color>
     <color name="md_theme_primary">#6750A4</color>
     <color name="md_theme_onPrimary">#FFFFFF</color>
