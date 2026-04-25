@@ -72,6 +72,14 @@ class PeelNavigationDelegate(private val host: SessionHost) : GeckoSession.Navig
         }
     }
 
+    override fun onNewSession(
+        session: GeckoSession,
+        uri: String,
+    ): GeckoResult<GeckoSession>? {
+        host.runOnUi { host.loadURL(uri) }
+        return GeckoResult.fromValue(null)
+    }
+
     override fun onLoadError(
         session: GeckoSession,
         uri: String?,
