@@ -304,8 +304,8 @@ class FloatingControlsView(
         const val BUTTON_GAP_DP = 18
         const val ICON_INSET_DP = 7
         const val ANIM_DURATION_MS = 150L
-        const val DEFAULT_X_FRACTION = -0.03f
-        const val DEFAULT_Y_FRACTION = -0.035f
+        const val DEFAULT_X_FRACTION = -0.035f
+        const val DEFAULT_Y_FRACTION = -0.165f
         const val TRIGGER_EXPAND_ROTATION = 90f
         const val TRIGGER_ICON_ALPHA = 180
         const val RESET_HOLD_MS = 1200L
