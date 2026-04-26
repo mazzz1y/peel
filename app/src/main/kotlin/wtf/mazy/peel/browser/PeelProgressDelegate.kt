@@ -1,10 +1,8 @@
 package wtf.mazy.peel.browser
 
 import android.animation.ObjectAnimator
-import android.view.View
 import android.view.animation.DecelerateInterpolator
 import android.widget.ProgressBar
-import androidx.core.view.isGone
 import org.mozilla.geckoview.GeckoSession
 
 class PeelProgressDelegate(
@@ -13,22 +11,28 @@ class PeelProgressDelegate(
 ) : GeckoSession.ProgressDelegate {
 
     private var animator: ObjectAnimator? = null
+    private var currentUrl: String = ""
 
     override fun onPageStart(session: GeckoSession, url: String) {
+        currentUrl = url
+        if (isBlank(url)) return
         host.onPageStarted()
     }
 
     override fun onPageStop(session: GeckoSession, success: Boolean) {
+        if (isBlank(currentUrl)) return
         hideProgress()
         if (success) {
             host.onPageFullyLoaded()
         }
     }
 
+    private fun isBlank(url: String): Boolean = url == "about:blank"
+
     override fun onProgressChange(session: GeckoSession, progress: Int) {
         if (host.effectiveSettings.isShowProgressbar == true || host.currentlyReloading) {
             host.hostProgressBar?.let { bar ->
-                if (bar.isGone) bar.visibility = View.VISIBLE
+                if (bar.alpha < 1f) bar.alpha = 1f
                 animateProgress(bar, mapToVisibleRange(progress))
             }
         }
@@ -50,7 +54,7 @@ class PeelProgressDelegate(
         animator?.cancel()
         animator = null
         host.hostProgressBar?.apply {
-            visibility = View.GONE
+            alpha = 0f
             progress = initialProgress
         }
         host.currentlyReloading = false

@@ -178,7 +178,7 @@ class BrowserActivity : BaseSessionHost() {
         }
         progressBar?.apply {
             progress = INITIAL_PROGRESS
-            visibility = View.VISIBLE
+            alpha = 1f
         }
 
         webappUuid = intent.getStringExtra(Const.INTENT_WEBAPP_UUID)
@@ -347,11 +347,6 @@ class BrowserActivity : BaseSessionHost() {
         geckoSession = null
         geckoView = null
         super.onDestroy()
-    }
-
-    override fun onConfigurationChanged(newConfig: Configuration) {
-        super.onConfigurationChanged(newConfig)
-        applyColorScheme()
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -620,7 +615,6 @@ class BrowserActivity : BaseSessionHost() {
     private fun applyVisualSettings(settings: WebAppSettings) {
         applyWindowFlags(settings)
         setupPullToRefresh(settings)
-        applyColorScheme()
         if (settings.isShowFullscreen == true) systemBarController.hide() else systemBarController.show(
             false
         )

@@ -14,7 +14,6 @@ import android.widget.ProgressBar
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -361,16 +360,6 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost {
         } else {
             window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
         }
-    }
-
-    protected fun applyColorScheme() {
-        val scheme = effectiveSettings.colorScheme ?: WebAppSettings.COLOR_SCHEME_AUTO
-        val nightMode = when (scheme) {
-            WebAppSettings.COLOR_SCHEME_LIGHT -> AppCompatDelegate.MODE_NIGHT_NO
-            WebAppSettings.COLOR_SCHEME_DARK -> AppCompatDelegate.MODE_NIGHT_YES
-            else -> AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
-        }
-        getDelegate().localNightMode = nightMode
     }
 
     protected fun setupPullToRefresh(settings: WebAppSettings) {

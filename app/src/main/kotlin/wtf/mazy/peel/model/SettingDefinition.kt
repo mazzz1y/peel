@@ -139,6 +139,7 @@ object ApplyTimingRegistry {
         "isDisableQuic",
         "isUseCustomLocale",
         "customLocale",
+        "colorScheme",
     )
 
     fun getTiming(key: String): ApplyTiming = when (key) {
@@ -192,6 +193,7 @@ object SettingRegistry {
                 SettingField(WebAppSettings::colorScheme, WebAppSettings.COLOR_SCHEME_AUTO),
                 R.string.setting_color_scheme,
                 SettingCategory.APPEARANCE,
+                globalOnly = true,
                 values = intArrayOf(
                     WebAppSettings.COLOR_SCHEME_AUTO,
                     WebAppSettings.COLOR_SCHEME_LIGHT,

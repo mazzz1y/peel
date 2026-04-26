@@ -18,7 +18,7 @@ class TrampolineActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        GeckoRuntimeProvider.initAsync(this)
+        GeckoRuntimeProvider.initAsync(this, warmUp = false)
 
         lifecycleScope.launch {
             DataManager.instance.awaitReady()

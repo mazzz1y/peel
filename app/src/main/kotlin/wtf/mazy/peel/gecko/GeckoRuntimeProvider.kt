@@ -18,6 +18,7 @@ import org.mozilla.geckoview.ContentBlocking
 import org.mozilla.geckoview.GeckoResult
 import org.mozilla.geckoview.GeckoRuntime
 import org.mozilla.geckoview.GeckoRuntimeSettings
+import org.mozilla.geckoview.GeckoSession
 import org.mozilla.geckoview.WebExtension
 import org.mozilla.geckoview.WebExtensionController
 import wtf.mazy.peel.BuildConfig
@@ -128,17 +129,31 @@ object GeckoRuntimeProvider {
         )
     }
 
-    fun initAsync(context: Context) {
+    fun initAsync(context: Context, warmUp: Boolean = true) {
         if (!initStarted.compareAndSet(false, true)) return
         val appContext = context.applicationContext
         CoroutineScope(SupervisorJob() + Dispatchers.Default).launch {
             DataManager.instance.awaitReady()
             try {
-                withContext(Dispatchers.Main) { getRuntime(appContext) }
+                withContext(Dispatchers.Main) {
+                    val rt = getRuntime(appContext)
+                    if (warmUp) warmUpContentProcess(rt)
+                }
             } catch (_: Exception) {
                 initStarted.set(false)
             }
         }
+    }
+
+    private fun warmUpContentProcess(rt: GeckoRuntime) {
+        val session = GeckoSession()
+        session.progressDelegate = object : GeckoSession.ProgressDelegate {
+            override fun onPageStop(s: GeckoSession, success: Boolean) {
+                session.close()
+            }
+        }
+        session.open(rt)
+        session.loadUri("about:blank")
     }
 
     suspend fun installExtension(context: Context, uri: String): WebExtension =
@@ -247,12 +262,16 @@ object GeckoRuntimeProvider {
             WebAppSettings.TRACKER_PROTECTION_DEFAULT -> ContentBlocking.AntiTracking.DEFAULT
             else -> ContentBlocking.AntiTracking.NONE
         }
+        val colorScheme = when (defaults.colorScheme) {
+            WebAppSettings.COLOR_SCHEME_LIGHT -> GeckoRuntimeSettings.COLOR_SCHEME_LIGHT
+            WebAppSettings.COLOR_SCHEME_DARK -> GeckoRuntimeSettings.COLOR_SCHEME_DARK
+            else -> GeckoRuntimeSettings.COLOR_SCHEME_SYSTEM
+        }
         val builder = GeckoRuntimeSettings.Builder()
             .javaScriptEnabled(true)
             .consoleOutput(BuildConfig.DEBUG)
             .aboutConfigEnabled(BuildConfig.DEBUG)
             .extensionsWebAPIEnabled(true)
-            .preferredColorScheme(GeckoRuntimeSettings.COLOR_SCHEME_SYSTEM)
             .globalPrivacyControlEnabled(defaults.isGlobalPrivacyControl == true)
             .setLnaEnabled(lna)
             .setLnaBlocking(lna)
@@ -272,6 +291,7 @@ object GeckoRuntimeProvider {
         writeGeckoConfig(context, defaults)?.let { builder.configFilePath(it) }
         val rt = GeckoRuntime.create(context, builder.build())
         rt.settings.setFingerprintingProtection(defaults.isFingerprintingProtection == true)
+        rt.settings.setPreferredColorScheme(colorScheme)
         rt.warmUp()
         return rt
     }

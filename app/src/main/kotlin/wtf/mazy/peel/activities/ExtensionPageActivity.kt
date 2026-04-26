@@ -41,7 +41,6 @@ class ExtensionPageActivity : BaseSessionHost() {
         window.setBackgroundDrawable(themeBackgroundColor.toDrawable())
         setupSessionHostLayout(showToolbar = true)
         applyWindowFlags(effectiveSettings)
-        applyColorScheme()
 
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
