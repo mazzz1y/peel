@@ -1,0 +1,8 @@
+- Faster cold start
+- Smoother loading bar
+- Fix color scheme setting not applying to web content
+- Fix links opened via window.open
+- Fix keyboard overlap on extension pages
+- Long-press the floating button to reset its position
+- Refined floating button visuals, make it less noticeable
+- Bold names in confirmation dialogs
