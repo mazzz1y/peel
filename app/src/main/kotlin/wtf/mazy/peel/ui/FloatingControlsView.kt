@@ -202,7 +202,7 @@ class FloatingControlsView(
         val (x, y) = buttonPrefs.load()?.let { (ox, oy) ->
             resolveOffset(ox, parent.width) to resolveOffset(oy, parent.height)
         } ?: (resolveOffset(DEFAULT_X_FRACTION, parent.width) to
-            resolveOffset(DEFAULT_Y_FRACTION, parent.height))
+                resolveOffset(DEFAULT_Y_FRACTION, parent.height))
         moveTriggerTo(x, y)
     }
 

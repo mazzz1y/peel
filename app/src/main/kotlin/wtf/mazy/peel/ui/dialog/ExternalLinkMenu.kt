@@ -49,7 +49,15 @@ object ExternalLinkMenu {
             val match = bestPeelMatch(peelApps, url, excludeUuid)
             val icon = match?.resolveIcon()
             val iconClick = if (icon != null) {
-                { dismiss(ExternalLinkResult.OpenInPeelApp { BrowserLauncher.launch(match, activity, url) }) }
+                {
+                    dismiss(ExternalLinkResult.OpenInPeelApp {
+                        BrowserLauncher.launch(
+                            match,
+                            activity,
+                            url
+                        )
+                    })
+                }
             } else null
 
             addView(

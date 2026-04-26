@@ -51,7 +51,7 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost {
     protected var statusBarScrim: View? = null
     protected var navigationBarScrim: View? = null
     protected var browserContent: View? = null
-    var isFullscreen: Boolean = false
+    protected var isFullscreen: Boolean = false
     protected lateinit var navigationDelegate: PeelNavigationDelegate
     protected lateinit var downloadHandler: DownloadHandler
     protected var pendingPermissionCallback: ((Boolean) -> Unit)? = null
