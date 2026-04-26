@@ -7,7 +7,10 @@ import android.widget.ProgressBar
 import androidx.core.view.isGone
 import org.mozilla.geckoview.GeckoSession
 
-class PeelProgressDelegate(private val host: SessionHost) : GeckoSession.ProgressDelegate {
+class PeelProgressDelegate(
+    private val host: SessionHost,
+    private val initialProgress: Int,
+) : GeckoSession.ProgressDelegate {
 
     private var animator: ObjectAnimator? = null
 
@@ -25,13 +28,14 @@ class PeelProgressDelegate(private val host: SessionHost) : GeckoSession.Progres
     override fun onProgressChange(session: GeckoSession, progress: Int) {
         if (host.effectiveSettings.isShowProgressbar == true || host.currentlyReloading) {
             host.hostProgressBar?.let { bar ->
-                if (bar.isGone && progress < 100) bar.visibility = View.VISIBLE
-                animateProgress(bar, progress)
-                if (progress == 100) hideProgress()
+                if (bar.isGone) bar.visibility = View.VISIBLE
+                animateProgress(bar, mapToVisibleRange(progress))
             }
         }
-
     }
+
+    private fun mapToVisibleRange(progress: Int): Int =
+        initialProgress + progress * (100 - initialProgress) / 100
 
     private fun animateProgress(bar: ProgressBar, target: Int) {
         animator?.cancel()
@@ -47,7 +51,7 @@ class PeelProgressDelegate(private val host: SessionHost) : GeckoSession.Progres
         animator = null
         host.hostProgressBar?.apply {
             visibility = View.GONE
-            progress = 0
+            progress = initialProgress
         }
         host.currentlyReloading = false
     }
