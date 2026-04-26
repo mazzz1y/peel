@@ -1,0 +1,1 @@
+- Fix floating button default position
