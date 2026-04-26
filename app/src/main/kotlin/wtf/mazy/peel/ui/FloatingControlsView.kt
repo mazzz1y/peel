@@ -2,6 +2,8 @@ package wtf.mazy.peel.ui
 
 import android.annotation.SuppressLint
 import android.content.SharedPreferences
+import android.graphics.drawable.GradientDrawable
+import android.graphics.drawable.RippleDrawable
 import android.view.HapticFeedbackConstants
 import android.view.MotionEvent
 import android.view.View
@@ -70,11 +72,11 @@ class FloatingControlsView(
         onExtensions?.let { add(Action(R.drawable.ic_symbols_extension_24, it)) }
     }
 
-    private val trigger = createButton(R.drawable.ic_symbols_more_vert_24).apply {
+    private val trigger = createButton(R.drawable.ic_symbols_more_vert_24, TRIGGER_BG_COLOR).apply {
         imageAlpha = TRIGGER_ICON_ALPHA
     }
     private val actionButtons = actions.map { action ->
-        createButton(action.iconRes).apply {
+        createButton(action.iconRes, ACTION_BG_COLOR).apply {
             setOnClickListener { collapse(); action.onClick() }
         }
     }
@@ -129,10 +131,18 @@ class FloatingControlsView(
         ViewCompat.getRootWindowInsets(parent)
             ?.getInsets(WindowInsetsCompat.Type.systemBars())?.bottom ?: 0
 
-    private fun createButton(iconRes: Int): ImageButton {
+    private fun createButton(iconRes: Int, backgroundColor: Int): ImageButton {
         return ImageButton(themedContext).apply {
             layoutParams = FrameLayout.LayoutParams(buttonSizePx, buttonSizePx)
             setBackgroundResource(R.drawable.fab_circle_bg)
+            (background as? RippleDrawable)?.let { ripple ->
+                val mutated = ripple.mutate() as RippleDrawable
+                for (i in 0 until mutated.numberOfLayers) {
+                    if (mutated.getId(i) == android.R.id.mask) continue
+                    (mutated.getDrawable(i) as? GradientDrawable)?.setColor(backgroundColor)
+                }
+                background = mutated
+            }
             setImageResource(iconRes)
             scaleType = android.widget.ImageView.ScaleType.FIT_CENTER
             val inset = (ICON_INSET_DP * density).toInt()
@@ -291,7 +301,7 @@ class FloatingControlsView(
 
     private companion object {
         const val BUTTON_SIZE_DP = 36
-        const val BUTTON_GAP_DP = 14
+        const val BUTTON_GAP_DP = 18
         const val ICON_INSET_DP = 7
         const val ANIM_DURATION_MS = 150L
         const val DEFAULT_X_FRACTION = -0.03f
@@ -299,5 +309,7 @@ class FloatingControlsView(
         const val TRIGGER_EXPAND_ROTATION = 90f
         const val TRIGGER_ICON_ALPHA = 180
         const val RESET_HOLD_MS = 1200L
+        const val TRIGGER_BG_COLOR = 0x33000000
+        const val ACTION_BG_COLOR = 0x66000000
     }
 }
