@@ -10,6 +10,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import org.mozilla.geckoview.AllowOrDeny
@@ -130,10 +131,10 @@ object GeckoRuntimeProvider {
     fun initAsync(context: Context) {
         if (!initStarted.compareAndSet(false, true)) return
         val appContext = context.applicationContext
-        CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate).launch {
+        CoroutineScope(SupervisorJob() + Dispatchers.Default).launch {
             DataManager.instance.awaitReady()
             try {
-                getRuntime(appContext)
+                withContext(Dispatchers.Main) { getRuntime(appContext) }
             } catch (_: Exception) {
                 initStarted.set(false)
             }
@@ -271,6 +272,7 @@ object GeckoRuntimeProvider {
         writeGeckoConfig(context, defaults)?.let { builder.configFilePath(it) }
         val rt = GeckoRuntime.create(context, builder.build())
         rt.settings.setFingerprintingProtection(defaults.isFingerprintingProtection == true)
+        rt.warmUp()
         return rt
     }
 
