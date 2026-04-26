@@ -178,23 +178,17 @@ class FloatingControlsView(
 
                 MotionEvent.ACTION_UP -> {
                     trigger.removeCallbacks(resetRunnable)
-                    when {
-                        isDragging -> {
-                            savePosition()
-                            true
-                        }
-                        resetTriggered -> {
-                            resetTriggered = false
-                            true
-                        }
-                        else -> false
+                    if (isDragging) {
+                        savePosition()
+                        true
+                    } else {
+                        false
                     }
                 }
 
                 MotionEvent.ACTION_CANCEL -> {
                     trigger.removeCallbacks(resetRunnable)
                     if (isDragging) savePosition()
-                    resetTriggered = false
                     false
                 }
 
