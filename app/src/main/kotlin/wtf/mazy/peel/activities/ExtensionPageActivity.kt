@@ -106,8 +106,8 @@ class ExtensionPageActivity : BaseSessionHost() {
     override fun onPageStarted() = Unit
     override fun onFirstContentfulPaint() = Unit
 
-    override fun hideSystemBars() = Unit
-    override fun showSystemBars() = Unit
+    override fun onWebFullscreenEnter() = Unit
+    override fun onWebFullscreenExit() = Unit
 
     override fun updateStatusBarColor(color: Int) = Unit
 

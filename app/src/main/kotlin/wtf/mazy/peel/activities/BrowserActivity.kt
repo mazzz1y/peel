@@ -487,12 +487,14 @@ class BrowserActivity : BaseSessionHost() {
         }
     }
 
-    override fun hideSystemBars() {
+    override fun onWebFullscreenEnter() {
         systemBarController.hide()
+        floatingControls?.setHidden(true)
     }
 
-    override fun showSystemBars() {
+    override fun onWebFullscreenExit() {
         systemBarController.show(effectiveSettings.isShowFullscreen == true)
+        floatingControls?.setHidden(false)
     }
 
     private fun setupGeckoView() {

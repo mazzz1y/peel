@@ -62,8 +62,8 @@ interface SessionHost {
 
     fun runOnUi(action: Runnable)
     fun launchFilePicker(intent: Intent?): Boolean
-    fun hideSystemBars()
-    fun showSystemBars()
+    fun onWebFullscreenEnter()
+    fun onWebFullscreenExit()
     fun requestOsPermissions(permissions: Array<String>, onResult: (granted: Boolean) -> Unit)
     fun hasPermissions(vararg permissions: String): Boolean
 

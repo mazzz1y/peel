@@ -387,6 +387,6 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost {
     protected abstract val externalLinkPeelApps: List<WebApp>
     protected abstract val externalLinkIncludeLoadHere: Boolean
 
-    abstract override fun hideSystemBars()
-    abstract override fun showSystemBars()
+    abstract override fun onWebFullscreenEnter()
+    abstract override fun onWebFullscreenExit()
 }

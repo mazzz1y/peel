@@ -49,7 +49,7 @@ class PeelContentDelegate(
         if (fullScreen) {
             isFullscreen = true
             originalOrientation = host.hostOrientation
-            host.hideSystemBars()
+            host.onWebFullscreenEnter()
         } else {
             restoreFromFullscreen()
         }
@@ -58,7 +58,7 @@ class PeelContentDelegate(
     private fun restoreFromFullscreen() {
         isFullscreen = false
         host.hostOrientation = originalOrientation
-        host.showSystemBars()
+        host.onWebFullscreenExit()
     }
 
     override fun onExternalResponse(session: GeckoSession, response: WebResponse) {

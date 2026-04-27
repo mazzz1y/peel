@@ -123,6 +123,12 @@ class FloatingControlsView(
         allViews.forEach { parent.removeView(it) }
     }
 
+    fun setHidden(hidden: Boolean) {
+        if (hidden && expanded) collapse()
+        val visibility = if (hidden) View.GONE else View.VISIBLE
+        allViews.forEach { it.visibility = visibility }
+    }
+
     private fun statusInsetTop(): Int =
         ViewCompat.getRootWindowInsets(parent)
             ?.getInsets(WindowInsetsCompat.Type.systemBars())?.top ?: 0
