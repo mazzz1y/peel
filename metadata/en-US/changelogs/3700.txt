@@ -1,0 +1,3 @@
+- Fix image download and share on authenticated sites
+- Fix crash when opening phone numbers and app links
+- Press and hold to drag the floating button
