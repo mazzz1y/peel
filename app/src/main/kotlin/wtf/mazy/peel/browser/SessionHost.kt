@@ -1,6 +1,7 @@
 package wtf.mazy.peel.browser
 
 import android.content.Intent
+import android.content.res.Resources
 import android.net.Uri
 import android.view.Window
 import android.widget.ProgressBar
@@ -13,9 +14,9 @@ enum class PermissionResult {
 }
 
 sealed interface ExternalLinkResult {
-    data object LOAD_HERE : ExternalLinkResult
-    data object OPEN_IN_SYSTEM : ExternalLinkResult
-    data object DISMISSED : ExternalLinkResult
+    data object LoadHere : ExternalLinkResult
+    data object OpenInSystem : ExternalLinkResult
+    data object Dismissed : ExternalLinkResult
     data class OpenInPeelApp(val launcher: () -> Unit) : ExternalLinkResult
 }
 
@@ -67,6 +68,5 @@ interface SessionHost {
     fun requestOsPermissions(permissions: Array<String>, onResult: (granted: Boolean) -> Unit)
     fun hasPermissions(vararg permissions: String): Boolean
 
-    fun getString(resId: Int): String
-    fun getString(resId: Int, vararg formatArgs: Any): String
+    val hostResources: Resources
 }

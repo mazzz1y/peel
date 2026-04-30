@@ -78,7 +78,7 @@ object ExternalLinkMenu {
                         activity,
                         activity.getString(R.string.open_in_current_session),
                     ) {
-                        dismiss(ExternalLinkResult.LOAD_HERE)
+                        dismiss(ExternalLinkResult.LoadHere)
                     }
                 )
             }
@@ -87,14 +87,14 @@ object ExternalLinkMenu {
                     activity,
                     activity.getString(R.string.open_in_system),
                 ) {
-                    dismiss(ExternalLinkResult.OPEN_IN_SYSTEM)
+                    dismiss(ExternalLinkResult.OpenInSystem)
                 }
             )
         }
 
         dialog = MaterialAlertDialogBuilder(activity)
             .setView(content)
-            .setOnCancelListener { onResult(ExternalLinkResult.DISMISSED) }
+            .setOnCancelListener { onResult(ExternalLinkResult.Dismissed) }
             .show()
     }
 

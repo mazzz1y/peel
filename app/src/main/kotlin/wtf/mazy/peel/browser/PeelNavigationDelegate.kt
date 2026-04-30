@@ -129,9 +129,9 @@ class PeelNavigationDelegate(private val host: SessionHost) : GeckoSession.Navig
             host.showExternalLinkMenu(url) { result ->
                 externalMenuShowing = false
                 when (result) {
-                    ExternalLinkResult.LOAD_HERE -> loadExternallyInCurrentTab(url)
-                    ExternalLinkResult.OPEN_IN_SYSTEM -> openInSystem(url, redirectFallback)
-                    ExternalLinkResult.DISMISSED -> dismissRedirect(redirectFallback)
+                    ExternalLinkResult.LoadHere -> loadExternallyInCurrentTab(url)
+                    ExternalLinkResult.OpenInSystem -> openInSystem(url, redirectFallback)
+                    ExternalLinkResult.Dismissed -> dismissRedirect(redirectFallback)
                     is ExternalLinkResult.OpenInPeelApp -> result.launcher()
                 }
             }
@@ -213,12 +213,15 @@ class PeelNavigationDelegate(private val host: SessionHost) : GeckoSession.Navig
 
     private fun buildAppLinkMessage(targetPackage: String?, display: String): CharSequence {
         if (targetPackage != null) {
-            return host.getString(R.string.permission_prompt_open_app_intent, targetPackage)
+            return host.hostResources.getString(
+                R.string.permission_prompt_open_app_intent,
+                targetPackage
+            )
                 .withMonoSpan(targetPackage)
                 .withBoldSpan(targetPackage)
         }
         val truncated = truncateUrl(display)
-        return host.getString(R.string.permission_prompt_open_app, truncated)
+        return host.hostResources.getString(R.string.permission_prompt_open_app, truncated)
             .withMonoSpan(truncated)
             .withBoldSpan(truncated)
     }

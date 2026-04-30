@@ -2,6 +2,7 @@ package wtf.mazy.peel.browser
 
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.Resources
 import android.net.Uri
 import android.text.InputType
 import android.util.TypedValue
@@ -67,6 +68,7 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost {
             requestedOrientation = value
         }
     override val hostWindow: Window get() = window
+    override val hostResources: Resources get() = resources
 
     override val themeBackgroundColor: Int
         get() {

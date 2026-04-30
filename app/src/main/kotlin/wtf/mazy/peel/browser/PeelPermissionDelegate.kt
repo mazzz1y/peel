@@ -67,7 +67,7 @@ class PeelPermissionDelegate(private val host: SessionHost) : GeckoSession.Permi
     ) {
         val pending = mutableListOf<PendingMediaPermission>()
 
-        if (video != null && video.isNotEmpty()) {
+        if (!video.isNullOrEmpty()) {
             pending.add(
                 PendingMediaPermission(
                     host.effectiveSettings.isCameraPermission,
@@ -79,7 +79,7 @@ class PeelPermissionDelegate(private val host: SessionHost) : GeckoSession.Permi
                 )
             )
         }
-        if (audio != null && audio.isNotEmpty()) {
+        if (!audio.isNullOrEmpty()) {
             pending.add(
                 PendingMediaPermission(
                     host.effectiveSettings.isMicrophonePermission,
@@ -103,7 +103,7 @@ class PeelPermissionDelegate(private val host: SessionHost) : GeckoSession.Permi
         permissions: Array<out String>?,
         callback: GeckoSession.PermissionDelegate.Callback,
     ) {
-        if (permissions == null || permissions.isEmpty()) {
+        if (permissions.isNullOrEmpty()) {
             callback.reject()
             return
         }
@@ -173,7 +173,8 @@ class PeelPermissionDelegate(private val host: SessionHost) : GeckoSession.Permi
                         return@ensureOsPermission
                     }
                     host.showPermissionDialog(
-                        host.getString(promptResId, trimmedName).withBoldSpan(trimmedName)
+                        host.hostResources.getString(promptResId, trimmedName)
+                            .withBoldSpan(trimmedName)
                     ) { result ->
                         when (result) {
                             PermissionResult.ALLOW -> {
