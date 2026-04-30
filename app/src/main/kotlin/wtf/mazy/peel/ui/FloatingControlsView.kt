@@ -201,6 +201,7 @@ class FloatingControlsView(
                             }
                             false
                         }
+
                         GestureState.DRAG_ARMED -> {
                             if (pastSlop) {
                                 gestureState = GestureState.DRAGGING
@@ -212,11 +213,13 @@ class FloatingControlsView(
                             }
                             true
                         }
+
                         GestureState.DRAGGING -> {
                             moveTriggerTo(triggerStartX + dx, triggerStartY + dy)
                             if (expanded) positionActions()
                             true
                         }
+
                         GestureState.CANCELLED -> false
                     }
                 }

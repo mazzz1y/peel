@@ -63,7 +63,7 @@ object ShortcutHelper {
         val hasCustomIcon = owner.loadIcon() != null
         var preview: ImageView? = null
         var slider: Slider? = null
-        var fillSwitch: MaterialSwitch? = null
+        var fillSwitch: MaterialSwitch?
         var lastPreviewBitmap: Bitmap? = null
         var fillBackground = false
 
@@ -201,7 +201,7 @@ object ShortcutHelper {
         canvas.drawBitmap(scaledBitmap, left.toFloat(), top.toFloat(), drawPaint)
 
         if (scaledBitmap != source) scaledBitmap.recycle()
-        if (hadPadding) trimmed!!.recycle()
+        if (trimmed != null && trimmed !== bitmap) trimmed.recycle()
 
         return finalBitmap
     }

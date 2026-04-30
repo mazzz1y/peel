@@ -39,7 +39,7 @@ import kotlin.coroutines.resumeWithException
 object GeckoRuntimeProvider {
 
     const val THEME_COLOR_APP = "themeColor"
-    const val PAGE_INFO_APP = "pageInfo"
+    const val PAGE_BRIDGE_APP = "pageBridge"
 
     private val installMutex = Mutex()
 
@@ -52,7 +52,7 @@ object GeckoRuntimeProvider {
     private var themeColorExtension: WebExtension? = null
 
     @Volatile
-    private var pageInfoExtension: WebExtension? = null
+    private var pageBridgeExtension: WebExtension? = null
 
     private val initStarted = AtomicBoolean(false)
 
@@ -241,13 +241,13 @@ object GeckoRuntimeProvider {
         }
     }
 
-    suspend fun ensurePageInfoExtension(context: Context): WebExtension? {
-        pageInfoExtension?.let { return it }
+    suspend fun ensurePageBridgeExtension(context: Context): WebExtension? {
+        pageBridgeExtension?.let { return it }
         return try {
             val ext = getRuntime(context).webExtensionController
-                .ensureBuiltIn(PAGE_INFO_URI, PAGE_INFO_ID)
+                .ensureBuiltIn(PAGE_BRIDGE_URI, PAGE_BRIDGE_ID)
                 .await()
-            pageInfoExtension = ext
+            pageBridgeExtension = ext
             ext
         } catch (_: Exception) {
             null
@@ -291,7 +291,7 @@ object GeckoRuntimeProvider {
         writeGeckoConfig(context, defaults)?.let { builder.configFilePath(it) }
         val rt = GeckoRuntime.create(context, builder.build())
         rt.settings.setFingerprintingProtection(defaults.isFingerprintingProtection == true)
-        rt.settings.setPreferredColorScheme(colorScheme)
+        rt.settings.preferredColorScheme = colorScheme
         rt.warmUp()
         return rt
     }
@@ -330,7 +330,7 @@ object GeckoRuntimeProvider {
 
     suspend fun <T> GeckoResult<T>.awaitNullable(): T? = suspendCancellableCoroutine { cont ->
         then(
-            { value -> cont.resume(value); GeckoResult<Void>() },
+            { value -> cont.resume(value); GeckoResult() },
             { throwable -> cont.resumeWithException(throwable); GeckoResult<Void>() },
         )
     }
@@ -342,12 +342,12 @@ object GeckoRuntimeProvider {
         awaitNullable()
     }
 
-    private val BUILT_IN_IDS = setOf(THEME_COLOR_ID, PAGE_INFO_ID)
+    private val BUILT_IN_IDS = setOf(THEME_COLOR_ID, PAGE_BRIDGE_ID)
 
     private const val GECKO_CONFIG_FILE = "geckoview-config.yaml"
     private const val TAG = "PeelGecko"
     private const val THEME_COLOR_URI = "resource://android/assets/extensions/theme-color/"
     private const val THEME_COLOR_ID = "theme-color@peel.mazy.wtf"
-    private const val PAGE_INFO_URI = "resource://android/assets/extensions/page-info/"
-    private const val PAGE_INFO_ID = "peel@mazy.wtf"
+    private const val PAGE_BRIDGE_URI = "resource://android/assets/extensions/page-bridge/"
+    private const val PAGE_BRIDGE_ID = "peel@mazy.wtf"
 }

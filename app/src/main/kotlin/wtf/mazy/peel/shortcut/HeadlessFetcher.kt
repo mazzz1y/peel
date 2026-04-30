@@ -115,7 +115,7 @@ class HeadlessFetcher(
     private suspend fun doFetch(loadUrl: String): FetchResult {
         var capturedUrl: String? = null
 
-        val ext = GeckoRuntimeProvider.ensurePageInfoExtension(appContext)
+        val ext = GeckoRuntimeProvider.ensurePageBridgeExtension(appContext)
 
         val session = GeckoSession(
             GeckoSessionSettings.Builder()
@@ -162,7 +162,7 @@ class HeadlessFetcher(
                         })
                     }
                 },
-                GeckoRuntimeProvider.PAGE_INFO_APP,
+                GeckoRuntimeProvider.PAGE_BRIDGE_APP,
             )
         }
 
@@ -501,6 +501,7 @@ class HeadlessFetcher(
                 "page" -> msg.has("manifestUrl") && msg.has("iconUrls")
                 "manifest" -> msg.has("text")
                 "icons" -> msg.has("results")
+                "binary" -> msg.has("ok")
                 "error" -> true
                 else -> false
             }

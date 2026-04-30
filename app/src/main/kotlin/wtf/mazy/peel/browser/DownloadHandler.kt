@@ -30,6 +30,7 @@ class DownloadHandler(
     private val getRuntime: () -> GeckoRuntime,
     private val scope: CoroutineScope,
     private val webappName: String,
+    private val getPageBridge: () -> PageBridge? = { null },
 ) {
     private var promptShowing = false
 
@@ -53,12 +54,10 @@ class DownloadHandler(
             )
             return
         }
-        fetchUrl(url, onError = { showError() }) { resp ->
-            val contentType = extractMimeType(resp.headers)
-            val contentLength = extractContentLength(resp.headers)
+        fetchUrl(url, onError = { showError() }) { result ->
             val fileName =
-                resolveFileName(resp.uri, resp.headers["Content-Disposition"], contentType)
-            promptAndSave(fileName, contentType, contentLength, resp.body)
+                resolveFileName(result.uri, result.contentDisposition, result.contentType)
+            promptAndSave(fileName, result.contentType, result.contentLength, result.body)
         }
     }
 
@@ -69,22 +68,57 @@ class DownloadHandler(
             writeAndShare(ByteArrayInputStream(parsed.bytes), fileName, parsed.mime ?: "image/*")
             return
         }
-        fetchUrl(url) { resp ->
-            val contentType = extractMimeType(resp.headers)
+        fetchUrl(url) { result ->
             val fileName =
-                resolveFileName(resp.uri, resp.headers["Content-Disposition"], contentType)
-            val body = resp.body ?: return@fetchUrl
-            val mime = contentType
+                resolveFileName(result.uri, result.contentDisposition, result.contentType)
+            val body = result.body ?: return@fetchUrl
+            val mime = result.contentType
                 ?: extensionToMime(fileName.substringAfterLast('.', ""))
                 ?: "image/*"
             writeAndShare(body, fileName, mime)
         }
     }
 
+    private data class FetchedResource(
+        val uri: String,
+        val contentType: String?,
+        val contentDisposition: String?,
+        val contentLength: Long,
+        val body: InputStream?,
+    )
+
     private fun fetchUrl(
         url: String,
         onError: (() -> Unit)? = null,
-        onResponse: (WebResponse) -> Unit,
+        onResponse: (FetchedResource) -> Unit,
+    ) {
+        val bridge = getPageBridge()
+        if (bridge != null) {
+            scope.launch {
+                val result = bridge.fetchBinary(url)
+                if (result != null) {
+                    onResponse(
+                        FetchedResource(
+                            uri = url,
+                            contentType = result.contentType?.substringBefore(";")?.trim(),
+                            contentDisposition = result.contentDisposition,
+                            contentLength = result.bytes.size.toLong(),
+                            body = ByteArrayInputStream(result.bytes),
+                        )
+                    )
+                } else {
+                    fetchViaExecutor(url, onError, onResponse)
+                }
+            }
+            return
+        }
+        fetchViaExecutor(url, onError, onResponse)
+    }
+
+    private fun fetchViaExecutor(
+        url: String,
+        onError: (() -> Unit)?,
+        onResponse: (FetchedResource) -> Unit,
     ) {
         val executor = GeckoWebExecutor(getRuntime())
         executor.fetch(WebRequest(url)).then({ response ->
@@ -92,7 +126,17 @@ class DownloadHandler(
                 onError?.let { activity.runOnUiThread { it() } }
                 return@then GeckoResult<Void>()
             }
-            activity.runOnUiThread { onResponse(resp) }
+            activity.runOnUiThread {
+                onResponse(
+                    FetchedResource(
+                        uri = resp.uri,
+                        contentType = extractMimeType(resp.headers),
+                        contentDisposition = resp.headers["Content-Disposition"],
+                        contentLength = extractContentLength(resp.headers),
+                        body = resp.body,
+                    )
+                )
+            }
             GeckoResult()
         }, { _ ->
             onError?.let { activity.runOnUiThread { it() } }

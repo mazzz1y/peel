@@ -30,6 +30,7 @@ import wtf.mazy.peel.browser.BaseSessionHost
 import wtf.mazy.peel.browser.BrowserContextMenu
 import wtf.mazy.peel.browser.DownloadHandler
 import wtf.mazy.peel.browser.DownloadService
+import wtf.mazy.peel.browser.PageBridge
 import wtf.mazy.peel.browser.PeelContentDelegate
 import wtf.mazy.peel.browser.PeelNavigationDelegate
 import wtf.mazy.peel.browser.PeelPermissionDelegate
@@ -116,6 +117,7 @@ class BrowserActivity : BaseSessionHost() {
     private var pageLoadHandled = false
     private var mediaPlaybackManager: MediaPlaybackManager? = null
     private var sessionSetupJob: Job? = null
+    private var pageBridge: PageBridge? = null
     private lateinit var startupAuthReturnTracker: StartupAuthReturnTracker
     private var isStartupAuthTrackingActive = true
 
@@ -341,6 +343,8 @@ class BrowserActivity : BaseSessionHost() {
         mediaPlaybackManager?.release()
         mediaPlaybackManager = null
         sessionExtensionActions.detach()
+        pageBridge?.detach()
+        pageBridge = null
         geckoView?.releaseSession()
         geckoSession?.close()
         geckoSession = null
@@ -511,6 +515,7 @@ class BrowserActivity : BaseSessionHost() {
             getRuntime = { GeckoRuntimeProvider.getRuntime(this) },
             scope = lifecycleScope,
             webappName = webapp.title,
+            getPageBridge = { pageBridge },
         )
         navigationDelegate = PeelNavigationDelegate(this)
         permissionDelegate = PeelPermissionDelegate(this)
@@ -523,6 +528,8 @@ class BrowserActivity : BaseSessionHost() {
     private fun configureSession(settings: WebAppSettings) {
         sessionSetupJob?.cancel()
         (geckoSession?.contentDelegate as? PeelContentDelegate)?.exitFullscreen()
+        pageBridge?.detach()
+        pageBridge = null
         geckoView?.releaseSession()
         geckoSession?.close()
 
@@ -580,6 +587,7 @@ class BrowserActivity : BaseSessionHost() {
 
     private fun launchSessionExtensionsAndLoad(settings: WebAppSettings, url: String) {
         sessionSetupJob = lifecycleScope.launch {
+            attachPageBridge()
             loadURL(url)
             if (settings.isDynamicStatusBar == true) {
                 val ext = GeckoRuntimeProvider.ensureThemeColorExtension(applicationContext)
@@ -591,6 +599,13 @@ class BrowserActivity : BaseSessionHost() {
             setupMediaPlayback(settings)
             autoReloadController.start(settings)
         }
+    }
+
+    private suspend fun attachPageBridge() {
+        val ext = GeckoRuntimeProvider.ensurePageBridgeExtension(applicationContext) ?: return
+        val session = geckoSession ?: return
+        pageBridge?.detach()
+        pageBridge = PageBridge(ext, session).also { it.attach() }
     }
 
     private fun setupMediaPlayback(settings: WebAppSettings) {

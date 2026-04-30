@@ -1,23 +1,25 @@
 (function () {
-  const port = browser.runtime.connectNative("pageInfo");
+  const port = browser.runtime.connectNative("pageBridge");
   const MAX_URL_LEN = 2048;
   const MAX_URLS = 20;
   const MAX_MANIFEST_TEXT = 1024 * 1024;
   const MAX_ICON_BYTES = 1024 * 1024;
+  const MAX_BINARY_BYTES = 10 * 1024 * 1024;
   const FETCH_TIMEOUT_MS = 5000;
+  const BINARY_FETCH_TIMEOUT_MS = 30000;
   function isValidUrl(url) {
     if (typeof url !== "string" || url.length === 0 || url.length > MAX_URL_LEN) return false;
     return url.startsWith("https://") || url.startsWith("http://");
   }
 
-  function fetchWithTimeout(url, options) {
+  function fetchWithTimeout(url, options, timeoutMs) {
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
     return fetch(url, { ...options, signal: controller.signal }).finally(() => clearTimeout(timer));
   }
 
   function fetchIcon(url) {
-    return fetchWithTimeout(url, { credentials: "same-origin" })
+    return fetchWithTimeout(url, { credentials: "same-origin" }, FETCH_TIMEOUT_MS)
       .then(r => {
         if (!r.ok) return Promise.reject();
         const type = (r.headers.get("content-type") || "").toLowerCase();
@@ -52,6 +54,47 @@
       .catch(() => "");
   }
 
+  function arrayBufferToBase64(buffer) {
+    const bytes = new Uint8Array(buffer);
+    let binary = "";
+    const chunkSize = 0x8000;
+    for (let i = 0; i < bytes.length; i += chunkSize) {
+      const chunk = bytes.subarray(i, Math.min(i + chunkSize, bytes.length));
+      binary += String.fromCharCode.apply(null, chunk);
+    }
+    return btoa(binary);
+  }
+
+  function fetchBinaryWithCredentials(url, credentials) {
+    return fetchWithTimeout(url, { credentials }, BINARY_FETCH_TIMEOUT_MS)
+      .then(r => {
+        if (!r.ok) return Promise.reject(new Error("HTTP " + r.status));
+        const contentType = r.headers.get("content-type") || "";
+        const disposition = r.headers.get("content-disposition") || "";
+        return r.arrayBuffer().then(buf => ({ buf, contentType, disposition }));
+      });
+  }
+
+  function fetchBinary(url) {
+    if (!isValidUrl(url)) {
+      return Promise.resolve({ ok: false, error: "invalid-url" });
+    }
+    return fetchBinaryWithCredentials(url, "include")
+      .catch(() => fetchBinaryWithCredentials(url, "same-origin"))
+      .then(({ buf, contentType, disposition }) => {
+        if (buf.byteLength > MAX_BINARY_BYTES) {
+          return { ok: false, error: "too-large" };
+        }
+        return {
+          ok: true,
+          base64: arrayBufferToBase64(buf),
+          contentType,
+          disposition,
+        };
+      })
+      .catch(err => ({ ok: false, error: String((err && err.message) || err || "fetch-failed") }));
+  }
+
   function scrapePage() {
     const iconUrls = [...document.querySelectorAll('link[rel*="icon"]')]
       .filter(l => l.href)
@@ -78,7 +121,7 @@
         port.postMessage({ mode: "manifest", requestId, text: "" });
         return;
       }
-      fetchWithTimeout(msg.url, { credentials: "same-origin" })
+      fetchWithTimeout(msg.url, { credentials: "same-origin" }, FETCH_TIMEOUT_MS)
         .then(r => r.ok ? r.text() : "")
         .then(text => port.postMessage({ mode: "manifest", requestId, text: text.slice(0, MAX_MANIFEST_TEXT) }))
         .catch(() => port.postMessage({ mode: "manifest", requestId, text: "" }));
@@ -91,6 +134,10 @@
       Promise.all(urls.map(url => fetchIcon(url).then(dataUrl => ({ url, dataUrl }))))
         .then(results => port.postMessage({ mode: "icons", requestId, results }))
         .catch(() => port.postMessage({ mode: "icons", requestId, results: [] }));
+    } else if (msg.cmd === "fetch-binary") {
+      fetchBinary(msg.url).then(result => {
+        port.postMessage({ mode: "binary", requestId, ...result });
+      });
     } else {
       port.postMessage({ mode: "error", requestId });
     }
