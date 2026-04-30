@@ -92,17 +92,29 @@ class FloatingControlsView(
 
     private var expanded = false
     private var expandDown = false
-    private var isDragging = false
-    private var resetTriggered = false
+    private var gestureState = GestureState.WAITING
     private var touchStartX = 0f
     private var touchStartY = 0f
     private var triggerStartX = 0f
     private var triggerStartY = 0f
 
+    private val dragArmRunnable = Runnable {
+        if (gestureState == GestureState.WAITING) {
+            gestureState = GestureState.DRAG_ARMED
+            trigger.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
+            trigger.animate().scaleX(DRAG_ARM_SCALE).scaleY(DRAG_ARM_SCALE)
+                .setDuration(SCALE_ANIM_MS).start()
+        }
+    }
+
     private val resetRunnable = Runnable {
-        resetTriggered = true
+        if (gestureState != GestureState.WAITING && gestureState != GestureState.DRAG_ARMED) {
+            return@Runnable
+        }
         trigger.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
+        trigger.animate().scaleX(1f).scaleY(1f).setDuration(SCALE_ANIM_MS).start()
         trigger.isPressed = false
+        gestureState = GestureState.CANCELLED
         resetPosition()
     }
 
@@ -158,19 +170,19 @@ class FloatingControlsView(
 
     @SuppressLint("ClickableViewAccessibility")
     private fun setupTriggerGesture() {
-        val dragThreshold = ViewConfiguration.get(themedContext).scaledTouchSlop.toFloat()
+        val slop = ViewConfiguration.get(themedContext).scaledTouchSlop.toFloat()
 
         trigger.setOnClickListener { toggle() }
 
         trigger.setOnTouchListener { v, event ->
             when (event.actionMasked) {
                 MotionEvent.ACTION_DOWN -> {
-                    isDragging = false
-                    resetTriggered = false
+                    gestureState = GestureState.WAITING
                     touchStartX = event.rawX
                     touchStartY = event.rawY
                     triggerStartX = trigger.x
                     triggerStartY = trigger.y
+                    trigger.postDelayed(dragArmRunnable, DRAG_ARM_HOLD_MS)
                     trigger.postDelayed(resetRunnable, RESET_HOLD_MS)
                     false
                 }
@@ -178,33 +190,63 @@ class FloatingControlsView(
                 MotionEvent.ACTION_MOVE -> {
                     val dx = event.rawX - touchStartX
                     val dy = event.rawY - touchStartY
-                    if (!isDragging && (dx * dx + dy * dy > dragThreshold * dragThreshold)) {
-                        isDragging = true
-                        v.isPressed = false
-                        trigger.removeCallbacks(resetRunnable)
-                    }
-                    if (isDragging) {
-                        moveTriggerTo(triggerStartX + dx, triggerStartY + dy)
-                        if (expanded) positionActions()
-                        true
-                    } else {
-                        false
+                    val pastSlop = dx * dx + dy * dy > slop * slop
+                    when (gestureState) {
+                        GestureState.WAITING -> {
+                            if (pastSlop) {
+                                gestureState = GestureState.CANCELLED
+                                trigger.removeCallbacks(dragArmRunnable)
+                                trigger.removeCallbacks(resetRunnable)
+                                v.isPressed = false
+                            }
+                            false
+                        }
+                        GestureState.DRAG_ARMED -> {
+                            if (pastSlop) {
+                                gestureState = GestureState.DRAGGING
+                                trigger.removeCallbacks(resetRunnable)
+                            }
+                            if (gestureState == GestureState.DRAGGING) {
+                                moveTriggerTo(triggerStartX + dx, triggerStartY + dy)
+                                if (expanded) positionActions()
+                            }
+                            true
+                        }
+                        GestureState.DRAGGING -> {
+                            moveTriggerTo(triggerStartX + dx, triggerStartY + dy)
+                            if (expanded) positionActions()
+                            true
+                        }
+                        GestureState.CANCELLED -> false
                     }
                 }
 
                 MotionEvent.ACTION_UP -> {
+                    trigger.removeCallbacks(dragArmRunnable)
                     trigger.removeCallbacks(resetRunnable)
-                    if (isDragging) {
-                        savePosition()
-                        true
-                    } else {
-                        false
+                    val wasArmed = gestureState == GestureState.DRAG_ARMED ||
+                            gestureState == GestureState.DRAGGING
+                    if (wasArmed) {
+                        trigger.animate().scaleX(1f).scaleY(1f)
+                            .setDuration(SCALE_ANIM_MS).start()
                     }
+                    val wasTap = gestureState == GestureState.WAITING
+                    if (gestureState == GestureState.DRAGGING) savePosition()
+                    gestureState = GestureState.WAITING
+                    !wasTap
                 }
 
                 MotionEvent.ACTION_CANCEL -> {
+                    trigger.removeCallbacks(dragArmRunnable)
                     trigger.removeCallbacks(resetRunnable)
-                    if (isDragging) savePosition()
+                    if (gestureState == GestureState.DRAG_ARMED ||
+                        gestureState == GestureState.DRAGGING
+                    ) {
+                        trigger.animate().scaleX(1f).scaleY(1f)
+                            .setDuration(SCALE_ANIM_MS).start()
+                    }
+                    if (gestureState == GestureState.DRAGGING) savePosition()
+                    gestureState = GestureState.WAITING
                     false
                 }
 
@@ -245,7 +287,9 @@ class FloatingControlsView(
     private fun resolveOffset(offsetFrac: Float, parentSize: Int): Float {
         val maxPos = (parentSize - buttonSizePx).toFloat().coerceAtLeast(0f)
         val offsetPx = offsetFrac * parentSize
-        val resolved = if (offsetPx < 0f) maxPos + offsetPx else offsetPx
+        val isRightAnchored = offsetPx < 0f ||
+                (offsetFrac == 0f && offsetFrac.toRawBits() != 0)
+        val resolved = if (isRightAnchored) maxPos + offsetPx else offsetPx
         return resolved.coerceIn(0f, maxPos)
     }
 
@@ -305,6 +349,8 @@ class FloatingControlsView(
         trigger.animate().rotation(0f).setDuration(ANIM_DURATION_MS).start()
     }
 
+    private enum class GestureState { WAITING, CANCELLED, DRAG_ARMED, DRAGGING }
+
     private companion object {
         const val BUTTON_SIZE_DP = 36
         const val BUTTON_GAP_DP = 18
@@ -314,7 +360,10 @@ class FloatingControlsView(
         const val DEFAULT_Y_FRACTION = -0.165f
         const val TRIGGER_EXPAND_ROTATION = 90f
         const val TRIGGER_ICON_ALPHA = 180
+        const val DRAG_ARM_HOLD_MS = 300L
         const val RESET_HOLD_MS = 1200L
+        const val DRAG_ARM_SCALE = 1.1f
+        const val SCALE_ANIM_MS = 120L
         const val TRIGGER_BG_COLOR = 0x33000000
         const val ACTION_BG_COLOR = 0x66000000
     }
