@@ -70,7 +70,7 @@ object Utility {
                 }
             }
         }
-        if (fileName == null) {
+        if (fileName == null && url != null) {
             fileName = URLUtil.guessFileName(url, contentDisposition, mimeType)
         }
 
