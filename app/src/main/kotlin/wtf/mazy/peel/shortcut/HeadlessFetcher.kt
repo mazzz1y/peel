@@ -20,6 +20,7 @@ import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.withTimeoutOrNull
 import org.json.JSONArray
 import org.json.JSONObject
+import org.mozilla.geckoview.AllowOrDeny
 import org.mozilla.geckoview.GeckoResult
 import org.mozilla.geckoview.GeckoSession
 import org.mozilla.geckoview.GeckoSessionSettings
@@ -192,6 +193,9 @@ class HeadlessFetcher(
         session.open(GeckoRuntimeProvider.getRuntime(appContext))
         attachView(session)
         session.setActive(true)
+        val runtime = GeckoRuntimeProvider.getRuntime(appContext)
+        runtime.webExtensionController.setTabActive(session, true)
+        registerSessionWithUserExtensions(session)
 
         val rootUrl = originOf(loadUrl) + "/"
         val hasSubPath = try {
@@ -331,6 +335,30 @@ class HeadlessFetcher(
         return parsePageInfo(msg)
     }
 
+    private suspend fun registerSessionWithUserExtensions(session: GeckoSession) {
+        val extensions = try {
+            GeckoRuntimeProvider.listUserExtensions(appContext)
+        } catch (_: Exception) {
+            emptyList()
+        }
+        if (extensions.isEmpty()) return
+        val tabDelegate = object : WebExtension.SessionTabDelegate {
+            override fun onUpdateTab(
+                extension: WebExtension,
+                targetSession: GeckoSession,
+                details: WebExtension.UpdateTabDetails,
+            ): GeckoResult<AllowOrDeny> = GeckoResult.fromValue(AllowOrDeny.ALLOW)
+
+            override fun onCloseTab(
+                source: WebExtension?,
+                targetSession: GeckoSession,
+            ): GeckoResult<AllowOrDeny> = GeckoResult.fromValue(AllowOrDeny.ALLOW)
+        }
+        for (ext in extensions) {
+            runCatching { session.webExtensionController.setTabDelegate(ext, tabDelegate) }
+        }
+    }
+
     private suspend fun sendCommand(command: JSONObject): JSONObject? {
         val p = port ?: return null
         val requestId = nextRequestId()
@@ -425,6 +453,10 @@ class HeadlessFetcher(
             handler.post {
                 try {
                     p?.disconnect()
+                    session?.let {
+                        GeckoRuntimeProvider.getRuntime(appContext)
+                            .webExtensionController.setTabActive(it, false)
+                    }
                     session?.setActive(false)
                     view?.releaseSession()
                     session?.close()

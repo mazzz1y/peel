@@ -92,31 +92,8 @@ class FloatingControlsView(
 
     private var expanded = false
     private var expandDown = false
-    private var gestureState = GestureState.WAITING
-    private var touchStartX = 0f
-    private var touchStartY = 0f
-    private var triggerStartX = 0f
-    private var triggerStartY = 0f
 
-    private val dragArmRunnable = Runnable {
-        if (gestureState == GestureState.WAITING) {
-            gestureState = GestureState.DRAG_ARMED
-            trigger.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
-            trigger.animate().scaleX(DRAG_ARM_SCALE).scaleY(DRAG_ARM_SCALE)
-                .setDuration(SCALE_ANIM_MS).start()
-        }
-    }
-
-    private val resetRunnable = Runnable {
-        if (gestureState != GestureState.WAITING && gestureState != GestureState.DRAG_ARMED) {
-            return@Runnable
-        }
-        trigger.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
-        trigger.animate().scaleX(1f).scaleY(1f).setDuration(SCALE_ANIM_MS).start()
-        trigger.isPressed = false
-        gestureState = GestureState.CANCELLED
-        resetPosition()
-    }
+    private val gestureHandler = GestureHandler()
 
     init {
         actionButtons.forEach { btn ->
@@ -125,7 +102,7 @@ class FloatingControlsView(
             parent.addView(btn)
         }
         parent.addView(trigger)
-        setupTriggerGesture()
+        gestureHandler.attach()
         parent.addOnLayoutChangeListener(layoutChangeListener)
         parent.doOnLayout { applyPosition() }
     }
@@ -136,7 +113,10 @@ class FloatingControlsView(
     }
 
     fun setHidden(hidden: Boolean) {
-        if (hidden && expanded) collapse()
+        if (hidden) {
+            if (expanded) collapse()
+            gestureHandler.cancel()
+        }
         val visibility = if (hidden) View.GONE else View.VISIBLE
         allViews.forEach { it.visibility = visibility }
     }
@@ -165,96 +145,6 @@ class FloatingControlsView(
             scaleType = android.widget.ImageView.ScaleType.FIT_CENTER
             val inset = (ICON_INSET_DP * density).toInt()
             setPadding(inset, inset, inset, inset)
-        }
-    }
-
-    @SuppressLint("ClickableViewAccessibility")
-    private fun setupTriggerGesture() {
-        val slop = ViewConfiguration.get(themedContext).scaledTouchSlop.toFloat()
-
-        trigger.setOnClickListener { toggle() }
-
-        trigger.setOnTouchListener { v, event ->
-            when (event.actionMasked) {
-                MotionEvent.ACTION_DOWN -> {
-                    gestureState = GestureState.WAITING
-                    touchStartX = event.rawX
-                    touchStartY = event.rawY
-                    triggerStartX = trigger.x
-                    triggerStartY = trigger.y
-                    trigger.postDelayed(dragArmRunnable, DRAG_ARM_HOLD_MS)
-                    trigger.postDelayed(resetRunnable, RESET_HOLD_MS)
-                    false
-                }
-
-                MotionEvent.ACTION_MOVE -> {
-                    val dx = event.rawX - touchStartX
-                    val dy = event.rawY - touchStartY
-                    val pastSlop = dx * dx + dy * dy > slop * slop
-                    when (gestureState) {
-                        GestureState.WAITING -> {
-                            if (pastSlop) {
-                                gestureState = GestureState.CANCELLED
-                                trigger.removeCallbacks(dragArmRunnable)
-                                trigger.removeCallbacks(resetRunnable)
-                                v.isPressed = false
-                            }
-                            false
-                        }
-
-                        GestureState.DRAG_ARMED -> {
-                            if (pastSlop) {
-                                gestureState = GestureState.DRAGGING
-                                trigger.removeCallbacks(resetRunnable)
-                            }
-                            if (gestureState == GestureState.DRAGGING) {
-                                moveTriggerTo(triggerStartX + dx, triggerStartY + dy)
-                                if (expanded) positionActions()
-                            }
-                            true
-                        }
-
-                        GestureState.DRAGGING -> {
-                            moveTriggerTo(triggerStartX + dx, triggerStartY + dy)
-                            if (expanded) positionActions()
-                            true
-                        }
-
-                        GestureState.CANCELLED -> false
-                    }
-                }
-
-                MotionEvent.ACTION_UP -> {
-                    trigger.removeCallbacks(dragArmRunnable)
-                    trigger.removeCallbacks(resetRunnable)
-                    val wasArmed = gestureState == GestureState.DRAG_ARMED ||
-                            gestureState == GestureState.DRAGGING
-                    if (wasArmed) {
-                        trigger.animate().scaleX(1f).scaleY(1f)
-                            .setDuration(SCALE_ANIM_MS).start()
-                    }
-                    val wasTap = gestureState == GestureState.WAITING
-                    if (gestureState == GestureState.DRAGGING) savePosition()
-                    gestureState = GestureState.WAITING
-                    !wasTap
-                }
-
-                MotionEvent.ACTION_CANCEL -> {
-                    trigger.removeCallbacks(dragArmRunnable)
-                    trigger.removeCallbacks(resetRunnable)
-                    if (gestureState == GestureState.DRAG_ARMED ||
-                        gestureState == GestureState.DRAGGING
-                    ) {
-                        trigger.animate().scaleX(1f).scaleY(1f)
-                            .setDuration(SCALE_ANIM_MS).start()
-                    }
-                    if (gestureState == GestureState.DRAGGING) savePosition()
-                    gestureState = GestureState.WAITING
-                    false
-                }
-
-                else -> false
-            }
         }
     }
 
@@ -332,27 +222,153 @@ class FloatingControlsView(
         expanded = true
         expandDown = shouldExpandDown()
         positionActions()
-        actionButtons.forEach { btn ->
-            btn.animate().cancel()
-            btn.isClickable = true
-            btn.animate().alpha(1f).setDuration(ANIM_DURATION_MS).start()
-        }
-        trigger.animate().cancel()
-        trigger.animate().rotation(TRIGGER_EXPAND_ROTATION).setDuration(ANIM_DURATION_MS).start()
+        animateExpansion(visible = true)
     }
 
     private fun collapse() {
         expanded = false
-        actionButtons.forEach { btn ->
-            btn.animate().cancel()
-            btn.isClickable = false
-            btn.animate().alpha(0f).setDuration(ANIM_DURATION_MS).start()
-        }
-        trigger.animate().cancel()
-        trigger.animate().rotation(0f).setDuration(ANIM_DURATION_MS).start()
+        animateExpansion(visible = false)
     }
 
-    private enum class GestureState { WAITING, CANCELLED, DRAG_ARMED, DRAGGING }
+    private fun animateExpansion(visible: Boolean) {
+        val targetAlpha = if (visible) 1f else 0f
+        val targetRotation = if (visible) TRIGGER_EXPAND_ROTATION else 0f
+        actionButtons.forEach { btn ->
+            btn.animate().cancel()
+            btn.isClickable = visible
+            btn.animate().alpha(targetAlpha).setDuration(ANIM_DURATION_MS).start()
+        }
+        trigger.animate().cancel()
+        trigger.animate().rotation(targetRotation).setDuration(ANIM_DURATION_MS).start()
+    }
+
+    private fun animateTriggerScale(target: Float) {
+        trigger.animate().scaleX(target).scaleY(target).setDuration(SCALE_ANIM_MS).start()
+    }
+
+    private inner class GestureHandler {
+        private var state = GestureState.WAITING
+        private var touchStartX = 0f
+        private var touchStartY = 0f
+        private var triggerStartX = 0f
+        private var triggerStartY = 0f
+
+        private val dragArmRunnable = Runnable {
+            if (state == GestureState.WAITING) {
+                state = GestureState.DRAG_ARMED
+                trigger.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
+                animateTriggerScale(DRAG_ARM_SCALE)
+            }
+        }
+
+        private val resetRunnable = Runnable {
+            if (state != GestureState.WAITING && state != GestureState.DRAG_ARMED) return@Runnable
+            trigger.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
+            animateTriggerScale(1f)
+            trigger.isPressed = false
+            state = GestureState.CANCELLED
+            resetPosition()
+        }
+
+        @SuppressLint("ClickableViewAccessibility")
+        fun attach() {
+            val slop = ViewConfiguration.get(themedContext).scaledTouchSlop.toFloat()
+            trigger.setOnClickListener { toggle() }
+            trigger.setOnTouchListener { v, event -> handle(v, event, slop) }
+        }
+
+        fun cancel() {
+            cancelHoldRunnables()
+            if (state.isHandled) animateTriggerScale(1f)
+            trigger.isPressed = false
+            state = GestureState.WAITING
+        }
+
+        private fun handle(v: View, event: MotionEvent, slop: Float): Boolean {
+            return when (event.actionMasked) {
+                MotionEvent.ACTION_DOWN -> {
+                    state = GestureState.WAITING
+                    touchStartX = event.rawX
+                    touchStartY = event.rawY
+                    triggerStartX = trigger.x
+                    triggerStartY = trigger.y
+                    trigger.postDelayed(dragArmRunnable, DRAG_ARM_HOLD_MS)
+                    trigger.postDelayed(resetRunnable, RESET_HOLD_MS)
+                    false
+                }
+
+                MotionEvent.ACTION_MOVE -> handleMove(v, event, slop)
+
+                MotionEvent.ACTION_UP -> {
+                    cancelHoldRunnables()
+                    if (state.isHandled) animateTriggerScale(1f)
+                    val wasTap = state == GestureState.WAITING
+                    if (state == GestureState.DRAGGING) savePosition()
+                    if (!wasTap) v.isPressed = false
+                    state = GestureState.WAITING
+                    !wasTap
+                }
+
+                MotionEvent.ACTION_CANCEL -> {
+                    cancelHoldRunnables()
+                    if (state.isHandled) animateTriggerScale(1f)
+                    if (state == GestureState.DRAGGING) savePosition()
+                    v.isPressed = false
+                    state = GestureState.WAITING
+                    false
+                }
+
+                else -> false
+            }
+        }
+
+        private fun handleMove(v: View, event: MotionEvent, slop: Float): Boolean {
+            val dx = event.rawX - touchStartX
+            val dy = event.rawY - touchStartY
+            val pastSlop = dx * dx + dy * dy > slop * slop
+            return when (state) {
+                GestureState.WAITING -> {
+                    if (pastSlop) {
+                        state = GestureState.CANCELLED
+                        cancelHoldRunnables()
+                        v.isPressed = false
+                    }
+                    false
+                }
+
+                GestureState.DRAG_ARMED -> {
+                    if (pastSlop) {
+                        state = GestureState.DRAGGING
+                        trigger.removeCallbacks(resetRunnable)
+                    }
+                    if (state == GestureState.DRAGGING) {
+                        moveTriggerTo(triggerStartX + dx, triggerStartY + dy)
+                        if (expanded) positionActions()
+                    }
+                    true
+                }
+
+                GestureState.DRAGGING -> {
+                    moveTriggerTo(triggerStartX + dx, triggerStartY + dy)
+                    if (expanded) positionActions()
+                    true
+                }
+
+                GestureState.CANCELLED -> false
+            }
+        }
+
+        private fun cancelHoldRunnables() {
+            trigger.removeCallbacks(dragArmRunnable)
+            trigger.removeCallbacks(resetRunnable)
+        }
+    }
+
+    private enum class GestureState {
+        WAITING, CANCELLED, DRAG_ARMED, DRAGGING;
+
+        val isHandled: Boolean get() = this == DRAG_ARMED || this == DRAGGING
+    }
 
     private companion object {
         const val BUTTON_SIZE_DP = 36
