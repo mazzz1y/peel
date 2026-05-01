@@ -187,6 +187,8 @@
     <string name="context_menu_share_link">Поделиться ссылкой</string>
     <string name="context_menu_download_image">Скачать изображение</string>
     <string name="context_menu_share_image">Поделиться изображением</string>
+    <string name="context_menu_copy_video_url">Копировать URL видео</string>
+    <string name="context_menu_copy_audio_url">Копировать URL аудио</string>
     <string name="link_copied">Ссылка скопирована</string>
     <string name="text_copied">Текст скопирован</string>
     <string name="download_failed">Не удалось скачать файл</string>

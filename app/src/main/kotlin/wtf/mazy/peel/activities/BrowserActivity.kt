@@ -516,6 +516,12 @@ class BrowserActivity : BaseSessionHost() {
             scope = lifecycleScope,
             webappName = webapp.title,
             getPageBridge = { pageBridge },
+            requiresBridgeAuth = {
+                geckoSession?.settings?.let {
+                    it.contextId != null || it.usePrivateMode
+                } == true
+            },
+            getPageUrl = { currentUrl.takeIf { it.isNotBlank() } },
         )
         navigationDelegate = PeelNavigationDelegate(this)
         permissionDelegate = PeelPermissionDelegate(this)

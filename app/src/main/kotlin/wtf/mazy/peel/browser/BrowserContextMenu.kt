@@ -48,34 +48,31 @@ class BrowserContextMenu(
 
     private fun resolveHitInfo(element: GeckoSession.ContentDelegate.ContextElement): HitInfo? {
         val linkUrl = element.linkUri
-        val imageUrl = element.srcUri
+        val srcUrl = element.srcUri
         val title = (element.linkText?.takeIf { it.isNotBlank() } ?: element.title)
             ?.takeIf { it.isNotBlank() }
 
-        return when {
-            linkUrl != null && imageUrl != null -> HitInfo(
-                title = title?.takeIf { it != linkUrl },
-                url = linkUrl,
-                linkActions = linkActionsFor(linkUrl, title),
-                imageActions = imageActionsFor(imageUrl),
-            )
-
-            linkUrl != null -> HitInfo(
-                title = title?.takeIf { it != linkUrl },
-                url = linkUrl,
-                linkActions = linkActionsFor(linkUrl, title),
-                imageActions = emptyList(),
-            )
-
-            imageUrl != null -> HitInfo(
-                title = null,
-                url = imageUrl,
-                linkActions = emptyList(),
-                imageActions = imageActionsFor(imageUrl),
-            )
-
-            else -> null
+        val mediaActions = when {
+            srcUrl == null -> emptyList()
+            element.type == GeckoSession.ContentDelegate.ContextElement.TYPE_IMAGE ->
+                imageActionsFor(srcUrl)
+            element.type == GeckoSession.ContentDelegate.ContextElement.TYPE_VIDEO ->
+                videoActionsFor(srcUrl)
+            element.type == GeckoSession.ContentDelegate.ContextElement.TYPE_AUDIO ->
+                audioActionsFor(srcUrl)
+            else -> emptyList()
         }
+        val linkActions = if (linkUrl != null) linkActionsFor(linkUrl, title) else emptyList()
+
+        if (linkActions.isEmpty() && mediaActions.isEmpty()) return null
+
+        val displayUrl = linkUrl ?: srcUrl ?: return null
+        return HitInfo(
+            title = title?.takeIf { it != displayUrl },
+            url = displayUrl,
+            linkActions = linkActions,
+            imageActions = mediaActions,
+        )
     }
 
     private fun linkActionsFor(url: String, title: String?) = buildList {
@@ -97,6 +94,14 @@ class BrowserContextMenu(
     private fun imageActionsFor(url: String) = listOf(
         MenuAction(str(R.string.context_menu_download_image)) { downloadHandler.downloadUrl(url) },
         MenuAction(str(R.string.context_menu_share_image)) { shareImage(url) },
+    )
+
+    private fun videoActionsFor(url: String) = listOf(
+        MenuAction(str(R.string.context_menu_copy_video_url)) { copyToClipboard(url) },
+    )
+
+    private fun audioActionsFor(url: String) = listOf(
+        MenuAction(str(R.string.context_menu_copy_audio_url)) { copyToClipboard(url) },
     )
 
     private fun showDialog(info: HitInfo) {

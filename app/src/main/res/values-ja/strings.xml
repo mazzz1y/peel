@@ -184,6 +184,8 @@
     <string name="context_menu_share_link">リンクを共有</string>
     <string name="context_menu_download_image">画像をダウンロード</string>
     <string name="context_menu_share_image">画像を共有</string>
+    <string name="context_menu_copy_video_url">動画のURLをコピー</string>
+    <string name="context_menu_copy_audio_url">音声のURLをコピー</string>
     <string name="link_copied">リンクをコピーしました</string>
     <string name="text_copied">テキストをコピーしました</string>
     <string name="download_failed">ダウンロードに失敗しました</string>

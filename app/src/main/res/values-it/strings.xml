@@ -183,6 +183,8 @@
     <string name="context_menu_share_link">Condividi link</string>
     <string name="context_menu_download_image">Scarica immagine</string>
     <string name="context_menu_share_image">Condividi immagine</string>
+    <string name="context_menu_copy_video_url">Copia URL del video</string>
+    <string name="context_menu_copy_audio_url">Copia URL dell\'audio</string>
     <string name="link_copied">Link copiato</string>
     <string name="text_copied">Testo copiato</string>
     <string name="download_failed">Download fallito</string>

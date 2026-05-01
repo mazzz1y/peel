@@ -178,6 +178,8 @@
     <string name="context_menu_share_link">Share link</string>
     <string name="context_menu_download_image">Download image</string>
     <string name="context_menu_share_image">Share image</string>
+    <string name="context_menu_copy_video_url">Copy video URL</string>
+    <string name="context_menu_copy_audio_url">Copy audio URL</string>
     <string name="link_copied">Link copied</string>
     <string name="text_copied">Text copied</string>
     <string name="download_failed">Download failed</string>

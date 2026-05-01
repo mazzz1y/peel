@@ -185,6 +185,8 @@
     <string name="context_menu_share_link">Compartilhar link</string>
     <string name="context_menu_download_image">Baixar imagem</string>
     <string name="context_menu_share_image">Compartilhar imagem</string>
+    <string name="context_menu_copy_video_url">Copiar URL do vídeo</string>
+    <string name="context_menu_copy_audio_url">Copiar URL do áudio</string>
     <string name="link_copied">Link copiado</string>
     <string name="text_copied">Texto copiado</string>
     <string name="download_failed">Falha no download</string>

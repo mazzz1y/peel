@@ -184,6 +184,8 @@
     <string name="context_menu_share_link">分享連結</string>
     <string name="context_menu_download_image">下載圖片</string>
     <string name="context_menu_share_image">分享圖片</string>
+    <string name="context_menu_copy_video_url">複製影片網址</string>
+    <string name="context_menu_copy_audio_url">複製音訊網址</string>
     <string name="link_copied">連結已複製</string>
     <string name="text_copied">文字已複製</string>
     <string name="download_failed">下載失敗</string>

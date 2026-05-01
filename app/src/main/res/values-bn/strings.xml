@@ -185,6 +185,8 @@
     <string name="context_menu_share_link">লিঙ্ক শেয়ার করুন</string>
     <string name="context_menu_download_image">ছবি ডাউনলোড করুন</string>
     <string name="context_menu_share_image">ছবি শেয়ার করুন</string>
+    <string name="context_menu_copy_video_url">ভিডিও URL কপি করুন</string>
+    <string name="context_menu_copy_audio_url">অডিও URL কপি করুন</string>
     <string name="link_copied">লিঙ্ক কপি হয়েছে</string>
     <string name="text_copied">লেখা কপি হয়েছে</string>
     <string name="download_failed">ডাউনলোড ব্যর্থ হয়েছে</string>

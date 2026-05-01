@@ -43,6 +43,8 @@ fun restartApp(activity: Activity) {
 
 object Utility {
 
+    private val unsafeFileNameChars = Regex("""[/\\:*?"<>|\x00-\x1F]""")
+
     @JvmStatic
     fun getFileNameFromDownload(
         url: String?,
@@ -72,6 +74,12 @@ object Utility {
             fileName = URLUtil.guessFileName(url, contentDisposition, mimeType)
         }
 
-        return fileName
+        return fileName?.let { sanitizeFileName(it) }
+    }
+
+    private fun sanitizeFileName(name: String): String {
+        val withoutPath = name.substringAfterLast('/').substringAfterLast('\\')
+        val scrubbed = withoutPath.replace(unsafeFileNameChars, "_").trim().trim('.')
+        return scrubbed.ifBlank { "download" }
     }
 }

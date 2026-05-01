@@ -184,6 +184,8 @@
     <string name="context_menu_share_link">ਲਿੰਕ ਸਾਂਝਾ ਕਰੋ</string>
     <string name="context_menu_download_image">ਚਿੱਤਰ ਡਾਊਨਲੋਡ ਕਰੋ</string>
     <string name="context_menu_share_image">ਚਿਤਰ ਸਾਂਝੇ ਕਰੋ</string>
+    <string name="context_menu_copy_video_url">ਵੀਡੀਓ URL ਕਾਪੀ ਕਰੋ</string>
+    <string name="context_menu_copy_audio_url">ਆਡੀਓ URL ਕਾਪੀ ਕਰੋ</string>
     <string name="link_copied">ਲਿੰਕ ਕਾਪੀ ਹੋਇਆ</string>
     <string name="text_copied">ਟੈਕਸਟ ਕਾਪੀ ਹੋਇਆ</string>
     <string name="download_failed">ਡਾਊਨਲੋਡ ਅਸਫਲ</string>

@@ -185,6 +185,8 @@
     <string name="context_menu_share_link">लिंक शेयर करें</string>
     <string name="context_menu_download_image">इमेज डाउनलोड करें</string>
     <string name="context_menu_share_image">इमेज शेयर करें</string>
+    <string name="context_menu_copy_video_url">वीडियो URL कॉपी करें</string>
+    <string name="context_menu_copy_audio_url">ऑडियो URL कॉपी करें</string>
     <string name="link_copied">लिंक कॉपी हुआ</string>
     <string name="text_copied">टेक्स्ट कॉपी हुआ</string>
     <string name="download_failed">डाउनलोड विफल</string>

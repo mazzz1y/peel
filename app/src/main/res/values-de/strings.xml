@@ -183,6 +183,8 @@
     <string name="context_menu_share_link">Link teilen</string>
     <string name="context_menu_download_image">Bild herunterladen</string>
     <string name="context_menu_share_image">Bild teilen</string>
+    <string name="context_menu_copy_video_url">Video-URL kopieren</string>
+    <string name="context_menu_copy_audio_url">Audio-URL kopieren</string>
     <string name="link_copied">Link kopiert</string>
     <string name="text_copied">Text kopiert</string>
     <string name="download_failed">Download fehlgeschlagen</string>

@@ -184,6 +184,8 @@
     <string name="context_menu_share_link">Chia sẻ đường liên kết</string>
     <string name="context_menu_download_image">Tải hình ảnh xuống</string>
     <string name="context_menu_share_image">Chia sẻ hình ảnh</string>
+    <string name="context_menu_copy_video_url">Sao chép URL video</string>
+    <string name="context_menu_copy_audio_url">Sao chép URL âm thanh</string>
     <string name="link_copied">Đã sao chép liên kết</string>
     <string name="text_copied">Đã sao chép văn bản</string>
     <string name="download_failed">Tải xuống thất bại</string>

@@ -31,6 +31,8 @@ class DownloadHandler(
     private val scope: CoroutineScope,
     private val webappName: String,
     private val getPageBridge: () -> PageBridge? = { null },
+    private val requiresBridgeAuth: () -> Boolean = { false },
+    private val getPageUrl: () -> String? = { null },
 ) {
     private var promptShowing = false
 
@@ -68,7 +70,7 @@ class DownloadHandler(
             writeAndShare(ByteArrayInputStream(parsed.bytes), fileName, parsed.mime ?: "image/*")
             return
         }
-        fetchUrl(url) { result ->
+        fetchUrl(url, onError = { showError() }) { result ->
             val fileName =
                 resolveFileName(result.uri, result.contentDisposition, result.contentType)
             val body = result.body ?: return@fetchUrl
@@ -92,8 +94,12 @@ class DownloadHandler(
         onError: (() -> Unit)? = null,
         onResponse: (FetchedResource) -> Unit,
     ) {
-        val bridge = getPageBridge()
-        if (bridge != null) {
+        if (requiresBridgeAuth()) {
+            val bridge = getPageBridge()
+            if (bridge == null) {
+                onError?.let { activity.runOnUiThread { it() } }
+                return
+            }
             scope.launch {
                 val result = bridge.fetchBinary(url)
                 if (result != null) {
@@ -107,7 +113,7 @@ class DownloadHandler(
                         )
                     )
                 } else {
-                    fetchViaExecutor(url, onError, onResponse)
+                    onError?.let { activity.runOnUiThread { it() } }
                 }
             }
             return
@@ -121,7 +127,10 @@ class DownloadHandler(
         onResponse: (FetchedResource) -> Unit,
     ) {
         val executor = GeckoWebExecutor(getRuntime())
-        executor.fetch(WebRequest(url)).then({ response ->
+        val request = WebRequest.Builder(url)
+            .apply { getPageUrl()?.takeIf { it.isNotBlank() }?.let { referrer(it) } }
+            .build()
+        executor.fetch(request).then({ response ->
             val resp = response ?: run {
                 onError?.let { activity.runOnUiThread { it() } }
                 return@then GeckoResult<Void>()
