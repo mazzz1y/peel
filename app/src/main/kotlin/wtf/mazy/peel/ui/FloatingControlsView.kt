@@ -381,7 +381,7 @@ class FloatingControlsView(
         const val TRIGGER_ICON_ALPHA = 180
         const val DRAG_ARM_HOLD_MS = 300L
         const val RESET_HOLD_MS = 1200L
-        const val DRAG_ARM_SCALE = 1.4f
+        const val DRAG_ARM_SCALE = 1.5f
         const val SCALE_ANIM_MS = 120L
         const val TRIGGER_BG_COLOR = 0x33000000
         const val ACTION_BG_COLOR = 0x66000000
