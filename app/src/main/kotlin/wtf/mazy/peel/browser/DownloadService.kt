@@ -1,5 +1,6 @@
 package wtf.mazy.peel.browser
 
+import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
 import android.content.ContentValues
@@ -35,6 +36,7 @@ class DownloadService : Service() {
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     private val activeJobs = mutableMapOf<Int, Job>()
+    private var currentForegroundId: Int? = null
 
     override fun onBind(intent: Intent?): IBinder? = null
 
@@ -69,11 +71,12 @@ class DownloadService : Service() {
                 ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
             else 0,
         )
+        currentForegroundId = notification.id
 
         var lastNotifyTime = 0L
         val onProgress = { bytesCopied: Long ->
             val now = SystemClock.elapsedRealtime()
-            if (now - lastNotifyTime >= 1000) {
+            if (now - lastNotifyTime >= 1000 && activeJobs.containsKey(notification.id)) {
                 lastNotifyTime = now
                 notification.updateProgress(
                     fileName,
@@ -109,11 +112,18 @@ class DownloadService : Service() {
     private fun handleCancel(intent: Intent) {
         val id = intent.getIntExtra(EXTRA_NOTIFICATION_ID, -1)
         activeJobs.remove(id)?.cancel()
+        if (currentForegroundId == id) {
+            ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_DETACH)
+            currentForegroundId = null
+        }
+        (getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager).cancel(id)
+        if (activeJobs.isEmpty()) stopSelf()
     }
 
     private fun stopForegroundIfIdle() {
         if (activeJobs.isEmpty()) {
             ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_DETACH)
+            currentForegroundId = null
             stopSelf()
         }
     }
