@@ -127,9 +127,14 @@ class MediaPlaybackManager(context: Context) : GeckoMediaSession.Delegate {
         meta: GeckoMediaSession.Metadata
     ) {
         this.mediaSession = mediaSession
-        lastTitle = meta.title?.takeIf { it.isNotEmpty() }
+        val previousTitle = lastTitle
+        val newTitle = meta.title?.takeIf { it.isNotEmpty() }
+        lastTitle = newTitle
         lastArtist = meta.artist?.takeIf { it.isNotEmpty() }
         if (!serviceStarted) return
+        if (previousTitle != null && newTitle != null && previousTitle != newTitle) {
+            sendAction(MediaPlaybackService.ACTION_RESET_POSITION)
+        }
         context.startService(
             Intent(context, MediaPlaybackService.resolveServiceClass()).apply {
                 action = MediaPlaybackService.ACTION_UPDATE_METADATA

@@ -9,7 +9,6 @@ import android.graphics.Bitmap
 import android.net.wifi.WifiManager
 import android.os.Looper
 import android.os.PowerManager
-import android.os.SystemClock
 import androidx.annotation.OptIn
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
@@ -59,7 +58,6 @@ open class MediaPlaybackService : MediaSessionService() {
     private var durationMs = 0L
     private var positionMs = 0L
     private var playbackRate = 1f
-    private var positionUpdateTime = 0L
     private var generation = 0
 
     override fun onCreate() {
@@ -105,7 +103,13 @@ open class MediaPlaybackService : MediaSessionService() {
                 durationMs = intent.getLongExtra(EXTRA_DURATION_MS, 0L)
                 positionMs = intent.getLongExtra(EXTRA_POSITION_MS, 0L)
                 playbackRate = intent.getFloatExtra(EXTRA_PLAYBACK_RATE, 1f)
-                positionUpdateTime = SystemClock.elapsedRealtime()
+                notifyPlayerChanged()
+            }
+
+            ACTION_RESET_POSITION -> {
+                durationMs = 0L
+                positionMs = 0L
+                playbackRate = 1f
                 notifyPlayerChanged()
             }
         }
@@ -152,7 +156,6 @@ open class MediaPlaybackService : MediaSessionService() {
         durationMs = 0L
         positionMs = 0L
         playbackRate = 1f
-        positionUpdateTime = 0L
         playing = true
 
         acquireWakeLocks()
@@ -178,11 +181,6 @@ open class MediaPlaybackService : MediaSessionService() {
     }
 
     private fun setPlaying(value: Boolean) {
-        if (playing && !value && positionUpdateTime > 0) {
-            val elapsed = SystemClock.elapsedRealtime() - positionUpdateTime
-            positionMs += (elapsed * playbackRate).toLong()
-            positionUpdateTime = SystemClock.elapsedRealtime()
-        }
         playing = value
         notifyPlayerChanged()
     }
@@ -344,7 +342,6 @@ open class MediaPlaybackService : MediaSessionService() {
 
                 else -> {
                     this@MediaPlaybackService.positionMs = positionMs
-                    this@MediaPlaybackService.positionUpdateTime = SystemClock.elapsedRealtime()
                     broadcast(
                         BROADCAST_SEEK_TO, Intent().putExtra(EXTRA_SEEK_POSITION_MS, positionMs)
                     )
@@ -376,6 +373,7 @@ open class MediaPlaybackService : MediaSessionService() {
         const val ACTION_UPDATE_ACTIONS = "wtf.mazy.peel.media.UPDATE_ACTIONS"
         const val ACTION_UPDATE_POSITION = "wtf.mazy.peel.media.UPDATE_POSITION"
         const val ACTION_UPDATE_ARTWORK = "wtf.mazy.peel.media.UPDATE_ARTWORK"
+        const val ACTION_RESET_POSITION = "wtf.mazy.peel.media.RESET_POSITION"
 
         const val BROADCAST_PLAY = "wtf.mazy.peel.media.BROADCAST_PLAY"
         const val BROADCAST_PAUSE = "wtf.mazy.peel.media.BROADCAST_PAUSE"
