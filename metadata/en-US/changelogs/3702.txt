@@ -1,0 +1,2 @@
+- Fix media notification disappearing during track changes
+- Open app when tapping the media notification body
