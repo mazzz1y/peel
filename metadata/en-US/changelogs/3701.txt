@@ -1,0 +1,6 @@
+- Add stop button and album info to media notification
+- Fix seek position freeze in media notification
+- Fix download filename for content with no extension
+- Prevent cancelled download notification from reappearing
+- Separate long-press menus for images, videos, and audio
+- Improve floating control drag-arm responsiveness
