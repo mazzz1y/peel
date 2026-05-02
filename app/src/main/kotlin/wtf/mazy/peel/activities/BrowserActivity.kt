@@ -618,7 +618,8 @@ class BrowserActivity : BaseSessionHost() {
         if (settings.isAllowMediaPlaybackInBackground != true) return
         val session = geckoSession ?: return
         val manager = MediaPlaybackManager(this)
-        manager.attach(session, webapp.title, webapp.resolveIcon(), webapp.uuid)
+        val contentIntent = BrowserLauncher.buildPendingIntent(webapp, this)
+        manager.attach(session, webapp.title, webapp.resolveIcon(), webapp.uuid, contentIntent)
         mediaPlaybackManager = manager
     }
 

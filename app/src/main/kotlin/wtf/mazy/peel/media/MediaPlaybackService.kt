@@ -10,6 +10,7 @@ import android.net.wifi.WifiManager
 import android.os.Looper
 import android.os.PowerManager
 import androidx.annotation.OptIn
+import androidx.core.content.IntentCompat
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
@@ -24,19 +25,11 @@ import androidx.media3.session.MediaSessionService
 import com.google.common.collect.ImmutableList
 import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.launch
 import wtf.mazy.peel.R
-import wtf.mazy.peel.model.DataManager
-import wtf.mazy.peel.util.BrowserLauncher
 
 @OptIn(UnstableApi::class)
 open class MediaPlaybackService : MediaSessionService() {
 
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     private var session: MediaSession? = null
     private var peelPlayer: PeelPlayer? = null
     private var wakeLock: PowerManager.WakeLock? = null
@@ -51,7 +44,6 @@ open class MediaPlaybackService : MediaSessionService() {
     private var trackTitle: String? = null
     private var trackArtist: String? = null
     private var trackAlbum: String? = null
-    private var trackArtwork: Bitmap? = null
     private var trackArtworkBytes: ByteArray? = null
 
     private var playing = false
@@ -89,15 +81,8 @@ open class MediaPlaybackService : MediaSessionService() {
         when (intent?.action) {
             ACTION_START -> handleStart(intent)
             ACTION_RESUME -> setPlaying(true)
-            ACTION_PAUSE -> {
-                broadcast(BROADCAST_PAUSE)
-                setPlaying(false)
-            }
-
-            ACTION_STOP -> {
-                broadcast(BROADCAST_STOP)
-                stopPlayback()
-            }
+            ACTION_PAUSE -> setPlaying(false)
+            ACTION_STOP -> stopPlayback()
 
             ACTION_UPDATE_METADATA -> handleUpdateMetadata(intent)
             ACTION_UPDATE_ARTWORK -> handleUpdateArtwork()
@@ -131,7 +116,6 @@ open class MediaPlaybackService : MediaSessionService() {
         }
         session = null
         peelPlayer = null
-        scope.cancel()
         releaseWakeLocks()
         super.onDestroy()
     }
@@ -143,24 +127,20 @@ open class MediaPlaybackService : MediaSessionService() {
         appIcon = pendingIcon
         appIconBytes = appIcon?.toPngBytes()
         pendingIcon = null
-        scope.launch {
-            buildContentIntent(webappUuid)?.let {
-                session?.setSessionActivity(it)
-            }
-        }
+        IntentCompat.getParcelableExtra(intent, EXTRA_CONTENT_INTENT, PendingIntent::class.java)
+            ?.let { session?.setSessionActivity(it) }
 
-        trackTitle = intent.getStringExtra(EXTRA_TRACK_TITLE)?.takeIf { it.isNotEmpty() }
-        trackArtist = intent.getStringExtra(EXTRA_TRACK_ARTIST)?.takeIf { it.isNotEmpty() }
-        trackAlbum = intent.getStringExtra(EXTRA_TRACK_ALBUM)?.takeIf { it.isNotEmpty() }
-        trackArtwork = null
+        trackTitle = null
+        trackArtist = null
+        trackAlbum = null
         trackArtworkBytes = null
 
         durationMs = 0L
         positionMs = 0L
         playbackRate = 1f
         playing = true
-        hasPrevious = intent.getBooleanExtra(EXTRA_HAS_PREVIOUS, false)
-        hasNext = intent.getBooleanExtra(EXTRA_HAS_NEXT, false)
+        hasPrevious = false
+        hasNext = false
 
         acquireWakeLocks()
         if (!sessionAdded) {
@@ -180,12 +160,12 @@ open class MediaPlaybackService : MediaSessionService() {
     private fun handleUpdateArtwork() {
         val bmp = pendingArtwork ?: return
         pendingArtwork = null
-        trackArtwork = bmp
         trackArtworkBytes = bmp.toPngBytes()
         notifyPlayerChanged()
     }
 
     private fun setPlaying(value: Boolean) {
+        if (playing == value) return
         playing = value
         notifyPlayerChanged()
     }
@@ -223,15 +203,6 @@ open class MediaPlaybackService : MediaSessionService() {
         wakeLock = null
         wifiLock?.let { if (it.isHeld) it.release() }
         wifiLock = null
-    }
-
-    private suspend fun buildContentIntent(uuid: String?): PendingIntent? {
-        uuid ?: return null
-        if (DataManager.instance.getWebApp(uuid) == null) {
-            DataManager.instance.loadAppData()
-        }
-        val webapp = DataManager.instance.getWebApp(uuid) ?: return null
-        return BrowserLauncher.buildPendingIntent(webapp, this)
     }
 
     private fun createNotificationChannel() {
@@ -399,6 +370,7 @@ open class MediaPlaybackService : MediaSessionService() {
         const val EXTRA_PLAYBACK_RATE = "playback_rate"
         const val EXTRA_SEEK_POSITION_MS = "seek_position_ms"
         const val EXTRA_GENERATION = "generation"
+        const val EXTRA_CONTENT_INTENT = "content_intent"
 
         @Volatile
         var pendingIcon: Bitmap? = null
@@ -412,11 +384,7 @@ open class MediaPlaybackService : MediaSessionService() {
             icon: Bitmap?,
             webappUuid: String,
             generation: Int,
-            trackTitle: String? = null,
-            trackArtist: String? = null,
-            trackAlbum: String? = null,
-            hasPrevious: Boolean = false,
-            hasNext: Boolean = false,
+            contentIntent: PendingIntent?,
         ): Intent {
             pendingIcon = icon
             return Intent(context, resolveServiceClass()).apply {
@@ -424,11 +392,7 @@ open class MediaPlaybackService : MediaSessionService() {
                 putExtra(EXTRA_TITLE, title)
                 putExtra(EXTRA_WEBAPP_UUID, webappUuid)
                 putExtra(EXTRA_GENERATION, generation)
-                putExtra(EXTRA_TRACK_TITLE, trackTitle ?: "")
-                putExtra(EXTRA_TRACK_ARTIST, trackArtist ?: "")
-                putExtra(EXTRA_TRACK_ALBUM, trackAlbum ?: "")
-                putExtra(EXTRA_HAS_PREVIOUS, hasPrevious)
-                putExtra(EXTRA_HAS_NEXT, hasNext)
+                putExtra(EXTRA_CONTENT_INTENT, contentIntent)
             }
         }
 

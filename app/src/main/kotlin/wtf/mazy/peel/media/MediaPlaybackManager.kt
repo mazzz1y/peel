@@ -1,10 +1,13 @@
 package wtf.mazy.peel.media
 
+import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.graphics.Bitmap
+import android.os.Handler
+import android.os.Looper
 import androidx.core.content.ContextCompat
 import org.mozilla.geckoview.GeckoSession
 import java.io.ByteArrayOutputStream
@@ -24,15 +27,21 @@ class MediaPlaybackManager(context: Context) : GeckoMediaSession.Delegate {
     private var title: String = ""
     private var icon: Bitmap? = null
     private var webappUuid: String = ""
+    private var contentIntent: PendingIntent? = null
     private var serviceStarted = false
     private var receiverRegistered = false
 
-    private var lastTitle: String? = null
-    private var lastArtist: String? = null
-    private var lastAlbum: String? = null
-    private var lastHasPrevious = false
-    private var lastHasNext = false
     private var generation = 0
+
+    private var pendingStop = false
+    private val mainHandler = Handler(Looper.getMainLooper())
+    private val stopTimeout = Runnable {
+        if (serviceStarted) {
+            sendAction(MediaPlaybackService.ACTION_STOP)
+            serviceStarted = false
+        }
+        pendingStop = false
+    }
 
     private val receiver =
         object : BroadcastReceiver() {
@@ -61,17 +70,25 @@ class MediaPlaybackManager(context: Context) : GeckoMediaSession.Delegate {
             }
         }
 
-    fun attach(geckoSession: GeckoSession, title: String, icon: Bitmap?, webappUuid: String) {
+    fun attach(
+        geckoSession: GeckoSession,
+        title: String,
+        icon: Bitmap?,
+        webappUuid: String,
+        contentIntent: PendingIntent?,
+    ) {
         this.session = geckoSession
         this.title = title
         this.icon = icon
         this.webappUuid = webappUuid
+        this.contentIntent = contentIntent
         geckoSession.mediaSessionDelegate = this
         if (!receiverRegistered) registerReceiver()
     }
 
     override fun onActivated(session: GeckoSession, mediaSession: GeckoMediaSession) {
         this.mediaSession = mediaSession
+        cancelPendingStop()
     }
 
     override fun onDeactivated(session: GeckoSession, mediaSession: GeckoMediaSession) {
@@ -82,6 +99,7 @@ class MediaPlaybackManager(context: Context) : GeckoMediaSession.Delegate {
 
     override fun onPlay(session: GeckoSession, mediaSession: GeckoMediaSession) {
         this.mediaSession = mediaSession
+        cancelPendingStop()
         if (serviceStarted) {
             sendAction(MediaPlaybackService.ACTION_RESUME)
             return
@@ -89,9 +107,7 @@ class MediaPlaybackManager(context: Context) : GeckoMediaSession.Delegate {
         generation++
         context.startService(
             MediaPlaybackService.createStartIntent(
-                context, title, icon, webappUuid, generation,
-                lastTitle, lastArtist, lastAlbum,
-                lastHasPrevious, lastHasNext,
+                context, title, icon, webappUuid, generation, contentIntent,
             )
         )
         serviceStarted = true
@@ -105,14 +121,16 @@ class MediaPlaybackManager(context: Context) : GeckoMediaSession.Delegate {
 
     override fun onStop(session: GeckoSession, mediaSession: GeckoMediaSession) {
         this.mediaSession = mediaSession
-        lastTitle = null
-        lastArtist = null
-        lastAlbum = null
-        lastHasPrevious = false
-        lastHasNext = false
         if (!serviceStarted) return
-        sendAction(MediaPlaybackService.ACTION_STOP)
-        serviceStarted = false
+        pendingStop = true
+        mainHandler.removeCallbacks(stopTimeout)
+        mainHandler.postDelayed(stopTimeout, STOP_GRACE_MS)
+    }
+
+    private fun cancelPendingStop() {
+        if (!pendingStop) return
+        pendingStop = false
+        mainHandler.removeCallbacks(stopTimeout)
     }
 
     override fun onMetadata(
@@ -121,16 +139,13 @@ class MediaPlaybackManager(context: Context) : GeckoMediaSession.Delegate {
         meta: GeckoMediaSession.Metadata
     ) {
         this.mediaSession = mediaSession
-        lastTitle = meta.title?.takeIf { it.isNotEmpty() }
-        lastArtist = meta.artist?.takeIf { it.isNotEmpty() }
-        lastAlbum = meta.album?.takeIf { it.isNotEmpty() }
         if (!serviceStarted) return
         context.startService(
             Intent(context, MediaPlaybackService.resolveServiceClass()).apply {
                 action = MediaPlaybackService.ACTION_UPDATE_METADATA
-                putExtra(MediaPlaybackService.EXTRA_TRACK_TITLE, lastTitle ?: "")
-                putExtra(MediaPlaybackService.EXTRA_TRACK_ARTIST, lastArtist ?: "")
-                putExtra(MediaPlaybackService.EXTRA_TRACK_ALBUM, lastAlbum ?: "")
+                putExtra(MediaPlaybackService.EXTRA_TRACK_TITLE, meta.title ?: "")
+                putExtra(MediaPlaybackService.EXTRA_TRACK_ARTIST, meta.artist ?: "")
+                putExtra(MediaPlaybackService.EXTRA_TRACK_ALBUM, meta.album ?: "")
             })
         meta.artwork?.getBitmap(ARTWORK_SIZE)?.accept { bitmap ->
             if (bitmap != null && serviceStarted) {
@@ -161,6 +176,7 @@ class MediaPlaybackManager(context: Context) : GeckoMediaSession.Delegate {
     ) {
         this.mediaSession = mediaSession
         if (!serviceStarted) return
+        if (pendingStop && (state.duration.isNaN() || state.duration <= 0.0)) return
         context.startService(
             Intent(context, MediaPlaybackService.resolveServiceClass()).apply {
                 action = MediaPlaybackService.ACTION_UPDATE_POSITION
@@ -171,6 +187,8 @@ class MediaPlaybackManager(context: Context) : GeckoMediaSession.Delegate {
     }
 
     fun release() {
+        mainHandler.removeCallbacks(stopTimeout)
+        pendingStop = false
         if (serviceStarted) {
             sendAction(MediaPlaybackService.ACTION_STOP)
             serviceStarted = false
@@ -182,8 +200,6 @@ class MediaPlaybackManager(context: Context) : GeckoMediaSession.Delegate {
     }
 
     private fun updateActions(hasPrevious: Boolean, hasNext: Boolean) {
-        lastHasPrevious = hasPrevious
-        lastHasNext = hasNext
         if (!serviceStarted) return
         context.startService(
             Intent(context, MediaPlaybackService.resolveServiceClass()).apply {
@@ -226,5 +242,6 @@ class MediaPlaybackManager(context: Context) : GeckoMediaSession.Delegate {
 
     companion object {
         private const val ARTWORK_SIZE = 512
+        private const val STOP_GRACE_MS = 10_000L
     }
 }
