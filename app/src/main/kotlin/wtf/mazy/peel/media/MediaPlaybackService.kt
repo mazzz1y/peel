@@ -117,6 +117,8 @@ open class MediaPlaybackService : MediaSessionService() {
         session = null
         peelPlayer = null
         releaseWakeLocks()
+        wakeLock = null
+        wifiLock = null
         super.onDestroy()
     }
 
@@ -167,6 +169,7 @@ open class MediaPlaybackService : MediaSessionService() {
     private fun setPlaying(value: Boolean) {
         if (playing == value) return
         playing = value
+        if (value) acquireWakeLocks() else releaseWakeLocks()
         notifyPlayerChanged()
     }
 
@@ -185,7 +188,7 @@ open class MediaPlaybackService : MediaSessionService() {
             val pm = getSystemService(PowerManager::class.java)
             wakeLock =
                 pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "peel:media").apply {
-                    acquire(4 * 60 * 60 * 1000L)
+                    setReferenceCounted(false)
                 }
         }
         if (wifiLock == null) {
@@ -193,16 +196,16 @@ open class MediaPlaybackService : MediaSessionService() {
             @Suppress("DEPRECATION")
             wifiLock =
                 wm.createWifiLock(WifiManager.WIFI_MODE_FULL_HIGH_PERF, "peel:media").apply {
-                    acquire()
+                    setReferenceCounted(false)
                 }
         }
+        wakeLock?.takeIf { !it.isHeld }?.acquire(4 * 60 * 60 * 1000L)
+        wifiLock?.takeIf { !it.isHeld }?.acquire()
     }
 
     private fun releaseWakeLocks() {
-        wakeLock?.let { if (it.isHeld) it.release() }
-        wakeLock = null
-        wifiLock?.let { if (it.isHeld) it.release() }
-        wifiLock = null
+        wakeLock?.takeIf { it.isHeld }?.release()
+        wifiLock?.takeIf { it.isHeld }?.release()
     }
 
     private fun createNotificationChannel() {

@@ -33,14 +33,14 @@ class MediaPlaybackManager(context: Context) : GeckoMediaSession.Delegate {
 
     private var generation = 0
 
-    private var pendingStop = false
+    private var pendingDeactivation = false
     private val mainHandler = Handler(Looper.getMainLooper())
-    private val stopTimeout = Runnable {
+    private val deactivationTimeout = Runnable {
         if (serviceStarted) {
             sendAction(MediaPlaybackService.ACTION_STOP)
             serviceStarted = false
         }
-        pendingStop = false
+        pendingDeactivation = false
     }
 
     private val receiver =
@@ -88,18 +88,22 @@ class MediaPlaybackManager(context: Context) : GeckoMediaSession.Delegate {
 
     override fun onActivated(session: GeckoSession, mediaSession: GeckoMediaSession) {
         this.mediaSession = mediaSession
-        cancelPendingStop()
+        cancelPendingDeactivation()
     }
 
     override fun onDeactivated(session: GeckoSession, mediaSession: GeckoMediaSession) {
         if (this.mediaSession === mediaSession) {
             this.mediaSession = null
         }
+        if (!serviceStarted) return
+        pendingDeactivation = true
+        mainHandler.removeCallbacks(deactivationTimeout)
+        mainHandler.postDelayed(deactivationTimeout, DEACTIVATION_GRACE_MS)
     }
 
     override fun onPlay(session: GeckoSession, mediaSession: GeckoMediaSession) {
         this.mediaSession = mediaSession
-        cancelPendingStop()
+        cancelPendingDeactivation()
         if (serviceStarted) {
             sendAction(MediaPlaybackService.ACTION_RESUME)
             return
@@ -122,15 +126,16 @@ class MediaPlaybackManager(context: Context) : GeckoMediaSession.Delegate {
     override fun onStop(session: GeckoSession, mediaSession: GeckoMediaSession) {
         this.mediaSession = mediaSession
         if (!serviceStarted) return
-        pendingStop = true
-        mainHandler.removeCallbacks(stopTimeout)
-        mainHandler.postDelayed(stopTimeout, STOP_GRACE_MS)
+        sendAction(MediaPlaybackService.ACTION_PAUSE)
+        pendingDeactivation = true
+        mainHandler.removeCallbacks(deactivationTimeout)
+        mainHandler.postDelayed(deactivationTimeout, DEACTIVATION_GRACE_MS)
     }
 
-    private fun cancelPendingStop() {
-        if (!pendingStop) return
-        pendingStop = false
-        mainHandler.removeCallbacks(stopTimeout)
+    private fun cancelPendingDeactivation() {
+        if (!pendingDeactivation) return
+        pendingDeactivation = false
+        mainHandler.removeCallbacks(deactivationTimeout)
     }
 
     override fun onMetadata(
@@ -176,7 +181,6 @@ class MediaPlaybackManager(context: Context) : GeckoMediaSession.Delegate {
     ) {
         this.mediaSession = mediaSession
         if (!serviceStarted) return
-        if (pendingStop && (state.duration.isNaN() || state.duration <= 0.0)) return
         context.startService(
             Intent(context, MediaPlaybackService.resolveServiceClass()).apply {
                 action = MediaPlaybackService.ACTION_UPDATE_POSITION
@@ -187,8 +191,8 @@ class MediaPlaybackManager(context: Context) : GeckoMediaSession.Delegate {
     }
 
     fun release() {
-        mainHandler.removeCallbacks(stopTimeout)
-        pendingStop = false
+        mainHandler.removeCallbacks(deactivationTimeout)
+        pendingDeactivation = false
         if (serviceStarted) {
             sendAction(MediaPlaybackService.ACTION_STOP)
             serviceStarted = false
@@ -242,6 +246,6 @@ class MediaPlaybackManager(context: Context) : GeckoMediaSession.Delegate {
 
     companion object {
         private const val ARTWORK_SIZE = 512
-        private const val STOP_GRACE_MS = 10_000L
+        private const val DEACTIVATION_GRACE_MS = 3_000L
     }
 }
