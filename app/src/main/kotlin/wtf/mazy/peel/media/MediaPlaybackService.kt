@@ -17,6 +17,7 @@ import androidx.media3.common.PlaybackParameters
 import androidx.media3.common.Player
 import androidx.media3.common.SimpleBasePlayer
 import androidx.media3.common.util.UnstableApi
+import androidx.media3.session.CommandButton
 import androidx.media3.session.DefaultMediaNotificationProvider
 import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
@@ -49,6 +50,7 @@ open class MediaPlaybackService : MediaSessionService() {
 
     private var trackTitle: String? = null
     private var trackArtist: String? = null
+    private var trackAlbum: String? = null
     private var trackArtwork: Bitmap? = null
     private var trackArtworkBytes: ByteArray? = null
 
@@ -73,6 +75,12 @@ open class MediaPlaybackService : MediaSessionService() {
         val p = PeelPlayer(Looper.getMainLooper())
         peelPlayer = p
         session = MediaSession.Builder(this, p).setCallback(SessionCallback()).build()
+        val stopButton = CommandButton.Builder(CommandButton.ICON_STOP)
+            .setPlayerCommand(Player.COMMAND_STOP)
+            .setDisplayName(getString(R.string.media_stop_description))
+            .setSlots(CommandButton.SLOT_OVERFLOW)
+            .build()
+        session?.setMediaButtonPreferences(ImmutableList.of(stopButton))
     }
 
     override fun onGetSession(controllerInfo: MediaSession.ControllerInfo): MediaSession? = session
@@ -103,13 +111,6 @@ open class MediaPlaybackService : MediaSessionService() {
                 durationMs = intent.getLongExtra(EXTRA_DURATION_MS, 0L)
                 positionMs = intent.getLongExtra(EXTRA_POSITION_MS, 0L)
                 playbackRate = intent.getFloatExtra(EXTRA_PLAYBACK_RATE, 1f)
-                notifyPlayerChanged()
-            }
-
-            ACTION_RESET_POSITION -> {
-                durationMs = 0L
-                positionMs = 0L
-                playbackRate = 1f
                 notifyPlayerChanged()
             }
         }
@@ -150,6 +151,7 @@ open class MediaPlaybackService : MediaSessionService() {
 
         trackTitle = intent.getStringExtra(EXTRA_TRACK_TITLE)?.takeIf { it.isNotEmpty() }
         trackArtist = intent.getStringExtra(EXTRA_TRACK_ARTIST)?.takeIf { it.isNotEmpty() }
+        trackAlbum = intent.getStringExtra(EXTRA_TRACK_ALBUM)?.takeIf { it.isNotEmpty() }
         trackArtwork = null
         trackArtworkBytes = null
 
@@ -157,6 +159,8 @@ open class MediaPlaybackService : MediaSessionService() {
         positionMs = 0L
         playbackRate = 1f
         playing = true
+        hasPrevious = intent.getBooleanExtra(EXTRA_HAS_PREVIOUS, false)
+        hasNext = intent.getBooleanExtra(EXTRA_HAS_NEXT, false)
 
         acquireWakeLocks()
         if (!sessionAdded) {
@@ -169,6 +173,7 @@ open class MediaPlaybackService : MediaSessionService() {
     private fun handleUpdateMetadata(intent: Intent) {
         trackTitle = intent.getStringExtra(EXTRA_TRACK_TITLE)?.takeIf { it.isNotEmpty() }
         trackArtist = intent.getStringExtra(EXTRA_TRACK_ARTIST)?.takeIf { it.isNotEmpty() }
+        trackAlbum = intent.getStringExtra(EXTRA_TRACK_ALBUM)?.takeIf { it.isNotEmpty() }
         notifyPlayerChanged()
     }
 
@@ -264,6 +269,7 @@ open class MediaPlaybackService : MediaSessionService() {
 
             val metadataBuilder = MediaMetadata.Builder().setTitle(displayTitle)
             trackArtist?.let { metadataBuilder.setArtist(it) }
+            trackAlbum?.let { metadataBuilder.setAlbumTitle(it) }
             artBytes?.let {
                 metadataBuilder.setArtworkData(
                     it, MediaMetadata.PICTURE_TYPE_FRONT_COVER
@@ -373,7 +379,6 @@ open class MediaPlaybackService : MediaSessionService() {
         const val ACTION_UPDATE_ACTIONS = "wtf.mazy.peel.media.UPDATE_ACTIONS"
         const val ACTION_UPDATE_POSITION = "wtf.mazy.peel.media.UPDATE_POSITION"
         const val ACTION_UPDATE_ARTWORK = "wtf.mazy.peel.media.UPDATE_ARTWORK"
-        const val ACTION_RESET_POSITION = "wtf.mazy.peel.media.RESET_POSITION"
 
         const val BROADCAST_PLAY = "wtf.mazy.peel.media.BROADCAST_PLAY"
         const val BROADCAST_PAUSE = "wtf.mazy.peel.media.BROADCAST_PAUSE"
@@ -386,6 +391,7 @@ open class MediaPlaybackService : MediaSessionService() {
         const val EXTRA_WEBAPP_UUID = "webapp_uuid"
         const val EXTRA_TRACK_TITLE = "track_title"
         const val EXTRA_TRACK_ARTIST = "track_artist"
+        const val EXTRA_TRACK_ALBUM = "track_album"
         const val EXTRA_HAS_PREVIOUS = "has_previous"
         const val EXTRA_HAS_NEXT = "has_next"
         const val EXTRA_DURATION_MS = "duration_ms"
@@ -408,6 +414,9 @@ open class MediaPlaybackService : MediaSessionService() {
             generation: Int,
             trackTitle: String? = null,
             trackArtist: String? = null,
+            trackAlbum: String? = null,
+            hasPrevious: Boolean = false,
+            hasNext: Boolean = false,
         ): Intent {
             pendingIcon = icon
             return Intent(context, resolveServiceClass()).apply {
@@ -417,6 +426,9 @@ open class MediaPlaybackService : MediaSessionService() {
                 putExtra(EXTRA_GENERATION, generation)
                 putExtra(EXTRA_TRACK_TITLE, trackTitle ?: "")
                 putExtra(EXTRA_TRACK_ARTIST, trackArtist ?: "")
+                putExtra(EXTRA_TRACK_ALBUM, trackAlbum ?: "")
+                putExtra(EXTRA_HAS_PREVIOUS, hasPrevious)
+                putExtra(EXTRA_HAS_NEXT, hasNext)
             }
         }
 

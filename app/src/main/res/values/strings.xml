@@ -143,6 +143,7 @@
     <string name="allow_media_playback_in_background">Background playback</string>
     <string name="media_channel_name">Media Playback</string>
     <string name="media_channel_description">Controls for background media playback</string>
+    <string name="media_stop_description">Stop</string>
     <string name="more">More</string>
     <string name="cancel">Cancel</string>
     <string name="ok">OK</string>
