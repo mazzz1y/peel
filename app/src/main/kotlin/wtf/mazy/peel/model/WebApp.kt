@@ -57,6 +57,8 @@ data class WebApp(var baseUrl: String, override val uuid: String = UUID.randomUU
         deleteAppPrefs(activity, uuid)
     }
 
+    private val iconStamp: Long = if (iconFile.exists()) iconFile.lastModified() else 0L
+
     val contentFingerprint: Int
         get() = Objects.hash(
             title,
@@ -65,9 +67,7 @@ data class WebApp(var baseUrl: String, override val uuid: String = UUID.randomUU
             isUseContainer,
             isEphemeralSandbox,
             order,
-            hasCustomIcon,
-            iconFile.lastModified(),
-            IconCache.version(uuid),
+            iconStamp,
         )
 
     fun resolveContextId(): String? {
