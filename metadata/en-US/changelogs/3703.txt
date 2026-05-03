@@ -1,0 +1,3 @@
+- Improve media notification reliability during track changes (again)
+- Fix webapp icon not refreshing on main screen after update
+- Open app when tapping the media notification body
