@@ -68,6 +68,7 @@ class BrowserActivity : BaseSessionHost() {
                 rebuildFloatingControls()
             },
             onNavigateToUrl = ::loadURL,
+            onPopupDownload = { response -> downloadHandler.onExternalResponse(response) },
         )
     }
 

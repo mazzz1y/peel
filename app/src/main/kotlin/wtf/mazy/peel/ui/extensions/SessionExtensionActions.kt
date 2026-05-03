@@ -9,6 +9,7 @@ import org.mozilla.geckoview.GeckoResult
 import org.mozilla.geckoview.GeckoSession
 import org.mozilla.geckoview.GeckoSessionSettings
 import org.mozilla.geckoview.WebExtension
+import org.mozilla.geckoview.WebResponse
 import wtf.mazy.peel.activities.ExtensionPageActivity
 import wtf.mazy.peel.browser.SessionHost
 import wtf.mazy.peel.gecko.GeckoRuntimeProvider
@@ -17,6 +18,7 @@ class SessionExtensionActions(
     private val activity: FragmentActivity,
     private val onExtensionsReady: ((hasExtensions: Boolean) -> Unit)? = null,
     private val onNavigateToUrl: ((String) -> Unit)? = null,
+    private val onPopupDownload: ((WebResponse) -> Unit)? = null,
 ) {
     data class Entry(
         val extension: WebExtension,
@@ -146,6 +148,10 @@ class SessionExtensionActions(
         popupSession.contentDelegate = object : GeckoSession.ContentDelegate {
             override fun onCloseRequest(session: GeckoSession) {
                 dismissPopup()
+            }
+
+            override fun onExternalResponse(session: GeckoSession, response: WebResponse) {
+                onPopupDownload?.invoke(response)
             }
         }
         popupSession.navigationDelegate = object : GeckoSession.NavigationDelegate {
