@@ -1,7 +1,7 @@
 package wtf.mazy.peel.ui
 
+import android.graphics.ImageDecoder
 import android.net.Uri
-import android.provider.MediaStore
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -65,13 +65,11 @@ class IconEditorController(
 
     private fun handleSelectedIcon(uri: Uri) {
         try {
-            @Suppress("DEPRECATION")
-            val bitmap = MediaStore.Images.Media.getBitmap(activity.contentResolver, uri)
-            if (bitmap != null) {
-                ownerProvider()?.let {
-                    it.saveIcon(bitmap)
-                    refreshIcon()
-                }
+            val source = ImageDecoder.createSource(activity.contentResolver, uri)
+            val bitmap = ImageDecoder.decodeBitmap(source)
+            ownerProvider()?.let {
+                it.saveIcon(bitmap)
+                refreshIcon()
             }
         } catch (_: IOException) {
             showToast(activity, activity.getString(R.string.icon_not_found), Toast.LENGTH_SHORT)

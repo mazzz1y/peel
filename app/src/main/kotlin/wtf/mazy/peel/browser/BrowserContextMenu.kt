@@ -56,10 +56,13 @@ class BrowserContextMenu(
             srcUrl == null -> emptyList()
             element.type == GeckoSession.ContentDelegate.ContextElement.TYPE_IMAGE ->
                 imageActionsFor(srcUrl)
+
             element.type == GeckoSession.ContentDelegate.ContextElement.TYPE_VIDEO ->
                 videoActionsFor(srcUrl)
+
             element.type == GeckoSession.ContentDelegate.ContextElement.TYPE_AUDIO ->
                 audioActionsFor(srcUrl)
+
             else -> emptyList()
         }
         val linkActions = if (linkUrl != null) linkActionsFor(linkUrl, title) else emptyList()

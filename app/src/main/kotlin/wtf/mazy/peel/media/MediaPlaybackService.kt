@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.net.wifi.WifiManager
+import android.os.Build
 import android.os.Looper
 import android.os.PowerManager
 import androidx.annotation.OptIn
@@ -191,7 +192,7 @@ open class MediaPlaybackService : MediaSessionService() {
                     setReferenceCounted(false)
                 }
         }
-        if (wifiLock == null) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q && wifiLock == null) {
             val wm = applicationContext.getSystemService(WifiManager::class.java)
             @Suppress("DEPRECATION")
             wifiLock =
