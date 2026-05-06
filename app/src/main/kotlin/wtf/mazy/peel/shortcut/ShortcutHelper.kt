@@ -43,15 +43,19 @@ object ShortcutHelper {
         }
     }
 
-    fun updatePinnedShortcut(webapp: WebApp, context: Context) {
+    fun updatePinnedShortcut(owner: IconOwner, context: Context) {
         val scManager = context.getSystemService(ShortcutManager::class.java)
-        if (scManager.pinnedShortcuts.none { it.id == webapp.uuid }) return
+        if (scManager.pinnedShortcuts.none { it.id == owner.uuid }) return
 
-        val intent = buildIntent(webapp, context)
-        val icon = resolveIcon(webapp)
-        val title = resolveTitle("", webapp)
+        val saved = ShortcutIconPrefs(context, owner.uuid).load()
+        val logoSizeDp = saved?.logoSizeDp ?: LOGO_SIZE
+        val fillBackground = saved?.fillBackground ?: false
 
-        val updated = buildShortcutInfo(context, webapp.uuid, title, icon, intent)
+        val intent = buildIntent(owner, context)
+        val icon = resolveIcon(owner, logoSizeDp, fillBackground)
+        val title = resolveTitle("", owner)
+
+        val updated = buildShortcutInfo(context, owner.uuid, title, icon, intent)
         ShortcutManagerCompat.updateShortcuts(context, listOf(updated))
     }
 
@@ -61,11 +65,13 @@ object ShortcutHelper {
         onConfirm: (name: String, logoSizeDp: Int, fillBackground: Boolean) -> Unit,
     ) {
         val hasCustomIcon = owner.loadIcon() != null
+        val saved = ShortcutIconPrefs(activity, owner.uuid).load()
         var preview: ImageView? = null
         var slider: Slider? = null
         var fillSwitch: MaterialSwitch?
         var lastPreviewBitmap: Bitmap? = null
-        var fillBackground = false
+        var fillBackground = saved?.fillBackground ?: false
+        val initialLogoSize = saved?.logoSizeDp ?: LOGO_SIZE
 
         fun renderPreview(logoSizeDp: Int) {
             val full = buildAdaptiveBitmap(owner, logoSizeDp, fillBackground)
@@ -94,8 +100,13 @@ object ShortcutHelper {
                     fillSwitch = extras.findViewById(R.id.switchFillBackground)
                     val fillRow = extras.findViewById<View>(R.id.fillBackgroundRow)
                     if (hasCustomIcon) {
-                        slider?.addOnChangeListener { _, value, _ ->
-                            renderPreview(value.toInt())
+                        slider?.let {
+                            val clamped = initialLogoSize.toFloat()
+                                .coerceIn(it.valueFrom, it.valueTo)
+                            it.value = clamped
+                            it.addOnChangeListener { _, value, _ ->
+                                renderPreview(value.toInt())
+                            }
                         }
                         fillSwitch?.isChecked = fillBackground
                         fillSwitch?.setOnCheckedChangeListener { _, isChecked ->
@@ -122,6 +133,7 @@ object ShortcutHelper {
         logoSizeDp: Int = LOGO_SIZE,
         fillBackground: Boolean = false,
     ) {
+        ShortcutIconPrefs(activity, owner.uuid).save(logoSizeDp, fillBackground)
         val intent = buildIntent(owner, activity)
         val icon = resolveIcon(owner, logoSizeDp, fillBackground)
         val info = buildShortcutInfo(activity, owner.uuid, title, icon, intent)

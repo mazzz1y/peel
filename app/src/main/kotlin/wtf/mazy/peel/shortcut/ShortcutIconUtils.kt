@@ -7,15 +7,19 @@ import wtf.mazy.peel.util.Const
 
 object ShortcutIconUtils {
     @JvmStatic
-    fun deleteShortcuts(removableWebAppUuids: List<String>, context: Context) {
+    fun deleteShortcuts(removableUuids: List<String>, context: Context) {
         val manager = context.getSystemService(ShortcutManager::class.java)
         for (info in manager.pinnedShortcuts) {
-            val uuid = info.intent?.getStringExtra(Const.INTENT_WEBAPP_UUID)
-            if (uuid != null && removableWebAppUuids.contains(uuid)) {
+            val uuid = info.intent?.let {
+                it.getStringExtra(Const.INTENT_WEBAPP_UUID)
+                    ?: it.getStringExtra(Const.INTENT_GROUP_UUID)
+            }
+            if (uuid != null && removableUuids.contains(uuid)) {
                 manager.disableShortcuts(
                     listOf(info.id),
                     context.getString(R.string.webapp_already_deleted),
                 )
+                ShortcutIconPrefs.clear(uuid)
             }
         }
     }

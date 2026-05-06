@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import wtf.mazy.peel.shortcut.ShortcutHelper
 import wtf.mazy.peel.shortcut.ShortcutIconUtils
 import wtf.mazy.peel.util.App
 import wtf.mazy.peel.util.Const
@@ -492,6 +493,7 @@ class DataManager private constructor() {
                 if (currentState.groups.none { it.uuid == action.group.uuid }) return
                 repository.upsertGroup(action.group)
                 updateState(DataReducer.replacingGroup(currentState, action.group, emit = true))
+                ShortcutHelper.updatePinnedShortcut(action.group, App.appContext)
             }
 
             is Action.RemoveGroup -> {
@@ -519,6 +521,11 @@ class DataManager private constructor() {
                         emit = true,
                     )
                 )
+                val staleUuids = buildList {
+                    add(groupUuid)
+                    if (!action.ungroupApps) addAll(appsInGroup.map { it.uuid })
+                }
+                ShortcutIconUtils.deleteShortcuts(staleUuids, App.appContext)
             }
 
             is Action.ReorderGroups -> {
