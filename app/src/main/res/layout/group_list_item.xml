@@ -18,7 +18,7 @@
         android:paddingVertical="12dp">
 
         <ImageView
-            android:id="@+id/groupIcon"
+            android:id="@+id/item_icon"
             android:layout_width="44dp"
             android:layout_height="44dp"
             android:contentDescription="@string/app_icon"
@@ -29,7 +29,7 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:id="@+id/groupTitle"
+            android:id="@+id/item_primary"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -40,7 +40,7 @@
             android:textColor="?attr/colorOnSurface"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/iconEphemeral"
-            app:layout_constraintStart_toEndOf="@id/groupIcon"
+            app:layout_constraintStart_toEndOf="@id/item_icon"
             app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
@@ -66,11 +66,11 @@
             android:src="@drawable/ic_sandbox_24dp"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/btnMenu"
+            app:layout_constraintEnd_toStartOf="@id/item_menu"
             app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
-            android:id="@+id/btnMenu"
+            android:id="@+id/item_menu"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:background="?attr/selectableItemBackgroundBorderless"

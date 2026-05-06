@@ -10,11 +10,12 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.RandomAccessFile
 import java.nio.channels.FileChannel
-import java.util.concurrent.ConcurrentHashMap
 
 interface IconOwner {
     val uuid: String
     val title: String
+    val stableId: Long
+        get() = StableIdRegistry.idFor(uuid)
     val letterIconSeed: String
         get() = title
 
@@ -23,6 +24,9 @@ interface IconOwner {
 
     val hasCustomIcon: Boolean
         get() = iconFile.exists()
+
+    val iconStamp: Long
+        get() = if (iconFile.exists()) iconFile.lastModified() else 0L
 
     fun loadIcon(): Bitmap? = IconCache.getOriginal(this)
 
@@ -54,9 +58,6 @@ interface IconOwner {
 
 object IconCache {
     private val cacheDir by lazy { File(App.appContext.cacheDir, "icons").also { it.mkdirs() } }
-    private val versions = ConcurrentHashMap<String, Long>()
-
-    fun version(uuid: String): Long = versions[uuid] ?: 0L
 
     fun resolve(owner: IconOwner, sizePx: Int): Bitmap {
         val dir = File(cacheDir, owner.uuid)
@@ -83,7 +84,6 @@ object IconCache {
     }
 
     fun evict(uuid: String) {
-        versions.merge(uuid, 1L, Long::plus)
         File(cacheDir, uuid).deleteRecursively()
     }
 

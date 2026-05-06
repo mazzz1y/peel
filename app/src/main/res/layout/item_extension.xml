@@ -18,7 +18,7 @@
         android:paddingVertical="12dp">
 
         <ImageView
-            android:id="@+id/extIcon"
+            android:id="@+id/item_icon"
             android:layout_width="44dp"
             android:layout_height="44dp"
             android:contentDescription="@string/app_icon"
@@ -29,7 +29,7 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:id="@+id/extName"
+            android:id="@+id/item_primary"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -38,14 +38,14 @@
             android:maxLines="1"
             android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
             android:textColor="?attr/colorOnSurface"
-            app:layout_constraintBottom_toTopOf="@id/extVersion"
-            app:layout_constraintEnd_toStartOf="@id/btnMenu"
-            app:layout_constraintStart_toEndOf="@id/extIcon"
+            app:layout_constraintBottom_toTopOf="@id/item_secondary"
+            app:layout_constraintEnd_toStartOf="@id/item_menu"
+            app:layout_constraintStart_toEndOf="@id/item_icon"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_chainStyle="packed" />
 
         <TextView
-            android:id="@+id/extVersion"
+            android:id="@+id/item_secondary"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -55,12 +55,12 @@
             android:textAppearance="@style/TextAppearance.Material3.BodySmall"
             android:textColor="?attr/colorOnSurfaceVariant"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/btnMenu"
-            app:layout_constraintStart_toEndOf="@id/extIcon"
-            app:layout_constraintTop_toBottomOf="@id/extName" />
+            app:layout_constraintEnd_toStartOf="@id/item_menu"
+            app:layout_constraintStart_toEndOf="@id/item_icon"
+            app:layout_constraintTop_toBottomOf="@id/item_primary" />
 
         <ImageView
-            android:id="@+id/btnMenu"
+            android:id="@+id/item_menu"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:background="?attr/selectableItemBackgroundBorderless"

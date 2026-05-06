@@ -29,7 +29,6 @@
     <string name="import_mapping_empty">Keine Apps in dieser Datei gefunden.</string>
     <string name="import_count_message">%1$d App(s) importiert</string>
     <string name="n_apps_selected">%1$d ausgewählt</string>
-    <string name="share_no_selection">Wähle mindestens eine App</string>
     <string name="share_secrets_title">Geheimnisse erkannt</string>
     <string name="share_secrets_description">Ausgewählte Apps enthalten Geheimnisse wie benutzerdefinierte Header oder Anmeldedaten. Aus der freigegebenen Datei entfernen?</string>
     <string name="share_secrets_include">Behalten</string>
@@ -37,6 +36,8 @@
     <string name="remove_apps_title">Apps entfernen</string>
     <string name="remove_apps_confirm">%1$d ausgewählte App(s) entfernen?</string>
     <string name="n_apps_removed">%1$d App(s) entfernt</string>
+    <string name="remove_groups_confirm">%1$d ausgewählte Gruppe(n) und deren Apps entfernen?</string>
+    <string name="n_groups_removed">%1$d Gruppe(n) entfernt</string>
     <string name="export_share_failed">Datei konnte nicht zum Teilen vorbereitet werden</string>
     <string name="backup_save_failed">Sicherung konnte nicht gespeichert werden</string>
     <string name="backup_saved">Sicherung gespeichert</string>

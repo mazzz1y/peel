@@ -44,7 +44,6 @@
     <string name="import_mapping_empty">Không tìm thấy ứng dụng trong tệp này.</string>
     <string name="import_count_message">Đã nhập %1$d ứng dụng</string>
     <string name="n_apps_selected">Đã chọn %1$d</string>
-    <string name="share_no_selection">Chọn ít nhất một ứng dụng</string>
     <string name="share_secrets_title">Phát hiện bí mật</string>
     <string name="share_secrets_description">Các ứng dụng đã chọn chứa bí mật như tiêu đề tùy chỉnh hoặc thông tin xác thực. Xóa chúng khỏi tệp chia sẻ?</string>
     <string name="share_secrets_include">Giữ</string>
@@ -52,6 +51,8 @@
     <string name="remove_apps_title">Xóa ứng dụng</string>
     <string name="remove_apps_confirm">Xóa %1$d ứng dụng đã chọn?</string>
     <string name="n_apps_removed">Đã xóa %1$d ứng dụng</string>
+    <string name="remove_groups_confirm">Xóa %1$d nhóm đã chọn và các ứng dụng của chúng?</string>
+    <string name="n_groups_removed">Đã xóa %1$d nhóm</string>
     <string name="export_share_failed">Không thể chuẩn bị tệp để chia sẻ</string>
     <string name="backup_save_failed">Không thể lưu bản sao lưu</string>
     <string name="backup_saved">Đã lưu bản sao lưu</string>

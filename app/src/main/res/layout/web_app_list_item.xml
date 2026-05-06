@@ -20,7 +20,7 @@
         android:paddingVertical="12dp">
 
         <ImageView
-            android:id="@+id/appIcon"
+            android:id="@+id/item_icon"
             android:layout_width="44dp"
             android:layout_height="44dp"
             android:contentDescription="@string/app_icon"
@@ -32,7 +32,7 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:id="@+id/btnWebAppTitle"
+            android:id="@+id/item_primary"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -41,14 +41,14 @@
             android:maxLines="1"
             android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
             android:textColor="?attr/colorOnSurface"
-            app:layout_constraintBottom_toTopOf="@id/appUrl"
+            app:layout_constraintBottom_toTopOf="@id/item_secondary"
             app:layout_constraintEnd_toStartOf="@id/iconEphemeral"
-            app:layout_constraintStart_toEndOf="@id/appIcon"
+            app:layout_constraintStart_toEndOf="@id/item_icon"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_chainStyle="packed" />
 
         <TextView
-            android:id="@+id/appUrl"
+            android:id="@+id/item_secondary"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -57,13 +57,13 @@
             android:maxLines="1"
             android:textAppearance="@style/TextAppearance.Material3.BodySmall"
             android:textColor="?attr/colorOnSurfaceVariant"
-            app:layout_constraintBottom_toTopOf="@id/groupLabel"
+            app:layout_constraintBottom_toTopOf="@id/item_tertiary"
             app:layout_constraintEnd_toStartOf="@id/iconEphemeral"
-            app:layout_constraintStart_toEndOf="@id/appIcon"
-            app:layout_constraintTop_toBottomOf="@id/btnWebAppTitle" />
+            app:layout_constraintStart_toEndOf="@id/item_icon"
+            app:layout_constraintTop_toBottomOf="@id/item_primary" />
 
         <TextView
-            android:id="@+id/groupLabel"
+            android:id="@+id/item_tertiary"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -76,8 +76,8 @@
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/iconEphemeral"
-            app:layout_constraintStart_toEndOf="@id/appIcon"
-            app:layout_constraintTop_toBottomOf="@id/appUrl" />
+            app:layout_constraintStart_toEndOf="@id/item_icon"
+            app:layout_constraintTop_toBottomOf="@id/item_secondary" />
 
         <ImageView
             android:id="@+id/iconEphemeral"
@@ -101,11 +101,11 @@
             android:src="@drawable/ic_sandbox_24dp"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/btnMenu"
+            app:layout_constraintEnd_toStartOf="@id/item_menu"
             app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
-            android:id="@+id/btnMenu"
+            android:id="@+id/item_menu"
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:background="?attr/selectableItemBackgroundBorderless"

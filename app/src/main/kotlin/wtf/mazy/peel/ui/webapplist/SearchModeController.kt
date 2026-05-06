@@ -1,4 +1,4 @@
-package wtf.mazy.peel.ui.toolbar
+package wtf.mazy.peel.ui.webapplist
 
 import android.view.View
 import android.view.ViewGroup
@@ -9,43 +9,41 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.DataManager
-import wtf.mazy.peel.ui.webapplist.WebAppListAdapter
 import wtf.mazy.peel.util.Const
 
 class SearchModeController(
-    private val host: ToolbarModeHost,
+    private val host: SearchableHost,
+    private val searchResultsList: RecyclerView,
+    private val searchEmptyState: TextView,
 ) {
 
-    val isActive: Boolean get() = _searchMode
+    var isActive: Boolean = false
+        private set
 
-    var searchResultsList: RecyclerView? = null
-    var searchEmptyState: TextView? = null
-
-    private var _searchMode = false
     private var searchAdapter: WebAppListAdapter? = null
 
     fun enter() {
-        if (_searchMode) return
-        _searchMode = true
+        if (isActive) return
+        isActive = true
         host.updateBackPressEnabled()
 
         val activity = host.hostActivity
-        searchAdapter = WebAppListAdapter(activity).apply {
+        searchAdapter = WebAppListAdapter(activity, host.selectionController).apply {
             groupFilter = null
             showGroupLabels = true
         }
         searchAdapter?.registerAdapterDataObserver(scrollToTopObserver)
-        searchResultsList?.layoutManager = LinearLayoutManager(activity)
-        searchResultsList?.adapter = searchAdapter
+        searchResultsList.layoutManager = LinearLayoutManager(activity)
+        searchResultsList.adapter = searchAdapter
         searchAdapter?.updateWebAppList()
 
-        host.tabLayout?.animate()?.alpha(0f)?.setDuration(Const.ANIM_DURATION_FAST)?.withEndAction {
-            host.tabLayout?.visibility = View.GONE
-        }?.start()
-        val hasItems = (searchAdapter?.itemCount ?: 0) > 0
-        val visibleView = if (hasItems) searchResultsList else searchEmptyState
+        host.tabLayout.animate().alpha(0f).setDuration(Const.ANIM_DURATION_FAST).withEndAction {
+            host.tabLayout.visibility = View.GONE
+        }.start()
+        val visibleView =
+            if ((searchAdapter?.itemCount ?: 0) > 0) searchResultsList else searchEmptyState
         fadeOutThenIn(host.viewPager, {
-            host.viewPager?.visibility = View.GONE
+            host.viewPager.visibility = View.GONE
             updateEmptyState()
         }, visibleView)
 
@@ -54,8 +52,8 @@ class SearchModeController(
     }
 
     fun exit() {
-        if (!_searchMode) return
-        _searchMode = false
+        if (!isActive) return
+        isActive = false
         host.updateBackPressEnabled()
 
         val activity = host.hostActivity
@@ -68,11 +66,17 @@ class SearchModeController(
 
         val showTabs = DataManager.instance.sortedGroups.isNotEmpty()
         fadeOutThenIn(searchResultsList, {
-            searchResultsList?.visibility = View.GONE
-            searchEmptyState?.visibility = View.GONE
+            searchResultsList.visibility = View.GONE
+            searchEmptyState.visibility = View.GONE
+            searchAdapter?.unregisterAdapterDataObserver(scrollToTopObserver)
             searchAdapter = null
-            searchResultsList?.adapter = null
+            searchResultsList.adapter = null
         }, host.viewPager, if (showTabs) host.tabLayout else null)
+    }
+
+    fun onDataChanged() {
+        searchAdapter?.updateWebAppList()
+        updateEmptyState()
     }
 
     private fun fadeOutThenIn(
@@ -89,42 +93,6 @@ class SearchModeController(
                 view.animate().alpha(1f).setDuration(Const.ANIM_DURATION_FAST).start()
             }
         }?.start()
-    }
-
-    fun onDataChanged() {
-        searchAdapter?.updateWebAppList()
-        updateEmptyState()
-    }
-
-    fun notifySelectionEntered(toggledUuid: String) {
-        val adapter = searchAdapter ?: return
-        val toggledPosition = adapter.items.indexOfFirst { it.uuid == toggledUuid }
-        for (i in 0 until adapter.items.size) {
-            val payload = if (i == toggledPosition)
-                WebAppListAdapter.PAYLOAD_SELECTION_TOGGLE
-            else
-                WebAppListAdapter.PAYLOAD_MODE_CHANGE
-            adapter.notifyItemChanged(i, payload)
-        }
-    }
-
-    fun notifySelectionToggled(uuid: String) {
-        val adapter = searchAdapter ?: return
-        val position = adapter.items.indexOfFirst { it.uuid == uuid }
-        if (position >= 0) {
-            adapter.notifyItemChanged(position, WebAppListAdapter.PAYLOAD_SELECTION_TOGGLE)
-        }
-    }
-
-    fun notifySelectionExited(previouslySelected: Set<String>) {
-        val adapter = searchAdapter ?: return
-        for (i in 0 until adapter.items.size) {
-            val payload = if (adapter.items[i].uuid in previouslySelected)
-                WebAppListAdapter.PAYLOAD_SELECTION_TOGGLE
-            else
-                WebAppListAdapter.PAYLOAD_MODE_CHANGE
-            adapter.notifyItemChanged(i, payload)
-        }
     }
 
     private fun applySearchToolbar() {
@@ -170,25 +138,25 @@ class SearchModeController(
 
     private fun updateEmptyState() {
         val hasItems = (searchAdapter?.itemCount ?: 0) > 0
-        searchEmptyState?.visibility = if (hasItems) View.GONE else View.VISIBLE
-        searchResultsList?.visibility = if (hasItems) View.VISIBLE else View.GONE
+        searchEmptyState.visibility = if (hasItems) View.GONE else View.VISIBLE
+        searchResultsList.visibility = if (hasItems) View.VISIBLE else View.GONE
     }
 
     private val scrollToTopObserver = object : RecyclerView.AdapterDataObserver() {
         override fun onChanged() {
-            searchResultsList?.scrollToPosition(0)
+            searchResultsList.scrollToPosition(0)
         }
 
         override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
-            searchResultsList?.scrollToPosition(0)
+            searchResultsList.scrollToPosition(0)
         }
 
         override fun onItemRangeRemoved(positionStart: Int, itemCount: Int) {
-            searchResultsList?.scrollToPosition(0)
+            searchResultsList.scrollToPosition(0)
         }
 
         override fun onItemRangeMoved(fromPosition: Int, toPosition: Int, itemCount: Int) {
-            searchResultsList?.scrollToPosition(0)
+            searchResultsList.scrollToPosition(0)
         }
     }
 }

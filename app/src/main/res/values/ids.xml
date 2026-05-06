@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="entity_row_pending_slide" type="id" />
+    <item name="toolbar_pending_swap" type="id" />
+    <item name="toolbar_in_flight" type="id" />
+</resources>

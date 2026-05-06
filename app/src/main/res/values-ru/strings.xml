@@ -44,7 +44,6 @@
     <string name="import_mapping_empty">В этом файле нет приложений.</string>
     <string name="import_count_message">Импортировано %1$d приложение(ий)</string>
     <string name="n_apps_selected">Выбрано: %1$d</string>
-    <string name="share_no_selection">Выберите хотя бы одно приложение</string>
     <string name="share_secrets_title">Конфиденциальные данные</string>
     <string name="share_secrets_description">Выбранные приложения содержат конфиденциальные данные: пользовательские заголовки и данные авторизации. Удалить их из файла?</string>
     <string name="share_secrets_include">Оставить</string>
@@ -52,6 +51,8 @@
     <string name="remove_apps_title">Удалить приложения</string>
     <string name="remove_apps_confirm">Удалить %1$d выбранных приложений?</string>
     <string name="n_apps_removed">Удалено приложений: %1$d</string>
+    <string name="remove_groups_confirm">Удалить %1$d выбранных групп и их приложения?</string>
+    <string name="n_groups_removed">Удалено групп: %1$d</string>
     <string name="export_share_failed">Не удалось подготовить файл для отправки</string>
     <string name="backup_save_failed">Не удалось сохранить резервную копию</string>
     <string name="backup_saved">Резервная копия сохранена</string>

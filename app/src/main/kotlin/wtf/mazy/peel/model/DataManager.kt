@@ -22,6 +22,7 @@ import wtf.mazy.peel.shortcut.ShortcutHelper
 import wtf.mazy.peel.shortcut.ShortcutIconUtils
 import wtf.mazy.peel.util.App
 import wtf.mazy.peel.util.Const
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Executors
 
 class DataManager private constructor() {
@@ -30,11 +31,6 @@ class DataManager private constructor() {
         val done: CompletableDeferred<Unit>
 
         data class InitializeFull(
-            override val done: CompletableDeferred<Unit>,
-            val context: Context
-        ) : Action
-
-        data class InitializeSandbox(
             override val done: CompletableDeferred<Unit>,
             val context: Context
         ) : Action
@@ -107,10 +103,12 @@ class DataManager private constructor() {
     }
 
     private val repository = DataRepository()
-    private val dispatcher = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
-    private val scope = CoroutineScope(SupervisorJob() + dispatcher)
+    private val actionDispatcher = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
+    private val actionScope = CoroutineScope(SupervisorJob() + actionDispatcher)
+    val appScope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private val actions = Channel<Action>(Channel.UNLIMITED)
-    val pendingDeleteUuids = mutableSetOf<String>()
+    val pendingDeleteWebAppUuids: MutableSet<String> = ConcurrentHashMap.newKeySet()
+    val pendingDeleteGroupUuids: MutableSet<String> = ConcurrentHashMap.newKeySet()
 
     private val _state =
         MutableSharedFlow<DataState>(replay = 1)
@@ -123,7 +121,7 @@ class DataManager private constructor() {
         DataState(emptyList(), emptyList(), createDefaultSettings())
 
     init {
-        scope.launch {
+        actionScope.launch {
             for (action in actions) {
                 runCatching { handle(action) }
                     .onFailure { action.done.completeExceptionally(it) }
@@ -137,10 +135,6 @@ class DataManager private constructor() {
 
     suspend fun initialize(context: Context) {
         enqueueAndAwait(Action.InitializeFull(CompletableDeferred(), context.applicationContext))
-    }
-
-    suspend fun initializeForSandbox(context: Context) {
-        enqueueAndAwait(Action.InitializeSandbox(CompletableDeferred(), context.applicationContext))
     }
 
     suspend fun ensureWebAppLoaded(uuid: String, forceReload: Boolean = false) {
@@ -323,20 +317,6 @@ class DataManager private constructor() {
                     repository.persistGlobalSettings(currentState.defaultSettings)
                 }
                 reloadAll()
-                _isReady.value = true
-            }
-
-            is Action.InitializeSandbox -> {
-                repository.initialize(action.context)
-                val loadedDefault =
-                    repository.getGlobalSettings()?.let(::ensureDefaultSettingsConcrete)
-                        ?: ensureDefaultSettingsConcrete(currentState.defaultSettings)
-                updateState(
-                    DataReducer.withDefaultSettings(
-                        defaultSettings = loadedDefault,
-                        emit = true,
-                    )
-                )
                 _isReady.value = true
             }
 

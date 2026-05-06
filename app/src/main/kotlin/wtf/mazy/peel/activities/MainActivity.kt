@@ -23,12 +23,13 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.IntentCompat
+import androidx.core.content.edit
+import androidx.core.net.toUri
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.appbar.MaterialToolbar
-import com.google.android.material.color.MaterialColors
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.tabs.TabLayout
@@ -45,28 +46,32 @@ import wtf.mazy.peel.model.SandboxManager
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.model.WebAppSettings
 import wtf.mazy.peel.ui.common.LoadingDialogController
+import wtf.mazy.peel.ui.common.Theming
 import wtf.mazy.peel.ui.common.runWithLoader
 import wtf.mazy.peel.ui.dialog.ImportDialogHelper
 import wtf.mazy.peel.ui.dialog.showSandboxInputDialog
-import wtf.mazy.peel.ui.toolbar.SearchModeController
-import wtf.mazy.peel.ui.toolbar.SelectionModeController
-import wtf.mazy.peel.ui.toolbar.ToolbarModeHost
+import wtf.mazy.peel.ui.entitylist.EntityListAnimations
+import wtf.mazy.peel.ui.entitylist.EntitySelectionController
+import wtf.mazy.peel.ui.entitylist.SelectionConfig
 import wtf.mazy.peel.ui.webapplist.GroupPagerAdapter
-import wtf.mazy.peel.ui.webapplist.SelectionModeHost
+import wtf.mazy.peel.ui.webapplist.SearchModeController
+import wtf.mazy.peel.ui.webapplist.SearchableHost
 import wtf.mazy.peel.ui.webapplist.WebAppListFragment
+import wtf.mazy.peel.ui.webapplist.WebAppSelectionActions
+import wtf.mazy.peel.ui.webapplist.WebAppShareHost
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.NotificationUtils
 import wtf.mazy.peel.util.restartApp
 
 class MainActivity :
     AppCompatActivity(),
-    ToolbarModeHost,
-    SelectionModeHost {
+    SearchableHost,
+    WebAppShareHost {
 
     override lateinit var toolbar: MaterialToolbar
     override lateinit var fab: FloatingActionButton
-    override var tabLayout: TabLayout? = null
-    override var viewPager: ViewPager2? = null
+    override lateinit var tabLayout: TabLayout
+    override lateinit var viewPager: ViewPager2
     override val hostActivity: AppCompatActivity get() = this
 
     private var pagerAdapter: GroupPagerAdapter? = null
@@ -75,7 +80,11 @@ class MainActivity :
     private lateinit var exportLoader: LoadingDialogController
 
     private lateinit var searchController: SearchModeController
-    private lateinit var selectionController: SelectionModeController
+    override lateinit var selectionController: EntitySelectionController<WebApp>
+        private set
+
+    private var badgeBg: Int = 0
+    private var badgeFg: Int = 0
 
     private val fragmentRegistry = mutableMapOf<String?, WebAppListFragment>()
 
@@ -120,17 +129,37 @@ class MainActivity :
         viewPager = findViewById(R.id.viewPager)
         exportLoader = LoadingDialogController(this)
 
-        findViewById<View>(android.R.id.content).addOnLayoutChangeListener { _, left, _, right, _, oldLeft, _, oldRight, _ ->
-            if (right - left != oldRight - oldLeft) fab.requestLayout()
-        }
+        EntityListAnimations.bindFabResizeOnRotation(this, fab)
 
-        searchController = SearchModeController(this)
-        selectionController = SelectionModeController(this) { searchController.isActive }
-        searchController.searchResultsList = findViewById(R.id.searchResultsList)
-        searchController.searchEmptyState = findViewById(R.id.searchEmptyState)
+        searchController = SearchModeController(
+            host = this,
+            searchResultsList = findViewById(R.id.searchResultsList),
+            searchEmptyState = findViewById(R.id.searchEmptyState),
+        )
+        selectionController = EntitySelectionController(
+            host = this,
+            actions = WebAppSelectionActions(this, this),
+            resolveItems = { ids ->
+                DataManager.instance.getWebsites().filter { it.uuid in ids }
+            },
+            onChanged = {
+                refreshSelectionAdapters()
+                updateTabSelectionDots()
+            },
+            isSearchActive = { searchController.isActive },
+            config = SelectionConfig(
+                titleResForCount = R.string.n_apps_selected,
+                selectionMenuRes = R.menu.menu_selection,
+                moveActionId = R.id.action_move_selected,
+                deleteActionId = R.id.action_delete_selected,
+            ),
+        )
 
         toolbar.setTitle(R.string.app_name)
         setSupportActionBar(toolbar)
+
+        badgeBg = Theming.colorPrimary(this)
+        badgeFg = Theming.colorOnPrimary(this)
 
         fab.setOnClickListener { onFabClicked() }
         onBackPressedDispatcher.addCallback(this, backPressCallback)
@@ -157,7 +186,7 @@ class MainActivity :
         if (checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) return
         val prefs = getSharedPreferences("peel_prefs", MODE_PRIVATE)
         if (prefs.getBoolean("notification_permission_asked", false)) return
-        prefs.edit().putBoolean("notification_permission_asked", true).apply()
+        prefs.edit { putBoolean("notification_permission_asked", true) }
         notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
     }
 
@@ -259,7 +288,9 @@ class MainActivity :
         }
     }
 
-    override fun refreshCurrentPages() {
+    override fun refreshWebAppList() = refreshCurrentPages()
+
+    fun refreshCurrentPages() {
         val groups = DataManager.instance.sortedGroups
         val newGroupKeys = groups.map { it.uuid to it.title }
         val newShowUngrouped =
@@ -282,102 +313,57 @@ class MainActivity :
         fragmentRegistry.remove(groupFilter)
     }
 
-    private fun forEachFragment(action: (WebAppListFragment) -> Unit) {
-        fragmentRegistry.values.forEach(action)
-    }
-
     private fun setupViewPager() {
         val groups = DataManager.instance.sortedGroups
-
+        val newAdapter: GroupPagerAdapter
         if (groups.isEmpty()) {
-            tabLayout?.visibility = View.GONE
-            pagerAdapter = GroupPagerAdapter(this, emptyList(), showUngrouped = true)
-            viewPager?.adapter = pagerAdapter
-            viewPager?.isUserInputEnabled = false
+            tabLayout.visibility = View.GONE
+            newAdapter = GroupPagerAdapter(this, emptyList(), showUngrouped = true)
+            viewPager.adapter = newAdapter
+            viewPager.isUserInputEnabled = false
             lastGroupKeys = emptyList()
             lastShowUngrouped = true
         } else {
             val hasUngrouped = DataManager.instance.activeWebsitesForGroup(null).isNotEmpty()
-            tabLayout?.visibility = View.VISIBLE
-            pagerAdapter = GroupPagerAdapter(this, groups, showUngrouped = hasUngrouped)
-            viewPager?.adapter = pagerAdapter
-            viewPager?.isUserInputEnabled = true
+            tabLayout.visibility = View.VISIBLE
+            newAdapter = GroupPagerAdapter(this, groups, showUngrouped = hasUngrouped)
+            viewPager.adapter = newAdapter
+            viewPager.isUserInputEnabled = true
             lastGroupKeys = groups.map { it.uuid to it.title }
             lastShowUngrouped = hasUngrouped
 
-            TabLayoutMediator(tabLayout!!, viewPager!!) { tab, position ->
-                tab.text = pagerAdapter?.getPageTitle(position)
+            TabLayoutMediator(tabLayout, viewPager) { tab, position ->
+                tab.text = newAdapter.getPageTitle(position)
             }.attach()
         }
+        pagerAdapter = newAdapter
     }
 
-    override val isInSelectionMode: Boolean get() = selectionController.isActive
-
-    override fun isSelected(uuid: String) = selectionController.isSelected(uuid)
-
-    override fun enterSelectionMode(uuid: String) = selectionController.enter(uuid)
-
-    override fun toggleSelection(uuid: String) = selectionController.toggle(uuid)
-
-    override fun dispatchSelectionEntered(toggledUuid: String) {
+    private fun refreshSelectionAdapters() {
         if (searchController.isActive) {
-            searchController.notifySelectionEntered(toggledUuid)
+            searchController.onDataChanged()
         } else {
-            forEachFragment { it.animateEnterSelection(toggledUuid) }
+            fragmentRegistry.values.forEach { it.updateWebAppList() }
         }
-        updateTabSelectionDots()
-    }
-
-    override fun dispatchSelectionToggled(uuid: String) {
-        if (searchController.isActive) {
-            searchController.notifySelectionToggled(uuid)
-        } else {
-            forEachFragment { it.animateSelectionToggled(uuid) }
-        }
-        updateTabSelectionDots()
-    }
-
-    override fun addPendingDeletes(uuids: Collection<String>) {
-        forEachFragment { it.addPendingDeletes(uuids) }
-    }
-
-    override fun clearPendingDeletes(uuids: Collection<String>) {
-        forEachFragment { it.clearPendingDeletes(uuids) }
-    }
-
-    override fun dispatchSelectionExited(previouslySelected: Set<String>) {
-        if (searchController.isActive) {
-            searchController.notifySelectionExited(previouslySelected)
-        } else {
-            forEachFragment { it.animateExitSelection(previouslySelected) }
-        }
-        updateTabSelectionDots()
     }
 
     private fun updateTabSelectionDots() {
-        val tabs = tabLayout ?: return
         val adapter = pagerAdapter ?: return
         val selected = selectionController.selectedIds
         if (selected.isEmpty()) {
-            for (i in 0 until tabs.tabCount) {
-                tabs.getTabAt(i)?.text = adapter.getPageTitle(i)
+            for (i in 0 until tabLayout.tabCount) {
+                tabLayout.getTabAt(i)?.text = adapter.getPageTitle(i)
             }
             return
         }
         val appsByGroup = DataManager.instance.activeWebsites
             .filter { it.uuid in selected }
             .groupBy { it.groupUuid }
-        val badgeBg = MaterialColors.getColor(
-            window.decorView, androidx.appcompat.R.attr.colorPrimary, 0,
-        )
-        val badgeFg = MaterialColors.getColor(
-            window.decorView, com.google.android.material.R.attr.colorOnPrimary, 0,
-        )
-        for (i in 0 until tabs.tabCount) {
+        for (i in 0 until tabLayout.tabCount) {
             val groupUuid = if (i < adapter.groups.size) adapter.groups[i].uuid else null
             val title = adapter.getPageTitle(i)
             val count = appsByGroup[groupUuid]?.size ?: 0
-            tabs.getTabAt(i)?.text = if (count > 0) {
+            tabLayout.getTabAt(i)?.text = if (count > 0) {
                 val badge = " $count"
                 SpannableString("$title$badge").apply {
                     setSpan(
@@ -396,8 +382,6 @@ class MainActivity :
         if (selectionController.isActive) {
             selectionController.reapplyToolbar()
             animateFabSwap(R.drawable.ic_baseline_share_24)
-            forEachFragment { it.refreshSelectionState() }
-            updateTabSelectionDots()
         } else {
             applyNormalToolbar()
             animateFabSwap(R.drawable.ic_add_24dp)
@@ -417,34 +401,11 @@ class MainActivity :
         }
     }
 
-    override fun crossfadeToolbar(swap: () -> Unit) {
-        toolbar.animate().cancel()
-        toolbar.animate()
-            .alpha(0f)
-            .setDuration(Const.ANIM_DURATION_FAST)
-            .withEndAction {
-                swap()
-                toolbar.animate()
-                    .alpha(1f)
-                    .setDuration(Const.ANIM_DURATION_FAST)
-                    .start()
-            }
-            .start()
-    }
+    override fun crossfadeToolbar(swap: () -> Unit) =
+        EntityListAnimations.crossfadeToolbar(toolbar, swap)
 
-    override fun animateFabSwap(iconRes: Int) {
-        if (!fab.isOrWillBeShown) {
-            fab.setImageResource(iconRes)
-            fab.show()
-            return
-        }
-        fab.hide(object : FloatingActionButton.OnVisibilityChangedListener() {
-            override fun onHidden(fab: FloatingActionButton) {
-                fab.setImageResource(iconRes)
-                fab.show()
-            }
-        })
-    }
+    override fun animateFabSwap(iconRes: Int) =
+        EntityListAnimations.animateFabSwap(fab, iconRes)
 
     override fun updateBackPressEnabled() {
         backPressCallback.isEnabled = searchController.isActive || selectionController.isActive
@@ -470,7 +431,7 @@ class MainActivity :
 
     private fun onFabClicked() {
         if (selectionController.isActive) {
-            selectionController.onFabClicked()
+            selectionController.performShare()
         } else {
             buildAddWebsiteDialog()
         }
@@ -519,13 +480,13 @@ class MainActivity :
         view.findViewById<TextView>(R.id.aboutEngine).text =
             getString(R.string.about_engine, BuildConfig.GECKOVIEW_VERSION)
         view.findViewById<View>(R.id.aboutGithub).setOnClickListener {
-            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(GITHUB_URL)))
+            startActivity(Intent(Intent.ACTION_VIEW, GITHUB_URL.toUri()))
         }
         view.findViewById<View>(R.id.aboutFdroid).setOnClickListener {
-            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(FDROID_URL)))
+            startActivity(Intent(Intent.ACTION_VIEW, FDROID_URL.toUri()))
         }
         view.findViewById<View>(R.id.aboutLicense).setOnClickListener {
-            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(LICENSE_URL)))
+            startActivity(Intent(Intent.ACTION_VIEW, LICENSE_URL.toUri()))
         }
         MaterialAlertDialogBuilder(this)
             .setView(view)
@@ -621,7 +582,7 @@ class MainActivity :
             newSite.isUseContainer = result.sandbox
             newSite.isEphemeralSandbox = result.ephemeral
 
-            val currentPage = viewPager?.currentItem ?: 0
+            val currentPage = viewPager.currentItem
             val groups = DataManager.instance.sortedGroups
             if (groups.isNotEmpty() && currentPage < groups.size) {
                 newSite.groupUuid = groups[currentPage].uuid
@@ -644,6 +605,24 @@ class MainActivity :
         private val fgColor: Int,
     ) : ReplacementSpan() {
 
+        private var cachedSourceTextSize: Float = -1f
+        private lateinit var badgePaint: Paint
+        private var textWidth: Float = 0f
+        private var diameter: Float = 0f
+        private var badgeTextSize: Float = 0f
+
+        private fun ensureMetrics(source: Paint) {
+            if (cachedSourceTextSize == source.textSize && this::badgePaint.isInitialized) return
+            cachedSourceTextSize = source.textSize
+            badgeTextSize = source.textSize * 0.7f
+            badgePaint = Paint(source).apply {
+                textSize = badgeTextSize
+                typeface = Typeface.DEFAULT_BOLD
+            }
+            textWidth = badgePaint.measureText(label)
+            diameter = maxOf(textWidth + badgeTextSize * 0.6f, badgeTextSize * 1.3f)
+        }
+
         override fun getSize(
             paint: Paint,
             text: CharSequence,
@@ -651,12 +630,8 @@ class MainActivity :
             end: Int,
             fm: Paint.FontMetricsInt?
         ): Int {
-            val textSize = paint.textSize * 0.7f
-            val badgePaint =
-                Paint(paint).apply { this.textSize = textSize; typeface = Typeface.DEFAULT_BOLD }
-            val textWidth = badgePaint.measureText(label)
-            val diameter = maxOf(textWidth + textSize * 0.6f, textSize * 1.3f)
-            return (diameter + textSize * 0.4f).toInt()
+            ensureMetrics(paint)
+            return (diameter + badgeTextSize * 0.4f).toInt()
         }
 
         override fun draw(
@@ -670,13 +645,9 @@ class MainActivity :
             bottom: Int,
             paint: Paint
         ) {
-            val textSize = paint.textSize * 0.7f
-            val badgePaint =
-                Paint(paint).apply { this.textSize = textSize; typeface = Typeface.DEFAULT_BOLD }
-            val textWidth = badgePaint.measureText(label)
-            val diameter = maxOf(textWidth + textSize * 0.6f, textSize * 1.3f)
+            ensureMetrics(paint)
             val radius = diameter / 2f
-            val centerX = x + textSize * 0.4f + radius
+            val centerX = x + badgeTextSize * 0.4f + radius
             val centerY = (top + bottom) / 2f
 
             paint.color = bgColor

@@ -57,7 +57,6 @@
     <string name="import_count_message">Imported %1$d app(s)</string>
     <string name="n_apps_selected">%1$d selected</string>
     <string name="n_groups_selected">%1$d group(s) selected</string>
-    <string name="share_no_selection">Select at least one app</string>
     <string name="share_secrets_title">Secrets detected</string>
     <string name="share_secrets_description">Selected apps contain secrets such as custom headers or authorization credentials. Remove them from the shared file?</string>
     <string name="share_secrets_include">Keep</string>
@@ -65,6 +64,8 @@
     <string name="remove_apps_title">Remove apps</string>
     <string name="remove_apps_confirm">Remove %1$d selected app(s)?</string>
     <string name="n_apps_removed">%1$d app(s) removed</string>
+    <string name="remove_groups_confirm">Remove %1$d selected group(s) and their apps?</string>
+    <string name="n_groups_removed">%1$d group(s) removed</string>
     <string name="export_share_failed">Could not prepare file for sharing</string>
     <string name="backup_save_failed">Could not save backup</string>
     <string name="backup_saved">Backup saved</string>

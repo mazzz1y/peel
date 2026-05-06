@@ -44,7 +44,6 @@
     <string name="import_mapping_empty">इस फ़ाइल में कोई ऐप नहीं मिला।</string>
     <string name="import_count_message">%1$d ऐप आयात किए गए</string>
     <string name="n_apps_selected">%1$d चयनित</string>
-    <string name="share_no_selection">कम से कम एक ऐप चुनें</string>
     <string name="share_secrets_title">गोपनीय जानकारी पाई गई</string>
     <string name="share_secrets_description">चयनित ऐप्स में कस्टम हेडर या प्रमाणीकरण क्रेडेंशियल जैसी गोपनीय जानकारी है। क्या इसे साझा फ़ाइल से हटाएँ?</string>
     <string name="share_secrets_include">रखें</string>
@@ -52,6 +51,8 @@
     <string name="remove_apps_title">ऐप्स हटाएँ</string>
     <string name="remove_apps_confirm">%1$d चयनित ऐप्स हटाएँ?</string>
     <string name="n_apps_removed">%1$d ऐप हटाए गए</string>
+    <string name="remove_groups_confirm">%1$d चयनित समूह और उनके ऐप्स हटाएँ?</string>
+    <string name="n_groups_removed">%1$d समूह हटाए गए</string>
     <string name="export_share_failed">साझा करने के लिए फ़ाइल तैयार नहीं हो सकी</string>
     <string name="backup_save_failed">बैकअप सहेजा नहीं जा सका</string>
     <string name="backup_saved">बैकअप सहेजा गया</string>

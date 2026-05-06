@@ -679,7 +679,7 @@ class BrowserActivity : BaseSessionHost() {
         val currentUuid = webappUuid ?: return emptyList()
         val targetHost = url.normalizedHost() ?: return emptyList()
         if (targetHost == webapp.baseUrl.normalizedHost()) return emptyList()
-        val pending = DataManager.instance.pendingDeleteUuids
+        val pending = DataManager.instance.pendingDeleteWebAppUuids
         return cachedPeelApps.filter { app ->
             app.uuid != currentUuid &&
                     app.uuid !in pending &&

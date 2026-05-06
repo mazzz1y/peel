@@ -5,8 +5,8 @@ import android.animation.ObjectAnimator
 import android.os.Bundle
 import android.view.View
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -32,21 +32,22 @@ class WebAppListFragment : Fragment(R.layout.fragment_web_app_list) {
 
         groupFilter = arguments?.getString(ARG_GROUP_FILTER)
 
-        adapter =
-            WebAppListAdapter(
-                activity = requiredActivity(),
-            )
+        adapter = WebAppListAdapter(
+            activity = requireAppCompatActivity(),
+            selection = (activity as? MainActivity)?.selectionController,
+        )
         adapter.groupFilter = groupFilter
-        adapter.updateWebAppList()
+        val isEmpty = adapter.updateWebAppList()
 
         list = view.findViewById(R.id.web_app_list)
         emptyStateText = view.findViewById(R.id.empty_state_text)
 
-        list.layoutManager = LinearLayoutManager(requiredActivity())
+        list.layoutManager = LinearLayoutManager(requireContext())
         list.adapter = adapter
 
         attachDragHelper()
-        updateEmptyState()
+        updateDragEnabled()
+        updateEmptyState(isEmpty)
 
         (activity as? MainActivity)?.registerFragment(groupFilter, this)
     }
@@ -56,58 +57,14 @@ class WebAppListFragment : Fragment(R.layout.fragment_web_app_list) {
         super.onDestroyView()
     }
 
-    fun addPendingDeletes(uuids: Collection<String>) {
-        DataManager.instance.pendingDeleteUuids.addAll(uuids)
-    }
-
-    fun clearPendingDeletes(uuids: Collection<String>) {
-        DataManager.instance.pendingDeleteUuids.removeAll(uuids.toSet())
-    }
-
     fun updateWebAppList() {
-        adapter.updateWebAppList()
+        val isEmpty = adapter.updateWebAppList()
         updateDragEnabled()
-        updateEmptyState()
+        updateEmptyState(isEmpty)
     }
 
-    fun refreshSelectionState() {
-        adapter.forceFullRebind()
-        updateDragEnabled()
-        updateEmptyState()
-    }
-
-    fun animateEnterSelection(toggledUuid: String) {
-        val toggledPosition = adapter.items.indexOfFirst { it.uuid == toggledUuid }
-        for (i in 0 until adapter.items.size) {
-            if (i == toggledPosition) {
-                adapter.notifyItemChanged(i, WebAppListAdapter.PAYLOAD_SELECTION_TOGGLE)
-            } else {
-                adapter.notifyItemChanged(i, WebAppListAdapter.PAYLOAD_MODE_CHANGE)
-            }
-        }
-        updateDragEnabled()
-    }
-
-    fun animateSelectionToggled(uuid: String) {
-        val position = adapter.items.indexOfFirst { it.uuid == uuid }
-        if (position >= 0) {
-            adapter.notifyItemChanged(position, WebAppListAdapter.PAYLOAD_SELECTION_TOGGLE)
-        }
-    }
-
-    fun animateExitSelection(previouslySelected: Set<String>) {
-        for (i in 0 until adapter.items.size) {
-            val payload = if (adapter.items[i].uuid in previouslySelected)
-                WebAppListAdapter.PAYLOAD_SELECTION_TOGGLE
-            else
-                WebAppListAdapter.PAYLOAD_MODE_CHANGE
-            adapter.notifyItemChanged(i, payload)
-        }
-        updateDragEnabled()
-    }
-
-    private fun updateEmptyState() {
-        if (adapter.items.isEmpty()) {
+    private fun updateEmptyState(isEmpty: Boolean) {
+        if (isEmpty) {
             emptyStateText.visibility = View.VISIBLE
             list.visibility = View.GONE
         } else {
@@ -122,24 +79,25 @@ class WebAppListFragment : Fragment(R.layout.fragment_web_app_list) {
     }
 
     private fun updateDragEnabled() {
-        val selectionHost = activity as? SelectionModeHost
-        if (selectionHost?.isInSelectionMode == true) {
+        val selection = (activity as? MainActivity)?.selectionController
+        if (selection?.isActive == true) {
             itemTouchHelper?.attachToRecyclerView(null)
         } else {
             itemTouchHelper?.attachToRecyclerView(list)
         }
     }
 
-    private fun requiredActivity(): FragmentActivity {
-        return requireNotNull(activity) { "WebAppListFragment is not attached to an activity." }
-    }
+    private fun requireAppCompatActivity(): AppCompatActivity =
+        requireNotNull(activity as? AppCompatActivity) {
+            "WebAppListFragment must be hosted by an AppCompatActivity."
+        }
 
     private val itemTouchCallback =
         dragReorderCallback(
             onMove = { from, to -> adapter.moveItem(from, to) },
             onDrop = {
                 viewLifecycleOwner.lifecycleScope.launch {
-                    DataManager.instance.reorderWebApps(adapter.items.map { it.uuid })
+                    DataManager.instance.reorderWebApps(adapter.currentList.map { it.entity.uuid })
                 }
             },
             onPickUp = ::animatePickedUp,

@@ -1,73 +1,73 @@
 package wtf.mazy.peel.ui.extensions
 
-import android.view.LayoutInflater
+import android.content.Context
 import android.view.Menu
 import android.view.View
-import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.PopupMenu
 import android.widget.TextView
-import androidx.recyclerview.widget.RecyclerView
+import androidx.annotation.ColorInt
 import org.mozilla.geckoview.WebExtension
 import wtf.mazy.peel.R
+import wtf.mazy.peel.ui.entitylist.EntityListAdapter
+import wtf.mazy.peel.ui.entitylist.EntityListViewHolder
+import wtf.mazy.peel.ui.entitylist.EntityRow
+import wtf.mazy.peel.ui.entitylist.EntityRowActions
+import wtf.mazy.peel.ui.entitylist.binders.WebExtensionBinder
 
 class ExtensionAdapter(
-    private val onUpdate: (WebExtension) -> Unit,
-    private val onSettings: (WebExtension) -> Unit,
-    private val onUninstall: (WebExtension) -> Unit,
-) : RecyclerView.Adapter<ExtensionAdapter.ViewHolder>() {
+    context: Context,
+    @ColorInt checkIconColor: Int,
+    onUpdate: (WebExtension) -> Unit,
+    onSettings: (WebExtension) -> Unit,
+    onUninstall: (WebExtension) -> Unit,
+) : EntityListAdapter<WebExtension, ExtensionAdapter.ViewHolder>(
+    binder = WebExtensionBinder(context),
+    actions = ExtensionItemActions(onUpdate, onSettings, onUninstall),
+    checkIconColor = checkIconColor,
+) {
 
-    var items: List<WebExtension> = emptyList()
-        private set
-
-    fun submitList(newItems: List<WebExtension>) {
-        items = newItems
-        @Suppress("NotifyDataSetChanged")
-        notifyDataSetChanged()
+    class ViewHolder(itemView: View) : EntityListViewHolder(itemView) {
+        override val indicators: List<ImageView> = emptyList()
+        val name: TextView = itemView.findViewById(R.id.item_primary)
+        val version: TextView = itemView.findViewById(R.id.item_secondary)
     }
 
-    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val icon: ImageView = itemView.findViewById(R.id.extIcon)
-        val name: TextView = itemView.findViewById(R.id.extName)
-        val version: TextView = itemView.findViewById(R.id.extVersion)
-        val menu: ImageView = itemView.findViewById(R.id.btnMenu)
-    }
+    override fun layoutRes(): Int = R.layout.item_extension
+    override fun createViewHolder(view: View): ViewHolder = ViewHolder(view)
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_extension, parent, false)
-        return ViewHolder(view)
-    }
-
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val ext = items[position]
+    override fun bindRow(holder: ViewHolder, row: EntityRow<WebExtension>) {
+        val ext = row.entity
         val meta = ext.metaData
-        val extName = meta.name ?: ext.id
-        holder.name.text = extName
+        holder.name.text = meta.name ?: ext.id
         holder.version.text = meta.version
+    }
 
-        ExtensionIconCache.bind(holder.icon, holder.itemView.context, ext.id, extName)
-
-        holder.menu.setOnClickListener { v ->
-            val popup = PopupMenu(v.context, v)
+    private class ExtensionItemActions(
+        private val onUpdate: (WebExtension) -> Unit,
+        private val onSettings: (WebExtension) -> Unit,
+        private val onUninstall: (WebExtension) -> Unit,
+    ) : EntityRowActions<WebExtension> {
+        override fun onItemClick(item: WebExtension) {}
+        override fun onItemIconClick(item: WebExtension) {}
+        override fun onItemMenu(view: View, item: WebExtension) {
+            val popup = PopupMenu(view.context, view)
             popup.menu.add(Menu.NONE, MENU_UPDATE, 0, R.string.extension_update)
-            if (meta.optionsPageUrl != null) {
+            if (item.metaData.optionsPageUrl != null) {
                 popup.menu.add(Menu.NONE, MENU_SETTINGS, 1, R.string.extension_settings)
             }
             popup.menu.add(Menu.NONE, MENU_UNINSTALL, 2, R.string.uninstall_extension)
-            popup.setOnMenuItemClickListener { item ->
-                when (item.itemId) {
-                    MENU_UPDATE -> onUpdate(ext)
-                    MENU_SETTINGS -> onSettings(ext)
-                    MENU_UNINSTALL -> onUninstall(ext)
+            popup.setOnMenuItemClickListener { menuItem ->
+                when (menuItem.itemId) {
+                    MENU_UPDATE -> onUpdate(item)
+                    MENU_SETTINGS -> onSettings(item)
+                    MENU_UNINSTALL -> onUninstall(item)
                 }
                 true
             }
             popup.show()
         }
     }
-
-    override fun getItemCount() = items.size
 
     companion object {
         private const val MENU_UPDATE = 1

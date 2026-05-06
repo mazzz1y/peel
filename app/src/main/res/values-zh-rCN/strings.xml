@@ -44,7 +44,6 @@
     <string name="import_mapping_empty">此文件中未找到应用。</string>
     <string name="import_count_message">已导入 %1$d 个应用</string>
     <string name="n_apps_selected">已选择 %1$d 个</string>
-    <string name="share_no_selection">请至少选择一个应用</string>
     <string name="share_secrets_title">检测到密钥</string>
     <string name="share_secrets_description">所选应用包含自定义标头或授权凭据等密钥。是否从共享文件中移除？</string>
     <string name="share_secrets_include">保留</string>
@@ -52,6 +51,8 @@
     <string name="remove_apps_title">移除应用</string>
     <string name="remove_apps_confirm">移除 %1$d 个已选应用？</string>
     <string name="n_apps_removed">已移除 %1$d 个应用</string>
+    <string name="remove_groups_confirm">移除 %1$d 个已选分组及其应用？</string>
+    <string name="n_groups_removed">已移除 %1$d 个分组</string>
     <string name="export_share_failed">无法准备分享文件</string>
     <string name="backup_save_failed">无法保存备份</string>
     <string name="backup_saved">备份已保存</string>

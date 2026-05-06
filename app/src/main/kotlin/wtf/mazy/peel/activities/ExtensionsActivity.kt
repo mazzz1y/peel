@@ -4,19 +4,12 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.widget.TextView
 import android.widget.Toast
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -31,21 +24,24 @@ import wtf.mazy.peel.ui.extensions.AmoExtensionsRepository
 import wtf.mazy.peel.ui.extensions.AmoExtensionsRepository.AmoExtension
 import wtf.mazy.peel.ui.extensions.ExtensionAdapter
 import wtf.mazy.peel.ui.extensions.ExtensionIconCache
+import wtf.mazy.peel.ui.entitylist.EntityListActivity
+import wtf.mazy.peel.ui.entitylist.EntityListAdapter
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.NotificationUtils
 import wtf.mazy.peel.util.withBoldSpan
 import java.io.File
 
-class ExtensionsActivity : AppCompatActivity() {
+class ExtensionsActivity : EntityListActivity<WebExtension>() {
 
-    private lateinit var adapter: ExtensionAdapter
-    private lateinit var recyclerView: RecyclerView
-    private lateinit var emptyStateText: TextView
-    private lateinit var toolbar: MaterialToolbar
-    private lateinit var fab: FloatingActionButton
-    private lateinit var loader: LoadingDialogController
+    override val titleRes: Int = R.string.extensions
+    override val emptyStateRes: Int = R.string.no_extensions_installed
+
+    override fun subscribeDataChanges(onChange: () -> Unit) = Unit
+
+    private val loader: LoadingDialogController by lazy { LoadingDialogController(this) }
 
     private var cachedRecommended: List<AmoExtension>? = null
+    private var lastLoadedExtensions: List<WebExtension> = emptyList()
 
     private val filePickerLauncher = registerForActivityResult(
         ActivityResultContracts.OpenDocument()
@@ -74,40 +70,31 @@ class ExtensionsActivity : AppCompatActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        setTheme(R.style.AppTheme)
-        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_extensions)
-
-        toolbar = findViewById(R.id.toolbar)
-        setSupportActionBar(toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.title = getString(R.string.extensions)
-        toolbar.setNavigationOnClickListener { finish() }
-
-        loader = LoadingDialogController(this)
-
-        recyclerView = findViewById(R.id.extension_list)
-        emptyStateText = findViewById(R.id.empty_state_text)
-        fab = findViewById(R.id.fab_add_extension)
-
-        adapter = ExtensionAdapter(
-            onUpdate = ::updateExtension,
-            onSettings = {
-                startActivity(ExtensionPageActivity.intentForExtension(this, it.id))
-            },
-            onUninstall = ::confirmUninstall,
-        )
-        recyclerView.layoutManager = LinearLayoutManager(this)
-        recyclerView.adapter = adapter
-
-        fab.setOnClickListener { showAvailableExtensions() }
         fab.setOnLongClickListener {
             filePickerLauncher.launch(
                 arrayOf("application/x-xpinstall", "application/octet-stream")
             )
             true
         }
+    }
+
+    override fun createAdapter(): EntityListAdapter<WebExtension, *> = ExtensionAdapter(
+        context = this,
+        checkIconColor = checkIconColor,
+        onUpdate = ::updateExtension,
+        onSettings = {
+            startActivity(ExtensionPageActivity.intentForExtension(this, it.id))
+        },
+        onUninstall = ::confirmUninstall,
+    )
+
+    override fun loadEntities(): List<WebExtension> = lastLoadedExtensions
+
+    override fun rowEntityUuid(entity: WebExtension): String = entity.id
+
+    override fun onAddClicked() {
+        showAvailableExtensions()
     }
 
     override fun onCreateOptionsMenu(menu: android.view.Menu): Boolean {
@@ -118,8 +105,7 @@ class ExtensionsActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: android.view.MenuItem): Boolean {
         return when (item.itemId) {
             R.id.action_update_all -> {
-                updateAllExtensions()
-                true
+                updateAllExtensions(); true
             }
 
             else -> super.onOptionsItemSelected(item)
@@ -138,11 +124,8 @@ class ExtensionsActivity : AppCompatActivity() {
 
     private fun loadInstalledExtensions() {
         lifecycleScope.launch {
-            val extensions = GeckoRuntimeProvider.listUserExtensions(this@ExtensionsActivity)
-            adapter.submitList(extensions)
-            val isEmpty = extensions.isEmpty()
-            emptyStateText.visibility = if (isEmpty) View.VISIBLE else View.GONE
-            recyclerView.visibility = if (isEmpty) View.GONE else View.VISIBLE
+            lastLoadedExtensions = GeckoRuntimeProvider.listUserExtensions(this@ExtensionsActivity)
+            refreshList()
         }
     }
 
@@ -188,7 +171,7 @@ class ExtensionsActivity : AppCompatActivity() {
             for (ext in extensions) {
                 try {
                     val result = GeckoRuntimeProvider.updateExtension(
-                        this@ExtensionsActivity, ext
+                        this@ExtensionsActivity, ext,
                     )
                     if (result != null) {
                         ExtensionIconCache.refreshFromExtension(this@ExtensionsActivity, result)
@@ -224,7 +207,7 @@ class ExtensionsActivity : AppCompatActivity() {
                 lifecycleScope.launch {
                     try {
                         GeckoRuntimeProvider.uninstallExtension(
-                            this@ExtensionsActivity, ext
+                            this@ExtensionsActivity, ext,
                         )
                         ExtensionIconCache.delete(this@ExtensionsActivity, ext.id)
                         loadInstalledExtensions()

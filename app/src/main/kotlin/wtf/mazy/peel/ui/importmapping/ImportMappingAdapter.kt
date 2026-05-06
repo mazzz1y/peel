@@ -6,9 +6,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.checkbox.MaterialCheckBox
 import wtf.mazy.peel.R
+import wtf.mazy.peel.model.StableIdRegistry
 import wtf.mazy.peel.model.WebAppSurrogate
 import wtf.mazy.peel.shortcut.LetterIconGenerator
 import wtf.mazy.peel.util.displayUrl
@@ -20,7 +23,7 @@ class ImportMappingAdapter(
     private val showSwitches: Boolean = true,
     private val groupSections: List<GroupSection> = emptyList(),
     val selectedGroupUuids: MutableSet<String> = mutableSetOf(),
-) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+) : ListAdapter<ImportMappingAdapter.Row, RecyclerView.ViewHolder>(RowDiffCallback()) {
 
     data class GroupSection(
         val uuid: String,
@@ -28,14 +31,44 @@ class ImportMappingAdapter(
         val apps: List<WebAppSurrogate>,
     )
 
-    private sealed interface Row {
-        data class GroupHeader(val section: GroupSection) : Row
-        data class AppItem(val sectionUuid: String, val app: WebAppSurrogate) : Row
+    sealed interface Row {
+        val rowKey: String
+
+        data class GroupHeader(
+            val section: GroupSection,
+            val expanded: Boolean,
+            val selected: Boolean,
+        ) : Row {
+            override val rowKey: String get() = "g:${section.uuid}"
+        }
+
+        data class AppItem(
+            val sectionUuid: String?,
+            val app: WebAppSurrogate,
+            val selected: Boolean,
+        ) : Row {
+            override val rowKey: String get() = "a:${sectionUuid ?: ""}:${app.uuid}"
+        }
     }
 
     private val expandedGroups = mutableSetOf<String>()
-    private val selectedAppsByGroup = mutableMapOf<String, MutableSet<String>>()
-    private val rows = mutableListOf<Row>()
+
+    init {
+        setHasStableIds(true)
+        if (groupSections.isEmpty()) {
+            selectedGroupUuids.clear()
+        } else {
+            if (selectedGroupUuids.isEmpty()) {
+                selectedGroupUuids.addAll(groupSections.map { it.uuid })
+            }
+            if (selectedUuids.isEmpty()) {
+                groupSections.flatMap { it.apps }.forEach { selectedUuids.add(it.uuid) }
+            }
+        }
+        submit()
+    }
+
+    override fun getItemId(position: Int): Long = StableIdRegistry.idFor(getItem(position).rowKey)
 
     class GroupViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val icon: ImageView = itemView.findViewById(R.id.group_icon)
@@ -69,13 +102,13 @@ class ImportMappingAdapter(
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        if (holder is GroupViewHolder) {
-            bindGroup(holder)
+        val row = getItem(position)
+        if (holder is GroupViewHolder && row is Row.GroupHeader) {
+            bindGroup(holder, row)
             return
         }
-        if (holder !is ViewHolder) return
+        if (holder !is ViewHolder || row !is Row.AppItem) return
 
-        val row = rows.getOrNull(position) as? Row.AppItem ?: return
         val item = row.app
         holder.name.text = item.title.ifBlank { item.baseUrl }
         holder.url.text = displayUrl(item.baseUrl)
@@ -94,27 +127,20 @@ class ImportMappingAdapter(
         }
 
         holder.checkbox.setOnCheckedChangeListener(null)
-        holder.checkbox.isChecked = item.uuid in selectedUuids
+        holder.checkbox.isChecked = row.selected
         if (showSwitches) {
             holder.checkbox.visibility = View.VISIBLE
             holder.checkbox.setOnCheckedChangeListener { _, isChecked ->
+                val section = row.sectionUuid
                 if (isChecked) {
                     selectedUuids.add(item.uuid)
-                    if (row.sectionUuid.isNotEmpty()) {
-                        selectedAppsByGroup.getOrPut(row.sectionUuid) { mutableSetOf() }
-                            .add(item.uuid)
-                        if (row.sectionUuid !in selectedGroupUuids) {
-                            selectedGroupUuids.add(row.sectionUuid)
-                            notifyDataSetChanged()
-                        }
+                    if (section != null && section !in selectedGroupUuids) {
+                        selectedGroupUuids.add(section)
                     }
                 } else {
                     selectedUuids.remove(item.uuid)
-                    if (row.sectionUuid.isNotEmpty()) {
-                        selectedAppsByGroup.getOrPut(row.sectionUuid) { mutableSetOf() }
-                            .remove(item.uuid)
-                    }
                 }
+                submit()
             }
             holder.itemView.setOnClickListener { holder.checkbox.toggle() }
         } else {
@@ -123,36 +149,30 @@ class ImportMappingAdapter(
         }
     }
 
-    override fun getItemCount(): Int {
-        return rows.size
-    }
-
     override fun getItemViewType(position: Int): Int {
-        return when (rows.getOrNull(position)) {
+        return when (getItem(position)) {
             is Row.GroupHeader -> VIEW_TYPE_GROUP
             is Row.AppItem -> VIEW_TYPE_APP
-            null -> VIEW_TYPE_APP
         }
     }
 
     fun isGroupedApp(position: Int): Boolean {
-        val row = rows.getOrNull(position) as? Row.AppItem ?: return false
-        return row.sectionUuid.isNotEmpty()
+        val row = currentList.getOrNull(position) as? Row.AppItem ?: return false
+        return row.sectionUuid != null
     }
 
     fun isExpandedGroupHeader(position: Int): Boolean {
-        val row = rows.getOrNull(position) as? Row.GroupHeader ?: return false
-        return row.section.uuid in expandedGroups && row.section.apps.isNotEmpty()
+        val row = currentList.getOrNull(position) as? Row.GroupHeader ?: return false
+        return row.expanded && row.section.apps.isNotEmpty()
     }
 
     fun isLastGroupedApp(position: Int): Boolean {
         if (!isGroupedApp(position)) return false
-        val next = rows.getOrNull(position + 1)
-        return next == null || next !is Row.AppItem || next.sectionUuid.isEmpty()
+        val next = currentList.getOrNull(position + 1)
+        return next == null || next !is Row.AppItem || next.sectionUuid == null
     }
 
-    private fun bindGroup(holder: GroupViewHolder) {
-        val row = rows.getOrNull(holder.bindingAdapterPosition) as? Row.GroupHeader ?: return
+    private fun bindGroup(holder: GroupViewHolder, row: Row.GroupHeader) {
         val section = row.section
         holder.name.text = section.title
         holder.count.text = holder.itemView.context.resources.getQuantityString(
@@ -169,71 +189,67 @@ class ImportMappingAdapter(
                 LetterIconGenerator.generate(section.title, section.title, ICON_SIZE_PX)
             )
         }
-        val isExpanded = section.uuid in expandedGroups
-        val isSelected = section.uuid in selectedGroupUuids
-        holder.chevron.rotation = if (isExpanded) 180f else 0f
+        holder.chevron.rotation = if (row.expanded) 180f else 0f
         holder.checkbox.setOnCheckedChangeListener(null)
-        holder.checkbox.isChecked = isSelected
+        holder.checkbox.isChecked = row.selected
         holder.checkbox.setOnCheckedChangeListener { _, checked ->
             if (checked) {
                 selectedGroupUuids.add(section.uuid)
-                val selectedInGroup = selectedAppsByGroup.getOrPut(section.uuid) { mutableSetOf() }
-                if (selectedInGroup.isEmpty()) {
-                    section.apps.forEach {
-                        selectedInGroup.add(it.uuid)
-                        selectedUuids.add(it.uuid)
-                    }
-                } else {
-                    selectedInGroup.forEach { selectedUuids.add(it) }
-                }
+                section.apps.forEach { selectedUuids.add(it.uuid) }
             } else {
                 selectedGroupUuids.remove(section.uuid)
-                val selectedInGroup = selectedAppsByGroup.getOrPut(section.uuid) { mutableSetOf() }
-                selectedInGroup.clear()
                 section.apps.forEach { selectedUuids.remove(it.uuid) }
             }
-            notifyDataSetChanged()
+            submit()
         }
         holder.itemView.setOnClickListener {
             if (section.uuid in expandedGroups) expandedGroups.remove(section.uuid)
             else expandedGroups.add(section.uuid)
-            rebuildRows()
-            notifyDataSetChanged()
+            submit()
         }
     }
 
-    private fun rebuildRows() {
-        rows.clear()
+    private fun buildRows(): List<Row> {
         if (groupSections.isEmpty()) {
-            items.forEach { rows.add(Row.AppItem(sectionUuid = "", app = it)) }
-            return
+            return items.map {
+                Row.AppItem(
+                    sectionUuid = null,
+                    app = it,
+                    selected = it.uuid in selectedUuids,
+                )
+            }
         }
+        val out = mutableListOf<Row>()
         groupSections.forEach { section ->
-            rows.add(Row.GroupHeader(section))
+            out.add(
+                Row.GroupHeader(
+                    section = section,
+                    expanded = section.uuid in expandedGroups,
+                    selected = section.uuid in selectedGroupUuids,
+                )
+            )
             if (section.uuid in expandedGroups) {
                 section.apps.forEach { app ->
-                    rows.add(Row.AppItem(sectionUuid = section.uuid, app = app))
+                    out.add(
+                        Row.AppItem(
+                            sectionUuid = section.uuid,
+                            app = app,
+                            selected = app.uuid in selectedUuids,
+                        )
+                    )
                 }
             }
         }
+        return out
     }
 
-    init {
-        if (groupSections.isEmpty()) {
-            selectedGroupUuids.clear()
-            rebuildRows()
-        } else {
-            groupSections.forEach { section ->
-                selectedAppsByGroup[section.uuid] = section.apps.mapTo(mutableSetOf()) { it.uuid }
-            }
-            if (selectedGroupUuids.isEmpty()) {
-                selectedGroupUuids.addAll(groupSections.map { it.uuid })
-            }
-            if (selectedUuids.isEmpty()) {
-                groupSections.flatMap { it.apps }.forEach { selectedUuids.add(it.uuid) }
-            }
-            rebuildRows()
-        }
+    private fun submit() {
+        submitList(buildRows())
+    }
+
+    private class RowDiffCallback : DiffUtil.ItemCallback<Row>() {
+        override fun areItemsTheSame(oldItem: Row, newItem: Row) = oldItem.rowKey == newItem.rowKey
+        override fun areContentsTheSame(oldItem: Row, newItem: Row) = oldItem == newItem
     }
 
     companion object {

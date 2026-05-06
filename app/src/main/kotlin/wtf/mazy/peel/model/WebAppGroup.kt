@@ -1,5 +1,6 @@
 package wtf.mazy.peel.model
 
+import java.util.Objects
 import java.util.UUID
 
 data class WebAppGroup(
@@ -20,4 +21,9 @@ data class WebAppGroup(
         isEphemeralSandbox = other.isEphemeralSandbox,
         settings = other.settings.deepCopy(),
     )
+
+    override val iconStamp: Long = if (iconFile.exists()) iconFile.lastModified() else 0L
+
+    val contentFingerprint: Int
+        get() = Objects.hash(title, isUseContainer, isEphemeralSandbox, iconStamp)
 }

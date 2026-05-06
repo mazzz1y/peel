@@ -44,7 +44,6 @@
     <string name="import_mapping_empty">ਇਸ ਫ਼ਾਈਲ ਵਿੱਚ ਕੋਈ ਐਪ ਨਹੀਂ ਮਿਲੀ।</string>
     <string name="import_count_message">%1$d ਐਪਾਂ ਆਯਾਤ ਕੀਤੀਆਂ</string>
     <string name="n_apps_selected">%1$d ਚੁਣੀਆਂ</string>
-    <string name="share_no_selection">ਘੱਟੋ-ਘੱਟ ਇੱਕ ਐਪ ਚੁਣੋ</string>
     <string name="share_secrets_title">ਗੁਪਤ ਜਾਣਕਾਰੀ ਮਿਲੀ</string>
     <string name="share_secrets_description">ਚੁਣੀਆਂ ਐਪਾਂ ਵਿੱਚ ਕਸਟਮ ਹੈਡਰ ਜਾਂ ਅਧਿਕਾਰ ਪ੍ਰਮਾਣ ਪੱਤਰ ਵਰਗੀ ਗੁਪਤ ਜਾਣਕਾਰੀ ਹੈ। ਸਾਂਝੀ ਫ਼ਾਈਲ ਤੋਂ ਹਟਾਉਣਾ ਹੈ?</string>
     <string name="share_secrets_include">ਰੱਖੋ</string>
@@ -52,6 +51,8 @@
     <string name="remove_apps_title">ਐਪਾਂ ਹਟਾਓ</string>
     <string name="remove_apps_confirm">%1$d ਚੁਣੀਆਂ ਐਪਾਂ ਹਟਾਓ?</string>
     <string name="n_apps_removed">%1$d ਐਪਾਂ ਹਟਾਈਆਂ</string>
+    <string name="remove_groups_confirm">%1$d ਚੁਣੇ ਗਰੁੱਪ ਅਤੇ ਉਨ੍ਹਾਂ ਦੀਆਂ ਐਪਾਂ ਹਟਾਓ?</string>
+    <string name="n_groups_removed">%1$d ਗਰੁੱਪ ਹਟਾਏ</string>
     <string name="export_share_failed">ਸਾਂਝਾ ਕਰਨ ਲਈ ਫ਼ਾਈਲ ਤਿਆਰ ਨਹੀਂ ਹੋ ਸਕੀ</string>
     <string name="backup_save_failed">ਬੈਕਅੱਪ ਸੁਰੱਖਿਅਤ ਨਹੀਂ ਹੋ ਸਕਿਆ</string>
     <string name="backup_saved">ਬੈਕਅੱਪ ਸੁਰੱਖਿਅਤ ਹੋ ਗਿਆ</string>

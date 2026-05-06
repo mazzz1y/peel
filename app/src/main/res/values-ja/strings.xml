@@ -44,7 +44,6 @@
     <string name="import_mapping_empty">このファイルにアプリが見つかりません。</string>
     <string name="import_count_message">%1$d個のアプリをインポートしました</string>
     <string name="n_apps_selected">%1$d件選択</string>
-    <string name="share_no_selection">アプリを1つ以上選択してください</string>
     <string name="share_secrets_title">機密情報を検出</string>
     <string name="share_secrets_description">選択したアプリにはカスタムヘッダーや認証情報などの機密情報が含まれています。共有ファイルから削除しますか？</string>
     <string name="share_secrets_include">保持</string>
@@ -52,6 +51,8 @@
     <string name="remove_apps_title">アプリを削除</string>
     <string name="remove_apps_confirm">選択した%1$d個のアプリを削除しますか？</string>
     <string name="n_apps_removed">%1$d個のアプリを削除しました</string>
+    <string name="remove_groups_confirm">選択した%1$d個のグループとそのアプリを削除しますか？</string>
+    <string name="n_groups_removed">%1$d個のグループを削除しました</string>
     <string name="export_share_failed">共有用のファイルを準備できませんでした</string>
     <string name="backup_save_failed">バックアップを保存できませんでした</string>
     <string name="backup_saved">バックアップを保存しました</string>

@@ -44,7 +44,6 @@
     <string name="import_mapping_empty">Nenhum app encontrado neste arquivo.</string>
     <string name="import_count_message">%1$d app(s) importado(s)</string>
     <string name="n_apps_selected">%1$d selecionado(s)</string>
-    <string name="share_no_selection">Selecione pelo menos um app</string>
     <string name="share_secrets_title">Segredos detectados</string>
     <string name="share_secrets_description">Os apps selecionados contêm segredos como cabeçalhos personalizados ou credenciais de autorização. Removê-los do arquivo compartilhado?</string>
     <string name="share_secrets_include">Manter</string>
@@ -52,6 +51,8 @@
     <string name="remove_apps_title">Remover apps</string>
     <string name="remove_apps_confirm">Remover %1$d app(s) selecionado(s)?</string>
     <string name="n_apps_removed">%1$d app(s) removido(s)</string>
+    <string name="remove_groups_confirm">Remover %1$d grupo(s) selecionado(s) e seus apps?</string>
+    <string name="n_groups_removed">%1$d grupo(s) removido(s)</string>
     <string name="export_share_failed">Não foi possível preparar o arquivo para compartilhamento</string>
     <string name="backup_save_failed">Não foi possível salvar o backup</string>
     <string name="backup_saved">Backup salvo</string>
