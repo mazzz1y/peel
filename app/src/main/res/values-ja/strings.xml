@@ -113,7 +113,9 @@
     <string name="permission_prompt_open_app_intent">%1$s で開きますか?</string>
     <string name="no_app_found">このリンクに対応するアプリが見つかりません</string>
     <string name="create_shortcut">ショートカットを作成</string>
+    <string name="shortcut_already_exists">ショートカットは既に存在します。アイコンを更新しました</string>
     <string name="create">作成</string>
+    <string name="adaptive_icon">アダプティブアイコン</string>
     <string name="fill_background">背景を塗る</string>
     <string name="custom_user_agent">User-Agent を上書き</string>
     <string name="user_agent_hint">User-Agent 文字列</string>

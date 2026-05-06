@@ -72,7 +72,9 @@
     <string name="allow_camera_access">Kamerazugriff erlauben</string>
     <string name="allow_microphone_access">Mikrofonzugriff erlauben</string>
     <string name="create_shortcut">Verknüpfung erstellen</string>
+    <string name="shortcut_already_exists">Verknüpfung existiert bereits, Symbol aktualisiert</string>
     <string name="create">Erstellen</string>
+    <string name="adaptive_icon">Adaptives Symbol</string>
     <string name="fill_background">Hintergrund füllen</string>
     <string name="custom_user_agent">User-Agent überschreiben</string>
     <string name="user_agent_hint">User-Agent-Zeichenkette</string>

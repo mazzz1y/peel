@@ -72,7 +72,9 @@
     <string name="allow_camera_access">Consenti accesso alla fotocamera</string>
     <string name="allow_microphone_access">Consenti accesso al microfono</string>
     <string name="create_shortcut">Crea scorciatoia</string>
+    <string name="shortcut_already_exists">La scorciatoia esiste già, icona aggiornata</string>
     <string name="create">Crea</string>
+    <string name="adaptive_icon">Icona adattiva</string>
     <string name="fill_background">Riempi sfondo</string>
     <string name="custom_user_agent">Sovrascrivi user agent</string>
     <string name="user_agent_hint">Stringa user agent</string>

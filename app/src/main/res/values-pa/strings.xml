@@ -113,7 +113,9 @@
     <string name="permission_prompt_open_app_intent">%1$s ਵਿੱਚ ਖੋਲ੍ਹਣਾ ਹੈ?</string>
     <string name="no_app_found">ਇਸ ਲਿੰਕ ਲਈ ਕੋਈ ਐਪ ਨਹੀਂ ਮਿਲੀ</string>
     <string name="create_shortcut">ਸ਼ਾਰਟਕੱਟ ਬਣਾਓ</string>
+    <string name="shortcut_already_exists">ਸ਼ਾਰਟਕੱਟ ਪਹਿਲਾਂ ਹੀ ਮੌਜੂਦ ਹੈ, ਆਈਕਾਨ ਅੱਪਡੇਟ ਕੀਤਾ ਗਿਆ</string>
     <string name="create">ਬਣਾਓ</string>
+    <string name="adaptive_icon">ਅਨੁਕੂਲ ਆਈਕਾਨ</string>
     <string name="fill_background">ਪਿਛੋਕੜ ਭਰੋ</string>
     <string name="custom_user_agent">User-Agent ਓਵਰਰਾਈਡ ਕਰੋ</string>
     <string name="user_agent_hint">User-Agent ਸਤਰ</string>

@@ -10,7 +10,9 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.Toast
 import androidx.core.content.pm.ShortcutInfoCompat
 import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.core.graphics.createBitmap
@@ -29,6 +31,7 @@ import wtf.mazy.peel.ui.dialog.InputDialogConfig
 import wtf.mazy.peel.ui.dialog.showInputDialogRaw
 import wtf.mazy.peel.util.App
 import wtf.mazy.peel.util.Const
+import wtf.mazy.peel.util.NotificationUtils
 import kotlin.math.min
 
 object ShortcutHelper {
@@ -38,8 +41,15 @@ object ShortcutHelper {
 
     fun createShortcut(owner: IconOwner, activity: Activity) {
         if (!ShortcutManagerCompat.isRequestPinShortcutSupported(activity)) return
-        showCreateDialog(owner, activity) { name, logoSizeDp, fillBackground ->
-            pinShortcut(owner, activity, resolveTitle(name, owner), logoSizeDp, fillBackground)
+        showCreateDialog(owner, activity) { name, logoSizeDp, fillBackground, adaptiveIcon ->
+            pinShortcut(
+                owner,
+                activity,
+                resolveTitle(name, owner),
+                logoSizeDp,
+                fillBackground,
+                adaptiveIcon,
+            )
         }
     }
 
@@ -50,9 +60,10 @@ object ShortcutHelper {
         val saved = ShortcutIconPrefs(context, owner.uuid).load()
         val logoSizeDp = saved?.logoSizeDp ?: LOGO_SIZE
         val fillBackground = saved?.fillBackground ?: false
+        val adaptiveIcon = saved?.adaptiveIcon ?: false
 
         val intent = buildIntent(owner, context)
-        val icon = resolveIcon(owner, logoSizeDp, fillBackground)
+        val icon = resolveIcon(owner, logoSizeDp, fillBackground, adaptiveIcon)
         val title = resolveTitle("", owner)
 
         val updated = buildShortcutInfo(context, owner.uuid, title, icon, intent)
@@ -62,28 +73,49 @@ object ShortcutHelper {
     private fun showCreateDialog(
         owner: IconOwner,
         activity: Activity,
-        onConfirm: (name: String, logoSizeDp: Int, fillBackground: Boolean) -> Unit,
+        onConfirm: (
+            name: String,
+            logoSizeDp: Int,
+            fillBackground: Boolean,
+            adaptiveIcon: Boolean,
+        ) -> Unit,
     ) {
         val hasCustomIcon = owner.loadIcon() != null
         val saved = ShortcutIconPrefs(activity, owner.uuid).load()
         var preview: ImageView? = null
         var slider: Slider? = null
         var fillSwitch: MaterialSwitch?
+        var fillRow: View? = null
+        var circleOutline: View? = null
         var lastPreviewBitmap: Bitmap? = null
         var fillBackground = saved?.fillBackground ?: false
+        var adaptiveIcon = saved?.adaptiveIcon ?: false
         val initialLogoSize = saved?.logoSizeDp ?: LOGO_SIZE
 
         fun renderPreview(logoSizeDp: Int) {
-            val full = buildAdaptiveBitmap(owner, logoSizeDp, fillBackground)
-            val cropped = cropToSafeZone(full)
-            preview?.setImageBitmap(cropped)
-            if (full !== cropped) full.recycle()
-            lastPreviewBitmap?.takeIf { it !== cropped && !it.isRecycled }?.recycle()
-            lastPreviewBitmap = cropped
+            val raw = owner.loadIcon()
+            val display = if (adaptiveIcon || raw == null) {
+                val full = buildAdaptiveBitmap(owner, logoSizeDp, fillBackground)
+                val cropped = cropToSafeZone(full)
+                if (full !== cropped) full.recycle()
+                cropped
+            } else {
+                raw
+            }
+            preview?.setImageBitmap(display)
+            lastPreviewBitmap?.takeIf { it !== display && !it.isRecycled }?.recycle()
+            lastPreviewBitmap = display
         }
 
         fun currentLogoSize(): Int =
             if (hasCustomIcon) slider?.value?.toInt() ?: LOGO_SIZE else LOGO_SIZE
+
+        fun applyAdaptiveVisibility() {
+            val showCustomization = adaptiveIcon && hasCustomIcon
+            slider?.visibility = if (showCustomization) View.VISIBLE else View.GONE
+            fillRow?.visibility = if (showCustomization) View.VISIBLE else View.GONE
+            circleOutline?.visibility = if (adaptiveIcon) View.VISIBLE else View.GONE
+        }
 
         activity.showInputDialogRaw(
             InputDialogConfig(
@@ -95,10 +127,18 @@ object ShortcutHelper {
                 extraContent = { container ->
                     val extras = LayoutInflater.from(container.context)
                         .inflate(R.layout.dialog_shortcut_extras, container, false)
+                            as ViewGroup
                     preview = extras.findViewById(R.id.preview)
                     slider = extras.findViewById(R.id.slider)
                     fillSwitch = extras.findViewById(R.id.switchFillBackground)
-                    val fillRow = extras.findViewById<View>(R.id.fillBackgroundRow)
+                    fillRow = extras.findViewById(R.id.fillBackgroundRow)
+                    circleOutline = extras.findViewById(R.id.previewCircleOutline)
+                    val adaptiveSwitch =
+                        extras.findViewById<MaterialSwitch>(R.id.switchAdaptiveIcon)
+                    val adaptiveRow = extras.findViewById<View>(R.id.adaptiveIconRow)
+                    val previewContainer =
+                        extras.findViewById<View>(R.id.previewContainer)
+
                     if (hasCustomIcon) {
                         slider?.let {
                             val clamped = initialLogoSize.toFloat()
@@ -113,16 +153,39 @@ object ShortcutHelper {
                             fillBackground = isChecked
                             renderPreview(currentLogoSize())
                         }
+                        adaptiveSwitch.isChecked = adaptiveIcon
+                        adaptiveSwitch.setOnCheckedChangeListener { _, isChecked ->
+                            adaptiveIcon = isChecked
+                            if (isChecked) {
+                                fillBackground = false
+                                fillSwitch?.isChecked = false
+                                slider?.let {
+                                    it.value = LOGO_SIZE.toFloat()
+                                        .coerceIn(it.valueFrom, it.valueTo)
+                                }
+                            }
+                            applyAdaptiveVisibility()
+                            renderPreview(currentLogoSize())
+                        }
+                        applyAdaptiveVisibility()
                     } else {
                         slider?.visibility = View.GONE
-                        fillRow.visibility = View.GONE
+                        fillRow?.visibility = View.GONE
+                        adaptiveRow.visibility = View.GONE
                     }
                     renderPreview(currentLogoSize())
-                    container.addView(extras, 0)
+                    extras.removeView(previewContainer)
+                    container.addView(previewContainer, 0)
+                    container.addView(extras)
                 },
             ),
         ) { nameInput, _ ->
-            onConfirm(nameInput.text.toString().trim(), currentLogoSize(), fillBackground)
+            onConfirm(
+                nameInput.text.toString().trim(),
+                currentLogoSize(),
+                fillBackground,
+                adaptiveIcon,
+            )
         }
     }
 
@@ -132,13 +195,31 @@ object ShortcutHelper {
         title: String,
         logoSizeDp: Int = LOGO_SIZE,
         fillBackground: Boolean = false,
+        adaptiveIcon: Boolean = false,
     ) {
-        ShortcutIconPrefs(activity, owner.uuid).save(logoSizeDp, fillBackground)
+        val prefs = ShortcutIconPrefs(activity, owner.uuid)
+        val savedPrefs = prefs.load()
+        val sizeToSave = if (adaptiveIcon) logoSizeDp else (savedPrefs?.logoSizeDp ?: LOGO_SIZE)
+        val fillToSave = if (adaptiveIcon) fillBackground else (savedPrefs?.fillBackground ?: false)
+        prefs.save(sizeToSave, fillToSave, adaptiveIcon)
+
         val intent = buildIntent(owner, activity)
-        val icon = resolveIcon(owner, logoSizeDp, fillBackground)
+        val icon = resolveIcon(owner, logoSizeDp, fillBackground, adaptiveIcon)
         val info = buildShortcutInfo(activity, owner.uuid, title, icon, intent)
-        ShortcutManagerCompat.requestPinShortcut(activity, info, null)
-        ShortcutManagerCompat.updateShortcuts(activity, listOf(info))
+
+        val scManager = activity.getSystemService(ShortcutManager::class.java)
+        val alreadyPinned = scManager.pinnedShortcuts.any { it.id == owner.uuid }
+        if (alreadyPinned) {
+            ShortcutManagerCompat.updateShortcuts(activity, listOf(info))
+            NotificationUtils.showToast(
+                activity,
+                activity.getString(R.string.shortcut_already_exists),
+                Toast.LENGTH_SHORT,
+            )
+        } else {
+            ShortcutManagerCompat.requestPinShortcut(activity, info, null)
+            ShortcutManagerCompat.updateShortcuts(activity, listOf(info))
+        }
     }
 
     private fun resolveTitle(name: String, owner: IconOwner): String =
@@ -148,8 +229,17 @@ object ShortcutHelper {
         owner: IconOwner,
         logoSizeDp: Int = LOGO_SIZE,
         fillBackground: Boolean = false,
-    ): IconCompat =
-        IconCompat.createWithAdaptiveBitmap(buildAdaptiveBitmap(owner, logoSizeDp, fillBackground))
+        adaptiveIcon: Boolean = false,
+    ): IconCompat {
+        val raw = owner.loadIcon()
+        return if (adaptiveIcon || raw == null) {
+            IconCompat.createWithAdaptiveBitmap(
+                buildAdaptiveBitmap(owner, logoSizeDp, fillBackground)
+            )
+        } else {
+            IconCompat.createWithBitmap(raw)
+        }
+    }
 
     private fun buildAdaptiveBitmap(
         owner: IconOwner,

@@ -113,7 +113,9 @@
     <string name="permission_prompt_open_app_intent">%1$s में खोलें?</string>
     <string name="no_app_found">इस लिंक के लिए कोई ऐप नहीं मिला</string>
     <string name="create_shortcut">शॉर्टकट बनाएं</string>
+    <string name="shortcut_already_exists">शॉर्टकट पहले से मौजूद है, आइकन अपडेट किया गया</string>
     <string name="create">बनाएं</string>
+    <string name="adaptive_icon">अनुकूलित आइकन</string>
     <string name="fill_background">पृष्ठभूमि भरें</string>
     <string name="custom_user_agent">User-Agent ओवरराइड करें</string>
     <string name="user_agent_hint">User-Agent स्ट्रिंग</string>

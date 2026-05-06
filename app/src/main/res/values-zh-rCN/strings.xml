@@ -113,7 +113,9 @@
     <string name="permission_prompt_open_app_intent">在 %1$s 中打开？</string>
     <string name="no_app_found">未找到可处理此链接的应用</string>
     <string name="create_shortcut">创建快捷方式</string>
+    <string name="shortcut_already_exists">快捷方式已存在，图标已更新</string>
     <string name="create">创建</string>
+    <string name="adaptive_icon">自适应图标</string>
     <string name="fill_background">填充背景</string>
     <string name="custom_user_agent">覆盖 User-Agent</string>
     <string name="user_agent_hint">User-Agent 字符串</string>

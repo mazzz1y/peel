@@ -2,6 +2,7 @@ package wtf.mazy.peel.shortcut
 
 import android.content.Context
 import android.content.pm.ShortcutManager
+import androidx.core.content.pm.ShortcutManagerCompat
 import wtf.mazy.peel.R
 import wtf.mazy.peel.util.Const
 
@@ -20,6 +21,7 @@ object ShortcutIconUtils {
                     context.getString(R.string.webapp_already_deleted),
                 )
                 ShortcutIconPrefs.clear(uuid)
+                ShortcutManagerCompat.removeLongLivedShortcuts(context, listOf(info.id))
             }
         }
     }

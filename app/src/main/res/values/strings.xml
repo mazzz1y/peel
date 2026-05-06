@@ -127,7 +127,9 @@
     <string name="permission_prompt_open_app_intent">Open in %1$s?</string>
     <string name="no_app_found">No app found to handle this link</string>
     <string name="create_shortcut">Create shortcut</string>
+    <string name="shortcut_already_exists">Shortcut already exists, icon updated</string>
     <string name="create">Create</string>
+    <string name="adaptive_icon">Adaptive icon</string>
     <string name="fill_background">Fill background</string>
     <string name="custom_user_agent">Override User-Agent</string>
     <string name="user_agent_hint">User agent string</string>

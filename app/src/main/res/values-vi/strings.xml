@@ -113,7 +113,9 @@
     <string name="permission_prompt_open_app_intent">Mở trong %1$s?</string>
     <string name="no_app_found">Không tìm thấy ứng dụng cho liên kết này</string>
     <string name="create_shortcut">Tạo lối tắt</string>
+    <string name="shortcut_already_exists">Lối tắt đã tồn tại, biểu tượng đã được cập nhật</string>
     <string name="create">Tạo</string>
+    <string name="adaptive_icon">Biểu tượng thích ứng</string>
     <string name="fill_background">Tô nền</string>
     <string name="custom_user_agent">Ghi đè User-Agent</string>
     <string name="user_agent_hint">Chuỗi User-Agent</string>

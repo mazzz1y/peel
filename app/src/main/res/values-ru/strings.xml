@@ -113,7 +113,9 @@
     <string name="permission_prompt_open_app_intent">Открыть в %1$s?</string>
     <string name="no_app_found">Приложение для этой ссылки не найдено</string>
     <string name="create_shortcut">Создать ярлык</string>
+    <string name="shortcut_already_exists">Ярлык уже существует, иконка обновлена</string>
     <string name="create">Создать</string>
+    <string name="adaptive_icon">Адаптивная иконка</string>
     <string name="fill_background">Залить фон</string>
     <string name="custom_user_agent">Переопределить User-Agent</string>
     <string name="user_agent_hint">Строка User-Agent</string>

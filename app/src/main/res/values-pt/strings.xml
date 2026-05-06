@@ -113,7 +113,9 @@
     <string name="permission_prompt_open_app_intent">Abrir em %1$s?</string>
     <string name="no_app_found">Nenhum app encontrado para este link</string>
     <string name="create_shortcut">Criar atalho</string>
+    <string name="shortcut_already_exists">O atalho já existe, ícone atualizado</string>
     <string name="create">Criar</string>
+    <string name="adaptive_icon">Ícone adaptável</string>
     <string name="fill_background">Preencher fundo</string>
     <string name="custom_user_agent">Substituir user agent</string>
     <string name="user_agent_hint">String do user agent</string>

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:gravity="center_horizontal"
@@ -8,31 +7,48 @@
     android:paddingTop="4dp"
     android:paddingBottom="20dp">
 
-    <com.google.android.material.imageview.ShapeableImageView
-        android:id="@+id/preview"
-        android:layout_width="64dp"
-        android:layout_height="64dp"
-        android:contentDescription="@null"
-        app:shapeAppearanceOverlay="@style/ShapeAppearance.App.CircleImageView" />
+    <FrameLayout
+        android:id="@+id/previewContainer"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="16dp">
 
-    <com.google.android.material.slider.Slider
-        android:id="@+id/slider"
-        style="@style/Widget.Material3.Slider"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:stepSize="4"
-        android:value="48"
-        android:valueFrom="48"
-        android:valueTo="108" />
+        <ImageView
+            android:id="@+id/preview"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:layout_gravity="center"
+            android:contentDescription="@null" />
+
+        <View
+            android:id="@+id/previewCircleOutline"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:layout_gravity="center"
+            android:background="@drawable/shortcut_preview_circle_outline" />
+    </FrameLayout>
+
+    <LinearLayout
+        android:id="@+id/adaptiveIconRow"
+        style="@style/SettingsRow.Inline">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/adaptive_icon"
+            android:textAppearance="?attr/textAppearanceBodyLarge" />
+
+        <com.google.android.material.materialswitch.MaterialSwitch
+            android:id="@+id/switchAdaptiveIcon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/fillBackgroundRow"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:gravity="center_vertical"
-        android:orientation="horizontal">
+        style="@style/SettingsRow.Inline">
 
         <TextView
             android:layout_width="0dp"
@@ -46,4 +62,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
     </LinearLayout>
+
+    <com.google.android.material.slider.Slider
+        android:id="@+id/slider"
+        style="@style/Widget.Material3.Slider"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:stepSize="4"
+        android:value="48"
+        android:valueFrom="48"
+        android:valueTo="108" />
 </LinearLayout>
