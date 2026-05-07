@@ -71,6 +71,9 @@ jobs:
       - name: Build Release APK
         run: ./gradlew assembleRelease -PVERSION_NAME=${{ steps.version.outputs.version }} -PVERSION_CODE=${{ steps.version.outputs.code }}
 
+      - name: Build Release AAB
+        run: ./gradlew bundleRelease -PVERSION_NAME=${{ steps.version.outputs.version }} -PVERSION_CODE=${{ steps.version.outputs.code }}
+
       - name: Prepare release assets
         run: |
           mkdir -p release-assets
@@ -79,6 +82,7 @@ jobs:
             abi="$(basename "$apk" | sed 's/^app-//;s/-release\.apk$//')"
             cp "$apk" "release-assets/peel-${VERSION}-${abi}.apk"
           done
+          cp app/build/outputs/bundle/release/app-release.aab "release-assets/peel-${VERSION}.aab"
           ls -lh release-assets/
 
       - name: Create Release
@@ -92,6 +96,6 @@ jobs:
             --title "${{ steps.version.outputs.name }}" \
             --notes-file "$CHANGELOG" \
             ${{ steps.version.outputs.prerelease == 'true' && '--prerelease' || '' }} \
-            release-assets/*.apk
+            release-assets/*.apk release-assets/*.aab
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
