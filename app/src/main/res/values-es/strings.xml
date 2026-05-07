@@ -1,5 +1,5 @@
 <resources>
-    <string name="action_settings">Configuraciones</string>
+    <string name="action_settings">Configuración</string>
     <string name="global_settings">Ajustes generales</string>
     <string name="save">Guardar</string>
     <string name="open_external_links_in_browser_app">Preguntar por enlaces externos</string>
@@ -87,7 +87,7 @@
     <string name="allow_media_playback_in_background">Permitir la reproducción de medios en segundo plano</string>
     <string name="more">Más</string>
     <string name="cancel">Cancelar</string>
-    <string name="ok">De Acuerdo</string>
+    <string name="ok">Aceptar</string>
     <string name="open">Abrir</string>
     <string name="no_biometric_devices">Su dispositivo no admite la autenticación biométrica</string>
     <string name="no_biometric_keys_enrolled">Su dispositivo admite la autenticación biométrica, pero aún no ha registrado ningún método</string>

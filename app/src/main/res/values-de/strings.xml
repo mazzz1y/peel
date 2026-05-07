@@ -45,7 +45,7 @@
     <string name="importing">Wird importiert…</string>
     <string name="webapp_not_found">Diese Web-App ist nicht mehr verfügbar</string>
     <string name="no_filemanager">Bitte installieren Sie einen Datei-Manager</string>
-    <string name="allow_location_access">Standortzugriff erlauben</string>
+    <string name="allow_location_access">Standort</string>
     <string name="allow_drm_content">DRM-Inhalte erlauben</string>
     <string name="file_download">Datei wird heruntergeladen…</string>
     <string name="download_in_progress">Wird heruntergeladen…</string>
@@ -70,8 +70,8 @@
     <string name="site_not_found">Seite konnte nicht geladen werden</string>
     <string name="icon_not_found">Icon konnte nicht geladen werden</string>
     <string name="keep_screen_awake">Standby verhindern</string>
-    <string name="allow_camera_access">Kamerazugriff erlauben</string>
-    <string name="allow_microphone_access">Mikrofonzugriff erlauben</string>
+    <string name="allow_camera_access">Kamera</string>
+    <string name="allow_microphone_access">Mikrofon</string>
     <string name="create_shortcut">Verknüpfung erstellen</string>
     <string name="shortcut_already_exists">Verknüpfung existiert bereits, Symbol aktualisiert</string>
     <string name="create">Erstellen</string>
@@ -215,7 +215,7 @@
     <string name="setting_requires_peel_restart">Änderungen werden nach einem Neustart von Peel wirksam</string>
     <string name="setting_requires_webapp_restart">Änderungen werden nach einem Neustart der Apps wirksam</string>
     <string name="extensions">Erweiterungen</string>
-    <string name="no_extensions_installed">Keine Erweiterungen installiert.\nTippen Sie auf + um verfügbare Erweiterungen zu durchsuchen.</string>
+    <string name="no_extensions_installed">Keine Erweiterungen installiert.\nTippen Sie auf +, um verfügbare Erweiterungen zu durchsuchen.</string>
     <string name="recommended_extensions">Empfohlene Erweiterungen</string>
     <string name="browse_all_extensions">Alle durchsuchen</string>
     <string name="install_extension_confirm">\"%1$s\" installieren?</string>

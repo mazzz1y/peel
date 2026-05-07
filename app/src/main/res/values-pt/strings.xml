@@ -234,7 +234,7 @@
     <string name="extensions_update_summary_with_failed">%1$d atualizadas, %2$d sem mudanças, %3$d falharam</string>
     <string name="install_extension_confirm_title">Instalar extensão?</string>
     <string name="install_extension_permission_summary">%1$s solicita as seguintes permissões:</string>
-    <string name="install_extension_permissions_header">Permissu00f5es:</string>
+    <string name="install_extension_permissions_header">Permissões:</string>
     <string name="install_extension_origins_header">Acesso a sites:</string>
     <string name="install_extension_no_permissions">Nenhuma permissão especial necessária.</string>
     <string name="update_extension_confirm_title">Atualizar extensão?</string>

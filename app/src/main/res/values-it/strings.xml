@@ -87,7 +87,7 @@
     <string name="enable_access_restriction">Blocco biometrico</string>
     <string name="allow_media_playback_in_background">Consentire la riproduzione dei media in sottofondo</string>
     <string name="more">Altro</string>
-    <string name="cancel">Cancella</string>
+    <string name="cancel">Annulla</string>
     <string name="ok">OK</string>
     <string name="open">Apri</string>
     <string name="no_biometric_devices">Il dispositivo non supporta l\'autenticazione biometrica</string>
@@ -195,7 +195,7 @@
     <string name="no_search_results">Nessuna app trovata</string>
     <string name="import_group_share_description">Il gruppo «%1$s» con %2$s è stato condiviso con te. Tocca il gruppo per espanderlo e scegliere le app da importare:</string>
     <string name="import_group_share_description_multi">%1$s con %2$s sono stati condivisi con te. Tocca ogni gruppo per espanderlo e scegliere le app da importare:</string>
-    <string name="n_groups_selected">%1$d gruppo/i selezionato/i</string>
+    <string name="n_groups_selected">%1$d gruppi selezionati</string>
     <string name="network_privacy">Rete e privacy</string>
     <string name="group_not_found">Il gruppo non è più disponibile</string>
     <string name="icon_dimensions_source">%1$dx%2$d · %3$s</string>
