@@ -1,0 +1,9 @@
+- Choose between legacy and adaptive icons when creating shortcuts
+- Remember icon size and fill options across webapp edits
+- Show description for each extension in the recommended picker
+- Add [GeoLock](https://github.com/mazzz1y/geolock) to the recommended extensions list
+- Reset page permissions (camera, microphone, location) when app is hidden
+- Fix downloads triggered from extension popups
+- Fix image share/download failure for long filenames
+- Translation fixes across multiple languages
+- Update GeckoView to 150.0.20260506140522
