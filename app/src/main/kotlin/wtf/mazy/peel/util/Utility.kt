@@ -80,6 +80,16 @@ object Utility {
     private fun sanitizeFileName(name: String): String {
         val withoutPath = name.substringAfterLast('/').substringAfterLast('\\')
         val scrubbed = withoutPath.replace(unsafeFileNameChars, "_").trim().trim('.')
-        return scrubbed.ifBlank { "download" }
+        return truncateFileName(scrubbed.ifBlank { "download" })
     }
+
+    private fun truncateFileName(name: String): String {
+        if (name.length <= MAX_FILE_NAME_LENGTH) return name
+        val dot = name.lastIndexOf('.')
+        val ext = if (dot in 1 until name.length) name.substring(dot) else ""
+        val baseLimit = (MAX_FILE_NAME_LENGTH - ext.length).coerceAtLeast(1)
+        return name.take(baseLimit) + ext
+    }
+
+    private const val MAX_FILE_NAME_LENGTH = 64
 }
