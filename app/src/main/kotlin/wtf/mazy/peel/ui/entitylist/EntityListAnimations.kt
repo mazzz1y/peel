@@ -6,6 +6,8 @@ import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import wtf.mazy.peel.R
+import wtf.mazy.peel.ui.entitylist.EntityListAnimations.IN_FLIGHT_TAG
+import wtf.mazy.peel.ui.entitylist.EntityListAnimations.PENDING_SWAP_TAG
 import wtf.mazy.peel.util.Const
 
 object EntityListAnimations {

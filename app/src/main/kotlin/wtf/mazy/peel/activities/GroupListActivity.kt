@@ -16,8 +16,6 @@ import wtf.mazy.peel.model.WebAppGroup
 import wtf.mazy.peel.shortcut.ShortcutHelper
 import wtf.mazy.peel.ui.common.LoadingDialogController
 import wtf.mazy.peel.ui.dialog.showSandboxInputDialog
-import wtf.mazy.peel.ui.grouplist.GroupListAdapter
-import wtf.mazy.peel.ui.grouplist.GroupSelectionActions
 import wtf.mazy.peel.ui.entitylist.EntityListActivity
 import wtf.mazy.peel.ui.entitylist.EntityListAdapter
 import wtf.mazy.peel.ui.entitylist.EntityRow
@@ -25,6 +23,8 @@ import wtf.mazy.peel.ui.entitylist.EntityRowActions
 import wtf.mazy.peel.ui.entitylist.EntitySelectionController
 import wtf.mazy.peel.ui.entitylist.SelectionConfig
 import wtf.mazy.peel.ui.entitylist.scheduleEntityDelete
+import wtf.mazy.peel.ui.grouplist.GroupListAdapter
+import wtf.mazy.peel.ui.grouplist.GroupSelectionActions
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.restartApp
 import wtf.mazy.peel.util.withBoldSpan

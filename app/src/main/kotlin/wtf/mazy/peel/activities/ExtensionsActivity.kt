@@ -20,12 +20,12 @@ import wtf.mazy.peel.gecko.GeckoRuntimeProvider
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.ui.PickerDialog
 import wtf.mazy.peel.ui.common.LoadingDialogController
+import wtf.mazy.peel.ui.entitylist.EntityListActivity
+import wtf.mazy.peel.ui.entitylist.EntityListAdapter
 import wtf.mazy.peel.ui.extensions.AmoExtensionsRepository
 import wtf.mazy.peel.ui.extensions.AmoExtensionsRepository.AmoExtension
 import wtf.mazy.peel.ui.extensions.ExtensionAdapter
 import wtf.mazy.peel.ui.extensions.ExtensionIconCache
-import wtf.mazy.peel.ui.entitylist.EntityListActivity
-import wtf.mazy.peel.ui.entitylist.EntityListAdapter
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.NotificationUtils
 import wtf.mazy.peel.util.withBoldSpan

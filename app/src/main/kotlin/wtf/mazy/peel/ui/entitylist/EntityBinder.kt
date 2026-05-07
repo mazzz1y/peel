@@ -10,6 +10,7 @@ interface EntityBinder<T : Any> {
     fun animateIconSwap(host: EntityRowView, item: T, selected: Boolean, checkIconColor: Int) {
         bindIcon(host, item, selected, checkIconColor)
     }
+
     fun contentEquals(a: T, b: T): Boolean
 }
 
