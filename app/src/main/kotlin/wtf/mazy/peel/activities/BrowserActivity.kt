@@ -329,6 +329,8 @@ class BrowserActivity : BaseSessionHost() {
         }
         sessionExtensionActions.dismissPopup()
 
+        permissionDelegate.clearPagePermissions()
+
         biometricController.onStop()
     }
 
