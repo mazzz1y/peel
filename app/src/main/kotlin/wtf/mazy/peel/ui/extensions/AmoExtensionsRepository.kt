@@ -10,12 +10,14 @@ import kotlinx.coroutines.withTimeoutOrNull
 import org.json.JSONObject
 import java.net.HttpURLConnection
 import java.net.URL
+import java.util.Locale
 
 object AmoExtensionsRepository {
 
     data class AmoExtension(
         val guid: String,
         val name: String,
+        val summary: String,
         val iconUrl: String,
         val downloadUrl: String,
         val permissions: List<String>,
@@ -95,11 +97,8 @@ object AmoExtensionsRepository {
 
     private fun parseAmoAddon(obj: JSONObject): AmoExtension? {
         val guid = obj.optString("guid", "").takeIf { it.isNotBlank() } ?: return null
-        val nameObj = obj.optJSONObject("name")
-        val name = nameObj?.optString("en-US")?.takeIf { it.isNotBlank() }
-            ?: nameObj?.keys()?.asSequence()?.firstOrNull()
-                ?.let { nameObj.optString(it) }?.takeIf { it.isNotBlank() }
-            ?: return null
+        val name = pickLocalized(obj.optJSONObject("name")) ?: return null
+        val summary = pickLocalized(obj.optJSONObject("summary")).orEmpty()
         val iconUrl = obj.optString("icon_url", "")
         val currentVersion = obj.optJSONObject("current_version")
         val fileObj = currentVersion?.optJSONObject("file")
@@ -115,6 +114,24 @@ object AmoExtensionsRepository {
                     }
                 }
             } ?: emptyList()
-        return AmoExtension(guid, name, iconUrl, downloadUrl, permissions)
+        return AmoExtension(guid, name, summary, iconUrl, downloadUrl, permissions)
+    }
+
+    private fun pickLocalized(obj: JSONObject?): String? {
+        if (obj == null) return null
+        val locale = Locale.getDefault()
+        val lang = locale.language
+        val country = locale.country
+        val candidates = buildList {
+            if (lang.isNotEmpty() && country.isNotEmpty()) add("$lang-$country")
+            if (lang.isNotEmpty()) add(lang)
+            add("en-US")
+            add("en")
+        }
+        for (key in candidates) {
+            obj.optString(key).takeIf { it.isNotBlank() }?.let { return it }
+        }
+        val firstKey = obj.keys().asSequence().firstOrNull() ?: return null
+        return obj.optString(firstKey).takeIf { it.isNotBlank() }
     }
 }

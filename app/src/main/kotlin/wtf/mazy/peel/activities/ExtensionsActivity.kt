@@ -258,7 +258,12 @@ class ExtensionsActivity : EntityListActivity<WebExtension>() {
             },
         ) { ext, icon, name, detail ->
             name.text = ext.name
-            detail.visibility = View.GONE
+            if (ext.summary.isNotBlank()) {
+                detail.visibility = View.VISIBLE
+                detail.text = ext.summary
+            } else {
+                detail.visibility = View.GONE
+            }
             ExtensionIconCache.bind(icon, this, ext.guid, ext.name)
         }
         (dialog.getButton(AlertDialog.BUTTON_NEUTRAL) as? MaterialButton)
