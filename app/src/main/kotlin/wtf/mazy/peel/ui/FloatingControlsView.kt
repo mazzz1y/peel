@@ -1,5 +1,7 @@
 package wtf.mazy.peel.ui
 
+import android.animation.AnimatorSet
+import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.content.SharedPreferences
 import android.graphics.drawable.GradientDrawable
@@ -92,6 +94,7 @@ class FloatingControlsView(
 
     private var expanded = false
     private var expandDown = false
+    private var scaleAnimator: AnimatorSet? = null
 
     private val gestureHandler = GestureHandler()
 
@@ -108,6 +111,7 @@ class FloatingControlsView(
     }
 
     fun remove() {
+        scaleAnimator?.cancel()
         parent.removeOnLayoutChangeListener(layoutChangeListener)
         allViews.forEach { parent.removeView(it) }
     }
@@ -243,7 +247,15 @@ class FloatingControlsView(
     }
 
     private fun animateTriggerScale(target: Float) {
-        trigger.animate().scaleX(target).scaleY(target).setDuration(SCALE_ANIM_MS).start()
+        scaleAnimator?.cancel()
+        scaleAnimator = AnimatorSet().apply {
+            playTogether(
+                ObjectAnimator.ofFloat(trigger, View.SCALE_X, target),
+                ObjectAnimator.ofFloat(trigger, View.SCALE_Y, target),
+            )
+            duration = SCALE_ANIM_MS
+            start()
+        }
     }
 
     private inner class GestureHandler {
