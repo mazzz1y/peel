@@ -3,3 +3,4 @@
 - Fix stop button on media notification leaving it stuck after closing webapp
 - Fix floating trigger button keeping enlarged scale after drag in expanded state
 - Drop quotation marks around bolded names in confirmation dialogs
+- Add custom Gecko preferences setting
