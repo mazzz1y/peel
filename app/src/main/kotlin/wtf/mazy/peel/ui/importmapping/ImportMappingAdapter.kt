@@ -164,7 +164,10 @@ class ImportMappingAdapter(
                 LetterIconGenerator.generate(section.title, section.title, ICON_SIZE_PX)
             )
         }
-        holder.chevron.rotation = if (row.expanded) 180f else 0f
+        val targetRotation = if (row.expanded) 180f else 0f
+        if (holder.chevron.rotation != targetRotation) {
+            holder.chevron.animate().rotation(targetRotation).setDuration(CHEVRON_ANIM_MS).start()
+        }
         holder.checkbox.setOnCheckedChangeListener(null)
         holder.checkbox.isChecked = row.selected
         holder.checkbox.setOnCheckedChangeListener { _, checked ->
@@ -229,6 +232,7 @@ class ImportMappingAdapter(
 
     companion object {
         private const val ICON_SIZE_PX = 72
+        private const val CHEVRON_ANIM_MS = 200L
         private const val VIEW_TYPE_GROUP = 0
         private const val VIEW_TYPE_APP = 1
         private const val VIEW_TYPE_GROUP_CHILD = 2

@@ -9,6 +9,7 @@ import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.MaterialToolbar
@@ -189,6 +190,7 @@ class ImportActivity : AppCompatActivity() {
             selectedGroupUuids = selectedGroupUuids,
         )
         recycler.layoutManager = LinearLayoutManager(this)
+        (recycler.itemAnimator as? DefaultItemAnimator)?.supportsChangeAnimations = false
         recycler.adapter = mappingAdapter
 
         recycler.visibility = if (isEmpty) View.GONE else View.VISIBLE
