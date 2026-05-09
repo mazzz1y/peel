@@ -69,13 +69,13 @@ class ShareReceiverActivity : AppCompatActivity() {
                 setOnCancelListener { finish() }
                 setOnDismissListener { finish() }
             },
-        ) { webapp, icon, name, detail ->
+        ) { webapp, icon, name, label, _ ->
             name.text = webapp.title
             icon.setImageBitmap(webapp.resolveIcon())
             if (hasGroups) {
-                detail.text = webapp.groupUuid?.let { DataManager.instance.getGroup(it)?.title }
+                label.text = webapp.groupUuid?.let { DataManager.instance.getGroup(it)?.title }
                     ?.let { shortLabel(it) } ?: getString(R.string.ungrouped)
-                detail.visibility = View.VISIBLE
+                label.visibility = View.VISIBLE
             }
         }
     }

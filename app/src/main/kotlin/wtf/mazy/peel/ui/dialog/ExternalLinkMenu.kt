@@ -155,14 +155,14 @@ object ExternalLinkMenu {
                 title = activity.getString(R.string.open_in_peel),
                 items = apps,
                 onPick = { webapp -> BrowserLauncher.launch(webapp, activity, url) },
-            ) { webapp, icon, name, detail ->
+            ) { webapp, icon, name, label, _ ->
                 name.text = webapp.title
                 icon.setImageBitmap(webapp.resolveIcon())
                 if (hasGroups) {
-                    detail.text = webapp.groupUuid?.let { groupTitles[it] }
+                    label.text = webapp.groupUuid?.let { groupTitles[it] }
                         ?.let { shortLabel(it) }
                         ?: activity.getString(R.string.ungrouped)
-                    detail.visibility = View.VISIBLE
+                    label.visibility = View.VISIBLE
                 }
             }
         }

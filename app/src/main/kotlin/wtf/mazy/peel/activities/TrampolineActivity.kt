@@ -1,7 +1,6 @@
 package wtf.mazy.peel.activities
 
 import android.os.Bundle
-import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -67,10 +66,9 @@ class TrampolineActivity : AppCompatActivity() {
                 setOnCancelListener { finish() }
                 setOnDismissListener { finish() }
             },
-        ) { webapp, icon, name, detail ->
+        ) { webapp, icon, name, _, _ ->
             name.text = webapp.title
             icon.setImageBitmap(webapp.resolveIcon())
-            detail.visibility = View.GONE
         }
     }
 }

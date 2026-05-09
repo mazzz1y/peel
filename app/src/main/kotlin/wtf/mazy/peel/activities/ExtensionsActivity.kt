@@ -256,13 +256,11 @@ class ExtensionsActivity : EntityListActivity<WebExtension>() {
                 setNeutralButton(R.string.browse_all_extensions) { _, _ -> openAmo() }
                 setNegativeButton(R.string.cancel, null)
             },
-        ) { ext, icon, name, detail ->
+        ) { ext, icon, name, _, detail ->
             name.text = ext.name
             if (ext.summary.isNotBlank()) {
                 detail.visibility = View.VISIBLE
                 detail.text = ext.summary
-            } else {
-                detail.visibility = View.GONE
             }
             ExtensionIconCache.bind(icon, this, ext.guid, ext.name)
         }

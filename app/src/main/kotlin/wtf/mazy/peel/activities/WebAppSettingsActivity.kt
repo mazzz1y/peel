@@ -390,7 +390,7 @@ class WebAppSettingsActivity :
                     }
                 }
             },
-        ) { candidate, iconView, nameView, detailView ->
+        ) { candidate, iconView, nameView, _, detailView ->
             val title = candidate.title ?: candidate.source
             nameView.text = title
             val bmp = candidate.icon
@@ -407,7 +407,6 @@ class WebAppSettingsActivity :
                 iconView.setImageBitmap(
                     LetterIconGenerator.generate(title, colorSeed, defaultIconSizePx)
                 )
-                detailView.visibility = View.GONE
             }
         }
     }

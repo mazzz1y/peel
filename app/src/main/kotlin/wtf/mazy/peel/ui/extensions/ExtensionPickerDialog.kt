@@ -1,6 +1,5 @@
 package wtf.mazy.peel.ui.extensions
 
-import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import wtf.mazy.peel.R
@@ -24,11 +23,10 @@ object ExtensionPickerDialog {
             items = entries,
             onPick = { it.clickable.click() },
             configure = { setNegativeButton(R.string.cancel, null) },
-        ) { entry, icon, name, detail ->
+        ) { entry, icon, name, _, _ ->
             val actionTitle = entry.display.title?.takeIf { it.isNotBlank() }
             val extName = entry.extension.metaData.name ?: entry.extension.id
             name.text = actionTitle ?: extName
-            detail.visibility = View.GONE
             ExtensionIconCache.bind(icon, activity, entry.extension.id, extName)
         }
     }

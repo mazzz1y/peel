@@ -11,13 +11,14 @@ import wtf.mazy.peel.R
 class PickerRecyclerAdapter<T>(
     private val items: List<T>,
     private val onClick: (T) -> Unit,
-    private val bind: (item: T, icon: ImageView, name: TextView, detail: TextView) -> Unit,
+    private val bind: (item: T, icon: ImageView, name: TextView, label: TextView, detail: TextView) -> Unit,
 ) : RecyclerView.Adapter<PickerRecyclerAdapter.ViewHolder>() {
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val icon: ImageView = itemView.findViewById(R.id.appIcon)
         val name: TextView = itemView.findViewById(R.id.appName)
-        val detail: TextView = itemView.findViewById(R.id.groupName)
+        val label: TextView = itemView.findViewById(R.id.appLabel)
+        val detail: TextView = itemView.findViewById(R.id.appDetail)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -28,7 +29,9 @@ class PickerRecyclerAdapter<T>(
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = items[position]
-        bind(item, holder.icon, holder.name, holder.detail)
+        holder.label.visibility = View.GONE
+        holder.detail.visibility = View.GONE
+        bind(item, holder.icon, holder.name, holder.label, holder.detail)
         holder.itemView.setOnClickListener { onClick(item) }
     }
 

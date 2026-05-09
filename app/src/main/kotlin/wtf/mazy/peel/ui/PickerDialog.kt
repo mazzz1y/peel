@@ -16,7 +16,7 @@ object PickerDialog {
         items: List<T>,
         onPick: (T) -> Unit,
         configure: MaterialAlertDialogBuilder.() -> Unit = {},
-        bind: (T, ImageView, TextView, TextView) -> Unit,
+        bind: (T, ImageView, TextView, TextView, TextView) -> Unit,
     ): AlertDialog {
         val recycler = RecyclerView(activity).apply {
             layoutManager = LinearLayoutManager(activity)
