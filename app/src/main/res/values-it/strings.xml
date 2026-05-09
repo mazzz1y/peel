@@ -144,7 +144,7 @@
     <string name="no_web_apps_available">Nessuna applicazione web disponibile</string>
     <string name="move_to_group">Sposta nel gruppo</string>
     <string name="delete_group_title">Elimina gruppo</string>
-    <string name="delete_group_confirm">Eliminare il gruppo \"%1$s\"?</string>
+    <string name="delete_group_confirm">Eliminare il gruppo %1$s?</string>
     <string name="ungroup_apps_on_delete">Sposta app in \"Senza gruppo\"</string>
     <string name="setting_floating_controls">Controlli flottanti</string>
     <string name="bioprompt_not_recognized">Non riconosciuto. Riprova</string>
@@ -193,7 +193,7 @@
     <string name="download_failed">Download fallito</string>
     <string name="search">Cerca</string>
     <string name="no_search_results">Nessuna app trovata</string>
-    <string name="import_group_share_description">Il gruppo «%1$s» con %2$s è stato condiviso con te. Tocca il gruppo per espanderlo e scegliere le app da importare:</string>
+    <string name="import_group_share_description">Il gruppo %1$s con %2$s è stato condiviso con te. Tocca il gruppo per espanderlo e scegliere le app da importare:</string>
     <string name="import_group_share_description_multi">%1$s con %2$s sono stati condivisi con te. Tocca ogni gruppo per espanderlo e scegliere le app da importare:</string>
     <string name="n_groups_selected">%1$d gruppi selezionati</string>
     <string name="network_privacy">Rete e privacy</string>
@@ -218,10 +218,10 @@
     <string name="no_extensions_installed">Nessuna estensione installata.\nTocca + per sfogliare le estensioni disponibili.</string>
     <string name="recommended_extensions">Estensioni consigliate</string>
     <string name="browse_all_extensions">Sfoglia tutte</string>
-    <string name="install_extension_confirm">Installare \"%1$s\"?</string>
+    <string name="install_extension_confirm">Installare %1$s?</string>
     <string name="extension_permissions">Questa estensione richiede:</string>
     <string name="uninstall_extension">Disinstalla</string>
-    <string name="uninstall_extension_confirm">Disinstallare \"%1$s\"?</string>
+    <string name="uninstall_extension_confirm">Disinstallare %1$s?</string>
     <string name="extension_settings">Impostazioni</string>
     <string name="loading_extension">Caricamento…</string>
     <string name="loading_extensions">Caricamento\u2026</string>

@@ -174,7 +174,7 @@
     <string name="no_web_apps_available">Нет доступных веб-приложений</string>
     <string name="move_to_group">Переместить в группу</string>
     <string name="delete_group_title">Удалить группу</string>
-    <string name="delete_group_confirm">Удалить группу «%1$s»?</string>
+    <string name="delete_group_confirm">Удалить группу %1$s?</string>
     <string name="ungroup_apps_on_delete">Переместить приложения в «Без группы»</string>
 
     <plurals name="group_app_count">
@@ -197,7 +197,7 @@
     <string name="download_failed">Не удалось скачать файл</string>
     <string name="search">Поиск</string>
     <string name="no_search_results">Приложения не найдены</string>
-    <string name="import_group_share_description">Группа «%1$s» с %2$s была отправлена вам. Нажмите на группу, чтобы развернуть и выбрать приложения для импорта:</string>
+    <string name="import_group_share_description">Группа %1$s с %2$s была отправлена вам. Нажмите на группу, чтобы развернуть и выбрать приложения для импорта:</string>
     <string name="import_group_share_description_multi">%1$s с %2$s были отправлены вам. Нажмите на каждую группу, чтобы развернуть и выбрать приложения для импорта:</string>
     <string name="n_groups_selected">Выбрано групп: %1$d</string>
     <string name="network_privacy">Сеть и конфиденциальность</string>
@@ -220,10 +220,10 @@
     <string name="no_extensions_installed">Расширения не установлены.\nНажмите +, чтобы просмотреть доступные расширения.</string>
     <string name="recommended_extensions">Рекомендуемые расширения</string>
     <string name="browse_all_extensions">Показать все</string>
-    <string name="install_extension_confirm">Установить \"%1$s\"?</string>
+    <string name="install_extension_confirm">Установить %1$s?</string>
     <string name="extension_permissions">Это расширение запрашивает:</string>
     <string name="uninstall_extension">Удалить</string>
-    <string name="uninstall_extension_confirm">Удалить \"%1$s\"?</string>
+    <string name="uninstall_extension_confirm">Удалить %1$s?</string>
     <string name="extension_settings">Настройки</string>
     <string name="loading_extension">Загрузка…</string>
     <string name="loading_extensions">Загрузка\u2026</string>

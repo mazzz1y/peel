@@ -174,7 +174,7 @@
     <string name="no_web_apps_available">利用可能なウェブアプリがありません</string>
     <string name="move_to_group">グループに移動</string>
     <string name="delete_group_title">グループを削除</string>
-    <string name="delete_group_confirm">グループ「%1$s」を削除しますか？</string>
+    <string name="delete_group_confirm">グループ %1$s を削除しますか？</string>
     <string name="ungroup_apps_on_delete">アプリを「未分類」に移動</string>
 
     <plurals name="group_app_count">
@@ -194,7 +194,7 @@
     <string name="download_failed">ダウンロードに失敗しました</string>
     <string name="search">検索</string>
     <string name="no_search_results">アプリが見つかりません</string>
-    <string name="import_group_share_description">グループ「%1$s」（%2$s個のアプリ）が共有されました。グループをタップして展開し、インポートするアプリを選択してください：</string>
+    <string name="import_group_share_description">グループ %1$s （%2$s個のアプリ）が共有されました。グループをタップして展開し、インポートするアプリを選択してください：</string>
     <string name="import_group_share_description_multi">%1$s個のグループ（%2$s個のアプリ）が共有されました。各グループをタップして展開し、インポートするアプリを選択してください：</string>
     <string name="n_groups_selected">%1$d個のグループを選択</string>
     <string name="network_privacy">ネットワークとプライバシー</string>
@@ -217,10 +217,10 @@
     <string name="no_extensions_installed">拡張機能がインストールされていません。\n+ をタップして利用可能な拡張機能を参照してください。</string>
     <string name="recommended_extensions">おすすめの拡張機能</string>
     <string name="browse_all_extensions">すべて見る</string>
-    <string name="install_extension_confirm">\"%1$s\" をインストールしますか？</string>
+    <string name="install_extension_confirm">%1$s をインストールしますか？</string>
     <string name="extension_permissions">この拡張機能は以下を要求します：</string>
     <string name="uninstall_extension">アンインストール</string>
-    <string name="uninstall_extension_confirm">\"%1$s\" をアンインストールしますか？</string>
+    <string name="uninstall_extension_confirm">%1$s をアンインストールしますか？</string>
     <string name="extension_settings">設定</string>
     <string name="loading_extension">読み込み中…</string>
     <string name="loading_extensions">読み込み中\u2026</string>

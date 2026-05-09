@@ -174,7 +174,7 @@
     <string name="no_web_apps_available">Không có ứng dụng web nào</string>
     <string name="move_to_group">Chuyển vào nhóm</string>
     <string name="delete_group_title">Xóa nhóm</string>
-    <string name="delete_group_confirm">Xóa nhóm \"%1$s\"?</string>
+    <string name="delete_group_confirm">Xóa nhóm %1$s?</string>
     <string name="ungroup_apps_on_delete">Chuyển ứng dụng sang \"Chưa phân nhóm\"</string>
 
     <plurals name="group_app_count">
@@ -194,7 +194,7 @@
     <string name="download_failed">Tải xuống thất bại</string>
     <string name="search">Tìm kiếm</string>
     <string name="no_search_results">Không tìm thấy ứng dụng</string>
-    <string name="import_group_share_description">Nhóm «%1$s» với %2$s ứng dụng đã được chia sẻ với bạn. Nhấn vào nhóm để mở rộng và chọn ứng dụng để nhập:</string>
+    <string name="import_group_share_description">Nhóm %1$s với %2$s ứng dụng đã được chia sẻ với bạn. Nhấn vào nhóm để mở rộng và chọn ứng dụng để nhập:</string>
     <string name="import_group_share_description_multi">%1$s nhóm với %2$s ứng dụng đã được chia sẻ với bạn. Nhấn vào từng nhóm để mở rộng và chọn ứng dụng để nhập:</string>
     <string name="n_groups_selected">Đã chọn %1$d nhóm</string>
     <string name="network_privacy">Mạng và quyền riêng tư</string>
@@ -217,10 +217,10 @@
     <string name="no_extensions_installed">Chưa cài tiện ích nào.\nNhấn + để duyệt tiện ích có sẵn.</string>
     <string name="recommended_extensions">Tiện ích mở rộng được đề xuất</string>
     <string name="browse_all_extensions">Xem tất cả</string>
-    <string name="install_extension_confirm">Cài đặt \"%1$s\"?</string>
+    <string name="install_extension_confirm">Cài đặt %1$s?</string>
     <string name="extension_permissions">Tiện ích này yêu cầu:</string>
     <string name="uninstall_extension">Gỡ cài đặt</string>
-    <string name="uninstall_extension_confirm">Gỡ cài đặt \"%1$s\"?</string>
+    <string name="uninstall_extension_confirm">Gỡ cài đặt %1$s?</string>
     <string name="extension_settings">Cài đặt</string>
     <string name="loading_extension">Đang tải…</string>
     <string name="loading_extensions">Đang tải\u2026</string>

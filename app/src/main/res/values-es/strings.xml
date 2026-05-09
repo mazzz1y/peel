@@ -143,7 +143,7 @@
     <string name="no_web_apps_available">No hay aplicaciones web disponibles</string>
     <string name="move_to_group">Mover a grupo</string>
     <string name="delete_group_title">Eliminar grupo</string>
-    <string name="delete_group_confirm">&#191;Eliminar grupo \"%1$s\"?</string>
+    <string name="delete_group_confirm">&#191;Eliminar grupo %1$s?</string>
     <string name="ungroup_apps_on_delete">Mover apps a \"Sin grupo\"</string>
     <string name="setting_floating_controls">Controles flotantes</string>
     <string name="bioprompt_not_recognized">No reconocido. Inténtelo de nuevo</string>
@@ -192,7 +192,7 @@
     <string name="download_failed">Error en la descarga</string>
     <string name="search">Buscar</string>
     <string name="no_search_results">No se encontraron apps</string>
-    <string name="import_group_share_description">El grupo «%1$s» con %2$s se compartió contigo. Toca el grupo para expandirlo y elegir las apps a importar:</string>
+    <string name="import_group_share_description">El grupo %1$s con %2$s se compartió contigo. Toca el grupo para expandirlo y elegir las apps a importar:</string>
     <string name="import_group_share_description_multi">%1$s con %2$s se compartieron contigo. Toca cada grupo para expandirlo y elegir las apps a importar:</string>
     <string name="n_groups_selected">%1$d grupo(s) seleccionado(s)</string>
     <string name="network_privacy">Red y privacidad</string>
@@ -217,10 +217,10 @@
     <string name="no_extensions_installed">No hay extensiones instaladas.\nToca + para explorar extensiones disponibles.</string>
     <string name="recommended_extensions">Extensiones recomendadas</string>
     <string name="browse_all_extensions">Ver todas</string>
-    <string name="install_extension_confirm">¿Instalar \"%1$s\"?</string>
+    <string name="install_extension_confirm">¿Instalar %1$s?</string>
     <string name="extension_permissions">Esta extensión requiere:</string>
     <string name="uninstall_extension">Desinstalar</string>
-    <string name="uninstall_extension_confirm">¿Desinstalar \"%1$s\"?</string>
+    <string name="uninstall_extension_confirm">¿Desinstalar %1$s?</string>
     <string name="extension_settings">Configuración</string>
     <string name="loading_extension">Cargando…</string>
     <string name="loading_extensions">Cargando\u2026</string>

@@ -144,7 +144,7 @@
     <string name="no_web_apps_available">Keine Web-Apps verfügbar</string>
     <string name="move_to_group">In Gruppe verschieben</string>
     <string name="delete_group_title">Gruppe löschen</string>
-    <string name="delete_group_confirm">Gruppe \"%1$s\" löschen?</string>
+    <string name="delete_group_confirm">Gruppe %1$s löschen?</string>
     <string name="ungroup_apps_on_delete">Apps zu „Ohne Gruppe" verschieben</string>
     <string name="setting_floating_controls">Schwebende Steuerung</string>
     <string name="bioprompt_not_recognized">Nicht erkannt. Versuchen Sie es erneut</string>
@@ -193,7 +193,7 @@
     <string name="download_failed">Download fehlgeschlagen</string>
     <string name="search">Suchen</string>
     <string name="no_search_results">Keine Apps gefunden</string>
-    <string name="import_group_share_description">Die Gruppe „%1$s" mit %2$s App wurde mit dir geteilt. Tippe auf die Gruppe, um sie zu erweitern und Apps zum Importieren auszuwählen:</string>
+    <string name="import_group_share_description">Die Gruppe %1$s mit %2$s App wurde mit dir geteilt. Tippe auf die Gruppe, um sie zu erweitern und Apps zum Importieren auszuwählen:</string>
     <string name="import_group_share_description_multi">%1$s mit %2$s wurden mit dir geteilt. Tippe auf jede Gruppe, um sie zu erweitern und Apps zum Importieren auszuwählen:</string>
     <string name="n_groups_selected">%1$d Gruppe(n) ausgewählt</string>
     <string name="network_privacy">Netzwerk &amp; Datenschutz</string>
@@ -218,10 +218,10 @@
     <string name="no_extensions_installed">Keine Erweiterungen installiert.\nTippen Sie auf +, um verfügbare Erweiterungen zu durchsuchen.</string>
     <string name="recommended_extensions">Empfohlene Erweiterungen</string>
     <string name="browse_all_extensions">Alle durchsuchen</string>
-    <string name="install_extension_confirm">\"%1$s\" installieren?</string>
+    <string name="install_extension_confirm">%1$s installieren?</string>
     <string name="extension_permissions">Diese Erweiterung benötigt:</string>
     <string name="uninstall_extension">Deinstallieren</string>
-    <string name="uninstall_extension_confirm">\"%1$s\" deinstallieren?</string>
+    <string name="uninstall_extension_confirm">%1$s deinstallieren?</string>
     <string name="extension_settings">Einstellungen</string>
     <string name="loading_extension">Wird geladen…</string>
     <string name="loading_extensions">Wird geladen\u2026</string>

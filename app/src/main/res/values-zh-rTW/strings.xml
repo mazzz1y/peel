@@ -174,7 +174,7 @@
     <string name="no_web_apps_available">沒有可用的網頁應用程式</string>
     <string name="move_to_group">移至群組</string>
     <string name="delete_group_title">刪除群組</string>
-    <string name="delete_group_confirm">刪除群組「%1$s」？</string>
+    <string name="delete_group_confirm">刪除群組 %1$s？</string>
     <string name="ungroup_apps_on_delete">將應用程式移至「未分組」</string>
 
     <plurals name="group_app_count">
@@ -194,7 +194,7 @@
     <string name="download_failed">下載失敗</string>
     <string name="search">搜尋</string>
     <string name="no_search_results">未找到應用程式</string>
-    <string name="import_group_share_description">群組「%1$s」包含 %2$s 個應用程式已與你共享。點擊群組展開並選擇要匯入的應用程式：</string>
+    <string name="import_group_share_description">群組 %1$s 包含 %2$s 個應用程式已與你共享。點擊群組展開並選擇要匯入的應用程式：</string>
     <string name="import_group_share_description_multi">%1$s 個群組包含 %2$s 個應用程式已與你共享。點擊各群組展開並選擇要匯入的應用程式：</string>
     <string name="n_groups_selected">已選擇 %1$d 個群組</string>
     <string name="network_privacy">網路與隱私</string>
@@ -217,10 +217,10 @@
     <string name="no_extensions_installed">未安裝擴充功能。\n點選 + 瀏覽可用的擴充功能。</string>
     <string name="recommended_extensions">推薦擴充功能</string>
     <string name="browse_all_extensions">瀏覽全部</string>
-    <string name="install_extension_confirm">安裝 \"%1$s\"？</string>
+    <string name="install_extension_confirm">安裝 %1$s？</string>
     <string name="extension_permissions">此擴充功能需要：</string>
     <string name="uninstall_extension">解除安裝</string>
-    <string name="uninstall_extension_confirm">解除安裝 \"%1$s\"？</string>
+    <string name="uninstall_extension_confirm">解除安裝 %1$s？</string>
     <string name="extension_settings">設定</string>
     <string name="loading_extension">載入中…</string>
     <string name="loading_extensions">載入中\u2026</string>

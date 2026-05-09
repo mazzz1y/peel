@@ -174,7 +174,7 @@
     <string name="no_web_apps_available">没有可用的网页应用</string>
     <string name="move_to_group">移至分组</string>
     <string name="delete_group_title">删除分组</string>
-    <string name="delete_group_confirm">删除分组"%1$s"？</string>
+    <string name="delete_group_confirm">删除分组 %1$s？</string>
     <string name="ungroup_apps_on_delete">将应用移至「未分组」</string>
 
     <plurals name="group_app_count">
@@ -194,7 +194,7 @@
     <string name="download_failed">下载失败</string>
     <string name="search">搜索</string>
     <string name="no_search_results">未找到应用</string>
-    <string name="import_group_share_description">分组「%1$s」包含 %2$s 个应用已与你共享。点击分组展开并选择要导入的应用：</string>
+    <string name="import_group_share_description">分组 %1$s 包含 %2$s 个应用已与你共享。点击分组展开并选择要导入的应用：</string>
     <string name="import_group_share_description_multi">%1$s 个分组包含 %2$s 个应用已与你共享。点击各分组展开并选择要导入的应用：</string>
     <string name="n_groups_selected">已选择 %1$d 个分组</string>
     <string name="network_privacy">网络与隐私</string>
@@ -217,10 +217,10 @@
     <string name="no_extensions_installed">未安装扩展。\n点击 + 浏览可用扩展。</string>
     <string name="recommended_extensions">推荐扩展</string>
     <string name="browse_all_extensions">浏览全部</string>
-    <string name="install_extension_confirm">安装 \"%1$s\"？</string>
+    <string name="install_extension_confirm">安装 %1$s？</string>
     <string name="extension_permissions">此扩展需要：</string>
     <string name="uninstall_extension">卸载</string>
-    <string name="uninstall_extension_confirm">卸载 \"%1$s\"？</string>
+    <string name="uninstall_extension_confirm">卸载 %1$s？</string>
     <string name="extension_settings">设置</string>
     <string name="loading_extension">加载中…</string>
     <string name="loading_extensions">加载中\u2026</string>

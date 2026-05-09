@@ -41,7 +41,7 @@
     <string name="import_mapping_description_no_groups">%1$s shared with you. Select which apps to import:</string>
     <string name="import_mapping_description_single">An app was shared with you, choose a destination group:</string>
     <string name="import_mapping_description_single_no_groups">An app was shared with you:</string>
-    <string name="import_group_share_description">Group "%1$s" with %2$s was shared with you. Tap the group to expand and choose apps to import:</string>
+    <string name="import_group_share_description">Group %1$s with %2$s was shared with you. Tap the group to expand and choose apps to import:</string>
     <string name="import_group_share_description_multi">%1$s with %2$s were shared with you. Tap each group to expand and choose apps to import:</string>
     <plurals name="import_apps_count">
         <item quantity="one">%d app</item>
@@ -220,7 +220,7 @@
     <string name="no_web_apps_available">No web apps available</string>
     <string name="move_to_group">Move to group</string>
     <string name="delete_group_title">Delete Group</string>
-    <string name="delete_group_confirm">Delete group \"%1$s\"?</string>
+    <string name="delete_group_confirm">Delete group %1$s?</string>
     <string name="ungroup_apps_on_delete">Move apps to \"Ungrouped\"</string>
 
     <plurals name="group_app_count">
@@ -233,10 +233,10 @@
     <string name="no_extensions_installed">No extensions installed</string>
     <string name="recommended_extensions">Recommended extensions</string>
     <string name="browse_all_extensions">Browse all</string>
-    <string name="install_extension_confirm">Install \"%1$s\"?</string>
+    <string name="install_extension_confirm">Install %1$s?</string>
     <string name="extension_permissions">This extension requires:</string>
     <string name="uninstall_extension">Uninstall</string>
-    <string name="uninstall_extension_confirm">Uninstall \"%1$s\"?</string>
+    <string name="uninstall_extension_confirm">Uninstall %1$s?</string>
     <string name="extension_settings">Settings</string>
     <string name="extension_update">Update</string>
     <string name="extension_updated_to">Updated to %1$s</string>

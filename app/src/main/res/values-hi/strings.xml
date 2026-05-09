@@ -174,7 +174,7 @@
     <string name="no_web_apps_available">कोई वेब ऐप उपलब्ध नहीं है</string>
     <string name="move_to_group">समूह में ले जाएं</string>
     <string name="delete_group_title">समूह हटाएं</string>
-    <string name="delete_group_confirm">समूह \"%1$s\" हटाएं?</string>
+    <string name="delete_group_confirm">समूह %1$s हटाएं?</string>
     <string name="ungroup_apps_on_delete">ऐप्स \"बिना समूह\" में ले जाएं</string>
 
     <plurals name="group_app_count">
@@ -195,7 +195,7 @@
     <string name="download_failed">डाउनलोड विफल</string>
     <string name="search">खोजें</string>
     <string name="no_search_results">कोई ऐप नहीं मिला</string>
-    <string name="import_group_share_description">ग्रुप «%1$s» जिसमें %2$s ऐप हैं, आपके साथ साझा किया गया। ग्रुप पर टैप करके विस्तार करें और आयात करने के लिए ऐप चुनें:</string>
+    <string name="import_group_share_description">ग्रुप %1$s जिसमें %2$s ऐप हैं, आपके साथ साझा किया गया। ग्रुप पर टैप करके विस्तार करें और आयात करने के लिए ऐप चुनें:</string>
     <string name="import_group_share_description_multi">%1$s ग्रुप जिनमें %2$s ऐप हैं, आपके साथ साझा किए गए। प्रत्येक ग्रुप पर टैप करके विस्तार करें और आयात करने के लिए ऐप चुनें:</string>
     <string name="n_groups_selected">%1$d ग्रुप चयनित</string>
     <string name="network_privacy">नेटवर्क और गोपनीयता</string>
@@ -218,10 +218,10 @@
     <string name="no_extensions_installed">कोई एक्सटेंशन इंस्टॉल नहीं है।\n+ टैप करके उपलब्ध एक्सटेंशन देखें।</string>
     <string name="recommended_extensions">अनुशंसित एक्सटेंशन</string>
     <string name="browse_all_extensions">सभी ब्राउज़ करें</string>
-    <string name="install_extension_confirm">\"%1$s\" इंस्टॉल करें?</string>
+    <string name="install_extension_confirm">%1$s इंस्टॉल करें?</string>
     <string name="extension_permissions">इस एक्सटेंशन को चाहिए:</string>
     <string name="uninstall_extension">अनइंस्टॉल</string>
-    <string name="uninstall_extension_confirm">\"%1$s\" अनइंस्टॉल करें?</string>
+    <string name="uninstall_extension_confirm">%1$s अनइंस्टॉल करें?</string>
     <string name="extension_settings">सेटिंग्स</string>
     <string name="loading_extension">लोड हो रहा है…</string>
     <string name="loading_extensions">लोड हो रहा है\u2026</string>

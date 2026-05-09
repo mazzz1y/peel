@@ -174,7 +174,7 @@
     <string name="no_web_apps_available">Nenhum web app disponível</string>
     <string name="move_to_group">Mover para grupo</string>
     <string name="delete_group_title">Excluir grupo</string>
-    <string name="delete_group_confirm">Excluir grupo \"%1$s\"?</string>
+    <string name="delete_group_confirm">Excluir grupo %1$s?</string>
     <string name="ungroup_apps_on_delete">Mover apps para \"Sem grupo\"</string>
 
     <plurals name="group_app_count">
@@ -195,7 +195,7 @@
     <string name="download_failed">Falha no download</string>
     <string name="search">Pesquisar</string>
     <string name="no_search_results">Nenhum app encontrado</string>
-    <string name="import_group_share_description">O grupo «%1$s» com %2$s foi compartilhado com você. Toque no grupo para expandir e escolher os apps a importar:</string>
+    <string name="import_group_share_description">O grupo %1$s com %2$s foi compartilhado com você. Toque no grupo para expandir e escolher os apps a importar:</string>
     <string name="import_group_share_description_multi">%1$s com %2$s foram compartilhados com você. Toque em cada grupo para expandir e escolher os apps a importar:</string>
     <string name="n_groups_selected">%1$d grupo(s) selecionado(s)</string>
     <string name="network_privacy">Rede e privacidade</string>
@@ -218,10 +218,10 @@
     <string name="no_extensions_installed">Nenhuma extensão instalada.\nToque em + para explorar extensões disponíveis.</string>
     <string name="recommended_extensions">Extensões recomendadas</string>
     <string name="browse_all_extensions">Ver todas</string>
-    <string name="install_extension_confirm">Instalar \"%1$s\"?</string>
+    <string name="install_extension_confirm">Instalar %1$s?</string>
     <string name="extension_permissions">Esta extensão requer:</string>
     <string name="uninstall_extension">Desinstalar</string>
-    <string name="uninstall_extension_confirm">Desinstalar \"%1$s\"?</string>
+    <string name="uninstall_extension_confirm">Desinstalar %1$s?</string>
     <string name="extension_settings">Configurações</string>
     <string name="loading_extension">Carregando…</string>
     <string name="loading_extensions">Carregando\u2026</string>

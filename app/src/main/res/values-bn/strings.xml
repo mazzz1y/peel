@@ -174,7 +174,7 @@
     <string name="no_web_apps_available">কোনো ওয়েব অ্যাপ উপলব্ধ নেই</string>
     <string name="move_to_group">গ্রুপে সরান</string>
     <string name="delete_group_title">গ্রুপ মুছুন</string>
-    <string name="delete_group_confirm">\"%1$s\" গ্রুপ মুছবেন?</string>
+    <string name="delete_group_confirm">%1$s গ্রুপ মুছবেন?</string>
     <string name="ungroup_apps_on_delete">অ্যাপ \"গ্রুপবিহীন\"-এ সরান</string>
 
     <plurals name="group_app_count">
@@ -195,7 +195,7 @@
     <string name="download_failed">ডাউনলোড ব্যর্থ হয়েছে</string>
     <string name="search">অনুসন্ধান</string>
     <string name="no_search_results">কোনো অ্যাপ পাওয়া যায়নি</string>
-    <string name="import_group_share_description">গ্রুপ «%1$s» যাতে %2$s টি অ্যাপ আছে, আপনার সাথে শেয়ার করা হয়েছে। গ্রুপে ট্যাপ করে প্রসারিত করুন এবং আমদানি করতে অ্যাপ বেছে নিন:</string>
+    <string name="import_group_share_description">গ্রুপ %1$s যাতে %2$s টি অ্যাপ আছে, আপনার সাথে শেয়ার করা হয়েছে। গ্রুপে ট্যাপ করে প্রসারিত করুন এবং আমদানি করতে অ্যাপ বেছে নিন:</string>
     <string name="import_group_share_description_multi">%1$s টি গ্রুপ যাতে %2$s টি অ্যাপ আছে, আপনার সাথে শেয়ার করা হয়েছে। প্রতিটি গ্রুপে ট্যাপ করে প্রসারিত করুন এবং আমদানি করতে অ্যাপ বেছে নিন:</string>
     <string name="n_groups_selected">%1$d টি গ্রুপ নির্বাচিত</string>
     <string name="network_privacy">নেটওয়ার্ক ও গোপনীয়তা</string>
@@ -218,10 +218,10 @@
     <string name="no_extensions_installed">কোনো এক্সটেনশন ইনস্টল করা নেই।\n+ ট্যাপ করে উপলব্ধ এক্সটেনশন দেখুন।</string>
     <string name="recommended_extensions">প্রস্তাবিত এক্সটেনশন</string>
     <string name="browse_all_extensions">সব ব্রাউজ করুন</string>
-    <string name="install_extension_confirm">\"%1$s\" ইনস্টল করবেন?</string>
+    <string name="install_extension_confirm">%1$s ইনস্টল করবেন?</string>
     <string name="extension_permissions">এই এক্সটেনশনের প্রয়োজন:</string>
     <string name="uninstall_extension">আনইনস্টল</string>
-    <string name="uninstall_extension_confirm">\"%1$s\" আনইনস্টল করবেন?</string>
+    <string name="uninstall_extension_confirm">%1$s আনইনস্টল করবেন?</string>
     <string name="extension_settings">সেটিংস</string>
     <string name="loading_extension">লোড হচ্ছে…</string>
     <string name="loading_extensions">লোড হচ্ছে\u2026</string>
