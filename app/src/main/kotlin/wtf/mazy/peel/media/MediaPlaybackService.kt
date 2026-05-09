@@ -11,6 +11,7 @@ import android.os.Build
 import android.os.Looper
 import android.os.PowerManager
 import androidx.annotation.OptIn
+import androidx.core.app.ServiceCompat
 import androidx.core.content.IntentCompat
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
@@ -48,6 +49,7 @@ open class MediaPlaybackService : MediaSessionService() {
     private var trackArtworkBytes: ByteArray? = null
 
     private var playing = false
+    private var stopped = false
     private var hasPrevious = false
     private var hasNext = false
     private var durationMs = 0L
@@ -142,6 +144,7 @@ open class MediaPlaybackService : MediaSessionService() {
         positionMs = 0L
         playbackRate = 1f
         playing = true
+        stopped = false
         hasPrevious = false
         hasNext = false
 
@@ -175,9 +178,13 @@ open class MediaPlaybackService : MediaSessionService() {
     }
 
     private fun stopPlayback() {
+        if (stopped) return
+        stopped = true
         playing = false
         releaseWakeLocks()
-        pauseAllPlayersAndStopSelf()
+        notifyPlayerChanged()
+        ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
+        stopSelf()
     }
 
     private fun notifyPlayerChanged() {
@@ -273,7 +280,7 @@ open class MediaPlaybackService : MediaSessionService() {
             return State.Builder()
                 .setAvailableCommands(commands.build())
                 .setPlayWhenReady(playing, PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST)
-                .setPlaybackState(STATE_READY)
+                .setPlaybackState(if (stopped) STATE_IDLE else STATE_READY)
                 .setContentPositionMs(positionMs)
                 .setPlaylist(
                     ImmutableList.of(
