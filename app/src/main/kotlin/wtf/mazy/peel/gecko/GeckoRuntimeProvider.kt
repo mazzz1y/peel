@@ -321,11 +321,43 @@ object GeckoRuntimeProvider {
             if (defaults.isDisableQuic == true) {
                 add(pref("network.http.http3.enable", false))
             }
+            defaults.customGeckoPrefs?.forEach { (rawKey, rawValue) ->
+                val key = rawKey.trim()
+                val value = rawValue.trim()
+                if (key.isEmpty() || value.isEmpty()) return@forEach
+                if (!PREF_KEY_REGEX.matches(key)) return@forEach
+                add(pref(key, formatPrefValue(value)))
+            }
         }
-        if (prefs.isEmpty()) return null
         val file = File(context.filesDir, GECKO_CONFIG_FILE)
+        if (prefs.isEmpty()) {
+            if (file.exists()) file.delete()
+            return null
+        }
         file.writeText("prefs:\n" + prefs.joinToString("\n") + "\n")
         return file.absolutePath
+    }
+
+    private val PREF_KEY_REGEX = Regex("^[A-Za-z0-9._-]+$")
+
+    private fun formatPrefValue(raw: String): Any {
+        if (raw.length >= 2 && raw.startsWith('"') && raw.endsWith('"')) {
+            return yamlQuote(raw.substring(1, raw.length - 1))
+        }
+        if (raw.equals("true", ignoreCase = true)) return true
+        if (raw.equals("false", ignoreCase = true)) return false
+        raw.toLongOrNull()?.let { return it }
+        raw.toDoubleOrNull()?.takeIf { it.isFinite() }?.let { return it }
+        return yamlQuote(raw)
+    }
+
+    private fun yamlQuote(raw: String): String {
+        val escaped = raw
+            .replace("\\", "\\\\")
+            .replace("\"", "\\\"")
+            .replace("\n", "\\n")
+            .replace("\r", "\\r")
+        return "\"$escaped\""
     }
 
     suspend fun <T> GeckoResult<T>.awaitNullable(): T? = suspendCancellableCoroutine { cont ->

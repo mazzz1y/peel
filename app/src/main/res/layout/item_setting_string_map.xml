@@ -13,20 +13,12 @@
             android:textAppearance="?attr/textAppearanceBodyLarge" />
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnUndo"
+            android:id="@+id/btnAddEntry"
             style="@style/SettingsIconButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:contentDescription="@string/undo"
-            android:visibility="gone"
-            app:icon="@drawable/ic_undo_24dp" />
-
-        <com.google.android.material.materialswitch.MaterialSwitch
-            android:id="@+id/switchSetting"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_marginStart="4dp" />
+            android:contentDescription="@string/add"
+            app:icon="@drawable/ic_add_24dp" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnRemoveOverride"
@@ -34,26 +26,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:contentDescription="@string/remove_override"
+            android:visibility="gone"
             app:icon="@drawable/ic_close_24dp" />
 
     </LinearLayout>
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/layoutStringInput"
-        style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense"
+    <LinearLayout
+        android:id="@+id/containerEntries"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="4dp"
-        android:visibility="gone"
-        app:hintEnabled="false">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/editStringValue"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="textNoSuggestions"
-            android:maxLines="3" />
-
-    </com.google.android.material.textfield.TextInputLayout>
+        android:orientation="vertical" />
 
 </LinearLayout>

@@ -256,4 +256,7 @@
     <string name="update_extension_permission_summary">%1$s is requesting new permissions:</string>
     <string name="install">Install</string>
     <string name="setting_disable_quic">Disable QUIC</string>
+    <string name="setting_custom_gecko_prefs">Custom Gecko preferences</string>
+    <string name="setting_custom_gecko_prefs_key_hint">Name</string>
+    <string name="setting_custom_gecko_prefs_value_hint">Value</string>
 </resources>

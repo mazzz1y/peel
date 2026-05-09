@@ -33,6 +33,7 @@ class SettingsActivity : ToolbarBaseActivity<GlobalSettingsBinding>() {
 
     override fun onPause() {
         super.onPause()
+        editableSettings.settings.sanitize()
         lifecycleScope.launch {
             withContext(NonCancellable) {
                 DataManager.instance.setDefaultSettings(editableSettings)

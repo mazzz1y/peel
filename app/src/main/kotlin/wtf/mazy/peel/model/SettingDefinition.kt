@@ -101,6 +101,15 @@ sealed class SettingDefinition(
         override val allFields
             get() = listOf(primaryField, stringField)
     }
+
+    class StringMapSetting(
+        toggle: SettingField,
+        @StringRes displayNameResId: Int,
+        category: SettingCategory,
+        @param:StringRes val keyHintResId: Int,
+        @param:StringRes val valueHintResId: Int,
+        globalOnly: Boolean = false,
+    ) : SettingDefinition(toggle, displayNameResId, category, globalOnly)
 }
 
 enum class SettingCategory(@param:StringRes val displayNameResId: Int) {
@@ -139,6 +148,7 @@ object ApplyTimingRegistry {
         "isDisableQuic",
         "isUseCustomLocale",
         "customLocale",
+        "customGeckoPrefs",
         "colorScheme",
     )
 
@@ -387,6 +397,14 @@ object SettingRegistry {
                 SettingField(WebAppSettings::isClearCache, false),
                 R.string.clear_cache_after_usage,
                 SettingCategory.ADVANCED,
+                globalOnly = true,
+            ),
+            SettingDefinition.StringMapSetting(
+                SettingField(WebAppSettings::customGeckoPrefs, null),
+                R.string.setting_custom_gecko_prefs,
+                SettingCategory.ADVANCED,
+                keyHintResId = R.string.setting_custom_gecko_prefs_key_hint,
+                valueHintResId = R.string.setting_custom_gecko_prefs_value_hint,
                 globalOnly = true,
             ),
         )

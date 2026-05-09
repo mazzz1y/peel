@@ -5,7 +5,7 @@ import android.os.Bundle
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
-import android.widget.ImageButton
+import com.google.android.material.button.MaterialButton
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -69,8 +69,8 @@ class WebAppSettingsActivity :
     private val switchSandbox get() = binding.root.findViewById<MaterialSwitch>(R.id.switchSandbox)
     private val switchEphemeralSandbox get() = binding.root.findViewById<MaterialSwitch>(R.id.switchEphemeralSandbox)
     private val ephemeralSandboxRow get() = binding.root.findViewById<LinearLayout>(R.id.ephemeralSandboxRow)
-    private val btnClearSandbox get() = binding.root.findViewById<ImageButton>(R.id.btnClearSandbox)
-    private val btnAddOverride get() = binding.root.findViewById<ImageButton>(R.id.btnAddOverride)
+    private val btnClearSandbox get() = binding.root.findViewById<MaterialButton>(R.id.btnClearSandbox)
+    private val btnAddOverride get() = binding.root.findViewById<MaterialButton>(R.id.btnAddOverride)
     private val linearLayoutOverrides get() = binding.root.findViewById<LinearLayout>(R.id.linearLayoutOverrides)
     private val sectionOverrideHeader get() = binding.root.findViewById<View>(R.id.sectionOverrideHeader)
 
@@ -129,6 +129,7 @@ class WebAppSettingsActivity :
     override fun onPause() {
         super.onPause()
         modifiedWebapp?.let { webapp ->
+            webapp.settings.sanitize(asOverride = !isEditingDefaults)
             lifecycleScope.launch {
                 withContext(NonCancellable) {
                     if (isEditingDefaults) {

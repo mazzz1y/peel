@@ -4,14 +4,31 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverter
+import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
+import kotlinx.serialization.json.Json
+
+class StringMapConverter {
+    @TypeConverter
+    fun fromStringMap(map: Map<String, String>?): String? {
+        return map?.let { Json.encodeToString(it) }
+    }
+
+    @TypeConverter
+    fun toStringMap(json: String?): Map<String, String>? {
+        if (json == null) return null
+        return Json.decodeFromString<Map<String, String>>(json)
+    }
+}
 
 @Database(
     entities = [WebAppEntity::class, WebAppGroupEntity::class],
-    version = 14,
+    version = 15,
     exportSchema = true,
 )
+@TypeConverters(StringMapConverter::class)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun webAppDao(): WebAppDao
@@ -169,6 +186,7 @@ abstract class AppDatabase : RoomDatabase() {
             "customUserAgent" to "TEXT",
             "isUseCustomLocale" to "INTEGER",
             "customLocale" to "TEXT",
+            "customGeckoPrefs" to "TEXT",
         )
 
         private val SETTINGS_COLS =
@@ -363,6 +381,13 @@ abstract class AppDatabase : RoomDatabase() {
                 }
             }
 
+        val MIGRATION_14_15 =
+            object : Migration(14, 15) {
+                override fun migrate(db: SupportSQLiteDatabase) {
+                    ensureSettingsColumns(db)
+                }
+            }
+
         fun getInstance(context: Context): AppDatabase {
             return instance
                 ?: synchronized(this) { instance ?: buildDatabase(context).also { instance = it } }
@@ -388,6 +413,7 @@ abstract class AppDatabase : RoomDatabase() {
                     MIGRATION_11_12,
                     MIGRATION_12_13,
                     MIGRATION_13_14,
+                    MIGRATION_14_15,
                 )
                 .allowMainThreadQueries()
                 .build()

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     style="@style/SettingsRow.Inline">
 
     <TextView
@@ -9,15 +10,14 @@
         android:layout_weight="1"
         android:textAppearance="?attr/textAppearanceBodyLarge" />
 
-    <ImageButton
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btnUndo"
+        style="@style/SettingsIconButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="?attr/selectableItemBackgroundBorderless"
         android:contentDescription="@string/undo"
-        android:padding="16dp"
-        android:src="@drawable/ic_undo_24dp"
-        android:visibility="gone" />
+        android:visibility="gone"
+        app:icon="@drawable/ic_undo_24dp" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/txtDropdownValue"
@@ -27,13 +27,12 @@
         android:ellipsize="end"
         android:maxLines="1" />
 
-    <ImageButton
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btnRemoveOverride"
+        style="@style/SettingsIconButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="?attr/selectableItemBackgroundBorderless"
         android:contentDescription="@string/remove_override"
-        android:padding="16dp"
-        android:src="@drawable/ic_close_24dp" />
+        app:icon="@drawable/ic_close_24dp" />
 
 </LinearLayout>

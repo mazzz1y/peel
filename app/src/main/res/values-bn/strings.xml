@@ -249,4 +249,7 @@
         <item quantity="other">%d টি গ্রুপ</item>
     </plurals>
     <string name="setting_disable_quic">QUIC নিষ্ক্রিয় করুন</string>
+    <string name="setting_custom_gecko_prefs">কাস্টম Gecko পছন্দ</string>
+    <string name="setting_custom_gecko_prefs_key_hint">নাম</string>
+    <string name="setting_custom_gecko_prefs_value_hint">মান</string>
 </resources>

@@ -7,7 +7,6 @@ import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.CompoundButton
 import android.widget.EditText
-import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.widget.doAfterTextChanged
@@ -56,6 +55,7 @@ class SettingViewFactory(
             is SettingDefinition.BooleanWithIntSetting -> R.layout.item_setting_boolean_int
             is SettingDefinition.BooleanWithCredentialsSetting -> R.layout.item_setting_boolean_credentials
             is SettingDefinition.BooleanWithStringSetting -> R.layout.item_setting_boolean_string
+            is SettingDefinition.StringMapSetting -> R.layout.item_setting_string_map
         }
         val view = inflater.inflate(layoutRes, container, false)
         bindView(view, setting, settings)
@@ -83,6 +83,8 @@ class SettingViewFactory(
                 setting,
                 settings
             )
+
+            is SettingDefinition.StringMapSetting -> setupStringMap(view, setting, settings)
         }
     }
 
@@ -93,8 +95,8 @@ class SettingViewFactory(
     ) {
         val textName = view.findViewById<TextView>(R.id.textSettingName)
         val switch = view.findViewById<MaterialSwitch>(R.id.switchSetting)
-        val btnRemove = view.findViewById<ImageButton>(R.id.btnRemoveOverride)
-        val btnUndo = view.findViewById<ImageButton>(R.id.btnUndo)
+        val btnRemove = view.findViewById<MaterialButton>(R.id.btnRemoveOverride)
+        val btnUndo = view.findViewById<MaterialButton>(R.id.btnUndo)
 
         resetWidgetListeners(view)
         textName.text = view.context.getString(setting.displayNameResId)
@@ -122,8 +124,8 @@ class SettingViewFactory(
         val context = view.context
         val textName = view.findViewById<TextView>(R.id.textSettingName)
         val txtValue = view.findViewById<MaterialButton>(R.id.txtDropdownValue)
-        val btnRemove = view.findViewById<ImageButton>(R.id.btnRemoveOverride)
-        val btnUndo = view.findViewById<ImageButton>(R.id.btnUndo)
+        val btnRemove = view.findViewById<MaterialButton>(R.id.btnRemoveOverride)
+        val btnUndo = view.findViewById<MaterialButton>(R.id.btnUndo)
 
         textName.text = context.getString(setting.displayNameResId)
         val labels = setting.labels.map { context.getString(it) }
@@ -154,8 +156,8 @@ class SettingViewFactory(
     ) {
         val textName = view.findViewById<TextView>(R.id.textSettingName)
         val switch = view.findViewById<MaterialSwitch>(R.id.switchSetting)
-        val btnRemove = view.findViewById<ImageButton>(R.id.btnRemoveOverride)
-        val btnUndo = view.findViewById<ImageButton>(R.id.btnUndo)
+        val btnRemove = view.findViewById<MaterialButton>(R.id.btnRemoveOverride)
+        val btnUndo = view.findViewById<MaterialButton>(R.id.btnUndo)
         val layout = view.findViewById<View>(R.id.layoutNumberInput)
         val editText = view.findViewById<TextInputEditText>(R.id.editTextNumber)
 
@@ -232,8 +234,8 @@ class SettingViewFactory(
     ) {
         val textName = view.findViewById<TextView>(R.id.textSettingName)
         val switch = view.findViewById<MaterialSwitch>(R.id.switchSetting)
-        val btnRemove = view.findViewById<ImageButton>(R.id.btnRemoveOverride)
-        val btnUndo = view.findViewById<ImageButton>(R.id.btnUndo)
+        val btnRemove = view.findViewById<MaterialButton>(R.id.btnRemoveOverride)
+        val btnUndo = view.findViewById<MaterialButton>(R.id.btnUndo)
         val layout = view.findViewById<View>(R.id.layoutCredentials)
         val editUsername = view.findViewById<TextInputEditText>(R.id.editUsername)
         val editPassword = view.findViewById<TextInputEditText>(R.id.editPassword)
@@ -291,8 +293,8 @@ class SettingViewFactory(
     ) {
         val textName = view.findViewById<TextView>(R.id.textSettingName)
         val switch = view.findViewById<MaterialSwitch>(R.id.switchSetting)
-        val btnRemove = view.findViewById<ImageButton>(R.id.btnRemoveOverride)
-        val btnUndo = view.findViewById<ImageButton>(R.id.btnUndo)
+        val btnRemove = view.findViewById<MaterialButton>(R.id.btnRemoveOverride)
+        val btnUndo = view.findViewById<MaterialButton>(R.id.btnUndo)
         val layout = view.findViewById<View>(R.id.layoutStringInput)
         val editText = view.findViewById<TextInputEditText>(R.id.editStringValue)
 
@@ -336,9 +338,109 @@ class SettingViewFactory(
         }
     }
 
+    @Suppress("UNCHECKED_CAST")
+    private fun getMap(settings: WebAppSettings, key: String): Map<String, String>? =
+        settings.getValue(key) as? Map<String, String>
+
+    private fun setMap(settings: WebAppSettings, key: String, value: Map<String, String>?) {
+        settings.setValue(key, value)
+    }
+
+    private fun setupStringMap(
+        view: View,
+        setting: SettingDefinition.StringMapSetting,
+        settings: WebAppSettings,
+    ) {
+        val textName = view.findViewById<TextView>(R.id.textSettingName)
+        val btnAdd = view.findViewById<MaterialButton>(R.id.btnAddEntry)
+        val btnRemove = view.findViewById<MaterialButton>(R.id.btnRemoveOverride)
+        val container = view.findViewById<LinearLayout>(R.id.containerEntries)
+
+        textName.text = view.context.getString(setting.displayNameResId)
+
+        when (val strategy = buttonStrategy) {
+            is ButtonStrategy.GlobalDefaults -> btnRemove.visibility = View.GONE
+            is ButtonStrategy.Override -> {
+                btnRemove.visibility = View.VISIBLE
+                btnRemove.setOnClickListener {
+                    setMap(settings, setting.key, null)
+                    strategy.onRemove(setting)
+                }
+                if (getMap(settings, setting.key) == null) {
+                    setMap(settings, setting.key, emptyMap())
+                }
+            }
+        }
+
+        container.removeAllViews()
+        getMap(settings, setting.key)?.forEach { (k, v) ->
+            addStringMapEntryView(container, settings, setting, k, v)
+        }
+
+        btnAdd.setOnClickListener {
+            addStringMapEntryView(container, settings, setting, "", "")
+        }
+    }
+
+    private fun addStringMapEntryView(
+        container: LinearLayout,
+        settings: WebAppSettings,
+        setting: SettingDefinition.StringMapSetting,
+        initialKey: String,
+        initialValue: String,
+    ) {
+        val entryView = inflater.inflate(R.layout.item_string_map_entry, container, false)
+        val keyLayout =
+            entryView.findViewById<com.google.android.material.textfield.TextInputLayout>(R.id.layoutEntryKey)
+        val valueLayout =
+            entryView.findViewById<com.google.android.material.textfield.TextInputLayout>(R.id.layoutEntryValue)
+        val editKey = entryView.findViewById<TextInputEditText>(R.id.editEntryKey)
+        val editValue = entryView.findViewById<TextInputEditText>(R.id.editEntryValue)
+        val btnRemoveEntry = entryView.findViewById<MaterialButton>(R.id.btnRemoveEntry)
+
+        val context = entryView.context
+        keyLayout.hint = context.getString(setting.keyHintResId)
+        valueLayout.hint = context.getString(setting.valueHintResId)
+
+        editKey.setText(initialKey)
+        editValue.setText(initialValue)
+
+        var currentKey = initialKey
+
+        editKey.replaceWatcher { s ->
+            val newKey = s?.toString() ?: ""
+            if (newKey == currentKey) return@replaceWatcher
+            val map = getMap(settings, setting.key).orEmpty().toMutableMap()
+            map.remove(currentKey)
+            if (newKey.isNotEmpty()) {
+                map[newKey] = editValue.text?.toString() ?: ""
+            }
+            setMap(settings, setting.key, map)
+            currentKey = newKey
+        }
+
+        editValue.replaceWatcher { s ->
+            val key = editKey.text?.toString() ?: ""
+            if (key.isEmpty()) return@replaceWatcher
+            val map = getMap(settings, setting.key).orEmpty().toMutableMap()
+            map[key] = s?.toString() ?: ""
+            setMap(settings, setting.key, map)
+        }
+
+        btnRemoveEntry.setOnClickListener {
+            val map = getMap(settings, setting.key).orEmpty().toMutableMap()
+            map.remove(currentKey)
+            setMap(settings, setting.key, map)
+            container.removeView(entryView)
+        }
+
+        container.addView(entryView)
+        if (initialKey.isEmpty()) editKey.requestFocus()
+    }
+
     private fun configureButtons(
-        btnRemove: ImageButton,
-        btnUndo: ImageButton,
+        btnRemove: MaterialButton,
+        btnUndo: MaterialButton,
         setting: SettingDefinition,
         settings: WebAppSettings,
         onUndoRefreshUi: () -> Unit,
@@ -362,7 +464,7 @@ class SettingViewFactory(
     }
 
     private fun updateUndoVisibility(
-        btnUndo: ImageButton,
+        btnUndo: MaterialButton,
         setting: SettingDefinition,
         settings: WebAppSettings,
     ) {

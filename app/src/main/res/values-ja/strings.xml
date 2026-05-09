@@ -246,4 +246,7 @@
         <item quantity="other">%d個のグループ</item>
     </plurals>
     <string name="setting_disable_quic">QUIC を無効にする</string>
+    <string name="setting_custom_gecko_prefs">カスタム Gecko 設定</string>
+    <string name="setting_custom_gecko_prefs_key_hint">名前</string>
+    <string name="setting_custom_gecko_prefs_value_hint">値</string>
 </resources>

@@ -41,6 +41,7 @@ data class WebAppSettings(
     var customUserAgent: String? = null,
     var isUseCustomLocale: Boolean? = null,
     var customLocale: String? = null,
+    var customGeckoPrefs: Map<String, String>? = null,
 ) {
     companion object {
         const val PERMISSION_OFF = 0
@@ -167,10 +168,26 @@ data class WebAppSettings(
                     }
                 }
 
+                is SettingDefinition.StringMapSetting -> {
+                    @Suppress("UNCHECKED_CAST")
+                    val map = getValue(setting.key) as? Map<String, String>
+                    val cleaned = map
+                        ?.mapKeys { it.key.trim() }
+                        ?.mapValues { it.value.trim() }
+                        ?.filter { it.key.isNotEmpty() && it.value.isNotEmpty() }
+                    setValue(
+                        setting.key,
+                        when {
+                            cleaned.isNullOrEmpty() -> if (asOverride) null else emptyMap()
+                            else -> cleaned
+                        },
+                    )
+                }
+
                 else -> Unit
             }
         }
     }
 
-    fun deepCopy() = copy()
+    fun deepCopy() = copy(customGeckoPrefs = customGeckoPrefs?.toMap())
 }

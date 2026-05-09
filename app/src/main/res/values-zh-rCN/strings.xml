@@ -246,4 +246,7 @@
         <item quantity="other">%d 个分组</item>
     </plurals>
     <string name="setting_disable_quic">禁用 QUIC</string>
+    <string name="setting_custom_gecko_prefs">自定义 Gecko 首选项</string>
+    <string name="setting_custom_gecko_prefs_key_hint">名称</string>
+    <string name="setting_custom_gecko_prefs_value_hint">值</string>
 </resources>

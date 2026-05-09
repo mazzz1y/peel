@@ -106,4 +106,9 @@
         <item name="android:minHeight">56dp</item>
     </style>
 
+    <style name="SettingsIconButton" parent="Widget.Material3.Button.IconButton">
+        <item name="iconTint">?attr/colorOnSurfaceVariant</item>
+        <item name="iconSize">24dp</item>
+    </style>
+
 </resources>

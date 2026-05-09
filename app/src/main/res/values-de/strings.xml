@@ -249,4 +249,7 @@
         <item quantity="other">%d Gruppen</item>
     </plurals>
     <string name="setting_disable_quic">QUIC deaktivieren</string>
+    <string name="setting_custom_gecko_prefs">Eigene Gecko-Einstellungen</string>
+    <string name="setting_custom_gecko_prefs_key_hint">Name</string>
+    <string name="setting_custom_gecko_prefs_value_hint">Wert</string>
 </resources>

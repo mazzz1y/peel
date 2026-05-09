@@ -255,4 +255,7 @@
         <item quantity="other">%d групп</item>
     </plurals>
     <string name="setting_disable_quic">Отключить QUIC</string>
+    <string name="setting_custom_gecko_prefs">Параметры Gecko</string>
+    <string name="setting_custom_gecko_prefs_key_hint">Имя</string>
+    <string name="setting_custom_gecko_prefs_value_hint">Значение</string>
 </resources>
