@@ -99,3 +99,10 @@ jobs:
             release-assets/*.apk release-assets/*.aab
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Trigger F-Droid update
+        if: steps.version.outputs.prerelease != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.FDROID_DISPATCH_TOKEN }}
+        run: |
+          gh api repos/mazzz1y/fdroid/dispatches -f event_type=app-release
