@@ -194,8 +194,8 @@
     <string name="download_failed">下載失敗</string>
     <string name="search">搜尋</string>
     <string name="no_search_results">未找到應用程式</string>
-    <string name="import_group_share_description">群組 %1$s 包含 %2$s 個應用程式已與你共享。點擊群組展開並選擇要匯入的應用程式：</string>
-    <string name="import_group_share_description_multi">%1$s 個群組包含 %2$s 個應用程式已與你共享。點擊各群組展開並選擇要匯入的應用程式：</string>
+    <string name="import_group_share_description">群組 %1$s 已與你共享。選擇要匯入的應用程式：</string>
+    <string name="import_group_share_description_multi">%1$s已與你共享。選擇要匯入的群組和應用程式：</string>
     <string name="n_groups_selected">已選擇 %1$d 個群組</string>
     <string name="network_privacy">網路與隱私</string>
     <string name="group_not_found">此群組已不可用</string>

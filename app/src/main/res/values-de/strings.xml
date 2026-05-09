@@ -193,8 +193,8 @@
     <string name="download_failed">Download fehlgeschlagen</string>
     <string name="search">Suchen</string>
     <string name="no_search_results">Keine Apps gefunden</string>
-    <string name="import_group_share_description">Die Gruppe %1$s mit %2$s App wurde mit dir geteilt. Tippe auf die Gruppe, um sie zu erweitern und Apps zum Importieren auszuwählen:</string>
-    <string name="import_group_share_description_multi">%1$s mit %2$s wurden mit dir geteilt. Tippe auf jede Gruppe, um sie zu erweitern und Apps zum Importieren auszuwählen:</string>
+    <string name="import_group_share_description">Die Gruppe %1$s wurde mit dir geteilt. Wähle die Apps zum Importieren:</string>
+    <string name="import_group_share_description_multi">%1$s wurden mit dir geteilt. Wähle Gruppen und Apps zum Importieren:</string>
     <string name="n_groups_selected">%1$d Gruppe(n) ausgewählt</string>
     <string name="network_privacy">Netzwerk &amp; Datenschutz</string>
     <string name="group_not_found">Die Gruppe ist nicht mehr verfügbar</string>

@@ -148,20 +148,20 @@ class ImportActivity : AppCompatActivity() {
         }
         if (groupShareMode) {
             val groupsCount = parsed.backupData.groups.size
-            val groupsText =
-                resources.getQuantityString(R.plurals.import_groups_count, groupsCount, groupsCount)
             if (groupsCount > 1) {
+                val groupsText = resources.getQuantityString(
+                    R.plurals.import_groups_count, groupsCount, groupsCount
+                )
                 descriptionView.text = getString(
                     R.string.import_group_share_description_multi,
                     groupsText,
-                    appsText,
                 )
             } else {
                 val groupName = parsed.backupData.groups.firstOrNull()?.title?.ifBlank {
                     getString(R.string.group)
                 } ?: getString(R.string.group)
                 descriptionView.text =
-                    getString(descriptionRes, groupName, appsText).withBoldSpan(groupName)
+                    getString(descriptionRes, groupName).withBoldSpan(groupName)
             }
         } else {
             descriptionView.text = getString(descriptionRes, appsText)

@@ -195,8 +195,8 @@
     <string name="download_failed">ডাউনলোড ব্যর্থ হয়েছে</string>
     <string name="search">অনুসন্ধান</string>
     <string name="no_search_results">কোনো অ্যাপ পাওয়া যায়নি</string>
-    <string name="import_group_share_description">গ্রুপ %1$s যাতে %2$s টি অ্যাপ আছে, আপনার সাথে শেয়ার করা হয়েছে। গ্রুপে ট্যাপ করে প্রসারিত করুন এবং আমদানি করতে অ্যাপ বেছে নিন:</string>
-    <string name="import_group_share_description_multi">%1$s টি গ্রুপ যাতে %2$s টি অ্যাপ আছে, আপনার সাথে শেয়ার করা হয়েছে। প্রতিটি গ্রুপে ট্যাপ করে প্রসারিত করুন এবং আমদানি করতে অ্যাপ বেছে নিন:</string>
+    <string name="import_group_share_description">গ্রুপ %1$s আপনার সাথে শেয়ার করা হয়েছে। আমদানি করতে অ্যাপ বেছে নিন:</string>
+    <string name="import_group_share_description_multi">%1$s আপনার সাথে শেয়ার করা হয়েছে। আমদানি করতে গ্রুপ ও অ্যাপ বেছে নিন:</string>
     <string name="n_groups_selected">%1$d টি গ্রুপ নির্বাচিত</string>
     <string name="network_privacy">নেটওয়ার্ক ও গোপনীয়তা</string>
     <string name="group_not_found">গ্রুপটি আর উপলব্ধ নেই</string>

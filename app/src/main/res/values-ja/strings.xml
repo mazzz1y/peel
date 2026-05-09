@@ -194,8 +194,8 @@
     <string name="download_failed">ダウンロードに失敗しました</string>
     <string name="search">検索</string>
     <string name="no_search_results">アプリが見つかりません</string>
-    <string name="import_group_share_description">グループ %1$s （%2$s個のアプリ）が共有されました。グループをタップして展開し、インポートするアプリを選択してください：</string>
-    <string name="import_group_share_description_multi">%1$s個のグループ（%2$s個のアプリ）が共有されました。各グループをタップして展開し、インポートするアプリを選択してください：</string>
+    <string name="import_group_share_description">グループ %1$s が共有されました。インポートするアプリを選択してください：</string>
+    <string name="import_group_share_description_multi">%1$sが共有されました。インポートするグループとアプリを選択してください：</string>
     <string name="n_groups_selected">%1$d個のグループを選択</string>
     <string name="network_privacy">ネットワークとプライバシー</string>
     <string name="group_not_found">このグループはもう利用できません</string>

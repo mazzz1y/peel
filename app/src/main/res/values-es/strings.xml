@@ -192,8 +192,8 @@
     <string name="download_failed">Error en la descarga</string>
     <string name="search">Buscar</string>
     <string name="no_search_results">No se encontraron apps</string>
-    <string name="import_group_share_description">El grupo %1$s con %2$s se compartió contigo. Toca el grupo para expandirlo y elegir las apps a importar:</string>
-    <string name="import_group_share_description_multi">%1$s con %2$s se compartieron contigo. Toca cada grupo para expandirlo y elegir las apps a importar:</string>
+    <string name="import_group_share_description">El grupo %1$s se compartió contigo. Elige las apps a importar:</string>
+    <string name="import_group_share_description_multi">%1$s se compartieron contigo. Elige los grupos y apps a importar:</string>
     <string name="n_groups_selected">%1$d grupo(s) seleccionado(s)</string>
     <string name="network_privacy">Red y privacidad</string>
     <string name="group_not_found">El grupo ya no está disponible</string>

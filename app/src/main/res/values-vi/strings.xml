@@ -194,8 +194,8 @@
     <string name="download_failed">Tải xuống thất bại</string>
     <string name="search">Tìm kiếm</string>
     <string name="no_search_results">Không tìm thấy ứng dụng</string>
-    <string name="import_group_share_description">Nhóm %1$s với %2$s ứng dụng đã được chia sẻ với bạn. Nhấn vào nhóm để mở rộng và chọn ứng dụng để nhập:</string>
-    <string name="import_group_share_description_multi">%1$s nhóm với %2$s ứng dụng đã được chia sẻ với bạn. Nhấn vào từng nhóm để mở rộng và chọn ứng dụng để nhập:</string>
+    <string name="import_group_share_description">Nhóm %1$s đã được chia sẻ với bạn. Chọn ứng dụng để nhập:</string>
+    <string name="import_group_share_description_multi">%1$s đã được chia sẻ với bạn. Chọn nhóm và ứng dụng để nhập:</string>
     <string name="n_groups_selected">Đã chọn %1$d nhóm</string>
     <string name="network_privacy">Mạng và quyền riêng tư</string>
     <string name="group_not_found">Nhóm này không còn khả dụng</string>

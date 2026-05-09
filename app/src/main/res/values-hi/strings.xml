@@ -195,8 +195,8 @@
     <string name="download_failed">डाउनलोड विफल</string>
     <string name="search">खोजें</string>
     <string name="no_search_results">कोई ऐप नहीं मिला</string>
-    <string name="import_group_share_description">ग्रुप %1$s जिसमें %2$s ऐप हैं, आपके साथ साझा किया गया। ग्रुप पर टैप करके विस्तार करें और आयात करने के लिए ऐप चुनें:</string>
-    <string name="import_group_share_description_multi">%1$s ग्रुप जिनमें %2$s ऐप हैं, आपके साथ साझा किए गए। प्रत्येक ग्रुप पर टैप करके विस्तार करें और आयात करने के लिए ऐप चुनें:</string>
+    <string name="import_group_share_description">ग्रुप %1$s आपके साथ साझा किया गया। आयात करने के लिए ऐप चुनें:</string>
+    <string name="import_group_share_description_multi">%1$s आपके साथ साझा किए गए। आयात करने के लिए ग्रुप और ऐप चुनें:</string>
     <string name="n_groups_selected">%1$d ग्रुप चयनित</string>
     <string name="network_privacy">नेटवर्क और गोपनीयता</string>
     <string name="group_not_found">यह ग्रुप अब उपलब्ध नहीं है</string>

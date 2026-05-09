@@ -41,8 +41,8 @@
     <string name="import_mapping_description_no_groups">%1$s shared with you. Select which apps to import:</string>
     <string name="import_mapping_description_single">An app was shared with you, choose a destination group:</string>
     <string name="import_mapping_description_single_no_groups">An app was shared with you:</string>
-    <string name="import_group_share_description">Group %1$s with %2$s was shared with you. Tap the group to expand and choose apps to import:</string>
-    <string name="import_group_share_description_multi">%1$s with %2$s were shared with you. Tap each group to expand and choose apps to import:</string>
+    <string name="import_group_share_description">Group %1$s was shared with you. Choose apps to import:</string>
+    <string name="import_group_share_description_multi">%1$s were shared with you. Choose groups and apps to import:</string>
     <plurals name="import_apps_count">
         <item quantity="one">%d app</item>
         <item quantity="other">%d apps</item>

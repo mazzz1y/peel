@@ -194,8 +194,8 @@
     <string name="download_failed">ਡਾਊਨਲੋਡ ਅਸਫਲ</string>
     <string name="search">ਖੋਜੋ</string>
     <string name="no_search_results">ਕੋਈ ਐਪ ਨਹੀਂ ਮਿਲੀ</string>
-    <string name="import_group_share_description">ਗਰੁੱਪ %1$s ਜਿਸ ਵਿੱਚ %2$s ਐਪ ਹਨ, ਤੁਹਾਡੇ ਨਾਲ ਸਾਂਝਾ ਕੀਤਾ ਗਿਆ। ਗਰੁੱਪ ਤੇ ਟੈਪ ਕਰੋ ਅਤੇ ਆਯਾਤ ਕਰਨ ਲਈ ਐਪ ਚੁਣੋ:</string>
-    <string name="import_group_share_description_multi">%1$s ਗਰੁੱਪ ਜਿਨ੍ਹਾਂ ਵਿੱਚ %2$s ਐਪ ਹਨ, ਤੁਹਾਡੇ ਨਾਲ ਸਾਂਝੇ ਕੀਤੇ ਗਏ। ਹਰ ਗਰੁੱਪ ਤੇ ਟੈਪ ਕਰੋ ਅਤੇ ਆਯਾਤ ਕਰਨ ਲਈ ਐਪ ਚੁਣੋ:</string>
+    <string name="import_group_share_description">ਗਰੁੱਪ %1$s ਤੁਹਾਡੇ ਨਾਲ ਸਾਂਝਾ ਕੀਤਾ ਗਿਆ। ਆਯਾਤ ਕਰਨ ਲਈ ਐਪ ਚੁਣੋ:</string>
+    <string name="import_group_share_description_multi">%1$s ਤੁਹਾਡੇ ਨਾਲ ਸਾਂਝੇ ਕੀਤੇ ਗਏ। ਆਯਾਤ ਕਰਨ ਲਈ ਗਰੁੱਪ ਅਤੇ ਐਪ ਚੁਣੋ:</string>
     <string name="n_groups_selected">%1$d ਗਰੁੱਪ ਚੁਣੇ ਗਏ</string>
     <string name="network_privacy">ਨੈੱਟਵਰਕ ਅਤੇ ਗੋਪਨੀਅਤਾ</string>
     <string name="group_not_found">ਇਹ ਗਰੁੱਪ ਹੁਣ ਉਪਲਬਧ ਨਹੀਂ ਹੈ</string>

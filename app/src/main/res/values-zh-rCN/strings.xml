@@ -194,8 +194,8 @@
     <string name="download_failed">下载失败</string>
     <string name="search">搜索</string>
     <string name="no_search_results">未找到应用</string>
-    <string name="import_group_share_description">分组 %1$s 包含 %2$s 个应用已与你共享。点击分组展开并选择要导入的应用：</string>
-    <string name="import_group_share_description_multi">%1$s 个分组包含 %2$s 个应用已与你共享。点击各分组展开并选择要导入的应用：</string>
+    <string name="import_group_share_description">分组 %1$s 已与你共享。选择要导入的应用：</string>
+    <string name="import_group_share_description_multi">%1$s已与你共享。选择要导入的分组和应用：</string>
     <string name="n_groups_selected">已选择 %1$d 个分组</string>
     <string name="network_privacy">网络与隐私</string>
     <string name="group_not_found">该分组已不可用</string>

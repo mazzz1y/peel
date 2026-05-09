@@ -197,8 +197,8 @@
     <string name="download_failed">Не удалось скачать файл</string>
     <string name="search">Поиск</string>
     <string name="no_search_results">Приложения не найдены</string>
-    <string name="import_group_share_description">Группа %1$s с %2$s была отправлена вам. Нажмите на группу, чтобы развернуть и выбрать приложения для импорта:</string>
-    <string name="import_group_share_description_multi">%1$s с %2$s были отправлены вам. Нажмите на каждую группу, чтобы развернуть и выбрать приложения для импорта:</string>
+    <string name="import_group_share_description">Вам отправили группу %1$s. Выберите приложения для импорта:</string>
+    <string name="import_group_share_description_multi">Вам отправили %1$s. Выберите группы и приложения для импорта:</string>
     <string name="n_groups_selected">Выбрано групп: %1$d</string>
     <string name="network_privacy">Сеть и конфиденциальность</string>
     <string name="group_not_found">Группа больше недоступна</string>
