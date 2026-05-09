@@ -78,7 +78,7 @@ class ImportMappingAdapter(
         val checkbox: MaterialCheckBox = itemView.findViewById(R.id.group_checkbox)
     }
 
-    class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    class AppViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val icon: ImageView = itemView.findViewById(R.id.app_icon)
         val name: TextView = itemView.findViewById(R.id.app_name)
         val url: TextView = itemView.findViewById(R.id.app_url)
@@ -86,29 +86,34 @@ class ImportMappingAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        val inflater = LayoutInflater.from(parent.context)
         return when (viewType) {
-            VIEW_TYPE_GROUP -> {
-                val view = LayoutInflater.from(parent.context)
-                    .inflate(R.layout.item_import_group_header, parent, false)
-                GroupViewHolder(view)
-            }
+            VIEW_TYPE_GROUP ->
+                GroupViewHolder(inflater.inflate(R.layout.item_import_group_header, parent, false))
 
-            else -> {
-                val view = LayoutInflater.from(parent.context)
-                    .inflate(R.layout.item_import_mapping, parent, false)
-                ViewHolder(view)
-            }
+            VIEW_TYPE_GROUP_CHILD ->
+                AppViewHolder(inflater.inflate(R.layout.item_import_group_child, parent, false))
+
+            else ->
+                AppViewHolder(inflater.inflate(R.layout.item_import_mapping, parent, false))
         }
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        val row = getItem(position)
-        if (holder is GroupViewHolder && row is Row.GroupHeader) {
-            bindGroup(holder, row)
-            return
+        when (val row = getItem(position)) {
+            is Row.GroupHeader -> bindGroup(holder as GroupViewHolder, row)
+            is Row.AppItem -> bindApp(holder as AppViewHolder, row)
         }
-        if (holder !is ViewHolder || row !is Row.AppItem) return
+    }
 
+    override fun getItemViewType(position: Int): Int {
+        return when (val row = getItem(position)) {
+            is Row.GroupHeader -> VIEW_TYPE_GROUP
+            is Row.AppItem -> if (row.sectionUuid != null) VIEW_TYPE_GROUP_CHILD else VIEW_TYPE_APP
+        }
+    }
+
+    private fun bindApp(holder: AppViewHolder, row: Row.AppItem) {
         val item = row.app
         holder.name.text = item.title.ifBlank { item.baseUrl }
         holder.url.text = displayUrl(item.baseUrl)
@@ -117,13 +122,8 @@ class ImportMappingAdapter(
         if (bitmap != null) {
             holder.icon.setImageBitmap(bitmap)
         } else {
-            val fallback =
-                LetterIconGenerator.generate(
-                    item.title.ifBlank { item.baseUrl },
-                    item.title.ifBlank { item.baseUrl },
-                    ICON_SIZE_PX,
-                )
-            holder.icon.setImageBitmap(fallback)
+            val label = item.title.ifBlank { item.baseUrl }
+            holder.icon.setImageBitmap(LetterIconGenerator.generate(label, label, ICON_SIZE_PX))
         }
 
         holder.checkbox.setOnCheckedChangeListener(null)
@@ -134,9 +134,7 @@ class ImportMappingAdapter(
                 val section = row.sectionUuid
                 if (isChecked) {
                     selectedUuids.add(item.uuid)
-                    if (section != null && section !in selectedGroupUuids) {
-                        selectedGroupUuids.add(section)
-                    }
+                    if (section != null) selectedGroupUuids.add(section)
                 } else {
                     selectedUuids.remove(item.uuid)
                 }
@@ -147,29 +145,6 @@ class ImportMappingAdapter(
             holder.checkbox.visibility = View.GONE
             holder.itemView.setOnClickListener(null)
         }
-    }
-
-    override fun getItemViewType(position: Int): Int {
-        return when (getItem(position)) {
-            is Row.GroupHeader -> VIEW_TYPE_GROUP
-            is Row.AppItem -> VIEW_TYPE_APP
-        }
-    }
-
-    fun isGroupedApp(position: Int): Boolean {
-        val row = currentList.getOrNull(position) as? Row.AppItem ?: return false
-        return row.sectionUuid != null
-    }
-
-    fun isExpandedGroupHeader(position: Int): Boolean {
-        val row = currentList.getOrNull(position) as? Row.GroupHeader ?: return false
-        return row.expanded && row.section.apps.isNotEmpty()
-    }
-
-    fun isLastGroupedApp(position: Int): Boolean {
-        if (!isGroupedApp(position)) return false
-        val next = currentList.getOrNull(position + 1)
-        return next == null || next !is Row.AppItem || next.sectionUuid == null
     }
 
     private fun bindGroup(holder: GroupViewHolder, row: Row.GroupHeader) {
@@ -256,5 +231,6 @@ class ImportMappingAdapter(
         private const val ICON_SIZE_PX = 72
         private const val VIEW_TYPE_GROUP = 0
         private const val VIEW_TYPE_APP = 1
+        private const val VIEW_TYPE_GROUP_CHILD = 2
     }
 }

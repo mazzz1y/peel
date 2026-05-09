@@ -19,8 +19,8 @@ import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.ParsedBackup
 import wtf.mazy.peel.model.WebAppGroup
 import wtf.mazy.peel.ui.dialog.showSandboxInputDialog
-import wtf.mazy.peel.ui.importmapping.GroupLineDecoration
 import wtf.mazy.peel.ui.importmapping.ImportMappingAdapter
+import wtf.mazy.peel.util.withBoldSpan
 
 class ImportActivity : AppCompatActivity() {
 
@@ -159,7 +159,8 @@ class ImportActivity : AppCompatActivity() {
                 val groupName = parsed.backupData.groups.firstOrNull()?.title?.ifBlank {
                     getString(R.string.group)
                 } ?: getString(R.string.group)
-                descriptionView.text = getString(descriptionRes, groupName, appsText)
+                descriptionView.text =
+                    getString(descriptionRes, groupName, appsText).withBoldSpan(groupName)
             }
         } else {
             descriptionView.text = getString(descriptionRes, appsText)
@@ -188,7 +189,6 @@ class ImportActivity : AppCompatActivity() {
             selectedGroupUuids = selectedGroupUuids,
         )
         recycler.layoutManager = LinearLayoutManager(this)
-        recycler.addItemDecoration(GroupLineDecoration())
         recycler.adapter = mappingAdapter
 
         recycler.visibility = if (isEmpty) View.GONE else View.VISIBLE
