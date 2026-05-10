@@ -1,0 +1,3 @@
+- Add cert-error bypass page, controlled by a new "Allow cert bypass" setting
+- Fix headless icon fetcher hanging on cert/network errors
+- Add SVG icon support to the headless fetcher
