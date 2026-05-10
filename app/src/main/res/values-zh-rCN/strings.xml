@@ -157,6 +157,7 @@
     <string name="setting_pull_to_refresh">下拉刷新</string>
     <string name="setting_disable_screenshots">禁止截屏</string>
     <string name="setting_always_https">仅 HTTPS</string>
+    <string name="setting_allow_cert_bypass">允许绕过 HTTPS 错误</string>
     <string name="setting_basic_auth">HTTP 授权</string>
     <string name="setting_dynamic_status_bar">动态状态栏</string>
     <string name="setting_floating_controls">浮动控件</string>

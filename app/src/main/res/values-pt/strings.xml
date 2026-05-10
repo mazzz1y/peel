@@ -157,6 +157,7 @@
     <string name="setting_pull_to_refresh">Puxar para atualizar</string>
     <string name="setting_disable_screenshots">Bloquear capturas de tela</string>
     <string name="setting_always_https">Apenas HTTPS</string>
+    <string name="setting_allow_cert_bypass">Permitir ignorar erros HTTPS</string>
     <string name="setting_basic_auth">Autorização HTTP</string>
     <string name="setting_dynamic_status_bar">Barra de status dinâmica</string>
     <string name="setting_floating_controls">Controles flutuantes</string>

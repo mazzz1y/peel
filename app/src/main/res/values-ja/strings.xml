@@ -157,6 +157,7 @@
     <string name="setting_pull_to_refresh">引いて更新</string>
     <string name="setting_disable_screenshots">スクリーンショットをブロック</string>
     <string name="setting_always_https">HTTPSのみ</string>
+    <string name="setting_allow_cert_bypass">HTTPS エラーのバイパスを許可</string>
     <string name="setting_basic_auth">HTTP 認証</string>
     <string name="setting_dynamic_status_bar">ダイナミックステータスバー</string>
     <string name="setting_floating_controls">フローティングコントロール</string>

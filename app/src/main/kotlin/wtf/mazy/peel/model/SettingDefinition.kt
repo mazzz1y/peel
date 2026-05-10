@@ -365,6 +365,11 @@ object SettingRegistry {
                 R.string.allow_javascript,
                 SettingCategory.ADVANCED,
             ),
+            SettingDefinition.BooleanSetting(
+                SettingField(WebAppSettings::isAllowCertBypass, false),
+                R.string.setting_allow_cert_bypass,
+                SettingCategory.ADVANCED,
+            ),
             SettingDefinition.BooleanWithCredentialsSetting(
                 SettingField(WebAppSettings::isUseBasicAuth, false),
                 R.string.setting_basic_auth,

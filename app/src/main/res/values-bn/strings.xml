@@ -157,6 +157,7 @@
     <string name="setting_pull_to_refresh">টেনে রিফ্রেশ</string>
     <string name="setting_disable_screenshots">স্ক্রিনশট ব্লক করুন</string>
     <string name="setting_always_https">শুধু HTTPS</string>
+    <string name="setting_allow_cert_bypass">HTTPS ত্রুটি বাইপাস করার অনুমতি দিন</string>
     <string name="setting_basic_auth">HTTP অনুমোদন</string>
     <string name="setting_dynamic_status_bar">ডায়নামিক স্ট্যাটাস বার</string>
     <string name="setting_floating_controls">ভাসমান নিয়ন্ত্রণ</string>

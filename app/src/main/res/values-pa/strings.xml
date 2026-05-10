@@ -157,6 +157,7 @@
     <string name="setting_pull_to_refresh">ਖਿੱਚ ਕੇ ਤਾਜ਼ਾ ਕਰੋ</string>
     <string name="setting_disable_screenshots">ਸਕ੍ਰੀਨਸ਼ਾਟ ਬਲਾਕ ਕਰੋ</string>
     <string name="setting_always_https">ਸਿਰਫ਼ HTTPS</string>
+    <string name="setting_allow_cert_bypass">HTTPS ਗਲਤੀਆਂ ਬਾਈਪਾਸ ਕਰਨ ਦੀ ਇਜਾਜ਼ਤ ਦਿਓ</string>
     <string name="setting_basic_auth">HTTP ਅਧਿਕਾਰ</string>
     <string name="setting_dynamic_status_bar">ਡਾਇਨਾਮਿਕ ਸਟੇਟਸ ਬਾਰ</string>
     <string name="setting_floating_controls">ਫ਼ਲੋਟਿੰਗ ਕੰਟਰੋਲ</string>

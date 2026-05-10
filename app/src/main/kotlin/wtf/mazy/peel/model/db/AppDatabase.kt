@@ -25,7 +25,7 @@ class StringMapConverter {
 
 @Database(
     entities = [WebAppEntity::class, WebAppGroupEntity::class],
-    version = 15,
+    version = 16,
     exportSchema = true,
 )
 @TypeConverters(StringMapConverter::class)
@@ -187,6 +187,7 @@ abstract class AppDatabase : RoomDatabase() {
             "isUseCustomLocale" to "INTEGER",
             "customLocale" to "TEXT",
             "customGeckoPrefs" to "TEXT",
+            "isAllowCertBypass" to "INTEGER",
         )
 
         private val SETTINGS_COLS =
@@ -388,6 +389,13 @@ abstract class AppDatabase : RoomDatabase() {
                 }
             }
 
+        val MIGRATION_15_16 =
+            object : Migration(15, 16) {
+                override fun migrate(db: SupportSQLiteDatabase) {
+                    ensureSettingsColumns(db)
+                }
+            }
+
         fun getInstance(context: Context): AppDatabase {
             return instance
                 ?: synchronized(this) { instance ?: buildDatabase(context).also { instance = it } }
@@ -414,6 +422,7 @@ abstract class AppDatabase : RoomDatabase() {
                     MIGRATION_12_13,
                     MIGRATION_13_14,
                     MIGRATION_14_15,
+                    MIGRATION_15_16,
                 )
                 .allowMainThreadQueries()
                 .build()

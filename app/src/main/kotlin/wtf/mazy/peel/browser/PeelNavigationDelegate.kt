@@ -87,6 +87,9 @@ class PeelNavigationDelegate(private val host: SessionHost) : GeckoSession.Navig
     ): GeckoResult<String>? {
         if (uri == null || !isBrowserScheme(uri)) return null
         if (isSpuriousError(error)) return null
+        if (isCertError(error) && host.effectiveSettings.isAllowCertBypass == true) {
+            return GeckoResult.fromValue(CertErrorPage.urlFor(uri))
+        }
 
         val description = ERROR_NAMES[error.code] ?: error.message ?: return null
         host.runOnUi { host.showConnectionError(description, uri) }
@@ -262,6 +265,12 @@ class PeelNavigationDelegate(private val host: SessionHost) : GeckoSession.Navig
         private fun isSpuriousError(error: WebRequestError): Boolean =
             error.code == WebRequestError.ERROR_UNKNOWN &&
                     error.category == WebRequestError.ERROR_CATEGORY_UNKNOWN
+
+        private fun isCertError(error: WebRequestError): Boolean =
+            error.category == WebRequestError.ERROR_CATEGORY_SECURITY ||
+                    error.code == WebRequestError.ERROR_SECURITY_BAD_CERT ||
+                    error.code == WebRequestError.ERROR_SECURITY_SSL ||
+                    error.code == WebRequestError.ERROR_BAD_HSTS_CERT
 
         private fun isSameOrigin(base: String, url: String): Boolean {
             val baseHost = base.normalizedHost() ?: return false

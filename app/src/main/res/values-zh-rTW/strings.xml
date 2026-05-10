@@ -157,6 +157,7 @@
     <string name="setting_pull_to_refresh">下拉重新整理</string>
     <string name="setting_disable_screenshots">禁止截圖</string>
     <string name="setting_always_https">僅 HTTPS</string>
+    <string name="setting_allow_cert_bypass">允許略過 HTTPS 錯誤</string>
     <string name="setting_basic_auth">HTTP 授權</string>
     <string name="setting_dynamic_status_bar">動態狀態列</string>
     <string name="setting_floating_controls">浮動控制項</string>

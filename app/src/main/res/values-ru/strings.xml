@@ -157,6 +157,7 @@
     <string name="setting_pull_to_refresh">Обновление свайпом вниз</string>
     <string name="setting_disable_screenshots">Блокировать скриншоты</string>
     <string name="setting_always_https">Только HTTPS</string>
+    <string name="setting_allow_cert_bypass">Разрешать обход ошибок HTTPS</string>
     <string name="setting_basic_auth">HTTP авторизация</string>
     <string name="setting_dynamic_status_bar">Динамическая строка состояния</string>
     <string name="setting_floating_controls">Плавающие кнопки</string>

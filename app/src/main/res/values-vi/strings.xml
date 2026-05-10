@@ -157,6 +157,7 @@
     <string name="setting_pull_to_refresh">Kéo xuống để làm mới</string>
     <string name="setting_disable_screenshots">Chặn chụp màn hình</string>
     <string name="setting_always_https">Chỉ HTTPS</string>
+    <string name="setting_allow_cert_bypass">Cho phép bỏ qua lỗi HTTPS</string>
     <string name="setting_basic_auth">Xác thực HTTP</string>
     <string name="setting_dynamic_status_bar">Thanh trạng thái động</string>
     <string name="setting_floating_controls">Điều khiển nổi</string>

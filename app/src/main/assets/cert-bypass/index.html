@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<!-- Query params:
+       host - hostname (display only)
+       url  - the original URL the user was navigating to -->
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title></title>
+<style>
+:root {
+  color-scheme: light dark;
+  /* Material 3 color tokens */
+  --md-sys-color-surface: light-dark(#fff, #1c1b1f);
+  --md-sys-color-on-surface: light-dark(#1c1b1f, #e6e1e5);
+  --md-sys-color-on-surface-variant: light-dark(#49454f, #cac4d0);
+  --md-sys-color-primary: light-dark(#0061e0, #a8c8ff);
+  --md-sys-color-on-primary: light-dark(#ffffff, #003062);
+  --md-sys-color-outline: light-dark(#79747e, #938f99);
+  --md-sys-color-surface-variant: light-dark(#f3edf7, #2b2930);
+  --md-sys-color-error: light-dark(#b3261e, #ffb4ab);
+  --md-sys-color-on-error: light-dark(#ffffff, #690005);
+
+  /* Material 3 type scale */
+  --md-sys-typescale-headline-small: 400 1.5rem/2rem "Roboto", system-ui, sans-serif;
+  --md-sys-typescale-body-medium: 400 0.875rem/1.25rem "Roboto", system-ui, sans-serif;
+  --md-sys-typescale-body-small: 400 0.75rem/1rem "Roboto", system-ui, sans-serif;
+  --md-sys-typescale-label-large: 500 0.875rem/1.25rem "Roboto", system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { margin: 0; padding: 0; }
+
+body {
+  background: var(--md-sys-color-surface);
+  color: var(--md-sys-color-on-surface);
+  font: var(--md-sys-typescale-body-medium);
+  min-height: 100dvh;
+  padding:
+    max(env(safe-area-inset-top), 1.5rem)
+    max(env(safe-area-inset-right), 1.5rem)
+    max(env(safe-area-inset-bottom), 1.5rem)
+    max(env(safe-area-inset-left), 1.5rem);
+  display: grid;
+  place-items: center;
+}
+
+main {
+  width: 100%;
+  max-width: 22.5rem;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+}
+
+.warn-icon {
+  font-size: 2.5rem;
+  line-height: 1;
+  margin: 0 auto 1rem;
+  display: block;
+}
+
+h1 {
+  font: var(--md-sys-typescale-headline-small);
+  margin: 0 0 1rem;
+  color: var(--md-sys-color-error);
+}
+
+p {
+  margin: 0 0 1rem;
+  color: var(--md-sys-color-on-surface);
+  font: var(--md-sys-typescale-body-medium);
+}
+
+.host {
+  color: var(--md-sys-color-on-surface);
+  font-weight: 700;
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+.tech {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0.5rem 0 1.5rem;
+  padding: 1rem;
+  min-height: 5rem;
+  border-radius: 1rem;
+  background: var(--md-sys-color-surface-variant);
+  color: var(--md-sys-color-on-surface-variant);
+  font-family: ui-monospace, "Roboto Mono", monospace;
+  font-size: 0.8125rem;
+  line-height: 1.25rem;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: normal;
+  text-align: center;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0;
+  align-items: stretch;
+}
+.actions .md-button { width: 100%; }
+
+.md-button {
+  position: relative;
+  display: inline-flex; align-items: center; justify-content: center;
+  isolation: isolate;
+  appearance: none;
+  box-sizing: border-box;
+  height: 2.875rem;
+  padding: 0 1.5rem;
+  min-width: 4rem;
+  border: none;
+  border-radius: 9999px;
+  font: var(--md-sys-typescale-label-large);
+  letter-spacing: 0.00625em;
+  text-align: center;
+  white-space: nowrap;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: box-shadow 150ms cubic-bezier(.2,0,0,1);
+}
+.md-button::before {
+  content: ""; position: absolute; inset: 0;
+  border-radius: inherit;
+  background: currentColor; opacity: 0;
+  pointer-events: none;
+  transition: opacity 150ms cubic-bezier(.2,0,0,1);
+}
+.md-button:hover::before { opacity: 0.08; }
+.md-button:focus-visible::before { opacity: 0.10; }
+.md-button:active::before { opacity: 0.10; }
+.md-button:focus { outline: none; }
+.md-button:focus-visible { outline: 3px solid var(--md-sys-color-primary); outline-offset: 2px; }
+
+.md-button--filled {
+  background: var(--md-sys-color-primary);
+  color: var(--md-sys-color-on-primary);
+}
+.md-button--outlined {
+  background: transparent;
+  color: var(--md-sys-color-primary);
+  border: 2px solid var(--md-sys-color-primary);
+}
+
+.md-button:disabled,
+.md-button[aria-disabled="true"] {
+  cursor: default; pointer-events: none;
+}
+.md-button--filled:disabled {
+  background: color-mix(in srgb, var(--md-sys-color-on-surface) 12%, transparent);
+  color: color-mix(in srgb, var(--md-sys-color-on-surface) 38%, transparent);
+}
+.md-button--outlined:disabled {
+  color: color-mix(in srgb, var(--md-sys-color-on-surface) 38%, transparent);
+  border-color: color-mix(in srgb, var(--md-sys-color-on-surface) 12%, transparent);
+}
+/* Compensate for thicker outline so heights match the filled button */
+.md-button--outlined { height: 2.875rem; }
+
+.md-button.hold { overflow: hidden; touch-action: manipulation; -webkit-touch-callout: none; }
+.md-button .hold-fill {
+  position: absolute; inset: 0;
+  background: var(--md-sys-color-error); opacity: 0.16;
+  transform: scaleX(0); transform-origin: left center;
+  transition: transform 0s linear;
+  pointer-events: none;
+  z-index: 0;
+}
+.md-button.holding {
+  color: var(--md-sys-color-error);
+  border-color: var(--md-sys-color-error);
+}
+.md-button.holding .hold-fill {
+  transform: scaleX(1);
+  transition: transform var(--hold-duration, 2s) linear;
+}
+.md-button .hold-label { position: relative; z-index: 1; }
+
+.note {
+  margin: 1rem 0 0;
+  font: var(--md-sys-typescale-body-small);
+  color: var(--md-sys-color-on-surface-variant);
+}
+
+/* Tablet / desktop: keep stacked column layout but cap width and tighten spacing */
+@media (min-width: 600px) {
+  main { max-width: 25rem; }
+}
+</style>
+</head>
+<body>
+<main>
+  <div class="warn-icon" aria-hidden="true">⚠️</div>
+  <h1 id="title"></h1>
+  <p id="intro">
+    <span id="intro1"></span><span class="host" id="host"></span><span id="intro2"></span>
+  </p>
+  <p id="explain"></p>
+
+  <div class="tech" id="tech"></div>
+
+  <div class="actions">
+    <button id="back" class="md-button md-button--filled" type="button"></button>
+    <button id="accept" class="md-button md-button--outlined hold" type="button">
+      <span class="hold-fill" aria-hidden="true"></span>
+      <span class="hold-label" id="acceptLabel"></span>
+    </button>
+  </div>
+  <p class="note" id="note"></p>
+</main>
+<script>
+(function () {
+  "use strict";
+
+  var STRINGS = {
+    en: {
+      title: "Secure Connection Failed",
+      intro1: "Peel could not verify the security certificate for ",
+      intro2: ". The connection is not secure.",
+      explain: "This may be a self-signed or misconfigured certificate, or someone may be impersonating the site. Continue only if you trust this server",
+      explainUnavailable: "This certificate cannot be bypassed. The server may be misconfigured, or its certificate uses a policy that disallows overrides",
+      back: "Go Back",
+      accept: "Hold to Accept the Risk",
+      acceptHolding: "Keep holding…",
+      note: "Peel will remember this choice until restart"
+    },
+    ru: {
+      title: "Не удалось установить защищённое соединение",
+      intro1: "Peel не смог проверить сертификат безопасности для ",
+      intro2: ". Соединение не защищено.",
+      explain: "Это может быть самоподписанный или неправильно настроенный сертификат, либо кто-то выдаёт себя за этот сайт. Продолжайте только если вы доверяете этому серверу",
+      explainUnavailable: "Этот сертификат нельзя обойти. Возможно, сервер настроен неправильно, либо его сертификат запрещает обход",
+      back: "Назад",
+      accept: "Удерживайте, чтобы принять риск",
+      acceptHolding: "Не отпускайте…",
+      note: "Peel запомнит этот выбор до перезапуска"
+    },
+    de: {
+      title: "Sichere Verbindung fehlgeschlagen",
+      intro1: "Peel konnte das Sicherheitszertifikat für ",
+      intro2: " nicht überprüfen. Die Verbindung ist nicht sicher.",
+      explain: "Möglicherweise handelt es sich um ein selbstsigniertes oder falsch konfiguriertes Zertifikat, oder jemand gibt sich als diese Seite aus. Fahren Sie nur fort, wenn Sie diesem Server vertrauen",
+      explainUnavailable: "Dieses Zertifikat kann nicht umgangen werden. Der Server ist möglicherweise falsch konfiguriert, oder das Zertifikat verbietet eine Umgehung",
+      back: "Zurück",
+      accept: "Halten, um Risiko zu akzeptieren",
+      acceptHolding: "Weiter halten…",
+      note: "Ihre Auswahl für diesen Host wird bis zum Neustart von Peel gespeichert"
+    },
+    es: {
+      title: "Falló la conexión segura",
+      intro1: "Peel no pudo verificar el certificado de seguridad de ",
+      intro2: ". La conexión no es segura.",
+      explain: "Esto puede ser un certificado autofirmado o mal configurado, o alguien puede estar suplantando al sitio. Continúa solo si confías en este servidor",
+      explainUnavailable: "Este certificado no se puede omitir. El servidor puede estar mal configurado o su certificado no permite excepciones",
+      back: "Volver",
+      accept: "Mantén pulsado para aceptar el riesgo",
+      acceptHolding: "Sigue pulsando…",
+      note: "Tu elección para este host se recordará hasta reiniciar Peel"
+    },
+    it: {
+      title: "Connessione sicura non riuscita",
+      intro1: "Peel non è riuscito a verificare il certificato di sicurezza di ",
+      intro2: ". La connessione non è sicura.",
+      explain: "Potrebbe trattarsi di un certificato autofirmato o configurato in modo errato, oppure qualcuno potrebbe spacciarsi per il sito. Continua solo se ti fidi di questo server",
+      explainUnavailable: "Impossibile aggirare questo certificato. Il server potrebbe essere configurato in modo errato o il suo certificato non consente eccezioni",
+      back: "Indietro",
+      accept: "Tieni premuto per accettare il rischio",
+      acceptHolding: "Continua a premere…",
+      note: "La tua scelta per questo host sarà ricordata fino al riavvio di Peel"
+    },
+    pt: {
+      title: "Falha na conexão segura",
+      intro1: "O Peel não conseguiu verificar o certificado de segurança para ",
+      intro2: ". A conexão não é segura.",
+      explain: "Pode ser um certificado autoassinado ou mal configurado, ou alguém pode estar se passando pelo site. Continue apenas se você confia neste servidor",
+      explainUnavailable: "Não é possível ignorar este certificado. O servidor pode estar mal configurado ou o certificado não permite exceções",
+      back: "Voltar",
+      accept: "Mantenha pressionado para aceitar o risco",
+      acceptHolding: "Continue pressionando…",
+      note: "Sua escolha para este host será lembrada até reiniciar o Peel"
+    },
+    ja: {
+      title: "安全な接続に失敗しました",
+      intro1: "Peel は ",
+      intro2: " のセキュリティ証明書を検証できませんでした。接続は安全ではありません。",
+      explain: "自己署名または誤って構成された証明書か、誰かがこのサイトを装っている可能性があります。このサーバーを信頼している場合のみ続行してください",
+      explainUnavailable: "この証明書はバイパスできません。サーバーの設定が誤っているか、証明書が例外を許可していません",
+      back: "戻る",
+      accept: "長押しでリスクを承知して続行",
+      acceptHolding: "押し続けてください…",
+      note: "このホストに対する選択は Peel を再起動するまで記憶されます"
+    },
+    vi: {
+      title: "Kết nối bảo mật thất bại",
+      intro1: "Peel không thể xác minh chứng chỉ bảo mật cho ",
+      intro2: ". Kết nối không an toàn.",
+      explain: "Đây có thể là chứng chỉ tự ký hoặc cấu hình sai, hoặc ai đó có thể đang mạo danh trang web này. Chỉ tiếp tục nếu bạn tin tưởng máy chủ này",
+      explainUnavailable: "Không thể bỏ qua chứng chỉ này. Máy chủ có thể được cấu hình sai hoặc chứng chỉ không cho phép ngoại lệ",
+      back: "Quay lại",
+      accept: "Giữ để chấp nhận rủi ro",
+      acceptHolding: "Tiếp tục giữ…",
+      note: "Lựa chọn của bạn cho máy chủ này sẽ được ghi nhớ cho đến khi khởi động lại Peel"
+    },
+    bn: {
+      title: "সুরক্ষিত সংযোগ ব্যর্থ",
+      intro1: "Peel ",
+      intro2: "-এর সুরক্ষা শংসাপত্র যাচাই করতে পারেনি। সংযোগটি সুরক্ষিত নয়।",
+      explain: "এটি স্ব-স্বাক্ষরিত বা ভুল কনফিগার করা শংসাপত্র হতে পারে, অথবা কেউ সাইটের ছদ্মবেশ ধারণ করতে পারে। শুধুমাত্র এই সার্ভারে বিশ্বাস থাকলেই চালিয়ে যান",
+      explainUnavailable: "এই শংসাপত্র এড়ানো যাবে না। সার্ভারটি ভুল কনফিগার করা থাকতে পারে অথবা শংসাপত্রটি ব্যতিক্রম অনুমতি দেয় না",
+      back: "ফিরে যান",
+      accept: "ঝুঁকি স্বীকার করতে চেপে ধরে রাখুন",
+      acceptHolding: "ধরে রাখুন…",
+      note: "এই হোস্টের জন্য আপনার নির্বাচন Peel পুনরায় চালু না হওয়া পর্যন্ত মনে রাখা হবে"
+    },
+    hi: {
+      title: "सुरक्षित कनेक्शन विफल",
+      intro1: "Peel ",
+      intro2: " के लिए सुरक्षा प्रमाणपत्र सत्यापित नहीं कर सका। कनेक्शन सुरक्षित नहीं है।",
+      explain: "यह स्व-हस्ताक्षरित या ग़लत कॉन्फ़िगर किया गया प्रमाणपत्र हो सकता है, या कोई साइट का प्रतिरूपण कर रहा हो सकता है। केवल तभी जारी रखें जब आप इस सर्वर पर भरोसा करते हैं",
+      explainUnavailable: "यह प्रमाणपत्र बायपास नहीं किया जा सकता। सर्वर ग़लत कॉन्फ़िगर हो सकता है या प्रमाणपत्र अपवाद की अनुमति नहीं देता",
+      back: "वापस जाएँ",
+      accept: "जोखिम स्वीकार करने के लिए दबाए रखें",
+      acceptHolding: "दबाए रखें…",
+      note: "इस होस्ट के लिए आपका विकल्प Peel के पुनरारंभ होने तक याद रखा जाएगा"
+    },
+    pa: {
+      title: "ਸੁਰੱਖਿਅਤ ਕਨੈਕਸ਼ਨ ਅਸਫ਼ਲ",
+      intro1: "Peel ",
+      intro2: " ਲਈ ਸੁਰੱਖਿਆ ਸਰਟੀਫ਼ਿਕੇਟ ਦੀ ਪੁਸ਼ਟੀ ਨਹੀਂ ਕਰ ਸਕਿਆ। ਕਨੈਕਸ਼ਨ ਸੁਰੱਖਿਅਤ ਨਹੀਂ ਹੈ।",
+      explain: "ਇਹ ਸਵੈ-ਹਸਤਾਖ਼ਰਿਤ ਜਾਂ ਗ਼ਲਤ ਕੌਂਫਿਗਰ ਕੀਤਾ ਸਰਟੀਫ਼ਿਕੇਟ ਹੋ ਸਕਦਾ ਹੈ, ਜਾਂ ਕੋਈ ਸਾਈਟ ਦੀ ਨਕਲ ਕਰ ਰਿਹਾ ਹੋ ਸਕਦਾ ਹੈ। ਸਿਰਫ਼ ਉਦੋਂ ਜਾਰੀ ਰੱਖੋ ਜੇ ਤੁਸੀਂ ਇਸ ਸਰਵਰ ਉੱਤੇ ਭਰੋਸਾ ਕਰਦੇ ਹੋ",
+      explainUnavailable: "ਇਹ ਸਰਟੀਫ਼ਿਕੇਟ ਬਾਈਪਾਸ ਨਹੀਂ ਕੀਤਾ ਜਾ ਸਕਦਾ। ਸਰਵਰ ਗ਼ਲਤ ਕੌਂਫਿਗਰ ਹੋ ਸਕਦਾ ਹੈ ਜਾਂ ਸਰਟੀਫ਼ਿਕੇਟ ਅਪਵਾਦ ਦੀ ਇਜਾਜ਼ਤ ਨਹੀਂ ਦਿੰਦਾ",
+      back: "ਵਾਪਸ",
+      accept: "ਜੋਖਮ ਮੰਨਣ ਲਈ ਦਬਾ ਕੇ ਰੱਖੋ",
+      acceptHolding: "ਦਬਾ ਕੇ ਰੱਖੋ…",
+      note: "ਇਸ ਹੋਸਟ ਲਈ ਤੁਹਾਡੀ ਚੋਣ Peel ਮੁੜ-ਚਾਲੂ ਹੋਣ ਤੱਕ ਯਾਦ ਰੱਖੀ ਜਾਵੇਗੀ"
+    },
+    "zh-cn": {
+      title: "安全连接失败",
+      intro1: "Peel 无法验证 ",
+      intro2: " 的安全证书。连接不安全。",
+      explain: "这可能是自签名或配置错误的证书，或者有人正在冒充该站点。只有在您信任此服务器时才继续",
+      explainUnavailable: "无法绕过此证书。服务器可能配置错误，或证书不允许例外",
+      back: "返回",
+      accept: "按住以接受风险",
+      acceptHolding: "继续按住…",
+      note: "对此主机的选择将记住直到 Peel 重启"
+    },
+    "zh-tw": {
+      title: "安全連線失敗",
+      intro1: "Peel 無法驗證 ",
+      intro2: " 的安全憑證。連線不安全。",
+      explain: "這可能是自簽署或設定錯誤的憑證，或是有人正在冒充此網站。只有在您信任此伺服器時才繼續",
+      explainUnavailable: "無法略過此憑證。伺服器可能設定錯誤，或是憑證不允許例外",
+      back: "返回",
+      accept: "按住以接受風險",
+      acceptHolding: "繼續按住…",
+      note: "對此主機的選擇將記住直到 Peel 重新啟動"
+    }
+  };
+
+  function pickStrings() {
+    var langs = (navigator.languages && navigator.languages.length)
+      ? navigator.languages
+      : [navigator.language || "en"];
+    for (var i = 0; i < langs.length; i++) {
+      var tag = String(langs[i] || "").toLowerCase();
+      if (STRINGS[tag]) return STRINGS[tag];
+      var primary = tag.split("-")[0];
+      if (STRINGS[primary]) return STRINGS[primary];
+    }
+    return STRINGS.en;
+  }
+
+  var queryString = "";
+  var qIdx = document.documentURI.indexOf("?");
+  if (qIdx >= 0) queryString = document.documentURI.substring(qIdx + 1);
+  var params = new URLSearchParams(queryString);
+
+  var originalUrl = params.get("url") || "";
+  var displayHost = params.get("host") || "";
+  if (!displayHost && originalUrl) {
+    try { displayHost = new URL(originalUrl).host || ""; } catch (e) {}
+  }
+
+  var info = null;
+  try {
+    if (typeof document.getFailedCertSecurityInfo === "function") {
+      info = document.getFailedCertSecurityInfo();
+    }
+  } catch (e) {}
+
+  var canBypass =
+    typeof document.addCertException === "function" &&
+    !(info && info.errorIsOverridable === false);
+
+  var t = pickStrings();
+  document.documentElement.lang = (navigator.language || "en").split("-")[0];
+  document.title = t.title;
+  document.getElementById("title").textContent = t.title;
+  document.getElementById("intro1").textContent = t.intro1;
+  document.getElementById("intro2").textContent = t.intro2;
+  document.getElementById("host").textContent = displayHost;
+  document.getElementById("explain").textContent =
+    canBypass ? t.explain : t.explainUnavailable;
+  document.getElementById("note").textContent = t.note;
+
+  document.getElementById("tech").textContent =
+    (info && info.errorMessage) ? info.errorMessage : "";
+
+  var backBtn = document.getElementById("back");
+  backBtn.textContent = t.back;
+  backBtn.addEventListener("click", function () {
+    if (window.history.length > 1) window.history.back();
+    else window.close();
+  });
+
+  var acceptBtn = document.getElementById("accept");
+  var acceptLabel = document.getElementById("acceptLabel");
+  if (!canBypass) {
+    acceptBtn.hidden = true;
+    document.getElementById("note").hidden = true;
+  } else {
+    var HOLD_MS = 2000;
+    var holdGen = 0;
+    var holding = false;
+    var committed = false;
+    acceptLabel.textContent = t.accept;
+    acceptBtn.style.setProperty("--hold-duration", (HOLD_MS / 1000) + "s");
+
+    function commit(gen) {
+      if (committed || gen !== holdGen) return;
+      committed = true;
+      acceptBtn.disabled = true;
+      acceptBtn.classList.remove("holding");
+      document.addCertException(true).then(
+        function () {
+          if (originalUrl) location.replace(originalUrl);
+          else location.reload();
+        },
+        function (err) {
+          committed = false;
+          acceptBtn.disabled = false;
+          acceptLabel.textContent = t.accept;
+          console.error("addCertException failed", err);
+        }
+      );
+    }
+
+    function startHold(e) {
+      if (committed || holding || acceptBtn.disabled) return;
+      if ((e.type === "mousedown" || e.type === "pointerdown") &&
+          e.button !== 0 && e.button !== -1) return;
+      e.preventDefault();
+      holding = true;
+      holdGen += 1;
+      var gen = holdGen;
+      acceptBtn.classList.add("holding");
+      acceptLabel.textContent = t.acceptHolding;
+      setTimeout(function () { commit(gen); }, HOLD_MS);
+    }
+
+    function cancelHold() {
+      if (committed || !holding) return;
+      holding = false;
+      holdGen += 1;
+      acceptBtn.classList.remove("holding");
+      acceptLabel.textContent = t.accept;
+    }
+
+    if (window.PointerEvent) {
+      acceptBtn.addEventListener("pointerdown", startHold);
+      acceptBtn.addEventListener("pointerup", cancelHold);
+      acceptBtn.addEventListener("pointercancel", cancelHold);
+      acceptBtn.addEventListener("pointerleave", cancelHold);
+    } else {
+      acceptBtn.addEventListener("mousedown", startHold);
+      acceptBtn.addEventListener("mouseup", cancelHold);
+      acceptBtn.addEventListener("mouseleave", cancelHold);
+      acceptBtn.addEventListener("touchstart", startHold, { passive: false });
+      acceptBtn.addEventListener("touchend", cancelHold);
+      acceptBtn.addEventListener("touchcancel", cancelHold);
+    }
+    acceptBtn.addEventListener("click", function (e) { e.preventDefault(); });
+    acceptBtn.addEventListener("blur", cancelHold);
+    document.addEventListener("visibilitychange", function () {
+      if (document.hidden) cancelHold();
+    });
+  }
+})();
+</script>
+</body>
+</html>

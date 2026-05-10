@@ -42,6 +42,7 @@ data class WebAppSettings(
     var isUseCustomLocale: Boolean? = null,
     var customLocale: String? = null,
     var customGeckoPrefs: Map<String, String>? = null,
+    var isAllowCertBypass: Boolean? = null,
 ) {
     companion object {
         const val PERMISSION_OFF = 0

@@ -157,6 +157,7 @@
     <string name="setting_pull_to_refresh">खींचकर रीफ़्रेश करें</string>
     <string name="setting_disable_screenshots">स्क्रीनशॉट अवरोधित करें</string>
     <string name="setting_always_https">केवल HTTPS</string>
+    <string name="setting_allow_cert_bypass">HTTPS त्रुटियों को बायपास करने की अनुमति दें</string>
     <string name="setting_basic_auth">HTTP प्राधिकरण</string>
     <string name="setting_dynamic_status_bar">डायनामिक स्टेटस बार</string>
     <string name="setting_floating_controls">फ़्लोटिंग नियंत्रण</string>

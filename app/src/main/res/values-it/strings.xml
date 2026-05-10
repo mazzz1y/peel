@@ -129,6 +129,7 @@
     <string name="setting_pull_to_refresh">Scorri per aggiornare</string>
     <string name="setting_disable_screenshots">Disabilita screenshot</string>
     <string name="setting_always_https">Sempre HTTPS</string>
+    <string name="setting_allow_cert_bypass">Consenti di ignorare errori HTTPS</string>
     <string name="setting_basic_auth">Autorizzazione HTTP</string>
     <string name="setting_dynamic_status_bar">Colore dinamico della barra di stato</string>
     <string name="groups">Gruppi</string>
