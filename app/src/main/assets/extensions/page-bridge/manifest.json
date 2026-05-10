@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Peel Page Bridge",
-  "version": "14",
+  "version": "16",
   "browser_specific_settings": {
     "gecko": {
       "id": "peel@mazy.wtf"

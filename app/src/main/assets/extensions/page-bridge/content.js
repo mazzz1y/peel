@@ -18,19 +18,21 @@
     return fetch(url, { ...options, signal: controller.signal }).finally(() => clearTimeout(timer));
   }
 
+  const SVG_RENDER_SIZE = 512;
   function fetchIcon(url) {
     return fetchWithTimeout(url, { credentials: "same-origin" }, FETCH_TIMEOUT_MS)
       .then(r => {
         if (!r.ok) return Promise.reject();
         const type = (r.headers.get("content-type") || "").toLowerCase();
         if (type && !type.startsWith("image/")) return Promise.reject();
-        return r.blob();
+        return r.blob().then(blob => ({ blob, type }));
       })
-      .then(blob => {
+      .then(({ blob, type }) => {
         if (blob.size > MAX_ICON_BYTES) return Promise.reject();
-        return blob;
+        return { blob, type };
       })
-      .then(blob => new Promise((resolve) => {
+      .then(({ blob, type }) => new Promise((resolve) => {
+        const isSvg = type.includes("svg") || /\.svg(\?|#|$)/i.test(url);
         const img = new Image();
         const objectUrl = URL.createObjectURL(blob);
         const done = (value) => {
@@ -39,10 +41,19 @@
         };
         img.onload = () => {
           try {
+            let w = img.naturalWidth;
+            let h = img.naturalHeight;
+            if (isSvg) {
+              const aspect = (w && h) ? (w / h) : 1;
+              if (aspect >= 1) { w = SVG_RENDER_SIZE; h = Math.round(SVG_RENDER_SIZE / aspect); }
+              else { h = SVG_RENDER_SIZE; w = Math.round(SVG_RENDER_SIZE * aspect); }
+            } else if (!w || !h) {
+              w = SVG_RENDER_SIZE; h = SVG_RENDER_SIZE;
+            }
             const c = document.createElement("canvas");
-            c.width = img.naturalWidth;
-            c.height = img.naturalHeight;
-            c.getContext("2d").drawImage(img, 0, 0);
+            c.width = w;
+            c.height = h;
+            c.getContext("2d").drawImage(img, 0, 0, w, h);
             done(c.toDataURL("image/png"));
           } catch (_) {
             done("");

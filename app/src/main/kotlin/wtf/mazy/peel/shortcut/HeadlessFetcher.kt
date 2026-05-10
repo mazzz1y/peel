@@ -84,6 +84,7 @@ class HeadlessFetcher(
     private var pending: PendingMessage? = null
     private var portReady: CompletableDeferred<Unit>? = null
     private var requestCounter = 0
+    @Volatile private var loadErrored: Boolean = false
 
     fun start() {
         desktopMode = settings.isRequestDesktop == true
@@ -185,7 +186,9 @@ class HeadlessFetcher(
                 uri: String?,
                 error: WebRequestError,
             ): GeckoResult<String>? {
+                loadErrored = true
                 pending?.deferred?.complete(JSONObject().put("mode", "error"))
+                portReady?.complete(Unit)
                 return null
             }
         }
@@ -267,7 +270,6 @@ class HeadlessFetcher(
                 for (i in 0 until icons.length()) {
                     val obj = icons.optJSONObject(i) ?: continue
                     val src = obj.optString("src").takeIf { it.isNotEmpty() } ?: continue
-                    if (src.endsWith(".svg")) continue
                     val resolved = resolveUrl(manifestBase, src)
                     if (!isAllowedRemoteUrl(resolved)) continue
                     if (seenHrefs.add(resolved)) {
@@ -279,15 +281,16 @@ class HeadlessFetcher(
 
         for (page in pages.reversed()) {
             for (ref in page.iconRefs) {
-                if (ref.href.endsWith(".svg")) continue
                 if (!isAllowedRemoteUrl(ref.href)) continue
                 if (seenHrefs.add(ref.href)) allRefs += ref
             }
         }
 
-        val faviconUrl = originOf(pageUrl) + "/favicon.ico"
-        if (isAllowedRemoteUrl(faviconUrl) && seenHrefs.add(faviconUrl)) {
-            allRefs += IconRef(faviconUrl, "", "Favicon")
+        for (faviconPath in listOf("/favicon.ico", "/favicon.svg")) {
+            val faviconUrl = originOf(pageUrl) + faviconPath
+            if (isAllowedRemoteUrl(faviconUrl) && seenHrefs.add(faviconUrl)) {
+                allRefs += IconRef(faviconUrl, "", "Favicon")
+            }
         }
 
         postProgress(appContext.getString(R.string.fetch_step_downloading_icons))
@@ -326,10 +329,12 @@ class HeadlessFetcher(
 
     private suspend fun loadPage(session: GeckoSession, url: String): PageInfo? {
         if (!isAllowedRemoteUrl(url)) return null
+        loadErrored = false
         portReady = CompletableDeferred()
         loadUri(session, url)
         portReady?.await()
         portReady = null
+        if (loadErrored) return null
         val msg = sendCommand(JSONObject().put("cmd", "scrape-page")) ?: return null
         if (msg.optString("mode") == "error") return null
         return parsePageInfo(msg)
