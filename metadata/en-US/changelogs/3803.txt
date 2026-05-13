@@ -1,0 +1,2 @@
+- Open new extension tabs (GM_openInTab, options pages) in a stacked bottom sheet, fixes Violentmonkey extension
+- Show extension action badges in the extensions picker
