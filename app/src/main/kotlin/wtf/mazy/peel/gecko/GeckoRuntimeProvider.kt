@@ -170,8 +170,10 @@ object GeckoRuntimeProvider {
     }
 
     suspend fun listUserExtensions(context: Context): List<WebExtension> {
-        return getRuntime(context).webExtensionController.list().await()
+        val extensions = getRuntime(context).webExtensionController.list().await()
             .filter { it.id !in BUILT_IN_IDS }
+        SessionExtensionActions.ensureExtensionDelegatesRegistered(extensions)
+        return extensions
     }
 
     private fun allowResponse() = WebExtension.PermissionPromptResponse(true, true, true)

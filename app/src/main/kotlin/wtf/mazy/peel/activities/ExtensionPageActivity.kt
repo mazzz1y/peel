@@ -48,20 +48,14 @@ class ExtensionPageActivity : BaseSessionHost() {
 
         geckoView?.coverUntilFirstPaint(themeBackgroundColor)
 
-        val url = intent.getStringExtra(EXTRA_URL)
-        if (url != null) {
-            supportActionBar?.title = intent.getStringExtra(EXTRA_TITLE) ?: ""
-            openSession(url)
-        } else {
-            val extensionId = intent.getStringExtra(EXTRA_EXTENSION_ID) ?: run { finish(); return }
-            lifecycleScope.launch {
-                val extensions = GeckoRuntimeProvider.listUserExtensions(this@ExtensionPageActivity)
-                val ext =
-                    extensions.find { it.id == extensionId } ?: run { finish(); return@launch }
-                val optionsUrl = ext.metaData.optionsPageUrl ?: run { finish(); return@launch }
-                supportActionBar?.title = ext.metaData.name ?: ext.id
-                openSession(optionsUrl)
-            }
+        val extensionId = intent.getStringExtra(EXTRA_EXTENSION_ID) ?: run { finish(); return }
+        lifecycleScope.launch {
+            val extensions = GeckoRuntimeProvider.listUserExtensions(this@ExtensionPageActivity)
+            val ext =
+                extensions.find { it.id == extensionId } ?: run { finish(); return@launch }
+            val optionsUrl = ext.metaData.optionsPageUrl ?: run { finish(); return@launch }
+            supportActionBar?.title = ext.metaData.name ?: ext.id
+            openSession(optionsUrl)
         }
     }
 
@@ -121,18 +115,10 @@ class ExtensionPageActivity : BaseSessionHost() {
 
     companion object {
         const val EXTRA_EXTENSION_ID = "extension_id"
-        const val EXTRA_URL = "url"
-        const val EXTRA_TITLE = "title"
 
         fun intentForExtension(context: Context, extensionId: String): Intent {
             return Intent(context, ExtensionPageActivity::class.java)
                 .putExtra(EXTRA_EXTENSION_ID, extensionId)
-        }
-
-        fun intentForUrl(context: Context, url: String, title: String): Intent {
-            return Intent(context, ExtensionPageActivity::class.java)
-                .putExtra(EXTRA_URL, url)
-                .putExtra(EXTRA_TITLE, title)
         }
     }
 }

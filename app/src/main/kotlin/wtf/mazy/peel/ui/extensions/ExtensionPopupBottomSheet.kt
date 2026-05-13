@@ -30,7 +30,12 @@ class ExtensionPopupBottomSheet : BottomSheetDialogFragment() {
         val pending = reclaim(token)
         session = pending?.session
         title = pending?.title
-        if (session == null) dismissAllowingStateLoss()
+        val owned = session
+        if (owned == null) {
+            dismissAllowingStateLoss()
+            return
+        }
+        synchronized(sessionToSheet) { sessionToSheet[owned] = this }
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog =
@@ -55,7 +60,7 @@ class ExtensionPopupBottomSheet : BottomSheetDialogFragment() {
         requireContext().theme.resolveAttribute(
             com.google.android.material.R.attr.colorSurface,
             tv,
-            true
+            true,
         )
         geckoView?.coverUntilFirstPaint(tv.data)
         session?.let { geckoView?.setSession(it) }
@@ -86,7 +91,13 @@ class ExtensionPopupBottomSheet : BottomSheetDialogFragment() {
     }
 
     override fun onDismiss(dialog: DialogInterface) {
-        session?.close()
+        val owned = session
+        if (owned != null) {
+            synchronized(sessionToSheet) { sessionToSheet.remove(owned) }
+            val callback = synchronized(onDismissCallbacks) { onDismissCallbacks.remove(owned) }
+            callback?.invoke()
+            owned.close()
+        }
         session = null
         super.onDismiss(dialog)
     }
@@ -104,6 +115,26 @@ class ExtensionPopupBottomSheet : BottomSheetDialogFragment() {
 
         private val nextToken = AtomicLong(0L)
         private val pendingByToken = mutableMapOf<Long, Pending>()
+        private val sessionToSheet = mutableMapOf<GeckoSession, ExtensionPopupBottomSheet>()
+        private val onDismissCallbacks = mutableMapOf<GeckoSession, () -> Unit>()
+
+        fun dismissFor(session: GeckoSession) {
+            val sheet = synchronized(sessionToSheet) { sessionToSheet.remove(session) }
+            sheet?.dismissImmediately()
+        }
+
+        fun setOnDismissCallback(session: GeckoSession, callback: () -> Unit) {
+            synchronized(onDismissCallbacks) { onDismissCallbacks[session] = callback }
+        }
+
+        fun showExistingSession(
+            activity: FragmentActivity,
+            session: GeckoSession,
+            title: String?,
+        ) {
+            val token = stash(session, title)
+            safeShow(activity.supportFragmentManager, token)
+        }
 
         @Synchronized
         private fun stash(session: GeckoSession, title: String?): Long {
@@ -115,30 +146,21 @@ class ExtensionPopupBottomSheet : BottomSheetDialogFragment() {
         @Synchronized
         private fun reclaim(token: Long): Pending? = pendingByToken.remove(token)
 
-        private fun newInstance(token: Long): ExtensionPopupBottomSheet {
-            return ExtensionPopupBottomSheet().apply {
+        private fun newInstance(token: Long): ExtensionPopupBottomSheet =
+            ExtensionPopupBottomSheet().apply {
                 arguments = Bundle().apply { putLong(ARG_TOKEN, token) }
             }
-        }
 
         private fun safeShow(fm: FragmentManager, token: Long) {
+            if (fm.isStateSaved || fm.isDestroyed) {
+                reclaim(token)?.session?.close()
+                return
+            }
             try {
-                if (fm.isStateSaved || fm.isDestroyed) {
-                    throw IllegalStateException("FragmentManager unavailable")
-                }
                 newInstance(token).show(fm, TAG)
             } catch (_: Exception) {
                 reclaim(token)?.session?.close()
             }
-        }
-
-        fun showExistingSession(
-            activity: FragmentActivity,
-            session: GeckoSession,
-            title: String?,
-        ) {
-            val token = stash(session, title)
-            safeShow(activity.supportFragmentManager, token)
         }
     }
 }
