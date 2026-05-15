@@ -30,4 +30,5 @@
     <dimen name="find_in_page_margin">8dp</dimen>
     <dimen name="find_in_page_elevation">6dp</dimen>
     <dimen name="find_in_page_min_height">48dp</dimen>
+    <dimen name="find_in_page_button_gap">2dp</dimen>
 </resources>

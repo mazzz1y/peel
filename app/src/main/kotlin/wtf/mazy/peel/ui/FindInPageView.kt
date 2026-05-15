@@ -11,10 +11,7 @@ import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.TextView
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.doOnLayout
-import androidx.core.view.updateLayoutParams
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import org.mozilla.geckoview.GeckoSession
 import wtf.mazy.peel.R
@@ -51,8 +48,6 @@ class FindInPageView(
             setMargins(marginPx, marginPx, marginPx, marginPx)
             gravity = android.view.Gravity.BOTTOM
         }
-        applyInsets()
-        ViewCompat.setOnApplyWindowInsetsListener(root) { _, insets -> applyInsets(insets); insets }
 
         root.alpha = 0f
         parent.addView(root)
@@ -109,14 +104,6 @@ class FindInPageView(
     private fun detachAndNotify() {
         if (root.parent != null) parent.removeView(root)
         onClose()
-    }
-
-    private fun applyInsets(insets: WindowInsetsCompat? = ViewCompat.getRootWindowInsets(parent)) {
-        val sysBottom = insets?.getInsets(WindowInsetsCompat.Type.systemBars())?.bottom ?: 0
-        val imeBottom = insets?.getInsets(WindowInsetsCompat.Type.ime())?.bottom ?: 0
-        root.updateLayoutParams<FrameLayout.LayoutParams> {
-            bottomMargin = marginPx + maxOf(sysBottom, imeBottom)
-        }
     }
 
     private fun runFind(flags: Int) {

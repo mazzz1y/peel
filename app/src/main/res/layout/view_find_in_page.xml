@@ -34,7 +34,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:layout_marginEnd="4dp"
+        android:layout_marginEnd="12dp"
         android:textColor="?attr/colorOnSurfaceVariant"
         android:textSize="14sp"
         tools:text="3 / 17" />
@@ -45,11 +45,19 @@
         android:contentDescription="@string/find_in_page_prev"
         android:src="@drawable/ic_symbols_keyboard_arrow_up_24" />
 
+    <Space
+        android:layout_width="@dimen/find_in_page_button_gap"
+        android:layout_height="match_parent" />
+
     <ImageButton
         android:id="@+id/findInPageNext"
         style="@style/Widget.App.FloatingIconButton"
         android:contentDescription="@string/find_in_page_next"
         android:src="@drawable/ic_symbols_keyboard_arrow_down_24" />
+
+    <Space
+        android:layout_width="@dimen/find_in_page_button_gap"
+        android:layout_height="match_parent" />
 
     <ImageButton
         android:id="@+id/findInPageClose"
