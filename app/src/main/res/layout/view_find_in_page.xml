@@ -4,9 +4,9 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/find_in_page_bg"
-    android:elevation="6dp"
+    android:elevation="@dimen/find_in_page_elevation"
     android:gravity="center_vertical"
-    android:minHeight="48dp"
+    android:minHeight="@dimen/find_in_page_min_height"
     android:orientation="horizontal"
     android:paddingStart="12dp"
     android:paddingEnd="4dp"
@@ -41,8 +41,8 @@
 
     <ImageButton
         android:id="@+id/findInPagePrev"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="@dimen/find_in_page_button_size"
+        android:layout_height="@dimen/find_in_page_button_size"
         android:background="?attr/selectableItemBackgroundBorderless"
         android:contentDescription="@string/find_in_page_prev"
         android:scaleType="centerInside"
@@ -50,8 +50,8 @@
 
     <ImageButton
         android:id="@+id/findInPageNext"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="@dimen/find_in_page_button_size"
+        android:layout_height="@dimen/find_in_page_button_size"
         android:background="?attr/selectableItemBackgroundBorderless"
         android:contentDescription="@string/find_in_page_next"
         android:scaleType="centerInside"
@@ -59,8 +59,8 @@
 
     <ImageButton
         android:id="@+id/findInPageClose"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
+        android:layout_width="@dimen/find_in_page_button_size"
+        android:layout_height="@dimen/find_in_page_button_size"
         android:background="?attr/selectableItemBackgroundBorderless"
         android:contentDescription="@string/find_in_page_close"
         android:scaleType="centerInside"

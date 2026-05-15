@@ -17,4 +17,18 @@
     <dimen name="divider_height">1dp</dimen>
     <dimen name="webapp_list_item_total_height">86dp</dimen>
     <dimen name="dialog_list_top_padding">16dp</dimen>
+
+    <!-- Floating controls panel + trigger -->
+    <dimen name="floating_controls_button_size">40dp</dimen>
+    <dimen name="floating_controls_button_gap">16dp</dimen>
+    <dimen name="floating_controls_panel_padding">8dp</dimen>
+    <dimen name="floating_controls_panel_trigger_gap">8dp</dimen>
+    <dimen name="floating_controls_corner_radius">20dp</dimen>
+    <dimen name="floating_controls_elevation">6dp</dimen>
+
+    <!-- Find-in-page bar -->
+    <dimen name="find_in_page_margin">8dp</dimen>
+    <dimen name="find_in_page_elevation">6dp</dimen>
+    <dimen name="find_in_page_button_size">40dp</dimen>
+    <dimen name="find_in_page_min_height">48dp</dimen>
 </resources>

@@ -24,7 +24,8 @@ class FindInPageView(
     private val session: GeckoSession,
     private val onClose: () -> Unit,
 ) {
-    private val density = parent.resources.displayMetrics.density
+    private val marginPx =
+        parent.resources.getDimensionPixelSize(R.dimen.find_in_page_margin)
     private val root: View =
         LayoutInflater.from(parent.context).inflate(R.layout.view_find_in_page, parent, false)
     private val query: EditText = root.findViewById(R.id.findInPageQuery)
@@ -45,8 +46,7 @@ class FindInPageView(
             FrameLayout.LayoutParams.MATCH_PARENT,
             FrameLayout.LayoutParams.WRAP_CONTENT,
         ).apply {
-            val margin = (MARGIN_DP * density).toInt()
-            setMargins(margin, margin, margin, margin)
+            setMargins(marginPx, marginPx, marginPx, marginPx)
             gravity = android.view.Gravity.BOTTOM
         }
         applyInsets()
@@ -113,8 +113,7 @@ class FindInPageView(
         val sysBottom = insets?.getInsets(WindowInsetsCompat.Type.systemBars())?.bottom ?: 0
         val imeBottom = insets?.getInsets(WindowInsetsCompat.Type.ime())?.bottom ?: 0
         root.updateLayoutParams<FrameLayout.LayoutParams> {
-            val baseMargin = (MARGIN_DP * density).toInt()
-            bottomMargin = baseMargin + maxOf(sysBottom, imeBottom)
+            bottomMargin = marginPx + maxOf(sysBottom, imeBottom)
         }
     }
 
@@ -147,7 +146,6 @@ class FindInPageView(
 
     private companion object {
         const val DEBOUNCE_MS = 120L
-        const val MARGIN_DP = 8
         const val ANIM_DURATION_MS = 200L
         const val EMPTY_COUNTER = ""
         const val NO_MATCH_COUNTER = "0 / 0"
