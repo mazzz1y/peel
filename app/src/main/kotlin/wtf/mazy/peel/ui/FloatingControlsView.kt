@@ -55,6 +55,7 @@ class FloatingControlsView(
     onHome: () -> Unit,
     onReload: () -> Unit,
     onShare: () -> Unit,
+    onFind: (() -> Unit)? = null,
     onExtensions: (() -> Unit)? = null,
 ) {
     private data class Action(@param:DrawableRes val iconRes: Int, val onClick: () -> Unit)
@@ -70,6 +71,7 @@ class FloatingControlsView(
     private val actions = buildList {
         add(Action(R.drawable.ic_symbols_home_24, onHome))
         add(Action(R.drawable.ic_symbols_share_24, onShare))
+        onFind?.let { add(Action(R.drawable.ic_symbols_search_24, it)) }
         add(Action(R.drawable.ic_symbols_refresh_24, onReload))
         onExtensions?.let { add(Action(R.drawable.ic_symbols_extension_24, it)) }
     }

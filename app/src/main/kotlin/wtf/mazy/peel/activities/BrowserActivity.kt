@@ -45,6 +45,7 @@ import wtf.mazy.peel.media.MediaPlaybackManager
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.model.WebAppSettings
+import wtf.mazy.peel.ui.FindInPageView
 import wtf.mazy.peel.ui.FloatingControlsView
 import wtf.mazy.peel.ui.browser.AutoReloadController
 import wtf.mazy.peel.ui.browser.BiometricUnlockController
@@ -103,6 +104,7 @@ class BrowserActivity : BaseSessionHost() {
         get() = DataManager.instance.getWebApp(webappUuid!!)!!
 
     private var floatingControls: FloatingControlsView? = null
+    private var findInPage: FindInPageView? = null
     private lateinit var permissionDelegate: PeelPermissionDelegate
     private lateinit var promptDelegate: PeelPromptDelegate
     private var contextMenu: BrowserContextMenu? = null
@@ -275,6 +277,7 @@ class BrowserActivity : BaseSessionHost() {
         } catch (_: Exception) {
         }
         if (!isStartupComplete) return
+        closeFindInPage()
         floatingControls?.remove()
         floatingControls = null
         autoReloadController.stop()
@@ -287,9 +290,28 @@ class BrowserActivity : BaseSessionHost() {
             onHome = { loadURL(webapp.baseUrl) },
             onReload = ::reloadCurrentPage,
             onShare = { shareCurrentUrl() },
+            onFind = ::openFindInPage,
             onExtensions = if (SessionExtensionActions.hasExtensions)
                 ({ ExtensionPickerDialog.show(this, sessionExtensionActions) }) else null,
         )
+    }
+
+    private fun openFindInPage() {
+        if (findInPage != null) return
+        val session = geckoSession ?: return
+        floatingControls?.setHidden(true)
+        findInPage = FindInPageView(
+            parent = findViewById(R.id.browserContent),
+            session = session,
+            onClose = {
+                findInPage = null
+                floatingControls?.setHidden(false)
+            },
+        )
+    }
+
+    private fun closeFindInPage() {
+        findInPage?.remove()
     }
 
     private fun shareCurrentUrl() {
@@ -340,6 +362,7 @@ class BrowserActivity : BaseSessionHost() {
             val runtime = GeckoRuntimeProvider.getRuntime(this)
             runtime.storageController.clearData(StorageController.ClearFlags.ALL_CACHES)
         }
+        closeFindInPage()
         launchOverlayController.release()
         biometricController.unregisterReceiver()
         systemBarController.release()
@@ -496,6 +519,7 @@ class BrowserActivity : BaseSessionHost() {
 
     override fun onWebFullscreenEnter() {
         systemBarController.hide()
+        closeFindInPage()
         floatingControls?.setHidden(true)
     }
 
@@ -536,6 +560,7 @@ class BrowserActivity : BaseSessionHost() {
 
     private fun configureSession(settings: WebAppSettings) {
         sessionSetupJob?.cancel()
+        closeFindInPage()
         (geckoSession?.contentDelegate as? PeelContentDelegate)?.exitFullscreen()
         pageBridge?.detach()
         pageBridge = null

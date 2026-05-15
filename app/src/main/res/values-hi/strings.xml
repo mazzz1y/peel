@@ -253,4 +253,9 @@
     <string name="setting_custom_gecko_prefs">कस्टम Gecko प्राथमिकताएँ</string>
     <string name="setting_custom_gecko_prefs_key_hint">नाम</string>
     <string name="setting_custom_gecko_prefs_value_hint">मान</string>
+    <string name="find_in_page_hint">पेज में खोजें</string>
+    <string name="find_in_page_counter">%1$d / %2$d</string>
+    <string name="find_in_page_prev">पिछला मिलान</string>
+    <string name="find_in_page_next">अगला मिलान</string>
+    <string name="find_in_page_close">बंद करें</string>
 </resources>

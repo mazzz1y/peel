@@ -250,4 +250,9 @@
     <string name="setting_custom_gecko_prefs">Tùy chọn Gecko tùy chỉnh</string>
     <string name="setting_custom_gecko_prefs_key_hint">Tên</string>
     <string name="setting_custom_gecko_prefs_value_hint">Giá trị</string>
+    <string name="find_in_page_hint">Tìm trong trang</string>
+    <string name="find_in_page_counter">%1$d / %2$d</string>
+    <string name="find_in_page_prev">Kết quả trước</string>
+    <string name="find_in_page_next">Kết quả tiếp theo</string>
+    <string name="find_in_page_close">Đóng</string>
 </resources>

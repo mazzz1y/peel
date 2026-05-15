@@ -260,4 +260,9 @@
     <string name="setting_custom_gecko_prefs_key_hint">Name</string>
     <string name="setting_custom_gecko_prefs_value_hint">Value</string>
     <string name="setting_allow_cert_bypass">Allow bypassing HTTPS errors</string>
+    <string name="find_in_page_hint">Find in page</string>
+    <string name="find_in_page_counter">%1$d / %2$d</string>
+    <string name="find_in_page_prev">Previous match</string>
+    <string name="find_in_page_next">Next match</string>
+    <string name="find_in_page_close">Close</string>
 </resources>

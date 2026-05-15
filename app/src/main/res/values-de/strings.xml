@@ -253,4 +253,9 @@
     <string name="setting_custom_gecko_prefs">Eigene Gecko-Einstellungen</string>
     <string name="setting_custom_gecko_prefs_key_hint">Name</string>
     <string name="setting_custom_gecko_prefs_value_hint">Wert</string>
+    <string name="find_in_page_hint">Auf Seite suchen</string>
+    <string name="find_in_page_counter">%1$d / %2$d</string>
+    <string name="find_in_page_prev">Vorheriger Treffer</string>
+    <string name="find_in_page_next">Nächster Treffer</string>
+    <string name="find_in_page_close">Schließen</string>
 </resources>

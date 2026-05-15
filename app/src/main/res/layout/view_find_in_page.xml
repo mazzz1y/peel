@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/find_in_page_bg"
+    android:elevation="6dp"
+    android:gravity="center_vertical"
+    android:minHeight="48dp"
+    android:orientation="horizontal"
+    android:paddingStart="12dp"
+    android:paddingEnd="4dp"
+    android:paddingTop="4dp"
+    android:paddingBottom="4dp">
+
+    <EditText
+        android:id="@+id/findInPageQuery"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:background="@null"
+        android:hint="@string/find_in_page_hint"
+        android:imeOptions="actionSearch|flagNoExtractUi"
+        android:inputType="text"
+        android:maxLines="1"
+        android:singleLine="true"
+        android:textColor="?attr/colorOnSurface"
+        android:textColorHint="?attr/colorOnSurfaceVariant"
+        android:textSize="16sp"
+        tools:ignore="Autofill,LabelFor" />
+
+    <TextView
+        android:id="@+id/findInPageCounter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="4dp"
+        android:textColor="?attr/colorOnSurfaceVariant"
+        android:textSize="14sp"
+        tools:text="3 / 17" />
+
+    <ImageButton
+        android:id="@+id/findInPagePrev"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/find_in_page_prev"
+        android:scaleType="centerInside"
+        android:src="@drawable/ic_symbols_keyboard_arrow_up_24" />
+
+    <ImageButton
+        android:id="@+id/findInPageNext"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/find_in_page_next"
+        android:scaleType="centerInside"
+        android:src="@drawable/ic_symbols_keyboard_arrow_down_24" />
+
+    <ImageButton
+        android:id="@+id/findInPageClose"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/find_in_page_close"
+        android:scaleType="centerInside"
+        android:src="@drawable/ic_symbols_close_24" />
+
+</LinearLayout>
