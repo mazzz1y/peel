@@ -36,11 +36,13 @@ class FindInPageView(
 
     private val debounceRunnable = Runnable { runFind(GeckoSession.FINDER_FIND_FORWARD) }
     private val slideInterpolator = FastOutSlowInInterpolator()
+    private val emptyCounter: String =
+        parent.context.getString(R.string.find_in_page_counter, 0, 0)
     private var dismissing = false
 
     init {
         session.finder.displayFlags = GeckoSession.FINDER_DISPLAY_HIGHLIGHT_ALL
-        counter.text = EMPTY_COUNTER
+        counter.text = emptyCounter
 
         root.layoutParams = FrameLayout.LayoutParams(
             FrameLayout.LayoutParams.MATCH_PARENT,
@@ -66,7 +68,7 @@ class FindInPageView(
                 root.removeCallbacks(debounceRunnable)
                 if (s.isNullOrEmpty()) {
                     session.finder.clear()
-                    counter.text = EMPTY_COUNTER
+                    counter.text = emptyCounter
                 } else {
                     root.postDelayed(debounceRunnable, DEBOUNCE_MS)
                 }
@@ -121,15 +123,13 @@ class FindInPageView(
         val text = query.text?.toString().orEmpty()
         if (text.isEmpty()) {
             session.finder.clear()
-            counter.text = EMPTY_COUNTER
+            counter.text = emptyCounter
             return
         }
         session.finder.find(text, flags).then<Void> { result ->
-            counter.text = if (result == null || result.total <= 0) {
-                NO_MATCH_COUNTER
-            } else {
-                parent.context.getString(R.string.find_in_page_counter, result.current, result.total)
-            }
+            val current = result?.current ?: 0
+            val total = result?.total?.coerceAtLeast(0) ?: 0
+            counter.text = parent.context.getString(R.string.find_in_page_counter, current, total)
             null
         }
     }
@@ -147,7 +147,5 @@ class FindInPageView(
     private companion object {
         const val DEBOUNCE_MS = 120L
         const val ANIM_DURATION_MS = 200L
-        const val EMPTY_COUNTER = ""
-        const val NO_MATCH_COUNTER = "0 / 0"
     }
 }

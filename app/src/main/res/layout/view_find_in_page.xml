@@ -41,29 +41,20 @@
 
     <ImageButton
         android:id="@+id/findInPagePrev"
-        android:layout_width="@dimen/find_in_page_button_size"
-        android:layout_height="@dimen/find_in_page_button_size"
-        android:background="?attr/selectableItemBackgroundBorderless"
+        style="@style/Widget.App.FloatingIconButton"
         android:contentDescription="@string/find_in_page_prev"
-        android:scaleType="centerInside"
         android:src="@drawable/ic_symbols_keyboard_arrow_up_24" />
 
     <ImageButton
         android:id="@+id/findInPageNext"
-        android:layout_width="@dimen/find_in_page_button_size"
-        android:layout_height="@dimen/find_in_page_button_size"
-        android:background="?attr/selectableItemBackgroundBorderless"
+        style="@style/Widget.App.FloatingIconButton"
         android:contentDescription="@string/find_in_page_next"
-        android:scaleType="centerInside"
         android:src="@drawable/ic_symbols_keyboard_arrow_down_24" />
 
     <ImageButton
         android:id="@+id/findInPageClose"
-        android:layout_width="@dimen/find_in_page_button_size"
-        android:layout_height="@dimen/find_in_page_button_size"
-        android:background="?attr/selectableItemBackgroundBorderless"
+        style="@style/Widget.App.FloatingIconButton"
         android:contentDescription="@string/find_in_page_close"
-        android:scaleType="centerInside"
         android:src="@drawable/ic_symbols_close_24" />
 
 </LinearLayout>

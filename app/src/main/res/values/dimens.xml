@@ -29,6 +29,5 @@
     <!-- Find-in-page bar -->
     <dimen name="find_in_page_margin">8dp</dimen>
     <dimen name="find_in_page_elevation">6dp</dimen>
-    <dimen name="find_in_page_button_size">40dp</dimen>
     <dimen name="find_in_page_min_height">48dp</dimen>
 </resources>

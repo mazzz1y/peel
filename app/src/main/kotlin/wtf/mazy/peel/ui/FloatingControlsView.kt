@@ -3,8 +3,6 @@ package wtf.mazy.peel.ui
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
-import android.content.res.ColorStateList
-import android.util.TypedValue
 import android.view.HapticFeedbackConstants
 import android.view.LayoutInflater
 import android.view.MotionEvent
@@ -18,6 +16,7 @@ import android.widget.LinearLayout
 import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
 import androidx.core.content.edit
+import androidx.core.graphics.Insets
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.doOnLayout
@@ -36,19 +35,19 @@ class FloatingControlsView(
 ) {
     private data class Action(@param:DrawableRes val iconRes: Int, val onClick: () -> Unit)
 
-    private data class Position(val x: Float, val y: Float)
+    private data class SavedOffset(val xFraction: Float, val yFraction: Float)
 
     private class Prefs(context: Context, webappUuid: String) {
         private val prefs: SharedPreferences =
             context.getSharedPreferences("${webappUuid}_floating_controls", 0)
 
-        fun load(): Position? {
+        fun load(): SavedOffset? {
             if (!prefs.contains(KEY_X)) return null
-            return Position(prefs.getFloat(KEY_X, 0f), prefs.getFloat(KEY_Y, 0f))
+            return SavedOffset(prefs.getFloat(KEY_X, 0f), prefs.getFloat(KEY_Y, 0f))
         }
 
-        fun save(pos: Position) {
-            prefs.edit { putFloat(KEY_X, pos.x); putFloat(KEY_Y, pos.y) }
+        fun save(offset: SavedOffset) {
+            prefs.edit { putFloat(KEY_X, offset.xFraction); putFloat(KEY_Y, offset.yFraction) }
         }
 
         fun clear() {
@@ -69,11 +68,6 @@ class FloatingControlsView(
     private val panelPaddingPx = res.getDimensionPixelSize(R.dimen.floating_controls_panel_padding)
     private val touchSlop = ViewConfiguration.get(context).scaledTouchSlop.toFloat()
     private val scrimColor = ContextCompat.getColor(context, R.color.floating_controls_scrim)
-    private val onSurfaceColor: ColorStateList = ColorStateList.valueOf(resolveThemeColor())
-    private val rippleBackgroundRes: Int = TypedValue().run {
-        context.theme.resolveAttribute(android.R.attr.selectableItemBackgroundBorderless, this, true)
-        resourceId
-    }
 
     private val buttonPrefs = Prefs(context, webappUuid)
 
@@ -104,6 +98,7 @@ class FloatingControlsView(
 
     private var expanded = false
     private var expandDown = false
+    private var destroyed = false
 
     private val layoutChangeListener =
         View.OnLayoutChangeListener { _, l, t, r, b, oldL, oldT, oldR, oldB ->
@@ -113,16 +108,24 @@ class FloatingControlsView(
             }
         }
 
+    private val systemBars: Insets
+        get() = ViewCompat.getRootWindowInsets(parent)
+            ?.getInsets(WindowInsetsCompat.Type.systemBars())
+            ?: Insets.NONE
+
     init {
         setupLayout()
         attachListeners()
         parent.doOnLayout {
+            if (destroyed) return@doOnLayout
             applyPosition()
             panel.visibility = View.GONE
         }
     }
 
     fun remove() {
+        if (destroyed) return
+        destroyed = true
         cancelAllAnimations()
         parent.removeOnLayoutChangeListener(layoutChangeListener)
         parent.removeView(scrim)
@@ -131,6 +134,7 @@ class FloatingControlsView(
     }
 
     fun setHidden(hidden: Boolean) {
+        if (destroyed) return
         if (hidden) {
             if (expanded) collapseInstantly()
             gestureHandler.cancel()
@@ -176,18 +180,14 @@ class FloatingControlsView(
         }
     }
 
-    private fun createActionButton(action: Action): ImageButton = ImageButton(context).apply {
-        background = ContextCompat.getDrawable(context, rippleBackgroundRes)
-        setImageResource(action.iconRes)
-        scaleType = ImageView.ScaleType.CENTER_INSIDE
-        setPadding(0, 0, 0, 0)
-        minimumWidth = 0
-        minimumHeight = 0
-        imageTintList = onSurfaceColor
-        setOnClickListener {
+    private fun createActionButton(action: Action): ImageButton {
+        val btn = inflater.inflate(R.layout.view_floating_action, panelContainer, false) as ImageButton
+        btn.setImageResource(action.iconRes)
+        btn.setOnClickListener {
             collapse()
             action.onClick()
         }
+        return btn
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -196,32 +196,18 @@ class FloatingControlsView(
         trigger.setOnTouchListener { _, event -> gestureHandler.onTouch(event) }
     }
 
-    private fun resolveThemeColor(): Int {
-        val tv = TypedValue()
-        context.theme.resolveAttribute(com.google.android.material.R.attr.colorOnSurface, tv, true)
-        return if (tv.resourceId != 0) ContextCompat.getColor(context, tv.resourceId) else tv.data
-    }
-
-    private fun statusInsetTop(): Int =
-        ViewCompat.getRootWindowInsets(parent)
-            ?.getInsets(WindowInsetsCompat.Type.systemBars())?.top ?: 0
-
-    private fun navInsetBottom(): Int =
-        ViewCompat.getRootWindowInsets(parent)
-            ?.getInsets(WindowInsetsCompat.Type.systemBars())?.bottom ?: 0
-
     private fun applyPosition() {
         if (parent.width <= 0 || parent.height <= 0) return
         val saved = buttonPrefs.load()
-        val x = resolveOffset(saved?.x ?: DEFAULT_X_FRACTION, parent.width)
-        val y = resolveOffset(saved?.y ?: DEFAULT_Y_FRACTION, parent.height)
+        val x = resolveOffset(saved?.xFraction ?: DEFAULT_X_FRACTION, parent.width)
+        val y = resolveOffset(saved?.yFraction ?: DEFAULT_Y_FRACTION, parent.height)
         moveTriggerTo(x, y)
     }
 
     private fun savePosition() {
         if (parent.width <= 0 || parent.height <= 0) return
         buttonPrefs.save(
-            Position(
+            SavedOffset(
                 encodeOffset(trigger.x, parent.width),
                 encodeOffset(trigger.y, parent.height),
             ),
@@ -250,9 +236,10 @@ class FloatingControlsView(
     }
 
     private fun moveTriggerTo(x: Float, y: Float) {
+        val insets = systemBars
         val maxX = (parent.width - buttonSizePx).toFloat().coerceAtLeast(0f)
-        val minY = statusInsetTop().toFloat()
-        val maxY = (parent.height - navInsetBottom() - buttonSizePx).toFloat().coerceAtLeast(minY)
+        val minY = insets.top.toFloat()
+        val maxY = (parent.height - insets.bottom - buttonSizePx).toFloat().coerceAtLeast(minY)
         trigger.x = x.coerceIn(0f, maxX)
         trigger.y = y.coerceIn(minY, maxY)
     }
@@ -263,19 +250,23 @@ class FloatingControlsView(
         } else {
             trigger.y - panelTriggerGapPx - panelHeightPx
         }
-        val minY = statusInsetTop().toFloat()
-        val maxY = (parent.height - navInsetBottom() - panelHeightPx).toFloat().coerceAtLeast(minY)
+        val insets = systemBars
+        val minY = insets.top.toFloat()
+        val maxY = (parent.height - insets.bottom - panelHeightPx).toFloat().coerceAtLeast(minY)
         panel.x = trigger.x
         panel.y = rawY.coerceIn(minY, maxY)
     }
 
-    private fun toggle() = if (expanded) collapse() else expand()
+    private fun toggle() {
+        if (destroyed) return
+        if (expanded) collapse() else expand()
+    }
 
     private fun shouldExpandDown(): Boolean =
         trigger.y + buttonSizePx / 2f < parent.height / 2f
 
     private fun expand() {
-        if (expanded) return
+        if (destroyed || expanded) return
         expanded = true
         expandDown = shouldExpandDown()
         positionPanel(expandDown)
@@ -287,7 +278,7 @@ class FloatingControlsView(
     }
 
     private fun collapse() {
-        if (!expanded) return
+        if (destroyed || !expanded) return
         expanded = false
         hidePanel()
         animateTriggerIcons(toClose = false)
@@ -314,18 +305,14 @@ class FloatingControlsView(
     }
 
     private fun animateTriggerIcons(toClose: Boolean) {
-        triggerIconMenu.animate().cancel()
-        triggerIconClose.animate().cancel()
-        triggerIconMenu.animate()
-            .alpha(if (toClose) 0f else 1f)
-            .rotation(if (toClose) ICON_MORPH_ROTATION else 0f)
-            .applyDefaults()
-            .start()
-        triggerIconClose.animate()
-            .alpha(if (toClose) 1f else 0f)
-            .rotation(if (toClose) 0f else -ICON_MORPH_ROTATION)
-            .applyDefaults()
-            .start()
+        triggerIconMenu.swapAnimator {
+            alpha(if (toClose) 0f else 1f)
+            rotation(if (toClose) ICON_MORPH_ROTATION else 0f)
+        }
+        triggerIconClose.swapAnimator {
+            alpha(if (toClose) 1f else 0f)
+            rotation(if (toClose) 0f else -ICON_MORPH_ROTATION)
+        }
     }
 
     private fun showPanel() {
@@ -334,40 +321,32 @@ class FloatingControlsView(
         panel.alpha = 0f
         panel.scaleX = PANEL_START_SCALE
         panel.scaleY = PANEL_START_SCALE
-        panel.animate()
-            .alpha(1f)
-            .scaleX(1f).scaleY(1f)
-            .applyDefaults()
-            .start()
+        panel.swapAnimator {
+            alpha(1f)
+            scaleX(1f); scaleY(1f)
+        }
     }
 
     private fun hidePanel() {
-        panel.animate().cancel()
-        panel.animate()
-            .alpha(0f)
-            .scaleX(PANEL_START_SCALE).scaleY(PANEL_START_SCALE)
-            .applyDefaults()
-            .withEndAction { panel.visibility = View.GONE }
-            .start()
+        panel.swapAnimator {
+            alpha(0f)
+            scaleX(PANEL_START_SCALE); scaleY(PANEL_START_SCALE)
+            withEndAction { panel.visibility = View.GONE }
+        }
     }
 
     private fun fadeScrim(visible: Boolean) {
-        scrim.animate().cancel()
         if (visible) scrim.visibility = View.VISIBLE
-        scrim.animate()
-            .alpha(if (visible) SCRIM_ALPHA else 0f)
-            .applyDefaults()
-            .withEndAction { if (!visible) scrim.visibility = View.GONE }
-            .start()
+        scrim.swapAnimator {
+            alpha(if (visible) SCRIM_ALPHA else 0f)
+            if (!visible) withEndAction { scrim.visibility = View.GONE }
+        }
     }
 
     private fun animateTriggerScale(target: Float) {
-        trigger.animate().cancel()
-        trigger.animate()
-            .scaleX(target).scaleY(target)
-            .setDuration(SCALE_ANIM_MS)
-            .setInterpolator(FastOutSlowInInterpolator())
-            .start()
+        trigger.swapAnimator(durationMs = SCALE_ANIM_MS) {
+            scaleX(target); scaleY(target)
+        }
     }
 
     private fun cancelAllAnimations() {
@@ -378,8 +357,17 @@ class FloatingControlsView(
         triggerIconClose.animate().cancel()
     }
 
-    private fun ViewPropertyAnimator.applyDefaults(): ViewPropertyAnimator =
-        setDuration(ANIM_DURATION_MS).setInterpolator(FastOutSlowInInterpolator())
+    private inline fun View.swapAnimator(
+        durationMs: Long = ANIM_DURATION_MS,
+        configure: ViewPropertyAnimator.() -> Unit,
+    ) {
+        animate().cancel()
+        animate()
+            .setDuration(durationMs)
+            .setInterpolator(FastOutSlowInInterpolator())
+            .apply(configure)
+            .start()
+    }
 
     private inner class GestureHandler {
         private var state = GestureState.WAITING
