@@ -104,7 +104,11 @@ class FloatingControlsView(
         View.OnLayoutChangeListener { _, l, t, r, b, oldL, oldT, oldR, oldB ->
             if (r - l != oldR - oldL || b - t != oldB - oldT) {
                 applyPosition()
-                if (expanded) positionPanel(expandDown)
+                if (expanded) {
+                    expandDown = shouldExpandDown()
+                    panel.pivotY = if (expandDown) 0f else panelHeightPx.toFloat()
+                    positionPanel(expandDown)
+                }
             }
         }
 
@@ -245,16 +249,12 @@ class FloatingControlsView(
     }
 
     private fun positionPanel(expandDown: Boolean) {
-        val rawY = if (expandDown) {
+        panel.x = trigger.x
+        panel.y = if (expandDown) {
             trigger.y + buttonSizePx + panelTriggerGapPx
         } else {
             trigger.y - panelTriggerGapPx - panelHeightPx
         }
-        val insets = systemBars
-        val minY = insets.top.toFloat()
-        val maxY = (parent.height - insets.bottom - panelHeightPx).toFloat().coerceAtLeast(minY)
-        panel.x = trigger.x
-        panel.y = rawY.coerceIn(minY, maxY)
     }
 
     private fun toggle() {
