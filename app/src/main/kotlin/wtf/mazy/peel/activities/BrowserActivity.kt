@@ -180,11 +180,6 @@ class BrowserActivity : BaseSessionHost() {
             overlay.alpha = 1f
             overlay.visibility = View.VISIBLE
         }
-        progressBar?.apply {
-            progress = INITIAL_PROGRESS
-            alpha = 1f
-        }
-
         webappUuid = intent.getStringExtra(Const.INTENT_WEBAPP_UUID)
         ensureDataReady(webappUuid, forceReload = false) {
             continueStartupAfterDataReady()
@@ -369,7 +364,7 @@ class BrowserActivity : BaseSessionHost() {
         mediaPlaybackManager?.release()
         mediaPlaybackManager = null
         sessionExtensionActions.detach()
-        pageBridge?.detach()
+        pageBridge?.detach(closingSession = true)
         pageBridge = null
         geckoView?.releaseSession()
         geckoSession?.close()
@@ -562,7 +557,7 @@ class BrowserActivity : BaseSessionHost() {
         sessionSetupJob?.cancel()
         closeFindInPage()
         (geckoSession?.contentDelegate as? PeelContentDelegate)?.exitFullscreen()
-        pageBridge?.detach()
+        pageBridge?.detach(closingSession = true)
         pageBridge = null
         geckoView?.releaseSession()
         geckoSession?.close()
@@ -597,7 +592,7 @@ class BrowserActivity : BaseSessionHost() {
             onDownload = { response -> downloadHandler.onExternalResponse(response) },
             onContextMenu = contextMenuCallback,
         )
-        session.progressDelegate = PeelProgressDelegate(this, INITIAL_PROGRESS)
+        session.progressDelegate = PeelProgressDelegate(this)
         session.permissionDelegate = permissionDelegate
         session.promptDelegate = promptDelegate
 
@@ -765,7 +760,6 @@ class BrowserActivity : BaseSessionHost() {
     companion object {
         private const val UI_ANIMATION_DURATION_MS = 300L
         private const val OVERLAY_HIDE_FALLBACK_MS = 800L
-        private const val INITIAL_PROGRESS = 10
 
         private val liveInstances = mutableSetOf<BrowserActivity>()
 

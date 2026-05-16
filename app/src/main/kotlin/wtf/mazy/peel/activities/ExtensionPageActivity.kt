@@ -76,7 +76,7 @@ class ExtensionPageActivity : BaseSessionHost() {
             host = this,
             onDownload = { response -> downloadHandler.onExternalResponse(response) },
         )
-        session.progressDelegate = PeelProgressDelegate(this, initialProgress = 0)
+        session.progressDelegate = PeelProgressDelegate(this)
         session.promptDelegate = PeelPromptDelegate(this)
         session.open(runtime)
         session.loadUri(url)

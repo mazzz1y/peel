@@ -444,7 +444,6 @@ class HeadlessFetcher(
     }
 
     private fun teardown() {
-        val p = port
         val session = geckoSession
         val view = geckoView
         port = null
@@ -457,7 +456,6 @@ class HeadlessFetcher(
         if (session != null || view != null) {
             handler.post {
                 try {
-                    p?.disconnect()
                     session?.let {
                         GeckoRuntimeProvider.getRuntime(appContext)
                             .webExtensionController.setTabActive(it, false)

@@ -66,8 +66,8 @@ class PageBridge(
         )
     }
 
-    fun detach() {
-        port?.let { runCatching { it.disconnect() } }
+    fun detach(closingSession: Boolean = false) {
+        if (!closingSession) port?.let { runCatching { it.disconnect() } }
         port = null
         pending.values.forEach { it.cancel() }
         pending.clear()
