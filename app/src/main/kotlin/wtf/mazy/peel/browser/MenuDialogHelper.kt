@@ -133,11 +133,8 @@ object MenuDialogHelper {
         }
     }
 
-    fun displayUrl(url: String): String {
-        if (url.startsWith("data:")) return url.substringBefore(",").substringAfter("data:")
-        val q = url.indexOf('?')
-        return if (q > 0) url.substring(0, q) else url
-    }
+    fun prettyDataUrl(url: String): String =
+        if (url.startsWith("data:")) url.substringBefore(",").substringAfter("data:") else url
 
     fun dpToPx(context: Context, dp: Float): Int = TypedValue.applyDimension(
         TypedValue.COMPLEX_UNIT_DIP, dp, context.resources.displayMetrics,

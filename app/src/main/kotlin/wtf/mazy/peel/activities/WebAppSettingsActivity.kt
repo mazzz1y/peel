@@ -43,7 +43,7 @@ import wtf.mazy.peel.ui.settings.OverridePickerController
 import wtf.mazy.peel.ui.settings.SandboxSwitchController
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.NotificationUtils.showToast
-import wtf.mazy.peel.util.displayUrl
+import wtf.mazy.peel.util.prettyBaseUrl
 import wtf.mazy.peel.util.withBoldSpan
 import wtf.mazy.peel.util.withMonoSpan
 
@@ -103,7 +103,7 @@ class WebAppSettingsActivity :
                     return
                 }
         txtWebAppName.text = editableWebapp.title
-        textBaseUrl.text = displayUrl(editableWebapp.baseUrl)
+        textBaseUrl.text = prettyBaseUrl(editableWebapp.baseUrl)
         sandboxLabel.setText(R.string.enable_sandbox)
         switchSandbox.isChecked = editableWebapp.isUseContainer
         switchEphemeralSandbox.isChecked = editableWebapp.isEphemeralSandbox
@@ -186,7 +186,7 @@ class WebAppSettingsActivity :
             webapp.title = nameInput.text.toString().trim()
             webapp.baseUrl = urlInput?.text.toString().trim()
             txtWebAppName.text = webapp.title
-            textBaseUrl.text = displayUrl(webapp.baseUrl)
+            textBaseUrl.text = prettyBaseUrl(webapp.baseUrl)
             iconEditor.refreshIcon()
         }
     }
@@ -441,7 +441,7 @@ class WebAppSettingsActivity :
             .setMessage(message)
             .setPositiveButton(R.string.manifest_start_url_update) { _, _ ->
                 webapp.baseUrl = suggestedUrl
-                textBaseUrl.text = displayUrl(suggestedUrl)
+                textBaseUrl.text = prettyBaseUrl(suggestedUrl)
             }
             .setNegativeButton(R.string.manifest_start_url_keep, null)
             .show()

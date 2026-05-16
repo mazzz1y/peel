@@ -14,7 +14,6 @@ import wtf.mazy.peel.R
 import wtf.mazy.peel.model.StableIdRegistry
 import wtf.mazy.peel.model.WebAppSurrogate
 import wtf.mazy.peel.shortcut.LetterIconGenerator
-import wtf.mazy.peel.util.displayUrl
 
 class ImportMappingAdapter(
     private val items: List<WebAppSurrogate>,
@@ -116,7 +115,7 @@ class ImportMappingAdapter(
     private fun bindApp(holder: AppViewHolder, row: Row.AppItem) {
         val item = row.app
         holder.name.text = item.title.ifBlank { item.baseUrl }
-        holder.url.text = displayUrl(item.baseUrl)
+        holder.url.text = item.baseUrl
 
         val bitmap = icons[item.uuid]
         if (bitmap != null) {

@@ -27,7 +27,7 @@ import wtf.mazy.peel.ui.entitylist.binders.WebAppBinder
 import wtf.mazy.peel.ui.entitylist.scheduleEntityDelete
 import wtf.mazy.peel.util.BrowserLauncher.launch
 import wtf.mazy.peel.util.Const
-import wtf.mazy.peel.util.displayUrl
+import wtf.mazy.peel.util.prettyBaseUrl
 
 class WebAppListAdapter(
     activity: AppCompatActivity,
@@ -57,7 +57,7 @@ class WebAppListAdapter(
     override fun bindRow(holder: ViewHolder, row: EntityRow<WebApp>) {
         val app = row.entity
         holder.titleView.text = app.title
-        holder.urlView.text = displayUrl(app.baseUrl)
+        holder.urlView.text = prettyBaseUrl(app.baseUrl)
 
         holder.groupLabel.text = row.tertiaryText
         holder.groupLabel.visibility = if (row.tertiaryText != null) View.VISIBLE else View.GONE

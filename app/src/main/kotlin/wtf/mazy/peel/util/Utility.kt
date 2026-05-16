@@ -8,7 +8,7 @@ import java.text.BreakIterator
 import java.util.regex.Pattern
 import kotlin.system.exitProcess
 
-fun displayUrl(url: String): String {
+fun prettyBaseUrl(url: String): String {
     val queryStart = url.indexOf('?')
     val clean = if (queryStart >= 0) url.substring(0, queryStart) else url
     return clean.trimEnd('/')

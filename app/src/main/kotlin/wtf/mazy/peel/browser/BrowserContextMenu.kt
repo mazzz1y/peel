@@ -117,7 +117,7 @@ class BrowserContextMenu(
                 MenuDialogHelper.buildHeader(
                     activity,
                     info.title,
-                    MenuDialogHelper.displayUrl(info.url)
+                    MenuDialogHelper.prettyDataUrl(info.url)
                 )
             )
             addView(MenuDialogHelper.buildDivider(activity))

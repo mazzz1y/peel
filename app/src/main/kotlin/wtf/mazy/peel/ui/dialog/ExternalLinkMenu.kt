@@ -41,7 +41,7 @@ object ExternalLinkMenu {
                 MenuDialogHelper.buildHeader(
                     activity,
                     null,
-                    MenuDialogHelper.displayUrl(url),
+                    MenuDialogHelper.prettyDataUrl(url),
                 )
             )
             addView(MenuDialogHelper.buildDivider(activity))
