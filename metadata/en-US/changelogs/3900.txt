@@ -1,0 +1,6 @@
+- Add in-page search (Ctrl+F-style) accessible from the floating menu
+- Redesign floating button and menu with Material 3 styling
+- Show full URLs in long-press link dialogs and external link menus
+- Smoother loading progress bar with trickle animation
+- Fix occasional crash when closing or restarting webapps
+- Update GeckoView to 150.0.20260511200624
