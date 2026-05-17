@@ -32,8 +32,13 @@ class FloatingControlsView(
     onShare: () -> Unit,
     onFind: (() -> Unit)? = null,
     onExtensions: (() -> Unit)? = null,
+    onReloadLongPress: (() -> Unit)? = null,
 ) {
-    private data class Action(@param:DrawableRes val iconRes: Int, val onClick: () -> Unit)
+    private data class Action(
+        @param:DrawableRes val iconRes: Int,
+        val onClick: () -> Unit,
+        val onLongClick: (() -> Unit)? = null,
+    )
 
     private data class SavedOffset(val xFraction: Float, val yFraction: Float)
 
@@ -75,7 +80,7 @@ class FloatingControlsView(
         add(Action(R.drawable.ic_symbols_home_24, onHome))
         add(Action(R.drawable.ic_symbols_share_24, onShare))
         onFind?.let { add(Action(R.drawable.ic_symbols_search_24, it)) }
-        add(Action(R.drawable.ic_symbols_refresh_24, onReload))
+        add(Action(R.drawable.ic_symbols_refresh_24, onReload, onReloadLongPress))
         onExtensions?.let { add(Action(R.drawable.ic_symbols_extension_24, it)) }
     }
 
@@ -190,6 +195,14 @@ class FloatingControlsView(
         btn.setOnClickListener {
             collapse()
             action.onClick()
+        }
+        action.onLongClick?.let { longClick ->
+            btn.setOnLongClickListener {
+                btn.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
+                collapse()
+                longClick()
+                true
+            }
         }
         return btn
     }

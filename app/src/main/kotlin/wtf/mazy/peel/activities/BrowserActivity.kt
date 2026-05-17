@@ -288,7 +288,22 @@ class BrowserActivity : BaseSessionHost() {
             onFind = ::openFindInPage,
             onExtensions = if (SessionExtensionActions.hasExtensions)
                 ({ ExtensionPickerDialog.show(this, sessionExtensionActions) }) else null,
+            onReloadLongPress = ::clearSiteCacheAndReload,
         )
+    }
+
+    private fun clearSiteCacheAndReload() {
+        val host = runCatching { Uri.parse(currentUrl).host }.getOrNull()
+        val flags = StorageController.ClearFlags.NETWORK_CACHE or
+            StorageController.ClearFlags.IMAGE_CACHE
+        val runtime = GeckoRuntimeProvider.getRuntime(this)
+        if (!host.isNullOrBlank()) {
+            runtime.storageController.clearDataFromBaseDomain(host, flags)
+        } else {
+            runtime.storageController.clearData(flags)
+        }
+        NotificationUtils.showToast(this, getString(R.string.cache_cleared))
+        reloadCurrentPage()
     }
 
     private fun openFindInPage() {

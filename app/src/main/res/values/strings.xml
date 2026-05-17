@@ -5,6 +5,7 @@
     <string name="open_external_links_in_browser_app">Prompt for external links</string>
     <string name="allow_javascript">Allow JavaScript</string>
     <string name="clear_cache_after_usage">Clear cache on exit</string>
+    <string name="cache_cleared">Cache cleared</string>
     <string name="url" translatable="false">URL</string>
     <string name="fetch_failed">Failed to fetch data from website</string>
     <string name="enter_valid_url">Please enter a valid web address</string>
