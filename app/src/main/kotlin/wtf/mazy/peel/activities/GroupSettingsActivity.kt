@@ -45,6 +45,8 @@ class GroupSettingsActivity :
     private val switchSandbox get() = binding.root.findViewById<MaterialSwitch>(R.id.switchSandbox)
     private val switchEphemeralSandbox get() = binding.root.findViewById<MaterialSwitch>(R.id.switchEphemeralSandbox)
     private val ephemeralSandboxRow get() = binding.root.findViewById<LinearLayout>(R.id.ephemeralSandboxRow)
+    private val proxyRow get() = binding.root.findViewById<LinearLayout>(R.id.proxyRow)
+    private val btnProxyPicker get() = binding.root.findViewById<MaterialButton>(R.id.btnProxyPicker)
     private val btnClearSandbox get() = binding.root.findViewById<MaterialButton>(R.id.btnClearSandbox)
     private val btnAddOverride get() = binding.root.findViewById<MaterialButton>(R.id.btnAddOverride)
     private val linearLayoutOverrides get() = binding.root.findViewById<LinearLayout>(R.id.linearLayoutOverrides)
@@ -127,6 +129,12 @@ class GroupSettingsActivity :
 
     private fun setupSandboxSwitch() {
         val group = modifiedGroup ?: return
+        val proxyController = wtf.mazy.peel.ui.settings.ProxyDropdownController(
+            activity = this,
+            owner = group,
+            proxyRow = proxyRow,
+            proxyButton = btnProxyPicker,
+        )
         SandboxSwitchController(
             this,
             group,
@@ -134,7 +142,9 @@ class GroupSettingsActivity :
             switchEphemeralSandbox,
             ephemeralSandboxRow,
             btnClearSandbox,
+            onSandboxChanged = { proxyController.refresh() },
         ).setup()
+        proxyController.setup()
     }
 
     private lateinit var overrideController: OverridePickerController

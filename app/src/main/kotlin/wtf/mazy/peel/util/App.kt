@@ -9,6 +9,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import wtf.mazy.peel.browser.ProxyRouterBridge
 import wtf.mazy.peel.model.DataManager
 
 class App : Application() {
@@ -22,9 +23,13 @@ class App : Application() {
     override fun onCreate() {
         super.onCreate()
         appContext = applicationContext
+        if (getProcessName() != packageName) {
+            return
+        }
         registerActivityLifecycleCallbacks(ForegroundActivityTracker)
         appScope.launch {
             DataManager.instance.initialize(applicationContext)
+            ProxyRouterBridge.ensure(applicationContext)
         }
     }
 

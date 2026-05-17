@@ -1,0 +1,23 @@
+{
+  "manifest_version": 2,
+  "name": "Peel Proxy Router",
+  "version": "1",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "proxy-router@peel.mazy.wtf"
+    }
+  },
+  "background": {
+    "scripts": [
+      "background.js"
+    ],
+    "persistent": true
+  },
+  "permissions": [
+    "<all_urls>",
+    "geckoViewAddons",
+    "nativeMessaging",
+    "proxy",
+    "tabs"
+  ]
+}

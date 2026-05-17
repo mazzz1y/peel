@@ -13,14 +13,19 @@ import androidx.core.content.FileProvider
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import org.mozilla.geckoview.GeckoResult
 import org.mozilla.geckoview.GeckoSession
+import wtf.mazy.peel.R
+import wtf.mazy.peel.model.DataManager
+import wtf.mazy.peel.util.NotificationUtils
 import java.io.File
 
 class PeelPromptDelegate(private val host: SessionHost) : GeckoSession.PromptDelegate {
 
     private val autoAuthAttempted = mutableSetOf<String>()
+    private val proxyAuthAttempted = mutableSetOf<String>()
 
     fun clearAutoAuth() {
         autoAuthAttempted.clear()
+        proxyAuthAttempted.clear()
     }
 
     override fun onAlertPrompt(
@@ -95,7 +100,24 @@ class PeelPromptDelegate(private val host: SessionHost) : GeckoSession.PromptDel
     ): GeckoResult<GeckoSession.PromptDelegate.PromptResponse> {
         val settings = host.effectiveSettings
         val authUri = prompt.authOptions.uri ?: ""
-        if (settings.isUseBasicAuth == true) {
+        val flags = prompt.authOptions.flags
+        val isProxyAuth =
+            (flags and GeckoSession.PromptDelegate.AuthPrompt.AuthOptions.Flags.PROXY) != 0
+        val isPreviousFailed =
+            (flags and GeckoSession.PromptDelegate.AuthPrompt.AuthOptions.Flags.PREVIOUS_FAILED) != 0
+
+        if (isProxyAuth) {
+            val proxy = resolveActiveProxy()
+            val username = proxy?.username.orEmpty()
+            val password = proxy?.password.orEmpty()
+            val challengeKey = "proxy:${proxy?.uuid ?: "?"}"
+            if (isPreviousFailed) {
+                val ctx = host.hostWindow.context
+                NotificationUtils.showToastSafe(ctx, ctx.getString(R.string.proxy_auth_failed))
+            } else if (username.isNotEmpty() && proxyAuthAttempted.add(challengeKey)) {
+                return GeckoResult.fromValue(prompt.confirm(username, password))
+            }
+        } else if (settings.isUseBasicAuth == true) {
             val username = settings.basicAuthUsername.orEmpty()
             val password = settings.basicAuthPassword.orEmpty()
             val challengeKey = authUri
@@ -113,6 +135,14 @@ class PeelPromptDelegate(private val host: SessionHost) : GeckoSession.PromptDel
             url = authUri,
         )
         return result
+    }
+
+    private fun resolveActiveProxy(): wtf.mazy.peel.model.Proxy? {
+        val dm = DataManager.instance
+        val uuid = (host as? wtf.mazy.peel.activities.BrowserActivity)?.webappUuid ?: return null
+        val webapp = dm.getWebApp(uuid) ?: return null
+        val proxyUuid = webapp.resolveProxyUuid() ?: return null
+        return dm.getProxy(proxyUuid)
     }
 
     override fun onChoicePrompt(

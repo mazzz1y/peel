@@ -9,6 +9,7 @@ data class WebAppGroup(
     var order: Int = 0,
     override var isUseContainer: Boolean = false,
     override var isEphemeralSandbox: Boolean = false,
+    override var proxyUuid: String? = null,
     var settings: WebAppSettings = WebAppSettings(),
 ) : IconOwner, SandboxOwner {
     constructor(
@@ -19,11 +20,12 @@ data class WebAppGroup(
         order = other.order,
         isUseContainer = other.isUseContainer,
         isEphemeralSandbox = other.isEphemeralSandbox,
+        proxyUuid = other.proxyUuid,
         settings = other.settings.deepCopy(),
     )
 
     override val iconStamp: Long = if (iconFile.exists()) iconFile.lastModified() else 0L
 
     val contentFingerprint: Int
-        get() = Objects.hash(title, isUseContainer, isEphemeralSandbox, iconStamp)
+        get() = Objects.hash(title, isUseContainer, isEphemeralSandbox, proxyUuid, iconStamp)
 }

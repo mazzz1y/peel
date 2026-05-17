@@ -24,8 +24,8 @@ class StringMapConverter {
 }
 
 @Database(
-    entities = [WebAppEntity::class, WebAppGroupEntity::class],
-    version = 16,
+    entities = [WebAppEntity::class, WebAppGroupEntity::class, ProxyEntity::class],
+    version = 17,
     exportSchema = true,
 )
 @TypeConverters(StringMapConverter::class)
@@ -34,6 +34,8 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun webAppDao(): WebAppDao
 
     abstract fun webAppGroupDao(): WebAppGroupDao
+
+    abstract fun proxyDao(): ProxyDao
 
     companion object {
         private const val DATABASE_NAME = "peel.db"
@@ -396,6 +398,38 @@ abstract class AppDatabase : RoomDatabase() {
                 }
             }
 
+        val MIGRATION_16_17 =
+            object : Migration(16, 17) {
+                override fun migrate(db: SupportSQLiteDatabase) {
+                    ensureSettingsColumns(db)
+                    db.execSQL(
+                        """
+                        CREATE TABLE IF NOT EXISTS proxies (
+                            uuid TEXT NOT NULL PRIMARY KEY,
+                            name TEXT NOT NULL,
+                            type INTEGER NOT NULL,
+                            host TEXT NOT NULL,
+                            port INTEGER NOT NULL,
+                            username TEXT,
+                            password TEXT,
+                            remoteDns INTEGER NOT NULL,
+                            bypassList TEXT NOT NULL
+                        )
+                        """
+                    )
+                    for (table in listOf("webapps", "webapp_groups")) {
+                        val cursor = db.query("PRAGMA table_info($table)")
+                        val existing = mutableSetOf<String>()
+                        val nameIdx = cursor.getColumnIndex("name")
+                        while (cursor.moveToNext()) existing.add(cursor.getString(nameIdx))
+                        cursor.close()
+                        if ("proxyUuid" !in existing) {
+                            db.execSQL("ALTER TABLE $table ADD COLUMN proxyUuid TEXT DEFAULT NULL")
+                        }
+                    }
+                }
+            }
+
         fun getInstance(context: Context): AppDatabase {
             return instance
                 ?: synchronized(this) { instance ?: buildDatabase(context).also { instance = it } }
@@ -423,6 +457,7 @@ abstract class AppDatabase : RoomDatabase() {
                     MIGRATION_13_14,
                     MIGRATION_14_15,
                     MIGRATION_15_16,
+                    MIGRATION_16_17,
                 )
                 .allowMainThreadQueries()
                 .build()

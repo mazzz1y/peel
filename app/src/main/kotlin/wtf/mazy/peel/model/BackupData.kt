@@ -10,4 +10,5 @@ data class BackupData(
     val websites: List<WebAppSurrogate>,
     val globalSettings: WebAppSettings? = null,
     val groups: List<WebAppGroupSurrogate> = emptyList(),
+    val proxies: List<ProxySurrogate> = emptyList(),
 )

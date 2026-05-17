@@ -24,7 +24,8 @@ class GroupListAdapter(
     class ViewHolder(itemView: View) : EntityListViewHolder(itemView) {
         val iconSandbox: ImageView = itemView.findViewById(R.id.iconSandbox)
         val iconEphemeral: ImageView = itemView.findViewById(R.id.iconEphemeral)
-        override val indicators: List<ImageView> = listOf(iconSandbox, iconEphemeral)
+        val iconProxy: ImageView = itemView.findViewById(R.id.iconProxy)
+        override val indicators: List<ImageView> = listOf(iconSandbox, iconEphemeral, iconProxy)
         val titleView: TextView = itemView.findViewById(R.id.item_primary)
     }
 
@@ -37,5 +38,7 @@ class GroupListAdapter(
         holder.iconSandbox.visibility = if (group.isUseContainer) View.VISIBLE else View.GONE
         holder.iconEphemeral.visibility =
             if (group.isUseContainer && group.isEphemeralSandbox) View.VISIBLE else View.GONE
+        holder.iconProxy.visibility =
+            if (group.isUseContainer && group.proxyUuid != null) View.VISIBLE else View.GONE
     }
 }

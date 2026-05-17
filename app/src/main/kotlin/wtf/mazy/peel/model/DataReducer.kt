@@ -6,6 +6,7 @@ object DataReducer {
         val websites: List<WebApp>? = null,
         val groups: List<WebAppGroup>? = null,
         val defaultSettings: WebApp? = null,
+        val proxies: List<Proxy>? = null,
         val emit: Boolean = true,
     )
 
@@ -14,6 +15,7 @@ object DataReducer {
             websites = mutation.websites ?: state.websites,
             groups = mutation.groups ?: state.groups,
             defaultSettings = mutation.defaultSettings ?: state.defaultSettings,
+            proxies = mutation.proxies ?: state.proxies,
         )
     }
 
@@ -21,12 +23,21 @@ object DataReducer {
         websites: List<WebApp>,
         groups: List<WebAppGroup>,
         defaultSettings: WebApp,
+        proxies: List<Proxy>,
         emit: Boolean = true,
     ): StateMutation {
         return StateMutation(
             websites = websites.map { WebApp(it) },
             groups = groups.map { WebAppGroup(it) },
             defaultSettings = WebApp(defaultSettings),
+            proxies = proxies.map { it.copy() },
+            emit = emit,
+        )
+    }
+
+    fun withProxies(proxies: List<Proxy>, emit: Boolean = true): StateMutation {
+        return StateMutation(
+            proxies = proxies.map { it.copy() },
             emit = emit,
         )
     }

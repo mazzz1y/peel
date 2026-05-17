@@ -1,9 +1,13 @@
 package wtf.mazy.peel.model.db
 
+import wtf.mazy.peel.model.Proxy
+import wtf.mazy.peel.model.ProxySurrogate
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.model.WebAppGroup
 import wtf.mazy.peel.model.WebAppGroupSurrogate
 import wtf.mazy.peel.model.WebAppSurrogate
+
+private const val BYPASS_SEPARATOR = "\n"
 
 fun WebApp.toEntity(): WebAppEntity =
     WebAppEntity(
@@ -12,6 +16,7 @@ fun WebApp.toEntity(): WebAppEntity =
         title = title,
         isUseContainer = isUseContainer,
         isEphemeralSandbox = isEphemeralSandbox,
+        proxyUuid = proxyUuid,
         order = order,
         groupUuid = groupUuid,
         settings = settings,
@@ -24,6 +29,7 @@ fun WebApp.toSurrogate(): WebAppSurrogate =
         title = title,
         isUseContainer = isUseContainer,
         isEphemeralSandbox = isEphemeralSandbox,
+        proxyUuid = proxyUuid,
         order = order,
         groupUuid = groupUuid,
         settings = settings,
@@ -34,6 +40,7 @@ fun WebAppEntity.toDomain(): WebApp {
     webapp.title = title
     webapp.isUseContainer = isUseContainer
     webapp.isEphemeralSandbox = isEphemeralSandbox
+    webapp.proxyUuid = proxyUuid
     webapp.order = order
     webapp.groupUuid = groupUuid
     webapp.settings = settings
@@ -47,6 +54,7 @@ fun WebAppSurrogate.toDomain(overrideUuid: String): WebApp {
     webapp.title = title
     webapp.isUseContainer = isUseContainer
     webapp.isEphemeralSandbox = isEphemeralSandbox
+    webapp.proxyUuid = proxyUuid
     webapp.order = order
     webapp.groupUuid = groupUuid
     webapp.settings = settings
@@ -60,6 +68,7 @@ fun WebAppGroup.toEntity(): WebAppGroupEntity =
         order = order,
         isUseContainer = isUseContainer,
         isEphemeralSandbox = isEphemeralSandbox,
+        proxyUuid = proxyUuid,
         settings = settings,
     )
 
@@ -70,6 +79,7 @@ fun WebAppGroup.toSurrogate(): WebAppGroupSurrogate =
         order = order,
         isUseContainer = isUseContainer,
         isEphemeralSandbox = isEphemeralSandbox,
+        proxyUuid = proxyUuid,
         settings = settings,
     )
 
@@ -80,6 +90,7 @@ fun WebAppGroupEntity.toDomain(): WebAppGroup =
         order = order,
         isUseContainer = isUseContainer,
         isEphemeralSandbox = isEphemeralSandbox,
+        proxyUuid = proxyUuid,
         settings = settings,
     )
 
@@ -90,5 +101,55 @@ fun WebAppGroupSurrogate.toDomain(): WebAppGroup =
         order = order,
         isUseContainer = isUseContainer,
         isEphemeralSandbox = isEphemeralSandbox,
+        proxyUuid = proxyUuid,
         settings = settings,
     )
+
+fun Proxy.toEntity(): ProxyEntity = ProxyEntity(
+    uuid = uuid,
+    name = name,
+    type = type,
+    host = host,
+    port = port,
+    username = username,
+    password = password,
+    remoteDns = remoteDns,
+    bypassList = bypassList.joinToString(BYPASS_SEPARATOR),
+)
+
+fun Proxy.toSurrogate(): ProxySurrogate = ProxySurrogate(
+    uuid = uuid,
+    name = name,
+    type = type,
+    host = host,
+    port = port,
+    username = username,
+    password = password,
+    remoteDns = remoteDns,
+    bypassList = bypassList,
+)
+
+fun ProxyEntity.toDomain(): Proxy = Proxy(
+    uuid = uuid,
+    name = name,
+    type = type,
+    host = host,
+    port = port,
+    username = username,
+    password = password,
+    remoteDns = remoteDns,
+    bypassList = if (bypassList.isEmpty()) emptyList()
+    else bypassList.split(BYPASS_SEPARATOR).filter { it.isNotEmpty() },
+)
+
+fun ProxySurrogate.toDomain(): Proxy = Proxy(
+    uuid = uuid,
+    name = name,
+    type = type,
+    host = host,
+    port = port,
+    username = username,
+    password = password,
+    remoteDns = remoteDns,
+    bypassList = bypassList,
+)

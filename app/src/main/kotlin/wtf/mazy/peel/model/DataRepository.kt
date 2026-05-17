@@ -2,6 +2,7 @@ package wtf.mazy.peel.model
 
 import android.content.Context
 import wtf.mazy.peel.model.db.AppDatabase
+import wtf.mazy.peel.model.db.ProxyDao
 import wtf.mazy.peel.model.db.WebAppDao
 import wtf.mazy.peel.model.db.WebAppGroupDao
 import wtf.mazy.peel.model.db.toDomain
@@ -10,14 +11,16 @@ import wtf.mazy.peel.model.db.toEntity
 class DataRepository {
     private lateinit var webAppDao: WebAppDao
     private lateinit var groupDao: WebAppGroupDao
+    private lateinit var proxyDao: ProxyDao
 
     val isInitialized: Boolean
-        get() = ::webAppDao.isInitialized && ::groupDao.isInitialized
+        get() = ::webAppDao.isInitialized && ::groupDao.isInitialized && ::proxyDao.isInitialized
 
     fun initialize(context: Context) {
         val db = AppDatabase.getInstance(context)
         webAppDao = db.webAppDao()
         groupDao = db.webAppGroupDao()
+        proxyDao = db.proxyDao()
     }
 
     fun getGlobalSettings(): WebApp? = webAppDao.getGlobalSettings()?.toDomain()
@@ -64,5 +67,23 @@ class DataRepository {
 
     fun replaceAllGroups(groups: List<WebAppGroup>) {
         groupDao.replaceAll(groups.map { it.toEntity() })
+    }
+
+    fun getAllProxies(): List<Proxy> = proxyDao.getAll().map { it.toDomain() }
+
+    fun upsertProxy(proxy: Proxy) {
+        proxyDao.upsert(proxy.toEntity())
+    }
+
+    fun upsertProxies(proxies: List<Proxy>) {
+        proxyDao.upsertAll(proxies.map { it.toEntity() })
+    }
+
+    fun deleteProxy(uuid: String) {
+        proxyDao.deleteByUuid(uuid)
+    }
+
+    fun replaceAllProxies(proxies: List<Proxy>) {
+        proxyDao.replaceAll(proxies.map { it.toEntity() })
     }
 }

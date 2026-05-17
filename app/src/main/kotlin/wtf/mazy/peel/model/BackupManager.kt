@@ -122,6 +122,7 @@ object BackupManager {
         websites = websites.map { it.toSurrogate() },
         globalSettings = dataManager.defaultSettings.settings,
         groups = dataManager.getGroups().map { it.toSurrogate() },
+        proxies = dataManager.getProxies().map { it.toSurrogate() },
     )
 
     private fun WebAppSettings.withoutSecrets(): WebAppSettings {

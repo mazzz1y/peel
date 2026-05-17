@@ -18,10 +18,12 @@ class SandboxSwitchController(
     private val switchEphemeral: MaterialSwitch,
     private val ephemeralRow: View,
     private val btnClear: View,
+    private val onSandboxChanged: (() -> Unit)? = null,
 ) {
     fun setup() {
         updateEphemeralVisibility()
         updateClearButtonVisibility()
+        onSandboxChanged?.invoke()
 
         switchSandbox.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked == owner.isUseContainer) return@setOnCheckedChangeListener
@@ -84,15 +86,18 @@ class SandboxSwitchController(
         owner.isUseContainer = true
         updateEphemeralVisibility()
         updateClearButtonVisibility()
+        onSandboxChanged?.invoke()
         return
     }
 
     private fun disableSandbox() {
         owner.isUseContainer = false
         owner.isEphemeralSandbox = false
+        owner.proxyUuid = null
         switchEphemeral.isChecked = false
         updateEphemeralVisibility()
         updateClearButtonVisibility()
+        onSandboxChanged?.invoke()
     }
 
     private fun clearSandboxData() {

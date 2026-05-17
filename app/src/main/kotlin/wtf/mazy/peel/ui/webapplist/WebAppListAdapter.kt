@@ -45,7 +45,8 @@ class WebAppListAdapter(
     class ViewHolder(itemView: View) : EntityListViewHolder(itemView) {
         val iconSandbox: ImageView = itemView.findViewById(R.id.iconSandbox)
         val iconEphemeral: ImageView = itemView.findViewById(R.id.iconEphemeral)
-        override val indicators: List<ImageView> = listOf(iconSandbox, iconEphemeral)
+        val iconProxy: ImageView = itemView.findViewById(R.id.iconProxy)
+        override val indicators: List<ImageView> = listOf(iconSandbox, iconEphemeral, iconProxy)
         val titleView: TextView = itemView.findViewById(R.id.item_primary)
         val urlView: TextView = itemView.findViewById(R.id.item_secondary)
         val groupLabel: TextView = itemView.findViewById(R.id.item_tertiary)
@@ -65,6 +66,8 @@ class WebAppListAdapter(
         holder.iconSandbox.visibility = if (app.isUseContainer) View.VISIBLE else View.GONE
         holder.iconEphemeral.visibility =
             if (app.isUseContainer && app.isEphemeralSandbox) View.VISIBLE else View.GONE
+        holder.iconProxy.visibility =
+            if (app.isUseContainer && app.resolveProxyUuid() != null) View.VISIBLE else View.GONE
     }
 
     private fun buildRows(): List<EntityRow<WebApp>> {

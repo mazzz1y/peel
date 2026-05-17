@@ -1,6 +1,7 @@
 package wtf.mazy.peel.util
 
 import android.app.Activity
+import android.content.Context
 import android.widget.Toast
 import com.google.android.material.snackbar.Snackbar
 import wtf.mazy.peel.R
@@ -15,6 +16,11 @@ object NotificationUtils {
     @JvmStatic
     fun showToast(a: Activity, text: String, toastDisplayDuration: Int) {
         Toast.makeText(a, text, toastDisplayDuration).show()
+    }
+
+    @JvmStatic
+    fun showToastSafe(context: Context, text: String) {
+        Toast.makeText(context.applicationContext, text, Toast.LENGTH_SHORT).show()
     }
 
     @JvmStatic

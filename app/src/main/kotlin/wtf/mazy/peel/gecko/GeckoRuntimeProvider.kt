@@ -54,6 +54,9 @@ object GeckoRuntimeProvider {
     @Volatile
     private var pageBridgeExtension: WebExtension? = null
 
+    @Volatile
+    private var proxyRouterExtension: WebExtension? = null
+
     private val initStarted = AtomicBoolean(false)
 
     private val extensionStateListeners = CopyOnWriteArraySet<ExtensionStateListener>()
@@ -256,6 +259,19 @@ object GeckoRuntimeProvider {
         }
     }
 
+    suspend fun ensureProxyRouterExtension(context: Context): WebExtension? {
+        proxyRouterExtension?.let { return it }
+        return try {
+            val ext = getRuntime(context).webExtensionController
+                .ensureBuiltIn(PROXY_ROUTER_URI, PROXY_ROUTER_ID)
+                .await()
+            proxyRouterExtension = ext
+            ext
+        } catch (_: Throwable) {
+            null
+        }
+    }
+
     private fun createRuntime(context: Context): GeckoRuntime {
         val defaults = DataManager.instance.defaultSettings.settings
         val lna = defaults.isBlockLocalNetwork == true
@@ -376,7 +392,7 @@ object GeckoRuntimeProvider {
         awaitNullable()
     }
 
-    private val BUILT_IN_IDS = setOf(THEME_COLOR_ID, PAGE_BRIDGE_ID)
+    private val BUILT_IN_IDS = setOf(THEME_COLOR_ID, PAGE_BRIDGE_ID, PROXY_ROUTER_ID)
 
     private const val GECKO_CONFIG_FILE = "geckoview-config.yaml"
     private const val TAG = "PeelGecko"
@@ -384,4 +400,6 @@ object GeckoRuntimeProvider {
     private const val THEME_COLOR_ID = "theme-color@peel.mazy.wtf"
     private const val PAGE_BRIDGE_URI = "resource://android/assets/extensions/page-bridge/"
     private const val PAGE_BRIDGE_ID = "peel@mazy.wtf"
+    private const val PROXY_ROUTER_URI = "resource://android/assets/extensions/proxy-router/"
+    private const val PROXY_ROUTER_ID = "proxy-router@peel.mazy.wtf"
 }

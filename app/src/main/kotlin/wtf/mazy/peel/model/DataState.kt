@@ -4,4 +4,5 @@ data class DataState(
     val websites: List<WebApp>,
     val groups: List<WebAppGroup>,
     val defaultSettings: WebApp,
+    val proxies: List<Proxy> = emptyList(),
 )

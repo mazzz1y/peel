@@ -69,7 +69,10 @@ class WebAppSettingsActivity :
     private val switchSandbox get() = binding.root.findViewById<MaterialSwitch>(R.id.switchSandbox)
     private val switchEphemeralSandbox get() = binding.root.findViewById<MaterialSwitch>(R.id.switchEphemeralSandbox)
     private val ephemeralSandboxRow get() = binding.root.findViewById<LinearLayout>(R.id.ephemeralSandboxRow)
+    private val proxyRow get() = binding.root.findViewById<LinearLayout>(R.id.proxyRow)
+    private val btnProxyPicker get() = binding.root.findViewById<MaterialButton>(R.id.btnProxyPicker)
     private val btnClearSandbox get() = binding.root.findViewById<MaterialButton>(R.id.btnClearSandbox)
+    private var proxyDropdownController: wtf.mazy.peel.ui.settings.ProxyDropdownController? = null
     private val btnAddOverride get() = binding.root.findViewById<MaterialButton>(R.id.btnAddOverride)
     private val linearLayoutOverrides get() = binding.root.findViewById<LinearLayout>(R.id.linearLayoutOverrides)
     private val sectionOverrideHeader get() = binding.root.findViewById<View>(R.id.sectionOverrideHeader)
@@ -220,6 +223,13 @@ class WebAppSettingsActivity :
     }
 
     private fun setupSandboxSwitch(modifiedWebapp: WebApp) {
+        val proxyController = wtf.mazy.peel.ui.settings.ProxyDropdownController(
+            activity = this,
+            owner = modifiedWebapp,
+            proxyRow = proxyRow,
+            proxyButton = btnProxyPicker,
+        )
+        proxyDropdownController = proxyController
         SandboxSwitchController(
             this,
             modifiedWebapp,
@@ -227,7 +237,9 @@ class WebAppSettingsActivity :
             switchEphemeralSandbox,
             ephemeralSandboxRow,
             btnClearSandbox,
+            onSandboxChanged = { proxyController.refresh() },
         ).setup()
+        proxyController.setup()
     }
 
     private fun setupFetchButton(modifiedWebapp: WebApp) {

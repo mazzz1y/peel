@@ -100,6 +100,7 @@ class GroupListActivity : EntityListActivity<WebAppGroup>() {
                 WebAppGroup(title = result.text, order = DataManager.instance.getGroups().size)
             group.isUseContainer = result.sandbox
             group.isEphemeralSandbox = result.ephemeral
+            group.proxyUuid = result.proxyUuid
             DataManager.instance.appScope.launch {
                 DataManager.instance.addGroup(group)
             }

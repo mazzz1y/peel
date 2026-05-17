@@ -73,6 +73,7 @@ class DataManager private constructor() {
             val importedWebApps: List<WebApp>,
             val globalSettings: WebAppSettings,
             val importedGroups: List<WebAppGroup>,
+            val importedProxies: List<Proxy>,
         ) : Action
 
         data class MergeData(
@@ -80,6 +81,7 @@ class DataManager private constructor() {
             val importedWebApps: List<WebApp>,
             val globalSettings: WebAppSettings,
             val importedGroups: List<WebAppGroup>,
+            val importedProxies: List<Proxy>,
         ) : Action
 
         data class AddGroup(override val done: CompletableDeferred<Unit>, val group: WebAppGroup) :
@@ -100,6 +102,21 @@ class DataManager private constructor() {
             override val done: CompletableDeferred<Unit>,
             val orderedUuids: List<String>
         ) : Action
+
+        data class AddProxy(
+            override val done: CompletableDeferred<Unit>,
+            val proxy: Proxy,
+        ) : Action
+
+        data class ReplaceProxy(
+            override val done: CompletableDeferred<Unit>,
+            val proxy: Proxy,
+        ) : Action
+
+        data class RemoveProxy(
+            override val done: CompletableDeferred<Unit>,
+            val uuid: String,
+        ) : Action
     }
 
     private val repository = DataRepository()
@@ -118,7 +135,7 @@ class DataManager private constructor() {
 
     @Volatile
     private var currentState: DataState =
-        DataState(emptyList(), emptyList(), createDefaultSettings())
+        DataState(emptyList(), emptyList(), createDefaultSettings(), emptyList())
 
     init {
         actionScope.launch {
@@ -202,6 +219,7 @@ class DataManager private constructor() {
         importedWebApps: List<WebApp>,
         globalSettings: WebAppSettings,
         importedGroups: List<WebAppGroup> = emptyList(),
+        importedProxies: List<Proxy> = emptyList(),
     ) {
         awaitReady()
         enqueueAndAwait(
@@ -210,6 +228,7 @@ class DataManager private constructor() {
                 importedWebApps = importedWebApps.map { WebApp(it) },
                 globalSettings = globalSettings.deepCopy(),
                 importedGroups = importedGroups.map { WebAppGroup(it) },
+                importedProxies = importedProxies.map { it.copy() },
             )
         )
     }
@@ -218,6 +237,7 @@ class DataManager private constructor() {
         importedWebApps: List<WebApp>,
         globalSettings: WebAppSettings,
         importedGroups: List<WebAppGroup> = emptyList(),
+        importedProxies: List<Proxy> = emptyList(),
     ) {
         awaitReady()
         enqueueAndAwait(
@@ -226,6 +246,7 @@ class DataManager private constructor() {
                 importedWebApps = importedWebApps.map { WebApp(it) },
                 globalSettings = globalSettings.deepCopy(),
                 importedGroups = importedGroups.map { WebAppGroup(it) },
+                importedProxies = importedProxies.map { it.copy() },
             )
         )
     }
@@ -298,6 +319,31 @@ class DataManager private constructor() {
         enqueueAndAwait(Action.ReorderGroups(CompletableDeferred(), orderedUuids))
     }
 
+    fun getProxies(): List<Proxy> = currentState.proxies.map { it.copy() }
+
+    fun getProxy(uuid: String): Proxy? = currentState.proxies.find { it.uuid == uuid }?.copy()
+
+    suspend fun addProxy(proxy: Proxy) {
+        awaitReady()
+        enqueueAndAwait(Action.AddProxy(CompletableDeferred(), proxy.copy()))
+    }
+
+    suspend fun replaceProxy(proxy: Proxy) {
+        awaitReady()
+        enqueueAndAwait(Action.ReplaceProxy(CompletableDeferred(), proxy.copy()))
+    }
+
+    suspend fun removeProxy(uuid: String) {
+        awaitReady()
+        enqueueAndAwait(Action.RemoveProxy(CompletableDeferred(), uuid))
+    }
+
+    fun proxyDependents(uuid: String): Pair<List<WebApp>, List<WebAppGroup>> {
+        val apps = currentState.websites.filter { it.proxyUuid == uuid }.map { WebApp(it) }
+        val groups = currentState.groups.filter { it.proxyUuid == uuid }.map { WebAppGroup(it) }
+        return apps to groups
+    }
+
     fun resolveEffectiveSettings(webapp: WebApp): WebAppSettings {
         val globalSettings = currentState.defaultSettings.settings
         val groupSettings =
@@ -347,6 +393,7 @@ class DataManager private constructor() {
                         websites = nextWebsites,
                         groups = nextGroups,
                         defaultSettings = loadedDefault,
+                        proxies = currentState.proxies,
                         emit = true,
                     )
                 )
@@ -442,6 +489,7 @@ class DataManager private constructor() {
 
                 repository.replaceAllWebApps(nextWebsites)
                 repository.replaceAllGroups(nextGroups)
+                repository.replaceAllProxies(action.importedProxies)
                 repository.persistGlobalSettings(nextDefault)
                 reloadAll()
             }
@@ -454,6 +502,7 @@ class DataManager private constructor() {
                 repository.persistGlobalSettings(nextDefault)
                 repository.upsertWebApps(action.importedWebApps)
                 repository.upsertGroups(action.importedGroups)
+                repository.upsertProxies(action.importedProxies)
                 reloadAll()
             }
 
@@ -498,6 +547,7 @@ class DataManager private constructor() {
                         websites = nextWebsites,
                         groups = nextGroups,
                         defaultSettings = currentState.defaultSettings,
+                        proxies = currentState.proxies,
                         emit = true,
                     )
                 )
@@ -516,6 +566,62 @@ class DataManager private constructor() {
                 repository.replaceAllGroups(nextGroups)
                 updateState(mutation)
             }
+
+            is Action.AddProxy -> {
+                if (!repository.isInitialized) return
+                repository.upsertProxy(action.proxy)
+                updateState(
+                    DataReducer.withProxies(
+                        currentState.proxies + action.proxy.copy(),
+                        emit = true,
+                    )
+                )
+            }
+
+            is Action.ReplaceProxy -> {
+                if (!repository.isInitialized) return
+                if (currentState.proxies.none { it.uuid == action.proxy.uuid }) return
+                repository.upsertProxy(action.proxy)
+                val nextProxies = currentState.proxies.map { current ->
+                    if (current.uuid == action.proxy.uuid) action.proxy.copy() else current.copy()
+                }
+                updateState(DataReducer.withProxies(nextProxies, emit = true))
+            }
+
+            is Action.RemoveProxy -> {
+                if (!repository.isInitialized) return
+                if (currentState.proxies.none { it.uuid == action.uuid }) return
+                repository.deleteProxy(action.uuid)
+
+                val affectedApps = currentState.websites
+                    .filter { it.proxyUuid == action.uuid }
+                    .map { WebApp(it).apply { proxyUuid = null } }
+                if (affectedApps.isNotEmpty()) repository.upsertWebApps(affectedApps)
+
+                val affectedGroups = currentState.groups
+                    .filter { it.proxyUuid == action.uuid }
+                    .map { WebAppGroup(it).apply { proxyUuid = null } }
+                if (affectedGroups.isNotEmpty()) repository.upsertGroups(affectedGroups)
+
+                val nextWebsites = currentState.websites.map { site ->
+                    if (site.proxyUuid == action.uuid) WebApp(site).apply { proxyUuid = null }
+                    else WebApp(site)
+                }
+                val nextGroups = currentState.groups.map { group ->
+                    if (group.proxyUuid == action.uuid) WebAppGroup(group).apply { proxyUuid = null }
+                    else WebAppGroup(group)
+                }
+                val nextProxies = currentState.proxies.filterNot { it.uuid == action.uuid }
+                updateState(
+                    DataReducer.withLoadedData(
+                        websites = nextWebsites,
+                        groups = nextGroups,
+                        defaultSettings = currentState.defaultSettings,
+                        proxies = nextProxies,
+                        emit = true,
+                    )
+                )
+            }
         }
     }
 
@@ -525,6 +631,7 @@ class DataManager private constructor() {
         val loadedWebsites = repository.getAllWebApps()
         removeStaleShortcuts(oldWebsites, loadedWebsites)
         val loadedGroups = repository.getAllGroups()
+        val loadedProxies = repository.getAllProxies()
         val loadedDefault = repository.getGlobalSettings()?.let(::ensureDefaultSettingsConcrete)
             ?: ensureDefaultSettingsConcrete(currentState.defaultSettings)
         updateState(
@@ -532,6 +639,7 @@ class DataManager private constructor() {
                 websites = loadedWebsites,
                 groups = loadedGroups,
                 defaultSettings = loadedDefault,
+                proxies = loadedProxies,
                 emit = true,
             )
         )

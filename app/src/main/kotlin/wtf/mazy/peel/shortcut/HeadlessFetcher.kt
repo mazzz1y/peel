@@ -117,6 +117,9 @@ class HeadlessFetcher(
     private suspend fun doFetch(loadUrl: String): FetchResult {
         var capturedUrl: String? = null
 
+        wtf.mazy.peel.browser.ProxyRouterBridge.ensure(appContext)
+        wtf.mazy.peel.browser.ProxyRouterBridge.awaitRoutesReady()
+
         val ext = GeckoRuntimeProvider.ensurePageBridgeExtension(appContext)
 
         val session = GeckoSession(

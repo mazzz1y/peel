@@ -9,6 +9,7 @@ data class WebAppSurrogate(
     val title: String = "",
     val isUseContainer: Boolean = false,
     val isEphemeralSandbox: Boolean = false,
+    val proxyUuid: String? = null,
     val order: Int = 0,
     val groupUuid: String? = null,
     val settings: WebAppSettings = WebAppSettings(),

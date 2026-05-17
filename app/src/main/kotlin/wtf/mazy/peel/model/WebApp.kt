@@ -20,6 +20,7 @@ data class WebApp(var baseUrl: String, override val uuid: String = UUID.randomUU
 
     override var isUseContainer = false
     override var isEphemeralSandbox = false
+    override var proxyUuid: String? = null
     var order = 0
     var groupUuid: String? = null
 
@@ -42,6 +43,7 @@ data class WebApp(var baseUrl: String, override val uuid: String = UUID.randomUU
         title = other.title
         isUseContainer = other.isUseContainer
         isEphemeralSandbox = other.isEphemeralSandbox
+        proxyUuid = other.proxyUuid
         order = other.order
         groupUuid = other.groupUuid
         settings = other.settings.deepCopy()
@@ -66,6 +68,7 @@ data class WebApp(var baseUrl: String, override val uuid: String = UUID.randomUU
             groupUuid,
             isUseContainer,
             isEphemeralSandbox,
+            proxyUuid,
             iconStamp,
         )
 
@@ -78,7 +81,20 @@ data class WebApp(var baseUrl: String, override val uuid: String = UUID.randomUU
         }
     }
 
-    fun resolvePrivateMode(): Boolean =
+    fun resolvePrivateMode(): Boolean = false
+
+    fun resolveEphemeral(): Boolean =
         isEphemeralSandbox ||
                 (groupUuid?.let { DataManager.instance.getGroup(it) }?.isEphemeralSandbox == true)
+
+    fun resolveProxyUuid(): String? {
+        if (!isUseContainer) {
+            val group = groupUuid?.let { DataManager.instance.getGroup(it) }
+            if (group?.isUseContainer == true) return group.proxyUuid
+            return null
+        }
+        if (proxyUuid != null) return proxyUuid
+        val group = groupUuid?.let { DataManager.instance.getGroup(it) }
+        return group?.proxyUuid
+    }
 }

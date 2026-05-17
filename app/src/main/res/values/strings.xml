@@ -266,4 +266,32 @@
     <string name="find_in_page_prev">Previous match</string>
     <string name="find_in_page_next">Next match</string>
     <string name="find_in_page_close">Close</string>
+
+    <string name="edit">Edit</string>
+    <string name="proxy">Proxy</string>
+    <string name="proxy_direct">No proxy</string>
+    <string name="proxy_add">Add new proxy</string>
+    <string name="proxy_edit">Edit proxy</string>
+    <string name="proxy_name">Name</string>
+    <string name="proxy_name_required">Name is required</string>
+    <string name="proxy_type">Type</string>
+    <string name="proxy_host">Host</string>
+    <string name="proxy_host_required">Host is required</string>
+    <string name="proxy_port">Port</string>
+    <string name="proxy_port_invalid">Port must be 1–65535</string>
+    <string name="proxy_username">Username</string>
+    <string name="proxy_password">Password</string>
+    <string name="proxy_remote_dns">Resolve DNS through proxy</string>
+    <string name="proxy_bypass">Bypass list</string>
+    <string name="proxy_bypass_hint">Comma-separated. Supports *.suffix, exact host, CIDR.</string>
+    <string name="proxy_type_http">HTTP</string>
+    <string name="proxy_type_https">HTTPS</string>
+    <string name="proxy_type_socks4">SOCKS4</string>
+    <string name="proxy_type_socks5">SOCKS5</string>
+    <string name="proxy_delete_title">Delete proxy</string>
+    <string name="proxy_delete_confirm">Delete this proxy?</string>
+    <string name="proxy_in_use_warning">Used by %1$d apps/groups. Their proxy will revert to Direct.</string>
+    <string name="proxy_auth_failed">Proxy authentication failed</string>
+    <string name="proxies">Proxies</string>
+    <string name="proxies_empty_state">No proxies yet. Tap + to add one.</string>
 </resources>

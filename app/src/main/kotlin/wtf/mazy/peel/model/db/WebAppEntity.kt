@@ -14,5 +14,6 @@ data class WebAppEntity(
     val isEphemeralSandbox: Boolean,
     val order: Int,
     val groupUuid: String? = null,
+    val proxyUuid: String? = null,
     @Embedded val settings: WebAppSettings = WebAppSettings(),
 )

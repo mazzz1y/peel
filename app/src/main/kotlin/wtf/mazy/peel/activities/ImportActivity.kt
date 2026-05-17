@@ -120,6 +120,7 @@ class ImportActivity : AppCompatActivity() {
                         )
                         group.isUseContainer = result.sandbox
                         group.isEphemeralSandbox = result.ephemeral
+                        group.proxyUuid = result.proxyUuid
                         lifecycleScope.launch {
                             DataManager.instance.addGroup(group)
                             selectedGroupUuid = group.uuid

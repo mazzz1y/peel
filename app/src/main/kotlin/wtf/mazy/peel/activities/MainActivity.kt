@@ -236,6 +236,11 @@ class MainActivity :
                 true
             }
 
+            R.id.action_proxies -> {
+                startActivity(Intent(this, ProxyListActivity::class.java))
+                true
+            }
+
             R.id.action_extensions -> {
                 startActivity(Intent(this, ExtensionsActivity::class.java))
                 true
@@ -581,6 +586,7 @@ class MainActivity :
             newSite.order = DataManager.instance.incrementedOrder
             newSite.isUseContainer = result.sandbox
             newSite.isEphemeralSandbox = result.ephemeral
+            newSite.proxyUuid = result.proxyUuid
 
             val currentPage = viewPager.currentItem
             val groups = DataManager.instance.sortedGroups

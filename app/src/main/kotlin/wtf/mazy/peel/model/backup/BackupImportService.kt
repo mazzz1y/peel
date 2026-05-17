@@ -119,15 +119,16 @@ object BackupImportService {
         val dataManager = DataManager.instance
         val importedWebApps = parsed.backupData.websites.map { it.toDomain() }
         val importedGroups = parsed.backupData.groups.map { it.toDomain() }
+        val importedProxies = parsed.backupData.proxies.map { it.toDomain() }
 
         parsed.icons.forEach { (uuid, bitmap) -> BackupArchiveCodec.saveIcon(uuid, bitmap) }
 
         when (mode) {
             ImportMode.REPLACE ->
-                dataManager.importData(importedWebApps, globalSettings, importedGroups)
+                dataManager.importData(importedWebApps, globalSettings, importedGroups, importedProxies)
 
             ImportMode.MERGE ->
-                dataManager.mergeData(importedWebApps, globalSettings, importedGroups)
+                dataManager.mergeData(importedWebApps, globalSettings, importedGroups, importedProxies)
         }
         val context = App.appContext
         dataManager.getWebsites().forEach { ShortcutHelper.updatePinnedShortcut(it, context) }

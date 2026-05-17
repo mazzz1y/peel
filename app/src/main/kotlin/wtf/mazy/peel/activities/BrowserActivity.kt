@@ -385,6 +385,12 @@ class BrowserActivity : BaseSessionHost() {
         geckoSession?.close()
         geckoSession = null
         geckoView = null
+        if (webapp.isUseContainer && webapp.resolveEphemeral()) {
+            val contextId = webapp.resolveContextId()
+            if (contextId != null) {
+                wtf.mazy.peel.model.SandboxManager.clearSandboxData(this, contextId)
+            }
+        }
         super.onDestroy()
     }
 
@@ -631,6 +637,8 @@ class BrowserActivity : BaseSessionHost() {
 
     private fun launchSessionExtensionsAndLoad(settings: WebAppSettings, url: String) {
         sessionSetupJob = lifecycleScope.launch {
+            wtf.mazy.peel.browser.ProxyRouterBridge.ensure(applicationContext)
+            wtf.mazy.peel.browser.ProxyRouterBridge.awaitRoutesReady()
             attachPageBridge()
             loadURL(url)
             if (settings.isDynamicStatusBar == true) {

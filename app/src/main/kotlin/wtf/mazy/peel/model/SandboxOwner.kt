@@ -4,4 +4,5 @@ interface SandboxOwner {
     val uuid: String
     var isUseContainer: Boolean
     var isEphemeralSandbox: Boolean
+    var proxyUuid: String?
 }
