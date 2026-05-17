@@ -45,7 +45,10 @@ class SessionExtensionActions(
                 display = merged,
                 clickable = override ?: defaultAction,
             )
-        }.sortedBy { it.extension.metaData.name ?: it.extension.id }
+        }.sortedWith(
+            compareByDescending<Entry> { it.display.badgeText?.trim()?.toIntOrNull() ?: 0 }
+                .thenBy { it.extension.metaData.name ?: it.extension.id },
+        )
     }
 
     fun attach(session: GeckoSession) {
