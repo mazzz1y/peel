@@ -6,7 +6,7 @@
         <item name="android:windowBackground">@drawable/launch_screen</item>
     </style>
 
-    <style name="AppTheme.Browser" parent="Theme.Material3.Dark.NoActionBar">
+    <style name="AppTheme.Browser" parent="Theme.Material3.DynamicColors.Dark.NoActionBar">
         <item name="android:colorBackground">@color/md_theme_background</item>
     </style>
 </resources>
