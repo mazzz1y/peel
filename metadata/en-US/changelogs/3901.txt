@@ -1,0 +1,4 @@
+- Long-press the floating refresh button to clear the site's cache and reload
+- Sort extensions in the picker by badge count, then alphabetically
+- Use a dashed safe-zone outline in the adaptive icon shortcut preview
+- Use dynamic Material You colors in dialogs and popup menus on the browser screen
