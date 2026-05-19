@@ -1,0 +1,2 @@
+- Per-sandbox HTTP/HTTPS/SOCKS4/SOCKS5 proxy support
+- Add passkey (WebAuthn) support via Credential Manager on Android 14+
