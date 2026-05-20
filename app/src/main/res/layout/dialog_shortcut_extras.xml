@@ -26,8 +26,8 @@
             android:layout_width="64dp"
             android:layout_height="64dp"
             android:layout_gravity="center"
-            android:layerType="software"
-            android:background="@drawable/shortcut_preview_circle_outline" />
+            android:background="@drawable/shortcut_preview_circle_outline"
+            android:layerType="software" />
     </FrameLayout>
 
     <LinearLayout

@@ -84,7 +84,9 @@ class HeadlessFetcher(
     private var pending: PendingMessage? = null
     private var portReady: CompletableDeferred<Unit>? = null
     private var requestCounter = 0
-    @Volatile private var loadErrored: Boolean = false
+
+    @Volatile
+    private var loadErrored: Boolean = false
 
     fun start() {
         desktopMode = settings.isRequestDesktop == true

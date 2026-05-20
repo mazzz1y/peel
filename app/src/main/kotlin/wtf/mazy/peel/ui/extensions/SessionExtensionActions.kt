@@ -93,7 +93,7 @@ class SessionExtensionActions(
 
     internal fun dismissPopup() {
         (activity.supportFragmentManager.findFragmentByTag(ExtensionPopupBottomSheet.TAG)
-            as? ExtensionPopupBottomSheet)
+                as? ExtensionPopupBottomSheet)
             ?.dismissImmediately()
     }
 

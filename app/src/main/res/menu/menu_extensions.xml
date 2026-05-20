@@ -4,7 +4,7 @@
 
     <item
         android:id="@+id/action_update_all"
-        android:icon="@drawable/ic_refresh_24dp"
+        android:icon="@drawable/ic_symbols_refresh_24"
         android:title="@string/update_all_extensions"
         app:iconTint="?attr/colorOnSurface"
         app:showAsAction="ifRoom" />

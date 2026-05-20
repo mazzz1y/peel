@@ -85,7 +85,7 @@ object EntityRowAnimator {
         val icon = host.itemIcon
         if (selected) {
             icon.background = null
-            icon.setImageResource(R.drawable.ic_check_24)
+            icon.setImageResource(R.drawable.ic_symbols_check_24)
             icon.imageTintList = ColorStateList.valueOf(checkIconColor)
         } else {
             icon.imageTintList = null

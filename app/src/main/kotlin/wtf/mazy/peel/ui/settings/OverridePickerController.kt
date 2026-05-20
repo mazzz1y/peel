@@ -3,6 +3,7 @@ package wtf.mazy.peel.ui.settings
 import android.view.View
 import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.SettingDefinition
 import wtf.mazy.peel.model.SettingRegistry
@@ -38,6 +39,7 @@ class OverridePickerController(
                 removeOverride(setting.key)
                 refreshList()
             },
+            activity.lifecycleScope,
         )
 
     private fun refreshList() {

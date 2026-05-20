@@ -19,7 +19,7 @@
             android:layout_height="wrap_content"
             android:contentDescription="@string/undo"
             android:visibility="gone"
-            app:icon="@drawable/ic_undo_24dp" />
+            app:icon="@drawable/ic_symbols_undo_24" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/layoutNumberInput"
@@ -62,7 +62,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:contentDescription="@string/remove_override"
-            app:icon="@drawable/ic_close_24dp" />
+            app:icon="@drawable/ic_symbols_close_24" />
 
     </LinearLayout>
 </LinearLayout>

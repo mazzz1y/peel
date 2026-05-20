@@ -283,4 +283,36 @@
     <string name="proxy_auth_failed">プロキシ認証に失敗しました</string>
     <string name="proxies">プロキシ</string>
     <string name="proxies_empty_state">プロキシが登録されていません。+ をタップして追加してください。</string>
+
+    <string name="translations_title">翻訳</string>
+    <string name="translations_loading">翻訳を読み込み中…</string>
+    <string name="translations_picker_empty">利用可能な翻訳はすべてダウンロード済みです</string>
+    <string name="translations_add_title">翻訳を追加</string>
+    <string name="translations_empty">翻訳はまだダウンロードされていません。+ をタップして追加してください。</string>
+    <string name="download">ダウンロード</string>
+    <string name="translations_download_all">すべてダウンロード</string>
+    <string name="translations_delete_all">すべて削除</string>
+    <string name="translations_delete_all_title">すべての翻訳を削除</string>
+    <string name="translation_downloading">翻訳をダウンロード中…</string>
+    <string name="translation_downloading_named">%1$s の翻訳をダウンロード中…</string>
+    <string name="translation_deleting">翻訳を削除中…</string>
+    <string name="translation_delete_title">翻訳を削除</string>
+    <string name="translation_download_plan_title">翻訳をダウンロード</string>
+    <string name="translation_download_plan_intro">次の言語がダウンロードされます:</string>
+    <string name="translation_download_plan_one">%1$s 言語をダウンロードしますか？</string>
+    <string name="translation_delete_plan_intro">次の言語が削除されます:</string>
+    <string name="translation_delete_plan_one">%1$s 言語を削除しますか？</string>
+    <string name="translation_download_failed">翻訳をダウンロードできませんでした</string>
+    <string name="translation_delete_failed">翻訳を削除できませんでした</string>
+    <string name="translation_language_list_join">%1$s と %2$s</string>
+
+    <string name="translate_dialog_title">ページを翻訳</string>
+    <string name="translate_action">翻訳</string>
+    <string name="translate_show_original">原文</string>
+    <string name="translate_error_engine_unavailable">このデバイスでは翻訳を利用できません</string>
+    <string name="translate_error_languages_unavailable">翻訳用の言語を読み込めませんでした</string>
+    <string name="translate_error_same_language">異なる 2 つの言語を選択してください</string>
+
+    <string name="setting_translator">翻訳</string>
+    <string name="setting_auto_translate_any_language">すべての言語</string>
 </resources>

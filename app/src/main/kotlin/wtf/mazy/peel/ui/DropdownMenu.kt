@@ -1,7 +1,7 @@
 package wtf.mazy.peel.ui
 
 import android.view.Gravity
-import android.widget.PopupMenu
+import androidx.appcompat.widget.PopupMenu
 import com.google.android.material.button.MaterialButton
 
 fun MaterialButton.bindDropdown(
@@ -9,13 +9,30 @@ fun MaterialButton.bindDropdown(
     currentIndex: () -> Int,
     onSelected: (index: Int) -> Unit,
 ) {
-    text = items.getOrNull(currentIndex()).orEmpty()
+    bindDropdown(
+        itemsProvider = { items },
+        currentIndex = currentIndex,
+        onSelected = onSelected,
+    )
+}
+
+fun MaterialButton.bindDropdown(
+    itemsProvider: () -> List<String>,
+    currentIndex: () -> Int,
+    onSelected: (index: Int) -> Unit,
+) {
+    fun refreshText() {
+        val items = itemsProvider()
+        text = items.getOrNull(currentIndex()).orEmpty()
+    }
+    refreshText()
     setOnClickListener {
+        val items = itemsProvider()
         val popup = PopupMenu(context, this, Gravity.END)
         items.forEachIndexed { i, label -> popup.menu.add(0, i, i, label) }
         popup.setOnMenuItemClickListener { item ->
             onSelected(item.itemId)
-            text = items.getOrNull(currentIndex()).orEmpty()
+            refreshText()
             true
         }
         popup.show()

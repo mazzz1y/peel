@@ -42,9 +42,9 @@
                 android:id="@+id/proxyType"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="none"
-                android:focusable="false"
                 android:cursorVisible="false"
+                android:focusable="false"
+                android:inputType="none"
                 tools:ignore="LabelFor" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -149,17 +149,17 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
             android:hint="@string/proxy_bypass"
-            app:helperTextEnabled="true"
-            app:helperText="@string/proxy_bypass_hint">
+            app:helperText="@string/proxy_bypass_hint"
+            app:helperTextEnabled="true">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/proxyBypass"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:gravity="top|start"
                 android:inputType="textMultiLine"
-                android:minLines="2"
                 android:maxLines="4"
-                android:gravity="top|start" />
+                android:minLines="2" />
         </com.google.android.material.textfield.TextInputLayout>
 
     </LinearLayout>

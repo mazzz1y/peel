@@ -62,6 +62,7 @@ class SettingsActivity : ToolbarBaseActivity<GlobalSettingsBinding>() {
         val factory = SettingViewFactory(
             layoutInflater,
             SettingViewFactory.ButtonStrategy.GlobalDefaults,
+            lifecycleScope,
         )
 
         val settingsGrouped =

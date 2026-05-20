@@ -68,7 +68,7 @@
             android:contentDescription="@string/more"
             android:focusable="true"
             android:scaleType="center"
-            android:src="@drawable/ic_baseline_more_vert_24"
+            android:src="@drawable/ic_symbols_more_vert_24"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />

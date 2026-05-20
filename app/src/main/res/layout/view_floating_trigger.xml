@@ -15,7 +15,7 @@
         android:layout_height="@dimen/floating_controls_button_size"
         android:contentDescription="@null"
         android:scaleType="centerInside"
-        android:src="@drawable/ic_symbols_menu_24"
+        android:src="@drawable/ic_symbols_menu_wght300_24"
         app:tint="?attr/colorOnSurface" />
 
     <ImageView
@@ -25,7 +25,7 @@
         android:alpha="0"
         android:contentDescription="@null"
         android:scaleType="centerInside"
-        android:src="@drawable/ic_symbols_close_24"
+        android:src="@drawable/ic_symbols_close_wght300_24"
         app:tint="?attr/colorOnSurface" />
 
 </com.google.android.material.card.MaterialCardView>

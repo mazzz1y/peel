@@ -608,7 +608,9 @@ class DataManager private constructor() {
                     else WebApp(site)
                 }
                 val nextGroups = currentState.groups.map { group ->
-                    if (group.proxyUuid == action.uuid) WebAppGroup(group).apply { proxyUuid = null }
+                    if (group.proxyUuid == action.uuid) WebAppGroup(group).apply {
+                        proxyUuid = null
+                    }
                     else WebAppGroup(group)
                 }
                 val nextProxies = currentState.proxies.filterNot { it.uuid == action.uuid }

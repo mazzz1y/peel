@@ -5,6 +5,7 @@
 package wtf.mazy.peel.browser
 
 import android.net.Uri
+import androidx.core.net.toUri
 
 internal object CertErrorPage {
 
@@ -19,7 +20,7 @@ internal object CertErrorPage {
      * by Gecko (`Document::CallerIsTrustedAboutCertError`).
      */
     fun urlFor(originalUri: String): String {
-        val host = runCatching { Uri.parse(originalUri).host.orEmpty() }.getOrDefault("")
+        val host = runCatching { originalUri.toUri().host.orEmpty() }.getOrDefault("")
         val q = "host=" + Uri.encode(host) + "&url=" + Uri.encode(originalUri)
         return "$HTML_RESOURCE?$q"
     }

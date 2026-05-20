@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:orientation="horizontal">
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnLanguageFrom"
+        style="@style/Widget.Material3.Button.OutlinedButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:ellipsize="end"
+        android:maxLines="1" />
+
+    <ImageView
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_marginHorizontal="8dp"
+        android:contentDescription="@null"
+        android:src="@drawable/ic_symbols_arrow_forward_24"
+        app:tint="?attr/colorOnSurfaceVariant" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnLanguageTo"
+        style="@style/Widget.Material3.Button.OutlinedButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:ellipsize="end"
+        android:maxLines="1" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnRemoveEntry"
+        style="@style/SettingsIconButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/remove"
+        app:icon="@drawable/ic_symbols_close_24" />
+
+</LinearLayout>

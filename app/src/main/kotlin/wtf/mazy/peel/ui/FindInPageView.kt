@@ -122,12 +122,14 @@ class FindInPageView(
     }
 
     private fun showKeyboard() {
-        val imm = parent.context.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+        val imm =
+            parent.context.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
         imm?.showSoftInput(query, InputMethodManager.SHOW_IMPLICIT)
     }
 
     private fun hideKeyboard() {
-        val imm = parent.context.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+        val imm =
+            parent.context.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
         imm?.hideSoftInputFromWindow(query.windowToken, 0)
     }
 

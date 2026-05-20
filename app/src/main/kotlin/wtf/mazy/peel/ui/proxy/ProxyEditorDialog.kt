@@ -5,10 +5,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.ArrayAdapter
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.materialswitch.MaterialSwitch
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
-import com.google.android.material.materialswitch.MaterialSwitch
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.Proxy
 
@@ -120,7 +120,7 @@ object ProxyEditorDialog {
                     this.username = usernameInput.text?.toString()?.takeIf { it.isNotEmpty() }
                     this.password = passwordInput.text?.toString()?.takeIf { it.isNotEmpty() }
                     this.remoteDns = remoteDnsSwitch.isChecked &&
-                        (selectedType == Proxy.TYPE_SOCKS4 || selectedType == Proxy.TYPE_SOCKS5)
+                            (selectedType == Proxy.TYPE_SOCKS4 || selectedType == Proxy.TYPE_SOCKS5)
                     this.bypassList = bypassList
                 }
 

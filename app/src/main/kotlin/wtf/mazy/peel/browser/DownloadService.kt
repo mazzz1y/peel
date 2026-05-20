@@ -215,9 +215,13 @@ class DownloadService : Service() {
         var total = 0L
         while (true) {
             currentCoroutineContext().ensureActive()
-            val n = read(buffer)
+            val n = withContext(Dispatchers.IO) {
+                read(buffer)
+            }
             if (n < 0) break
-            out.write(buffer, 0, n)
+            withContext(Dispatchers.IO) {
+                out.write(buffer, 0, n)
+            }
             total += n
             onProgress(total)
         }

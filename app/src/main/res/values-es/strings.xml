@@ -285,4 +285,36 @@
     <string name="proxy_auth_failed">Falló la autenticación del proxy</string>
     <string name="proxies">Proxys</string>
     <string name="proxies_empty_state">Aún no hay proxys. Toca + para añadir uno.</string>
+
+    <string name="translations_title">Traducciones</string>
+    <string name="translations_loading">Cargando traducciones…</string>
+    <string name="translations_picker_empty">Todas las traducciones disponibles ya están descargadas</string>
+    <string name="translations_add_title">Añadir traducción</string>
+    <string name="translations_empty">Aún no hay traducciones descargadas. Toca + para añadir una.</string>
+    <string name="download">Descargar</string>
+    <string name="translations_download_all">Descargar todo</string>
+    <string name="translations_delete_all">Eliminar todo</string>
+    <string name="translations_delete_all_title">Eliminar todas las traducciones</string>
+    <string name="translation_downloading">Descargando traducción…</string>
+    <string name="translation_downloading_named">Descargando la traducción de %1$s…</string>
+    <string name="translation_deleting">Eliminando traducción…</string>
+    <string name="translation_delete_title">Eliminar traducción</string>
+    <string name="translation_download_plan_title">Descargar traducción</string>
+    <string name="translation_download_plan_intro">Se descargarán los siguientes idiomas:</string>
+    <string name="translation_download_plan_one">¿Descargar el idioma %1$s?</string>
+    <string name="translation_delete_plan_intro">Se eliminarán los siguientes idiomas:</string>
+    <string name="translation_delete_plan_one">¿Eliminar el idioma %1$s?</string>
+    <string name="translation_download_failed">No se pudo descargar la traducción</string>
+    <string name="translation_delete_failed">No se pudo eliminar la traducción</string>
+    <string name="translation_language_list_join">%1$s y %2$s</string>
+
+    <string name="translate_dialog_title">Traducir página</string>
+    <string name="translate_action">Traducir</string>
+    <string name="translate_show_original">Original</string>
+    <string name="translate_error_engine_unavailable">Las traducciones no están disponibles en este dispositivo</string>
+    <string name="translate_error_languages_unavailable">No se pudieron cargar los idiomas de traducción</string>
+    <string name="translate_error_same_language">Elige dos idiomas distintos</string>
+
+    <string name="setting_translator">Traductor</string>
+    <string name="setting_auto_translate_any_language">Cualquier idioma</string>
 </resources>

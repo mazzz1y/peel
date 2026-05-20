@@ -17,8 +17,8 @@ data class SelectionConfig(
     @get:MenuRes val selectionMenuRes: Int? = null,
     @get:IdRes val moveActionId: Int? = null,
     @get:IdRes val deleteActionId: Int? = null,
-    @get:DrawableRes val activeFabIcon: Int = R.drawable.ic_baseline_share_24,
-    @get:DrawableRes val idleFabIcon: Int = R.drawable.ic_add_24dp,
+    @get:DrawableRes val activeFabIcon: Int = R.drawable.ic_symbols_share_24,
+    @get:DrawableRes val idleFabIcon: Int = R.drawable.ic_symbols_add_24,
 )
 
 class EntitySelectionController<T : Any>(
@@ -119,7 +119,7 @@ class EntitySelectionController<T : Any>(
                 host.toolbar.menu.findItem(id)?.isVisible = actions.moveTargets.isNotEmpty()
             }
             host.toolbar.setOnMenuItemClickListener { onMenuItemClicked(it) }
-            host.toolbar.setNavigationIcon(R.drawable.ic_baseline_arrow_back_24)
+            host.toolbar.setNavigationIcon(R.drawable.ic_symbols_arrow_back_24)
             host.toolbar.setNavigationOnClickListener { exit() }
             host.toolbar.title =
                 host.hostActivity.getString(config.titleResForCount, selectedUuids.size)

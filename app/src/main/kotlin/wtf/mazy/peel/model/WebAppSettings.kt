@@ -43,6 +43,8 @@ data class WebAppSettings(
     var customLocale: String? = null,
     var customGeckoPrefs: Map<String, String>? = null,
     var isAllowCertBypass: Boolean? = null,
+    var isTranslatorEnabled: Boolean? = null,
+    var autoTranslatePairs: Map<String, String>? = null,
 ) {
     companion object {
         const val PERMISSION_OFF = 0
@@ -185,10 +187,32 @@ data class WebAppSettings(
                     )
                 }
 
+                is SettingDefinition.LanguagePairMapSetting -> {
+                    val enabled = getValue(setting.key) as? Boolean ?: false
+                    val mapKey = setting.mapField.key
+                    if (!enabled) {
+                        if (asOverride) {
+                            setValue(setting.key, null)
+                            setValue(mapKey, null)
+                        } else {
+                            setValue(mapKey, null)
+                        }
+                    } else {
+                        @Suppress("UNCHECKED_CAST")
+                        val map = getValue(mapKey) as? Map<String, String>
+                        val cleaned = map
+                            ?.filter { it.key.isNotBlank() && it.value.isNotBlank() && it.key != it.value }
+                        setValue(mapKey, cleaned?.takeIf { it.isNotEmpty() })
+                    }
+                }
+
                 else -> Unit
             }
         }
     }
 
-    fun deepCopy() = copy(customGeckoPrefs = customGeckoPrefs?.toMap())
+    fun deepCopy() = copy(
+        customGeckoPrefs = customGeckoPrefs?.toMap(),
+        autoTranslatePairs = autoTranslatePairs?.toMap(),
+    )
 }

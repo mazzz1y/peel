@@ -99,7 +99,7 @@ class SearchModeController(
         host.crossfadeToolbar {
             host.removeSearchViewFromToolbar()
             host.toolbar.menu.clear()
-            host.toolbar.setNavigationIcon(R.drawable.ic_baseline_arrow_back_24)
+            host.toolbar.setNavigationIcon(R.drawable.ic_symbols_arrow_back_24)
             host.toolbar.setNavigationOnClickListener { exit() }
             host.toolbar.title = ""
 

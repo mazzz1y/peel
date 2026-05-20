@@ -63,7 +63,7 @@
             android:layout_height="36dp"
             android:importantForAccessibility="no"
             android:padding="6dp"
-            android:src="@drawable/ic_expand_more_24dp"
+            android:src="@drawable/ic_symbols_expand_more_24"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/group_checkbox"
             app:layout_constraintTop_toTopOf="parent" />

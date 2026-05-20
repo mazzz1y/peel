@@ -48,6 +48,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:contentDescription="@string/remove"
-        app:icon="@drawable/ic_close_24dp" />
+        app:icon="@drawable/ic_symbols_close_24" />
 
 </LinearLayout>

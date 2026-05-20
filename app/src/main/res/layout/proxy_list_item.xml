@@ -64,11 +64,11 @@
             android:contentDescription="@string/delete"
             android:focusable="true"
             android:scaleType="center"
-            android:src="@drawable/ic_delete_black_24dp"
-            app:tint="?attr/colorOnSurfaceVariant"
+            android:src="@drawable/ic_symbols_delete_24"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="?attr/colorOnSurfaceVariant" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

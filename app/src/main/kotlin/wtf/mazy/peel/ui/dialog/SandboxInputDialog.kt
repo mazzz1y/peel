@@ -56,7 +56,7 @@ fun Activity.showSandboxInputDialog(
                 }
 
                 val proxyLabels = listOf(getString(R.string.proxy_direct)) +
-                    proxies.map { it.displayName() }
+                        proxies.map { it.displayName() }
                 val proxyButton = MaterialButton(
                     container.context,
                     null,

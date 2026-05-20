@@ -125,10 +125,20 @@ object BackupImportService {
 
         when (mode) {
             ImportMode.REPLACE ->
-                dataManager.importData(importedWebApps, globalSettings, importedGroups, importedProxies)
+                dataManager.importData(
+                    importedWebApps,
+                    globalSettings,
+                    importedGroups,
+                    importedProxies
+                )
 
             ImportMode.MERGE ->
-                dataManager.mergeData(importedWebApps, globalSettings, importedGroups, importedProxies)
+                dataManager.mergeData(
+                    importedWebApps,
+                    globalSettings,
+                    importedGroups,
+                    importedProxies
+                )
         }
         val context = App.appContext
         dataManager.getWebsites().forEach { ShortcutHelper.updatePinnedShortcut(it, context) }

@@ -8,6 +8,7 @@ import androidx.room.TypeConverter
 import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 class StringMapConverter {
@@ -25,7 +26,7 @@ class StringMapConverter {
 
 @Database(
     entities = [WebAppEntity::class, WebAppGroupEntity::class, ProxyEntity::class],
-    version = 17,
+    version = 18,
     exportSchema = true,
 )
 @TypeConverters(StringMapConverter::class)
@@ -190,6 +191,8 @@ abstract class AppDatabase : RoomDatabase() {
             "customLocale" to "TEXT",
             "customGeckoPrefs" to "TEXT",
             "isAllowCertBypass" to "INTEGER",
+            "isTranslatorEnabled" to "INTEGER",
+            "autoTranslatePairs" to "TEXT",
         )
 
         private val SETTINGS_COLS =
@@ -398,6 +401,13 @@ abstract class AppDatabase : RoomDatabase() {
                 }
             }
 
+        val MIGRATION_17_18 =
+            object : Migration(17, 18) {
+                override fun migrate(db: SupportSQLiteDatabase) {
+                    ensureSettingsColumns(db)
+                }
+            }
+
         val MIGRATION_16_17 =
             object : Migration(16, 17) {
                 override fun migrate(db: SupportSQLiteDatabase) {
@@ -458,6 +468,7 @@ abstract class AppDatabase : RoomDatabase() {
                     MIGRATION_14_15,
                     MIGRATION_15_16,
                     MIGRATION_16_17,
+                    MIGRATION_17_18,
                 )
                 .allowMainThreadQueries()
                 .build()

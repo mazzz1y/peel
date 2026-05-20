@@ -36,7 +36,11 @@ import wtf.mazy.peel.browser.PeelNavigationDelegate
 import wtf.mazy.peel.browser.PeelPermissionDelegate
 import wtf.mazy.peel.browser.PeelProgressDelegate
 import wtf.mazy.peel.browser.PeelPromptDelegate
+import wtf.mazy.peel.browser.PeelTranslationDelegate
 import wtf.mazy.peel.browser.StartupAuthReturnTracker
+import wtf.mazy.peel.browser.TranslationLanguages
+import wtf.mazy.peel.browser.TranslationProgress
+import wtf.mazy.peel.browser.langBaseEqual
 import wtf.mazy.peel.gecko.ExtensionStateEvent
 import wtf.mazy.peel.gecko.ExtensionStateListener
 import wtf.mazy.peel.gecko.GeckoRuntimeProvider
@@ -49,9 +53,12 @@ import wtf.mazy.peel.ui.FindInPageView
 import wtf.mazy.peel.ui.FloatingControlsView
 import wtf.mazy.peel.ui.browser.AutoReloadController
 import wtf.mazy.peel.ui.browser.BiometricUnlockController
+import wtf.mazy.peel.ui.browser.BrowserTranslationProgress
 import wtf.mazy.peel.ui.browser.LaunchOverlayController
 import wtf.mazy.peel.ui.browser.SystemBarController
+import wtf.mazy.peel.ui.common.LoadingDialogController
 import wtf.mazy.peel.ui.dialog.ExternalLinkMenu
+import wtf.mazy.peel.ui.dialog.TranslateDialog
 import wtf.mazy.peel.ui.extensions.ExtensionPickerDialog
 import wtf.mazy.peel.ui.extensions.SessionExtensionActions
 import wtf.mazy.peel.util.BrowserLauncher
@@ -88,7 +95,18 @@ class BrowserActivity : BaseSessionHost() {
             if (historyPurged && value) return
             field = value
         }
+
+    @Volatile
     var currentUrl = ""
+
+    internal var translationDelegate: PeelTranslationDelegate? = null
+        private set
+
+    val translationLoader: LoadingDialogController by lazy { LoadingDialogController(this) }
+
+    internal val translationProgress: TranslationProgress by lazy {
+        BrowserTranslationProgress(this, translationLoader)
+    }
 
     init {
         currentlyReloading = true
@@ -126,6 +144,9 @@ class BrowserActivity : BaseSessionHost() {
 
     private var cachedSettings: WebAppSettings? = null
     private var isStartupComplete = false
+    private var translationsSupported: Boolean = false
+    private var lastTranslatorPairs: Map<String, String>? = null
+    private var lastTranslatorEnabled: Boolean? = null
 
     @Volatile
     private var cachedPeelApps: List<WebApp> = emptyList()
@@ -194,6 +215,14 @@ class BrowserActivity : BaseSessionHost() {
             return
         }
 
+        lifecycleScope.launch {
+            val supported = TranslationLanguages.isEngineSupported()
+            if (supported != translationsSupported) {
+                translationsSupported = supported
+                if (floatingControls != null) rebuildFloatingControls()
+            }
+        }
+
         cachedSettings = DataManager.instance.resolveEffectiveSettings(webapp)
         applyTaskSnapshotProtection()
         setupGeckoView()
@@ -248,6 +277,14 @@ class BrowserActivity : BaseSessionHost() {
         val uuid = webappUuid ?: return
         if (DataManager.instance.getWebApp(uuid) == null) return
         cachedSettings = DataManager.instance.resolveEffectiveSettings(webapp)
+        val enabled = effectiveSettings.isTranslatorEnabled
+        val pairs = effectiveSettings.autoTranslatePairs
+        if (enabled != lastTranslatorEnabled || pairs != lastTranslatorPairs) {
+            val enabledChanged = enabled != lastTranslatorEnabled
+            lastTranslatorEnabled = enabled
+            lastTranslatorPairs = pairs
+            if (enabledChanged && floatingControls != null) rebuildFloatingControls()
+        }
         applyVisualSettings(effectiveSettings)
 
         if (effectiveSettings.isShowNotification == true && floatingControls == null) {
@@ -279,23 +316,91 @@ class BrowserActivity : BaseSessionHost() {
     }
 
     private fun createFloatingControls(uuid: String): FloatingControlsView {
-        return FloatingControlsView(
+        val controls = FloatingControlsView(
             parent = findViewById(R.id.browserContent),
             webappUuid = uuid,
             onHome = { loadURL(webapp.baseUrl) },
             onReload = ::reloadCurrentPage,
             onShare = { shareCurrentUrl() },
             onFind = ::openFindInPage,
+            onTranslate = if (translationsSupported && effectiveSettings.isTranslatorEnabled == true)
+                ({ onTranslateShortTap() }) else null,
+            onTranslateLongPress = if (translationsSupported && effectiveSettings.isTranslatorEnabled == true)
+                ({ onTranslateLongPress() }) else null,
             onExtensions = if (SessionExtensionActions.hasExtensions)
                 ({ ExtensionPickerDialog.show(this, sessionExtensionActions) }) else null,
             onReloadLongPress = ::clearSiteCacheAndReload,
         )
+        if (translationsSupported) {
+            controls.setTranslateActive(translationDelegate?.isPageTranslated == true)
+        }
+        return controls
+    }
+
+    fun setTranslateButtonActive(active: Boolean) {
+        floatingControls?.setTranslateActive(active)
+    }
+
+    private fun onTranslateShortTap() {
+        openTranslateDialog()
+    }
+
+    private fun onTranslateLongPress() {
+        val session = geckoSession ?: return
+        val delegate = translationDelegate ?: run { openTranslateDialog(); return }
+        if (delegate.isPageTranslated) {
+            delegate.restoreOriginal(session)
+            return
+        }
+        val docLang = delegate.lastTranslationState?.detectedLanguages?.docLangTag
+        val target = resolveLongPressTarget(docLang, delegate.sessionManualTarget)
+        if (target != null && !docLang.isNullOrBlank()) {
+            delegate.translateToTarget(session, docLang, target)
+        } else {
+            openTranslateDialog()
+        }
+    }
+
+    private fun resolveLongPressTarget(docLang: String?, sticky: String?): String? {
+        if (sticky != null && !docLang.isNullOrBlank() && !langBaseEqual(
+                docLang,
+                sticky
+            )
+        ) return sticky
+        if (docLang.isNullOrBlank()) return null
+        if (effectiveSettings.isTranslatorEnabled == true) {
+            TranslationLanguages
+                .resolveConfiguredTarget(effectiveSettings.autoTranslatePairs, docLang)
+                ?.let { return it }
+        }
+        return TranslationLanguages.defaultTranslationTarget(docLang)
+            .takeIf { it.isNotBlank() }
+    }
+
+    private fun openTranslateDialog() {
+        val session = geckoSession ?: return
+        val state = translationDelegate?.lastTranslationState
+        val activePair = state?.requestedTranslationPair
+        val docLang = state?.detectedLanguages?.docLangTag
+        val configuredTarget = if (activePair == null && !docLang.isNullOrBlank() &&
+            effectiveSettings.isTranslatorEnabled == true
+        ) {
+            TranslationLanguages.resolveConfiguredTarget(
+                effectiveSettings.autoTranslatePairs, docLang,
+            )
+        } else null
+        val prefill = TranslateDialog.Prefill(
+            fromCode = activePair?.fromLanguage ?: docLang,
+            toCode = activePair?.toLanguage ?: configuredTarget,
+            showOriginal = activePair != null,
+        )
+        TranslateDialog.show(this, session, prefill)
     }
 
     private fun clearSiteCacheAndReload() {
-        val host = runCatching { Uri.parse(currentUrl).host }.getOrNull()
+        val host = runCatching { currentUrl.toUri().host }.getOrNull()
         val flags = StorageController.ClearFlags.NETWORK_CACHE or
-            StorageController.ClearFlags.IMAGE_CACHE
+                StorageController.ClearFlags.IMAGE_CACHE
         val runtime = GeckoRuntimeProvider.getRuntime(this)
         if (!host.isNullOrBlank()) {
             runtime.storageController.clearDataFromBaseDomain(host, flags)
@@ -503,6 +608,7 @@ class BrowserActivity : BaseSessionHost() {
     override fun onLocationChanged(url: String) {
         historyPurged = false
         currentUrl = url
+        translationDelegate?.onLocationChanged(url)
         handleStartupAuthHistoryReset(url)
         if (url.normalizedHost() == webapp.baseUrl.normalizedHost()) {
             navigationDelegate.browsingExternally = false
@@ -576,6 +682,7 @@ class BrowserActivity : BaseSessionHost() {
 
     private fun configureSession(settings: WebAppSettings) {
         sessionSetupJob?.cancel()
+        translationDelegate?.cancelPendingDownload()
         closeFindInPage()
         (geckoSession?.contentDelegate as? PeelContentDelegate)?.exitFullscreen()
         pageBridge?.detach(closingSession = true)
@@ -616,6 +723,9 @@ class BrowserActivity : BaseSessionHost() {
         session.progressDelegate = PeelProgressDelegate(this)
         session.permissionDelegate = permissionDelegate
         session.promptDelegate = promptDelegate
+        translationDelegate = PeelTranslationDelegate(this).also {
+            session.translationsSessionDelegate = it
+        }
 
         val nestedView = geckoView as? NestedGeckoView
         if (nestedView != null) {

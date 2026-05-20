@@ -110,6 +110,17 @@ sealed class SettingDefinition(
         @param:StringRes val valueHintResId: Int,
         globalOnly: Boolean = false,
     ) : SettingDefinition(toggle, displayNameResId, category, globalOnly)
+
+    class LanguagePairMapSetting(
+        toggle: SettingField,
+        @StringRes displayNameResId: Int,
+        category: SettingCategory,
+        val mapField: SettingField,
+        globalOnly: Boolean = false,
+    ) : SettingDefinition(toggle, displayNameResId, category, globalOnly) {
+        override val allFields
+            get() = listOf(primaryField, mapField)
+    }
 }
 
 enum class SettingCategory(@param:StringRes val displayNameResId: Int) {
@@ -266,6 +277,12 @@ object SettingRegistry {
                 R.string.webapp_autoreload,
                 SettingCategory.BEHAVIOR,
                 intField = SettingField(WebAppSettings::timeAutoReload, 60),
+            ),
+            SettingDefinition.LanguagePairMapSetting(
+                SettingField(WebAppSettings::isTranslatorEnabled, false),
+                R.string.setting_translator,
+                SettingCategory.BEHAVIOR,
+                mapField = SettingField(WebAppSettings::autoTranslatePairs, null),
             ),
             // Permissions
             SettingDefinition.ChoiceSetting.permissionChoice(

@@ -23,7 +23,7 @@
             android:layout_height="wrap_content"
             android:contentDescription="@string/clear_sandbox_data"
             android:visibility="gone"
-            app:icon="@drawable/ic_delete_black_24dp" />
+            app:icon="@drawable/ic_symbols_delete_24" />
 
         <com.google.android.material.materialswitch.MaterialSwitch
             android:id="@+id/switchSandbox"

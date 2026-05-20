@@ -3,6 +3,7 @@ package wtf.mazy.peel.model.backup
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import wtf.mazy.peel.model.BackupData
 import wtf.mazy.peel.model.IconCache
@@ -96,7 +97,7 @@ object BackupArchiveCodec {
 
     private fun writeDataJson(zip: ZipOutputStream, backupData: BackupData) {
         zip.putNextEntry(ZipEntry(BackupPolicy.DATA_ENTRY))
-        zip.write(prettyJson.encodeToString(BackupData.serializer(), backupData).toByteArray())
+        zip.write(prettyJson.encodeToString(backupData).toByteArray())
         zip.closeEntry()
     }
 
@@ -143,7 +144,7 @@ object BackupArchiveCodec {
 
         val backupData =
             try {
-                lenientJson.decodeFromString(BackupData.serializer(), jsonString)
+                lenientJson.decodeFromString<BackupData>(jsonString)
             } catch (_: Exception) {
                 return null
             }

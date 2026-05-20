@@ -11,7 +11,7 @@
         android:background="?attr/selectableItemBackgroundBorderless"
         android:contentDescription="@string/fetch_icon_title"
         android:padding="16dp"
-        android:src="@drawable/ic_refresh_24dp" />
+        android:src="@drawable/ic_symbols_refresh_24" />
 
     <LinearLayout
         android:layout_width="match_parent"

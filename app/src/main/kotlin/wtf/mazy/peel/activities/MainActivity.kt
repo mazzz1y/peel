@@ -37,6 +37,7 @@ import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.coroutines.launch
 import wtf.mazy.peel.BuildConfig
 import wtf.mazy.peel.R
+import wtf.mazy.peel.browser.TranslationLanguages
 import wtf.mazy.peel.gecko.GeckoRuntimeProvider
 import wtf.mazy.peel.model.ApplyTiming
 import wtf.mazy.peel.model.ApplyTimingRegistry
@@ -87,6 +88,9 @@ class MainActivity :
     private var badgeFg: Int = 0
 
     private val fragmentRegistry = mutableMapOf<String?, WebAppListFragment>()
+
+    private var translationsSupported: Boolean = false
+    private var hasTranslatorUsage: Boolean = false
 
     private val exportLauncher =
         registerForActivityResult(ActivityResultContracts.CreateDocument(BackupManager.MIME_TYPE)) { uri ->
@@ -181,6 +185,30 @@ class MainActivity :
         GeckoRuntimeProvider.initAsync(this)
     }
 
+    override fun onStart() {
+        super.onStart()
+        refreshTranslationsSupport()
+    }
+
+    private fun refreshTranslationsSupport() {
+        lifecycleScope.launch {
+            val supported = TranslationLanguages.isEngineSupported()
+            val usage = supported && hasAnyTranslatorUsage()
+            if (supported != translationsSupported || usage != hasTranslatorUsage) {
+                translationsSupported = supported
+                hasTranslatorUsage = usage
+                invalidateOptionsMenu()
+            }
+        }
+    }
+
+    private suspend fun hasAnyTranslatorUsage(): Boolean {
+        val anyWebappEnabled = DataManager.instance.getWebsites()
+            .any { DataManager.instance.resolveEffectiveSettings(it).isTranslatorEnabled == true }
+        if (anyWebappEnabled) return true
+        return TranslationLanguages.listModelDownloadStates().any { it.isDownloaded }
+    }
+
     private fun requestNotificationPermission() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return
         if (checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) return
@@ -224,6 +252,12 @@ class MainActivity :
         return true
     }
 
+    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
+        menu.findItem(R.id.action_translations)?.isVisible =
+            translationsSupported && hasTranslatorUsage
+        return super.onPrepareOptionsMenu(menu)
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.action_search -> {
@@ -243,6 +277,11 @@ class MainActivity :
 
             R.id.action_extensions -> {
                 startActivity(Intent(this, ExtensionsActivity::class.java))
+                true
+            }
+
+            R.id.action_translations -> {
+                startActivity(Intent(this, TranslationsActivity::class.java))
                 true
             }
 
@@ -386,10 +425,10 @@ class MainActivity :
     override fun onSearchModeExited() {
         if (selectionController.isActive) {
             selectionController.reapplyToolbar()
-            animateFabSwap(R.drawable.ic_baseline_share_24)
+            animateFabSwap(R.drawable.ic_symbols_share_24)
         } else {
             applyNormalToolbar()
-            animateFabSwap(R.drawable.ic_add_24dp)
+            animateFabSwap(R.drawable.ic_symbols_add_24)
             refreshCurrentPages()
         }
     }

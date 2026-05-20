@@ -4,12 +4,12 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
-import com.google.android.material.button.MaterialButton
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.materialswitch.MaterialSwitch
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch

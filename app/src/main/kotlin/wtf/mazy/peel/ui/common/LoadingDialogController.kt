@@ -16,10 +16,18 @@ class LoadingDialogController(
     private var dialog: AlertDialog? = null
 
     fun show(@StringRes messageRes: Int) {
+        showInternal { setText(messageRes) }
+    }
+
+    fun showWithMessage(message: CharSequence) {
+        showInternal { text = message }
+    }
+
+    private fun showInternal(applyText: TextView.() -> Unit) {
         if (activity.isFinishing || activity.isDestroyed || dialog?.isShowing == true) return
         val dp = activity.resources.displayMetrics.density
         val text = TextView(activity).apply {
-            setText(messageRes)
+            applyText()
             setTextAppearance(com.google.android.material.R.style.TextAppearance_Material3_BodyMedium)
         }
         val layout = LinearLayout(activity).apply {

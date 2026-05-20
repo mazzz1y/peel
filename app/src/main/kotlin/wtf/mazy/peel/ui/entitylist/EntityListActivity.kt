@@ -147,7 +147,7 @@ abstract class EntityListActivity<T : Any> : AppCompatActivity(), EntityListHost
             removeSearchViewFromToolbar()
             toolbar.menu.clear()
             toolbar.setOnMenuItemClickListener(null)
-            toolbar.setNavigationIcon(R.drawable.ic_baseline_arrow_back_24)
+            toolbar.setNavigationIcon(R.drawable.ic_symbols_arrow_back_24)
             toolbar.setNavigationOnClickListener { onBackPressedDispatcher.onBackPressed() }
             toolbar.title = getString(titleRes)
         }

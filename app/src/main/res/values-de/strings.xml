@@ -286,4 +286,36 @@
     <string name="proxy_auth_failed">Proxy-Authentifizierung fehlgeschlagen</string>
     <string name="proxies">Proxys</string>
     <string name="proxies_empty_state">Noch keine Proxys. Tippe auf +, um einen hinzuzufügen.</string>
+
+    <string name="translations_title">Übersetzungen</string>
+    <string name="translations_loading">Übersetzungen werden geladen…</string>
+    <string name="translations_picker_empty">Alle verfügbaren Übersetzungen sind bereits heruntergeladen</string>
+    <string name="translations_add_title">Übersetzung hinzufügen</string>
+    <string name="translations_empty">Noch keine Übersetzungen heruntergeladen. Tippe auf +, um eine hinzuzufügen.</string>
+    <string name="download">Herunterladen</string>
+    <string name="translations_download_all">Alle herunterladen</string>
+    <string name="translations_delete_all">Alle löschen</string>
+    <string name="translations_delete_all_title">Alle Übersetzungen löschen</string>
+    <string name="translation_downloading">Übersetzung wird heruntergeladen…</string>
+    <string name="translation_downloading_named">%1$s-Übersetzung wird heruntergeladen…</string>
+    <string name="translation_deleting">Übersetzung wird gelöscht…</string>
+    <string name="translation_delete_title">Übersetzung löschen</string>
+    <string name="translation_download_plan_title">Übersetzung herunterladen</string>
+    <string name="translation_download_plan_intro">Folgende Sprachen werden heruntergeladen:</string>
+    <string name="translation_download_plan_one">Sprache %1$s herunterladen?</string>
+    <string name="translation_delete_plan_intro">Folgende Sprachen werden gelöscht:</string>
+    <string name="translation_delete_plan_one">Sprache %1$s löschen?</string>
+    <string name="translation_download_failed">Übersetzung konnte nicht heruntergeladen werden</string>
+    <string name="translation_delete_failed">Übersetzung konnte nicht gelöscht werden</string>
+    <string name="translation_language_list_join">%1$s und %2$s</string>
+
+    <string name="translate_dialog_title">Seite übersetzen</string>
+    <string name="translate_action">Übersetzen</string>
+    <string name="translate_show_original">Original</string>
+    <string name="translate_error_engine_unavailable">Übersetzungen sind auf diesem Gerät nicht verfügbar</string>
+    <string name="translate_error_languages_unavailable">Übersetzungssprachen konnten nicht geladen werden</string>
+    <string name="translate_error_same_language">Wähle zwei verschiedene Sprachen</string>
+
+    <string name="setting_translator">Übersetzer</string>
+    <string name="setting_auto_translate_any_language">Beliebige Sprache</string>
 </resources>

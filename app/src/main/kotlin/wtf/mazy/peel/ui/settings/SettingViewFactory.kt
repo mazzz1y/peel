@@ -13,7 +13,12 @@ import androidx.core.widget.doAfterTextChanged
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.materialswitch.MaterialSwitch
 import com.google.android.material.textfield.TextInputEditText
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+import org.mozilla.geckoview.TranslationsController
 import wtf.mazy.peel.R
+import wtf.mazy.peel.browser.TranslationLanguages
+import wtf.mazy.peel.browser.label
 import wtf.mazy.peel.model.SettingDefinition
 import wtf.mazy.peel.model.WebAppSettings
 import wtf.mazy.peel.ui.bindDropdown
@@ -22,7 +27,9 @@ import java.util.WeakHashMap
 class SettingViewFactory(
     private val inflater: LayoutInflater,
     private val buttonStrategy: ButtonStrategy,
+    private val coroutineScope: CoroutineScope,
 ) {
+
     sealed interface ButtonStrategy {
         data object GlobalDefaults : ButtonStrategy
 
@@ -56,6 +63,7 @@ class SettingViewFactory(
             is SettingDefinition.BooleanWithCredentialsSetting -> R.layout.item_setting_boolean_credentials
             is SettingDefinition.BooleanWithStringSetting -> R.layout.item_setting_boolean_string
             is SettingDefinition.StringMapSetting -> R.layout.item_setting_string_map
+            is SettingDefinition.LanguagePairMapSetting -> R.layout.item_setting_language_pair_map
         }
         val view = inflater.inflate(layoutRes, container, false)
         bindView(view, setting, settings)
@@ -85,6 +93,11 @@ class SettingViewFactory(
             )
 
             is SettingDefinition.StringMapSetting -> setupStringMap(view, setting, settings)
+            is SettingDefinition.LanguagePairMapSetting -> setupLanguagePairMap(
+                view,
+                setting,
+                settings,
+            )
         }
     }
 
@@ -336,6 +349,246 @@ class SettingViewFactory(
             syncUi()
             listenersActive = true
         }
+    }
+
+    private fun setupLanguagePairMap(
+        view: View,
+        setting: SettingDefinition.LanguagePairMapSetting,
+        settings: WebAppSettings,
+    ) {
+        val textName = view.findViewById<TextView>(R.id.textSettingName)
+        val btnAdd = view.findViewById<MaterialButton>(R.id.btnAddEntry)
+        val switchTranslator = view.findViewById<MaterialSwitch>(R.id.switchTranslator)
+        val btnRemove = view.findViewById<MaterialButton>(R.id.btnRemoveOverride)
+        val container = view.findViewById<LinearLayout>(R.id.containerEntries)
+        val mapKey = setting.mapField.key
+
+        textName.text = view.context.getString(setting.displayNameResId)
+
+        when (val strategy = buttonStrategy) {
+            is ButtonStrategy.GlobalDefaults -> btnRemove.visibility = View.GONE
+            is ButtonStrategy.Override -> {
+                btnRemove.visibility = View.VISIBLE
+                btnRemove.setOnClickListener {
+                    settings.setValue(setting.key, null)
+                    setMap(settings, mapKey, null)
+                    strategy.onRemove(setting)
+                }
+            }
+        }
+
+        fun isEnabled(): Boolean = settings.getValue(setting.key) as? Boolean ?: false
+
+        fun hasFreshFromAvailable(support: TranslationsController.RuntimeTranslation.TranslationSupport): Boolean {
+            val used = getMap(settings, mapKey).orEmpty().keys
+            val fromLanguages = support.fromLanguages ?: emptyList()
+            return fromLanguages.any { it.code !in used } ||
+                    TranslationLanguages.ANY_LANGUAGE !in used
+        }
+
+        fun applyAddButtonVisibility() {
+            val support = TranslationLanguages.cachedSupport()
+            val canAdd = isEnabled() && support != null && hasFreshFromAvailable(support)
+            btnAdd.visibility = if (canAdd) View.VISIBLE else View.GONE
+        }
+
+        fun applyEnabledState() {
+            val enabled = isEnabled()
+            container.visibility = if (enabled) View.VISIBLE else View.GONE
+            applyAddButtonVisibility()
+        }
+
+        fun rebuild(support: TranslationsController.RuntimeTranslation.TranslationSupport) {
+            container.removeAllViews()
+            getMap(settings, mapKey)?.forEach { (from, to) ->
+                container.addView(
+                    buildLanguagePairEntry(
+                        container, settings, setting, support, from, to,
+                        onAfterChange = { applyAddButtonVisibility() },
+                    ),
+                )
+            }
+        }
+
+        fun loadAndRebuild(then: ((TranslationsController.RuntimeTranslation.TranslationSupport) -> Unit)? = null) {
+            coroutineScope.launch {
+                val loaded = TranslationLanguages.listSupportedLanguages() ?: return@launch
+                rebuild(loaded)
+                applyAddButtonVisibility()
+                then?.invoke(loaded)
+            }
+        }
+
+        switchTranslator.isChecked = isEnabled()
+        applyEnabledState()
+        switchTranslator.setOnCheckedChangeListener { _, checked ->
+            settings.setValue(setting.key, checked)
+            if (!checked) {
+                setMap(settings, mapKey, null)
+                container.removeAllViews()
+            }
+            applyEnabledState()
+        }
+
+        val cached = TranslationLanguages.cachedSupport()
+        if (cached != null) {
+            rebuild(cached)
+            applyAddButtonVisibility()
+        } else {
+            loadAndRebuild()
+        }
+
+        btnAdd.setOnClickListener {
+            if (!isEnabled()) return@setOnClickListener
+            val support = TranslationLanguages.cachedSupport()
+            if (support != null) {
+                addFreshEntry(settings, setting, support, container, ::applyAddButtonVisibility)
+            } else {
+                loadAndRebuild { loaded ->
+                    addFreshEntry(settings, setting, loaded, container, ::applyAddButtonVisibility)
+                }
+            }
+        }
+    }
+
+    private fun addFreshEntry(
+        settings: WebAppSettings,
+        setting: SettingDefinition.LanguagePairMapSetting,
+        support: TranslationsController.RuntimeTranslation.TranslationSupport,
+        container: LinearLayout,
+        onAfterChange: () -> Unit,
+    ) {
+        val mapKey = setting.mapField.key
+        val newFrom = pickFreshFrom(settings, setting, support)
+        val newTo = pickFreshTo(support, newFrom)
+        if (newFrom.isEmpty() || newTo.isEmpty() || newFrom == newTo) return
+        val map = getMap(settings, mapKey).orEmpty().toMutableMap()
+        map[newFrom] = newTo
+        setMap(settings, mapKey, map)
+        container.addView(
+            buildLanguagePairEntry(
+                container,
+                settings,
+                setting,
+                support,
+                newFrom,
+                newTo,
+                onAfterChange
+            ),
+        )
+        onAfterChange()
+    }
+
+    private fun pickFreshFrom(
+        settings: WebAppSettings,
+        setting: SettingDefinition.LanguagePairMapSetting,
+        support: TranslationsController.RuntimeTranslation.TranslationSupport,
+    ): String {
+        val used = getMap(settings, setting.mapField.key).orEmpty().keys
+        val fromLanguages = (support.fromLanguages ?: emptyList()).sorted()
+        fromLanguages.firstOrNull { it.code !in used }?.let { return it.code }
+        if (TranslationLanguages.ANY_LANGUAGE !in used) return TranslationLanguages.ANY_LANGUAGE
+        return ""
+    }
+
+    private fun pickFreshTo(
+        support: TranslationsController.RuntimeTranslation.TranslationSupport,
+        fromCode: String,
+    ): String {
+        val toLanguages = (support.toLanguages ?: emptyList()).sorted()
+        return toLanguages.firstOrNull { it.code != fromCode }?.code.orEmpty()
+    }
+
+    private fun buildLanguagePairEntry(
+        container: LinearLayout,
+        settings: WebAppSettings,
+        setting: SettingDefinition.LanguagePairMapSetting,
+        support: TranslationsController.RuntimeTranslation.TranslationSupport,
+        initialFrom: String,
+        initialTo: String,
+        onAfterChange: () -> Unit,
+    ): View {
+        val entryView = inflater.inflate(R.layout.item_language_pair_entry, container, false)
+        val btnFrom = entryView.findViewById<MaterialButton>(R.id.btnLanguageFrom)
+        val btnTo = entryView.findViewById<MaterialButton>(R.id.btnLanguageTo)
+        val btnRemoveEntry = entryView.findViewById<MaterialButton>(R.id.btnRemoveEntry)
+
+        val anyLanguageLabel =
+            entryView.context.getString(R.string.setting_auto_translate_any_language)
+        val realFromLanguages = (support.fromLanguages ?: emptyList()).sorted()
+        val toLanguages = (support.toLanguages ?: emptyList()).sorted()
+        val allFromCodes =
+            listOf(TranslationLanguages.ANY_LANGUAGE) + realFromLanguages.map { it.code }
+        val allFromLabels = listOf(anyLanguageLabel) + realFromLanguages.map { it.label() }
+
+        val mapKey = setting.mapField.key
+        var currentFrom = initialFrom
+        var currentTo = initialTo
+
+        fun persistEntry(previousFromCode: String, newFromCode: String, newToCode: String) {
+            val map = getMap(settings, mapKey).orEmpty().toMutableMap()
+            if (previousFromCode.isNotEmpty() && previousFromCode != newFromCode) {
+                map.remove(previousFromCode)
+            }
+            if (newFromCode.isNotEmpty() && newToCode.isNotEmpty() && newFromCode != newToCode) {
+                map[newFromCode] = newToCode
+            }
+            setMap(settings, mapKey, map)
+        }
+
+        fun fromCodesUsedByOtherRows(): Set<String> =
+            getMap(settings, mapKey).orEmpty().keys - currentFrom
+
+        fun availableFromCodes(): List<String> {
+            val taken = fromCodesUsedByOtherRows()
+            return allFromCodes.filter { it !in taken }
+        }
+
+        fun availableFromLabels(): List<String> {
+            val taken = fromCodesUsedByOtherRows()
+            return allFromCodes.zip(allFromLabels)
+                .filter { (code, _) -> code !in taken }
+                .map { (_, label) -> label }
+        }
+
+        fun availableToLanguages(): List<TranslationsController.Language> =
+            toLanguages.filter { it.code != currentFrom }
+
+        fun availableToLabels(): List<String> =
+            availableToLanguages().map { it.label() }
+
+        btnFrom.bindDropdown(
+            itemsProvider = { availableFromLabels() },
+            currentIndex = {
+                availableFromCodes().indexOf(currentFrom).coerceAtLeast(0)
+            },
+            onSelected = { i ->
+                val previousFromCode = currentFrom
+                currentFrom = availableFromCodes().getOrNull(i).orEmpty()
+                persistEntry(previousFromCode, currentFrom, currentTo)
+                onAfterChange()
+            },
+        )
+        btnTo.bindDropdown(
+            itemsProvider = { availableToLabels() },
+            currentIndex = {
+                availableToLanguages().indexOfFirst { it.code == currentTo }.coerceAtLeast(0)
+            },
+            onSelected = { i ->
+                currentTo = availableToLanguages().getOrNull(i)?.code.orEmpty()
+                persistEntry(currentFrom, currentFrom, currentTo)
+            },
+        )
+
+        btnRemoveEntry.setOnClickListener {
+            val map = getMap(settings, mapKey).orEmpty().toMutableMap()
+            map.remove(currentFrom)
+            setMap(settings, mapKey, map)
+            container.removeView(entryView)
+            onAfterChange()
+        }
+
+        return entryView
     }
 
     @Suppress("UNCHECKED_CAST")

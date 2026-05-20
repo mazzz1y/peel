@@ -292,4 +292,36 @@
     <string name="proxy_auth_failed">Не удалось пройти аутентификацию прокси</string>
     <string name="proxies">Прокси</string>
     <string name="proxies_empty_state">Прокси не настроены. Нажмите +, чтобы добавить.</string>
+
+    <string name="translations_title">Переводы</string>
+    <string name="translations_loading">Загрузка переводов…</string>
+    <string name="translations_picker_empty">Все доступные переводы уже загружены</string>
+    <string name="translations_add_title">Добавить перевод</string>
+    <string name="translations_empty">Переводы ещё не загружены. Нажмите +, чтобы добавить.</string>
+    <string name="download">Загрузить</string>
+    <string name="translations_download_all">Загрузить все</string>
+    <string name="translations_delete_all">Удалить все</string>
+    <string name="translations_delete_all_title">Удалить все переводы</string>
+    <string name="translation_downloading">Загрузка перевода…</string>
+    <string name="translation_downloading_named">Загрузка перевода %1$s…</string>
+    <string name="translation_deleting">Удаление перевода…</string>
+    <string name="translation_delete_title">Удалить перевод</string>
+    <string name="translation_download_plan_title">Загрузка перевода</string>
+    <string name="translation_download_plan_intro">Будут загружены следующие языки:</string>
+    <string name="translation_download_plan_one">Загрузить %1$s язык?</string>
+    <string name="translation_delete_plan_intro">Будут удалены следующие языки:</string>
+    <string name="translation_delete_plan_one">Удалить %1$s язык?</string>
+    <string name="translation_download_failed">Не удалось загрузить перевод</string>
+    <string name="translation_delete_failed">Не удалось удалить перевод</string>
+    <string name="translation_language_list_join">%1$s и %2$s</string>
+
+    <string name="translate_dialog_title">Перевести страницу</string>
+    <string name="translate_action">Перевести</string>
+    <string name="translate_show_original">Оригинал</string>
+    <string name="translate_error_engine_unavailable">Переводы недоступны на этом устройстве</string>
+    <string name="translate_error_languages_unavailable">Не удалось загрузить список языков</string>
+    <string name="translate_error_same_language">Выберите два разных языка</string>
+
+    <string name="setting_translator">Переводчик</string>
+    <string name="setting_auto_translate_any_language">Любой язык</string>
 </resources>

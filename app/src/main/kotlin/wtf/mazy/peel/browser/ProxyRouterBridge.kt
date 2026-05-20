@@ -201,6 +201,7 @@ object ProxyRouterBridge {
                     for (item in v) if (item != null) arr.put(item)
                     obj.put(k, arr)
                 }
+
                 null -> {}
                 else -> obj.put(k, v)
             }

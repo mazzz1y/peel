@@ -17,7 +17,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@android:color/transparent"
-            app:navigationIcon="@drawable/ic_baseline_arrow_back_24"
+            app:navigationIcon="@drawable/ic_symbols_arrow_back_24"
             app:navigationIconTint="?attr/colorOnSurface"
             app:theme="@style/ThemeOverlay.App.Toolbar"
             app:titleTextColor="?attr/colorOnSurface" />
@@ -56,6 +56,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
-        app:srcCompat="@drawable/ic_add_24dp" />
+        android:contentDescription="@string/add"
+        app:srcCompat="@drawable/ic_symbols_add_24" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

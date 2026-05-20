@@ -9,7 +9,7 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        app:navigationIcon="@drawable/ic_close_24dp" />
+        app:navigationIcon="@drawable/ic_symbols_close_24" />
 
     <org.mozilla.geckoview.GeckoView
         android:id="@+id/popup_gecko_view"

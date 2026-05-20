@@ -31,6 +31,8 @@ class FloatingControlsView(
     onReload: () -> Unit,
     onShare: () -> Unit,
     onFind: (() -> Unit)? = null,
+    onTranslate: (() -> Unit)? = null,
+    onTranslateLongPress: (() -> Unit)? = null,
     onExtensions: (() -> Unit)? = null,
     onReloadLongPress: (() -> Unit)? = null,
 ) {
@@ -38,6 +40,7 @@ class FloatingControlsView(
         @param:DrawableRes val iconRes: Int,
         val onClick: () -> Unit,
         val onLongClick: (() -> Unit)? = null,
+        val tag: String? = null,
     )
 
     private data class SavedOffset(val xFraction: Float, val yFraction: Float)
@@ -69,7 +72,8 @@ class FloatingControlsView(
     private val res = context.resources
     private val buttonSizePx = res.getDimensionPixelSize(R.dimen.floating_controls_button_size)
     private val gapPx = res.getDimensionPixelSize(R.dimen.floating_controls_button_gap)
-    private val panelTriggerGapPx = res.getDimensionPixelSize(R.dimen.floating_controls_panel_trigger_gap)
+    private val panelTriggerGapPx =
+        res.getDimensionPixelSize(R.dimen.floating_controls_panel_trigger_gap)
     private val panelPaddingPx = res.getDimensionPixelSize(R.dimen.floating_controls_panel_padding)
     private val touchSlop = ViewConfiguration.get(context).scaledTouchSlop.toFloat()
     private val scrimColor = ContextCompat.getColor(context, R.color.floating_controls_scrim)
@@ -77,17 +81,27 @@ class FloatingControlsView(
     private val buttonPrefs = Prefs(context, webappUuid)
 
     private val actions: List<Action> = buildList {
-        add(Action(R.drawable.ic_symbols_home_24, onHome))
-        add(Action(R.drawable.ic_symbols_share_24, onShare))
-        onFind?.let { add(Action(R.drawable.ic_symbols_search_24, it)) }
-        add(Action(R.drawable.ic_symbols_refresh_24, onReload, onReloadLongPress))
-        onExtensions?.let { add(Action(R.drawable.ic_symbols_extension_24, it)) }
+        add(Action(R.drawable.ic_symbols_home_wght300_24, onHome))
+        add(Action(R.drawable.ic_symbols_share_wght300_24, onShare))
+        onFind?.let { add(Action(R.drawable.ic_symbols_search_wght300_24, it)) }
+        add(Action(R.drawable.ic_symbols_refresh_wght300_24, onReload, onReloadLongPress))
+        onTranslate?.let {
+            add(
+                Action(
+                    R.drawable.ic_symbols_translate_wght300_24,
+                    it,
+                    onLongClick = onTranslateLongPress,
+                    tag = TAG_TRANSLATE,
+                ),
+            )
+        }
+        onExtensions?.let { add(Action(R.drawable.ic_symbols_extension_wght300_24, it)) }
     }
 
     private val panelHeightPx: Int =
         buttonSizePx * actions.size +
-            gapPx * (actions.size - 1).coerceAtLeast(0) +
-            panelPaddingPx * 2
+                gapPx * (actions.size - 1).coerceAtLeast(0) +
+                panelPaddingPx * 2
 
     private val inflater = LayoutInflater.from(context)
     private val trigger: MaterialCardView =
@@ -104,6 +118,8 @@ class FloatingControlsView(
     private var expanded = false
     private var expandDown = false
     private var destroyed = false
+    private var translateButton: ImageButton? = null
+    private var translateActive: Boolean = false
 
     private val layoutChangeListener =
         View.OnLayoutChangeListener { _, l, t, r, b, oldL, oldT, oldR, oldB ->
@@ -181,17 +197,40 @@ class FloatingControlsView(
 
     private fun populatePanel() {
         panelContainer.removeAllViews()
+        translateButton = null
         actions.forEachIndexed { index, action ->
             val lp = LinearLayout.LayoutParams(buttonSizePx, buttonSizePx).apply {
                 if (index > 0) topMargin = gapPx
             }
-            panelContainer.addView(createActionButton(action), lp)
+            val btn = createActionButton(action)
+            panelContainer.addView(btn, lp)
+            if (action.tag == TAG_TRANSLATE) {
+                translateButton = btn
+                btn.isActivated = translateActive
+            }
         }
     }
 
+    fun setTranslateActive(active: Boolean) {
+        if (translateActive == active) return
+        translateActive = active
+        translateButton?.isActivated = active
+    }
+
     private fun createActionButton(action: Action): ImageButton {
-        val btn = inflater.inflate(R.layout.view_floating_action, panelContainer, false) as ImageButton
+        val btn =
+            inflater.inflate(R.layout.view_floating_action, panelContainer, false) as ImageButton
         btn.setImageResource(action.iconRes)
+        if (action.tag == TAG_TRANSLATE) {
+            btn.imageTintList = ContextCompat.getColorStateList(
+                context,
+                R.color.floating_translate_icon_tint,
+            )
+            btn.background = ContextCompat.getDrawable(
+                context,
+                R.drawable.floating_translate_button_background,
+            )
+        }
         btn.setOnClickListener {
             collapse()
             action.onClick()
@@ -247,7 +286,7 @@ class FloatingControlsView(
         val maxPos = (parentSize - buttonSizePx).toFloat().coerceAtLeast(0f)
         val offsetPx = offsetFrac * parentSize
         val isRightAnchored = offsetPx < 0f ||
-            (offsetFrac == 0f && offsetFrac.toRawBits() != 0)
+                (offsetFrac == 0f && offsetFrac.toRawBits() != 0)
         val resolved = if (isRightAnchored) maxPos + offsetPx else offsetPx
         return resolved.coerceIn(0f, maxPos)
     }
@@ -491,6 +530,7 @@ class FloatingControlsView(
     }
 
     private companion object {
+        const val TAG_TRANSLATE = "translate"
         const val ANIM_DURATION_MS = 180L
         const val SCALE_ANIM_MS = 120L
         const val DEFAULT_X_FRACTION = -0.035f
