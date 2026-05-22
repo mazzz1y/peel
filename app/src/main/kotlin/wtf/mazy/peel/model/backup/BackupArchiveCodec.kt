@@ -3,7 +3,6 @@ package wtf.mazy.peel.model.backup
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import wtf.mazy.peel.model.BackupData
 import wtf.mazy.peel.model.IconCache

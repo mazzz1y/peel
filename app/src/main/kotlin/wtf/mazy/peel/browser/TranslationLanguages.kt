@@ -158,27 +158,33 @@ object TranslationLanguages {
         }
     }
 
-    data class DownloadPlan(val codes: List<String>)
+    data class DownloadPlan(val codes: List<String>, val sizes: Map<String, Long>)
 
     data class DeletePlan(val isLastNonPivot: Boolean)
 
     suspend fun planDownload(requestedCodes: List<String>): DownloadPlan {
         val requested = requestedCodes.filter { it.isNotBlank() }
             .distinctBy { it.langKey() }
-        if (requested.isEmpty()) return DownloadPlan(emptyList())
+        if (requested.isEmpty()) return DownloadPlan(emptyList(), emptyMap())
         val models = listModelDownloadStates()
         val downloadedKeys = models.filter { it.isDownloaded }
             .mapNotNull { it.language?.code?.langKey() }
             .toSet()
+        val sizeByKey = models.mapNotNull { m ->
+            val code = m.language?.code ?: return@mapNotNull null
+            code.langKey() to m.size
+        }.toMap()
         val pivotKey = PIVOT_LANGUAGE.langKey()
         val codes = mutableListOf<String>()
+        val sizes = mutableMapOf<String, Long>()
         for (code in requested) {
             val key = code.langKey()
             if (key == pivotKey) continue
             if (key in downloadedKeys) continue
             codes += code
+            sizeByKey[key]?.let { sizes[code] = it }
         }
-        return DownloadPlan(codes)
+        return DownloadPlan(codes, sizes)
     }
 
     suspend fun planDelete(code: String): DeletePlan {

@@ -1,6 +1,7 @@
 package wtf.mazy.peel.activities
 
 import android.os.Bundle
+import android.text.format.Formatter
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -91,6 +92,7 @@ class TranslationsActivity : EntityListActivity<TranslationItem>() {
                     code = language.code,
                     displayName = language.label(),
                     isDownloaded = model.isDownloaded,
+                    sizeBytes = model.size,
                 )
             }
             val sorted = mapped.sortedBy { it.displayName.lowercase() }
@@ -111,7 +113,13 @@ class TranslationsActivity : EntityListActivity<TranslationItem>() {
             return
         }
         val items = availableItems
-        val labels = items.map { it.displayName }.toTypedArray()
+        val labels = items.map { item ->
+            if (item.sizeBytes > 0) {
+                "${item.displayName} (${Formatter.formatShortFileSize(this, item.sizeBytes)})"
+            } else {
+                item.displayName
+            }
+        }.toTypedArray()
         val checked = BooleanArray(items.size)
         MaterialAlertDialogBuilder(this)
             .setTitle(R.string.translations_add_title)
@@ -154,7 +162,7 @@ class TranslationsActivity : EntityListActivity<TranslationItem>() {
             val plan = TranslationLanguages.planDelete(item.code)
             TranslationPlanDialog.showDelete(
                 this@TranslationsActivity,
-                item.displayName,
+                item,
                 plan,
             ) {
                 if (plan.isLastNonPivot) {
@@ -170,7 +178,7 @@ class TranslationsActivity : EntityListActivity<TranslationItem>() {
         if (downloadedItems.isEmpty()) return
         TranslationPlanDialog.showDeleteAll(
             this,
-            downloadedItems.map { it.code },
+            downloadedItems,
         ) { runDeleteAll() }
     }
 

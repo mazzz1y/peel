@@ -1,6 +1,7 @@
 package wtf.mazy.peel.ui.translations
 
 import android.content.Context
+import android.text.format.Formatter
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.LinearLayout
@@ -16,16 +17,17 @@ import kotlin.coroutines.resume
 
 object TranslationPlanDialog {
 
+    data class Entry(val name: String, val sizeBytes: Long)
+
     fun showDownload(
         context: Context,
         plan: TranslationLanguages.DownloadPlan,
         onConfirm: () -> Unit,
     ) {
-        val names = plan.codes.map { languageDisplayName(it) }
         buildDialog(
             context = context,
             titleRes = R.string.translation_download_plan_title,
-            names = names,
+            entries = downloadEntries(plan),
             inlineMessageRes = R.string.translation_download_plan_one,
             listIntroRes = R.string.translation_download_plan_intro,
             positiveRes = R.string.download,
@@ -36,14 +38,14 @@ object TranslationPlanDialog {
 
     fun showDeleteAll(
         context: Context,
-        downloadedCodes: List<String>,
+        downloadedItems: List<TranslationItem>,
         onConfirm: () -> Unit,
     ) {
-        if (downloadedCodes.isEmpty()) return
+        if (downloadedItems.isEmpty()) return
         buildDialog(
             context = context,
             titleRes = R.string.translations_delete_all_title,
-            names = downloadedCodes.map { languageDisplayName(it) },
+            entries = downloadedItems.map { Entry(it.displayName, it.sizeBytes) },
             inlineMessageRes = R.string.translation_delete_plan_one,
             listIntroRes = R.string.translation_delete_plan_intro,
             positiveRes = R.string.delete,
@@ -54,14 +56,14 @@ object TranslationPlanDialog {
 
     fun showDelete(
         context: Context,
-        targetName: String,
+        item: TranslationItem,
         plan: TranslationLanguages.DeletePlan,
         onConfirm: () -> Unit,
     ) {
         buildDialog(
             context = context,
             titleRes = R.string.translation_delete_title,
-            names = listOf(targetName),
+            entries = listOf(Entry(item.displayName, item.sizeBytes)),
             inlineMessageRes = R.string.translation_delete_plan_one,
             listIntroRes = R.string.translation_delete_plan_intro,
             positiveRes = R.string.delete,
@@ -78,7 +80,7 @@ object TranslationPlanDialog {
         val dialog = buildDialog(
             context = context,
             titleRes = R.string.translation_download_plan_title,
-            names = plan.codes.map { languageDisplayName(it) },
+            entries = downloadEntries(plan),
             inlineMessageRes = R.string.translation_download_plan_one,
             listIntroRes = R.string.translation_download_plan_intro,
             positiveRes = R.string.download,
@@ -97,10 +99,22 @@ object TranslationPlanDialog {
         dialog.show()
     }
 
+    private fun downloadEntries(plan: TranslationLanguages.DownloadPlan): List<Entry> =
+        plan.codes.map { code ->
+            Entry(languageDisplayName(code), plan.sizes[code] ?: 0L)
+        }
+
+    private fun labelFor(context: Context, entry: Entry): String =
+        if (entry.sizeBytes > 0) {
+            "${entry.name} (${Formatter.formatShortFileSize(context, entry.sizeBytes)})"
+        } else {
+            entry.name
+        }
+
     private fun buildDialog(
         context: Context,
         @StringRes titleRes: Int,
-        names: List<String>,
+        entries: List<Entry>,
         @StringRes inlineMessageRes: Int,
         @StringRes listIntroRes: Int,
         @StringRes positiveRes: Int,
@@ -113,10 +127,10 @@ object TranslationPlanDialog {
             .setNegativeButton(R.string.cancel) { _, _ -> onCancel() }
             .setOnCancelListener { onCancel() }
 
-        if (names.size == 1) {
-            val name = names[0]
+        if (entries.size == 1) {
+            val label = labelFor(context, entries[0])
             val message: CharSequence =
-                context.getString(inlineMessageRes, name).withBoldSpan(name)
+                context.getString(inlineMessageRes, label).withBoldSpan(entries[0].name)
             builder.setMessage(message)
         } else {
             val inflater = LayoutInflater.from(context)
@@ -124,11 +138,12 @@ object TranslationPlanDialog {
             view.findViewById<TextView>(R.id.translationPlanSummary).text =
                 context.getString(listIntroRes)
             val listContainer = view.findViewById<LinearLayout>(R.id.translationPlanList)
-            for (name in names) {
+            for (entry in entries) {
                 val rowView = inflater.inflate(
                     R.layout.item_translation_plan_row, listContainer, false,
                 ) as ViewGroup
-                rowView.findViewById<TextView>(R.id.translationPlanRowName).text = name
+                rowView.findViewById<TextView>(R.id.translationPlanRowName).text =
+                    labelFor(context, entry)
                 listContainer.addView(rowView)
             }
             builder.setView(view)

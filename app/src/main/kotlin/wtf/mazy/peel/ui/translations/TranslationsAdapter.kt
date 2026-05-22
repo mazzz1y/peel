@@ -1,9 +1,11 @@
 package wtf.mazy.peel.ui.translations
 
+import android.text.format.Formatter
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.ColorInt
+import androidx.core.view.isVisible
 import wtf.mazy.peel.R
 import wtf.mazy.peel.ui.entitylist.EntityListAdapter
 import wtf.mazy.peel.ui.entitylist.EntityListViewHolder
@@ -23,6 +25,7 @@ class TranslationsAdapter(
     class ViewHolder(itemView: View) : EntityListViewHolder(itemView) {
         override val indicators: List<ImageView> = emptyList()
         val name: TextView = itemView.findViewById(R.id.item_primary)
+        val size: TextView = itemView.findViewById(R.id.item_secondary)
     }
 
     override fun layoutRes(): Int = R.layout.item_translation
@@ -30,6 +33,14 @@ class TranslationsAdapter(
 
     override fun bindRow(holder: ViewHolder, row: EntityRow<TranslationItem>) {
         holder.name.text = row.entity.displayName
+        val sizeBytes = row.entity.sizeBytes
+        if (sizeBytes > 0) {
+            holder.size.text = Formatter.formatShortFileSize(holder.itemView.context, sizeBytes)
+            holder.size.isVisible = true
+        } else {
+            holder.size.text = ""
+            holder.size.isVisible = false
+        }
     }
 
     private class TranslationRowActions(

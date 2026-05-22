@@ -8,7 +8,6 @@ import androidx.room.TypeConverter
 import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 class StringMapConverter {

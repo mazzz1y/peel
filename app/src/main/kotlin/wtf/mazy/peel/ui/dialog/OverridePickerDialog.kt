@@ -11,7 +11,6 @@ import androidx.fragment.app.DialogFragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.SettingCategory
