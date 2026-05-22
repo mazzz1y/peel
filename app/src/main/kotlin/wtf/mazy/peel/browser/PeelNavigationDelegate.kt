@@ -96,7 +96,7 @@ class PeelNavigationDelegate(private val host: SessionHost) : GeckoSession.Navig
 
     private fun handleExternalRouting(url: String, request: LoadRequest): GeckoResult<AllowOrDeny> {
         if (browsingExternally || isInitialLoad) {
-            return if (request.target == TARGET_WINDOW_NEW) deny() else allow()
+            return if (request.target == TARGET_WINDOW_NEW) redirectToCurrentTab(url) else allow()
         }
 
         if (isSameOrigin(host.baseUrl, url)) return allow()
