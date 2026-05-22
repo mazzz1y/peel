@@ -102,7 +102,7 @@ ksp {
 }
 
 dependencies {
-    implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.10.0'
+    implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.11.0'
     implementation "org.mozilla.geckoview:geckoview:$geckoviewVersion"
     implementation "androidx.biometric:biometric:1.1.0"
     implementation "androidx.fragment:fragment-ktx:1.8.9"
