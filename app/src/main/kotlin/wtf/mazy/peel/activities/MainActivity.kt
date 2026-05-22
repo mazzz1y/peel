@@ -529,6 +529,9 @@ class MainActivity :
         view.findViewById<View>(R.id.aboutFdroid).setOnClickListener {
             startActivity(Intent(Intent.ACTION_VIEW, FDROID_URL.toUri()))
         }
+        view.findViewById<View>(R.id.aboutGooglePlay).setOnClickListener {
+            startActivity(Intent(Intent.ACTION_VIEW, GOOGLE_PLAY_URL.toUri()))
+        }
         view.findViewById<View>(R.id.aboutLicense).setOnClickListener {
             startActivity(Intent(Intent.ACTION_VIEW, LICENSE_URL.toUri()))
         }
@@ -540,6 +543,8 @@ class MainActivity :
     companion object {
         private const val GITHUB_URL = "https://github.com/mazzz1y/peel"
         private const val FDROID_URL = "https://mazzz1y.github.io/fdroid/repo"
+        private const val GOOGLE_PLAY_URL =
+            "https://play.google.com/store/apps/details?id=wtf.mazy.peel"
         private const val LICENSE_URL = "https://www.gnu.org/licenses/gpl-3.0.txt"
     }
 
