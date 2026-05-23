@@ -39,8 +39,6 @@ import wtf.mazy.peel.browser.PeelPromptDelegate
 import wtf.mazy.peel.browser.PeelTranslationDelegate
 import wtf.mazy.peel.browser.StartupAuthReturnTracker
 import wtf.mazy.peel.browser.TranslationLanguages
-import wtf.mazy.peel.browser.TranslationProgress
-import wtf.mazy.peel.browser.langBaseEqual
 import wtf.mazy.peel.gecko.ExtensionStateEvent
 import wtf.mazy.peel.gecko.ExtensionStateListener
 import wtf.mazy.peel.gecko.GeckoRuntimeProvider
@@ -53,7 +51,6 @@ import wtf.mazy.peel.ui.FindInPageView
 import wtf.mazy.peel.ui.FloatingControlsView
 import wtf.mazy.peel.ui.browser.AutoReloadController
 import wtf.mazy.peel.ui.browser.BiometricUnlockController
-import wtf.mazy.peel.ui.browser.BrowserTranslationProgress
 import wtf.mazy.peel.ui.browser.LaunchOverlayController
 import wtf.mazy.peel.ui.browser.SystemBarController
 import wtf.mazy.peel.ui.common.LoadingDialogController
@@ -102,11 +99,7 @@ class BrowserActivity : BaseSessionHost() {
     internal var translationDelegate: PeelTranslationDelegate? = null
         private set
 
-    val translationLoader: LoadingDialogController by lazy { LoadingDialogController(this) }
-
-    internal val translationProgress: TranslationProgress by lazy {
-        BrowserTranslationProgress(this, translationLoader)
-    }
+    internal val translationLoader: LoadingDialogController by lazy { LoadingDialogController(this) }
 
     init {
         currentlyReloading = true
@@ -353,28 +346,12 @@ class BrowserActivity : BaseSessionHost() {
             return
         }
         val docLang = delegate.lastTranslationState?.detectedLanguages?.docLangTag
-        val target = resolveLongPressTarget(docLang, delegate.sessionManualTarget)
+        val target = delegate.resolveLongPressTarget(docLang)
         if (target != null && !docLang.isNullOrBlank()) {
             delegate.translateToTarget(session, docLang, target)
         } else {
             openTranslateDialog()
         }
-    }
-
-    private fun resolveLongPressTarget(docLang: String?, sticky: String?): String? {
-        if (sticky != null && !docLang.isNullOrBlank() && !langBaseEqual(
-                docLang,
-                sticky
-            )
-        ) return sticky
-        if (docLang.isNullOrBlank()) return null
-        if (effectiveSettings.isTranslatorEnabled == true) {
-            TranslationLanguages
-                .resolveConfiguredTarget(effectiveSettings.autoTranslatePairs, docLang)
-                ?.let { return it }
-        }
-        return TranslationLanguages.defaultTranslationTarget(docLang)
-            .takeIf { it.isNotBlank() }
     }
 
     private fun openTranslateDialog() {
@@ -682,7 +659,7 @@ class BrowserActivity : BaseSessionHost() {
 
     private fun configureSession(settings: WebAppSettings) {
         sessionSetupJob?.cancel()
-        translationDelegate?.cancelPendingDownload()
+        translationDelegate?.cancelActive()
         closeFindInPage()
         (geckoSession?.contentDelegate as? PeelContentDelegate)?.exitFullscreen()
         pageBridge?.detach(closingSession = true)

@@ -287,27 +287,6 @@
     <string name="proxies">Proxies</string>
     <string name="proxies_empty_state">Nenhum proxy ainda. Toque em + para adicionar.</string>
 
-    <string name="translations_title">Traduções</string>
-    <string name="translations_loading">Carregando traduções…</string>
-    <string name="translations_picker_empty">Todas as traduções disponíveis já foram baixadas</string>
-    <string name="translations_add_title">Adicionar tradução</string>
-    <string name="translations_empty">Nenhuma tradução baixada ainda. Toque em + para adicionar.</string>
-    <string name="download">Baixar</string>
-    <string name="translations_download_all">Baixar todas</string>
-    <string name="translations_delete_all">Excluir todas</string>
-    <string name="translations_delete_all_title">Excluir todas as traduções</string>
-    <string name="translation_downloading">Baixando tradução…</string>
-    <string name="translation_downloading_named">Baixando tradução de %1$s…</string>
-    <string name="translation_deleting">Excluindo tradução…</string>
-    <string name="translation_delete_title">Excluir tradução</string>
-    <string name="translation_download_plan_title">Baixar tradução</string>
-    <string name="translation_download_plan_intro">Os seguintes idiomas serão baixados:</string>
-    <string name="translation_download_plan_one">Baixar o idioma %1$s?</string>
-    <string name="translation_delete_plan_intro">Os seguintes idiomas serão excluídos:</string>
-    <string name="translation_delete_plan_one">Excluir o idioma %1$s?</string>
-    <string name="translation_download_failed">Não foi possível baixar a tradução</string>
-    <string name="translation_delete_failed">Não foi possível excluir a tradução</string>
-    <string name="translation_language_list_join">%1$s e %2$s</string>
 
     <string name="translate_dialog_title">Traduzir página</string>
     <string name="translate_action">Traduzir</string>
@@ -318,4 +297,6 @@
 
     <string name="setting_translator">Tradutor</string>
     <string name="setting_auto_translate_any_language">Qualquer idioma</string>
+    <string name="translation_loading">Carregando tradução\u2026</string>
+    <string name="clear_translations">Limpar modelos de tradução</string>
 </resources>

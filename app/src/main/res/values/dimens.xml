@@ -28,6 +28,10 @@
     <dimen name="floating_controls_corner_radius">18dp</dimen>
     <dimen name="floating_controls_elevation">6dp</dimen>
 
+    <!-- Indicator dot -->
+    <dimen name="indicator_dot_size">8dp</dimen>
+    <dimen name="indicator_dot_inset">2dp</dimen>
+
     <!-- Find-in-page bar -->
     <dimen name="find_in_page_margin">8dp</dimen>
     <dimen name="find_in_page_elevation">6dp</dimen>

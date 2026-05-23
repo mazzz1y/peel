@@ -25,9 +25,6 @@
                 android:id="@+id/action_extensions"
                 android:title="@string/extensions" />
             <item
-                android:id="@+id/action_translations"
-                android:title="@string/translations_title" />
-            <item
                 android:id="@+id/action_global_settings"
                 android:title="@string/action_settings" />
             <item

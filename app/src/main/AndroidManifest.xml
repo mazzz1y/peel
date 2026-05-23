@@ -206,13 +206,6 @@
             android:theme="@style/AppTheme"
             android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name=".activities.TranslationsActivity"
-            android:icon="@mipmap/ic_launcher"
-            android:parentActivityName=".activities.MainActivity"
-            android:roundIcon="@mipmap/ic_launcher"
-            android:theme="@style/AppTheme"
-            android:windowSoftInputMode="adjustResize" />
-        <activity
             android:name=".activities.GroupSettingsActivity"
             android:icon="@mipmap/ic_launcher"
             android:parentActivityName=".activities.GroupListActivity"

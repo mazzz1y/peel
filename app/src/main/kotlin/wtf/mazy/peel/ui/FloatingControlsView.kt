@@ -118,7 +118,7 @@ class FloatingControlsView(
     private var expanded = false
     private var expandDown = false
     private var destroyed = false
-    private var translateButton: ImageButton? = null
+    private var translateActiveDot: View? = null
     private var translateActive: Boolean = false
 
     private val layoutChangeListener =
@@ -197,40 +197,43 @@ class FloatingControlsView(
 
     private fun populatePanel() {
         panelContainer.removeAllViews()
-        translateButton = null
+        translateActiveDot = null
         actions.forEachIndexed { index, action ->
             val lp = LinearLayout.LayoutParams(buttonSizePx, buttonSizePx).apply {
                 if (index > 0) topMargin = gapPx
             }
-            val btn = createActionButton(action)
-            panelContainer.addView(btn, lp)
-            if (action.tag == TAG_TRANSLATE) {
-                translateButton = btn
-                btn.isActivated = translateActive
-            }
+            panelContainer.addView(createActionView(action), lp)
         }
     }
 
     fun setTranslateActive(active: Boolean) {
         if (translateActive == active) return
         translateActive = active
-        translateButton?.isActivated = active
+        translateActiveDot?.visibility = if (active) View.VISIBLE else View.GONE
+    }
+
+    private fun createActionView(action: Action): View {
+        val btn = createActionButton(action)
+        if (action.tag != TAG_TRANSLATE) return btn
+        val wrapper = FrameLayout(context)
+        wrapper.addView(
+            btn,
+            FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.MATCH_PARENT,
+                FrameLayout.LayoutParams.MATCH_PARENT,
+            ),
+        )
+        val dot = inflater.inflate(R.layout.view_indicator_dot, wrapper, false)
+        dot.visibility = if (translateActive) View.VISIBLE else View.GONE
+        wrapper.addView(dot)
+        translateActiveDot = dot
+        return wrapper
     }
 
     private fun createActionButton(action: Action): ImageButton {
         val btn =
             inflater.inflate(R.layout.view_floating_action, panelContainer, false) as ImageButton
         btn.setImageResource(action.iconRes)
-        if (action.tag == TAG_TRANSLATE) {
-            btn.imageTintList = ContextCompat.getColorStateList(
-                context,
-                R.color.floating_translate_icon_tint,
-            )
-            btn.background = ContextCompat.getDrawable(
-                context,
-                R.drawable.floating_translate_button_background,
-            )
-        }
         btn.setOnClickListener {
             collapse()
             action.onClick()

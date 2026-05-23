@@ -89,9 +89,6 @@ class MainActivity :
 
     private val fragmentRegistry = mutableMapOf<String?, WebAppListFragment>()
 
-    private var translationsSupported: Boolean = false
-    private var hasTranslatorUsage: Boolean = false
-
     private val exportLauncher =
         registerForActivityResult(ActivityResultContracts.CreateDocument(BackupManager.MIME_TYPE)) { uri ->
             uri?.let { performFullBackupExport(it) }
@@ -185,30 +182,6 @@ class MainActivity :
         GeckoRuntimeProvider.initAsync(this)
     }
 
-    override fun onStart() {
-        super.onStart()
-        refreshTranslationsSupport()
-    }
-
-    private fun refreshTranslationsSupport() {
-        lifecycleScope.launch {
-            val supported = TranslationLanguages.isEngineSupported()
-            val usage = supported && hasAnyTranslatorUsage()
-            if (supported != translationsSupported || usage != hasTranslatorUsage) {
-                translationsSupported = supported
-                hasTranslatorUsage = usage
-                invalidateOptionsMenu()
-            }
-        }
-    }
-
-    private suspend fun hasAnyTranslatorUsage(): Boolean {
-        val anyWebappEnabled = DataManager.instance.getWebsites()
-            .any { DataManager.instance.resolveEffectiveSettings(it).isTranslatorEnabled == true }
-        if (anyWebappEnabled) return true
-        return TranslationLanguages.listModelDownloadStates().any { it.isDownloaded }
-    }
-
     private fun requestNotificationPermission() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return
         if (checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) return
@@ -252,12 +225,6 @@ class MainActivity :
         return true
     }
 
-    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
-        menu.findItem(R.id.action_translations)?.isVisible =
-            translationsSupported && hasTranslatorUsage
-        return super.onPrepareOptionsMenu(menu)
-    }
-
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.action_search -> {
@@ -277,11 +244,6 @@ class MainActivity :
 
             R.id.action_extensions -> {
                 startActivity(Intent(this, ExtensionsActivity::class.java))
-                true
-            }
-
-            R.id.action_translations -> {
-                startActivity(Intent(this, TranslationsActivity::class.java))
                 true
             }
 
@@ -558,6 +520,10 @@ class MainActivity :
             dialogView.findViewById<com.google.android.material.materialswitch.MaterialSwitch>(
                 R.id.switchClearSandboxData
             )
+        val switchTranslations =
+            dialogView.findViewById<com.google.android.material.materialswitch.MaterialSwitch>(
+                R.id.switchClearTranslations
+            )
         val switchFactory =
             dialogView.findViewById<com.google.android.material.materialswitch.MaterialSwitch>(
                 R.id.switchFactoryReset
@@ -570,7 +536,14 @@ class MainActivity :
         }
 
         switchFactory.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked && switchBrowsing.isChecked) switchBrowsing.isChecked = false
+            if (isChecked) {
+                if (switchBrowsing.isChecked) switchBrowsing.isChecked = false
+                if (switchTranslations.isChecked) switchTranslations.isChecked = false
+            }
+        }
+
+        switchTranslations.setOnCheckedChangeListener { _, isChecked ->
+            if (isChecked && switchFactory.isChecked) switchFactory.isChecked = false
         }
 
         MaterialAlertDialogBuilder(this)
@@ -579,8 +552,9 @@ class MainActivity :
             .setPositiveButton(R.string.ok) { _, _ ->
                 if (switchFactory.isChecked) {
                     performFactoryReset()
-                } else if (switchBrowsing.isChecked) {
-                    clearBrowsingData(switchSandbox.isChecked)
+                } else {
+                    if (switchBrowsing.isChecked) clearBrowsingData(switchSandbox.isChecked)
+                    if (switchTranslations.isChecked) clearTranslationModels()
                 }
             }
             .setNegativeButton(R.string.cancel, null)
@@ -595,12 +569,19 @@ class MainActivity :
         }
     }
 
+    private fun clearTranslationModels() {
+        lifecycleScope.launch {
+            TranslationLanguages.deleteAllModels()
+        }
+    }
+
     private fun performFactoryReset() {
         BrowserActivity.finishAll()
         SandboxManager.clearNonSandboxData()
         SandboxManager.clearAllSandboxData(this)
 
         lifecycleScope.launch {
+            TranslationLanguages.deleteAllModels()
             DataManager.instance.getWebsites().forEach { webapp ->
                 DataManager.instance.cleanupAndRemoveWebApp(webapp.uuid, this@MainActivity)
             }

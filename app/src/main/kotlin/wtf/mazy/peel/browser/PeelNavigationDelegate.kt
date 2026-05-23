@@ -38,6 +38,17 @@ class PeelNavigationDelegate(private val host: SessionHost) : GeckoSession.Navig
         host.canGoBack = canGoBack
     }
 
+    override fun onLocationChange(
+        session: GeckoSession,
+        url: String?,
+        perms: MutableList<GeckoSession.PermissionDelegate.ContentPermission>,
+        hasUserGesture: Boolean,
+    ) {
+        if (url.isNullOrBlank()) return
+        lastLocation = url
+        host.onLocationChanged(url)
+    }
+
     override fun onLoadRequest(
         session: GeckoSession,
         request: LoadRequest

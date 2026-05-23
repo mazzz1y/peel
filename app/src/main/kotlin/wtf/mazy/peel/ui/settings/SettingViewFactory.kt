@@ -387,7 +387,7 @@ class SettingViewFactory(
         }
 
         fun applyAddButtonVisibility() {
-            val support = TranslationLanguages.cachedSupport()
+            val support = TranslationLanguages.cachedSupport
             val canAdd = isEnabled() && support != null && hasFreshFromAvailable(support)
             btnAdd.visibility = if (canAdd) View.VISIBLE else View.GONE
         }
@@ -430,7 +430,7 @@ class SettingViewFactory(
             applyEnabledState()
         }
 
-        val cached = TranslationLanguages.cachedSupport()
+        val cached = TranslationLanguages.cachedSupport
         if (cached != null) {
             rebuild(cached)
             applyAddButtonVisibility()
@@ -440,7 +440,7 @@ class SettingViewFactory(
 
         btnAdd.setOnClickListener {
             if (!isEnabled()) return@setOnClickListener
-            val support = TranslationLanguages.cachedSupport()
+            val support = TranslationLanguages.cachedSupport
             if (support != null) {
                 addFreshEntry(settings, setting, support, container, ::applyAddButtonVisibility)
             } else {

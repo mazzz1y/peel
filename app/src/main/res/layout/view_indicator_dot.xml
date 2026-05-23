@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<View xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="@dimen/indicator_dot_size"
+    android:layout_height="@dimen/indicator_dot_size"
+    android:layout_gravity="top|end"
+    android:layout_marginTop="@dimen/indicator_dot_inset"
+    android:layout_marginEnd="@dimen/indicator_dot_inset"
+    android:background="@drawable/indicator_dot" />

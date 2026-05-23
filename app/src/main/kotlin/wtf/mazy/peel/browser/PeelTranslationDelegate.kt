@@ -2,18 +2,21 @@ package wtf.mazy.peel.browser
 
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
 import org.mozilla.geckoview.GeckoSession
 import org.mozilla.geckoview.TranslationsController.SessionTranslation
+import wtf.mazy.peel.R
 import wtf.mazy.peel.activities.BrowserActivity
 import java.lang.ref.WeakReference
 
-interface TranslationProgress {
-    suspend fun confirmDownload(plan: TranslationLanguages.DownloadPlan): Boolean
-    fun onDownloadStart(plan: TranslationLanguages.DownloadPlan)
-    fun onDownloadEnd(success: Boolean)
-    fun onTranslateError()
+data class PairKey(val from: String, val to: String) {
+    companion object {
+        fun of(from: String, to: String): PairKey =
+            PairKey(from.langKey(), to.langKey())
+    }
 }
 
 class PeelTranslationDelegate(activity: BrowserActivity) :
@@ -25,21 +28,34 @@ class PeelTranslationDelegate(activity: BrowserActivity) :
     var lastTranslationState: SessionTranslation.TranslationState? = null
         private set
 
-    private val declinedAutoPairs: MutableSet<String> = mutableSetOf()
-    private var lastNavigatedUrl: String? = null
-
     @Volatile
-    var sessionManualTarget: String? = null
-        private set
+    private var sessionManualTarget: String? = null
 
     val isPageTranslated: Boolean
         get() = lastTranslationState?.requestedTranslationPair != null
 
-    private var translationCompletion: CompletableDeferred<Boolean>? = null
-    private var pendingTranslationPair: Pair<String, String>? = null
-    private var activeRunTranslate: Boolean = false
-    private var downloadInFlight: Boolean = false
-    private var pendingIsManual: Boolean = false
+    private sealed interface PageDecision {
+        data object Undecided : PageDecision
+        data class Translated(val pair: PairKey, val isManual: Boolean) : PageDecision
+        data object ShownOriginal : PageDecision
+    }
+
+    private data class PageContext(
+        val url: String,
+        val decision: PageDecision,
+        val declinedPairs: Set<PairKey>,
+    )
+
+    private data class ActiveRequest(
+        val pair: PairKey,
+        val isManual: Boolean,
+        val ready: CompletableDeferred<Boolean>,
+        val job: Job,
+    )
+
+    private var page =
+        PageContext(url = "", decision = PageDecision.Undecided, declinedPairs = emptySet())
+    private var active: ActiveRequest? = null
 
     override fun onTranslationStateChange(
         session: GeckoSession,
@@ -48,206 +64,171 @@ class PeelTranslationDelegate(activity: BrowserActivity) :
         lastTranslationState = translationState
         val activity = activityRef.get() ?: return
         val pair = translationState?.requestedTranslationPair
-        val isAlreadyTranslated = pair != null
-        activity.runOnUiThread { activity.setTranslateButtonActive(isAlreadyTranslated) }
+        activity.setTranslateButtonActive(pair != null)
 
-        val error = translationState?.error
-        val engineReady = translationState?.isEngineReady == true
-        val pending = pendingTranslationPair
-        val matchesPending = pending != null && pair != null &&
-                pair.fromLanguage?.langKey() == pending.first.langKey() &&
-                pair.toLanguage?.langKey() == pending.second.langKey()
+        completeActiveRequestIfMatching(
+            pair,
+            translationState?.error,
+            translationState?.isEngineReady == true,
+        )
 
-        if (error != null && pending != null) {
-            translationCompletion?.complete(false)
-            translationCompletion = null
-            pendingTranslationPair = null
-        } else if (engineReady && matchesPending) {
-            translationCompletion?.complete(true)
-            translationCompletion = null
-            pendingTranslationPair = null
-        }
+        if (pair != null) return
+        if (active != null) return
+        if (page.decision !is PageDecision.Undecided) return
 
-        if (isAlreadyTranslated) return
-        if (maybeSessionTranslate(session, translationState)) return
-        maybeAutoTranslate(session, translationState)
+        val docLang = translationState?.detectedLanguages?.docLangTag ?: return
+        if (docLang.isBlank()) return
+        val target = resolveAutoTarget(activity, docLang) ?: return
+        val pairKey = PairKey.of(docLang, target)
+        if (pairKey in page.declinedPairs) return
+        startTranslate(session, docLang, target, isManual = false)
     }
 
     fun onLocationChanged(newUrl: String) {
-        val previous = lastNavigatedUrl
-        if (previous != null && previous == newUrl) return
-        lastNavigatedUrl = newUrl
-        declinedAutoPairs.clear()
-        sessionManualTarget = null
-        if (downloadInFlight) cancelPendingDownload()
+        if (newUrl == page.url) return
+        active?.job?.cancel()
+        active = null
+        page =
+            PageContext(url = newUrl, decision = PageDecision.Undecided, declinedPairs = emptySet())
     }
 
     fun translateToTarget(session: GeckoSession, fromCode: String, toCode: String) {
-        translateInternal(session, fromCode, toCode, isAutomatic = false)
-    }
-
-    private fun translateInternal(
-        session: GeckoSession,
-        fromCode: String,
-        toCode: String,
-        isAutomatic: Boolean,
-    ) {
-        val activity = activityRef.get() ?: return
-        val sessionTranslation = session.sessionTranslation ?: return
-        if (activeRunTranslate || downloadInFlight) cancelPendingDownload()
-        if (!isAutomatic) sessionManualTarget = toCode
-        runTranslate(activity, sessionTranslation, fromCode, toCode, isAutomatic)
+        startTranslate(session, fromCode, toCode, isManual = true)
     }
 
     fun restoreOriginal(session: GeckoSession) {
         val activity = activityRef.get() ?: return
-        if (downloadInFlight) cancelPendingDownload()
-        val pair = lastTranslationState?.requestedTranslationPair
-        val from = pair?.fromLanguage
-        val to = pair?.toLanguage ?: sessionManualTarget
-        if (!from.isNullOrBlank() && !to.isNullOrBlank()) {
-            declinedAutoPairs += pairKey(from, to)
+        val activePair = lastTranslationState?.requestedTranslationPair
+        val pairToDecline = activePair?.let {
+            PairKey.of(it.fromLanguage.orEmpty(), it.toLanguage.orEmpty())
+        } ?: (page.decision as? PageDecision.Translated)?.pair
+        val declined = buildSet {
+            addAll(page.declinedPairs)
+            pairToDecline?.let { add(it) }
+            val docLang = lastTranslationState?.detectedLanguages?.docLangTag
+            if (!docLang.isNullOrBlank()) {
+                resolveAutoTarget(activity, docLang)?.let { add(PairKey.of(docLang, it)) }
+            }
         }
-        val docLang = lastTranslationState?.detectedLanguages?.docLangTag
-        val autoTarget = if (!docLang.isNullOrBlank()) {
-            TranslationLanguages.resolveConfiguredTarget(
-                activity.effectiveSettings.autoTranslatePairs, docLang,
-            )
-        } else null
-        if (!docLang.isNullOrBlank() && !autoTarget.isNullOrBlank()) {
-            declinedAutoPairs += pairKey(docLang, autoTarget)
-        }
+        page = page.copy(decision = PageDecision.ShownOriginal, declinedPairs = declined)
         sessionManualTarget = null
+        active?.job?.cancel()
+        active = null
         if (!isPageTranslated) return
         activity.lifecycleScope.launch {
             runCatching { session.sessionTranslation?.restoreOriginalPage() }
         }
     }
 
-    fun cancelPendingDownload() {
-        val wasDownloading = downloadInFlight
-        val wasManual = pendingIsManual
-        downloadInFlight = false
-        activeRunTranslate = false
-        pendingIsManual = false
-        translationCompletion?.complete(false)
-        translationCompletion = null
-        pendingTranslationPair = null
-        if (wasManual && !isPageTranslated) sessionManualTarget = null
-        if (wasDownloading) {
-            activityRef.get()?.translationProgress?.onDownloadEnd(success = false)
-        }
+    fun cancelActive() {
+        active?.job?.cancel()
+        active = null
     }
 
-    private fun maybeSessionTranslate(
-        session: GeckoSession,
-        state: SessionTranslation.TranslationState?,
-    ): Boolean {
-        val target = sessionManualTarget ?: return false
-        val docLang = state?.detectedLanguages?.docLangTag
-        if (docLang.isNullOrBlank()) return false
-        if (langBaseEqual(docLang, target)) return false
-        if (pairKey(docLang, target) in declinedAutoPairs) return true
-        session.sessionTranslation ?: return false
-        translateInternal(session, docLang, target, isAutomatic = true)
-        return true
+    fun resolveLongPressTarget(docLang: String?): String? {
+        if (docLang.isNullOrBlank()) return null
+        val activity = activityRef.get() ?: return null
+        resolveAutoTarget(activity, docLang)?.let { return it }
+        return TranslationLanguages.defaultTranslationTarget(docLang).takeIf { it.isNotBlank() }
     }
 
-    private fun maybeAutoTranslate(
+    private fun startTranslate(
         session: GeckoSession,
-        state: SessionTranslation.TranslationState?,
+        fromCode: String,
+        toCode: String,
+        isManual: Boolean,
     ) {
         val activity = activityRef.get() ?: return
-        if (activity.effectiveSettings.isTranslatorEnabled != true) return
-        val pairs = activity.effectiveSettings.autoTranslatePairs
-        val docLang = state?.detectedLanguages?.docLangTag
-        if (docLang.isNullOrBlank()) return
-        val target = TranslationLanguages.resolveConfiguredTarget(pairs, docLang) ?: return
-        if (pairKey(docLang, target) in declinedAutoPairs) return
-        session.sessionTranslation ?: return
-        translateInternal(session, docLang, target, isAutomatic = true)
+        val sessionTranslation = session.sessionTranslation ?: return
+        if (active != null) {
+            if (!isManual) return
+            active?.job?.cancel()
+            active = null
+        }
+        val pairKey = PairKey.of(fromCode, toCode)
+        val ready = CompletableDeferred<Boolean>()
+        lateinit var request: ActiveRequest
+        val job = activity.lifecycleScope.launch {
+            try {
+                runTranslate(
+                    activity,
+                    sessionTranslation,
+                    fromCode,
+                    toCode,
+                    pairKey,
+                    isManual,
+                    ready,
+                )
+            } finally {
+                if (active === request) active = null
+            }
+        }
+        request = ActiveRequest(pair = pairKey, isManual = isManual, ready = ready, job = job)
+        active = request
     }
 
-    private fun runTranslate(
+    private suspend fun runTranslate(
         activity: BrowserActivity,
         sessionTranslation: SessionTranslation,
         fromCode: String,
         toCode: String,
-        isAutomatic: Boolean,
+        pairKey: PairKey,
+        isManual: Boolean,
+        ready: CompletableDeferred<Boolean>,
     ) {
-        if (activeRunTranslate) return
-        activeRunTranslate = true
-        val progress = activity.translationProgress
-        activity.lifecycleScope.launch {
-            try {
-                val plan = TranslationLanguages.planDownload(listOf(fromCode, toCode))
-                val needsDownload = plan.codes.isNotEmpty()
-                if (needsDownload) {
-                    if (isAutomatic && pairKey(fromCode, toCode) in declinedAutoPairs) {
-                        return@launch
-                    }
-                    if (!progress.confirmDownload(plan)) {
-                        if (isAutomatic) declinedAutoPairs += pairKey(fromCode, toCode)
-                        return@launch
-                    }
-                }
-                val completion = CompletableDeferred<Boolean>()
-                if (needsDownload) {
-                    downloadInFlight = true
-                    pendingIsManual = !isAutomatic
-                    pendingTranslationPair = fromCode to toCode
-                    translationCompletion?.complete(false)
-                    translationCompletion = completion
-                    progress.onDownloadStart(plan)
-                }
-                val options = SessionTranslation.TranslationOptions.Builder()
-                    .downloadModel(true)
-                    .build()
-                val started =
-                    runCatching { sessionTranslation.translate(fromCode, toCode, options) }
-                if (started.isFailure) {
-                    val wasManual = !isAutomatic
-                    pendingTranslationPair = null
-                    if (translationCompletion === completion) translationCompletion = null
-                    completion.complete(false)
-                    if (downloadInFlight) {
-                        downloadInFlight = false
-                        pendingIsManual = false
-                        progress.onDownloadEnd(success = false)
-                    }
-                    if (wasManual && !isPageTranslated) sessionManualTarget = null
-                    progress.onTranslateError()
-                    return@launch
-                }
-                var modelReady = true
-                if (needsDownload) {
-                    modelReady = withTimeoutOrNull(MODEL_READY_TIMEOUT_MS) {
-                        completion.await()
-                    } ?: false
-                    if (!modelReady) {
-                        if (translationCompletion === completion) translationCompletion = null
-                        pendingTranslationPair = null
-                        completion.complete(false)
-                    }
-                    if (downloadInFlight) {
-                        downloadInFlight = false
-                        pendingIsManual = false
-                        progress.onDownloadEnd(modelReady)
-                    }
-                    if (!modelReady && !isAutomatic && !isPageTranslated) {
-                        sessionManualTarget = null
-                    }
-                }
-            } finally {
-                activeRunTranslate = false
+        val options = SessionTranslation.TranslationOptions.Builder()
+            .downloadModel(true)
+            .build()
+        val started = runCatching { sessionTranslation.translate(fromCode, toCode, options) }
+        if (started.isFailure) return
+        val loaderJob = activity.lifecycleScope.launch {
+            delay(LOADER_DELAY_MS)
+            activity.translationLoader.show(R.string.translation_loading)
+        }
+        try {
+            val modelReady =
+                withTimeoutOrNull(MODEL_READY_TIMEOUT_MS) { ready.await() } ?: false
+            if (modelReady) {
+                page = page.copy(
+                    decision = PageDecision.Translated(
+                        pair = pairKey,
+                        isManual = isManual,
+                    ),
+                )
+                if (isManual) sessionManualTarget = toCode
             }
+        } finally {
+            loaderJob.cancel()
+            activity.translationLoader.dismiss()
         }
     }
 
-    private fun pairKey(fromCode: String, toCode: String): String =
-        "${fromCode.langKey()}->${toCode.langKey()}"
+    private fun completeActiveRequestIfMatching(
+        pair: SessionTranslation.TranslationPair?,
+        error: String?,
+        engineReady: Boolean,
+    ) {
+        val current = active ?: return
+        if (error != null) {
+            current.ready.complete(false)
+            return
+        }
+        if (!engineReady || pair == null) return
+        val incoming = PairKey.of(pair.fromLanguage.orEmpty(), pair.toLanguage.orEmpty())
+        if (incoming == current.pair) current.ready.complete(true)
+    }
+
+    private fun resolveAutoTarget(activity: BrowserActivity, docLang: String): String? {
+        sessionManualTarget?.let { sticky ->
+            if (!langBaseEqual(docLang, sticky)) return sticky
+        }
+        if (activity.effectiveSettings.isTranslatorEnabled != true) return null
+        val pairs = activity.effectiveSettings.autoTranslatePairs
+        return TranslationLanguages.resolveConfiguredTarget(pairs, docLang)
+    }
 
     private companion object {
         const val MODEL_READY_TIMEOUT_MS = 120_000L
+        const val LOADER_DELAY_MS = 300L
     }
 }
