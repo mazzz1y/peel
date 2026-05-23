@@ -74,10 +74,23 @@ class PeelTranslationDelegate(activity: BrowserActivity) :
 
         if (pair != null) return
         if (active != null) return
-        if (page.decision !is PageDecision.Undecided) return
 
-        val docLang = translationState?.detectedLanguages?.docLangTag ?: return
-        if (docLang.isBlank()) return
+        val docLang = translationState?.detectedLanguages?.docLangTag
+        if (docLang.isNullOrBlank()) return
+
+        val priorTranslated = page.decision as? PageDecision.Translated
+        if (priorTranslated != null && langBaseEqual(docLang, priorTranslated.pair.from)) {
+            startTranslate(
+                session,
+                priorTranslated.pair.from,
+                priorTranslated.pair.to,
+                isManual = priorTranslated.isManual,
+            )
+            return
+        }
+
+        if (page.decision is PageDecision.ShownOriginal) return
+
         val target = resolveAutoTarget(activity, docLang) ?: return
         val pairKey = PairKey.of(docLang, target)
         if (pairKey in page.declinedPairs) return
