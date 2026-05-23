@@ -1,3 +1,4 @@
 - Google Play release
 - Offline translations, powered by on-device Mozilla AI models
 - Fix _blank links not opening externally
+- Update GeckoView to 151.0.20260513195118
