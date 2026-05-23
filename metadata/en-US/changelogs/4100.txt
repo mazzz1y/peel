@@ -1,0 +1,3 @@
+- Google Play release
+- Offline translations, powered by on-device Mozilla AI models
+- Fix _blank links not opening externally
