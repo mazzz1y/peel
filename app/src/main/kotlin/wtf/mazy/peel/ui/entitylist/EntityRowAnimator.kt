@@ -1,6 +1,5 @@
 package wtf.mazy.peel.ui.entitylist
 
-import android.content.res.ColorStateList
 import android.view.View
 import android.view.animation.AccelerateInterpolator
 import android.view.animation.DecelerateInterpolator
@@ -85,8 +84,8 @@ object EntityRowAnimator {
         val icon = host.itemIcon
         if (selected) {
             icon.background = null
-            icon.setImageResource(R.drawable.ic_symbols_check_24)
-            icon.imageTintList = ColorStateList.valueOf(checkIconColor)
+            icon.imageTintList = null
+            icon.setImageResource(R.drawable.ic_entity_selected_24)
         } else {
             icon.imageTintList = null
             icon.background = null
