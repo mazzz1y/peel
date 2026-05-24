@@ -1,0 +1,3 @@
+- Restore translation after page reload
+- Fix selection checkmark color in dark theme to match tab count badge
+- Long-press the floating share button to open the page in another Peel app
