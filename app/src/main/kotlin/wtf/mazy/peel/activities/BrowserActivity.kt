@@ -315,6 +315,7 @@ class BrowserActivity : BaseSessionHost() {
             onHome = { loadURL(webapp.baseUrl) },
             onReload = ::reloadCurrentPage,
             onShare = { shareCurrentUrl() },
+            onShareLongPress = { currentUrl.takeIf { it.isNotBlank() }?.let(::openInPeel) },
             onFind = ::openFindInPage,
             onTranslate = if (translationsSupported && effectiveSettings.isTranslatorEnabled == true)
                 ({ onTranslateShortTap() }) else null,

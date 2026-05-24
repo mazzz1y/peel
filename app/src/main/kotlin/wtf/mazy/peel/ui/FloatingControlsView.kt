@@ -30,6 +30,7 @@ class FloatingControlsView(
     onHome: () -> Unit,
     onReload: () -> Unit,
     onShare: () -> Unit,
+    onShareLongPress: (() -> Unit)? = null,
     onFind: (() -> Unit)? = null,
     onTranslate: (() -> Unit)? = null,
     onTranslateLongPress: (() -> Unit)? = null,
@@ -82,7 +83,7 @@ class FloatingControlsView(
 
     private val actions: List<Action> = buildList {
         add(Action(R.drawable.ic_symbols_home_wght300_24, onHome))
-        add(Action(R.drawable.ic_symbols_share_wght300_24, onShare))
+        add(Action(R.drawable.ic_symbols_share_wght300_24, onShare, onShareLongPress))
         onFind?.let { add(Action(R.drawable.ic_symbols_search_wght300_24, it)) }
         add(Action(R.drawable.ic_symbols_refresh_wght300_24, onReload, onReloadLongPress))
         onTranslate?.let {
