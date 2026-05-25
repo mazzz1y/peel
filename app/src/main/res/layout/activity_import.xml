@@ -14,12 +14,13 @@
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
+            style="@style/Widget.Material3.Toolbar"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="?attr/actionBarSize"
             android:background="@android:color/transparent"
             app:navigationIcon="@drawable/ic_symbols_arrow_back_24"
             app:navigationIconTint="?attr/colorOnSurface"
-            app:theme="@style/ThemeOverlay.App.Toolbar"
+            app:titleTextAppearance="@style/TextAppearance.Material3.TitleLarge"
             app:titleTextColor="?attr/colorOnSurface" />
 
     </com.google.android.material.appbar.AppBarLayout>

@@ -19,6 +19,7 @@ import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.model.WebAppSettings
 import wtf.mazy.peel.ui.dialog.ExternalLinkMenu
+import wtf.mazy.peel.util.disableSystemBarContrastEnforcement
 
 class ExtensionPageActivity : BaseSessionHost() {
 
@@ -37,6 +38,7 @@ class ExtensionPageActivity : BaseSessionHost() {
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.AppTheme)
         enableEdgeToEdge()
+        disableSystemBarContrastEnforcement()
         super.onCreate(savedInstanceState)
         window.setBackgroundDrawable(themeBackgroundColor.toDrawable())
         setupSessionHostLayout(showToolbar = true)

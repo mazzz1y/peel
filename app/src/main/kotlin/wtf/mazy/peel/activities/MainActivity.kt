@@ -62,6 +62,7 @@ import wtf.mazy.peel.ui.webapplist.WebAppSelectionActions
 import wtf.mazy.peel.ui.webapplist.WebAppShareHost
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.NotificationUtils
+import wtf.mazy.peel.util.disableSystemBarContrastEnforcement
 import wtf.mazy.peel.util.restartApp
 
 class MainActivity :
@@ -121,6 +122,7 @@ class MainActivity :
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.AppTheme)
         enableEdgeToEdge()
+        disableSystemBarContrastEnforcement()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 

@@ -9,9 +9,9 @@
         </shape>
     </item>
     <item
-        android:gravity="center"
         android:width="16dp"
-        android:height="16dp">
+        android:height="16dp"
+        android:gravity="center">
         <vector
             android:width="16dp"
             android:height="16dp"

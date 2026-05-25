@@ -21,13 +21,14 @@
         android:background="@null"
         android:hint="@string/find_in_page_hint"
         android:imeOptions="actionSearch|flagNoExtractUi"
+        android:importantForAutofill="no"
         android:inputType="text"
         android:maxLines="1"
         android:singleLine="true"
+        android:textAppearance="?attr/textAppearanceBodyLarge"
         android:textColor="?attr/colorOnSurface"
         android:textColorHint="?attr/colorOnSurfaceVariant"
-        android:textSize="16sp"
-        tools:ignore="Autofill,LabelFor" />
+        tools:ignore="LabelFor" />
 
     <TextView
         android:id="@+id/findInPageCounter"
@@ -35,8 +36,8 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginEnd="12dp"
+        android:textAppearance="?attr/textAppearanceBodyMedium"
         android:textColor="?attr/colorOnSurfaceVariant"
-        android:textSize="14sp"
         tools:text="3 / 17" />
 
     <ImageButton

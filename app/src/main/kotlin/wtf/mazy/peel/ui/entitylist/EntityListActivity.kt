@@ -21,6 +21,7 @@ import wtf.mazy.peel.R
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.ui.common.Theming
 import wtf.mazy.peel.ui.dragReorderCallback
+import wtf.mazy.peel.util.disableSystemBarContrastEnforcement
 
 abstract class EntityListActivity<T : Any> : AppCompatActivity(), EntityListHost {
 
@@ -77,6 +78,7 @@ abstract class EntityListActivity<T : Any> : AppCompatActivity(), EntityListHost
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.AppTheme)
         enableEdgeToEdge()
+        disableSystemBarContrastEnforcement()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_base_list)
 

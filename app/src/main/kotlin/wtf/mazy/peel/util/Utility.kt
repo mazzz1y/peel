@@ -2,11 +2,19 @@ package wtf.mazy.peel.util
 
 import android.app.Activity
 import android.content.Intent
+import android.os.Build
 import android.webkit.URLUtil
 import java.net.URLDecoder
 import java.text.BreakIterator
 import java.util.regex.Pattern
 import kotlin.system.exitProcess
+
+fun Activity.disableSystemBarContrastEnforcement() {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        window.isNavigationBarContrastEnforced = false
+        window.isStatusBarContrastEnforced = false
+    }
+}
 
 fun prettyBaseUrl(url: String): String {
     val queryStart = url.indexOf('?')

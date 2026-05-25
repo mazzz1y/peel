@@ -46,7 +46,7 @@
                 android:paddingTop="0dp"
                 android:paddingEnd="6dp"
                 android:paddingBottom="0dp"
-                android:textSize="14sp" />
+                android:textAppearance="?attr/textAppearanceBodyMedium" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.materialswitch.MaterialSwitch

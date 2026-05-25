@@ -13,6 +13,7 @@ import androidx.core.widget.NestedScrollView
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
 import wtf.mazy.peel.databinding.ActivityToolbarBaseBinding
+import wtf.mazy.peel.util.disableSystemBarContrastEnforcement
 
 abstract class ToolbarBaseActivity<VB : ViewBinding> : AppCompatActivity() {
 
@@ -26,6 +27,7 @@ abstract class ToolbarBaseActivity<VB : ViewBinding> : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
+        disableSystemBarContrastEnforcement()
         super.onCreate(savedInstanceState)
 
         baseBinding = ActivityToolbarBaseBinding.inflate(layoutInflater)

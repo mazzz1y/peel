@@ -21,6 +21,7 @@ import wtf.mazy.peel.model.ParsedBackup
 import wtf.mazy.peel.model.WebAppGroup
 import wtf.mazy.peel.ui.dialog.showSandboxInputDialog
 import wtf.mazy.peel.ui.importmapping.ImportMappingAdapter
+import wtf.mazy.peel.util.disableSystemBarContrastEnforcement
 import wtf.mazy.peel.util.withBoldSpan
 
 class ImportActivity : AppCompatActivity() {
@@ -31,6 +32,7 @@ class ImportActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.AppTheme)
         enableEdgeToEdge()
+        disableSystemBarContrastEnforcement()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_import)
 

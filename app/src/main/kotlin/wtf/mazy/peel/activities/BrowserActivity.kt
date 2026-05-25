@@ -61,6 +61,7 @@ import wtf.mazy.peel.ui.extensions.SessionExtensionActions
 import wtf.mazy.peel.util.BrowserLauncher
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.NotificationUtils
+import wtf.mazy.peel.util.disableSystemBarContrastEnforcement
 import wtf.mazy.peel.util.normalizedHost
 
 class BrowserActivity : BaseSessionHost() {
@@ -184,6 +185,7 @@ class BrowserActivity : BaseSessionHost() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
+        disableSystemBarContrastEnforcement()
         super.onCreate(savedInstanceState)
         liveInstances.add(this)
 

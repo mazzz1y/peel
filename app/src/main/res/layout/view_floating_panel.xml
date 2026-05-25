@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    style="?attr/materialCardViewElevatedStyle"
     android:layout_width="@dimen/floating_controls_button_size"
     android:layout_height="wrap_content"
     app:cardBackgroundColor="?attr/colorSurfaceContainerHigh"
     app:cardCornerRadius="@dimen/floating_controls_corner_radius"
     app:cardElevation="@dimen/floating_controls_elevation"
-    app:contentPadding="0dp"
-    app:strokeWidth="0dp">
+    app:contentPadding="0dp">
 
     <LinearLayout
         android:id="@+id/floatingPanelActions"

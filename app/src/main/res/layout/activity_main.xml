@@ -16,11 +16,12 @@
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
+            style="@style/Widget.Material3.Toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="@android:color/transparent"
             app:menu="@menu/menu_main"
-            app:theme="@style/ThemeOverlay.App.Toolbar"
+            app:titleTextAppearance="@style/TextAppearance.Material3.TitleLarge"
             app:titleTextColor="?attr/colorOnSurface" />
 
     </com.google.android.material.appbar.AppBarLayout>
