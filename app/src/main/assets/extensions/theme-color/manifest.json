@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Theme Color",
-  "version": "8",
+  "version": "9",
   "browser_specific_settings": {
     "gecko": {
       "id": "theme-color@peel.mazy.wtf"
@@ -15,7 +15,7 @@
       "js": [
         "content.js"
       ],
-      "run_at": "document_idle"
+      "run_at": "document_end"
     }
   ],
   "permissions": [

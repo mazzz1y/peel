@@ -21,6 +21,9 @@ class PeelProgressDelegate(
     override fun onPageStart(session: GeckoSession, url: String) {
         currentUrl = url
         if (isBlank(url)) return
+        if (host.effectiveSettings.isDynamicStatusBar == true) {
+            host.markStatusBarColorPending()
+        }
         host.onPageStarted()
         if (host.effectiveSettings.isShowProgressbar != true && !host.currentlyReloading) return
         startLoad()

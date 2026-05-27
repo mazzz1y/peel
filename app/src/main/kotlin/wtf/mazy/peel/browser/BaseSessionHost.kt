@@ -62,6 +62,8 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost {
     override var currentlyReloading: Boolean = false
     override var filePathCallback: ((Array<Uri>?) -> Unit)? = null
 
+    private var statusBarColorPending: Boolean = false
+
     override var hostOrientation: Int
         get() = requestedOrientation
         set(value) {
@@ -157,6 +159,21 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost {
 
     override fun markCurrentPageAsJumpHost() {
         navigationDelegate.markCurrentPageAsJumpHost()
+    }
+
+    override fun markStatusBarColorPending() {
+        statusBarColorPending = true
+    }
+
+    override fun applyPendingStatusBarFallback() {
+        if (!statusBarColorPending) return
+        statusBarColorPending = false
+        updateStatusBarColor(themeBackgroundColor)
+    }
+
+    override fun reportStatusBarColorFromContent(color: Int?) {
+        statusBarColorPending = false
+        updateStatusBarColor(color ?: themeBackgroundColor)
     }
 
     override fun showConnectionError(description: String, url: String) {

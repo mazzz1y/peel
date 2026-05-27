@@ -52,6 +52,9 @@ interface SessionHost {
     fun dismissRedirectToFallback(fallback: String)
     fun showConnectionError(description: String, url: String)
     fun updateStatusBarColor(color: Int)
+    fun markStatusBarColorPending()
+    fun applyPendingStatusBarFallback()
+    fun reportStatusBarColorFromContent(color: Int?)
     fun findPeelAppMatches(url: String): List<WebApp>
     fun showExternalLinkMenu(
         url: String,

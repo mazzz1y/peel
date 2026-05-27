@@ -35,8 +35,8 @@ class PeelContentDelegate(
                 ): GeckoResult<Any>? {
                     if (message is JSONObject) {
                         val raw = message.optString("color", "")
-                        val color = parseWebColor(raw) ?: host.themeBackgroundColor
-                        host.runOnUi { host.updateStatusBarColor(color) }
+                        val color = parseWebColor(raw)
+                        host.runOnUi { host.reportStatusBarColorFromContent(color) }
                     }
                     return null
                 }
@@ -76,6 +76,7 @@ class PeelContentDelegate(
     }
 
     override fun onFirstContentfulPaint(session: GeckoSession) {
+        host.applyPendingStatusBarFallback()
         host.onFirstContentfulPaint()
     }
 
