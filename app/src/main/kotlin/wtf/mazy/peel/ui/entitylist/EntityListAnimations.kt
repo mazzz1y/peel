@@ -2,6 +2,7 @@ package wtf.mazy.peel.ui.entitylist
 
 import android.view.View
 import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -52,15 +53,21 @@ object EntityListAnimations {
 
     private class PendingSwap(val run: () -> Unit)
 
-    fun animateFabSwap(fab: FloatingActionButton, @DrawableRes iconRes: Int) {
+    fun animateFabSwap(
+        fab: FloatingActionButton,
+        @DrawableRes iconRes: Int,
+        @StringRes descriptionRes: Int,
+    ) {
         if (!fab.isOrWillBeShown) {
             fab.setImageResource(iconRes)
+            fab.contentDescription = fab.context.getString(descriptionRes)
             fab.show()
             return
         }
         fab.hide(object : FloatingActionButton.OnVisibilityChangedListener() {
             override fun onHidden(fab: FloatingActionButton) {
                 fab.setImageResource(iconRes)
+                fab.contentDescription = fab.context.getString(descriptionRes)
                 fab.show()
             }
         })

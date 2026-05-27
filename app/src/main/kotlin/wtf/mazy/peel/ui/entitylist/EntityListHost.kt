@@ -1,5 +1,7 @@
 package wtf.mazy.peel.ui.entitylist
 
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import com.google.android.material.appbar.MaterialToolbar
@@ -11,7 +13,7 @@ interface EntityListHost {
     val fab: FloatingActionButton
 
     fun crossfadeToolbar(swap: () -> Unit)
-    fun animateFabSwap(iconRes: Int)
+    fun animateFabSwap(@DrawableRes iconRes: Int, @StringRes descriptionRes: Int)
     fun applyNormalToolbar()
     fun updateBackPressEnabled()
 

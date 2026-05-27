@@ -141,8 +141,8 @@ abstract class EntityListActivity<T : Any> : AppCompatActivity(), EntityListHost
     override fun crossfadeToolbar(swap: () -> Unit) =
         EntityListAnimations.crossfadeToolbar(toolbar, swap)
 
-    override fun animateFabSwap(iconRes: Int) =
-        EntityListAnimations.animateFabSwap(fab, iconRes)
+    override fun animateFabSwap(iconRes: Int, descriptionRes: Int) =
+        EntityListAnimations.animateFabSwap(fab, iconRes, descriptionRes)
 
     override fun applyNormalToolbar() {
         crossfadeToolbar {

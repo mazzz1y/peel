@@ -9,6 +9,7 @@ import java.text.BreakIterator
 import java.util.regex.Pattern
 import kotlin.system.exitProcess
 
+@Suppress("DEPRECATION")
 fun Activity.disableSystemBarContrastEnforcement() {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
         window.isNavigationBarContrastEnforced = false

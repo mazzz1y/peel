@@ -19,6 +19,8 @@ data class SelectionConfig(
     @get:IdRes val deleteActionId: Int? = null,
     @get:DrawableRes val activeFabIcon: Int = R.drawable.ic_symbols_share_24,
     @get:DrawableRes val idleFabIcon: Int = R.drawable.ic_symbols_add_24,
+    @get:StringRes val activeFabDescription: Int = R.string.share,
+    @get:StringRes val idleFabDescription: Int = R.string.add_webapp,
 )
 
 class EntitySelectionController<T : Any>(
@@ -49,7 +51,7 @@ class EntitySelectionController<T : Any>(
         selectedUuids.add(uuid)
         host.updateBackPressEnabled()
         if (!isSearchActive()) applySelectionToolbar()
-        host.animateFabSwap(config.activeFabIcon)
+        host.animateFabSwap(config.activeFabIcon, config.activeFabDescription)
         onChanged()
     }
 
@@ -75,7 +77,7 @@ class EntitySelectionController<T : Any>(
             host.fab.hide()
         } else {
             host.applyNormalToolbar()
-            host.animateFabSwap(config.idleFabIcon)
+            host.animateFabSwap(config.idleFabIcon, config.idleFabDescription)
         }
         onChanged()
     }

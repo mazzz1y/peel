@@ -59,7 +59,8 @@
         android:resizeableActivity="true"
         android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
-        android:usesCleartextTraffic="true">
+        android:usesCleartextTraffic="true"
+        tools:targetApi="33">
 
         <provider
             android:name="androidx.core.content.FileProvider"
@@ -102,10 +103,9 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
 
-                <data
-                    android:host="*"
-                    android:scheme="file" />
+                <data android:scheme="file" />
                 <data android:scheme="content" />
+                <data android:host="*" />
                 <data android:pathPattern=".*\\.peel\\.zip" />
                 <data android:pathPattern=".*\\..*\\.peel\\.zip" />
                 <data android:pathPattern=".*\\..*\\..*\\.peel\\.zip" />

@@ -389,10 +389,10 @@ class MainActivity :
     override fun onSearchModeExited() {
         if (selectionController.isActive) {
             selectionController.reapplyToolbar()
-            animateFabSwap(R.drawable.ic_symbols_share_24)
+            animateFabSwap(R.drawable.ic_symbols_share_24, R.string.share)
         } else {
             applyNormalToolbar()
-            animateFabSwap(R.drawable.ic_symbols_add_24)
+            animateFabSwap(R.drawable.ic_symbols_add_24, R.string.add_webapp)
             refreshCurrentPages()
         }
     }
@@ -412,8 +412,8 @@ class MainActivity :
     override fun crossfadeToolbar(swap: () -> Unit) =
         EntityListAnimations.crossfadeToolbar(toolbar, swap)
 
-    override fun animateFabSwap(iconRes: Int) =
-        EntityListAnimations.animateFabSwap(fab, iconRes)
+    override fun animateFabSwap(iconRes: Int, descriptionRes: Int) =
+        EntityListAnimations.animateFabSwap(fab, iconRes, descriptionRes)
 
     override fun updateBackPressEnabled() {
         backPressCallback.isEnabled = searchController.isActive || selectionController.isActive

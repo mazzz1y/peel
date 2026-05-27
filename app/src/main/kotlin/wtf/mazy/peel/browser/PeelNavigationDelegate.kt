@@ -27,14 +27,16 @@ internal fun parseIntentUri(url: String): Intent? {
 
 class PeelNavigationDelegate(private val host: SessionHost) : GeckoSession.NavigationDelegate {
 
-    var browsingExternally = false
+    @Volatile var browsingExternally = false
+
+    @Volatile
     var isOnJumpHost = false
         private set
 
-    private var appLinkDialogShowing = false
-    private var externalMenuShowing = false
-    private var isInitialLoad = true
-    private var lastLocation: String = ""
+    @Volatile private var appLinkDialogShowing = false
+    @Volatile private var externalMenuShowing = false
+    @Volatile private var isInitialLoad = true
+    @Volatile private var lastLocation: String = ""
 
     override fun onCanGoBack(session: GeckoSession, canGoBack: Boolean) {
         host.canGoBack = canGoBack

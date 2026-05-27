@@ -62,7 +62,7 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost {
     override var currentlyReloading: Boolean = false
     override var filePathCallback: ((Array<Uri>?) -> Unit)? = null
 
-    private var statusBarColorPending: Boolean = false
+    @Volatile private var statusBarColorPending: Boolean = false
 
     override var hostOrientation: Int
         get() = requestedOrientation
