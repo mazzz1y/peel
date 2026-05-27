@@ -1,0 +1,3 @@
+- Status bar now blends with the page you're on (ported from Adaptive Tab Bar Colour: https://github.com/easonwong-de/Adaptive-Tab-Bar-Colour)
+- Refreshed color palette across toolbars and lists
+- Fix dismissing an external link popup unexpectedly going back to the previous page
