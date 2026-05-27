@@ -47,6 +47,8 @@ interface SessionHost {
 
     fun loadURL(url: String)
     fun goBackOrFinish()
+    fun onWindowCloseRequest()
+    fun markCurrentPageAsJumpHost()
     fun dismissRedirectToFallback(fallback: String)
     fun showConnectionError(description: String, url: String)
     fun updateStatusBarColor(color: Int)

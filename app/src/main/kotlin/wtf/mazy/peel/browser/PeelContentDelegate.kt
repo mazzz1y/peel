@@ -62,6 +62,7 @@ class PeelContentDelegate(
     }
 
     override fun onExternalResponse(session: GeckoSession, response: WebResponse) {
+        host.markCurrentPageAsJumpHost()
         onDownload(response)
     }
 
@@ -79,7 +80,7 @@ class PeelContentDelegate(
     }
 
     override fun onCloseRequest(session: GeckoSession) {
-        host.runOnUi { host.goBackOrFinish() }
+        host.runOnUi { host.onWindowCloseRequest() }
     }
 
     companion object {

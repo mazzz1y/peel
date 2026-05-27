@@ -28,6 +28,8 @@ internal fun parseIntentUri(url: String): Intent? {
 class PeelNavigationDelegate(private val host: SessionHost) : GeckoSession.NavigationDelegate {
 
     var browsingExternally = false
+    var isOnJumpHost = false
+        private set
 
     private var appLinkDialogShowing = false
     private var externalMenuShowing = false
@@ -45,6 +47,7 @@ class PeelNavigationDelegate(private val host: SessionHost) : GeckoSession.Navig
         hasUserGesture: Boolean,
     ) {
         if (url.isNullOrBlank()) return
+        if (url != lastLocation) isOnJumpHost = false
         lastLocation = url
         host.onLocationChanged(url)
     }
@@ -100,6 +103,10 @@ class PeelNavigationDelegate(private val host: SessionHost) : GeckoSession.Navig
         externalMenuShowing = false
     }
 
+    fun markCurrentPageAsJumpHost() {
+        isOnJumpHost = true
+    }
+
     fun onPageLoadFinished() {
         if (lastLocation.isEmpty() || lastLocation == "about:blank") return
         isInitialLoad = false
@@ -147,6 +154,7 @@ class PeelNavigationDelegate(private val host: SessionHost) : GeckoSession.Navig
 
     private fun openInSystem(url: String, redirectFallback: String?) {
         host.startExternalIntent(url.toUri())
+        isOnJumpHost = true
         dismissRedirect(redirectFallback)
     }
 
@@ -182,6 +190,7 @@ class PeelNavigationDelegate(private val host: SessionHost) : GeckoSession.Navig
 
     private fun applyAppLinkAllow(url: String, redirectFallback: String?) {
         host.startExternalIntent(url.toUri())
+        isOnJumpHost = true
         dismissRedirect(redirectFallback)
     }
 

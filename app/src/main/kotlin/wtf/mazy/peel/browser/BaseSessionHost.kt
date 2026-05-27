@@ -151,6 +151,14 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost {
         if (canGoBack) geckoSession?.goBack() else finish()
     }
 
+    override fun onWindowCloseRequest() {
+        if (navigationDelegate.isOnJumpHost) goBackOrFinish() else finish()
+    }
+
+    override fun markCurrentPageAsJumpHost() {
+        navigationDelegate.markCurrentPageAsJumpHost()
+    }
+
     override fun showConnectionError(description: String, url: String) {
         MaterialAlertDialogBuilder(this)
             .setTitle(R.string.site_not_found)
