@@ -576,10 +576,11 @@ class BrowserActivity : BaseSessionHost() {
         super.showConnectionError(description, url)
     }
 
-    override fun updateStatusBarColor(color: Int) {
+    override fun updateSystemBarColors(top: Int, bottom: Int) {
         if (biometricController.isPromptActive) return
         systemBarController.update(
-            color,
+            top,
+            bottom,
             launchOverlayController.isVisible,
             UI_ANIMATION_DURATION_MS
         )

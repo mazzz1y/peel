@@ -13,46 +13,41 @@ class SystemBarController(
     private val getThemeColor: () -> Int,
     private val setFullscreen: (Boolean) -> Unit,
 ) {
+    private val insetsController by lazy {
+        WindowInsetsControllerCompat(window, window.decorView)
+    }
     private var statusBarScrim: View? = null
     private var navigationBarScrim: View? = null
-    private var currentBarColor: Int? = null
-    private var barColorAnimator: ValueAnimator? = null
+    private var currentTopColor: Int? = null
+    private var currentBottomColor: Int? = null
+    private var topAnimator: ValueAnimator? = null
+    private var bottomAnimator: ValueAnimator? = null
     var suppressNextAnimation = false
 
     fun attach(statusBarScrim: View?, navigationBarScrim: View?, applyDynamicColor: Boolean) {
         this.statusBarScrim = statusBarScrim
         this.navigationBarScrim = navigationBarScrim
         if (applyDynamicColor) {
-            applyColor(getThemeColor())
+            val themeColor = getThemeColor()
+            window.decorView.setBackgroundColor(themeColor)
+            applyTop(themeColor)
+            applyBottom(themeColor)
         }
     }
 
-    fun update(color: Int, isOverlayVisible: Boolean, animationDurationMs: Long) {
-        if (isOverlayVisible || suppressNextAnimation) {
-            applyColor(color)
-            suppressNextAnimation = false
-            return
-        }
-        val fromColor = currentBarColor ?: getThemeColor()
-        if (fromColor == color) {
-            applyColor(color)
-            return
-        }
-        barColorAnimator?.cancel()
-        barColorAnimator = ValueAnimator.ofArgb(fromColor, color).apply {
-            duration = animationDurationMs
-            addUpdateListener { applyColor(it.animatedValue as Int) }
-            start()
-        }
+    fun update(top: Int, bottom: Int, isOverlayVisible: Boolean, animationDurationMs: Long) {
+        val instant = isOverlayVisible || suppressNextAnimation
+        animateTop(top, animationDurationMs, instant)
+        animateBottom(bottom, animationDurationMs, instant)
+        if (instant) suppressNextAnimation = false
     }
 
     fun hide() {
         setFullscreen(true)
         statusBarScrim?.visibility = View.GONE
         navigationBarScrim?.visibility = View.GONE
-        val controller = WindowInsetsControllerCompat(window, window.decorView)
-        controller.hide(WindowInsetsCompat.Type.systemBars())
-        controller.systemBarsBehavior =
+        insetsController.hide(WindowInsetsCompat.Type.systemBars())
+        insetsController.systemBarsBehavior =
             WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
         ViewCompat.requestApplyInsets(window.decorView)
     }
@@ -62,30 +57,64 @@ class SystemBarController(
         setFullscreen(false)
         statusBarScrim?.visibility = View.VISIBLE
         navigationBarScrim?.visibility = View.VISIBLE
-        val controller = WindowInsetsControllerCompat(window, window.decorView)
-        controller.show(WindowInsetsCompat.Type.systemBars())
+        insetsController.show(WindowInsetsCompat.Type.systemBars())
         ViewCompat.requestApplyInsets(window.decorView)
     }
 
     fun release() {
-        barColorAnimator?.cancel()
-        barColorAnimator = null
+        topAnimator?.cancel()
+        topAnimator = null
+        bottomAnimator?.cancel()
+        bottomAnimator = null
     }
 
     fun resetForSwap() {
-        barColorAnimator?.cancel()
-        barColorAnimator = null
+        release()
         suppressNextAnimation = true
     }
 
-    private fun applyColor(color: Int) {
-        currentBarColor = color
-        statusBarScrim?.setBackgroundColor(color)
-        navigationBarScrim?.setBackgroundColor(color)
-        val isLight = ColorUtils.calculateLuminance(color) > 0.5
-        WindowInsetsControllerCompat(window, window.decorView).apply {
-            isAppearanceLightStatusBars = isLight
-            isAppearanceLightNavigationBars = isLight
+    private fun animateTop(color: Int, durationMs: Long, instant: Boolean) {
+        topAnimator?.cancel()
+        topAnimator = null
+        window.decorView.setBackgroundColor(color)
+        val fromColor = currentTopColor ?: getThemeColor()
+        if (instant || fromColor == color) {
+            applyTop(color)
+            return
         }
+        topAnimator = ValueAnimator.ofArgb(fromColor, color).apply {
+            duration = durationMs
+            addUpdateListener { applyTop(it.animatedValue as Int) }
+            start()
+        }
+    }
+
+    private fun animateBottom(color: Int, durationMs: Long, instant: Boolean) {
+        bottomAnimator?.cancel()
+        bottomAnimator = null
+        val fromColor = currentBottomColor ?: getThemeColor()
+        if (instant || fromColor == color) {
+            applyBottom(color)
+            return
+        }
+        bottomAnimator = ValueAnimator.ofArgb(fromColor, color).apply {
+            duration = durationMs
+            addUpdateListener { applyBottom(it.animatedValue as Int) }
+            start()
+        }
+    }
+
+    private fun applyTop(color: Int) {
+        currentTopColor = color
+        statusBarScrim?.setBackgroundColor(color)
+        insetsController.isAppearanceLightStatusBars =
+            ColorUtils.calculateLuminance(color) > 0.5
+    }
+
+    private fun applyBottom(color: Int) {
+        currentBottomColor = color
+        navigationBarScrim?.setBackgroundColor(color)
+        insetsController.isAppearanceLightNavigationBars =
+            ColorUtils.calculateLuminance(color) > 0.5
     }
 }

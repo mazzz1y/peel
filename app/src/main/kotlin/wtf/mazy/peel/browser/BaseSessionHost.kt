@@ -62,7 +62,8 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost {
     override var currentlyReloading: Boolean = false
     override var filePathCallback: ((Array<Uri>?) -> Unit)? = null
 
-    @Volatile private var statusBarColorPending: Boolean = false
+    private var lastTopBarColor: Int? = null
+    private var lastBottomBarColor: Int? = null
 
     override var hostOrientation: Int
         get() = requestedOrientation
@@ -75,7 +76,7 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost {
     override val themeBackgroundColor: Int
         get() {
             val tv = TypedValue()
-            theme.resolveAttribute(android.R.attr.colorBackground, tv, true)
+            theme.resolveAttribute(com.google.android.material.R.attr.colorSurfaceContainerLow, tv, true)
             return tv.data
         }
 
@@ -161,19 +162,29 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost {
         navigationDelegate.markCurrentPageAsJumpHost()
     }
 
-    override fun markStatusBarColorPending() {
-        statusBarColorPending = true
+    override fun resetSystemBarColorsForNewPage() {
+        lastTopBarColor = null
+        lastBottomBarColor = null
     }
 
-    override fun applyPendingStatusBarFallback() {
-        if (!statusBarColorPending) return
-        statusBarColorPending = false
-        updateStatusBarColor(themeBackgroundColor)
+    override fun reportSystemBarColorsFromContent(
+        topCandidates: List<Int>,
+        bottomCandidates: List<Int>,
+        metaThemeColor: Int?,
+    ) {
+        val top = resolveBarColor(topCandidates, metaThemeColor, lastTopBarColor)
+        val bottom = resolveBarColor(bottomCandidates, metaThemeColor, lastBottomBarColor)
+        if (top != null) lastTopBarColor = top
+        if (bottom != null) lastBottomBarColor = bottom
+        updateSystemBarColors(top ?: themeBackgroundColor, bottom ?: themeBackgroundColor)
     }
 
-    override fun reportStatusBarColorFromContent(color: Int?) {
-        statusBarColorPending = false
-        updateStatusBarColor(color ?: themeBackgroundColor)
+    private fun resolveBarColor(candidates: List<Int>, meta: Int?, lastGood: Int?): Int? {
+        for (color in candidates) {
+            if (android.graphics.Color.alpha(color) == 0xFF) return color
+        }
+        if (meta != null) return meta
+        return lastGood
     }
 
     override fun showConnectionError(description: String, url: String) {

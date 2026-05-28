@@ -36,7 +36,7 @@ class ExtensionPageActivity : BaseSessionHost() {
     override val externalLinkIncludeLoadHere: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        setTheme(R.style.AppTheme)
+        setTheme(R.style.AppTheme_Browser)
         enableEdgeToEdge()
         disableSystemBarContrastEnforcement()
         super.onCreate(savedInstanceState)
@@ -105,7 +105,7 @@ class ExtensionPageActivity : BaseSessionHost() {
     override fun onWebFullscreenEnter() = Unit
     override fun onWebFullscreenExit() = Unit
 
-    override fun updateStatusBarColor(color: Int) = Unit
+    override fun updateSystemBarColors(top: Int, bottom: Int) = Unit
 
     override fun findPeelAppMatches(url: String): List<WebApp> {
         return ExternalLinkMenu.findPeelAppMatches(

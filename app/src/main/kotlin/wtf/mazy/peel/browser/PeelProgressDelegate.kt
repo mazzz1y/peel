@@ -22,7 +22,7 @@ class PeelProgressDelegate(
         currentUrl = url
         if (isBlank(url)) return
         if (host.effectiveSettings.isDynamicStatusBar == true) {
-            host.markStatusBarColorPending()
+            host.resetSystemBarColorsForNewPage()
         }
         host.onPageStarted()
         if (host.effectiveSettings.isShowProgressbar != true && !host.currentlyReloading) return

@@ -51,10 +51,13 @@ interface SessionHost {
     fun markCurrentPageAsJumpHost()
     fun dismissRedirectToFallback(fallback: String)
     fun showConnectionError(description: String, url: String)
-    fun updateStatusBarColor(color: Int)
-    fun markStatusBarColorPending()
-    fun applyPendingStatusBarFallback()
-    fun reportStatusBarColorFromContent(color: Int?)
+    fun updateSystemBarColors(top: Int, bottom: Int)
+    fun resetSystemBarColorsForNewPage()
+    fun reportSystemBarColorsFromContent(
+        topCandidates: List<Int>,
+        bottomCandidates: List<Int>,
+        metaThemeColor: Int?,
+    )
     fun findPeelAppMatches(url: String): List<WebApp>
     fun showExternalLinkMenu(
         url: String,

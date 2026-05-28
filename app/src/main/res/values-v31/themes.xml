@@ -5,7 +5,7 @@
     </style>
 
     <style name="AppTheme.Launcher">
-        <item name="android:windowBackground">@drawable/launch_screen</item>
+        <item name="android:windowBackground">?attr/colorSurfaceContainerLow</item>
     </style>
 
     <style name="AppTheme.Transparent" parent="AppTheme">
@@ -24,6 +24,10 @@
         <item name="android:backgroundDimEnabled">false</item>
     </style>
 
-    <style name="AppTheme.Browser" parent="AppTheme" />
+    <style name="AppTheme.Browser" parent="AppTheme">
+        <item name="colorSurfaceContainerLow">@color/brand_surfaceContainerLow</item>
+        <item name="android:colorBackground">@color/brand_background</item>
+        <item name="android:windowBackground">@color/brand_surfaceContainerLow</item>
+    </style>
 
 </resources>

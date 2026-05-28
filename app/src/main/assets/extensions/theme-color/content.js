@@ -22,24 +22,6 @@
                     : "rgba(" + r + ", " + g + ", " + b + ", " + c.a + ")";
   }
 
-  function isOpaqueColor(c) {
-    return c && c.a >= 1;
-  }
-
-  function mixOver(top, bottom) {
-    if (!bottom) return top;
-    if (!top || top.a <= 0) return bottom;
-    if (top.a >= 1) return top;
-    var a = top.a + bottom.a * (1 - top.a);
-    if (a <= 0) return { r: 0, g: 0, b: 0, a: 0 };
-    return {
-      r: (top.r * top.a + bottom.r * bottom.a * (1 - top.a)) / a,
-      g: (top.g * top.a + bottom.g * bottom.a * (1 - top.a)) / a,
-      b: (top.b * top.a + bottom.b * bottom.a * (1 - top.a)) / a,
-      a: a,
-    };
-  }
-
   function getElementColour(element) {
     if (!(element instanceof Element)) return null;
     var style = getComputedStyle(element);
@@ -48,17 +30,17 @@
     var bg = parseRgb(style.backgroundColor);
     if (!bg || bg.a === 0) return null;
     bg.a = bg.a * opacity;
-    return bg;
+    return formatRgb(bg);
   }
 
-  function getPageColours() {
+  function getPageColoursAt(y) {
     var colours = [];
     if (!document.body) return colours;
     var w = window.innerWidth;
     if (!w) return colours;
     var candidates;
     try {
-      candidates = document.elementsFromPoint(w / 2, 3);
+      candidates = document.elementsFromPoint(w / 2, y);
     } catch (e) {
       candidates = [];
     }
@@ -77,36 +59,68 @@
     return colours;
   }
 
-  function extractColor() {
-    var pageColours = getPageColours();
-    var mixed = null;
-    for (var i = 0; i < pageColours.length; i++) {
-      mixed = mixOver(mixed, pageColours[i]);
-      if (isOpaqueColor(mixed)) return formatRgb(mixed);
+  function collectCandidatesAt(ys) {
+    for (var i = 0; i < ys.length; i++) {
+      var colours = getPageColoursAt(ys[i]);
+      if (colours.length > 0) return colours;
     }
-    return mixed ? formatRgb(mixed) : "";
+    return [];
   }
 
-  var lastColor = null;
-  var lastSentAt = 0;
+  function normalizeCssColor(raw) {
+    if (!raw) return "";
+    var probe = document.createElement("div");
+    probe.style.color = "";
+    probe.style.color = raw;
+    if (!probe.style.color) return "";
+    document.documentElement.appendChild(probe);
+    var resolved = getComputedStyle(probe).color;
+    probe.parentNode.removeChild(probe);
+    var rgb = parseRgb(resolved);
+    return rgb && rgb.a > 0 ? formatRgb(rgb) : "";
+  }
+
+  function readMetaThemeColor() {
+    if (!document.head) return "";
+    var nodes = document.querySelectorAll('meta[name="theme-color"]');
+    for (var i = 0; i < nodes.length; i++) {
+      var media = nodes[i].getAttribute("media");
+      if (media && !window.matchMedia(media).matches) continue;
+      var resolved = normalizeCssColor(nodes[i].getAttribute("content"));
+      if (resolved) return resolved;
+    }
+    return "";
+  }
+
+  function collectColorData() {
+    var h = window.innerHeight;
+    var topYs = [3, 20, 50, 100];
+    var bottomYs = h ? [h - 3, h - 20, h - 50, h - 100] : [];
+    return {
+      top: collectCandidatesAt(topYs),
+      bottom: collectCandidatesAt(bottomYs),
+      meta: readMetaThemeColor(),
+    };
+  }
+
   var dispatchTimer = null;
+  var lastSentAt = 0;
 
   function dispatch() {
     dispatchTimer = null;
     if (document.visibilityState !== "visible") return;
-    var color = extractColor();
-    if (!color) return;
-    if (color === lastColor) return;
-    lastColor = color;
+    if (!document.body) return;
     lastSentAt = Date.now();
+    var data = collectColorData();
     try {
-      browser.runtime.sendNativeMessage("themeColor", { color: color });
+      browser.runtime.sendNativeMessage("themeColor", data);
     } catch (e) {}
   }
 
   function sendColor() {
     if (dispatchTimer !== null) {
       clearTimeout(dispatchTimer);
+      dispatchTimer = null;
     }
     var remaining = THROTTLE_MS + lastSentAt - Date.now();
     if (remaining <= 0) {
@@ -120,15 +134,27 @@
     if (document.hasFocus()) sendColor();
   }
 
-  var darkReaderObserver = new MutationObserver(sendColor);
   var styleTagObserver = new MutationObserver(function (mutationList) {
     var changed = mutationList.some(function (m) {
       return [].concat(
         Array.prototype.slice.call(m.addedNodes),
         Array.prototype.slice.call(m.removedNodes)
-      ).some(function (n) { return n.nodeName === "STYLE"; });
+      ).some(function (n) { return n.nodeName === "STYLE" || n.nodeName === "LINK"; });
     });
     if (changed) sendColor();
+  });
+  var rootAttrObserver = new MutationObserver(sendColor);
+  var metaThemeColourObserver = new MutationObserver(sendColor);
+  var metaTagObserver = new MutationObserver(function (mutationList) {
+    mutationList.forEach(function (mutation) {
+      Array.prototype.slice.call(mutation.addedNodes).forEach(function (node) {
+        if (node && node.nodeName === "META" && node.getAttribute &&
+            node.getAttribute("name") === "theme-color") {
+          sendColor();
+          metaThemeColourObserver.observe(node, { attributes: true });
+        }
+      });
+    });
   });
 
   function enableDynamic() {
@@ -141,45 +167,55 @@
       document.addEventListener(ev, sendColorIfFocused, { passive: true });
     });
 
-    darkReaderObserver.observe(document.documentElement, {
+    rootAttrObserver.observe(document.documentElement, {
       attributes: true,
-      attributeFilter: ["data-darkreader-mode"],
+      attributeFilter: ["class", "style", "data-theme", "data-color-mode", "data-darkreader-mode"],
     });
+    if (document.body) {
+      rootAttrObserver.observe(document.body, {
+        attributes: true,
+        attributeFilter: ["class", "style"],
+      });
+    }
     styleTagObserver.observe(document.documentElement, { childList: true });
-    if (document.head) styleTagObserver.observe(document.head, { childList: true });
+    if (document.head) {
+      styleTagObserver.observe(document.head, { childList: true });
+      metaTagObserver.observe(document.head, { childList: true });
+      var metas = document.head.querySelectorAll('meta[name="theme-color"]');
+      for (var i = 0; i < metas.length; i++) {
+        metaThemeColourObserver.observe(metas[i], { attributes: true });
+      }
+    }
   }
 
-  window.addEventListener("pageshow", function (e) {
-    if (e.persisted) {
-      lastColor = null;
-      sendColor();
-    }
-  });
+  window.addEventListener("pageshow", sendColor);
+  window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", sendColor);
 
-  window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", function () {
-    lastColor = null;
-    sendColor();
-  });
+  function scheduleSpaResample() {
+    setTimeout(sendColor, SPA_POST_NAV_RESAMPLE_MS);
+  }
 
   var origPush = history.pushState;
   history.pushState = function () {
     origPush.apply(this, arguments);
-    setTimeout(sendColor, SPA_POST_NAV_RESAMPLE_MS);
+    scheduleSpaResample();
   };
   var origReplace = history.replaceState;
   history.replaceState = function () {
     origReplace.apply(this, arguments);
-    setTimeout(sendColor, SPA_POST_NAV_RESAMPLE_MS);
+    scheduleSpaResample();
   };
-  window.addEventListener("popstate", function () {
-    setTimeout(sendColor, SPA_POST_NAV_RESAMPLE_MS);
-  });
+  window.addEventListener("popstate", scheduleSpaResample);
+
+  function onDomReady() {
+    enableDynamic();
+    sendColor();
+  }
 
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", sendColor);
+    document.addEventListener("DOMContentLoaded", onDomReady);
+  } else {
+    onDomReady();
   }
   window.addEventListener("load", sendColor);
-
-  enableDynamic();
-  sendColor();
 })();

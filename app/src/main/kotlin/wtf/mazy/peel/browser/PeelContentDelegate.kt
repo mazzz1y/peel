@@ -34,15 +34,31 @@ class PeelContentDelegate(
                     sender: WebExtension.MessageSender,
                 ): GeckoResult<Any>? {
                     if (message is JSONObject) {
-                        val raw = message.optString("color", "")
-                        val color = parseWebColor(raw)
-                        host.runOnUi { host.reportStatusBarColorFromContent(color) }
+                        val topCandidates = parseColorArray(message.optJSONArray("top"))
+                        val bottomCandidates = parseColorArray(message.optJSONArray("bottom"))
+                        val metaThemeColor = parseWebColor(message.optString("meta", ""))
+                        host.runOnUi {
+                            host.reportSystemBarColorsFromContent(
+                                topCandidates,
+                                bottomCandidates,
+                                metaThemeColor,
+                            )
+                        }
                     }
                     return null
                 }
             },
             GeckoRuntimeProvider.THEME_COLOR_APP,
         )
+    }
+
+    private fun parseColorArray(array: org.json.JSONArray?): List<Int> {
+        if (array == null) return emptyList()
+        val result = ArrayList<Int>(array.length())
+        for (i in 0 until array.length()) {
+            parseWebColor(array.optString(i, ""))?.let { result.add(it) }
+        }
+        return result
     }
 
     override fun onFullScreen(session: GeckoSession, fullScreen: Boolean) {
@@ -76,7 +92,6 @@ class PeelContentDelegate(
     }
 
     override fun onFirstContentfulPaint(session: GeckoSession) {
-        host.applyPendingStatusBarFallback()
         host.onFirstContentfulPaint()
     }
 
@@ -85,7 +100,9 @@ class PeelContentDelegate(
     }
 
     companion object {
-        private val rgbRegex = Regex("""rgba?\(\s*(\d+)[\s,]+(\d+)[\s,]+(\d+)""")
+        private val rgbRegex = Regex(
+            """rgba?\(\s*(\d+)[\s,]+(\d+)[\s,]+(\d+)(?:[\s,]+(\d*\.?\d+))?"""
+        )
 
         fun parseWebColor(raw: String): Int? {
             if (raw.isBlank()) return null
@@ -100,7 +117,13 @@ class PeelContentDelegate(
                 val r = match.groupValues[1].toIntOrNull() ?: return null
                 val g = match.groupValues[2].toIntOrNull() ?: return null
                 val b = match.groupValues[3].toIntOrNull() ?: return null
-                return Color.rgb(r, g, b)
+                val aStr = match.groupValues.getOrNull(4)
+                val a = if (aStr.isNullOrEmpty()) 255 else {
+                    val parsed = aStr.toFloatOrNull() ?: return null
+                    (parsed.coerceIn(0f, 1f) * 255f).toInt()
+                }
+                if (a == 0) return null
+                return Color.argb(a, r, g, b)
             }
             return null
         }

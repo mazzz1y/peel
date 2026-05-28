@@ -183,7 +183,7 @@
             android:icon="@mipmap/ic_launcher"
             android:parentActivityName=".activities.ExtensionsActivity"
             android:roundIcon="@mipmap/ic_launcher"
-            android:theme="@style/AppTheme"
+            android:theme="@style/AppTheme.Browser"
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".activities.ImportActivity"
