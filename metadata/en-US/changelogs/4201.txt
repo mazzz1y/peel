@@ -1,0 +1,4 @@
+- Fix blue flash on browser startup
+- Status and navigation bars now sample top and bottom of each page independently
+- Honor <meta name="theme-color"> as a fallback when page sampling cannot determine an opaque color
+- Smoother system bar transitions with no brand-color flashes between pages
