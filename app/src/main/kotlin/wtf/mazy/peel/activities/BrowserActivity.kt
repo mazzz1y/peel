@@ -51,7 +51,6 @@ import wtf.mazy.peel.ui.FindInPageView
 import wtf.mazy.peel.ui.FloatingControlsView
 import wtf.mazy.peel.ui.browser.AutoReloadController
 import wtf.mazy.peel.ui.browser.BiometricUnlockController
-import wtf.mazy.peel.ui.browser.LaunchOverlayController
 import wtf.mazy.peel.ui.browser.SystemBarController
 import wtf.mazy.peel.ui.common.LoadingDialogController
 import wtf.mazy.peel.ui.dialog.ExternalLinkMenu
@@ -153,19 +152,12 @@ class BrowserActivity : BaseSessionHost() {
         )
     }
 
-    private val launchOverlayController = LaunchOverlayController(
-        mainHandler = mainHandler,
-        isDestroyed = { isDestroyed },
-        animationDurationMs = UI_ANIMATION_DURATION_MS,
-        fallbackDelayMs = OVERLAY_HIDE_FALLBACK_MS,
-    )
-
     private val biometricController by lazy {
         BiometricUnlockController(
             activity = this,
             getWebappUuid = { webappUuid },
             onSuccess = {
-                launchOverlayController.hideFallback()
+                browserContent?.visibility = View.VISIBLE
                 launchSessionExtensionsAndLoad(
                     effectiveSettings,
                     sharedUrlFromIntent() ?: webapp.baseUrl
@@ -191,11 +183,6 @@ class BrowserActivity : BaseSessionHost() {
 
         window.setBackgroundDrawable(themeBackgroundColor.toDrawable())
         setupSessionHostLayout(showToolbar = false)
-        launchOverlay?.let { overlay ->
-            overlay.setBackgroundColor(themeBackgroundColor)
-            overlay.alpha = 1f
-            overlay.visibility = View.VISIBLE
-        }
         webappUuid = intent.getStringExtra(Const.INTENT_WEBAPP_UUID)
         ensureDataReady(webappUuid, forceReload = false) {
             continueStartupAfterDataReady()
@@ -225,7 +212,8 @@ class BrowserActivity : BaseSessionHost() {
 
         val needsBiometric = effectiveSettings.isBiometricProtection == true
         biometricController.showPromptIfNeeded(needsBiometric) {
-            launchOverlayController.arm { systemBarController.suppressNextAnimation = true }
+            systemBarController.suppressNextAnimation = true
+            browserContent?.visibility = View.INVISIBLE
         }
         if (!needsBiometric) {
             launchSessionExtensionsAndLoad(
@@ -288,10 +276,13 @@ class BrowserActivity : BaseSessionHost() {
 
         biometricController.showPromptIfNeeded(
             effectiveSettings.isBiometricProtection == true,
-        ) { launchOverlayController.arm { systemBarController.suppressNextAnimation = true } }
+        ) {
+            systemBarController.suppressNextAnimation = true
+            browserContent?.visibility = View.INVISIBLE
+        }
 
-        if (launchOverlayController.isVisible && !biometricController.isPromptActive && pageLoadHandled) {
-            launchOverlayController.hideFallback()
+        if (!biometricController.isPromptActive) {
+            browserContent?.visibility = View.VISIBLE
         }
 
         autoReloadController.start(effectiveSettings)
@@ -458,7 +449,6 @@ class BrowserActivity : BaseSessionHost() {
             runtime.storageController.clearData(StorageController.ClearFlags.ALL_CACHES)
         }
         closeFindInPage()
-        launchOverlayController.release()
         biometricController.unregisterReceiver()
         systemBarController.release()
         mediaPlaybackManager?.release()
@@ -568,7 +558,7 @@ class BrowserActivity : BaseSessionHost() {
     }
 
     override fun showConnectionError(description: String, url: String) {
-        if (launchOverlayController.isVisible) {
+        if (!pageLoadHandled) {
             showToast(getString(R.string.connection_error, description))
             finish()
             return
@@ -581,7 +571,6 @@ class BrowserActivity : BaseSessionHost() {
         systemBarController.update(
             top,
             bottom,
-            launchOverlayController.isVisible,
             UI_ANIMATION_DURATION_MS
         )
     }
@@ -609,16 +598,9 @@ class BrowserActivity : BaseSessionHost() {
         lastLoadedUrl = currentUrl
         if (pageLoadHandled || biometricController.isPromptActive) return
         pageLoadHandled = true
-        if (launchOverlayController.isVisible) {
-            launchOverlayController.hideFallback()
-        }
     }
 
-    override fun onFirstContentfulPaint() {
-        if (launchOverlayController.isVisible && !biometricController.isPromptActive) {
-            launchOverlayController.hideNow()
-        }
-    }
+    override fun onFirstContentfulPaint() = Unit
 
     override fun onWebFullscreenEnter() {
         systemBarController.hide()
@@ -783,8 +765,6 @@ class BrowserActivity : BaseSessionHost() {
     private fun bindViews() {
         findViewById<View>(R.id.browser_root)?.setBackgroundColor(themeBackgroundColor)
         browserContent?.setBackgroundColor(themeBackgroundColor)
-        launchOverlay?.let { launchOverlayController.attach(it, themeBackgroundColor) }
-        launchOverlayController.arm { systemBarController.suppressNextAnimation = true }
     }
 
     private fun resetHistoryAfterAuthReturn() {
@@ -873,7 +853,6 @@ class BrowserActivity : BaseSessionHost() {
 
     companion object {
         private const val UI_ANIMATION_DURATION_MS = 300L
-        private const val OVERLAY_HIDE_FALLBACK_MS = 800L
 
         private val liveInstances = mutableSetOf<BrowserActivity>()
 

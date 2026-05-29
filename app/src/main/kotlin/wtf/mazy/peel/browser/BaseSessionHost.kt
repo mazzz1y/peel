@@ -46,7 +46,6 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost {
     protected var geckoView: GeckoView? = null
     protected var progressBar: ProgressBar? = null
     protected var swipeRefreshLayout: VerticalSwipeRefreshLayout? = null
-    protected var launchOverlay: View? = null
     protected var appBar: AppBarLayout? = null
     protected var toolbar: MaterialToolbar? = null
     protected var statusBarScrim: View? = null
@@ -321,7 +320,6 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost {
         geckoView = findViewById(R.id.geckoview)
         progressBar = findViewById(R.id.progressBar)
         swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout)
-        launchOverlay = findViewById(R.id.launchOverlay)
         browserContent = findViewById(R.id.browserContent)
         appBar = findViewById(R.id.appBar)
         toolbar = findViewById(R.id.toolbar)

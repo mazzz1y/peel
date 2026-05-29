@@ -35,8 +35,8 @@ class SystemBarController(
         }
     }
 
-    fun update(top: Int, bottom: Int, isOverlayVisible: Boolean, animationDurationMs: Long) {
-        val instant = isOverlayVisible || suppressNextAnimation
+    fun update(top: Int, bottom: Int, animationDurationMs: Long) {
+        val instant = suppressNextAnimation
         animateTop(top, animationDurationMs, instant)
         animateBottom(bottom, animationDurationMs, instant)
         if (instant) suppressNextAnimation = false

@@ -50,15 +50,15 @@ class BiometricUnlockController(
         return unlocked.contains(uuid)
     }
 
-    fun showPromptIfNeeded(isBiometricEnabled: Boolean, armOverlay: () -> Unit) {
+    fun showPromptIfNeeded(isBiometricEnabled: Boolean, onPromptShown: () -> Unit) {
         if (!isBiometricEnabled || isUnlocked()) return
-        showPrompt(armOverlay)
+        showPrompt(onPromptShown)
     }
 
-    private fun showPrompt(armOverlay: () -> Unit) {
+    private fun showPrompt(onPromptShown: () -> Unit) {
         if (isPromptActive) return
         isPromptActive = true
-        armOverlay()
+        onPromptShown()
 
         BiometricPromptHelper(activity)
             .showPrompt(
