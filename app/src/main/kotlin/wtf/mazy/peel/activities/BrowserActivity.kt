@@ -148,6 +148,7 @@ class BrowserActivity : BaseSessionHost() {
         SystemBarController(
             window = window,
             getThemeColor = ::themeBackgroundColor,
+            scrimColor = ContextCompat.getColor(this, R.color.floating_controls_scrim),
             setFullscreen = { isFullscreen = it },
         )
     }
@@ -317,6 +318,9 @@ class BrowserActivity : BaseSessionHost() {
             onExtensions = if (SessionExtensionActions.hasExtensions)
                 ({ ExtensionPickerDialog.show(this, sessionExtensionActions) }) else null,
             onReloadLongPress = ::clearSiteCacheAndReload,
+            onExpandedChange = { expanded, durationMs ->
+                systemBarController.setDim(expanded, durationMs)
+            },
         )
         if (translationsSupported) {
             controls.setTranslateActive(translationDelegate?.isPageTranslated == true)

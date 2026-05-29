@@ -7,10 +7,12 @@ import androidx.core.graphics.ColorUtils
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 
 class SystemBarController(
     private val window: Window,
     private val getThemeColor: () -> Int,
+    private val scrimColor: Int,
     private val setFullscreen: (Boolean) -> Unit,
 ) {
     private val insetsController by lazy {
@@ -22,6 +24,8 @@ class SystemBarController(
     private var currentBottomColor: Int? = null
     private var topAnimator: ValueAnimator? = null
     private var bottomAnimator: ValueAnimator? = null
+    private var dimAnimator: ValueAnimator? = null
+    private var dimFraction = 0f
     var suppressNextAnimation = false
 
     fun attach(statusBarScrim: View?, navigationBarScrim: View?, applyDynamicColor: Boolean) {
@@ -40,6 +44,39 @@ class SystemBarController(
         animateTop(top, animationDurationMs, instant)
         animateBottom(bottom, animationDurationMs, instant)
         if (instant) suppressNextAnimation = false
+    }
+
+    fun setDim(visible: Boolean, durationMs: Long) {
+        val target = if (visible) SCRIM_ALPHA else 0f
+        dimAnimator?.cancel()
+        if (durationMs <= 0L || dimFraction == target) {
+            dimFraction = target
+            renderBars()
+            return
+        }
+        dimAnimator = ValueAnimator.ofFloat(dimFraction, target).apply {
+            duration = durationMs
+            interpolator = FastOutSlowInInterpolator()
+            addUpdateListener {
+                dimFraction = it.animatedValue as Float
+                renderBars()
+            }
+            start()
+        }
+    }
+
+    private fun renderBars() {
+        currentTopColor?.let { applyTop(it) }
+        currentBottomColor?.let { applyBottom(it) }
+    }
+
+    private fun dimmed(color: Int): Int {
+        if (dimFraction <= 0f) return color
+        val overlay = ColorUtils.setAlphaComponent(
+            scrimColor,
+            (android.graphics.Color.alpha(scrimColor) * dimFraction).toInt(),
+        )
+        return ColorUtils.compositeColors(overlay, color)
     }
 
     fun hide() {
@@ -66,6 +103,10 @@ class SystemBarController(
         topAnimator = null
         bottomAnimator?.cancel()
         bottomAnimator = null
+        dimAnimator?.cancel()
+        dimAnimator = null
+        dimFraction = 0f
+        renderBars()
     }
 
     fun resetForSwap() {
@@ -106,15 +147,21 @@ class SystemBarController(
 
     private fun applyTop(color: Int) {
         currentTopColor = color
-        statusBarScrim?.setBackgroundColor(color)
+        val rendered = dimmed(color)
+        statusBarScrim?.setBackgroundColor(rendered)
         insetsController.isAppearanceLightStatusBars =
-            ColorUtils.calculateLuminance(color) > 0.5
+            ColorUtils.calculateLuminance(rendered) > 0.5
     }
 
     private fun applyBottom(color: Int) {
         currentBottomColor = color
-        navigationBarScrim?.setBackgroundColor(color)
+        val rendered = dimmed(color)
+        navigationBarScrim?.setBackgroundColor(rendered)
         insetsController.isAppearanceLightNavigationBars =
-            ColorUtils.calculateLuminance(color) > 0.5
+            ColorUtils.calculateLuminance(rendered) > 0.5
+    }
+
+    private companion object {
+        const val SCRIM_ALPHA = 0.4f
     }
 }

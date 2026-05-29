@@ -36,6 +36,7 @@ class FloatingControlsView(
     onTranslateLongPress: (() -> Unit)? = null,
     onExtensions: (() -> Unit)? = null,
     onReloadLongPress: (() -> Unit)? = null,
+    private val onExpandedChange: ((expanded: Boolean, durationMs: Long) -> Unit)? = null,
 ) {
     private data class Action(
         @param:DrawableRes val iconRes: Int,
@@ -331,6 +332,7 @@ class FloatingControlsView(
         showPanel()
         animateTriggerIcons(toClose = true)
         fadeScrim(visible = true)
+        onExpandedChange?.invoke(true, ANIM_DURATION_MS)
     }
 
     private fun collapse() {
@@ -339,6 +341,7 @@ class FloatingControlsView(
         hidePanel()
         animateTriggerIcons(toClose = false)
         fadeScrim(visible = false)
+        onExpandedChange?.invoke(false, ANIM_DURATION_MS)
     }
 
     private fun collapseInstantly() {
@@ -358,6 +361,7 @@ class FloatingControlsView(
             visibility = View.GONE
             alpha = 0f
         }
+        onExpandedChange?.invoke(false, 0L)
     }
 
     private fun animateTriggerIcons(toClose: Boolean) {
