@@ -1,0 +1,4 @@
+- Fix a crash that could occur with background media playback
+- Reopening a backgrounded app no longer auto-starts the next video
+- Refactor app startup, removing the hacky launch overlay
+- System bars now dim while the floating controls menu is open
