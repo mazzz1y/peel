@@ -230,6 +230,8 @@ class BrowserActivity : BaseSessionHost() {
     override fun onStart() {
         super.onStart()
         GeckoRuntimeProvider.addExtensionStateListener(extensionStateListener)
+        if (!isStartupComplete) return
+        if (effectiveSettings.isAllowMediaPlaybackInBackground == true) return
         geckoSession?.let { session ->
             session.setActive(true)
             GeckoRuntimeProvider.getRuntime(this)
@@ -433,11 +435,10 @@ class BrowserActivity : BaseSessionHost() {
 
         if (settings.isAllowMediaPlaybackInBackground != true) {
             geckoSession?.setActive(false)
-        }
-
-        geckoSession?.let { session ->
-            GeckoRuntimeProvider.getRuntime(this)
-                .webExtensionController.setTabActive(session, false)
+            geckoSession?.let { session ->
+                GeckoRuntimeProvider.getRuntime(this)
+                    .webExtensionController.setTabActive(session, false)
+            }
         }
         sessionExtensionActions.dismissPopup()
 

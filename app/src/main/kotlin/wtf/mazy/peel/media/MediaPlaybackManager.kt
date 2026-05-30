@@ -59,7 +59,15 @@ class MediaPlaybackManager(context: Context) : GeckoMediaSession.Delegate {
                 val gen = intent.getIntExtra(MediaPlaybackService.EXTRA_GENERATION, -1)
                 if (gen != -1 && gen != generation) return
                 when (intent.action) {
-                    MediaPlaybackService.BROADCAST_PLAY -> mediaSession?.play()
+                    MediaPlaybackService.BROADCAST_PLAY -> {
+                        val live = mediaSession
+                        if (live != null) {
+                            live.play()
+                        } else {
+                            sendAction(MediaPlaybackService.ACTION_PAUSE)
+                        }
+                    }
+
                     MediaPlaybackService.BROADCAST_PAUSE -> mediaSession?.pause()
 
                     MediaPlaybackService.BROADCAST_STOP -> {
@@ -104,9 +112,7 @@ class MediaPlaybackManager(context: Context) : GeckoMediaSession.Delegate {
             this.mediaSession = null
         }
         if (!serviceStarted) return
-        pendingDeactivation = true
-        mainHandler.removeCallbacks(deactivationTimeout)
-        mainHandler.postDelayed(deactivationTimeout, DEACTIVATION_GRACE_MS)
+        scheduleDeactivation()
     }
 
     override fun onPlay(session: GeckoSession, mediaSession: GeckoMediaSession) {
@@ -117,12 +123,19 @@ class MediaPlaybackManager(context: Context) : GeckoMediaSession.Delegate {
             return
         }
         generation++
-        context.startService(
-            MediaPlaybackService.createStartIntent(
-                context, title, icon, webappUuid, generation, contentIntent,
+        try {
+            ContextCompat.startForegroundService(
+                context,
+                MediaPlaybackService.createStartIntent(
+                    context, title, icon, webappUuid, generation, contentIntent,
+                ),
             )
-        )
-        serviceStarted = true
+            serviceStarted = true
+        } catch (_: IllegalStateException) {
+            serviceStarted = false
+        } catch (_: SecurityException) {
+            serviceStarted = false
+        }
     }
 
     override fun onPause(session: GeckoSession, mediaSession: GeckoMediaSession) {
@@ -135,6 +148,10 @@ class MediaPlaybackManager(context: Context) : GeckoMediaSession.Delegate {
         this.mediaSession = mediaSession
         if (!serviceStarted) return
         sendAction(MediaPlaybackService.ACTION_PAUSE)
+        scheduleDeactivation()
+    }
+
+    private fun scheduleDeactivation() {
         pendingDeactivation = true
         mainHandler.removeCallbacks(deactivationTimeout)
         mainHandler.postDelayed(deactivationTimeout, DEACTIVATION_GRACE_MS)
@@ -153,7 +170,7 @@ class MediaPlaybackManager(context: Context) : GeckoMediaSession.Delegate {
     ) {
         this.mediaSession = mediaSession
         if (!serviceStarted) return
-        context.startService(
+        startService(
             Intent(context, MediaPlaybackService.resolveServiceClass()).apply {
                 action = MediaPlaybackService.ACTION_UPDATE_METADATA
                 putExtra(MediaPlaybackService.EXTRA_TRACK_TITLE, meta.title ?: "")
@@ -163,7 +180,7 @@ class MediaPlaybackManager(context: Context) : GeckoMediaSession.Delegate {
         meta.artwork?.getBitmap(ARTWORK_SIZE)?.accept { bitmap ->
             if (bitmap != null && serviceStarted) {
                 MediaPlaybackService.pendingArtwork = bitmap
-                context.startService(
+                startService(
                     Intent(context, MediaPlaybackService.resolveServiceClass()).apply {
                         action = MediaPlaybackService.ACTION_UPDATE_ARTWORK
                     })
@@ -189,7 +206,7 @@ class MediaPlaybackManager(context: Context) : GeckoMediaSession.Delegate {
     ) {
         this.mediaSession = mediaSession
         if (!serviceStarted) return
-        context.startService(
+        startService(
             Intent(context, MediaPlaybackService.resolveServiceClass()).apply {
                 action = MediaPlaybackService.ACTION_UPDATE_POSITION
                 putExtra(MediaPlaybackService.EXTRA_DURATION_MS, (state.duration * 1000).toLong())
@@ -213,7 +230,7 @@ class MediaPlaybackManager(context: Context) : GeckoMediaSession.Delegate {
 
     private fun updateActions(hasPrevious: Boolean, hasNext: Boolean) {
         if (!serviceStarted) return
-        context.startService(
+        startService(
             Intent(context, MediaPlaybackService.resolveServiceClass()).apply {
                 action = MediaPlaybackService.ACTION_UPDATE_ACTIONS
                 putExtra(MediaPlaybackService.EXTRA_HAS_PREVIOUS, hasPrevious)
@@ -222,10 +239,20 @@ class MediaPlaybackManager(context: Context) : GeckoMediaSession.Delegate {
     }
 
     private fun sendAction(action: String) {
-        context.startService(
+        startService(
             Intent(context, MediaPlaybackService.resolveServiceClass()).apply {
                 this.action = action
             })
+    }
+
+    private fun startService(intent: Intent) {
+        try {
+            context.startService(intent)
+        } catch (_: IllegalStateException) {
+            serviceStarted = false
+        } catch (_: SecurityException) {
+            serviceStarted = false
+        }
     }
 
     private fun registerReceiver() {

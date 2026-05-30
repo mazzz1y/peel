@@ -5,12 +5,14 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ServiceInfo
 import android.graphics.Bitmap
 import android.net.wifi.WifiManager
 import android.os.Build
 import android.os.Looper
 import android.os.PowerManager
 import androidx.annotation.OptIn
+import androidx.core.app.NotificationCompat
 import androidx.core.app.ServiceCompat
 import androidx.core.content.IntentCompat
 import androidx.media3.common.C
@@ -37,6 +39,7 @@ open class MediaPlaybackService : MediaSessionService() {
     private var wakeLock: PowerManager.WakeLock? = null
     private var wifiLock: WifiManager.WifiLock? = null
     private var sessionAdded = false
+    private var foregroundStarted = false
 
     private var appTitle = ""
     private var appIcon: Bitmap? = null
@@ -81,6 +84,7 @@ open class MediaPlaybackService : MediaSessionService() {
     override fun onGetSession(controllerInfo: MediaSession.ControllerInfo): MediaSession? = session
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        startForegroundPlaceholder()
         when (intent?.action) {
             ACTION_START -> handleStart(intent)
             ACTION_RESUME -> setPlaying(true)
@@ -123,6 +127,33 @@ open class MediaPlaybackService : MediaSessionService() {
         wakeLock = null
         wifiLock = null
         super.onDestroy()
+    }
+
+    private fun startForegroundPlaceholder() {
+        if (foregroundStarted) return
+        val notification = NotificationCompat.Builder(this, CHANNEL_ID)
+            .setSmallIcon(R.drawable.ic_notification)
+            .setContentTitle(getString(R.string.app_name))
+            .setOngoing(true)
+            .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
+            .build()
+        try {
+            ServiceCompat.startForeground(
+                this,
+                NOTIFICATION_ID,
+                notification,
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
+                } else {
+                    0
+                },
+            )
+            foregroundStarted = true
+        } catch (_: IllegalStateException) {
+            stopSelf()
+        } catch (_: SecurityException) {
+            stopSelf()
+        }
     }
 
     private fun handleStart(intent: Intent) {
@@ -182,7 +213,6 @@ open class MediaPlaybackService : MediaSessionService() {
         stopped = true
         playing = false
         releaseWakeLocks()
-        notifyPlayerChanged()
         ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
         stopSelf()
     }
