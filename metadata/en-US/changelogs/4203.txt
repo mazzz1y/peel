@@ -1,0 +1,2 @@
+- Reattach the session on resume for more reliable rendering when reopening from recents
+- Update GeckoView to 151.0.20260601110758
