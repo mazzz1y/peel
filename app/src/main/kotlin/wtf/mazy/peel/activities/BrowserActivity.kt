@@ -231,6 +231,7 @@ class BrowserActivity : BaseSessionHost() {
         super.onStart()
         GeckoRuntimeProvider.addExtensionStateListener(extensionStateListener)
         if (!isStartupComplete) return
+        reattachSessionToView()
         if (effectiveSettings.isAllowMediaPlaybackInBackground == true) return
         geckoSession?.let { session ->
             session.setActive(true)
@@ -439,6 +440,7 @@ class BrowserActivity : BaseSessionHost() {
                 GeckoRuntimeProvider.getRuntime(this)
                     .webExtensionController.setTabActive(session, false)
             }
+            geckoView?.releaseSession()
         }
         sessionExtensionActions.dismissPopup()
 

@@ -149,6 +149,15 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost {
         geckoSession?.loadUri(finalUrl)
     }
 
+    protected fun reattachSessionToView() {
+        val session = geckoSession ?: return
+        val view = geckoView ?: return
+        if (view.session != session) {
+            view.setSession(session)
+            view.coverUntilFirstPaint(themeBackgroundColor)
+        }
+    }
+
     override fun goBackOrFinish() {
         if (canGoBack) geckoSession?.goBack() else finish()
     }

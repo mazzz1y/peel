@@ -87,6 +87,16 @@ class ExtensionPageActivity : BaseSessionHost() {
         setupPullToRefresh(effectiveSettings)
     }
 
+    override fun onStart() {
+        super.onStart()
+        reattachSessionToView()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        geckoView?.releaseSession()
+    }
+
     override fun onDestroy() {
         geckoView?.releaseSession()
         geckoView = null
