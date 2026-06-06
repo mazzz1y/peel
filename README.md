@@ -50,7 +50,7 @@ alt="Get it on my F-Droid repo" align="center" height="54" /></a>
 
 ## Screenshots
 
-| ![Screenshot 1](.github/screenshots/1.png) | ![Screenshot 2](.github/screenshots/2.png) | ![Screenshot 3](.github/screenshots/3.png) | ![Screenshot 4](.github/screenshots/4.png) |
+| ![Screenshot 1](metadata/en-US/images/phoneScreenshots/1.png) | ![Screenshot 2](metadata/en-US/images/phoneScreenshots/2.png) | ![Screenshot 3](metadata/en-US/images/phoneScreenshots/3.png) | ![Screenshot 4](metadata/en-US/images/phoneScreenshots/4.png) |
 | :----------------------------------------: | :----------------------------------------: | :----------------------------------------: | :----------------------------------------: |
 
 ## Acknowledgments
