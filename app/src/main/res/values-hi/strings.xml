@@ -96,6 +96,8 @@
     <string name="site_not_found">पेज लोड नहीं हो सका।</string>
     <string name="connection_error">कनेक्शन त्रुटि: %1$s</string>
     <string name="retry">पुनः प्रयास</string>
+    <string name="crash_restart_title">पेज बार-बार क्रैश हो रहा है</string>
+    <string name="crash_restart_message">यह पेज बार-बार क्रैश हो रहा है। पुनः प्रयास करने के लिए वेब ऐप पुनः आरंभ करें।</string>
     <string name="exit">बाहर</string>
     <string name="icon_not_found">आइकन लोड नहीं हो सका।</string>
     <string name="keep_screen_awake">स्क्रीन चालू रखें</string>

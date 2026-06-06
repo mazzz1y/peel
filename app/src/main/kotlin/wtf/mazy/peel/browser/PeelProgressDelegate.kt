@@ -42,6 +42,10 @@ class PeelProgressDelegate(
         if (success) host.onPageFullyLoaded()
     }
 
+    override fun onSessionStateChange(session: GeckoSession, sessionState: GeckoSession.SessionState) {
+        host.onSessionStateUpdated(sessionState)
+    }
+
     private fun startLoad() {
         val bar = host.hostProgressBar ?: return
         animator?.cancel()

@@ -96,6 +96,8 @@
     <string name="site_not_found">Не удалось загрузить страницу</string>
     <string name="connection_error">Ошибка соединения: %1$s</string>
     <string name="retry">Повторить</string>
+    <string name="crash_restart_title">Сбой страницы</string>
+    <string name="crash_restart_message">На этой странице постоянно происходят сбои. Перезапустите веб-приложение, чтобы повторить попытку.</string>
     <string name="exit">Выход</string>
     <string name="icon_not_found">Не удалось загрузить иконку</string>
     <string name="keep_screen_awake">Не выключать экран</string>

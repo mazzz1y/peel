@@ -96,6 +96,8 @@
     <string name="site_not_found">無法載入頁面</string>
     <string name="connection_error">連線錯誤：%1$s</string>
     <string name="retry">重試</string>
+    <string name="crash_restart_title">頁面持續當機</string>
+    <string name="crash_restart_message">此頁面持續當機。請重新啟動網頁應用程式以再次嘗試。</string>
     <string name="exit">結束</string>
     <string name="icon_not_found">無法載入圖示</string>
     <string name="keep_screen_awake">保持螢幕開啟</string>

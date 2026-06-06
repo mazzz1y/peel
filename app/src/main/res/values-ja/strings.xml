@@ -96,6 +96,8 @@
     <string name="site_not_found">ページを読み込めませんでした</string>
     <string name="connection_error">接続エラー：%1$s</string>
     <string name="retry">再試行</string>
+    <string name="crash_restart_title">ページがクラッシュし続けています</string>
+    <string name="crash_restart_message">このページはクラッシュし続けています。ウェブアプリを再起動してもう一度お試しください。</string>
     <string name="exit">終了</string>
     <string name="icon_not_found">アイコンを読み込めませんでした</string>
     <string name="keep_screen_awake">画面をオンに保つ</string>

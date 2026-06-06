@@ -12,6 +12,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.View
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
@@ -20,6 +21,7 @@ import androidx.core.graphics.drawable.toDrawable
 import androidx.core.net.toUri
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -129,6 +131,7 @@ class BrowserActivity : BaseSessionHost() {
     }
 
     private var pageLoadHandled = false
+    private var crashRecoveryCount = 0
     private var mediaPlaybackManager: MediaPlaybackManager? = null
     private var sessionSetupJob: Job? = null
     private var pageBridge: PageBridge? = null
@@ -607,7 +610,48 @@ class BrowserActivity : BaseSessionHost() {
         pageLoadHandled = true
     }
 
-    override fun onFirstContentfulPaint() = Unit
+    override fun onFirstContentfulPaint() {
+        crashRecoveryCount = 0
+    }
+
+    override fun onProcessKilled() {
+        Log.w(TAG, "content process killed; recovering session")
+        recoverSession()
+    }
+
+    override fun onContentCrashed() {
+        Log.w(TAG, "content process crashed; recovering session")
+        if (++crashRecoveryCount > CRASH_LOOP_MAX) {
+            Log.w(TAG, "crash loop detected; not recovering")
+            showCrashRestartDialog()
+            return
+        }
+        recoverSession()
+    }
+
+    private fun showCrashRestartDialog() {
+        if (isFinishing || isDestroyed) return
+        MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.crash_restart_title)
+            .setMessage(R.string.crash_restart_message)
+            .setCancelable(false)
+            .setPositiveButton(R.string.restart) { _, _ ->
+                crashRecoveryCount = 0
+                recreate()
+            }
+            .setNegativeButton(R.string.exit) { _, _ ->
+                finish()
+            }
+            .show()
+    }
+
+    private fun recoverSession() {
+        if (isFinishing || isDestroyed || biometricController.isPromptActive) return
+        val restore = lastSessionState
+        val url = lastLoadedUrl.ifBlank { sharedUrlFromIntent() ?: webapp.baseUrl }
+        configureSession(effectiveSettings)
+        launchSessionExtensionsAndLoad(effectiveSettings, url, restore)
+    }
 
     override fun onWebFullscreenEnter() {
         systemBarController.hide()
@@ -662,6 +706,7 @@ class BrowserActivity : BaseSessionHost() {
 
         currentUrl = ""
         lastLoadedUrl = ""
+        lastSessionState = null
         canGoBack = false
         currentlyReloading = true
         pageLoadHandled = false
@@ -715,12 +760,16 @@ class BrowserActivity : BaseSessionHost() {
         sessionExtensionActions.attach(session)
     }
 
-    private fun launchSessionExtensionsAndLoad(settings: WebAppSettings, url: String) {
+    private fun launchSessionExtensionsAndLoad(
+        settings: WebAppSettings,
+        url: String,
+        restore: GeckoSession.SessionState? = null,
+    ) {
         sessionSetupJob = lifecycleScope.launch {
             wtf.mazy.peel.browser.ProxyRouterBridge.ensure(applicationContext)
             wtf.mazy.peel.browser.ProxyRouterBridge.awaitRoutesReady()
             attachPageBridge()
-            loadURL(url)
+            if (restore != null) geckoSession?.restoreState(restore) else loadURL(url)
             if (settings.isDynamicStatusBar == true) {
                 val ext = GeckoRuntimeProvider.ensureThemeColorExtension(applicationContext)
                 val delegate = geckoSession?.contentDelegate as? PeelContentDelegate
@@ -859,7 +908,9 @@ class BrowserActivity : BaseSessionHost() {
     }
 
     companion object {
+        private const val TAG = "BrowserActivity"
         private const val UI_ANIMATION_DURATION_MS = 300L
+        private const val CRASH_LOOP_MAX = 3
 
         private val liveInstances = mutableSetOf<BrowserActivity>()
 

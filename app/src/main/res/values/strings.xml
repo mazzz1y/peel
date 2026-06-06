@@ -111,6 +111,8 @@
     <string name="site_not_found">Page could not be loaded</string>
     <string name="connection_error">Connection error: %1$s</string>
     <string name="retry">Retry</string>
+    <string name="crash_restart_title">Page keeps crashing</string>
+    <string name="crash_restart_message">This page keeps crashing. Restart the webapp to try again.</string>
     <string name="exit">Exit</string>
     <string name="icon_not_found">Icon could not be loaded</string>
     <string name="keep_screen_awake">Keep screen on</string>

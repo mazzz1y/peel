@@ -43,6 +43,7 @@ import java.io.File
 abstract class BaseSessionHost : AppCompatActivity(), SessionHost {
 
     protected var geckoSession: GeckoSession? = null
+    protected var lastSessionState: GeckoSession.SessionState? = null
     protected var geckoView: GeckoView? = null
     protected var progressBar: ProgressBar? = null
     protected var swipeRefreshLayout: VerticalSwipeRefreshLayout? = null
@@ -156,6 +157,10 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost {
             view.setSession(session)
             view.coverUntilFirstPaint(themeBackgroundColor)
         }
+    }
+
+    override fun onSessionStateUpdated(state: GeckoSession.SessionState) {
+        lastSessionState = state
     }
 
     override fun goBackOrFinish() {

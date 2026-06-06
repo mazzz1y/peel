@@ -5,6 +5,7 @@ import android.content.res.Resources
 import android.net.Uri
 import android.view.Window
 import android.widget.ProgressBar
+import org.mozilla.geckoview.GeckoSession
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.model.WebAppSettings
 
@@ -38,6 +39,9 @@ interface SessionHost {
     fun onPageStarted()
     fun onPageFullyLoaded()
     fun onFirstContentfulPaint()
+    fun onSessionStateUpdated(state: GeckoSession.SessionState)
+    fun onProcessKilled()
+    fun onContentCrashed()
 
     fun showHttpAuthDialog(
         onResult: (username: String, password: String) -> Unit,

@@ -99,6 +99,14 @@ class PeelContentDelegate(
         host.runOnUi { host.onWindowCloseRequest() }
     }
 
+    override fun onKill(session: GeckoSession) {
+        host.runOnUi { host.onProcessKilled() }
+    }
+
+    override fun onCrash(session: GeckoSession) {
+        host.runOnUi { host.onContentCrashed() }
+    }
+
     companion object {
         private val rgbRegex = Regex(
             """rgba?\(\s*(\d+)[\s,]+(\d+)[\s,]+(\d+)(?:[\s,]+(\d*\.?\d+))?"""

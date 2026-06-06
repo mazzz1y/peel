@@ -81,10 +81,22 @@ class ExtensionPageActivity : BaseSessionHost() {
         session.progressDelegate = PeelProgressDelegate(this)
         session.promptDelegate = PeelPromptDelegate(this)
         session.open(runtime)
-        session.loadUri(url)
+        val restore = lastSessionState
+        if (restore != null) session.restoreState(restore) else session.loadUri(url)
         geckoView?.setSession(session)
         geckoSession = session
         setupPullToRefresh(effectiveSettings)
+    }
+
+    override fun onProcessKilled() = recoverSession()
+
+    override fun onContentCrashed() = recoverSession()
+
+    private fun recoverSession() {
+        if (isFinishing || isDestroyed) return
+        geckoView?.releaseSession()
+        geckoSession?.close()
+        openSession(baseUrl)
     }
 
     override fun onStart() {

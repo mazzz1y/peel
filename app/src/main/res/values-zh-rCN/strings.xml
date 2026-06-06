@@ -96,6 +96,8 @@
     <string name="site_not_found">无法加载页面</string>
     <string name="connection_error">连接错误：%1$s</string>
     <string name="retry">重试</string>
+    <string name="crash_restart_title">页面持续崩溃</string>
+    <string name="crash_restart_message">此页面持续崩溃。请重新启动网页应用以再次尝试。</string>
     <string name="exit">退出</string>
     <string name="icon_not_found">无法加载图标</string>
     <string name="keep_screen_awake">保持屏幕常亮</string>

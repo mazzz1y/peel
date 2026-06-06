@@ -96,6 +96,8 @@
     <string name="site_not_found">Não foi possível carregar a página</string>
     <string name="connection_error">Erro de conexão: %1$s</string>
     <string name="retry">Tentar novamente</string>
+    <string name="crash_restart_title">A página continua a falhar</string>
+    <string name="crash_restart_message">Esta página continua a falhar. Reinicie a aplicação web para tentar novamente.</string>
     <string name="exit">Sair</string>
     <string name="icon_not_found">Não foi possível carregar o ícone</string>
     <string name="keep_screen_awake">Manter tela ligada</string>

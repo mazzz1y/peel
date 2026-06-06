@@ -96,6 +96,8 @@
     <string name="site_not_found">ਪੰਨਾ ਲੋਡ ਨਹੀਂ ਹੋ ਸਕਿਆ।</string>
     <string name="connection_error">ਕੁਨੈਕਸ਼ਨ ਗਲਤੀ: %1$s</string>
     <string name="retry">ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼</string>
+    <string name="crash_restart_title">ਪੰਨਾ ਵਾਰ-ਵਾਰ ਕ੍ਰੈਸ਼ ਹੋ ਰਿਹਾ ਹੈ</string>
+    <string name="crash_restart_message">ਇਹ ਪੰਨਾ ਵਾਰ-ਵਾਰ ਕ੍ਰੈਸ਼ ਹੋ ਰਿਹਾ ਹੈ। ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰਨ ਲਈ ਵੈੱਬ ਐਪ ਮੁੜ ਚਾਲੂ ਕਰੋ।</string>
     <string name="exit">ਬਾਹਰ</string>
     <string name="icon_not_found">ਆਈਕਨ ਲੋਡ ਨਹੀਂ ਹੋ ਸਕਿਆ।</string>
     <string name="keep_screen_awake">ਸਕ੍ਰੀਨ ਚਾਲੂ ਰੱਖੋ</string>

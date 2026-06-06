@@ -173,6 +173,8 @@
     <string name="no_app_found">No se encontró una app para este enlace</string>
     <string name="permission_prompt_microphone">¿Permitir a %1$s acceder al micrófono?</string>
     <string name="retry">Reintentar</string>
+    <string name="crash_restart_title">La página sigue fallando</string>
+    <string name="crash_restart_message">Esta página sigue fallando. Reinicia la aplicación web para volver a intentarlo.</string>
     <string name="protection">Protección</string>
 
     <plurals name="group_app_count">

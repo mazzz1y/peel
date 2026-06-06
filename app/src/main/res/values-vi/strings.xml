@@ -96,6 +96,8 @@
     <string name="site_not_found">Không thể tải trang</string>
     <string name="connection_error">Lỗi kết nối: %1$s</string>
     <string name="retry">Thử lại</string>
+    <string name="crash_restart_title">Trang liên tục gặp sự cố</string>
+    <string name="crash_restart_message">Trang này liên tục gặp sự cố. Khởi động lại ứng dụng web để thử lại.</string>
     <string name="exit">Thoát</string>
     <string name="icon_not_found">Không thể tải biểu tượng</string>
     <string name="keep_screen_awake">Giữ màn hình sáng</string>
