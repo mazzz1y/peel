@@ -170,12 +170,25 @@ tasks.register('syncPlayMetadata') {
                 Files.copy(iconFile.toPath(), new File(graphicsDir, "icon.png").toPath())
             }
 
-            def phoneScreenshotsDir = new File(localeDir, "images/phoneScreenshots")
-            if (phoneScreenshotsDir.exists()) {
-                def destDir = new File(graphicsDir, "phone-screenshots")
-                destDir.mkdirs()
-                phoneScreenshotsDir.eachFile { img ->
-                    Files.copy(img.toPath(), new File(destDir, img.name).toPath())
+            def featureGraphicFile = new File(localeDir, "images/featureGraphic.png")
+            if (featureGraphicFile.exists()) {
+                graphicsDir.mkdirs()
+                Files.copy(featureGraphicFile.toPath(), new File(graphicsDir, "feature-graphic.png").toPath())
+            }
+
+            def screenshotDirs = [
+                    "phoneScreenshots"    : "phone-screenshots",
+                    "sevenInchScreenshots": "tablet-screenshots",
+                    "tenInchScreenshots"  : "large-tablet-screenshots",
+            ]
+            screenshotDirs.each { srcName, destName ->
+                def srcDir = new File(localeDir, "images/${srcName}")
+                if (srcDir.exists()) {
+                    def destDir = new File(graphicsDir, destName)
+                    destDir.mkdirs()
+                    srcDir.eachFile { img ->
+                        Files.copy(img.toPath(), new File(destDir, img.name).toPath())
+                    }
                 }
             }
 
@@ -195,7 +208,7 @@ tasks.register('syncPlayMetadata') {
 }
 
 tasks.configureEach { task ->
-    if (task.name.startsWith('publish') && task.name.contains('Bundle')) {
+    if (task.name.startsWith('generate') && task.name.endsWith('PlayResources')) {
         task.dependsOn('syncPlayMetadata')
     }
 }

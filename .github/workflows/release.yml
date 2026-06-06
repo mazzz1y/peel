@@ -22,6 +22,12 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
+      - name: Trust OS CA bundle for the JVM
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ca-certificates-java
+          echo "JAVA_TOOL_OPTIONS=-Djavax.net.ssl.trustStore=/etc/ssl/certs/java/cacerts -Djavax.net.ssl.trustStorePassword=changeit" >> "$GITHUB_ENV"
+
       - name: Set up Android SDK
         uses: android-actions/setup-android@v4
         with:
@@ -42,12 +48,6 @@ jobs:
           echo "KEYSTORE_PASS=${{ secrets.KEYSTORE_PASS }}" >> local.properties
           echo "ALIAS_PASS=${{ secrets.KEYSTORE_PASS }}" >> local.properties
 
-      # - name: Authenticate to Google Cloud
-      #   uses: google-github-actions/auth@v3
-      #   with:
-      #     workload_identity_provider: projects/29811119602/locations/global/workloadIdentityPools/github-actions/providers/github-repo
-      #     service_account: play-publisher@peel-android.iam.gserviceaccount.com
-
       - name: Get version info
         id: version
         run: |
@@ -65,9 +65,6 @@ jobs:
             echo "prerelease=false" >> $GITHUB_OUTPUT
           fi
       
-      # - name: Publish to Google Play
-      #   run: ./gradlew publishReleaseBundle
-
       - name: Build Release APK
         run: ./gradlew assembleRelease -PVERSION_NAME=${{ steps.version.outputs.version }} -PVERSION_CODE=${{ steps.version.outputs.code }}
 
@@ -84,6 +81,17 @@ jobs:
           done
           cp app/build/outputs/bundle/release/app-release.aab "release-assets/peel-${VERSION}.aab"
           ls -lh release-assets/
+
+      - name: Authenticate to Google Cloud
+        if: steps.version.outputs.prerelease != 'true'
+        uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: projects/29811119602/locations/global/workloadIdentityPools/github-actions/providers/github-repo
+          service_account: play-publisher@peel-android.iam.gserviceaccount.com
+
+      - name: Publish to Google Play
+        if: steps.version.outputs.prerelease != 'true'
+        run: ./gradlew publishReleaseBundle -PVERSION_NAME=${{ steps.version.outputs.version }} -PVERSION_CODE=${{ steps.version.outputs.code }}
 
       - name: Create Release
         run: |

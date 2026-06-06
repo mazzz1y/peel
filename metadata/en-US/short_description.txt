@@ -1,1 +1,1 @@
-Turn any website into a native-like Android app
+Lightweight browser that turns websites into standalone app-like experiences

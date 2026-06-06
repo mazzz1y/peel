@@ -1,21 +1,68 @@
-Peel is an open-source Android app that turns websites into standalone, app-like experiences. It lets you create lightweight web apps with custom icons, isolated storage, and fine-grained privacy controls, separate from your browser.
+Peel is an open-source, privacy-focused web browser that turns websites
+into standalone, app-like experiences. It lets you browse the web and
+install websites as lightweight web apps with custom icons, isolated
+storage, and fine-grained privacy controls — fully separate from your
+main browser.
 
 Powered by GeckoView (Mozilla's browser engine).
 
-Features:
+Instead of juggling dozens of tabs, Peel organizes the websites you use
+most into native-feeling apps you can launch directly from your home
+screen.
 
-- Add websites as standalone apps with automatic icon and title fetching
-- Launch web apps directly from your home screen with adaptive icons
-- App grouping with home screen group shortcuts
-- Per-group and per-app optional isolated sandbox with separate cookies and storage
-- Smart external link routing to other Peel apps or system browser
-- Privacy controls: GPC signal, fingerprinting protection, local network blocking, WebRTC IP leak prevention
-- Enhanced Tracking Protection, HTTPS-only mode
-- Lock sensitive web apps behind biometric authentication, block screenshots
-- Dynamic status bar color matching web content
-- Background media playback with full MediaSession support
-- Firefox extensions support
-- Pull-to-refresh
-- Set settings globally or override them per app
-- Export and import all web apps and settings
-- Written in Kotlin with Material 3 interface
+
+A BROWSER, REIMAGINED
+
+• Full web browsing powered by Mozilla's GeckoView engine
+• Browse any website and save it as a standalone web app
+• Automatic icon and title fetching from any site
+• Firefox extensions support — install your favorite add-ons
+• Smart external link routing — open links in the right Peel app or
+  your system browser
+• Pull-to-refresh
+• Background media playback with full MediaSession support
+• Dynamic status bar color matching web content
+
+
+WEB APPS ON YOUR HOME SCREEN
+
+• Launch saved websites directly from your home screen with adaptive
+  icons
+• Group related web apps together with home screen group shortcuts
+• Each web app runs in its own isolated window — no tab clutter
+
+
+PRIVACY & SECURITY FIRST
+
+• Per-group and per-app optional isolated sandbox with separate
+  cookies and storage
+• Per-sandbox proxy support — HTTP, HTTPS, SOCKS4, and SOCKS5
+• Global Privacy Control (GPC) signal
+• Fingerprinting protection
+• Local network blocking
+• WebRTC IP leak prevention
+• Enhanced Tracking Protection
+• HTTPS-only mode
+• Lock sensitive web apps behind biometric authentication
+• Block screenshots on selected apps
+
+
+ZERO TRACKING
+
+• No analytics
+• No telemetry
+• No crash or error reporting
+• No ads
+• No accounts, no sign-up
+• Your data never leaves your device
+
+
+FULL CONTROL
+
+• Set browser settings globally or override them per web app
+• Export and import all your web apps and settings
+• Clean Material 3 interface
+• Written in Kotlin, 100% open source
+
+Peel is a web browser at its core — every web app you create is a real
+browser session, just organized, isolated, and made to feel native.
