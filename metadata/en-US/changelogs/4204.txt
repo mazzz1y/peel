@@ -1,0 +1,3 @@
+- Recover automatically when a page crashes
+- Prompt to restart the web app when a page keeps crashing
+- Other fixes
