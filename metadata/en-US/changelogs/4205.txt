@@ -1,0 +1,2 @@
+- Avoid background playback dropping between auto-played videos
+- Fix a spurious restart prompt on the first visit to settings
