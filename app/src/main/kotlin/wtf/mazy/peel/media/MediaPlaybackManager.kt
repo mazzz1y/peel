@@ -154,7 +154,7 @@ class MediaPlaybackManager(context: Context) : GeckoMediaSession.Delegate {
     private fun scheduleDeactivation() {
         pendingDeactivation = true
         mainHandler.removeCallbacks(deactivationTimeout)
-        mainHandler.postDelayed(deactivationTimeout, DEACTIVATION_GRACE_MS)
+        mainHandler.postDelayed(deactivationTimeout, MediaPlaybackService.AUTOPLAY_GAP_WAKE_MS)
     }
 
     private fun cancelPendingDeactivation() {
@@ -281,6 +281,5 @@ class MediaPlaybackManager(context: Context) : GeckoMediaSession.Delegate {
 
     companion object {
         private const val ARTWORK_SIZE = 512
-        private const val DEACTIVATION_GRACE_MS = 3_000L
     }
 }

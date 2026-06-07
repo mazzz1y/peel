@@ -113,6 +113,20 @@ class BrowserActivity : BaseSessionHost() {
 
     private val mainHandler = Handler(Looper.getMainLooper())
 
+    private var backgroundKeepActive = false
+    private val keepSessionActiveTick = object : Runnable {
+        override fun run() {
+            val session = geckoSession ?: return
+            // GeckoView calls GeckoSession.setActive(false) when the Surface is destroyed on
+            // backgrounding (private Display callback we can't override). Re-assert it so the
+            // docshell stays active and Gecko doesn't throttle background rAF/timers — which is
+            // what lets a web player's autoplay-next countdown keep running. setActive is a cheap,
+            // surface-independent event dispatch, so re-asserting is safe and idempotent.
+            session.setActive(true)
+            mainHandler.postDelayed(this, KEEP_ACTIVE_INTERVAL_MS)
+        }
+    }
+
     private val webapp: WebApp
         get() = DataManager.instance.getWebApp(webappUuid!!)!!
 
@@ -234,6 +248,7 @@ class BrowserActivity : BaseSessionHost() {
         super.onStart()
         GeckoRuntimeProvider.addExtensionStateListener(extensionStateListener)
         if (!isStartupComplete) return
+        stopBackgroundKeepActive()
         reattachSessionToView()
         if (effectiveSettings.isAllowMediaPlaybackInBackground == true) return
         geckoSession?.let { session ->
@@ -444,6 +459,8 @@ class BrowserActivity : BaseSessionHost() {
                     .webExtensionController.setTabActive(session, false)
             }
             geckoView?.releaseSession()
+        } else {
+            startBackgroundKeepActive()
         }
         sessionExtensionActions.dismissPopup()
 
@@ -452,8 +469,21 @@ class BrowserActivity : BaseSessionHost() {
         biometricController.onStop()
     }
 
+    private fun startBackgroundKeepActive() {
+        if (backgroundKeepActive) return
+        backgroundKeepActive = true
+        mainHandler.postDelayed(keepSessionActiveTick, KEEP_ACTIVE_INTERVAL_MS)
+    }
+
+    private fun stopBackgroundKeepActive() {
+        if (!backgroundKeepActive) return
+        backgroundKeepActive = false
+        mainHandler.removeCallbacks(keepSessionActiveTick)
+    }
+
     override fun onDestroy() {
         liveInstances.remove(this)
+        stopBackgroundKeepActive()
         if (isFinishing && effectiveSettings.isClearCache == true && liveInstances.isEmpty()) {
             val runtime = GeckoRuntimeProvider.getRuntime(this)
             runtime.storageController.clearData(StorageController.ClearFlags.ALL_CACHES)
@@ -911,6 +941,7 @@ class BrowserActivity : BaseSessionHost() {
         private const val TAG = "BrowserActivity"
         private const val UI_ANIMATION_DURATION_MS = 300L
         private const val CRASH_LOOP_MAX = 3
+        private const val KEEP_ACTIVE_INTERVAL_MS = 1_000L
 
         private val liveInstances = mutableSetOf<BrowserActivity>()
 

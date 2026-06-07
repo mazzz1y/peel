@@ -9,6 +9,7 @@ import android.content.pm.ServiceInfo
 import android.graphics.Bitmap
 import android.net.wifi.WifiManager
 import android.os.Build
+import android.os.Handler
 import android.os.Looper
 import android.os.PowerManager
 import androidx.annotation.OptIn
@@ -40,6 +41,9 @@ open class MediaPlaybackService : MediaSessionService() {
     private var wifiLock: WifiManager.WifiLock? = null
     private var sessionAdded = false
     private var foregroundStarted = false
+
+    private val mainHandler = Handler(Looper.getMainLooper())
+    private val releaseWakeLocksRunnable = Runnable { releaseWakeLocks() }
 
     private var appTitle = ""
     private var appIcon: Bitmap? = null
@@ -123,6 +127,7 @@ open class MediaPlaybackService : MediaSessionService() {
         }
         session = null
         peelPlayer = null
+        mainHandler.removeCallbacks(releaseWakeLocksRunnable)
         releaseWakeLocks()
         wakeLock = null
         wifiLock = null
@@ -204,7 +209,13 @@ open class MediaPlaybackService : MediaSessionService() {
     private fun setPlaying(value: Boolean) {
         if (playing == value) return
         playing = value
-        if (value) acquireWakeLocks() else releaseWakeLocks()
+        if (value) {
+            mainHandler.removeCallbacks(releaseWakeLocksRunnable)
+            acquireWakeLocks()
+        } else {
+            mainHandler.removeCallbacks(releaseWakeLocksRunnable)
+            mainHandler.postDelayed(releaseWakeLocksRunnable, AUTOPLAY_GAP_WAKE_MS)
+        }
         notifyPlayerChanged()
     }
 
@@ -212,6 +223,7 @@ open class MediaPlaybackService : MediaSessionService() {
         if (stopped) return
         stopped = true
         playing = false
+        mainHandler.removeCallbacks(releaseWakeLocksRunnable)
         releaseWakeLocks()
         ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
         stopSelf()
@@ -382,6 +394,14 @@ open class MediaPlaybackService : MediaSessionService() {
     companion object {
         private const val CHANNEL_ID = "media_playback"
         private const val NOTIFICATION_ID = 2001
+
+        /**
+         * Grace window after playback pauses before the service tears down and the wakelock is
+         * released. Sized to comfortably outlast a web player's autoplay-next gap (e.g. YouTube's
+         * ~10s "up next" countdown plus buffering/network slowdowns) so the next track can start
+         * in the background.
+         */
+        const val AUTOPLAY_GAP_WAKE_MS = 30_000L
 
         const val ACTION_START = "wtf.mazy.peel.media.START"
         const val ACTION_RESUME = "wtf.mazy.peel.media.RESUME"
