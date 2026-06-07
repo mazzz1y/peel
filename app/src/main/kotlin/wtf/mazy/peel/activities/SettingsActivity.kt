@@ -27,7 +27,7 @@ class SettingsActivity : ToolbarBaseActivity<GlobalSettingsBinding>() {
         super.onCreate(savedInstanceState)
         setToolbarTitle(getString(R.string.global_settings))
         editableSettings = DataManager.instance.defaultSettings
-        originalSnapshot = editableSettings.settings.deepCopy()
+        originalSnapshot = editableSettings.settings.deepCopy().apply { sanitize() }
         setupDefaultSettingsUI()
     }
 

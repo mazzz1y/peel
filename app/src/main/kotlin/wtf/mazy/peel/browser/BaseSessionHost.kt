@@ -76,7 +76,11 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost {
     override val themeBackgroundColor: Int
         get() {
             val tv = TypedValue()
-            theme.resolveAttribute(com.google.android.material.R.attr.colorSurfaceContainerLow, tv, true)
+            theme.resolveAttribute(
+                com.google.android.material.R.attr.colorSurfaceContainerLow,
+                tv,
+                true
+            )
             return tv.data
         }
 

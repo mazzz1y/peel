@@ -62,6 +62,7 @@ interface SessionHost {
         bottomCandidates: List<Int>,
         metaThemeColor: Int?,
     )
+
     fun findPeelAppMatches(url: String): List<WebApp>
     fun showExternalLinkMenu(
         url: String,

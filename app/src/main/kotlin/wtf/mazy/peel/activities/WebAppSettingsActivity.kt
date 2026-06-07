@@ -98,7 +98,8 @@ class WebAppSettingsActivity :
         }
         val baseWebapp = originalWebapp ?: return
         modifiedWebapp = WebApp(baseWebapp)
-        originalSettingsSnapshot = baseWebapp.settings.deepCopy()
+        originalSettingsSnapshot =
+            baseWebapp.settings.deepCopy().apply { sanitize(asOverride = !isEditingDefaults) }
         val editableWebapp =
             modifiedWebapp
                 ?: run {

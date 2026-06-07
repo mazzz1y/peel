@@ -42,7 +42,10 @@ class PeelProgressDelegate(
         if (success) host.onPageFullyLoaded()
     }
 
-    override fun onSessionStateChange(session: GeckoSession, sessionState: GeckoSession.SessionState) {
+    override fun onSessionStateChange(
+        session: GeckoSession,
+        sessionState: GeckoSession.SessionState
+    ) {
         host.onSessionStateUpdated(sessionState)
     }
 

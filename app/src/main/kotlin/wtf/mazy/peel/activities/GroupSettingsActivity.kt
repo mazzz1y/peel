@@ -66,7 +66,8 @@ class GroupSettingsActivity :
         }
 
         modifiedGroup = WebAppGroup(originalGroup!!)
-        originalSettingsSnapshot = originalGroup!!.settings.deepCopy()
+        originalSettingsSnapshot =
+            originalGroup!!.settings.deepCopy().apply { sanitize(asOverride = true) }
         txtGroupName.text = modifiedGroup?.title
         sandboxLabel.setText(R.string.group_sandbox)
         switchSandbox.isChecked = modifiedGroup?.isUseContainer == true
