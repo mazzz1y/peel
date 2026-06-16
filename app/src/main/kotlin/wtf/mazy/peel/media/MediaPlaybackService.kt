@@ -225,8 +225,18 @@ open class MediaPlaybackService : MediaSessionService() {
         playing = false
         mainHandler.removeCallbacks(releaseWakeLocksRunnable)
         releaseWakeLocks()
-        ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
-        stopSelf()
+        mainHandler.post {
+            session?.run {
+                player.release()
+                release()
+            }
+            session = null
+            peelPlayer = null
+            sessionAdded = false
+            foregroundStarted = false
+            ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
+            stopSelf()
+        }
     }
 
     private fun notifyPlayerChanged() {

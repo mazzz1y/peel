@@ -22,7 +22,7 @@ fun Bitmap.toPngBytes(): ByteArray {
 /**
  * Bridges GeckoView MediaSession events to Media3 notification lifecycle.
  *
- * onStop and onDeactivated schedule a 3s deferred teardown (cancelled by onActivated /
+ * onStop and onDeactivated schedule a deferred teardown (cancelled by onActivated /
  * onPlay) to handle web players that destroy their audio element without calling
  * setActive(false) — leaving an otherwise-stale notification with broken play action.
  * onPause never schedules teardown; the element stays resumable.
