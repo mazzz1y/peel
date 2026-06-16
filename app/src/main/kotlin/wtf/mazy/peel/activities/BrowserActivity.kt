@@ -506,6 +506,7 @@ class BrowserActivity : BaseSessionHost() {
                 wtf.mazy.peel.model.SandboxManager.clearSandboxData(this, contextId)
             }
         }
+        webappUuid?.let { DataManager.instance.removeTransientWebApp(it) }
         super.onDestroy()
     }
 
@@ -797,6 +798,8 @@ class BrowserActivity : BaseSessionHost() {
     ) {
         sessionSetupJob = lifecycleScope.launch {
             wtf.mazy.peel.browser.ProxyRouterBridge.ensure(applicationContext)
+            if (DataManager.instance.isTransientWebApp(webappUuid!!))
+                wtf.mazy.peel.browser.ProxyRouterBridge.pushRoutes(force = true)
             wtf.mazy.peel.browser.ProxyRouterBridge.awaitRoutesReady()
             attachPageBridge()
             if (restore != null) geckoSession?.restoreState(restore) else loadURL(url)

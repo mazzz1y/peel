@@ -166,7 +166,7 @@ object ProxyRouterBridge {
             val proxy = group.proxyUuid?.let { proxies[it] }
             out[storeId] = proxy?.let(::proxyToMap) ?: direct
         }
-        for (app in dm.getWebsites()) {
+        for (app in dm.getWebsites() + dm.getTransientWebApps()) {
             if (!app.isUseContainer) continue
             val contextId = app.resolveContextId() ?: continue
             val storeId = CONTAINER_PREFIX + contextId

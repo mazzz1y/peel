@@ -253,10 +253,28 @@ class DataManager private constructor() {
 
     private val transientApps = mutableMapOf<String, WebApp>()
 
-    fun registerTransientWebApp(baseUrl: String, title: String): String {
-        val app = WebApp(baseUrl = baseUrl).apply { this.title = title }
+    fun registerTransientWebApp(
+        baseUrl: String,
+        title: String,
+        ephemeral: Boolean = false,
+    ): String {
+        val app = WebApp(baseUrl = baseUrl).apply {
+            this.title = title
+            if (ephemeral) {
+                isUseContainer = true
+                isEphemeralSandbox = true
+            }
+        }
         transientApps[app.uuid] = app
         return app.uuid
+    }
+
+    fun getTransientWebApps(): List<WebApp> = transientApps.values.map { WebApp(it) }
+
+    fun isTransientWebApp(uuid: String): Boolean = transientApps.containsKey(uuid)
+
+    fun removeTransientWebApp(uuid: String) {
+        transientApps.remove(uuid)
     }
 
     fun getWebApp(uuid: String): WebApp? =
