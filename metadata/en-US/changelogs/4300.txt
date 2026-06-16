@@ -1,0 +1,3 @@
+- Set Peel as the default browser to open links in a matching web app, incognito, or share them
+- Fix lingering media notification after pressing stop
+- Update GeckoView to 152.0.20260612001812
