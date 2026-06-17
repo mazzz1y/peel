@@ -176,10 +176,12 @@ class BrowserActivity : BaseSessionHost() {
             getWebappUuid = { webappUuid },
             onSuccess = {
                 browserContent?.visibility = View.VISIBLE
-                launchSessionExtensionsAndLoad(
-                    effectiveSettings,
-                    sharedUrlFromIntent() ?: webapp.baseUrl
-                )
+                if (!pageLoadHandled) {
+                    launchSessionExtensionsAndLoad(
+                        effectiveSettings,
+                        sharedUrlFromIntent() ?: webapp.baseUrl
+                    )
+                }
             },
             onFailure = { finish() },
         )
@@ -447,11 +449,11 @@ class BrowserActivity : BaseSessionHost() {
     override fun onStop() {
         super.onStop()
         GeckoRuntimeProvider.removeExtensionStateListener(extensionStateListener)
-        if (!isStartupComplete) {
+        if (!isStartupComplete || biometricController.isPromptActive) {
             biometricController.onStop(); return
         }
-        val settings = effectiveSettings
 
+        val settings = effectiveSettings
         if (settings.isAllowMediaPlaybackInBackground != true) {
             geckoSession?.setActive(false)
             geckoSession?.let { session ->
