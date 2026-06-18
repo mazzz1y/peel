@@ -1,0 +1,3 @@
+- Fix biometric-locked web apps reloading after unlock
+- Refactor the default browser link handling flow
+- Update GeckoView to 152.0.20260617213557
