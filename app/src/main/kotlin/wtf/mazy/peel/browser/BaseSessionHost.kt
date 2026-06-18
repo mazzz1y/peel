@@ -37,7 +37,10 @@ import wtf.mazy.peel.model.WebAppSettings
 import wtf.mazy.peel.ui.dialog.ExternalLinkMenu
 import wtf.mazy.peel.ui.dialog.InputDialogConfig
 import wtf.mazy.peel.ui.dialog.showInputDialogRaw
+import wtf.mazy.peel.util.BrowserLauncher
 import wtf.mazy.peel.util.NotificationUtils
+import wtf.mazy.peel.util.copyToClipboard
+import wtf.mazy.peel.util.shareText
 import java.io.File
 
 abstract class BaseSessionHost : AppCompatActivity(), SessionHost {
@@ -142,6 +145,18 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost {
             ?: runCatching { Intent(Intent.ACTION_VIEW, uri) }.getOrNull()
         if (intent != null && tryStartActivity(intent)) return
         showNoAppFound()
+    }
+
+    override fun openIncognito(url: String) {
+        BrowserLauncher.launchIncognito(this, url)
+    }
+
+    override fun shareUrl(url: String) {
+        shareText(url)
+    }
+
+    override fun copyLink(url: String) {
+        copyToClipboard(url)
     }
 
     override fun dismissRedirectToFallback(fallback: String) {

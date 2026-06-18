@@ -64,6 +64,7 @@ import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.NotificationUtils
 import wtf.mazy.peel.util.disableSystemBarContrastEnforcement
 import wtf.mazy.peel.util.normalizedHost
+import wtf.mazy.peel.util.shareText
 
 class BrowserActivity : BaseSessionHost() {
     var webappUuid: String? = null
@@ -428,15 +429,7 @@ class BrowserActivity : BaseSessionHost() {
     }
 
     private fun shareCurrentUrl() {
-        startActivity(
-            Intent.createChooser(
-                Intent(Intent.ACTION_SEND).apply {
-                    type = "text/plain"
-                    putExtra(Intent.EXTRA_TEXT, currentUrl)
-                },
-                null,
-            ),
-        )
+        shareText(currentUrl)
     }
 
     private fun rebuildFloatingControls() {
@@ -841,7 +834,6 @@ class BrowserActivity : BaseSessionHost() {
             onOpenInPeel = ::openInPeel,
             onOpenInBestPeelMatch = ::openInBestPeelMatch,
             bestPeelMatchIcon = ::bestPeelMatchIcon,
-            onToast = ::showToast,
         )
     }
 

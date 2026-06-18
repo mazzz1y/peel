@@ -16,6 +16,7 @@ import wtf.mazy.peel.ui.PickerDialog
 import wtf.mazy.peel.util.BrowserLauncher
 import wtf.mazy.peel.util.HostIdentity
 import wtf.mazy.peel.util.NotificationUtils
+import wtf.mazy.peel.util.isDefaultBrowser
 import wtf.mazy.peel.util.normalizedHost
 import wtf.mazy.peel.util.shortLabel
 
@@ -85,11 +86,38 @@ object ExternalLinkMenu {
             addView(
                 MenuDialogHelper.buildActionRow(
                     activity,
-                    activity.getString(R.string.open_in_system),
+                    activity.getString(R.string.open_incognito_action),
                 ) {
-                    dismiss(ExternalLinkResult.OpenInSystem)
+                    dismiss(ExternalLinkResult.OpenIncognito)
                 }
             )
+            addView(
+                MenuDialogHelper.buildActionRow(
+                    activity,
+                    activity.getString(R.string.context_menu_share_link),
+                ) {
+                    dismiss(ExternalLinkResult.Share)
+                }
+            )
+            addView(
+                MenuDialogHelper.buildActionRow(
+                    activity,
+                    activity.getString(R.string.context_menu_copy_link),
+                ) {
+                    dismiss(ExternalLinkResult.CopyLink)
+                }
+            )
+            val isWebLink = url.startsWith("http://") || url.startsWith("https://")
+            if (!(isWebLink && activity.isDefaultBrowser())) {
+                addView(
+                    MenuDialogHelper.buildActionRow(
+                        activity,
+                        activity.getString(R.string.open_in_system),
+                    ) {
+                        dismiss(ExternalLinkResult.OpenInSystem)
+                    }
+                )
+            }
         }
 
         dialog = MaterialAlertDialogBuilder(activity)

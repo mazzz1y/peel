@@ -33,10 +33,7 @@ class ShareReceiverActivity : AppCompatActivity() {
                 return@launch
             }
 
-            showOpenInPeelPicker(apps, sharedUrl) {
-                setOnCancelListener { finish() }
-                setOnDismissListener { finish() }
-            }
+            showOpenInPeelPicker(apps, sharedUrl, onDismiss = ::finish)
         }
     }
 

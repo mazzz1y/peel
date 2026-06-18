@@ -174,7 +174,7 @@
     <string name="group_empty">Không có ứng dụng trong nhóm này</string>
     <string name="ungrouped">Chưa phân nhóm</string>
     <string name="open_in_peel">Mở trong Peel</string>
-    <string name="open_incognito">Ẩn danh</string>
+    <string name="open_incognito_action">Mở ẩn danh</string>
     <string name="no_web_apps_available">Không có ứng dụng web nào</string>
     <string name="move_to_group">Chuyển vào nhóm</string>
     <string name="delete_group_title">Xóa nhóm</string>
@@ -185,7 +185,6 @@
         <item quantity="other">%d ứng dụng</item>
     </plurals>
 
-    <string name="context_menu_open_link">Mở bên ngoài</string>
     <string name="context_menu_copy_link">Sao chép địa chỉ liên kết</string>
     <string name="context_menu_copy_link_text">Sao chép văn bản liên kết</string>
     <string name="context_menu_share_link">Chia sẻ đường liên kết</string>

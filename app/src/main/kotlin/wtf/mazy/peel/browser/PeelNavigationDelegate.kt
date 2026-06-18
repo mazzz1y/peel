@@ -147,6 +147,9 @@ class PeelNavigationDelegate(private val host: SessionHost) : GeckoSession.Navig
                 when (result) {
                     ExternalLinkResult.LoadHere -> loadExternallyInCurrentTab(url)
                     ExternalLinkResult.OpenInSystem -> openInSystem(url, redirectFallback)
+                    ExternalLinkResult.OpenIncognito -> openIncognito(url, redirectFallback)
+                    ExternalLinkResult.Share -> shareUrl(url, redirectFallback)
+                    ExternalLinkResult.CopyLink -> copyLink(url, redirectFallback)
                     ExternalLinkResult.Dismissed -> dismissRedirect(redirectFallback)
                     is ExternalLinkResult.OpenInPeelApp -> result.launcher()
                 }
@@ -162,6 +165,22 @@ class PeelNavigationDelegate(private val host: SessionHost) : GeckoSession.Navig
     private fun openInSystem(url: String, redirectFallback: String?) {
         host.startExternalIntent(url.toUri())
         isOnJumpHost = true
+        dismissRedirect(redirectFallback)
+    }
+
+    private fun openIncognito(url: String, redirectFallback: String?) {
+        host.openIncognito(url)
+        isOnJumpHost = true
+        dismissRedirect(redirectFallback)
+    }
+
+    private fun shareUrl(url: String, redirectFallback: String?) {
+        host.shareUrl(url)
+        dismissRedirect(redirectFallback)
+    }
+
+    private fun copyLink(url: String, redirectFallback: String?) {
+        host.copyLink(url)
         dismissRedirect(redirectFallback)
     }
 

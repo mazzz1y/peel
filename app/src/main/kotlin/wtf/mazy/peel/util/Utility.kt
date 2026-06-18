@@ -1,9 +1,17 @@
 package wtf.mazy.peel.util
 
 import android.app.Activity
+import android.app.role.RoleManager
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Build
 import android.webkit.URLUtil
+import androidx.core.content.getSystemService
+import androidx.core.net.toUri
+import wtf.mazy.peel.R
 import java.net.URLDecoder
 import java.text.BreakIterator
 import java.util.regex.Pattern
@@ -41,6 +49,36 @@ fun leadingEmojis(text: String, max: Int): String? {
         count++
     }
     return if (count > 0) text.substring(0, prev) else null
+}
+
+fun Context.isDefaultBrowser(): Boolean {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        val roleManager = getSystemService<RoleManager>() ?: return false
+        return roleManager.isRoleHeld(RoleManager.ROLE_BROWSER)
+    }
+    val probe = Intent(Intent.ACTION_VIEW, "http://example.com".toUri())
+        .addCategory(Intent.CATEGORY_BROWSABLE)
+    val resolved = packageManager.resolveActivity(probe, PackageManager.MATCH_DEFAULT_ONLY)
+    return resolved?.activityInfo?.packageName == packageName
+}
+
+fun Context.shareText(text: String, title: String? = null) {
+    startActivity(
+        Intent.createChooser(
+            Intent(Intent.ACTION_SEND).apply {
+                type = "text/plain"
+                putExtra(Intent.EXTRA_TEXT, text)
+                putExtra(Intent.EXTRA_TITLE, title ?: text)
+            },
+            null,
+        ),
+    )
+}
+
+fun Context.copyToClipboard(text: String, toastResId: Int = R.string.link_copied) {
+    val clipboard = getSystemService<ClipboardManager>() ?: return
+    clipboard.setPrimaryClip(ClipData.newPlainText(getString(R.string.app_name), text))
+    NotificationUtils.showToastSafe(this, getString(toastResId))
 }
 
 fun restartApp(activity: Activity) {

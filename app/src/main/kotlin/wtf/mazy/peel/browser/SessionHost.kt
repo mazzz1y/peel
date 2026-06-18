@@ -17,6 +17,9 @@ enum class PermissionResult {
 sealed interface ExternalLinkResult {
     data object LoadHere : ExternalLinkResult
     data object OpenInSystem : ExternalLinkResult
+    data object OpenIncognito : ExternalLinkResult
+    data object Share : ExternalLinkResult
+    data object CopyLink : ExternalLinkResult
     data object Dismissed : ExternalLinkResult
     data class OpenInPeelApp(val launcher: () -> Unit) : ExternalLinkResult
 }
@@ -70,6 +73,9 @@ interface SessionHost {
     )
 
     fun startExternalIntent(uri: Uri)
+    fun openIncognito(url: String)
+    fun shareUrl(url: String)
+    fun copyLink(url: String)
     fun showPermissionDialog(message: CharSequence, onResult: (PermissionResult) -> Unit)
 
     val themeBackgroundColor: Int

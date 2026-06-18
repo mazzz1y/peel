@@ -174,7 +174,7 @@
     <string name="group_empty">ਇਸ ਗਰੁੱਪ ਵਿੱਚ ਕੋਈ ਐਪ ਨਹੀਂ</string>
     <string name="ungrouped">ਬਿਨਾ ਗਰੁੱਪ</string>
     <string name="open_in_peel">Peel ਵਿੱਚ ਖੋਲ੍ਹੋ</string>
-    <string name="open_incognito">ਗੁਪਤ</string>
+    <string name="open_incognito_action">ਗੁਪਤ ਖੋਲ੍ਹੋ</string>
     <string name="no_web_apps_available">ਕੋਈ ਵੈੱਬ ਐਪ ਉਪਲਬਧ ਨਹੀਂ ਹੈ</string>
     <string name="move_to_group">ਗਰੁੱਪ ਵਿੱਚ ਭੇਜੋ</string>
     <string name="delete_group_title">ਗਰੁੱਪ ਮਿਟਾਓ</string>
@@ -185,7 +185,6 @@
         <item quantity="other">%d ਐਪਾਂ</item>
     </plurals>
 
-    <string name="context_menu_open_link">ਬਾਹਰੀ ਤੌਰ ਤੇ ਖੋਲ੍ਹੋ</string>
     <string name="context_menu_copy_link">ਲਿੰਕ ਪਤਾ ਕਾਪੀ ਕਰੋ</string>
     <string name="context_menu_copy_link_text">ਲਿੰਕ ਲਿਖਤ ਕਾਪੀ ਕਰੋ</string>
     <string name="context_menu_share_link">ਲਿੰਕ ਸਾਂਝਾ ਕਰੋ</string>

@@ -1,9 +1,6 @@
 package wtf.mazy.peel.browser
 
-import android.content.ClipData
-import android.content.ClipboardManager
 import android.content.Context
-import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
 import android.widget.LinearLayout
@@ -11,6 +8,8 @@ import androidx.core.net.toUri
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import org.mozilla.geckoview.GeckoSession
 import wtf.mazy.peel.R
+import wtf.mazy.peel.util.copyToClipboard
+import wtf.mazy.peel.util.shareText
 
 class BrowserContextMenu(
     private val activity: Context,
@@ -19,7 +18,6 @@ class BrowserContextMenu(
     private val onOpenInPeel: ((String) -> Unit)?,
     private val onOpenInBestPeelMatch: ((String) -> Unit)?,
     private val bestPeelMatchIcon: ((String) -> Bitmap?)?,
-    private val onToast: (String) -> Unit,
 ) {
 
     fun onContextMenu(
@@ -84,12 +82,12 @@ class BrowserContextMenu(
             val iconClick = if (icon != null) onOpenInBestPeelMatch?.let { { it(url) } } else null
             add(MenuAction(str(R.string.open_in_peel), icon, iconClick) { onOpenInPeel(url) })
         }
-        add(MenuAction(str(R.string.context_menu_open_link)) { onExternalIntent(url.toUri()) })
-        add(MenuAction(str(R.string.context_menu_share_link)) { shareText(url, title) })
-        add(MenuAction(str(R.string.context_menu_copy_link)) { copyToClipboard(url) })
+        add(MenuAction(str(R.string.open_in_system)) { onExternalIntent(url.toUri()) })
+        add(MenuAction(str(R.string.context_menu_share_link)) { activity.shareText(url, title) })
+        add(MenuAction(str(R.string.context_menu_copy_link)) { activity.copyToClipboard(url) })
         if (title != null) {
             add(MenuAction(str(R.string.context_menu_copy_link_text)) {
-                copyToClipboard(title, R.string.text_copied)
+                activity.copyToClipboard(title, R.string.text_copied)
             })
         }
     }
@@ -100,11 +98,11 @@ class BrowserContextMenu(
     )
 
     private fun videoActionsFor(url: String) = listOf(
-        MenuAction(str(R.string.context_menu_copy_video_url)) { copyToClipboard(url) },
+        MenuAction(str(R.string.context_menu_copy_video_url)) { activity.copyToClipboard(url) },
     )
 
     private fun audioActionsFor(url: String) = listOf(
-        MenuAction(str(R.string.context_menu_copy_audio_url)) { copyToClipboard(url) },
+        MenuAction(str(R.string.context_menu_copy_audio_url)) { activity.copyToClipboard(url) },
     )
 
     private fun showDialog(info: HitInfo) {
@@ -141,21 +139,6 @@ class BrowserContextMenu(
         dialog = MaterialAlertDialogBuilder(activity)
             .setView(content)
             .show()
-    }
-
-    private fun copyToClipboard(text: String, toastResId: Int = R.string.link_copied) {
-        val clipboard = activity.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-        clipboard.setPrimaryClip(ClipData.newPlainText("text", text))
-        onToast(str(toastResId))
-    }
-
-    private fun shareText(text: String, title: String? = null) {
-        val intent = Intent(Intent.ACTION_SEND).apply {
-            type = "text/plain"
-            putExtra(Intent.EXTRA_TEXT, text)
-            putExtra(Intent.EXTRA_TITLE, title ?: text)
-        }
-        activity.startActivity(Intent.createChooser(intent, null))
     }
 
     private fun shareImage(url: String) {

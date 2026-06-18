@@ -32,6 +32,22 @@ object BrowserLauncher {
         }
     }
 
+    fun launchIncognito(c: Context, url: String) {
+        val host = url.normalizedHost() ?: url
+        val uuid = DataManager.instance.registerTransientWebApp(
+            baseUrl = url,
+            title = host,
+            ephemeral = true,
+        )
+        c.startActivity(
+            Intent(c, BrowserActivity::class.java)
+                .putExtra(Const.INTENT_WEBAPP_UUID, uuid)
+                .setData("app://$uuid".toUri())
+                .setAction(Intent.ACTION_VIEW)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        )
+    }
+
     fun buildPendingIntent(webapp: WebApp, context: Context): PendingIntent? {
         val intent = createIntent(webapp, context) ?: return null
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)

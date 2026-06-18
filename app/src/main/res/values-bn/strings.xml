@@ -174,7 +174,7 @@
     <string name="group_empty">এই গ্রুপে কোনো অ্যাপ নেই</string>
     <string name="ungrouped">গ্রুপবিহীন</string>
     <string name="open_in_peel">Peel-এ খুলুন</string>
-    <string name="open_incognito">ছদ্মবেশ</string>
+    <string name="open_incognito_action">ছদ্মবেশে খুলুন</string>
     <string name="no_web_apps_available">কোনো ওয়েব অ্যাপ উপলব্ধ নেই</string>
     <string name="move_to_group">গ্রুপে সরান</string>
     <string name="delete_group_title">গ্রুপ মুছুন</string>
@@ -186,7 +186,6 @@
         <item quantity="other">%dটি অ্যাপ</item>
     </plurals>
 
-    <string name="context_menu_open_link">বাইরে খুলুন</string>
     <string name="context_menu_copy_link">লিঙ্ক অ্যাড্রেস কপি করুন</string>
     <string name="context_menu_copy_link_text">লিঙ্ক টেক্সট কপি করুন</string>
     <string name="context_menu_share_link">লিঙ্ক শেয়ার করুন</string>
