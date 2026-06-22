@@ -349,6 +349,7 @@ class BrowserActivity : BaseSessionHost() {
         if (translationsSupported) {
             controls.setTranslateActive(translationDelegate?.isPageTranslated == true)
         }
+        controls.setIncognito(webapp.resolvePrivateMode())
         return controls
     }
 

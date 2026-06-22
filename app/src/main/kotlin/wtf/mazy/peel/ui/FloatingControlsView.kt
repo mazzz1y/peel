@@ -3,6 +3,7 @@ package wtf.mazy.peel.ui
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
+import android.content.res.ColorStateList
 import android.view.HapticFeedbackConstants
 import android.view.LayoutInflater
 import android.view.MotionEvent
@@ -110,6 +111,8 @@ class FloatingControlsView(
         inflater.inflate(R.layout.view_floating_trigger, parent, false) as MaterialCardView
     private val triggerIconMenu: ImageView = trigger.findViewById(R.id.floatingTriggerIconMenu)
     private val triggerIconClose: ImageView = trigger.findViewById(R.id.floatingTriggerIconClose)
+    private val defaultTriggerBackground = trigger.cardBackgroundColor
+    private val defaultTriggerForeground = triggerIconMenu.imageTintList
     private val panel: MaterialCardView =
         inflater.inflate(R.layout.view_floating_panel, parent, false) as MaterialCardView
     private val panelContainer: LinearLayout = panel.findViewById(R.id.floatingPanelActions)
@@ -212,6 +215,23 @@ class FloatingControlsView(
         if (translateActive == active) return
         translateActive = active
         translateActiveDot?.visibility = if (active) View.VISIBLE else View.GONE
+    }
+
+    fun setIncognito(active: Boolean) {
+        trigger.setCardBackgroundColor(
+            if (active) {
+                ColorStateList.valueOf(ContextCompat.getColor(context, R.color.incognito_fab))
+            } else {
+                defaultTriggerBackground
+            },
+        )
+        val foreground = if (active) {
+            ColorStateList.valueOf(ContextCompat.getColor(context, R.color.incognito_fab_on))
+        } else {
+            defaultTriggerForeground
+        }
+        triggerIconMenu.imageTintList = foreground
+        triggerIconClose.imageTintList = foreground
     }
 
     private fun createActionView(action: Action): View {
