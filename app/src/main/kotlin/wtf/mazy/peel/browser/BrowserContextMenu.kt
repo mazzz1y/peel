@@ -8,17 +8,23 @@ import androidx.core.net.toUri
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import org.mozilla.geckoview.GeckoSession
 import wtf.mazy.peel.R
+import wtf.mazy.peel.util.BrowserLauncher
 import wtf.mazy.peel.util.copyToClipboard
+import wtf.mazy.peel.util.shouldOfferOpenInSystem
 import wtf.mazy.peel.util.shareText
 
 class BrowserContextMenu(
     private val activity: Context,
     private val downloadHandler: DownloadHandler,
     private val onExternalIntent: (Uri) -> Unit,
-    private val onOpenInPeel: ((String) -> Unit)?,
-    private val onOpenInBestPeelMatch: ((String) -> Unit)?,
-    private val bestPeelMatchIcon: ((String) -> Bitmap?)?,
+    private val peelMatch: PeelMatchHooks,
 ) {
+
+    data class PeelMatchHooks(
+        val icon: (String) -> Bitmap?,
+        val openBestMatch: (String) -> Unit,
+        val openPicker: (String) -> Unit,
+    )
 
     fun onContextMenu(
         element: GeckoSession.ContentDelegate.ContextElement,
@@ -77,12 +83,15 @@ class BrowserContextMenu(
     }
 
     private fun linkActionsFor(url: String, title: String?) = buildList {
-        if (onOpenInPeel != null) {
-            val icon = bestPeelMatchIcon?.invoke(url)
-            val iconClick = if (icon != null) onOpenInBestPeelMatch?.let { { it(url) } } else null
-            add(MenuAction(str(R.string.open_in_peel), icon, iconClick) { onOpenInPeel(url) })
+        val icon = peelMatch.icon(url)
+        val iconClick = if (icon != null) ({ peelMatch.openBestMatch(url) }) else null
+        add(MenuAction(str(R.string.open_in_peel), icon, iconClick) { peelMatch.openPicker(url) })
+        if (activity.shouldOfferOpenInSystem(url)) {
+            add(MenuAction(str(R.string.open_in_system)) { onExternalIntent(url.toUri()) })
         }
-        add(MenuAction(str(R.string.open_in_system)) { onExternalIntent(url.toUri()) })
+        add(MenuAction(str(R.string.open_incognito_action)) {
+            BrowserLauncher.launchIncognito(activity, url)
+        })
         add(MenuAction(str(R.string.context_menu_share_link)) { activity.shareText(url, title) })
         add(MenuAction(str(R.string.context_menu_copy_link)) { activity.copyToClipboard(url) })
         if (title != null) {
@@ -111,13 +120,6 @@ class BrowserContextMenu(
 
         val content = LinearLayout(activity).apply {
             orientation = LinearLayout.VERTICAL
-            addView(
-                MenuDialogHelper.buildHeader(
-                    activity,
-                    info.title,
-                    MenuDialogHelper.prettyDataUrl(info.url)
-                )
-            )
             addView(MenuDialogHelper.buildDivider(activity))
             val sections = listOf(info.linkActions, info.imageActions).filter { it.isNotEmpty() }
             sections.forEachIndexed { i, actions ->
@@ -137,6 +139,13 @@ class BrowserContextMenu(
         }
 
         dialog = MaterialAlertDialogBuilder(activity)
+            .setCustomTitle(
+                MenuDialogHelper.buildHeader(
+                    activity,
+                    info.title,
+                    MenuDialogHelper.prettyDataUrl(info.url),
+                )
+            )
             .setView(content)
             .show()
     }

@@ -16,7 +16,7 @@ import wtf.mazy.peel.ui.PickerDialog
 import wtf.mazy.peel.util.BrowserLauncher
 import wtf.mazy.peel.util.HostIdentity
 import wtf.mazy.peel.util.NotificationUtils
-import wtf.mazy.peel.util.isDefaultBrowser
+import wtf.mazy.peel.util.shouldOfferOpenInSystem
 import wtf.mazy.peel.util.normalizedHost
 import wtf.mazy.peel.util.shortLabel
 
@@ -38,13 +38,6 @@ object ExternalLinkMenu {
 
         val content = LinearLayout(activity).apply {
             orientation = LinearLayout.VERTICAL
-            addView(
-                MenuDialogHelper.buildHeader(
-                    activity,
-                    null,
-                    MenuDialogHelper.prettyDataUrl(url),
-                )
-            )
             addView(MenuDialogHelper.buildDivider(activity))
 
             val match = bestPeelMatch(peelApps, url, excludeUuid)
@@ -83,6 +76,16 @@ object ExternalLinkMenu {
                     }
                 )
             }
+            if (activity.shouldOfferOpenInSystem(url)) {
+                addView(
+                    MenuDialogHelper.buildActionRow(
+                        activity,
+                        activity.getString(R.string.open_in_system),
+                    ) {
+                        dismiss(ExternalLinkResult.OpenInSystem)
+                    }
+                )
+            }
             addView(
                 MenuDialogHelper.buildActionRow(
                     activity,
@@ -107,20 +110,10 @@ object ExternalLinkMenu {
                     dismiss(ExternalLinkResult.CopyLink)
                 }
             )
-            val isWebLink = url.startsWith("http://") || url.startsWith("https://")
-            if (!(isWebLink && activity.isDefaultBrowser())) {
-                addView(
-                    MenuDialogHelper.buildActionRow(
-                        activity,
-                        activity.getString(R.string.open_in_system),
-                    ) {
-                        dismiss(ExternalLinkResult.OpenInSystem)
-                    }
-                )
-            }
         }
 
         dialog = MaterialAlertDialogBuilder(activity)
+            .setCustomTitle(MenuDialogHelper.buildHeader(activity, null, MenuDialogHelper.prettyDataUrl(url)))
             .setView(content)
             .setOnCancelListener { onResult(ExternalLinkResult.Dismissed) }
             .show()

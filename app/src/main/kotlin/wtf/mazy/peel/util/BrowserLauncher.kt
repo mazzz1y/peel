@@ -37,7 +37,7 @@ object BrowserLauncher {
         val uuid = DataManager.instance.registerTransientWebApp(
             baseUrl = url,
             title = host,
-            ephemeral = true,
+            privateSession = true,
         )
         c.startActivity(
             Intent(c, BrowserActivity::class.java)

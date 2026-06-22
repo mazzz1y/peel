@@ -21,6 +21,7 @@ data class WebApp(var baseUrl: String, override val uuid: String = UUID.randomUU
     override var isUseContainer = false
     override var isEphemeralSandbox = false
     override var proxyUuid: String? = null
+    var isPrivateSession = false
     var order = 0
     var groupUuid: String? = null
 
@@ -43,6 +44,7 @@ data class WebApp(var baseUrl: String, override val uuid: String = UUID.randomUU
         title = other.title
         isUseContainer = other.isUseContainer
         isEphemeralSandbox = other.isEphemeralSandbox
+        isPrivateSession = other.isPrivateSession
         proxyUuid = other.proxyUuid
         order = other.order
         groupUuid = other.groupUuid
@@ -73,6 +75,7 @@ data class WebApp(var baseUrl: String, override val uuid: String = UUID.randomUU
         )
 
     fun resolveContextId(): String? {
+        if (isPrivateSession) return null
         val group = groupUuid?.let { DataManager.instance.getGroup(it) }
         return when {
             isUseContainer -> uuid
@@ -81,7 +84,7 @@ data class WebApp(var baseUrl: String, override val uuid: String = UUID.randomUU
         }
     }
 
-    fun resolvePrivateMode(): Boolean = false
+    fun resolvePrivateMode(): Boolean = isPrivateSession
 
     fun resolveEphemeral(): Boolean =
         isEphemeralSandbox ||

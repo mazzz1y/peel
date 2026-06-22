@@ -257,15 +257,19 @@ class DataManager private constructor() {
         baseUrl: String,
         title: String,
         ephemeral: Boolean = false,
+        privateSession: Boolean = false,
     ): String {
         val app = WebApp(baseUrl = baseUrl).apply {
             this.title = title
-            if (ephemeral) {
+            if (privateSession) {
+                isPrivateSession = true
+            } else if (ephemeral) {
                 isUseContainer = true
                 isEphemeralSandbox = true
             }
         }
         transientApps[app.uuid] = app
+        if (!privateSession && ephemeral) SandboxManager.markEphemeral(app.uuid)
         return app.uuid
     }
 

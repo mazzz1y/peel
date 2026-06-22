@@ -62,6 +62,11 @@ fun Context.isDefaultBrowser(): Boolean {
     return resolved?.activityInfo?.packageName == packageName
 }
 
+fun Context.shouldOfferOpenInSystem(url: String): Boolean {
+    val isWebLink = url.startsWith("http://") || url.startsWith("https://")
+    return !(isWebLink && isDefaultBrowser())
+}
+
 fun Context.shareText(text: String, title: String? = null) {
     startActivity(
         Intent.createChooser(

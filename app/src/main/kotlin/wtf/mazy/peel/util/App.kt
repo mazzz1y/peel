@@ -11,6 +11,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import wtf.mazy.peel.browser.ProxyRouterBridge
 import wtf.mazy.peel.model.DataManager
+import wtf.mazy.peel.model.SandboxManager
 
 class App : Application() {
 
@@ -30,6 +31,7 @@ class App : Application() {
         appScope.launch {
             DataManager.instance.initialize(applicationContext)
             ProxyRouterBridge.ensure(applicationContext)
+            SandboxManager.sweepOrphanedSandboxes(applicationContext)
         }
     }
 

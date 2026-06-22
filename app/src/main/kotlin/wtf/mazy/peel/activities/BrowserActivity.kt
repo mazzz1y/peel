@@ -831,9 +831,11 @@ class BrowserActivity : BaseSessionHost() {
             activity = this,
             downloadHandler = downloadHandler,
             onExternalIntent = ::startExternalIntent,
-            onOpenInPeel = ::openInPeel,
-            onOpenInBestPeelMatch = ::openInBestPeelMatch,
-            bestPeelMatchIcon = ::bestPeelMatchIcon,
+            peelMatch = BrowserContextMenu.PeelMatchHooks(
+                icon = ::bestPeelMatchIcon,
+                openBestMatch = ::openInBestPeelMatch,
+                openPicker = ::openInPeel,
+            ),
         )
     }
 

@@ -2,6 +2,7 @@ package wtf.mazy.peel.browser
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.Typeface
 import android.text.TextUtils
 import android.util.TypedValue
 import android.view.Gravity
@@ -9,34 +10,39 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.core.widget.TextViewCompat
 
 object MenuDialogHelper {
+
+    private const val TITLE_EXPANDED_MAX_LINES = 15
 
     fun buildHeader(context: Context, title: String?, url: String): View =
         LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
+            val headerTitle = title?.takeIf { it.isNotBlank() }
             setPadding(
                 dpToPx(context, 16f),
-                dpToPx(context, 20f),
                 dpToPx(context, 16f),
-                dpToPx(context, 14f)
+                dpToPx(context, 8f),
+                dpToPx(context, 16f)
             )
             addView(TextView(context).apply {
-                text = title ?: url
-                maxLines = 1
-                ellipsize =
-                    if (title != null) TextUtils.TruncateAt.END else TextUtils.TruncateAt.MIDDLE
-                setTextAppearance(
-                    com.google.android.material.R.style.TextAppearance_Material3_TitleSmall
+                text = headerTitle ?: url
+                maxLines = 2
+                ellipsize = TextUtils.TruncateAt.END
+                gravity = Gravity.CENTER_VERTICAL
+                setTextAppearance(androidx.appcompat.R.style.Base_DialogWindowTitle_AppCompat)
+                setTypeface(typeface, Typeface.BOLD)
+                TextViewCompat.setAutoSizeTextTypeUniformWithConfiguration(
+                    this,
+                    14,
+                    24,
+                    2,
+                    TypedValue.COMPLEX_UNIT_SP,
                 )
-                setTextColor(
-                    resolveThemeColor(
-                        context,
-                        com.google.android.material.R.attr.colorOnSurface
-                    )
-                )
+                setOnClickListener { maxLines = TITLE_EXPANDED_MAX_LINES }
             })
-            if (title != null) {
+            if (headerTitle != null) {
                 addView(TextView(context).apply {
                     text = url
                     maxLines = 1

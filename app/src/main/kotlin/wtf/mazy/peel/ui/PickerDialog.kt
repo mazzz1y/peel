@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import wtf.mazy.peel.R
+import wtf.mazy.peel.browser.MenuDialogHelper
 
 object PickerDialog {
     fun <T> show(
@@ -34,7 +35,7 @@ object PickerDialog {
             bind = bind,
         )
         dialog = MaterialAlertDialogBuilder(activity)
-            .setTitle(title)
+            .setCustomTitle(MenuDialogHelper.buildHeader(activity, null, title.toString()))
             .setView(recycler)
             .apply(configure)
             .show()

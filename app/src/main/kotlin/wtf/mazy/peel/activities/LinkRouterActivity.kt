@@ -48,7 +48,6 @@ class LinkRouterActivity : AppCompatActivity() {
 
         val content = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            addView(MenuDialogHelper.buildHeader(this@LinkRouterActivity, null, url))
             addView(MenuDialogHelper.buildDivider(this@LinkRouterActivity))
 
             val match = ExternalLinkMenu.bestPeelMatch(apps, url, null)
@@ -102,6 +101,7 @@ class LinkRouterActivity : AppCompatActivity() {
         }
 
         dialog = MaterialAlertDialogBuilder(this)
+            .setCustomTitle(MenuDialogHelper.buildHeader(this, null, MenuDialogHelper.prettyDataUrl(url)))
             .setView(content)
             .setOnCancelListener { finish() }
             .show()
