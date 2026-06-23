@@ -47,6 +47,7 @@ import wtf.mazy.peel.gecko.GeckoRuntimeProvider
 import wtf.mazy.peel.gecko.NestedGeckoView
 import wtf.mazy.peel.media.MediaPlaybackManager
 import wtf.mazy.peel.model.DataManager
+import wtf.mazy.peel.model.SandboxManager
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.model.WebAppSettings
 import wtf.mazy.peel.ui.FindInPageView
@@ -499,7 +500,7 @@ class BrowserActivity : BaseSessionHost() {
         if (webapp.isUseContainer && webapp.resolveEphemeral()) {
             val contextId = webapp.resolveContextId()
             if (contextId != null) {
-                wtf.mazy.peel.model.SandboxManager.clearSandboxData(this, contextId)
+                SandboxManager.clearSandboxData(this, contextId)
             }
         }
         webappUuid?.let { DataManager.instance.removeTransientWebApp(it) }
