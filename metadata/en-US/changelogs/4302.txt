@@ -1,0 +1,4 @@
+- Show a violet floating button while browsing in private mode
+- Rename "Open in Incognito" to "Open in private mode" following Firefox style
+- Update GeckoView to 152.0.20260621191700
+- Other fixes and improvements
