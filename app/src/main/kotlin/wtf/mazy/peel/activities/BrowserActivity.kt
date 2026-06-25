@@ -203,6 +203,7 @@ class BrowserActivity : BaseSessionHost() {
         super.onCreate(savedInstanceState)
         liveInstances.add(this)
 
+        sanitizeExternalIntent(intent)
         window.setBackgroundDrawable(themeBackgroundColor.toDrawable())
         setupSessionHostLayout(showToolbar = false)
         webappUuid = intent.getStringExtra(Const.INTENT_WEBAPP_UUID)
@@ -509,6 +510,7 @@ class BrowserActivity : BaseSessionHost() {
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
+        sanitizeExternalIntent(intent)
         setIntent(intent)
 
         val newUuid = intent.getStringExtra(Const.INTENT_WEBAPP_UUID) ?: return
@@ -927,6 +929,16 @@ class BrowserActivity : BaseSessionHost() {
 
     private fun sharedUrlFromIntent(): String? =
         intent.getStringExtra(Const.INTENT_TARGET_URL)
+
+    // The shortcut alias (WebAppShortcutAlias) is exported, so any app can launch it. Trust only
+    // the target webapp UUID from such intents and drop extras that would otherwise redirect the
+    // webapp's session to an arbitrary URL or alter back-navigation.
+    private fun sanitizeExternalIntent(intent: Intent) {
+        val isAliasEntry = intent.component?.className == Const.WEBAPP_SHORTCUT_ALIAS
+        if (!isAliasEntry) return
+        intent.removeExtra(Const.INTENT_TARGET_URL)
+        intent.removeExtra(Const.INTENT_LAUNCHED_FROM_MENU)
+    }
 
     private fun applyTaskSnapshotProtection() {
         val shouldProtect = effectiveSettings.isBiometricProtection == true

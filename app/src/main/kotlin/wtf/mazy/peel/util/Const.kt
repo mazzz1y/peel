@@ -8,6 +8,8 @@ object Const {
     const val INTENT_AUTO_FETCH: String = "auto_fetch"
     const val INTENT_LAUNCHED_FROM_MENU: String = "launched_from_menu"
 
+    const val WEBAPP_SHORTCUT_ALIAS: String = "wtf.mazy.peel.activities.WebAppShortcutAlias"
+
     const val GLOBAL_WEBAPP_UUID: String = "00000000-0000-0000-0000-000000000000"
 
     const val ANIM_DURATION_FAST = 100L

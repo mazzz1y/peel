@@ -309,14 +309,21 @@ object ShortcutHelper {
     }
 
     private fun buildIntent(owner: IconOwner, context: Context): Intent {
-        return Intent(context, TrampolineActivity::class.java).apply {
-            when (owner) {
-                is WebApp -> putExtra(Const.INTENT_WEBAPP_UUID, owner.uuid)
-                is WebAppGroup -> putExtra(Const.INTENT_GROUP_UUID, owner.uuid)
+        return when (owner) {
+            is WebApp -> Intent().apply {
+                setClassName(context, Const.WEBAPP_SHORTCUT_ALIAS)
+                putExtra(Const.INTENT_WEBAPP_UUID, owner.uuid)
+                data = "app://${owner.uuid}".toUri()
+                action = Intent.ACTION_VIEW
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
             }
-            data = "peel://${owner.uuid}".toUri()
-            action = Intent.ACTION_VIEW
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+
+            else -> Intent(context, TrampolineActivity::class.java).apply {
+                if (owner is WebAppGroup) putExtra(Const.INTENT_GROUP_UUID, owner.uuid)
+                data = "peel://${owner.uuid}".toUri()
+                action = Intent.ACTION_VIEW
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            }
         }
     }
 

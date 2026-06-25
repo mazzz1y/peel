@@ -135,6 +135,11 @@
             android:theme="@style/AppTheme.Browser"
             android:windowSoftInputMode="adjustResize" />
 
+        <activity-alias
+            android:name=".activities.WebAppShortcutAlias"
+            android:exported="true"
+            android:targetActivity=".activities.BrowserActivity" />
+
         <service
             android:name=".media.MediaPlaybackService"
             android:exported="false"
