@@ -1,0 +1,3 @@
+- Launch app shortcuts directly for a smoother open animation
+- Fix dialog title style in the app picker
+- Other fixes and improvements
