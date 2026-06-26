@@ -482,7 +482,11 @@ class BrowserActivity : BaseSessionHost() {
     override fun onDestroy() {
         liveInstances.remove(this)
         stopBackgroundKeepActive()
-        if (isFinishing && effectiveSettings.isClearCache == true && liveInstances.isEmpty()) {
+        val resolvedWebapp = webappUuid?.let { DataManager.instance.getWebApp(it) }
+        if (isFinishing && resolvedWebapp != null &&
+            DataManager.instance.resolveEffectiveSettings(resolvedWebapp).isClearCache == true &&
+            liveInstances.isEmpty()
+        ) {
             val runtime = GeckoRuntimeProvider.getRuntime(this)
             runtime.storageController.clearData(StorageController.ClearFlags.ALL_CACHES)
         }
@@ -498,8 +502,8 @@ class BrowserActivity : BaseSessionHost() {
         geckoSession?.close()
         geckoSession = null
         geckoView = null
-        if (webapp.isUseContainer && webapp.resolveEphemeral()) {
-            val contextId = webapp.resolveContextId()
+        if (resolvedWebapp != null && resolvedWebapp.isUseContainer && resolvedWebapp.resolveEphemeral()) {
+            val contextId = resolvedWebapp.resolveContextId()
             if (contextId != null) {
                 SandboxManager.clearSandboxData(this, contextId)
             }
