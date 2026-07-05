@@ -35,9 +35,11 @@ class OverridePickerController(
     private fun createViewFactory(): SettingViewFactory =
         SettingViewFactory(
             activity.layoutInflater,
-            SettingViewFactory.ButtonStrategy.Override { setting ->
+            SettingViewFactory.ButtonStrategy.Override { setting, row ->
                 removeOverride(setting.key)
-                refreshList()
+                val rippleDuration =
+                    activity.resources.getInteger(android.R.integer.config_shortAnimTime).toLong()
+                row.postDelayed({ container.removeView(row) }, rippleDuration)
             },
             activity.lifecycleScope,
         )

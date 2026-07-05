@@ -199,6 +199,13 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost {
         lastBottomBarColor = null
     }
 
+    override fun restoreSystemBarColors() {
+        updateSystemBarColors(
+            lastTopBarColor ?: themeBackgroundColor,
+            lastBottomBarColor ?: themeBackgroundColor,
+        )
+    }
+
     override fun reportSystemBarColorsFromContent(
         topCandidates: List<Int>,
         bottomCandidates: List<Int>,

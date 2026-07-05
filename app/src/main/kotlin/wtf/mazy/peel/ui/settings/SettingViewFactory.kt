@@ -33,7 +33,7 @@ class SettingViewFactory(
     sealed interface ButtonStrategy {
         data object GlobalDefaults : ButtonStrategy
 
-        class Override(val onRemove: (SettingDefinition) -> Unit) : ButtonStrategy
+        class Override(val onRemove: (SettingDefinition, View) -> Unit) : ButtonStrategy
     }
 
     private val watchers = WeakHashMap<EditText, TextWatcher>()
@@ -120,7 +120,7 @@ class SettingViewFactory(
             updateUndoVisibility(btnUndo, setting, settings)
         }
 
-        configureButtons(btnRemove, btnUndo, setting, settings) {
+        configureButtons(view, btnRemove, btnUndo, setting, settings) {
             switch.setOnCheckedChangeListener(null)
             switch.isChecked = settings.getValue(setting.key) as? Boolean ?: false
             switch.setOnCheckedChangeListener(switchListener)
@@ -157,7 +157,7 @@ class SettingViewFactory(
             },
         )
 
-        configureButtons(btnRemove, btnUndo, setting, settings) {
+        configureButtons(view, btnRemove, btnUndo, setting, settings) {
             txtValue.text = labels[currentIndex()]
         }
     }
@@ -233,7 +233,7 @@ class SettingViewFactory(
         switch.setOnCheckedChangeListener(switchListener)
         listenersActive = true
 
-        configureButtons(btnRemove, btnUndo, setting, settings) {
+        configureButtons(view, btnRemove, btnUndo, setting, settings) {
             listenersActive = false
             syncUi()
             listenersActive = true
@@ -292,7 +292,7 @@ class SettingViewFactory(
         switch.setOnCheckedChangeListener(switchListener)
         listenersActive = true
 
-        configureButtons(btnRemove, btnUndo, setting, settings) {
+        configureButtons(view, btnRemove, btnUndo, setting, settings) {
             listenersActive = false
             syncUi()
             listenersActive = true
@@ -344,7 +344,7 @@ class SettingViewFactory(
         switch.setOnCheckedChangeListener(switchListener)
         listenersActive = true
 
-        configureButtons(btnRemove, btnUndo, setting, settings) {
+        configureButtons(view, btnRemove, btnUndo, setting, settings) {
             listenersActive = false
             syncUi()
             listenersActive = true
@@ -372,7 +372,7 @@ class SettingViewFactory(
                 btnRemove.setOnClickListener {
                     settings.setValue(setting.key, null)
                     setMap(settings, mapKey, null)
-                    strategy.onRemove(setting)
+                    strategy.onRemove(setting, view)
                 }
             }
         }
@@ -617,7 +617,7 @@ class SettingViewFactory(
                 btnRemove.visibility = View.VISIBLE
                 btnRemove.setOnClickListener {
                     setMap(settings, setting.key, null)
-                    strategy.onRemove(setting)
+                    strategy.onRemove(setting, view)
                 }
                 if (getMap(settings, setting.key) == null) {
                     setMap(settings, setting.key, emptyMap())
@@ -692,6 +692,7 @@ class SettingViewFactory(
     }
 
     private fun configureButtons(
+        view: View,
         btnRemove: MaterialButton,
         btnUndo: MaterialButton,
         setting: SettingDefinition,
@@ -701,7 +702,7 @@ class SettingViewFactory(
         when (val strategy = buttonStrategy) {
             is ButtonStrategy.Override -> {
                 btnUndo.visibility = View.GONE
-                btnRemove.setOnClickListener { strategy.onRemove(setting) }
+                btnRemove.setOnClickListener { strategy.onRemove(setting, view) }
             }
 
             is ButtonStrategy.GlobalDefaults -> {

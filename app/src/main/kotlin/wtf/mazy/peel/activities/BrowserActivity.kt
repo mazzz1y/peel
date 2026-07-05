@@ -183,6 +183,8 @@ class BrowserActivity : BaseSessionHost() {
                         effectiveSettings,
                         sharedUrlFromIntent() ?: webapp.baseUrl
                     )
+                } else {
+                    restoreSystemBarColors()
                 }
             },
             onFailure = { finish() },
@@ -235,7 +237,7 @@ class BrowserActivity : BaseSessionHost() {
 
         val needsBiometric = effectiveSettings.isBiometricProtection == true
         biometricController.showPromptIfNeeded(needsBiometric) {
-            systemBarController.suppressNextAnimation = true
+            systemBarController.resetToTheme()
             browserContent?.visibility = View.INVISIBLE
         }
         if (!needsBiometric) {
@@ -304,7 +306,7 @@ class BrowserActivity : BaseSessionHost() {
         biometricController.showPromptIfNeeded(
             effectiveSettings.isBiometricProtection == true,
         ) {
-            systemBarController.suppressNextAnimation = true
+            systemBarController.resetToTheme()
             browserContent?.visibility = View.INVISIBLE
         }
 
@@ -445,6 +447,7 @@ class BrowserActivity : BaseSessionHost() {
     override fun onStop() {
         super.onStop()
         GeckoRuntimeProvider.removeExtensionStateListener(extensionStateListener)
+        if (isTaskSnapshotProtected) systemBarController.resetToTheme()
         if (!isStartupComplete || biometricController.isPromptActive) {
             biometricController.onStop(); return
         }
@@ -944,10 +947,28 @@ class BrowserActivity : BaseSessionHost() {
         intent.removeExtra(Const.INTENT_LAUNCHED_FROM_MENU)
     }
 
+    private val isTaskSnapshotProtected: Boolean
+        get() = isStartupComplete &&
+            (effectiveSettings.isBiometricProtection == true ||
+                effectiveSettings.isDisableScreenshots == true)
+
     private fun applyTaskSnapshotProtection() {
         val shouldProtect = effectiveSettings.isBiometricProtection == true
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             setRecentsScreenshotEnabled(!shouldProtect)
+        }
+
+        val protectsRecents = shouldProtect || effectiveSettings.isDisableScreenshots == true
+        if (protectsRecents && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            setTaskDescription(
+                ActivityManager.TaskDescription.Builder()
+                    .setLabel(webapp.title)
+                    .setBackgroundColor(themeBackgroundColor)
+                    .setStatusBarColor(themeBackgroundColor)
+                    .setNavigationBarColor(themeBackgroundColor)
+                    .build()
+            )
+            return
         }
 
         @Suppress("DEPRECATION")

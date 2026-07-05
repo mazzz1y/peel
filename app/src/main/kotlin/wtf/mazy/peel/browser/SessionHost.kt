@@ -60,6 +60,7 @@ interface SessionHost {
     fun showConnectionError(description: String, url: String)
     fun updateSystemBarColors(top: Int, bottom: Int)
     fun resetSystemBarColorsForNewPage()
+    fun restoreSystemBarColors()
     fun reportSystemBarColorsFromContent(
         topCandidates: List<Int>,
         bottomCandidates: List<Int>,

@@ -31,12 +31,7 @@ class SystemBarController(
     fun attach(statusBarScrim: View?, navigationBarScrim: View?, applyDynamicColor: Boolean) {
         this.statusBarScrim = statusBarScrim
         this.navigationBarScrim = navigationBarScrim
-        if (applyDynamicColor) {
-            val themeColor = getThemeColor()
-            window.decorView.setBackgroundColor(themeColor)
-            applyTop(themeColor)
-            applyBottom(themeColor)
-        }
+        if (applyDynamicColor) paintTheme()
     }
 
     fun update(top: Int, bottom: Int, animationDurationMs: Long) {
@@ -112,6 +107,19 @@ class SystemBarController(
     fun resetForSwap() {
         release()
         suppressNextAnimation = true
+    }
+
+    fun resetToTheme() {
+        release()
+        paintTheme()
+        suppressNextAnimation = true
+    }
+
+    private fun paintTheme() {
+        val themeColor = getThemeColor()
+        window.decorView.setBackgroundColor(themeColor)
+        applyTop(themeColor)
+        applyBottom(themeColor)
     }
 
     private fun animateTop(color: Int, durationMs: Long, instant: Boolean) {
