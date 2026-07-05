@@ -7,6 +7,9 @@ import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
 import com.google.android.material.appbar.MaterialToolbar
@@ -73,6 +76,12 @@ class ExtensionPopupBottomSheet : BottomSheetDialogFragment() {
         ) ?: return
         bottomSheet.layoutParams.height = ViewGroup.LayoutParams.MATCH_PARENT
         bottomSheet.requestLayout()
+        ViewCompat.setOnApplyWindowInsetsListener(bottomSheet) { v, insets ->
+            val nav = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
+            v.updatePadding(bottom = nav)
+            insets
+        }
+        ViewCompat.requestApplyInsets(bottomSheet)
         val behavior = BottomSheetBehavior.from(bottomSheet)
         behavior.isDraggable = false
         behavior.isFitToContents = false
