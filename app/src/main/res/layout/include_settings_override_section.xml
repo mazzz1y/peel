@@ -5,19 +5,11 @@
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_marginTop="@dimen/settings_divider_margin_top"
-        android:layout_marginBottom="@dimen/settings_divider_margin_bottom"
-        android:background="?attr/colorOutlineVariant" />
+    <include layout="@layout/item_settings_divider" />
 
     <LinearLayout
         android:id="@+id/sectionOverrideHeader"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:orientation="horizontal">
+        style="@style/SettingsRow.Inline">
 
         <TextView
             android:id="@+id/textViewOverriddenSettings"
@@ -42,7 +34,6 @@
         android:id="@+id/linearLayoutOverrides"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingTop="8dp" />
+        android:orientation="vertical" />
 
 </LinearLayout>

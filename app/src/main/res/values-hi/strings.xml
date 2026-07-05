@@ -81,7 +81,6 @@
     <string name="webapp_already_deleted">यह वेब ऐप हटा दिया गया है। आप यह शॉर्टकट हटा सकते हैं।</string>
     <string name="global_web_app_settings">वैश्विक वेब ऐप सेटिंग्स</string>
     <string name="behavior">व्यवहार</string>
-    <string name="backup">बैकअप</string>
     <string name="import_data">आयात</string>
     <string name="export_data">निर्यात</string>
     <string name="enable_sandbox">सैंडबॉक्स सक्षम करें</string>

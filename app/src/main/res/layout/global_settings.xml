@@ -14,7 +14,7 @@
             android:layout_height="match_parent"
             android:clipToPadding="false"
             android:paddingHorizontal="@dimen/margin_activity"
-            android:paddingTop="@dimen/margin_activity"
+            android:paddingTop="@dimen/settings_section_gap"
             android:paddingBottom="@dimen/margin_activity"
             android:scrollbarStyle="outsideOverlay"
             android:scrollbars="vertical" />

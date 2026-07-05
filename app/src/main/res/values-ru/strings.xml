@@ -81,7 +81,6 @@
     <string name="webapp_already_deleted">Это веб-приложение удалено. Вы можете удалить этот ярлык</string>
     <string name="global_web_app_settings">Глобальные настройки веб-приложений</string>
     <string name="behavior">Поведение</string>
-    <string name="backup">Резервная копия</string>
     <string name="import_data">Импорт</string>
     <string name="export_data">Экспорт</string>
     <string name="enable_sandbox">Включить песочницу</string>

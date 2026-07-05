@@ -36,6 +36,7 @@
         <item name="colorSurfaceContainerHigh">@color/brand_surfaceContainerHigh</item>
         <item name="colorSurfaceContainerHighest">@color/brand_surfaceContainerHighest</item>
         <item name="android:windowBackground">?attr/colorSurfaceContainerLow</item>
+        <item name="popupMenuBackground">@drawable/popup_menu_background_rounded</item>
     </style>
 
     <style name="AppTheme.Launcher">
@@ -79,10 +80,12 @@
         <item name="android:minHeight">56dp</item>
     </style>
 
-    <style name="SettingsIconButton" parent="Widget.Material3.Button.IconButton">
+    <style name="Widget.App.IconButton" parent="Widget.Material3.Button.IconButton">
         <item name="iconTint">?attr/colorOnSurfaceVariant</item>
         <item name="iconSize">24dp</item>
     </style>
+
+    <style name="SettingsIconButton" parent="Widget.App.IconButton" />
 
     <style name="Widget.App.FloatingIconButton" parent="Widget.AppCompat.ImageButton">
         <item name="android:layout_width">@dimen/floating_controls_button_size</item>

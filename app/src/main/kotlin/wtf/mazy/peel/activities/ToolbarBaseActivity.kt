@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.activity.addCallback
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -40,9 +39,7 @@ abstract class ToolbarBaseActivity<VB : ViewBinding> : AppCompatActivity() {
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        onBackPressedDispatcher.addCallback(this) { finish() }
-
-        toolbar.setNavigationOnClickListener { onBackPressedDispatcher.onBackPressed() }
+        toolbar.setNavigationOnClickListener { finish() }
     }
 
     fun setToolbarTitle(title: String) {

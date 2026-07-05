@@ -2,6 +2,7 @@
 
     <style name="AppTheme" parent="Theme.Material3.DynamicColors.DayNight.NoActionBar">
         <item name="android:windowBackground">?attr/colorSurfaceContainerLow</item>
+        <item name="popupMenuBackground">@drawable/popup_menu_background_rounded</item>
     </style>
 
     <style name="AppTheme.Launcher">

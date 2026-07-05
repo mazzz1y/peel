@@ -63,7 +63,6 @@
     <string name="webapp_already_deleted">Questa Web App non è più disponibile. È possibile eliminare questo collegamento</string>
     <string name="global_web_app_settings">Impostazioni Globali Web App</string>
     <string name="behavior">Comportamento</string>
-    <string name="backup">Backup</string>
     <string name="enable_sandbox">Abilita Sandbox</string>
     <string name="ephemeral_sandbox">Archiviazione effimera</string>
     <string name="show_fullscreen">Schermo intero (modalità immersiva)</string>

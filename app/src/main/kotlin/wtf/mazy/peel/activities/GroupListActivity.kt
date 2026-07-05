@@ -2,9 +2,9 @@ package wtf.mazy.peel.activities
 
 import android.content.Intent
 import android.view.View
-import android.widget.PopupMenu
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.widget.PopupMenu
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.materialswitch.MaterialSwitch
 import kotlinx.coroutines.launch

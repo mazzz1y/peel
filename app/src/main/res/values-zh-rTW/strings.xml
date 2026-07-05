@@ -81,7 +81,6 @@
     <string name="webapp_already_deleted">此網頁應用程式已刪除。您可以刪除此捷徑</string>
     <string name="global_web_app_settings">全域網頁應用程式設定</string>
     <string name="behavior">行為</string>
-    <string name="backup">備份</string>
     <string name="import_data">匯入</string>
     <string name="export_data">匯出</string>
     <string name="enable_sandbox">啟用沙盒</string>

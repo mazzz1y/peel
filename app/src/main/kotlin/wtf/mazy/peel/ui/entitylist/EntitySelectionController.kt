@@ -2,11 +2,11 @@ package wtf.mazy.peel.ui.entitylist
 
 import android.view.MenuItem
 import android.view.View
-import android.widget.PopupMenu
 import androidx.annotation.DrawableRes
 import androidx.annotation.IdRes
 import androidx.annotation.MenuRes
 import androidx.annotation.StringRes
+import androidx.appcompat.widget.PopupMenu
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.launch
 import wtf.mazy.peel.R

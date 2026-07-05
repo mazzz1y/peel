@@ -62,7 +62,6 @@
     <string name="webapp_already_deleted">Esta aplicación web ya no está disponible. Puede eliminar este acceso directo</string>
     <string name="global_web_app_settings">Configuración general de la aplicación web</string>
     <string name="behavior">Comportamiento</string>
-    <string name="backup">Copia de seguridad</string>
     <string name="enable_sandbox">Habilitar Sandbox</string>
     <string name="ephemeral_sandbox">Almacenamiento efímero</string>
     <string name="show_fullscreen">Pantalla completa (modo inmersivo)</string>

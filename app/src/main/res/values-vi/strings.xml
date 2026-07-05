@@ -81,7 +81,6 @@
     <string name="webapp_already_deleted">Ứng dụng web này đã bị xóa. Bạn có thể xóa lối tắt này</string>
     <string name="global_web_app_settings">Cài đặt toàn cục ứng dụng web</string>
     <string name="behavior">Hành vi</string>
-    <string name="backup">Sao lưu</string>
     <string name="import_data">Nhập</string>
     <string name="export_data">Xuất</string>
     <string name="enable_sandbox">Bật sandbox</string>

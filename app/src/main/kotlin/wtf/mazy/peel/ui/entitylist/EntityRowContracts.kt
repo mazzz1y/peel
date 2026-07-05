@@ -12,7 +12,7 @@ data class EntityRow<T : Any>(
 
 interface EntityRowView {
     val itemIcon: ImageView
-    val menuButton: ImageView
+    val menuButton: View
     val indicators: List<ImageView>
 }
 

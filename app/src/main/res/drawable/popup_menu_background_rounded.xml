@@ -1,0 +1,7 @@
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="?attr/colorSurfaceContainer" />
+    <corners android:radius="@dimen/popup_menu_corner_radius" />
+    <padding
+        android:top="@dimen/popup_menu_corner_radius"
+        android:bottom="@dimen/popup_menu_corner_radius" />
+</shape>

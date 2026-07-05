@@ -63,7 +63,6 @@
     <string name="webapp_already_deleted">Diese Web-App wurde gelöscht. Sie können diese Verknüpfung löschen</string>
     <string name="global_web_app_settings">Globale Web-App-Einstellungen</string>
     <string name="behavior">Verhalten</string>
-    <string name="backup">Backup</string>
     <string name="enable_sandbox">Sandbox aktivieren</string>
     <string name="ephemeral_sandbox">Flüchtiger Speicher</string>
     <string name="show_fullscreen">Vollbildmodus</string>

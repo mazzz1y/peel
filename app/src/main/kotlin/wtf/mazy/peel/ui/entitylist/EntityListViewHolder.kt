@@ -8,5 +8,5 @@ import wtf.mazy.peel.R
 abstract class EntityListViewHolder(itemView: View) :
     RecyclerView.ViewHolder(itemView), EntityRowView {
     override val itemIcon: ImageView = itemView.findViewById(R.id.item_icon)
-    override val menuButton: ImageView = itemView.findViewById(R.id.item_menu)
+    override val menuButton: View = itemView.findViewById(R.id.item_menu)
 }

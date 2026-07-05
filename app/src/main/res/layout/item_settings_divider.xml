@@ -2,6 +2,6 @@
 <View xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="1dp"
-    android:layout_marginTop="@dimen/settings_divider_margin_top"
-    android:layout_marginBottom="@dimen/settings_divider_margin_bottom"
+    android:layout_marginTop="@dimen/settings_divider_gap_top"
+    android:layout_marginBottom="@dimen/settings_section_gap"
     android:background="?attr/colorOutlineVariant" />

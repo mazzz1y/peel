@@ -1,7 +1,6 @@
 package wtf.mazy.peel.activities
 
 import android.Manifest
-import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Canvas
@@ -13,39 +12,31 @@ import android.os.Bundle
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.style.ReplacementSpan
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.IntentCompat
 import androidx.core.content.edit
-import androidx.core.net.toUri
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.appbar.MaterialToolbar
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.coroutines.launch
-import wtf.mazy.peel.BuildConfig
 import wtf.mazy.peel.R
-import wtf.mazy.peel.browser.TranslationLanguages
 import wtf.mazy.peel.gecko.GeckoRuntimeProvider
 import wtf.mazy.peel.model.ApplyTiming
 import wtf.mazy.peel.model.ApplyTimingRegistry
 import wtf.mazy.peel.model.BackupManager
 import wtf.mazy.peel.model.DataManager
-import wtf.mazy.peel.model.SandboxManager
 import wtf.mazy.peel.model.WebApp
-import wtf.mazy.peel.model.WebAppSettings
 import wtf.mazy.peel.ui.common.LoadingDialogController
 import wtf.mazy.peel.ui.common.Theming
 import wtf.mazy.peel.ui.common.runWithLoader
@@ -90,20 +81,10 @@ class MainActivity :
 
     private val fragmentRegistry = mutableMapOf<String?, WebAppListFragment>()
 
-    private val exportLauncher =
-        registerForActivityResult(ActivityResultContracts.CreateDocument(BackupManager.MIME_TYPE)) { uri ->
-            uri?.let { performFullBackupExport(it) }
-        }
-
     private val notificationPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { }
 
     private val importDialogHelper = ImportDialogHelper(this)
-
-    private val importLauncher =
-        registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
-            uri?.let { importDialogHelper.showForUri(it) }
-        }
 
     private val settingsLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -234,61 +215,8 @@ class MainActivity :
                 true
             }
 
-            R.id.action_groups -> {
-                startActivity(Intent(this, GroupListActivity::class.java))
-                true
-            }
-
-            R.id.action_proxies -> {
-                startActivity(Intent(this, ProxyListActivity::class.java))
-                true
-            }
-
-            R.id.action_extensions -> {
-                startActivity(Intent(this, ExtensionsActivity::class.java))
-                true
-            }
-
-            R.id.action_global_settings -> {
-                settingsLauncher.launch(Intent(this, SettingsActivity::class.java))
-                true
-            }
-
-            R.id.action_import -> {
-                try {
-                    importLauncher.launch("*/*")
-                } catch (e: ActivityNotFoundException) {
-                    NotificationUtils.showToast(
-                        this,
-                        getString(R.string.no_filemanager),
-                        Toast.LENGTH_LONG
-                    )
-                    Log.e("MainActivity", "No file manager available for import", e)
-                }
-                true
-            }
-
-            R.id.action_export -> {
-                try {
-                    exportLauncher.launch(BackupManager.buildExportFilename())
-                } catch (e: ActivityNotFoundException) {
-                    NotificationUtils.showToast(
-                        this,
-                        getString(R.string.no_filemanager),
-                        Toast.LENGTH_LONG
-                    )
-                    Log.e("MainActivity", "No file manager available for export", e)
-                }
-                true
-            }
-
-            R.id.action_about -> {
-                buildAboutDialog()
-                true
-            }
-
-            R.id.action_clear_data -> {
-                showClearDataConfirmDialog()
+            R.id.action_settings -> {
+                settingsLauncher.launch(Intent(this, SettingsHubActivity::class.java))
                 true
             }
 
@@ -462,140 +390,6 @@ class MainActivity :
             }
 
             else -> null
-        }
-    }
-
-    private fun performFullBackupExport(uri: Uri) {
-        runWithLoader(
-            activity = this,
-            loader = exportLoader,
-            showLoader = DataManager.instance.getWebsites().size >= BackupManager.LOADER_THRESHOLD,
-            loadingRes = R.string.preparing_export,
-            ioTask = { BackupManager.exportFullBackup(uri) },
-        ) { success ->
-            NotificationUtils.showToast(
-                this,
-                getString(if (success) R.string.backup_saved else R.string.backup_save_failed),
-                Toast.LENGTH_SHORT,
-            )
-        }
-    }
-
-    private fun buildAboutDialog() {
-        val view = layoutInflater.inflate(R.layout.dialog_about, null)
-        view.findViewById<TextView>(R.id.aboutVersion).text =
-            getString(R.string.about_version, BuildConfig.VERSION_NAME)
-        view.findViewById<TextView>(R.id.aboutEngine).text =
-            getString(R.string.about_engine, BuildConfig.GECKOVIEW_VERSION)
-        view.findViewById<View>(R.id.aboutGithub).setOnClickListener {
-            startActivity(Intent(Intent.ACTION_VIEW, GITHUB_URL.toUri()))
-        }
-        view.findViewById<View>(R.id.aboutFdroid).setOnClickListener {
-            startActivity(Intent(Intent.ACTION_VIEW, FDROID_URL.toUri()))
-        }
-        view.findViewById<View>(R.id.aboutGooglePlay).setOnClickListener {
-            startActivity(Intent(Intent.ACTION_VIEW, GOOGLE_PLAY_URL.toUri()))
-        }
-        view.findViewById<View>(R.id.aboutLicense).setOnClickListener {
-            startActivity(Intent(Intent.ACTION_VIEW, LICENSE_URL.toUri()))
-        }
-        MaterialAlertDialogBuilder(this)
-            .setView(view)
-            .show()
-    }
-
-    companion object {
-        private const val GITHUB_URL = "https://github.com/mazzz1y/peel"
-        private const val FDROID_URL = "https://mazzz1y.github.io/fdroid/repo"
-        private const val GOOGLE_PLAY_URL =
-            "https://play.google.com/store/apps/details?id=wtf.mazy.peel"
-        private const val LICENSE_URL = "https://www.gnu.org/licenses/gpl-3.0.txt"
-    }
-
-    private fun showClearDataConfirmDialog() {
-        val dialogView = layoutInflater.inflate(R.layout.dialog_clear_data, null)
-        val switchBrowsing =
-            dialogView.findViewById<com.google.android.material.materialswitch.MaterialSwitch>(
-                R.id.switchClearBrowsingData
-            )
-        val switchSandbox =
-            dialogView.findViewById<com.google.android.material.materialswitch.MaterialSwitch>(
-                R.id.switchClearSandboxData
-            )
-        val switchTranslations =
-            dialogView.findViewById<com.google.android.material.materialswitch.MaterialSwitch>(
-                R.id.switchClearTranslations
-            )
-        val switchFactory =
-            dialogView.findViewById<com.google.android.material.materialswitch.MaterialSwitch>(
-                R.id.switchFactoryReset
-            )
-
-        switchBrowsing.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked && switchFactory.isChecked) switchFactory.isChecked = false
-            switchSandbox.visibility = if (isChecked) View.VISIBLE else View.GONE
-            if (!isChecked) switchSandbox.isChecked = false
-        }
-
-        switchFactory.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) {
-                if (switchBrowsing.isChecked) switchBrowsing.isChecked = false
-                if (switchTranslations.isChecked) switchTranslations.isChecked = false
-            }
-        }
-
-        switchTranslations.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked && switchFactory.isChecked) switchFactory.isChecked = false
-        }
-
-        MaterialAlertDialogBuilder(this)
-            .setTitle(R.string.clear_data)
-            .setView(dialogView)
-            .setPositiveButton(R.string.ok) { _, _ ->
-                if (switchFactory.isChecked) {
-                    performFactoryReset()
-                } else {
-                    if (switchBrowsing.isChecked) clearBrowsingData(switchSandbox.isChecked)
-                    if (switchTranslations.isChecked) clearTranslationModels()
-                }
-            }
-            .setNegativeButton(R.string.cancel, null)
-            .show()
-    }
-
-    private fun clearBrowsingData(includeSandbox: Boolean) {
-        BrowserActivity.finishAll()
-        SandboxManager.clearNonSandboxData()
-        if (includeSandbox) {
-            SandboxManager.clearAllSandboxData(this)
-        }
-    }
-
-    private fun clearTranslationModels() {
-        lifecycleScope.launch {
-            TranslationLanguages.deleteAllModels()
-        }
-    }
-
-    private fun performFactoryReset() {
-        BrowserActivity.finishAll()
-        SandboxManager.clearNonSandboxData()
-        SandboxManager.clearAllSandboxData(this)
-
-        lifecycleScope.launch {
-            TranslationLanguages.deleteAllModels()
-            DataManager.instance.getWebsites().forEach { webapp ->
-                DataManager.instance.cleanupAndRemoveWebApp(webapp.uuid, this@MainActivity)
-            }
-            DataManager.instance.getGroups().forEach { group ->
-                DataManager.instance.removeGroup(group, ungroupApps = false)
-            }
-
-            DataManager.instance.setDefaultSettings(
-                DataManager.instance.defaultSettings.also {
-                    it.settings = WebAppSettings.createWithDefaults()
-                }
-            )
         }
     }
 

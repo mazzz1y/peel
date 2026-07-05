@@ -81,7 +81,6 @@
     <string name="webapp_already_deleted">ਇਹ ਵੈੱਬ ਐਪ ਮਿਟਾ ਦਿੱਤੀ ਗਈ ਹੈ। ਤੁਸੀਂ ਇਹ ਸ਼ਾਰਟਕੱਟ ਮਿਟਾ ਸਕਦੇ ਹੋ।</string>
     <string name="global_web_app_settings">ਗਲੋਬਲ ਵੈੱਬ ਐਪ ਸੈਟਿੰਗਾਂ</string>
     <string name="behavior">ਵਿਹਾਰ</string>
-    <string name="backup">ਬੈਕਅੱਪ</string>
     <string name="import_data">ਆਯਾਤ</string>
     <string name="export_data">ਨਿਰਯਾਤ</string>
     <string name="enable_sandbox">ਸੈਂਡਬਾਕਸ ਚਾਲੂ ਕਰੋ</string>

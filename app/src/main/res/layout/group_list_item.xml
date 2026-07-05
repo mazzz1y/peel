@@ -81,16 +81,13 @@
             app:layout_constraintEnd_toStartOf="@id/item_menu"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <ImageView
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/item_menu"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:clickable="true"
+            style="@style/Widget.App.IconButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:contentDescription="@string/more"
-            android:focusable="true"
-            android:scaleType="center"
-            android:src="@drawable/ic_symbols_more_vert_24"
+            app:icon="@drawable/ic_symbols_more_vert_24"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />

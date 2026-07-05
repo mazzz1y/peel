@@ -9,42 +9,9 @@
         app:iconTint="?attr/colorOnSurface"
         app:showAsAction="always" />
     <item
-        android:id="@+id/action_more"
-        android:icon="@drawable/ic_symbols_more_vert_24"
-        android:title="@string/more"
+        android:id="@+id/action_settings"
+        android:icon="@drawable/ic_symbols_settings_24"
+        android:title="@string/action_settings"
         app:iconTint="?attr/colorOnSurface"
-        app:showAsAction="always">
-        <menu>
-            <item
-                android:id="@+id/action_groups"
-                android:title="@string/groups" />
-            <item
-                android:id="@+id/action_proxies"
-                android:title="@string/proxies" />
-            <item
-                android:id="@+id/action_extensions"
-                android:title="@string/extensions" />
-            <item
-                android:id="@+id/action_global_settings"
-                android:title="@string/action_settings" />
-            <item
-                android:id="@+id/action_backup"
-                android:title="@string/backup">
-                <menu>
-                    <item
-                        android:id="@+id/action_import"
-                        android:title="@string/import_data" />
-                    <item
-                        android:id="@+id/action_export"
-                        android:title="@string/export_data" />
-                </menu>
-            </item>
-            <item
-                android:id="@+id/action_clear_data"
-                android:title="@string/clear_data" />
-            <item
-                android:id="@+id/action_about"
-                android:title="@string/app_info" />
-        </menu>
-    </item>
+        app:showAsAction="always" />
 </menu>

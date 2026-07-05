@@ -4,9 +4,9 @@ import android.content.Context
 import android.view.Menu
 import android.view.View
 import android.widget.ImageView
-import android.widget.PopupMenu
 import android.widget.TextView
 import androidx.annotation.ColorInt
+import androidx.appcompat.widget.PopupMenu
 import org.mozilla.geckoview.WebExtension
 import wtf.mazy.peel.R
 import wtf.mazy.peel.ui.entitylist.EntityListAdapter

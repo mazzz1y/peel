@@ -81,7 +81,6 @@
     <string name="webapp_already_deleted">このウェブアプリは削除されました。このショートカットを削除できます</string>
     <string name="global_web_app_settings">グローバルウェブアプリ設定</string>
     <string name="behavior">動作</string>
-    <string name="backup">バックアップ</string>
     <string name="import_data">インポート</string>
     <string name="export_data">エクスポート</string>
     <string name="enable_sandbox">サンドボックスを有効化</string>

@@ -81,7 +81,6 @@
     <string name="webapp_already_deleted">এই ওয়েব অ্যাপটি মুছে ফেলা হয়েছে। আপনি এই শর্টকাটটি মুছতে পারেন।</string>
     <string name="global_web_app_settings">গ্লোবাল ওয়েব অ্যাপ সেটিংস</string>
     <string name="behavior">আচরণ</string>
-    <string name="backup">ব্যাকআপ</string>
     <string name="import_data">আমদানি</string>
     <string name="export_data">রপ্তানি</string>
     <string name="enable_sandbox">স্যান্ডবক্স সক্রিয় করুন</string>

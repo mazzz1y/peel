@@ -48,11 +48,11 @@ class SettingsAdapter(
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (val item = items[position]) {
-            is SettingsListItem.Header -> {
+            is SettingsListItem.Header ->
                 (holder.itemView as TextView).setText(item.category.displayNameResId)
-            }
 
             is SettingsListItem.Divider -> Unit
+
             is SettingsListItem.Setting -> factory.bindView(
                 holder.itemView,
                 item.definition,

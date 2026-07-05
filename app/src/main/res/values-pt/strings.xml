@@ -81,7 +81,6 @@
     <string name="webapp_already_deleted">Este Web App foi excluído. Você pode excluir este atalho</string>
     <string name="global_web_app_settings">Configurações globais do Web App</string>
     <string name="behavior">Comportamento</string>
-    <string name="backup">Backup</string>
     <string name="import_data">Importar</string>
     <string name="export_data">Exportar</string>
     <string name="enable_sandbox">Ativar sandbox</string>

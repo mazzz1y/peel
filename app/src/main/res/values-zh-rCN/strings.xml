@@ -81,7 +81,6 @@
     <string name="webapp_already_deleted">此网页应用已删除。您可以删除此快捷方式</string>
     <string name="global_web_app_settings">全局网页应用设置</string>
     <string name="behavior">行为</string>
-    <string name="backup">备份</string>
     <string name="import_data">导入</string>
     <string name="export_data">导出</string>
     <string name="enable_sandbox">启用沙盒</string>

@@ -123,6 +123,11 @@ sealed class SettingDefinition(
     }
 }
 
+enum class SettingSection(@param:StringRes val displayNameResId: Int) {
+    GLOBAL(R.string.global_settings),
+    ENGINE(R.string.settings_section_engine),
+}
+
 enum class SettingCategory(@param:StringRes val displayNameResId: Int) {
     APPEARANCE(R.string.appearance),
     BEHAVIOR(R.string.behavior),
@@ -433,7 +438,15 @@ object SettingRegistry {
 
     fun getAllSettings(): List<SettingDefinition> = ALL_SETTINGS
 
+    fun getSettingsForSection(section: SettingSection): List<SettingDefinition> =
+        when (section) {
+            SettingSection.GLOBAL -> getPerAppSettings()
+            SettingSection.ENGINE -> getEngineSettings()
+        }
+
     fun getPerAppSettings(): List<SettingDefinition> = ALL_SETTINGS.filter { !it.globalOnly }
+
+    private fun getEngineSettings(): List<SettingDefinition> = ALL_SETTINGS.filter { it.globalOnly }
 
     fun getSettingByKey(key: String): SettingDefinition? {
         return ALL_SETTINGS.find { it.key == key }

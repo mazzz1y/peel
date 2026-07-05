@@ -12,13 +12,23 @@
     <!-- Unified settings spacing -->
     <dimen name="settings_item_padding_vertical">8dp</dimen>
     <dimen name="settings_item_gap">16dp</dimen>
-    <dimen name="settings_divider_margin_top">8dp</dimen>
-    <dimen name="settings_divider_margin_bottom">16dp</dimen>
+    <dimen name="settings_section_gap">24dp</dimen>
+    <dimen name="settings_divider_gap_top">12dp</dimen>
     <dimen name="divider_height">1dp</dimen>
     <dimen name="webapp_list_item_total_height">86dp</dimen>
     <dimen name="dialog_list_top_padding">16dp</dimen>
     <dimen name="dialog_content_horizontal_padding">24dp</dimen>
     <dimen name="dialog_content_top_padding">16dp</dimen>
+
+    <dimen name="popup_menu_corner_radius">16dp</dimen>
+
+    <dimen name="settings_hub_card_margin_horizontal">12dp</dimen>
+    <dimen name="settings_hub_card_margin_vertical">6dp</dimen>
+    <dimen name="settings_hub_card_padding_horizontal">16dp</dimen>
+    <dimen name="settings_hub_card_padding_vertical">14dp</dimen>
+    <dimen name="settings_hub_icon_size">24dp</dimen>
+    <dimen name="settings_hub_icon_text_gap">20dp</dimen>
+    <dimen name="settings_hub_list_padding_vertical">6dp</dimen>
 
     <!-- Floating controls panel + trigger -->
     <dimen name="floating_controls_button_size">36dp</dimen>
