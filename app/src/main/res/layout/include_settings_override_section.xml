@@ -5,7 +5,12 @@
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
-    <include layout="@layout/item_settings_divider" />
+    <include
+        layout="@layout/item_settings_divider"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/divider_height"
+        android:layout_marginTop="@dimen/settings_divider_gap_top"
+        android:layout_marginBottom="@dimen/settings_override_divider_gap_bottom" />
 
     <LinearLayout
         android:id="@+id/sectionOverrideHeader"

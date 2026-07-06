@@ -14,6 +14,7 @@
     <dimen name="settings_item_gap">16dp</dimen>
     <dimen name="settings_section_gap">24dp</dimen>
     <dimen name="settings_divider_gap_top">12dp</dimen>
+    <dimen name="settings_override_divider_gap_bottom">12dp</dimen>
     <dimen name="divider_height">1dp</dimen>
     <dimen name="webapp_list_item_total_height">86dp</dimen>
     <dimen name="dialog_list_top_padding">16dp</dimen>
