@@ -1,0 +1,6 @@
+- Redesigned settings into a dedicated hub screen with separate global and engine sections
+- Rounded popup menus and refreshed list row menu buttons
+- Reset system bars in recents so protected web apps no longer leak their page color
+- Fix extension popup being clipped
+- Update GeckoView to 152.0.20260629141727
+- Other fixes and improvements
