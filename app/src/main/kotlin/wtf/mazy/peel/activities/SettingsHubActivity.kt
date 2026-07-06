@@ -15,6 +15,7 @@ import wtf.mazy.peel.databinding.SettingsHubBinding
 import wtf.mazy.peel.model.ApplyTiming
 import wtf.mazy.peel.model.ApplyTimingRegistry
 import wtf.mazy.peel.model.SettingSection
+import wtf.mazy.peel.ui.dialog.AboutDialog
 
 class SettingsHubActivity : ToolbarBaseActivity<SettingsHubBinding>() {
 
@@ -89,7 +90,7 @@ class SettingsHubActivity : ToolbarBaseActivity<SettingsHubBinding>() {
             actions.clearData()
         },
         HubEntry(R.string.app_info, R.string.settings_section_about_summary, R.drawable.ic_symbols_info_24) {
-            actions.showAbout()
+            AboutDialog.show(this)
         },
     )
 
