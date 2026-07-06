@@ -16,15 +16,15 @@ Powered by GeckoView (Mozilla's browser engine)
 
 <a href="https://apps.obtainium.imranr.dev/redirect.html?r=obtainium://add/https://github.com/mazzz1y/peel">
 <img src="https://raw.githubusercontent.com/ImranR98/Obtainium/refs/heads/main/assets/graphics/badge_obtainium.png"
-alt="Get it on Obtainium" align="center" height="54" /></a>
+alt="Get it on Obtainium" align="center" height="80" /></a>
 
 <a href="https://play.google.com/store/apps/details?id=wtf.mazy.peel">
 <img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png"
-alt="Get it on Google Play" align="center" height="80" style="margin: 0 -10px" /></a>
+alt="Get it on Google Play" align="center" height="80" /></a>
 
 <a href="https://mazzz1y.github.io/fdroid/repo">
 <img src="https://raw.githubusercontent.com/mazzz1y/fdroid/refs/heads/main/assets/f-repo.png"
-alt="Get it on my F-Droid repo" align="center" height="54" /></a>
+alt="Get it on my F-Droid repo" align="center" height="80" /></a>
 
 </div>
 
