@@ -300,4 +300,14 @@
     <string name="setting_auto_translate_any_language">कोई भी भाषा</string>
     <string name="translation_loading">अनुवाद लोड हो रहा है\u2026</string>
     <string name="clear_translations">अनुवाद मॉडल साफ़ करें</string>
+    <string name="settings_section_engine">इंजन</string>
+    <string name="settings_section_global_summary">सभी ऐप्स के लिए डिफ़ॉल्ट सेटिंग, हर ऐप के लिए बदली जा सकती हैं</string>
+    <string name="settings_section_engine_summary">गोपनीयता, सुरक्षा और उन्नत Gecko विकल्प</string>
+    <string name="settings_section_proxies_summary">प्रॉक्सी सर्वर प्रबंधित करें</string>
+    <string name="settings_section_extensions_summary">एक्सटेंशन इंस्टॉल और प्रबंधित करें</string>
+    <string name="settings_section_groups_summary">ऐप्स को समूहों में व्यवस्थित करें</string>
+    <string name="settings_section_import_summary">बैकअप से ऐप्स और सेटिंग पुनर्स्थापित करें</string>
+    <string name="settings_section_export_summary">सभी ऐप्स और सेटिंग को फ़ाइल में सहेजें</string>
+    <string name="settings_section_clear_summary">ब्राउज़िंग डेटा साफ़ करें या ऐप रीसेट करें</string>
+    <string name="settings_section_about_summary">संस्करण, इंजन और लिंक</string>
 </resources>

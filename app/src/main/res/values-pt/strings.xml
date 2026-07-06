@@ -300,4 +300,14 @@
     <string name="setting_auto_translate_any_language">Qualquer idioma</string>
     <string name="translation_loading">Carregando tradução\u2026</string>
     <string name="clear_translations">Limpar modelos de tradução</string>
+    <string name="settings_section_engine">Motor</string>
+    <string name="settings_section_global_summary">Configurações padrão para todos os apps, ajustáveis por app</string>
+    <string name="settings_section_engine_summary">Privacidade, proteção e opções avançadas do Gecko</string>
+    <string name="settings_section_proxies_summary">Gerenciar servidores proxy</string>
+    <string name="settings_section_extensions_summary">Instalar e gerenciar extensões</string>
+    <string name="settings_section_groups_summary">Organizar apps em grupos</string>
+    <string name="settings_section_import_summary">Restaurar apps e configurações de um backup</string>
+    <string name="settings_section_export_summary">Salvar todos os apps e configurações em um arquivo</string>
+    <string name="settings_section_clear_summary">Limpar dados de navegação ou redefinir o app</string>
+    <string name="settings_section_about_summary">Versão, motor e links</string>
 </resources>

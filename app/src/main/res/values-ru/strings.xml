@@ -306,4 +306,14 @@
     <string name="setting_auto_translate_any_language">Любой язык</string>
     <string name="translation_loading">Загрузка перевода\u2026</string>
     <string name="clear_translations">Удалить модели перевода</string>
+    <string name="settings_section_engine">Движок</string>
+    <string name="settings_section_global_summary">Настройки по умолчанию для всех приложений с возможностью переопределения</string>
+    <string name="settings_section_engine_summary">Конфиденциальность, защита и дополнительные параметры Gecko</string>
+    <string name="settings_section_proxies_summary">Управление прокси-серверами</string>
+    <string name="settings_section_extensions_summary">Установка и управление расширениями</string>
+    <string name="settings_section_groups_summary">Объединение приложений в группы</string>
+    <string name="settings_section_import_summary">Восстановление приложений и настроек из резервной копии</string>
+    <string name="settings_section_export_summary">Сохранение всех приложений и настроек в файл</string>
+    <string name="settings_section_clear_summary">Очистка данных браузера или сброс приложения</string>
+    <string name="settings_section_about_summary">Версия, движок и ссылки</string>
 </resources>

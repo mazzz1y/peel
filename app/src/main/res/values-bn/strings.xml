@@ -300,4 +300,14 @@
     <string name="setting_auto_translate_any_language">যেকোনো ভাষা</string>
     <string name="translation_loading">অনুবাদ লোড হচ্ছে\u2026</string>
     <string name="clear_translations">অনুবাদ মডেল মুছুন</string>
+    <string name="settings_section_engine">ইঞ্জিন</string>
+    <string name="settings_section_global_summary">সব অ্যাপের জন্য ডিফল্ট সেটিংস, অ্যাপভিত্তিক পরিবর্তনযোগ্য</string>
+    <string name="settings_section_engine_summary">গোপনীয়তা, সুরক্ষা এবং উন্নত Gecko বিকল্প</string>
+    <string name="settings_section_proxies_summary">প্রক্সি সার্ভার পরিচালনা করুন</string>
+    <string name="settings_section_extensions_summary">এক্সটেনশন ইনস্টল ও পরিচালনা করুন</string>
+    <string name="settings_section_groups_summary">অ্যাপগুলো গ্রুপে সাজান</string>
+    <string name="settings_section_import_summary">ব্যাকআপ থেকে অ্যাপ ও সেটিংস পুনরুদ্ধার করুন</string>
+    <string name="settings_section_export_summary">সব অ্যাপ ও সেটিংস একটি ফাইলে সংরক্ষণ করুন</string>
+    <string name="settings_section_clear_summary">ব্রাউজিং ডেটা মুছুন বা অ্যাপ রিসেট করুন</string>
+    <string name="settings_section_about_summary">সংস্করণ, ইঞ্জিন এবং লিঙ্ক</string>
 </resources>

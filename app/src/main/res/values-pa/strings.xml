@@ -299,4 +299,14 @@
     <string name="setting_auto_translate_any_language">ਕੋਈ ਵੀ ਭਾਸ਼ਾ</string>
     <string name="translation_loading">ਅਨੁਵਾਦ ਲੋਡ ਹੋ ਰਿਹਾ ਹੈ\u2026</string>
     <string name="clear_translations">ਅਨੁਵਾਦ ਮਾਡਲ ਮਿਟਾਓ</string>
+    <string name="settings_section_engine">ਇੰਜਣ</string>
+    <string name="settings_section_global_summary">ਸਾਰੀਆਂ ਐਪਾਂ ਲਈ ਡਿਫੌਲਟ ਸੈਟਿੰਗਾਂ, ਹਰ ਐਪ ਲਈ ਬਦਲੀਆਂ ਜਾ ਸਕਦੀਆਂ ਹਨ</string>
+    <string name="settings_section_engine_summary">ਪਰਦੇਦਾਰੀ, ਸੁਰੱਖਿਆ ਅਤੇ ਉੱਨਤ Gecko ਵਿਕਲਪ</string>
+    <string name="settings_section_proxies_summary">ਪ੍ਰੌਕਸੀ ਸਰਵਰ ਪ੍ਰਬੰਧਿਤ ਕਰੋ</string>
+    <string name="settings_section_extensions_summary">ਐਕਸਟੈਂਸ਼ਨ ਇੰਸਟਾਲ ਅਤੇ ਪ੍ਰਬੰਧਿਤ ਕਰੋ</string>
+    <string name="settings_section_groups_summary">ਐਪਾਂ ਨੂੰ ਗਰੁੱਪਾਂ ਵਿੱਚ ਵਿਵਸਥਿਤ ਕਰੋ</string>
+    <string name="settings_section_import_summary">ਬੈਕਅੱਪ ਤੋਂ ਐਪਾਂ ਅਤੇ ਸੈਟਿੰਗਾਂ ਬਹਾਲ ਕਰੋ</string>
+    <string name="settings_section_export_summary">ਸਾਰੀਆਂ ਐਪਾਂ ਅਤੇ ਸੈਟਿੰਗਾਂ ਨੂੰ ਇੱਕ ਫ਼ਾਈਲ ਵਿੱਚ ਸੰਭਾਲੋ</string>
+    <string name="settings_section_clear_summary">ਬ੍ਰਾਊਜ਼ਿੰਗ ਡਾਟਾ ਸਾਫ਼ ਕਰੋ ਜਾਂ ਐਪ ਰੀਸੈੱਟ ਕਰੋ</string>
+    <string name="settings_section_about_summary">ਵਰਜਨ, ਇੰਜਣ ਅਤੇ ਲਿੰਕ</string>
 </resources>

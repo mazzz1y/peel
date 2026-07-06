@@ -297,4 +297,14 @@
     <string name="setting_auto_translate_any_language">すべての言語</string>
     <string name="translation_loading">翻訳を読み込み中\u2026</string>
     <string name="clear_translations">翻訳モデルを削除</string>
+    <string name="settings_section_engine">エンジン</string>
+    <string name="settings_section_global_summary">すべてのアプリの既定設定（アプリごとに変更可能）</string>
+    <string name="settings_section_engine_summary">プライバシー、保護、Gecko の詳細オプション</string>
+    <string name="settings_section_proxies_summary">プロキシサーバーを管理</string>
+    <string name="settings_section_extensions_summary">拡張機能のインストールと管理</string>
+    <string name="settings_section_groups_summary">アプリをグループに整理</string>
+    <string name="settings_section_import_summary">バックアップからアプリと設定を復元</string>
+    <string name="settings_section_export_summary">すべてのアプリと設定をファイルに保存</string>
+    <string name="settings_section_clear_summary">閲覧データを消去、またはアプリをリセット</string>
+    <string name="settings_section_about_summary">バージョン、エンジン、リンク</string>
 </resources>

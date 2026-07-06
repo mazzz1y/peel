@@ -70,14 +70,14 @@ class SettingsHubActivity : ToolbarBaseActivity<SettingsHubBinding>() {
         HubEntry(R.string.settings_section_engine, R.string.settings_section_engine_summary, R.drawable.ic_symbols_memory_24) {
             openSection(SettingSection.ENGINE)
         },
-        HubEntry(R.string.proxies, R.string.settings_section_proxies_summary, R.drawable.ic_symbols_dns_24) {
-            startActivity(Intent(this, ProxyListActivity::class.java))
+        HubEntry(R.string.groups, R.string.settings_section_groups_summary, R.drawable.ic_symbols_folder_24) {
+            startActivity(Intent(this, GroupListActivity::class.java))
         },
         HubEntry(R.string.extensions, R.string.settings_section_extensions_summary, R.drawable.ic_symbols_extension_24) {
             startActivity(Intent(this, ExtensionsActivity::class.java))
         },
-        HubEntry(R.string.groups, R.string.settings_section_groups_summary, R.drawable.ic_symbols_folder_24) {
-            startActivity(Intent(this, GroupListActivity::class.java))
+        HubEntry(R.string.proxies, R.string.settings_section_proxies_summary, R.drawable.ic_symbols_dns_24) {
+            startActivity(Intent(this, ProxyListActivity::class.java))
         },
         HubEntry(R.string.import_data, R.string.settings_section_import_summary, R.drawable.ic_symbols_download_24) {
             actions.importBackup()

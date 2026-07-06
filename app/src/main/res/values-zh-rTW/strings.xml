@@ -297,4 +297,14 @@
     <string name="setting_auto_translate_any_language">任何語言</string>
     <string name="translation_loading">正在載入翻譯\u2026</string>
     <string name="clear_translations">清除翻譯模型</string>
+    <string name="settings_section_engine">引擎</string>
+    <string name="settings_section_global_summary">所有應用程式的預設設定，可依應用程式個別覆寫</string>
+    <string name="settings_section_engine_summary">隱私、防護及 Gecko 進階選項</string>
+    <string name="settings_section_proxies_summary">管理代理伺服器</string>
+    <string name="settings_section_extensions_summary">安裝與管理擴充功能</string>
+    <string name="settings_section_groups_summary">將應用程式整理成群組</string>
+    <string name="settings_section_import_summary">從備份還原應用程式與設定</string>
+    <string name="settings_section_export_summary">將所有應用程式與設定儲存至檔案</string>
+    <string name="settings_section_clear_summary">清除瀏覽資料或重設應用程式</string>
+    <string name="settings_section_about_summary">版本、引擎與連結</string>
 </resources>
