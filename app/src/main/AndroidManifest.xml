@@ -218,6 +218,14 @@
             android:theme="@style/AppTheme.Browser"
             android:windowSoftInputMode="adjustResize" />
         <activity
+            android:name=".activities.PopupActivity"
+            android:configChanges="orientation|screenSize|smallestScreenSize|density|screenLayout|uiMode|keyboard|keyboardHidden|navigation"
+            android:icon="@mipmap/ic_launcher"
+            android:parentActivityName=".activities.BrowserActivity"
+            android:roundIcon="@mipmap/ic_launcher"
+            android:theme="@style/AppTheme.Browser"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
             android:name=".activities.ImportActivity"
             android:icon="@mipmap/ic_launcher"
             android:parentActivityName=".activities.MainActivity"

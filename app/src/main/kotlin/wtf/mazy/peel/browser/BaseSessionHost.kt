@@ -27,10 +27,12 @@ import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.mozilla.geckoview.GeckoResult
 import org.mozilla.geckoview.GeckoSession
 import org.mozilla.geckoview.GeckoSessionSettings
 import org.mozilla.geckoview.GeckoView
 import wtf.mazy.peel.R
+import wtf.mazy.peel.activities.PopupActivity
 import wtf.mazy.peel.gecko.VerticalSwipeRefreshLayout
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.model.WebAppSettings
@@ -188,6 +190,28 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost {
 
     override fun onWindowCloseRequest() {
         if (navigationDelegate.isOnJumpHost) goBackOrFinish() else finish()
+    }
+
+    override fun openPopupSession(): GeckoResult<GeckoSession> {
+        val popup = createSession(effectiveSettings)
+        val key = PopupSessionHolder.put(popup)
+        val launched = runCatching {
+            startActivity(
+                PopupActivity.intentFor(
+                    context = this,
+                    key = key,
+                    title = webAppName,
+                    settings = effectiveSettings,
+                    contextId = sessionContextId,
+                    privateMode = sessionPrivateMode,
+                )
+            )
+        }.isSuccess
+        if (!launched) {
+            PopupSessionHolder.take(key)?.close()
+            return GeckoResult.fromValue(null)
+        }
+        return GeckoResult.fromValue(popup)
     }
 
     override fun markCurrentPageAsJumpHost() {

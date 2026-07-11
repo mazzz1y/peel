@@ -67,6 +67,7 @@ class PeelNavigationDelegate(private val host: SessionHost) : GeckoSession.Navig
         val settings = host.effectiveSettings
 
         return when {
+            url.isBlank() -> allow()
             url.startsWith("data:") && request.isDirectNavigation -> deny()
             !isBrowserScheme(url) -> {
                 handleAppLink(url, settings, request)
@@ -84,10 +85,7 @@ class PeelNavigationDelegate(private val host: SessionHost) : GeckoSession.Navig
     override fun onNewSession(
         session: GeckoSession,
         uri: String,
-    ): GeckoResult<GeckoSession> {
-        host.runOnUi { host.loadURL(uri) }
-        return GeckoResult.fromValue(null)
-    }
+    ): GeckoResult<GeckoSession> = host.openPopupSession()
 
     override fun onLoadError(
         session: GeckoSession,
