@@ -111,6 +111,15 @@ sealed class SettingDefinition(
         globalOnly: Boolean = false,
     ) : SettingDefinition(toggle, displayNameResId, category, globalOnly)
 
+    class StringListSetting(
+        toggle: SettingField,
+        @StringRes displayNameResId: Int,
+        category: SettingCategory,
+        @param:StringRes val entryHintResId: Int,
+        @param:StringRes val invalidEntryResId: Int,
+        globalOnly: Boolean = false,
+    ) : SettingDefinition(toggle, displayNameResId, category, globalOnly)
+
     class LanguagePairMapSetting(
         toggle: SettingField,
         @StringRes displayNameResId: Int,
@@ -433,6 +442,13 @@ object SettingRegistry {
                 keyHintResId = R.string.setting_custom_gecko_prefs_key_hint,
                 valueHintResId = R.string.setting_custom_gecko_prefs_value_hint,
                 globalOnly = true,
+            ),
+            SettingDefinition.StringListSetting(
+                SettingField(WebAppSettings::sameAppDomains, null),
+                R.string.setting_same_app_domains,
+                SettingCategory.BEHAVIOR,
+                entryHintResId = R.string.setting_same_app_domains_hint,
+                invalidEntryResId = R.string.setting_same_app_domains_invalid_regex,
             ),
         )
 

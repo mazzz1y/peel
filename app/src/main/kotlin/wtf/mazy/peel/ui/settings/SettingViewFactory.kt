@@ -22,6 +22,7 @@ import wtf.mazy.peel.browser.label
 import wtf.mazy.peel.model.SettingDefinition
 import wtf.mazy.peel.model.WebAppSettings
 import wtf.mazy.peel.ui.bindDropdown
+import wtf.mazy.peel.util.SameAppDomainMatcher
 import java.util.WeakHashMap
 
 class SettingViewFactory(
@@ -62,7 +63,8 @@ class SettingViewFactory(
             is SettingDefinition.BooleanWithIntSetting -> R.layout.item_setting_boolean_int
             is SettingDefinition.BooleanWithCredentialsSetting -> R.layout.item_setting_boolean_credentials
             is SettingDefinition.BooleanWithStringSetting -> R.layout.item_setting_boolean_string
-            is SettingDefinition.StringMapSetting -> R.layout.item_setting_string_map
+            is SettingDefinition.StringMapSetting -> R.layout.item_setting_string_collection
+            is SettingDefinition.StringListSetting -> R.layout.item_setting_string_collection
             is SettingDefinition.LanguagePairMapSetting -> R.layout.item_setting_language_pair_map
         }
         val view = inflater.inflate(layoutRes, container, false)
@@ -93,6 +95,7 @@ class SettingViewFactory(
             )
 
             is SettingDefinition.StringMapSetting -> setupStringMap(view, setting, settings)
+            is SettingDefinition.StringListSetting -> setupStringList(view, setting, settings)
             is SettingDefinition.LanguagePairMapSetting -> setupLanguagePairMap(
                 view,
                 setting,
@@ -245,57 +248,77 @@ class SettingViewFactory(
         setting: SettingDefinition.BooleanWithCredentialsSetting,
         settings: WebAppSettings,
     ) {
+        val context = view.context
         val textName = view.findViewById<TextView>(R.id.textSettingName)
         val switch = view.findViewById<MaterialSwitch>(R.id.switchSetting)
         val btnRemove = view.findViewById<MaterialButton>(R.id.btnRemoveOverride)
         val btnUndo = view.findViewById<MaterialButton>(R.id.btnUndo)
-        val layout = view.findViewById<View>(R.id.layoutCredentials)
-        val editUsername = view.findViewById<TextInputEditText>(R.id.editUsername)
-        val editPassword = view.findViewById<TextInputEditText>(R.id.editPassword)
+        val btnEditValue = view.findViewById<MaterialButton>(R.id.btnEditValue)
 
         val usernameKey = setting.usernameField.key
         val passwordKey = setting.passwordField.key
         resetWidgetListeners(view)
-        textName.text = view.context.getString(setting.displayNameResId)
+        textName.text = context.getString(setting.displayNameResId)
 
-        fun syncUi() {
-            val boolVal = settings.getValue(setting.key) as? Boolean ?: false
-            switch.isChecked = boolVal
-            editUsername.setText(settings.getValue(usernameKey) as? String ?: "")
-            editPassword.setText(settings.getValue(passwordKey) as? String ?: "")
-            layout.visibility = if (boolVal) View.VISIBLE else View.GONE
+        fun username(): String = settings.getValue(usernameKey) as? String ?: ""
+        fun password(): String = settings.getValue(passwordKey) as? String ?: ""
+
+        fun renderValue() {
+            val enabled = settings.getValue(setting.key) as? Boolean ?: false
+            btnEditValue.visibility = if (enabled) View.VISIBLE else View.GONE
             updateUndoVisibility(btnUndo, setting, settings)
         }
 
-        var listenersActive = false
+        lateinit var switchListener: (CompoundButton?, Boolean) -> Unit
 
-        val switchListener = { _: CompoundButton?, isChecked: Boolean ->
-            if (listenersActive) {
-                settings.setValue(setting.key, isChecked)
-                layout.visibility = if (isChecked) View.VISIBLE else View.GONE
-                if (isChecked) editUsername.post { editUsername.requestFocus() }
-                updateUndoVisibility(btnUndo, setting, settings)
+        fun setChecked(checked: Boolean) {
+            switch.setOnCheckedChangeListener(null)
+            switch.isChecked = checked
+            switch.setOnCheckedChangeListener(switchListener)
+        }
+
+        fun openDialog(onCancel: () -> Unit = {}) {
+            SettingDialogs.showCredentials(
+                context,
+                setting.displayNameResId,
+                username(),
+                password(),
+                onCancel = onCancel,
+            ) { credentials ->
+                settings.setValue(usernameKey, credentials.username)
+                settings.setValue(passwordKey, credentials.password)
+                if (credentials.username.isEmpty() && credentials.password.isEmpty()) {
+                    settings.setValue(setting.key, false)
+                    setChecked(false)
+                }
+                renderValue()
             }
         }
 
-        syncUi()
-        editUsername.replaceWatcher { s ->
-            if (!listenersActive) return@replaceWatcher
-            settings.setValue(usernameKey, s?.toString() ?: "")
-            updateUndoVisibility(btnUndo, setting, settings)
+        switchListener = { _: CompoundButton?, isChecked: Boolean ->
+            settings.setValue(setting.key, isChecked)
+            renderValue()
+            if (isChecked && username().isEmpty() && password().isEmpty()) {
+                openDialog {
+                    if (username().isEmpty() && password().isEmpty()) {
+                        settings.setValue(setting.key, false)
+                        setChecked(false)
+                        renderValue()
+                    }
+                }
+            }
         }
-        editPassword.replaceWatcher { s ->
-            if (!listenersActive) return@replaceWatcher
-            settings.setValue(passwordKey, s?.toString() ?: "")
-            updateUndoVisibility(btnUndo, setting, settings)
-        }
+
+        switch.isChecked = settings.getValue(setting.key) as? Boolean ?: false
+        renderValue()
         switch.setOnCheckedChangeListener(switchListener)
-        listenersActive = true
+        btnEditValue.setOnClickListener { openDialog() }
 
         configureButtons(view, btnRemove, btnUndo, setting, settings) {
-            listenersActive = false
-            syncUi()
-            listenersActive = true
+            switch.setOnCheckedChangeListener(null)
+            switch.isChecked = settings.getValue(setting.key) as? Boolean ?: false
+            renderValue()
+            switch.setOnCheckedChangeListener(switchListener)
         }
     }
 
@@ -304,50 +327,77 @@ class SettingViewFactory(
         setting: SettingDefinition.BooleanWithStringSetting,
         settings: WebAppSettings,
     ) {
+        val context = view.context
         val textName = view.findViewById<TextView>(R.id.textSettingName)
         val switch = view.findViewById<MaterialSwitch>(R.id.switchSetting)
         val btnRemove = view.findViewById<MaterialButton>(R.id.btnRemoveOverride)
         val btnUndo = view.findViewById<MaterialButton>(R.id.btnUndo)
-        val layout = view.findViewById<View>(R.id.layoutStringInput)
-        val editText = view.findViewById<TextInputEditText>(R.id.editStringValue)
+        val cardValue = view.findViewById<View>(R.id.cardValue)
+        val btnValue = view.findViewById<MaterialButton>(R.id.btnEntryValue)
 
         val stringKey = setting.stringField.key
         resetWidgetListeners(view)
-        textName.text = view.context.getString(setting.displayNameResId)
-        editText.hint = view.context.getString(setting.hintResId)
+        textName.text = context.getString(setting.displayNameResId)
 
-        fun syncUi() {
-            val boolVal = settings.getValue(setting.key) as? Boolean ?: false
-            switch.isChecked = boolVal
-            editText.setText(settings.getValue(stringKey) as? String ?: "")
-            layout.visibility = if (boolVal) View.VISIBLE else View.GONE
+        fun value(): String = settings.getValue(stringKey) as? String ?: ""
+
+        fun renderValue() {
+            val enabled = settings.getValue(setting.key) as? Boolean ?: false
+            cardValue.visibility = if (enabled) View.VISIBLE else View.GONE
+            btnValue.text = value()
             updateUndoVisibility(btnUndo, setting, settings)
         }
 
-        var listenersActive = false
+        lateinit var switchListener: (CompoundButton?, Boolean) -> Unit
 
-        val switchListener = { _: CompoundButton?, isChecked: Boolean ->
-            if (listenersActive) {
-                settings.setValue(setting.key, isChecked)
-                layout.visibility = if (isChecked) View.VISIBLE else View.GONE
-                if (isChecked) editText.post { editText.requestFocus() }
-                updateUndoVisibility(btnUndo, setting, settings)
+        fun setChecked(checked: Boolean) {
+            switch.setOnCheckedChangeListener(null)
+            switch.isChecked = checked
+            switch.setOnCheckedChangeListener(switchListener)
+        }
+
+        fun openDialog(onCancel: () -> Unit = {}) {
+            SettingDialogs.showString(
+                context,
+                setting.displayNameResId,
+                setting.hintResId,
+                value(),
+                maxLines = 3,
+                onCancel = onCancel,
+            ) { text ->
+                settings.setValue(stringKey, text)
+                if (text.isEmpty()) {
+                    settings.setValue(setting.key, false)
+                    setChecked(false)
+                }
+                renderValue()
             }
         }
 
-        syncUi()
-        editText.replaceWatcher { s ->
-            if (!listenersActive) return@replaceWatcher
-            settings.setValue(stringKey, s?.toString() ?: "")
-            updateUndoVisibility(btnUndo, setting, settings)
+        switchListener = { _: CompoundButton?, isChecked: Boolean ->
+            settings.setValue(setting.key, isChecked)
+            renderValue()
+            if (isChecked && value().isEmpty()) {
+                openDialog {
+                    if (value().isEmpty()) {
+                        settings.setValue(setting.key, false)
+                        setChecked(false)
+                        renderValue()
+                    }
+                }
+            }
         }
+
+        switch.isChecked = settings.getValue(setting.key) as? Boolean ?: false
+        renderValue()
         switch.setOnCheckedChangeListener(switchListener)
-        listenersActive = true
+        btnValue.setOnClickListener { openDialog() }
 
         configureButtons(view, btnRemove, btnUndo, setting, settings) {
-            listenersActive = false
-            syncUi()
-            listenersActive = true
+            switch.setOnCheckedChangeListener(null)
+            switch.isChecked = settings.getValue(setting.key) as? Boolean ?: false
+            renderValue()
+            switch.setOnCheckedChangeListener(switchListener)
         }
     }
 
@@ -599,6 +649,119 @@ class SettingViewFactory(
         settings.setValue(key, value)
     }
 
+    @Suppress("UNCHECKED_CAST")
+    private fun getList(settings: WebAppSettings, key: String): List<String>? =
+        settings.getValue(key) as? List<String>
+
+    private fun setList(settings: WebAppSettings, key: String, value: List<String>?) {
+        settings.setValue(key, value)
+    }
+
+    private fun setupStringList(
+        view: View,
+        setting: SettingDefinition.StringListSetting,
+        settings: WebAppSettings,
+    ) {
+        val textName = view.findViewById<TextView>(R.id.textSettingName)
+        val btnAdd = view.findViewById<MaterialButton>(R.id.btnAddEntry)
+        val btnRemove = view.findViewById<MaterialButton>(R.id.btnRemoveOverride)
+        val container = view.findViewById<LinearLayout>(R.id.containerEntries)
+
+        textName.text = view.context.getString(setting.displayNameResId)
+
+        when (val strategy = buttonStrategy) {
+            is ButtonStrategy.GlobalDefaults -> btnRemove.visibility = View.GONE
+            is ButtonStrategy.Override -> {
+                btnRemove.visibility = View.VISIBLE
+                btnRemove.setOnClickListener {
+                    setList(settings, setting.key, null)
+                    strategy.onRemove(setting, view)
+                }
+                if (getList(settings, setting.key) == null) {
+                    setList(settings, setting.key, emptyList())
+                }
+            }
+        }
+
+        fun renderEntries() {
+            container.removeAllViews()
+            val entries = getList(settings, setting.key).orEmpty()
+            container.visibility = if (entries.isEmpty()) View.GONE else View.VISIBLE
+            entries.forEach { entry ->
+                addStringListEntryView(view.context, container, settings, setting, entry) {
+                    renderEntries()
+                }
+            }
+        }
+
+        renderEntries()
+
+        btnAdd.setOnClickListener {
+            showStringListEntryDialog(view.context, setting, "") { entry ->
+                val values = getList(settings, setting.key).orEmpty()
+                if (entry !in values) {
+                    setList(settings, setting.key, values + entry)
+                    renderEntries()
+                }
+            }
+        }
+    }
+
+    private fun addStringListEntryView(
+        context: android.content.Context,
+        container: LinearLayout,
+        settings: WebAppSettings,
+        setting: SettingDefinition.StringListSetting,
+        value: String,
+        onChanged: () -> Unit,
+    ) {
+        val entryView = inflater.inflate(R.layout.item_string_collection_entry, container, false)
+        val btnValue = entryView.findViewById<MaterialButton>(R.id.btnEntryValue)
+        val btnRemoveEntry = entryView.findViewById<MaterialButton>(R.id.btnRemoveEntry)
+
+        btnValue.text = value
+        btnValue.setOnClickListener {
+            showStringListEntryDialog(context, setting, value) { entry ->
+                val values = getList(settings, setting.key).orEmpty()
+                if (entry == value) return@showStringListEntryDialog
+                if (entry !in values) {
+                    setList(settings, setting.key, values.map { if (it == value) entry else it })
+                    onChanged()
+                }
+            }
+        }
+        btnRemoveEntry.setOnClickListener {
+            setList(settings, setting.key, getList(settings, setting.key).orEmpty() - value)
+            onChanged()
+        }
+
+        container.addView(entryView)
+    }
+
+    private fun showStringListEntryDialog(
+        context: android.content.Context,
+        setting: SettingDefinition.StringListSetting,
+        prefill: String,
+        onCommit: (String) -> Unit,
+    ) {
+        SettingDialogs.showValidatedString(
+            context = context,
+            titleRes = setting.displayNameResId,
+            hintRes = setting.entryHintResId,
+            value = prefill,
+            inputType = android.text.InputType.TYPE_CLASS_TEXT or
+                android.text.InputType.TYPE_TEXT_VARIATION_URI,
+            validate = { entry ->
+                when {
+                    entry.isEmpty() -> setting.entryHintResId
+                    !SameAppDomainMatcher.isValid(entry) -> setting.invalidEntryResId
+                    else -> null
+                }
+            },
+            onCommit = onCommit,
+        )
+    }
+
     private fun setupStringMap(
         view: View,
         setting: SettingDefinition.StringMapSetting,
@@ -625,70 +788,78 @@ class SettingViewFactory(
             }
         }
 
-        container.removeAllViews()
-        getMap(settings, setting.key)?.forEach { (k, v) ->
-            addStringMapEntryView(container, settings, setting, k, v)
+        fun renderEntries() {
+            container.removeAllViews()
+            val entries = getMap(settings, setting.key).orEmpty()
+            container.visibility = if (entries.isEmpty()) View.GONE else View.VISIBLE
+            entries.forEach { (k, v) ->
+                addStringMapEntryView(container, settings, setting, k, v) { renderEntries() }
+            }
         }
 
+        renderEntries()
+
         btnAdd.setOnClickListener {
-            addStringMapEntryView(container, settings, setting, "", "")
+            showStringMapDialog(view.context, setting, "", "") { key, value ->
+                val map = getMap(settings, setting.key).orEmpty().toMutableMap()
+                map[key] = value
+                setMap(settings, setting.key, map)
+                renderEntries()
+            }
         }
+    }
+
+    private fun showStringMapDialog(
+        context: android.content.Context,
+        setting: SettingDefinition.StringMapSetting,
+        key: String,
+        value: String,
+        onCommit: (String, String) -> Unit,
+    ) {
+        SettingDialogs.showKeyValue(
+            context,
+            setting.displayNameResId,
+            setting.keyHintResId,
+            setting.valueHintResId,
+            key,
+            value,
+            onCommit,
+        )
     }
 
     private fun addStringMapEntryView(
         container: LinearLayout,
         settings: WebAppSettings,
         setting: SettingDefinition.StringMapSetting,
-        initialKey: String,
-        initialValue: String,
+        key: String,
+        value: String,
+        onChanged: () -> Unit,
     ) {
-        val entryView = inflater.inflate(R.layout.item_string_map_entry, container, false)
-        val keyLayout =
-            entryView.findViewById<com.google.android.material.textfield.TextInputLayout>(R.id.layoutEntryKey)
-        val valueLayout =
-            entryView.findViewById<com.google.android.material.textfield.TextInputLayout>(R.id.layoutEntryValue)
-        val editKey = entryView.findViewById<TextInputEditText>(R.id.editEntryKey)
-        val editValue = entryView.findViewById<TextInputEditText>(R.id.editEntryValue)
+        val entryView = inflater.inflate(R.layout.item_string_collection_entry, container, false)
+        val btnValue = entryView.findViewById<MaterialButton>(R.id.btnEntryValue)
         val btnRemoveEntry = entryView.findViewById<MaterialButton>(R.id.btnRemoveEntry)
 
-        val context = entryView.context
-        keyLayout.hint = context.getString(setting.keyHintResId)
-        valueLayout.hint = context.getString(setting.valueHintResId)
+        btnValue.text = entryView.context.getString(R.string.setting_key_value_entry, key, value)
 
-        editKey.setText(initialKey)
-        editValue.setText(initialValue)
-
-        var currentKey = initialKey
-
-        editKey.replaceWatcher { s ->
-            val newKey = s?.toString() ?: ""
-            if (newKey == currentKey) return@replaceWatcher
-            val map = getMap(settings, setting.key).orEmpty().toMutableMap()
-            map.remove(currentKey)
-            if (newKey.isNotEmpty()) {
-                map[newKey] = editValue.text?.toString() ?: ""
+        fun edit() {
+            showStringMapDialog(entryView.context, setting, key, value) { newKey, newValue ->
+                val map = getMap(settings, setting.key).orEmpty().toMutableMap()
+                if (newKey != key) map.remove(key)
+                map[newKey] = newValue
+                setMap(settings, setting.key, map)
+                onChanged()
             }
-            setMap(settings, setting.key, map)
-            currentKey = newKey
         }
 
-        editValue.replaceWatcher { s ->
-            val key = editKey.text?.toString() ?: ""
-            if (key.isEmpty()) return@replaceWatcher
-            val map = getMap(settings, setting.key).orEmpty().toMutableMap()
-            map[key] = s?.toString() ?: ""
-            setMap(settings, setting.key, map)
-        }
-
+        btnValue.setOnClickListener { edit() }
         btnRemoveEntry.setOnClickListener {
             val map = getMap(settings, setting.key).orEmpty().toMutableMap()
-            map.remove(currentKey)
+            map.remove(key)
             setMap(settings, setting.key, map)
-            container.removeView(entryView)
+            onChanged()
         }
 
         container.addView(entryView)
-        if (initialKey.isEmpty()) editKey.requestFocus()
     }
 
     private fun configureButtons(

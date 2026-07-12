@@ -87,6 +87,11 @@
 
     <style name="SettingsIconButton" parent="Widget.App.IconButton" />
 
+    <style name="SettingsValueButton" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="strokeColor">?attr/colorOutlineVariant</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
+    </style>
+
     <style name="Widget.App.FloatingIconButton" parent="Widget.AppCompat.ImageButton">
         <item name="android:layout_width">@dimen/floating_controls_button_size</item>
         <item name="android:layout_height">@dimen/floating_controls_button_size</item>

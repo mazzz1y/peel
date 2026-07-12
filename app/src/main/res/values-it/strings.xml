@@ -254,6 +254,10 @@
     <string name="setting_custom_gecko_prefs">Preferenze Gecko personalizzate</string>
     <string name="setting_custom_gecko_prefs_key_hint">Nome</string>
     <string name="setting_custom_gecko_prefs_value_hint">Valore</string>
+    <string name="setting_same_app_domains">Domini aggiuntivi dell\'app</string>
+    <string name="setting_same_app_domains_hint">example.com o /regex/</string>
+    <string name="setting_same_app_domains_invalid_regex">Espressione regolare non valida</string>
+    <string name="setting_configure">Configura</string>
     <string name="find_in_page_hint">Trova nella pagina</string>
     <string name="find_in_page_counter">%1$d / %2$d</string>
     <string name="find_in_page_prev">Risultato precedente</string>

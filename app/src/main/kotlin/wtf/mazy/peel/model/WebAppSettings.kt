@@ -45,6 +45,7 @@ data class WebAppSettings(
     var isAllowCertBypass: Boolean? = null,
     var isTranslatorEnabled: Boolean? = null,
     var autoTranslatePairs: Map<String, String>? = null,
+    var sameAppDomains: List<String>? = null,
 ) {
     companion object {
         const val PERMISSION_OFF = 0
@@ -187,6 +188,22 @@ data class WebAppSettings(
                     )
                 }
 
+                is SettingDefinition.StringListSetting -> {
+                    @Suppress("UNCHECKED_CAST")
+                    val list = getValue(setting.key) as? List<String>
+                    val cleaned = list
+                        ?.map { it.trim() }
+                        ?.filter { it.isNotEmpty() }
+                        ?.distinct()
+                    setValue(
+                        setting.key,
+                        when {
+                            cleaned.isNullOrEmpty() -> if (asOverride) null else emptyList()
+                            else -> cleaned
+                        },
+                    )
+                }
+
                 is SettingDefinition.LanguagePairMapSetting -> {
                     val enabled = getValue(setting.key) as? Boolean ?: false
                     val mapKey = setting.mapField.key
@@ -214,5 +231,6 @@ data class WebAppSettings(
     fun deepCopy() = copy(
         customGeckoPrefs = customGeckoPrefs?.toMap(),
         autoTranslatePairs = autoTranslatePairs?.toMap(),
+        sameAppDomains = sameAppDomains?.toList(),
     )
 }

@@ -7,30 +7,15 @@
     android:orientation="horizontal">
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnLanguageFrom"
+        android:id="@+id/btnEntryValue"
         style="@style/SettingsValueButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:ellipsize="end"
-        android:maxLines="1" />
-
-    <ImageView
-        android:layout_width="20dp"
-        android:layout_height="20dp"
-        android:layout_marginHorizontal="8dp"
-        android:contentDescription="@null"
-        android:src="@drawable/ic_symbols_arrow_forward_24"
-        app:tint="?attr/colorOnSurfaceVariant" />
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnLanguageTo"
-        style="@style/SettingsValueButton"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:ellipsize="end"
-        android:maxLines="1" />
+        android:gravity="start|center_vertical"
+        android:maxLines="1"
+        android:textAllCaps="false" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnRemoveEntry"

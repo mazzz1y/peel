@@ -251,6 +251,10 @@
     <string name="setting_custom_gecko_prefs">自定义 Gecko 首选项</string>
     <string name="setting_custom_gecko_prefs_key_hint">名称</string>
     <string name="setting_custom_gecko_prefs_value_hint">值</string>
+    <string name="setting_same_app_domains">应用的附加域名</string>
+    <string name="setting_same_app_domains_hint">example.com 或 /regex/</string>
+    <string name="setting_same_app_domains_invalid_regex">正则表达式无效</string>
+    <string name="setting_configure">配置</string>
     <string name="find_in_page_hint">在页面中查找</string>
     <string name="find_in_page_counter">%1$d / %2$d</string>
     <string name="find_in_page_prev">上一个匹配项</string>

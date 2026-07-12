@@ -254,6 +254,10 @@
     <string name="setting_custom_gecko_prefs">কাস্টম Gecko পছন্দ</string>
     <string name="setting_custom_gecko_prefs_key_hint">নাম</string>
     <string name="setting_custom_gecko_prefs_value_hint">মান</string>
+    <string name="setting_same_app_domains">অ্যাপের অতিরিক্ত ডোমেইন</string>
+    <string name="setting_same_app_domains_hint">example.com বা /regex/</string>
+    <string name="setting_same_app_domains_invalid_regex">অবৈধ রেগুলার এক্সপ্রেশন</string>
+    <string name="setting_configure">কনফিগার করুন</string>
     <string name="find_in_page_hint">পেজে খুঁজুন</string>
     <string name="find_in_page_counter">%1$d / %2$d</string>
     <string name="find_in_page_prev">পূর্ববর্তী মিল</string>

@@ -260,6 +260,10 @@
     <string name="setting_custom_gecko_prefs">Параметры Gecko</string>
     <string name="setting_custom_gecko_prefs_key_hint">Имя</string>
     <string name="setting_custom_gecko_prefs_value_hint">Значение</string>
+    <string name="setting_same_app_domains">Дополнительные домены приложения</string>
+    <string name="setting_same_app_domains_hint">example.com или /regex/</string>
+    <string name="setting_same_app_domains_invalid_regex">Некорректный regex</string>
+    <string name="setting_configure">Настроить</string>
     <string name="find_in_page_hint">Найти на странице</string>
     <string name="find_in_page_counter">%1$d / %2$d</string>
     <string name="find_in_page_prev">Предыдущее совпадение</string>

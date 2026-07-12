@@ -251,6 +251,10 @@
     <string name="setting_custom_gecko_prefs">カスタム Gecko 設定</string>
     <string name="setting_custom_gecko_prefs_key_hint">名前</string>
     <string name="setting_custom_gecko_prefs_value_hint">値</string>
+    <string name="setting_same_app_domains">アプリの追加ドメイン</string>
+    <string name="setting_same_app_domains_hint">example.com または /regex/</string>
+    <string name="setting_same_app_domains_invalid_regex">正規表現が無効です</string>
+    <string name="setting_configure">設定</string>
     <string name="find_in_page_hint">ページ内を検索</string>
     <string name="find_in_page_counter">%1$d / %2$d</string>
     <string name="find_in_page_prev">前の一致</string>

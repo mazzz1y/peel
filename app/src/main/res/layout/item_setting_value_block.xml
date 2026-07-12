@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/cardValue"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="8dp"
+    android:orientation="horizontal"
+    android:visibility="gone">
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnEntryValue"
+        style="@style/SettingsValueButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:gravity="start|center_vertical"
+        android:maxLines="1"
+        android:textAllCaps="false" />
+
+</LinearLayout>

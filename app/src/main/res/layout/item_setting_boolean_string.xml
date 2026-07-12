@@ -38,22 +38,6 @@
 
     </LinearLayout>
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/layoutStringInput"
-        style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="4dp"
-        android:visibility="gone"
-        app:hintEnabled="false">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/editStringValue"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="textNoSuggestions"
-            android:maxLines="3" />
-
-    </com.google.android.material.textfield.TextInputLayout>
+    <include layout="@layout/item_setting_value_block" />
 
 </LinearLayout>

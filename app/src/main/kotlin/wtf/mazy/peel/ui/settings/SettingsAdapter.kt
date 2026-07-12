@@ -24,6 +24,7 @@ class SettingsAdapter(
             is SettingDefinition.BooleanWithCredentialsSetting -> TYPE_BOOLEAN_CREDENTIALS
             is SettingDefinition.BooleanWithStringSetting -> TYPE_BOOLEAN_STRING
             is SettingDefinition.StringMapSetting -> TYPE_STRING_MAP
+            is SettingDefinition.StringListSetting -> TYPE_STRING_LIST
             is SettingDefinition.LanguagePairMapSetting -> TYPE_LANGUAGE_PAIR_MAP
         }
     }
@@ -38,7 +39,8 @@ class SettingsAdapter(
             TYPE_BOOLEAN_INT -> R.layout.item_setting_boolean_int
             TYPE_BOOLEAN_CREDENTIALS -> R.layout.item_setting_boolean_credentials
             TYPE_BOOLEAN_STRING -> R.layout.item_setting_boolean_string
-            TYPE_STRING_MAP -> R.layout.item_setting_string_map
+            TYPE_STRING_MAP -> R.layout.item_setting_string_collection
+            TYPE_STRING_LIST -> R.layout.item_setting_string_collection
             TYPE_LANGUAGE_PAIR_MAP -> R.layout.item_setting_language_pair_map
             else -> error("Unknown view type $viewType")
         }
@@ -73,5 +75,6 @@ class SettingsAdapter(
         private const val TYPE_BOOLEAN_STRING = 6
         private const val TYPE_STRING_MAP = 7
         private const val TYPE_LANGUAGE_PAIR_MAP = 8
+        private const val TYPE_STRING_LIST = 9
     }
 }

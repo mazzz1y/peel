@@ -11,6 +11,7 @@ import org.mozilla.geckoview.WebRequestError
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.WebAppSettings
 import wtf.mazy.peel.util.HostIdentity
+import wtf.mazy.peel.util.SameAppDomainMatcher
 import wtf.mazy.peel.util.normalizedHost
 import wtf.mazy.peel.util.withBoldSpan
 import wtf.mazy.peel.util.withMonoSpan
@@ -123,6 +124,9 @@ class PeelNavigationDelegate(private val host: SessionHost) : GeckoSession.Navig
         }
 
         if (isSameOrigin(host.baseUrl, url)) return allow()
+        if (SameAppDomainMatcher.matches(url, host.effectiveSettings.sameAppDomains.orEmpty())) {
+            return allow()
+        }
 
         val isExternal = HostIdentity.affinity(host.baseUrl, url) <= HostIdentity.TLD_ONLY
         if (isExternal && isExplicitDownload(url)) return allow()

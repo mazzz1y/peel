@@ -23,12 +23,25 @@ class StringMapConverter {
     }
 }
 
+class StringListConverter {
+    @TypeConverter
+    fun fromStringList(list: List<String>?): String? {
+        return list?.let { Json.encodeToString(it) }
+    }
+
+    @TypeConverter
+    fun toStringList(json: String?): List<String>? {
+        if (json == null) return null
+        return Json.decodeFromString<List<String>>(json)
+    }
+}
+
 @Database(
     entities = [WebAppEntity::class, WebAppGroupEntity::class, ProxyEntity::class],
-    version = 18,
+    version = 19,
     exportSchema = true,
 )
-@TypeConverters(StringMapConverter::class)
+@TypeConverters(StringMapConverter::class, StringListConverter::class)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun webAppDao(): WebAppDao
@@ -192,6 +205,7 @@ abstract class AppDatabase : RoomDatabase() {
             "isAllowCertBypass" to "INTEGER",
             "isTranslatorEnabled" to "INTEGER",
             "autoTranslatePairs" to "TEXT",
+            "sameAppDomains" to "TEXT",
         )
 
         private val SETTINGS_COLS =
@@ -407,6 +421,13 @@ abstract class AppDatabase : RoomDatabase() {
                 }
             }
 
+        val MIGRATION_18_19 =
+            object : Migration(18, 19) {
+                override fun migrate(db: SupportSQLiteDatabase) {
+                    ensureSettingsColumns(db)
+                }
+            }
+
         val MIGRATION_16_17 =
             object : Migration(16, 17) {
                 override fun migrate(db: SupportSQLiteDatabase) {
@@ -468,6 +489,7 @@ abstract class AppDatabase : RoomDatabase() {
                     MIGRATION_15_16,
                     MIGRATION_16_17,
                     MIGRATION_17_18,
+                    MIGRATION_18_19,
                 )
                 .allowMainThreadQueries()
                 .build()
