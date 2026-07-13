@@ -203,6 +203,10 @@ class WebAppListAdapter(
             clonedWebApp.settings = webapp.settings.deepCopy()
             clonedWebApp.order = webapp.order
             clonedWebApp.groupUuid = webapp.groupUuid
+            clonedWebApp.isUseContainer = webapp.isUseContainer
+            clonedWebApp.isEphemeralSandbox = webapp.isEphemeralSandbox
+            clonedWebApp.isPrivateSession = webapp.isPrivateSession
+            clonedWebApp.proxyUuid = webapp.proxyUuid
             val copyIcon = webapp.hasCustomIcon
 
             DataManager.instance.appScope.launch {
