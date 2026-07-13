@@ -201,7 +201,7 @@ class WebAppListAdapter(
             val clonedWebApp = WebApp(webapp.baseUrl)
             clonedWebApp.title = webapp.title
             clonedWebApp.settings = webapp.settings.deepCopy()
-            clonedWebApp.order = webapp.order + 1
+            clonedWebApp.order = webapp.order
             clonedWebApp.groupUuid = webapp.groupUuid
             val copyIcon = webapp.hasCustomIcon
 
