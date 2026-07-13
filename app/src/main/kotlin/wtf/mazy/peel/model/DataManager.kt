@@ -554,6 +554,11 @@ class DataManager private constructor() {
                     appsInGroup.forEach { repository.deleteWebApp(it.uuid) }
                     currentState.websites.filterNot { it.groupUuid == groupUuid }.map { WebApp(it) }
                 }
+                if (!action.ungroupApps) {
+                    SandboxManager.clearSandboxData(App.appContext, groupUuid)
+                    appsInGroup.filter { it.isUseContainer }
+                        .forEach { SandboxManager.clearSandboxData(App.appContext, it.uuid) }
+                }
                 repository.deleteGroup(groupUuid)
                 val nextGroups =
                     currentState.groups.filterNot { it.uuid == groupUuid }.map { WebAppGroup(it) }
