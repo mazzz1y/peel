@@ -1,6 +1,7 @@
 package wtf.mazy.peel.activities
 
 import android.app.ActivityManager
+import android.app.NotificationManager
 import android.content.ActivityNotFoundException
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -142,7 +143,8 @@ class BrowserActivity : BaseSessionHost() {
         override fun onReceive(context: Context, intent: Intent) {
             val uriString = intent.getStringExtra(DownloadService.EXTRA_URI) ?: return
             val mimeType = intent.getStringExtra(DownloadService.EXTRA_MIME_TYPE)
-            showDownloadSnackbar(uriString.toUri(), mimeType)
+            val notificationId = intent.getIntExtra(DownloadService.EXTRA_NOTIFICATION_ID, -1)
+            showDownloadSnackbar(uriString.toUri(), mimeType, notificationId)
         }
     }
 
@@ -587,10 +589,13 @@ class BrowserActivity : BaseSessionHost() {
         NotificationUtils.showToast(this, message)
     }
 
-    private fun showDownloadSnackbar(uri: Uri, mimeType: String?) {
+    private fun showDownloadSnackbar(uri: Uri, mimeType: String?, notificationId: Int) {
         val root = findViewById<View>(android.R.id.content)
         Snackbar.make(root, getString(R.string.download_complete), Snackbar.LENGTH_LONG)
             .setAction(getString(R.string.open)) {
+                if (notificationId != -1) {
+                    (getSystemService(NOTIFICATION_SERVICE) as NotificationManager).cancel(notificationId)
+                }
                 try {
                     val intent = Intent(Intent.ACTION_VIEW).apply {
                         setDataAndType(uri, mimeType ?: "application/octet-stream")

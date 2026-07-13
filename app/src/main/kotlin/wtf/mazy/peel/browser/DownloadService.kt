@@ -95,7 +95,7 @@ class DownloadService : Service() {
                 }
                 if (uri != null) {
                     notification.showSuccess(fileName, webappName, uri, mimeType)
-                    broadcastComplete(fileName, uri.toString(), mimeType)
+                    broadcastComplete(fileName, uri.toString(), mimeType, notification.id)
                 } else {
                     notification.showError(fileName, webappName)
                 }
@@ -128,13 +128,16 @@ class DownloadService : Service() {
         }
     }
 
-    private fun broadcastComplete(fileName: String, uriString: String, mimeType: String?) {
+    private fun broadcastComplete(
+        fileName: String, uriString: String, mimeType: String?, notificationId: Int,
+    ) {
         sendBroadcast(
             Intent(ACTION_DOWNLOAD_COMPLETE).apply {
                 setPackage(packageName)
                 putExtra(EXTRA_FILE_NAME, fileName)
                 putExtra(EXTRA_URI, uriString)
                 putExtra(EXTRA_MIME_TYPE, mimeType)
+                putExtra(EXTRA_NOTIFICATION_ID, notificationId)
             }
         )
     }
