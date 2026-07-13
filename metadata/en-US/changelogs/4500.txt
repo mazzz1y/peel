@@ -1,0 +1,7 @@
+- Add "Same-app domains" setting: list extra domains that open in the web app instead of showing the external link prompt
+- Rework complex settings into compact rows with Material 3 editor dialogs
+- Place cloned apps right after the original in the list
+- Clones now keep the original's container, proxy, and privacy settings
+- Clear stored site data when deleting a group together with its apps
+- Dismiss the download notification when opening from the snackbar
+- Other fixes and improvements
