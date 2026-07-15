@@ -36,6 +36,8 @@ import wtf.mazy.peel.activities.PopupActivity
 import wtf.mazy.peel.gecko.VerticalSwipeRefreshLayout
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.model.WebAppSettings
+import wtf.mazy.peel.ui.FindInPageView
+import wtf.mazy.peel.ui.FloatingControlsView
 import wtf.mazy.peel.ui.dialog.ExternalLinkMenu
 import wtf.mazy.peel.ui.dialog.InputDialogConfig
 import wtf.mazy.peel.ui.dialog.showInputDialogRaw
@@ -57,6 +59,8 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost {
     protected var statusBarScrim: View? = null
     protected var navigationBarScrim: View? = null
     protected var browserContent: View? = null
+    protected var floatingControls: FloatingControlsView? = null
+    protected var findInPage: FindInPageView? = null
     protected var isFullscreen: Boolean = false
     protected lateinit var navigationDelegate: PeelNavigationDelegate
     protected lateinit var downloadHandler: DownloadHandler
@@ -478,6 +482,37 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost {
 
     protected open fun reloadCurrentPage() {
         geckoSession?.reload()
+    }
+
+    protected open fun createFloatingControls(): FloatingControlsView? = null
+
+    protected fun showFloatingControls() {
+        if (effectiveSettings.isShowNotification != true || floatingControls != null) return
+        floatingControls = createFloatingControls()
+    }
+
+    protected fun hideFloatingControls() {
+        closeFindInPage()
+        floatingControls?.remove()
+        floatingControls = null
+    }
+
+    protected fun openFindInPage() {
+        if (findInPage != null) return
+        val session = geckoSession ?: return
+        floatingControls?.setHidden(true)
+        findInPage = FindInPageView(
+            parent = findViewById(R.id.browserContent),
+            session = session,
+            onClose = {
+                findInPage = null
+                floatingControls?.setHidden(false)
+            },
+        )
+    }
+
+    protected fun closeFindInPage() {
+        findInPage?.remove()
     }
 
     override val hostProgressBar: ProgressBar?

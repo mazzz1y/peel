@@ -77,12 +77,18 @@ abstract class SessionPageActivity : BaseSessionHost() {
     override fun onStart() {
         super.onStart()
         reattachSessionToView()
+        onSessionStarted()
     }
 
     override fun onStop() {
+        onSessionStopped()
         super.onStop()
         geckoView?.releaseSession()
     }
+
+    protected open fun onSessionStarted() = Unit
+
+    protected open fun onSessionStopped() = Unit
 
     override fun onDestroy() {
         geckoView?.releaseSession()

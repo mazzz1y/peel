@@ -51,7 +51,6 @@ import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.SandboxManager
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.model.WebAppSettings
-import wtf.mazy.peel.ui.FindInPageView
 import wtf.mazy.peel.ui.FloatingControlsView
 import wtf.mazy.peel.ui.browser.AutoReloadController
 import wtf.mazy.peel.ui.browser.BiometricUnlockController
@@ -133,8 +132,6 @@ class BrowserActivity : BaseSessionHost() {
     private val webapp: WebApp
         get() = DataManager.instance.getWebApp(webappUuid!!)!!
 
-    private var floatingControls: FloatingControlsView? = null
-    private var findInPage: FindInPageView? = null
     private lateinit var permissionDelegate: PeelPermissionDelegate
     private lateinit var promptDelegate: PeelPromptDelegate
     private var contextMenu: BrowserContextMenu? = null
@@ -301,9 +298,7 @@ class BrowserActivity : BaseSessionHost() {
         }
         applyVisualSettings(effectiveSettings)
 
-        if (effectiveSettings.isShowNotification == true && floatingControls == null) {
-            floatingControls = createFloatingControls(uuid)
-        }
+        showFloatingControls()
 
         biometricController.showPromptIfNeeded(
             effectiveSettings.isBiometricProtection == true,
@@ -326,13 +321,12 @@ class BrowserActivity : BaseSessionHost() {
         } catch (_: Exception) {
         }
         if (!isStartupComplete) return
-        closeFindInPage()
-        floatingControls?.remove()
-        floatingControls = null
+        hideFloatingControls()
         autoReloadController.stop()
     }
 
-    private fun createFloatingControls(uuid: String): FloatingControlsView {
+    override fun createFloatingControls(): FloatingControlsView? {
+        val uuid = webappUuid ?: return null
         val controls = FloatingControlsView(
             parent = findViewById(R.id.browserContent),
             webappUuid = uuid,
@@ -417,33 +411,14 @@ class BrowserActivity : BaseSessionHost() {
         reloadCurrentPage()
     }
 
-    private fun openFindInPage() {
-        if (findInPage != null) return
-        val session = geckoSession ?: return
-        floatingControls?.setHidden(true)
-        findInPage = FindInPageView(
-            parent = findViewById(R.id.browserContent),
-            session = session,
-            onClose = {
-                findInPage = null
-                floatingControls?.setHidden(false)
-            },
-        )
-    }
-
-    private fun closeFindInPage() {
-        findInPage?.remove()
-    }
-
     private fun shareCurrentUrl() {
         shareText(currentUrl)
     }
 
     private fun rebuildFloatingControls() {
-        val uuid = webappUuid ?: return
         val current = floatingControls ?: return
         current.remove()
-        floatingControls = createFloatingControls(uuid)
+        floatingControls = createFloatingControls()
     }
 
     override fun onStop() {

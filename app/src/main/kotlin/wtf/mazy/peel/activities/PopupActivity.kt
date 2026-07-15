@@ -4,9 +4,12 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import kotlinx.serialization.json.Json
+import wtf.mazy.peel.R
 import wtf.mazy.peel.browser.PopupSessionHolder
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.WebAppSettings
+import wtf.mazy.peel.ui.FloatingControlsView
+import wtf.mazy.peel.util.shareText
 
 class PopupActivity : SessionPageActivity() {
 
@@ -40,12 +43,30 @@ class PopupActivity : SessionPageActivity() {
 
     override fun onContentCrashed() = finish()
 
+    override fun onSessionStarted() = showFloatingControls()
+
+    override fun onSessionStopped() = hideFloatingControls()
+
+    override fun createFloatingControls(): FloatingControlsView {
+        val controls = FloatingControlsView(
+            parent = findViewById(R.id.browserContent),
+            webappUuid = sessionContextId ?: FLOATING_CONTROLS_KEY,
+            onReload = ::reloadCurrentPage,
+            onShare = { shareText(lastLoadedUrl) },
+            onFind = ::openFindInPage,
+        )
+        controls.setIncognito(sessionPrivateMode)
+        return controls
+    }
+
     companion object {
         const val EXTRA_SESSION_KEY = "popup_session_key"
         const val EXTRA_TITLE = "popup_title"
         const val EXTRA_SETTINGS = "popup_settings"
         const val EXTRA_CONTEXT_ID = "popup_context_id"
         const val EXTRA_PRIVATE_MODE = "popup_private_mode"
+
+        private const val FLOATING_CONTROLS_KEY = "popup"
 
         fun intentFor(
             context: Context,
