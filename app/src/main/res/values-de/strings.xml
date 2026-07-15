@@ -203,6 +203,7 @@
     <string name="icon_dimensions_source">%1$dx%2$d · %3$s</string>
     <string name="open_in_current_session">In aktueller Sitzung öffnen</string>
     <string name="open_in_system">Im System öffnen</string>
+    <string name="open_popup_in_app">In App öffnen</string>
     <string name="permission_prompt_allow">Erlauben</string>
     <string name="permission_prompt_deny">Verweigern</string>
     <string name="restart">Neustart</string>

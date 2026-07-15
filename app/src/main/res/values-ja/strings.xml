@@ -204,6 +204,7 @@
     <string name="icon_dimensions_source">%1$dx%2$d · %3$s</string>
     <string name="open_in_current_session">現在のセッションで開く</string>
     <string name="open_in_system">システムで開く</string>
+    <string name="open_popup_in_app">アプリで開く</string>
     <string name="restart">再起動</string>
     <string name="setting_block_local_network">ローカルネットワークアクセスをブロック</string>
     <string name="setting_block_webrtc_ip_leak">WebRTC IPリークをブロック</string>

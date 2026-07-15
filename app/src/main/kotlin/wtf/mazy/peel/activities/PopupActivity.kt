@@ -3,12 +3,16 @@ package wtf.mazy.peel.activities
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import kotlinx.serialization.json.Json
 import wtf.mazy.peel.R
 import wtf.mazy.peel.browser.PopupSessionHolder
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.WebAppSettings
 import wtf.mazy.peel.ui.FloatingControlsView
+import wtf.mazy.peel.util.BrowserLauncher
+import wtf.mazy.peel.util.NotificationUtils
 import wtf.mazy.peel.util.shareText
 
 class PopupActivity : SessionPageActivity() {
@@ -23,6 +27,9 @@ class PopupActivity : SessionPageActivity() {
         get() = intent.getBooleanExtra(EXTRA_PRIVATE_MODE, false)
 
     override val retainSessionAcrossRecreation = true
+
+    override val ownerWebAppUuid: String?
+        get() = intent.getStringExtra(EXTRA_OWNER_UUID)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         snapshotSettings = intent.getStringExtra(EXTRA_SETTINGS)
@@ -42,6 +49,32 @@ class PopupActivity : SessionPageActivity() {
     override fun onProcessKilled() = finish()
 
     override fun onContentCrashed() = finish()
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        if (ownerWebAppUuid != null) menuInflater.inflate(R.menu.menu_popup, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.action_open_in_app -> {
+                openInOwnerApp(); true
+            }
+
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    private fun openInOwnerApp() {
+        val ownerUuid = ownerWebAppUuid ?: return
+        val webapp = DataManager.instance.getWebApp(ownerUuid) ?: run {
+            NotificationUtils.showToast(this, getString(R.string.browser_launch_failed))
+            return
+        }
+        val url = lastLoadedUrl.ifBlank { null }
+        BrowserLauncher.launch(webapp, this, url = url)
+        finish()
+    }
 
     override fun onSessionStarted() = showFloatingControls()
 
@@ -65,6 +98,7 @@ class PopupActivity : SessionPageActivity() {
         const val EXTRA_SETTINGS = "popup_settings"
         const val EXTRA_CONTEXT_ID = "popup_context_id"
         const val EXTRA_PRIVATE_MODE = "popup_private_mode"
+        const val EXTRA_OWNER_UUID = "popup_owner_uuid"
 
         private const val FLOATING_CONTROLS_KEY = "popup"
 
@@ -75,6 +109,7 @@ class PopupActivity : SessionPageActivity() {
             settings: WebAppSettings,
             contextId: String?,
             privateMode: Boolean,
+            ownerWebAppUuid: String?,
         ): Intent {
             return Intent(context, PopupActivity::class.java)
                 .putExtra(EXTRA_SESSION_KEY, key)
@@ -82,6 +117,7 @@ class PopupActivity : SessionPageActivity() {
                 .putExtra(EXTRA_SETTINGS, Json.encodeToString(settings))
                 .putExtra(EXTRA_CONTEXT_ID, contextId)
                 .putExtra(EXTRA_PRIVATE_MODE, privateMode)
+                .putExtra(EXTRA_OWNER_UUID, ownerWebAppUuid)
         }
     }
 }

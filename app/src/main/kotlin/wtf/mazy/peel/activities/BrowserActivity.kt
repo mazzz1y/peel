@@ -70,6 +70,9 @@ import wtf.mazy.peel.util.shareText
 class BrowserActivity : BaseSessionHost() {
     var webappUuid: String? = null
 
+    override val ownerWebAppUuid: String?
+        get() = webappUuid
+
     private val sessionExtensionActions by lazy {
         SessionExtensionActions(
             activity = this,

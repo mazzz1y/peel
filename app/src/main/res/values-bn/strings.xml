@@ -205,6 +205,7 @@
     <string name="icon_dimensions_source">%1$dx%2$d · %3$s</string>
     <string name="open_in_current_session">বর্তমান সেশনে খুলুন</string>
     <string name="open_in_system">সিস্টেমে খুলুন</string>
+    <string name="open_popup_in_app">অ্যাপে খুলুন</string>
     <string name="restart">রিস্টার্ট</string>
     <string name="setting_block_local_network">লোকাল নেটওয়ার্ক অ্যাক্সেস ব্লক</string>
     <string name="setting_block_webrtc_ip_leak">WebRTC IP লিক ব্লক</string>

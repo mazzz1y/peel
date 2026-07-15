@@ -205,6 +205,7 @@
     <string name="icon_dimensions_source">%1$dx%2$d · %3$s</string>
     <string name="open_in_current_session">Abrir na sessão atual</string>
     <string name="open_in_system">Abrir no sistema</string>
+    <string name="open_popup_in_app">Abrir no app</string>
     <string name="restart">Reiniciar</string>
     <string name="setting_block_local_network">Bloquear acesso à rede local</string>
     <string name="setting_block_webrtc_ip_leak">Bloquear vazamento de IP por WebRTC</string>

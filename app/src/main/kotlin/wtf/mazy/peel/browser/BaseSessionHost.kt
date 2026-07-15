@@ -196,6 +196,8 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost {
         if (navigationDelegate.isOnJumpHost) goBackOrFinish() else finish()
     }
 
+    protected open val ownerWebAppUuid: String? = null
+
     override fun openPopupSession(): GeckoResult<GeckoSession> {
         val popup = createSession(effectiveSettings)
         val key = PopupSessionHolder.put(popup)
@@ -208,6 +210,7 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost {
                     settings = effectiveSettings,
                     contextId = sessionContextId,
                     privateMode = sessionPrivateMode,
+                    ownerWebAppUuid = ownerWebAppUuid,
                 )
             )
         }.isSuccess

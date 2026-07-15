@@ -204,6 +204,7 @@
     <string name="icon_dimensions_source">%1$dx%2$d · %3$s</string>
     <string name="open_in_current_session">在目前工作階段中開啟</string>
     <string name="open_in_system">在系統中開啟</string>
+    <string name="open_popup_in_app">在應用程式中開啟</string>
     <string name="restart">重新啟動</string>
     <string name="setting_block_local_network">封鎖本機網路存取</string>
     <string name="setting_block_webrtc_ip_leak">封鎖 WebRTC IP 洩漏</string>

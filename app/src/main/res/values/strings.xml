@@ -229,6 +229,7 @@
     <string name="open_incognito_action">Open in private mode</string>
     <string name="open_in_current_session">Open in current session</string>
     <string name="open_in_system">Open in system</string>
+    <string name="open_popup_in_app">Open in app</string>
     <string name="no_web_apps_available">No web apps available</string>
     <string name="move_to_group">Move to group</string>
     <string name="delete_group_title">Delete Group</string>

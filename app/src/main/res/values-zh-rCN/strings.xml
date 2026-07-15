@@ -204,6 +204,7 @@
     <string name="icon_dimensions_source">%1$dx%2$d · %3$s</string>
     <string name="open_in_current_session">在当前会话中打开</string>
     <string name="open_in_system">在系统中打开</string>
+    <string name="open_popup_in_app">在应用中打开</string>
     <string name="restart">重启</string>
     <string name="setting_block_local_network">阻止本地网络访问</string>
     <string name="setting_block_webrtc_ip_leak">阻止 WebRTC IP 泄露</string>
