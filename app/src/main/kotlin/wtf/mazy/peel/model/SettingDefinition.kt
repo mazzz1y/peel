@@ -171,6 +171,7 @@ object ApplyTimingRegistry {
         "isBlockLocalNetwork",
         "isBlockWebRtcIpLeak",
         "isDisableQuic",
+        "isDisableEch",
         "isUseCustomLocale",
         "customLocale",
         "customGeckoPrefs",
@@ -426,6 +427,12 @@ object SettingRegistry {
             SettingDefinition.BooleanSetting(
                 SettingField(WebAppSettings::isDisableQuic, false),
                 R.string.setting_disable_quic,
+                SettingCategory.ADVANCED,
+                globalOnly = true,
+            ),
+            SettingDefinition.BooleanSetting(
+                SettingField(WebAppSettings::isDisableEch, false),
+                R.string.setting_disable_ech,
                 SettingCategory.ADVANCED,
                 globalOnly = true,
             ),

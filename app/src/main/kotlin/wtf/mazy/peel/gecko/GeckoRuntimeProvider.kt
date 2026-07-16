@@ -339,6 +339,10 @@ object GeckoRuntimeProvider {
             if (defaults.isDisableQuic == true) {
                 add(pref("network.http.http3.enable", false))
             }
+            if (defaults.isDisableEch == true) {
+                add(pref("network.dns.echconfig.enabled", false))
+                add(pref("network.dns.http3_echconfig.enabled", false))
+            }
             defaults.customGeckoPrefs?.forEach { (rawKey, rawValue) ->
                 val key = rawKey.trim()
                 val value = rawValue.trim()
