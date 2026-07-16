@@ -318,8 +318,10 @@ class FloatingControlsView(
 
     private fun moveTriggerTo(x: Float, y: Float) {
         val insets = systemBars
+        val location = IntArray(2).also { parent.getLocationInWindow(it) }
+        val parentTop = location[1]
         val maxX = (parent.width - buttonSizePx).toFloat().coerceAtLeast(0f)
-        val minY = insets.top.toFloat()
+        val minY = (insets.top - parentTop).toFloat().coerceAtLeast(0f)
         val maxY = (parent.height - insets.bottom - buttonSizePx).toFloat().coerceAtLeast(minY)
         trigger.x = x.coerceIn(0f, maxX)
         trigger.y = y.coerceIn(minY, maxY)

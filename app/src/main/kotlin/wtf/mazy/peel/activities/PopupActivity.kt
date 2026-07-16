@@ -83,7 +83,7 @@ class PopupActivity : SessionPageActivity() {
     override fun createFloatingControls(): FloatingControlsView {
         val controls = FloatingControlsView(
             parent = findViewById(R.id.browserContent),
-            webappUuid = sessionContextId ?: FLOATING_CONTROLS_KEY,
+            webappUuid = ownerWebAppUuid ?: FLOATING_CONTROLS_KEY,
             onReload = ::reloadCurrentPage,
             onShare = { shareText(lastLoadedUrl) },
             onFind = ::openFindInPage,
