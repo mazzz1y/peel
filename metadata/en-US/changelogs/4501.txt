@@ -1,0 +1,3 @@
+- Show floating controls on popup windows and add an action to move a popup into the app
+- Add "Disable ECH" advanced option
+- Update GeckoView to 152.0.20260713164047
