@@ -78,7 +78,7 @@ class PeelNavigationDelegate(private val host: SessionHost) : GeckoSession.Navig
             settings.isAlwaysHttps == true && url.startsWith("http://") -> redirectToHttps(url)
             isPassthroughScheme(url) -> allow()
             settings.isOpenUrlExternal == true -> handleExternalRouting(url, request)
-            request.target == TARGET_WINDOW_NEW -> redirectToCurrentTab(url)
+            request.target == TARGET_WINDOW_NEW -> handleNewWindowInApp(url)
             else -> allow()
         }
     }
@@ -116,6 +116,15 @@ class PeelNavigationDelegate(private val host: SessionHost) : GeckoSession.Navig
     fun onPageLoadFinished() {
         if (lastLocation.isEmpty() || lastLocation == "about:blank") return
         isInitialLoad = false
+    }
+
+    private fun handleNewWindowInApp(url: String): GeckoResult<AllowOrDeny> {
+        if (url == "about:blank") return allow()
+        if (isSameOrigin(host.baseUrl, url)) return allow()
+        if (SameAppDomainMatcher.matches(url, host.effectiveSettings.sameAppDomains.orEmpty())) {
+            return allow()
+        }
+        return redirectToCurrentTab(url)
     }
 
     private fun handleExternalRouting(url: String, request: LoadRequest): GeckoResult<AllowOrDeny> {
