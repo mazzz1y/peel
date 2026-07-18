@@ -424,8 +424,9 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost {
     private fun installToolbarInsetsListener() {
         val content = browserContent ?: return
         ViewCompat.setOnApplyWindowInsetsListener(content) { v, insets ->
+            val navBottom = insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom
             val imeBottom = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom
-            v.setPadding(v.paddingLeft, v.paddingTop, v.paddingRight, imeBottom)
+            v.setPadding(v.paddingLeft, v.paddingTop, v.paddingRight, maxOf(navBottom, imeBottom))
             insets
         }
     }
