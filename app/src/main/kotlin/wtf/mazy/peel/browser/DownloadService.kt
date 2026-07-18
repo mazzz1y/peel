@@ -56,7 +56,7 @@ class DownloadService : Service() {
     private fun handleDownload(intent: Intent) {
         val requestId = intent.getIntExtra(EXTRA_REQUEST_ID, -1)
         val fileName = intent.getStringExtra(EXTRA_FILE_NAME) ?: "download"
-        val mimeType = intent.getStringExtra(EXTRA_MIME_TYPE)
+        val mimeType = resolveMime(fileName, intent.getStringExtra(EXTRA_MIME_TYPE))
         val contentLength = intent.getLongExtra(EXTRA_CONTENT_LENGTH, -1L)
         val webappName = intent.getStringExtra(EXTRA_WEBAPP_NAME)
         val body = pendingStreams.remove(requestId) ?: return
@@ -154,7 +154,7 @@ class DownloadService : Service() {
     }
 
     private suspend fun saveToDownloads(
-        input: InputStream, fileName: String, mimeType: String?,
+        input: InputStream, fileName: String, mimeType: String,
         onProgress: (Long) -> Unit,
     ): Uri? {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -166,13 +166,12 @@ class DownloadService : Service() {
 
     @RequiresApi(Build.VERSION_CODES.Q)
     private suspend fun saveToMediaStore(
-        input: InputStream, fileName: String, mimeType: String?,
+        input: InputStream, fileName: String, mimeType: String,
         onProgress: (Long) -> Unit,
     ): Uri? {
-        val mime = resolveMime(fileName, mimeType)
         val values = ContentValues().apply {
             put(MediaStore.Downloads.DISPLAY_NAME, fileName)
-            put(MediaStore.Downloads.MIME_TYPE, mime)
+            put(MediaStore.Downloads.MIME_TYPE, mimeType)
             put(MediaStore.Downloads.IS_PENDING, 1)
         }
         val resolver = contentResolver
@@ -233,7 +232,8 @@ class DownloadService : Service() {
     private fun resolveMime(fileName: String, mimeType: String?): String {
         return mimeType
             ?: MimeTypeMap.getSingleton()
-                .getMimeTypeFromExtension(fileName.substringAfterLast('.', ""))
+                .getMimeTypeFromExtension(
+                    fileName.substringAfterLast('.', "").lowercase())
             ?: "application/octet-stream"
     }
 
