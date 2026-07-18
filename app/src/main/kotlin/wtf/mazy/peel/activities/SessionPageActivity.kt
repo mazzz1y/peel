@@ -62,6 +62,7 @@ abstract class SessionPageActivity : BaseSessionHost() {
         session.contentDelegate = PeelContentDelegate(
             host = this,
             onDownload = { response -> downloadHandler.onExternalResponse(response) },
+            onTitleChange = { title -> onPageTitleChanged(title) },
         )
         session.progressDelegate = PeelProgressDelegate(this)
         session.promptDelegate = PeelPromptDelegate(this)
@@ -103,6 +104,8 @@ abstract class SessionPageActivity : BaseSessionHost() {
     override fun onLocationChanged(url: String) {
         lastLoadedUrl = url
     }
+
+    protected open fun onPageTitleChanged(title: String?) = Unit
 
     override fun onPageStarted() = Unit
     override fun onFirstContentfulPaint() = Unit

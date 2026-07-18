@@ -3,6 +3,7 @@ package wtf.mazy.peel.activities
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import androidx.core.net.toUri
 import android.view.Menu
 import android.view.MenuItem
 import kotlinx.serialization.json.Json
@@ -18,6 +19,7 @@ import wtf.mazy.peel.util.shareText
 class PopupActivity : SessionPageActivity() {
 
     private lateinit var snapshotSettings: WebAppSettings
+    private var hasPageTitle = false
     override val effectiveSettings: WebAppSettings
         get() = snapshotSettings
 
@@ -44,6 +46,19 @@ class PopupActivity : SessionPageActivity() {
         val popup = PopupSessionHolder.take(key) ?: run { finish(); return }
         connectSession(popup)
         displaySession(popup)
+    }
+
+    override fun onLocationChanged(url: String) {
+        super.onLocationChanged(url)
+        hasPageTitle = false
+        supportActionBar?.title = url.toUri().host ?: url
+    }
+
+    override fun onPageTitleChanged(title: String?) {
+        val trimmed = title?.trim().orEmpty()
+        if (trimmed.isEmpty() || trimmed == "about:blank") return
+        hasPageTitle = true
+        supportActionBar?.title = trimmed
     }
 
     override fun onProcessKilled() = finish()

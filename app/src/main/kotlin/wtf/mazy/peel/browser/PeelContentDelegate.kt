@@ -13,6 +13,7 @@ class PeelContentDelegate(
     private val host: SessionHost,
     private val onDownload: (WebResponse) -> Unit,
     private val onContextMenu: ((GeckoSession, Int, Int, GeckoSession.ContentDelegate.ContextElement) -> Unit)? = null,
+    private val onTitleChange: ((String?) -> Unit)? = null,
 ) : GeckoSession.ContentDelegate {
 
     private var originalOrientation = 0
@@ -89,6 +90,10 @@ class PeelContentDelegate(
         element: GeckoSession.ContentDelegate.ContextElement,
     ) {
         onContextMenu?.invoke(session, screenX, screenY, element)
+    }
+
+    override fun onTitleChange(session: GeckoSession, title: String?) {
+        onTitleChange?.let { host.runOnUi { it(title) } }
     }
 
     override fun onFirstContentfulPaint(session: GeckoSession) {
