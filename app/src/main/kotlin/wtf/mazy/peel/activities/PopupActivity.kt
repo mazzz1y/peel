@@ -6,12 +6,18 @@ import android.os.Bundle
 import androidx.core.net.toUri
 import android.view.Menu
 import android.view.MenuItem
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import wtf.mazy.peel.R
+import wtf.mazy.peel.browser.PeelTranslationDelegate
 import wtf.mazy.peel.browser.PopupSessionHolder
+import wtf.mazy.peel.browser.TranslationLanguages
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.WebAppSettings
 import wtf.mazy.peel.ui.FloatingControlsView
+import wtf.mazy.peel.ui.extensions.ExtensionPickerDialog
+import wtf.mazy.peel.ui.extensions.SessionExtensionActions
 import wtf.mazy.peel.util.BrowserLauncher
 import wtf.mazy.peel.util.NotificationUtils
 import wtf.mazy.peel.util.shareText
@@ -20,6 +26,7 @@ class PopupActivity : SessionPageActivity() {
 
     private lateinit var snapshotSettings: WebAppSettings
     private var hasPageTitle = false
+
     override val effectiveSettings: WebAppSettings
         get() = snapshotSettings
 
@@ -45,11 +52,26 @@ class PopupActivity : SessionPageActivity() {
         val key = intent.getStringExtra(EXTRA_SESSION_KEY) ?: run { finish(); return }
         val popup = PopupSessionHolder.take(key) ?: run { finish(); return }
         connectSession(popup)
+        translationDelegate = PeelTranslationDelegate(this).also {
+            it.presetManualTarget(intent.getStringExtra(EXTRA_TRANSLATE_TARGET))
+            popup.translationsSessionDelegate = it
+        }
+        sessionExtensionActions.attach(popup)
         displaySession(popup)
+        lifecycleScope.launch {
+            translationsSupported = TranslationLanguages.isEngineSupported()
+            if (translationsSupported) rebuildFloatingControls()
+        }
+    }
+
+    override fun onDestroy() {
+        sessionExtensionActions.detach()
+        super.onDestroy()
     }
 
     override fun onLocationChanged(url: String) {
         super.onLocationChanged(url)
+        translationDelegate?.onLocationChanged(url)
         hasPageTitle = false
         supportActionBar?.title = url.toUri().host ?: url
     }
@@ -91,19 +113,33 @@ class PopupActivity : SessionPageActivity() {
         finish()
     }
 
-    override fun onSessionStarted() = showFloatingControls()
+    override fun onSessionStarted() {
+        SessionExtensionActions.setActive(sessionExtensionActions)
+        showFloatingControls()
+    }
 
-    override fun onSessionStopped() = hideFloatingControls()
+    override fun onSessionStopped() {
+        sessionExtensionActions.dismissPopup()
+        hideFloatingControls()
+    }
 
     override fun createFloatingControls(): FloatingControlsView {
+        val translateEnabled =
+            translationsSupported && effectiveSettings.isTranslatorEnabled == true
         val controls = FloatingControlsView(
             parent = findViewById(R.id.browserContent),
             webappUuid = ownerWebAppUuid ?: FLOATING_CONTROLS_KEY,
             onReload = ::reloadCurrentPage,
             onShare = { shareText(lastLoadedUrl) },
             onFind = ::openFindInPage,
+            onTranslate = if (translateEnabled) ({ openTranslateDialog() }) else null,
+            onExtensions = if (SessionExtensionActions.hasExtensions)
+                ({ ExtensionPickerDialog.show(this, sessionExtensionActions) }) else null,
         )
         controls.setIncognito(sessionPrivateMode)
+        if (translationsSupported) {
+            controls.setTranslateActive(translationDelegate?.isPageTranslated == true)
+        }
         return controls
     }
 
@@ -114,6 +150,7 @@ class PopupActivity : SessionPageActivity() {
         const val EXTRA_CONTEXT_ID = "popup_context_id"
         const val EXTRA_PRIVATE_MODE = "popup_private_mode"
         const val EXTRA_OWNER_UUID = "popup_owner_uuid"
+        const val EXTRA_TRANSLATE_TARGET = "popup_translate_target"
 
         private const val FLOATING_CONTROLS_KEY = "popup"
 
@@ -125,6 +162,7 @@ class PopupActivity : SessionPageActivity() {
             contextId: String?,
             privateMode: Boolean,
             ownerWebAppUuid: String?,
+            translateTarget: String?,
         ): Intent {
             return Intent(context, PopupActivity::class.java)
                 .putExtra(EXTRA_SESSION_KEY, key)
@@ -133,6 +171,7 @@ class PopupActivity : SessionPageActivity() {
                 .putExtra(EXTRA_CONTEXT_ID, contextId)
                 .putExtra(EXTRA_PRIVATE_MODE, privateMode)
                 .putExtra(EXTRA_OWNER_UUID, ownerWebAppUuid)
+                .putExtra(EXTRA_TRANSLATE_TARGET, translateTarget)
         }
     }
 }

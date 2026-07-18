@@ -8,8 +8,9 @@ import kotlinx.coroutines.launch
 import org.mozilla.geckoview.GeckoSession
 import org.mozilla.geckoview.TranslationsController
 import org.mozilla.geckoview.TranslationsController.RuntimeTranslation
+import androidx.appcompat.app.AppCompatActivity
 import wtf.mazy.peel.R
-import wtf.mazy.peel.activities.BrowserActivity
+import wtf.mazy.peel.browser.PeelTranslationDelegate
 import wtf.mazy.peel.browser.TranslationLanguages
 import wtf.mazy.peel.browser.label
 import wtf.mazy.peel.browser.langBase
@@ -26,8 +27,9 @@ object TranslateDialog {
     )
 
     fun show(
-        activity: BrowserActivity,
+        activity: AppCompatActivity,
         session: GeckoSession,
+        delegate: PeelTranslationDelegate?,
         prefill: Prefill = Prefill(),
     ) {
         activity.lifecycleScope.launch {
@@ -47,13 +49,14 @@ object TranslateDialog {
                 return@launch
             }
             val downloaded = TranslationLanguages.downloadedLanguageCodes()
-            showDialog(activity, session, support, downloaded, prefill)
+            showDialog(activity, session, delegate, support, downloaded, prefill)
         }
     }
 
     private fun showDialog(
-        activity: BrowserActivity,
+        activity: AppCompatActivity,
         session: GeckoSession,
+        delegate: PeelTranslationDelegate?,
         support: RuntimeTranslation.TranslationSupport,
         downloaded: Set<String>,
         prefill: Prefill,
@@ -107,12 +110,12 @@ object TranslateDialog {
                     )
                     return@setPositiveButton
                 }
-                activity.translationDelegate?.translateToTarget(session, from, to)
+                delegate?.translateToTarget(session, from, to)
             }
             .setNegativeButton(R.string.cancel, null)
         if (prefill.showOriginal) {
             builder.setNeutralButton(R.string.translate_show_original) { _, _ ->
-                activity.translationDelegate?.restoreOriginal(session)
+                delegate?.restoreOriginal(session)
             }
         }
         builder.show()

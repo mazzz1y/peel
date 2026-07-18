@@ -1,7 +1,7 @@
 package wtf.mazy.peel.browser
 
-import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -9,7 +9,8 @@ import kotlinx.coroutines.withTimeoutOrNull
 import org.mozilla.geckoview.GeckoSession
 import org.mozilla.geckoview.TranslationsController.SessionTranslation
 import wtf.mazy.peel.R
-import wtf.mazy.peel.activities.BrowserActivity
+import wtf.mazy.peel.model.WebAppSettings
+import wtf.mazy.peel.ui.common.LoadingDialogController
 import java.lang.ref.WeakReference
 
 data class PairKey(val from: String, val to: String) {
@@ -19,10 +20,17 @@ data class PairKey(val from: String, val to: String) {
     }
 }
 
-class PeelTranslationDelegate(activity: BrowserActivity) :
+interface TranslationHost {
+    val translationScope: CoroutineScope
+    val translationSettings: WebAppSettings
+    val translationLoader: LoadingDialogController
+    fun setTranslateButtonActive(active: Boolean)
+}
+
+class PeelTranslationDelegate(host: TranslationHost) :
     SessionTranslation.Delegate {
 
-    private val activityRef = WeakReference(activity)
+    private val activityRef = WeakReference(host)
 
     @Volatile
     var lastTranslationState: SessionTranslation.TranslationState? = null
@@ -105,6 +113,10 @@ class PeelTranslationDelegate(activity: BrowserActivity) :
             PageContext(url = newUrl, decision = PageDecision.Undecided, declinedPairs = emptySet())
     }
 
+    fun presetManualTarget(target: String?) {
+        sessionManualTarget = target?.takeIf { it.isNotBlank() }
+    }
+
     fun translateToTarget(session: GeckoSession, fromCode: String, toCode: String) {
         startTranslate(session, fromCode, toCode, isManual = true)
     }
@@ -128,7 +140,7 @@ class PeelTranslationDelegate(activity: BrowserActivity) :
         active?.job?.cancel()
         active = null
         if (!isPageTranslated) return
-        activity.lifecycleScope.launch {
+        activity.translationScope.launch {
             runCatching { session.sessionTranslation?.restoreOriginalPage() }
         }
     }
@@ -161,7 +173,7 @@ class PeelTranslationDelegate(activity: BrowserActivity) :
         val pairKey = PairKey.of(fromCode, toCode)
         val ready = CompletableDeferred<Boolean>()
         lateinit var request: ActiveRequest
-        val job = activity.lifecycleScope.launch {
+        val job = activity.translationScope.launch {
             try {
                 runTranslate(
                     activity,
@@ -181,7 +193,7 @@ class PeelTranslationDelegate(activity: BrowserActivity) :
     }
 
     private suspend fun runTranslate(
-        activity: BrowserActivity,
+        activity: TranslationHost,
         sessionTranslation: SessionTranslation,
         fromCode: String,
         toCode: String,
@@ -194,7 +206,7 @@ class PeelTranslationDelegate(activity: BrowserActivity) :
             .build()
         val started = runCatching { sessionTranslation.translate(fromCode, toCode, options) }
         if (started.isFailure) return
-        val loaderJob = activity.lifecycleScope.launch {
+        val loaderJob = activity.translationScope.launch {
             delay(LOADER_DELAY_MS)
             activity.translationLoader.show(R.string.translation_loading)
         }
@@ -231,12 +243,12 @@ class PeelTranslationDelegate(activity: BrowserActivity) :
         if (incoming == current.pair) current.ready.complete(true)
     }
 
-    private fun resolveAutoTarget(activity: BrowserActivity, docLang: String): String? {
+    private fun resolveAutoTarget(activity: TranslationHost, docLang: String): String? {
         sessionManualTarget?.let { sticky ->
             if (!langBaseEqual(docLang, sticky)) return sticky
         }
-        if (activity.effectiveSettings.isTranslatorEnabled != true) return null
-        val pairs = activity.effectiveSettings.autoTranslatePairs
+        if (activity.translationSettings.isTranslatorEnabled != true) return null
+        val pairs = activity.translationSettings.autoTranslatePairs
         return TranslationLanguages.resolveConfiguredTarget(pairs, docLang)
     }
 

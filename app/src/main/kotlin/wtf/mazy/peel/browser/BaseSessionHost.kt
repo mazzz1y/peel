@@ -24,6 +24,7 @@ import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -38,16 +39,19 @@ import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.model.WebAppSettings
 import wtf.mazy.peel.ui.FindInPageView
 import wtf.mazy.peel.ui.FloatingControlsView
+import wtf.mazy.peel.ui.common.LoadingDialogController
 import wtf.mazy.peel.ui.dialog.ExternalLinkMenu
 import wtf.mazy.peel.ui.dialog.InputDialogConfig
+import wtf.mazy.peel.ui.dialog.TranslateDialog
 import wtf.mazy.peel.ui.dialog.showInputDialogRaw
+import wtf.mazy.peel.ui.extensions.SessionExtensionActions
 import wtf.mazy.peel.util.BrowserLauncher
 import wtf.mazy.peel.util.NotificationUtils
 import wtf.mazy.peel.util.copyToClipboard
 import wtf.mazy.peel.util.shareText
 import java.io.File
 
-abstract class BaseSessionHost : AppCompatActivity(), SessionHost {
+abstract class BaseSessionHost : AppCompatActivity(), SessionHost, TranslationHost {
 
     protected var geckoSession: GeckoSession? = null
     protected var lastSessionState: GeckoSession.SessionState? = null
@@ -175,6 +179,50 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost {
         geckoSession?.loadUri(finalUrl)
     }
 
+    override val translationScope: CoroutineScope get() = lifecycleScope
+    override val translationSettings: WebAppSettings get() = effectiveSettings
+    override val translationLoader: LoadingDialogController by lazy { LoadingDialogController(this) }
+
+    override fun setTranslateButtonActive(active: Boolean) {
+        floatingControls?.setTranslateActive(active)
+    }
+
+    protected var translationDelegate: PeelTranslationDelegate? = null
+    protected var translationsSupported: Boolean = false
+
+    protected val sessionExtensionActions by lazy {
+        SessionExtensionActions(
+            activity = this,
+            onExtensionsReady = { _ -> if (floatingControls != null) rebuildFloatingControls() },
+            onNavigateToUrl = ::loadURL,
+            onPopupDownload = { response -> downloadHandler.onExternalResponse(response) },
+        )
+    }
+
+    protected fun rebuildFloatingControls() {
+        val current = floatingControls ?: return
+        current.remove()
+        floatingControls = createFloatingControls()
+    }
+
+    protected fun openTranslateDialog() {
+        val session = geckoSession ?: return
+        val state = translationDelegate?.lastTranslationState
+        val activePair = state?.requestedTranslationPair
+        val docLang = state?.detectedLanguages?.docLangTag
+        val configuredTarget = if (activePair == null && !docLang.isNullOrBlank() &&
+            effectiveSettings.isTranslatorEnabled == true
+        ) {
+            TranslationLanguages.resolveConfiguredTarget(effectiveSettings.autoTranslatePairs, docLang)
+        } else null
+        val prefill = TranslateDialog.Prefill(
+            fromCode = activePair?.fromLanguage ?: docLang,
+            toCode = activePair?.toLanguage ?: configuredTarget,
+            showOriginal = activePair != null,
+        )
+        TranslateDialog.show(this, session, translationDelegate, prefill)
+    }
+
     protected fun reattachSessionToView() {
         val session = geckoSession ?: return
         val view = geckoView ?: return
@@ -197,6 +245,7 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost {
     }
 
     protected open val ownerWebAppUuid: String? = null
+    protected open val activeTranslateTarget: String? = null
 
     override fun openPopupSession(): GeckoResult<GeckoSession> {
         val popup = createSession(effectiveSettings)
@@ -211,6 +260,7 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost {
                     contextId = sessionContextId,
                     privateMode = sessionPrivateMode,
                     ownerWebAppUuid = ownerWebAppUuid,
+                    translateTarget = activeTranslateTarget,
                 )
             )
         }.isSuccess

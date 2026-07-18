@@ -55,9 +55,7 @@ import wtf.mazy.peel.ui.FloatingControlsView
 import wtf.mazy.peel.ui.browser.AutoReloadController
 import wtf.mazy.peel.ui.browser.BiometricUnlockController
 import wtf.mazy.peel.ui.browser.SystemBarController
-import wtf.mazy.peel.ui.common.LoadingDialogController
 import wtf.mazy.peel.ui.dialog.ExternalLinkMenu
-import wtf.mazy.peel.ui.dialog.TranslateDialog
 import wtf.mazy.peel.ui.extensions.ExtensionPickerDialog
 import wtf.mazy.peel.ui.extensions.SessionExtensionActions
 import wtf.mazy.peel.util.BrowserLauncher
@@ -73,16 +71,9 @@ class BrowserActivity : BaseSessionHost() {
     override val ownerWebAppUuid: String?
         get() = webappUuid
 
-    private val sessionExtensionActions by lazy {
-        SessionExtensionActions(
-            activity = this,
-            onExtensionsReady = { _ ->
-                rebuildFloatingControls()
-            },
-            onNavigateToUrl = ::loadURL,
-            onPopupDownload = { response -> downloadHandler.onExternalResponse(response) },
-        )
-    }
+    override val activeTranslateTarget: String?
+        get() = translationDelegate?.lastTranslationState
+            ?.requestedTranslationPair?.toLanguage
 
     private val extensionStateListener = ExtensionStateListener { event ->
         val session = geckoSession ?: return@ExtensionStateListener
@@ -102,11 +93,6 @@ class BrowserActivity : BaseSessionHost() {
 
     @Volatile
     var currentUrl = ""
-
-    internal var translationDelegate: PeelTranslationDelegate? = null
-        private set
-
-    internal val translationLoader: LoadingDialogController by lazy { LoadingDialogController(this) }
 
     init {
         currentlyReloading = true
@@ -158,7 +144,6 @@ class BrowserActivity : BaseSessionHost() {
 
     private var cachedSettings: WebAppSettings? = null
     private var isStartupComplete = false
-    private var translationsSupported: Boolean = false
     private var lastTranslatorPairs: Map<String, String>? = null
     private var lastTranslatorEnabled: Boolean? = null
 
@@ -356,10 +341,6 @@ class BrowserActivity : BaseSessionHost() {
         return controls
     }
 
-    fun setTranslateButtonActive(active: Boolean) {
-        floatingControls?.setTranslateActive(active)
-    }
-
     private fun onTranslateShortTap() {
         openTranslateDialog()
     }
@@ -380,26 +361,6 @@ class BrowserActivity : BaseSessionHost() {
         }
     }
 
-    private fun openTranslateDialog() {
-        val session = geckoSession ?: return
-        val state = translationDelegate?.lastTranslationState
-        val activePair = state?.requestedTranslationPair
-        val docLang = state?.detectedLanguages?.docLangTag
-        val configuredTarget = if (activePair == null && !docLang.isNullOrBlank() &&
-            effectiveSettings.isTranslatorEnabled == true
-        ) {
-            TranslationLanguages.resolveConfiguredTarget(
-                effectiveSettings.autoTranslatePairs, docLang,
-            )
-        } else null
-        val prefill = TranslateDialog.Prefill(
-            fromCode = activePair?.fromLanguage ?: docLang,
-            toCode = activePair?.toLanguage ?: configuredTarget,
-            showOriginal = activePair != null,
-        )
-        TranslateDialog.show(this, session, prefill)
-    }
-
     private fun clearSiteCacheAndReload() {
         val host = runCatching { currentUrl.toUri().host }.getOrNull()
         val flags = StorageController.ClearFlags.NETWORK_CACHE or
@@ -416,12 +377,6 @@ class BrowserActivity : BaseSessionHost() {
 
     private fun shareCurrentUrl() {
         shareText(currentUrl)
-    }
-
-    private fun rebuildFloatingControls() {
-        val current = floatingControls ?: return
-        current.remove()
-        floatingControls = createFloatingControls()
     }
 
     override fun onStop() {
