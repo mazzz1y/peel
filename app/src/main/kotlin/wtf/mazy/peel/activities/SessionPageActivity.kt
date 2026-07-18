@@ -102,6 +102,7 @@ abstract class SessionPageActivity : BaseSessionHost() {
     }
 
     override fun onLocationChanged(url: String) {
+        if (baseUrl.isEmpty() && url.isNotBlank() && url != "about:blank") baseUrl = url
         lastLoadedUrl = url
     }
 
