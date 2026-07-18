@@ -1,0 +1,6 @@
+- Add translate and extension controls to popup (new tab) windows
+- Popups inherit the app's active translation target
+- Show the page title or host in the popup title bar
+- Fix links in popups always prompting to open externally
+- Fix APK downloads not being recognized as installable
+- Various popup layout fixes
