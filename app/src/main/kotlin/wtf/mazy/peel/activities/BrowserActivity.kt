@@ -54,7 +54,6 @@ import wtf.mazy.peel.model.WebAppSettings
 import wtf.mazy.peel.ui.FloatingControlsView
 import wtf.mazy.peel.ui.browser.AutoReloadController
 import wtf.mazy.peel.ui.browser.BiometricUnlockController
-import wtf.mazy.peel.ui.browser.SystemBarController
 import wtf.mazy.peel.ui.dialog.ExternalLinkMenu
 import wtf.mazy.peel.ui.extensions.ExtensionPickerDialog
 import wtf.mazy.peel.ui.extensions.SessionExtensionActions
@@ -149,15 +148,6 @@ class BrowserActivity : BaseSessionHost() {
 
     @Volatile
     private var cachedPeelApps: List<WebApp> = emptyList()
-
-    private val systemBarController by lazy {
-        SystemBarController(
-            window = window,
-            getThemeColor = ::themeBackgroundColor,
-            scrimColor = ContextCompat.getColor(this, R.color.floating_controls_scrim),
-            setFullscreen = { isFullscreen = it },
-        )
-    }
 
     private val biometricController by lazy {
         BiometricUnlockController(
@@ -318,13 +308,13 @@ class BrowserActivity : BaseSessionHost() {
         val controls = FloatingControlsView(
             parent = findViewById(R.id.browserContent),
             webappUuid = uuid,
-            onHome = { loadURL(webapp.baseUrl) },
+            onHome = { homeAction() },
             onReload = ::reloadCurrentPage,
             onShare = { shareCurrentUrl() },
             onShareLongPress = { currentUrl.takeIf { it.isNotBlank() }?.let(::openInPeel) },
             onFind = ::openFindInPage,
             onTranslate = if (translationsSupported && effectiveSettings.isTranslatorEnabled == true)
-                ({ onTranslateShortTap() }) else null,
+                ({ openTranslateDialog() }) else null,
             onTranslateLongPress = if (translationsSupported && effectiveSettings.isTranslatorEnabled == true)
                 ({ onTranslateLongPress() }) else null,
             onExtensions = if (SessionExtensionActions.hasExtensions)
@@ -339,40 +329,6 @@ class BrowserActivity : BaseSessionHost() {
         }
         controls.setIncognito(webapp.resolvePrivateMode())
         return controls
-    }
-
-    private fun onTranslateShortTap() {
-        openTranslateDialog()
-    }
-
-    private fun onTranslateLongPress() {
-        val session = geckoSession ?: return
-        val delegate = translationDelegate ?: run { openTranslateDialog(); return }
-        if (delegate.isPageTranslated) {
-            delegate.restoreOriginal(session)
-            return
-        }
-        val docLang = delegate.lastTranslationState?.detectedLanguages?.docLangTag
-        val target = delegate.resolveLongPressTarget(docLang)
-        if (target != null && !docLang.isNullOrBlank()) {
-            delegate.translateToTarget(session, docLang, target)
-        } else {
-            openTranslateDialog()
-        }
-    }
-
-    private fun clearSiteCacheAndReload() {
-        val host = runCatching { currentUrl.toUri().host }.getOrNull()
-        val flags = StorageController.ClearFlags.NETWORK_CACHE or
-                StorageController.ClearFlags.IMAGE_CACHE
-        val runtime = GeckoRuntimeProvider.getRuntime(this)
-        if (!host.isNullOrBlank()) {
-            runtime.storageController.clearDataFromBaseDomain(host, flags)
-        } else {
-            runtime.storageController.clearData(flags)
-        }
-        NotificationUtils.showToast(this, getString(R.string.cache_cleared))
-        reloadCurrentPage()
     }
 
     private fun shareCurrentUrl() {
@@ -553,12 +509,10 @@ class BrowserActivity : BaseSessionHost() {
 
     override fun updateSystemBarColors(top: Int, bottom: Int) {
         if (biometricController.isPromptActive) return
-        systemBarController.update(
-            top,
-            bottom,
-            UI_ANIMATION_DURATION_MS
-        )
+        super.updateSystemBarColors(top, bottom)
     }
+
+    override fun navigateHome() = loadURL(webapp.baseUrl)
 
     override fun onLocationChanged(url: String) {
         historyPurged = false
@@ -642,11 +596,7 @@ class BrowserActivity : BaseSessionHost() {
     private fun setupGeckoView() {
         val settings = effectiveSettings
         bindViews()
-        systemBarController.attach(
-            statusBarScrim = statusBarScrim,
-            navigationBarScrim = navigationBarScrim,
-            applyDynamicColor = settings.isDynamicStatusBar == true,
-        )
+        attachSystemBars()
 
         downloadHandler = DownloadHandler(
             activity = this,
@@ -747,13 +697,7 @@ class BrowserActivity : BaseSessionHost() {
             wtf.mazy.peel.browser.ProxyRouterBridge.awaitRoutesReady()
             attachPageBridge()
             if (restore != null) geckoSession?.restoreState(restore) else loadURL(url)
-            if (settings.isDynamicStatusBar == true) {
-                val ext = GeckoRuntimeProvider.ensureThemeColorExtension(applicationContext)
-                val delegate = geckoSession?.contentDelegate as? PeelContentDelegate
-                if (ext != null && delegate != null && geckoSession != null) {
-                    delegate.setupThemeColorExtension(ext, geckoSession!!)
-                }
-            }
+            setupThemeColorExtensionIfEnabled()
             setupMediaPlayback(settings)
             autoReloadController.start(settings)
         }
@@ -915,7 +859,6 @@ class BrowserActivity : BaseSessionHost() {
 
     companion object {
         private const val TAG = "BrowserActivity"
-        private const val UI_ANIMATION_DURATION_MS = 300L
         private const val CRASH_LOOP_MAX = 3
         private const val KEEP_ACTIVE_INTERVAL_MS = 1_000L
 

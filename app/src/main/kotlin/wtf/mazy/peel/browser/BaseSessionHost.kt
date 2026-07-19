@@ -16,6 +16,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.net.toUri
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
@@ -32,13 +33,16 @@ import org.mozilla.geckoview.GeckoResult
 import org.mozilla.geckoview.GeckoSession
 import org.mozilla.geckoview.GeckoSessionSettings
 import org.mozilla.geckoview.GeckoView
+import org.mozilla.geckoview.StorageController
 import wtf.mazy.peel.R
 import wtf.mazy.peel.activities.PopupActivity
+import wtf.mazy.peel.gecko.GeckoRuntimeProvider
 import wtf.mazy.peel.gecko.VerticalSwipeRefreshLayout
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.model.WebAppSettings
 import wtf.mazy.peel.ui.FindInPageView
 import wtf.mazy.peel.ui.FloatingControlsView
+import wtf.mazy.peel.ui.browser.SystemBarController
 import wtf.mazy.peel.ui.common.LoadingDialogController
 import wtf.mazy.peel.ui.dialog.ExternalLinkMenu
 import wtf.mazy.peel.ui.dialog.InputDialogConfig
@@ -190,6 +194,26 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost, TranslationHo
     protected var translationDelegate: PeelTranslationDelegate? = null
     protected var translationsSupported: Boolean = false
 
+    protected open val applyDynamicStatusBar: Boolean
+        get() = effectiveSettings.isDynamicStatusBar == true
+
+    protected val systemBarController by lazy {
+        SystemBarController(
+            window = window,
+            getThemeColor = ::themeBackgroundColor,
+            scrimColor = ContextCompat.getColor(this, R.color.floating_controls_scrim),
+            setFullscreen = { isFullscreen = it },
+        )
+    }
+
+    protected fun attachSystemBars() {
+        systemBarController.attach(statusBarScrim, navigationBarScrim, applyDynamicStatusBar)
+    }
+
+    override fun updateSystemBarColors(top: Int, bottom: Int) {
+        systemBarController.update(top, bottom, UI_ANIMATION_DURATION_MS)
+    }
+
     protected val sessionExtensionActions by lazy {
         SessionExtensionActions(
             activity = this,
@@ -198,6 +222,13 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost, TranslationHo
             onPopupDownload = { response -> downloadHandler.onExternalResponse(response) },
         )
     }
+
+    protected fun homeAction() {
+        ownerWebAppUuid?.let { PopupActivity.finishByOwner(it) }
+        navigateHome()
+    }
+
+    protected open fun navigateHome() = Unit
 
     protected fun rebuildFloatingControls() {
         val current = floatingControls ?: return
@@ -221,6 +252,44 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost, TranslationHo
             showOriginal = activePair != null,
         )
         TranslateDialog.show(this, session, translationDelegate, prefill)
+    }
+
+    protected fun onTranslateLongPress() {
+        val session = geckoSession ?: return
+        val delegate = translationDelegate ?: run { openTranslateDialog(); return }
+        if (delegate.isPageTranslated) {
+            delegate.restoreOriginal(session)
+            return
+        }
+        val docLang = delegate.lastTranslationState?.detectedLanguages?.docLangTag
+        val target = delegate.resolveLongPressTarget(docLang)
+        if (target != null && !docLang.isNullOrBlank()) {
+            delegate.translateToTarget(session, docLang, target)
+        } else {
+            openTranslateDialog()
+        }
+    }
+
+    protected fun clearSiteCacheAndReload() {
+        val host = runCatching { lastLoadedUrl.toUri().host }.getOrNull()
+        val flags = StorageController.ClearFlags.NETWORK_CACHE or
+                StorageController.ClearFlags.IMAGE_CACHE
+        val runtime = GeckoRuntimeProvider.getRuntime(this)
+        if (!host.isNullOrBlank()) {
+            runtime.storageController.clearDataFromBaseDomain(host, flags)
+        } else {
+            runtime.storageController.clearData(flags)
+        }
+        NotificationUtils.showToast(this, getString(R.string.cache_cleared))
+        reloadCurrentPage()
+    }
+
+    protected suspend fun setupThemeColorExtensionIfEnabled() {
+        if (effectiveSettings.isDynamicStatusBar != true) return
+        val session = geckoSession ?: return
+        val delegate = session.contentDelegate as? PeelContentDelegate ?: return
+        val ext = GeckoRuntimeProvider.ensureThemeColorExtension(applicationContext) ?: return
+        delegate.setupThemeColorExtension(ext, session)
     }
 
     protected fun reattachSessionToView() {
@@ -578,4 +647,8 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost, TranslationHo
 
     abstract override fun onWebFullscreenEnter()
     abstract override fun onWebFullscreenExit()
+
+    private companion object {
+        const val UI_ANIMATION_DURATION_MS = 300L
+    }
 }

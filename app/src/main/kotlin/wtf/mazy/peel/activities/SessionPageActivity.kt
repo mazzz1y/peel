@@ -22,7 +22,7 @@ abstract class SessionPageActivity : BaseSessionHost() {
 
     override var baseUrl: String = ""
     override val webAppName: String
-        get() = supportActionBar?.title?.toString().orEmpty()
+        get() = supportActionBar?.title?.toString().orEmpty().ifEmpty { lastLoadedUrl }
 
     override val externalLinkExcludeUuid: String? = null
     override val externalLinkPeelApps: List<WebApp>
@@ -30,6 +30,7 @@ abstract class SessionPageActivity : BaseSessionHost() {
     override val externalLinkIncludeLoadHere: Boolean = false
 
     protected open val retainSessionAcrossRecreation = false
+    protected open val showToolbar: Boolean = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.AppTheme_Browser)
@@ -37,12 +38,14 @@ abstract class SessionPageActivity : BaseSessionHost() {
         disableSystemBarContrastEnforcement()
         super.onCreate(savedInstanceState)
         window.setBackgroundDrawable(themeBackgroundColor.toDrawable())
-        setupSessionHostLayout(showToolbar = true)
+        setupSessionHostLayout(showToolbar = showToolbar)
         applyWindowFlags(effectiveSettings)
 
-        setSupportActionBar(toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        toolbar?.setNavigationOnClickListener { finish() }
+        toolbar?.let {
+            setSupportActionBar(it)
+            supportActionBar?.setDisplayHomeAsUpEnabled(true)
+            it.setNavigationOnClickListener { finish() }
+        }
 
         geckoView?.coverUntilFirstPaint(themeBackgroundColor)
         onSessionHostReady()
@@ -113,8 +116,6 @@ abstract class SessionPageActivity : BaseSessionHost() {
 
     override fun onWebFullscreenEnter() = Unit
     override fun onWebFullscreenExit() = Unit
-
-    override fun updateSystemBarColors(top: Int, bottom: Int) = Unit
 
     override fun findPeelAppMatches(url: String): List<WebApp> {
         return ExternalLinkMenu.findPeelAppMatches(
