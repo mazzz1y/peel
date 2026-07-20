@@ -38,7 +38,7 @@
             android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
             android:textColor="?attr/colorOnSurface"
             app:layout_constraintBottom_toTopOf="@id/item_secondary"
-            app:layout_constraintEnd_toStartOf="@id/item_menu"
+            app:layout_constraintEnd_toStartOf="@id/item_toggle"
             app:layout_constraintStart_toEndOf="@id/item_icon"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_chainStyle="packed" />
@@ -54,9 +54,21 @@
             android:textAppearance="@style/TextAppearance.Material3.BodySmall"
             android:textColor="?attr/colorOnSurfaceVariant"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/item_menu"
+            app:layout_constraintEnd_toStartOf="@id/item_toggle"
             app:layout_constraintStart_toEndOf="@id/item_icon"
             app:layout_constraintTop_toBottomOf="@id/item_primary" />
+
+        <com.google.android.material.materialswitch.MaterialSwitch
+            android:id="@+id/item_toggle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="4dp"
+            android:contentDescription="@string/enable_extension"
+            android:scaleX="0.8"
+            android:scaleY="0.8"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/item_menu"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/item_menu"

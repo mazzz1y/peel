@@ -10,6 +10,9 @@ import wtf.mazy.peel.R
 import wtf.mazy.peel.browser.PeelTranslationDelegate
 import wtf.mazy.peel.browser.PopupSessionHolder
 import wtf.mazy.peel.browser.TranslationLanguages
+import wtf.mazy.peel.gecko.ExtensionStateEvent
+import wtf.mazy.peel.gecko.ExtensionStateListener
+import wtf.mazy.peel.gecko.GeckoRuntimeProvider
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.WebAppSettings
 import wtf.mazy.peel.ui.FloatingControlsView
@@ -20,6 +23,15 @@ import wtf.mazy.peel.util.NotificationUtils
 import wtf.mazy.peel.util.shareText
 
 class PopupActivity : SessionPageActivity() {
+
+    private val extensionStateListener = ExtensionStateListener { event ->
+        val session = geckoSession ?: return@ExtensionStateListener
+        sessionExtensionActions.attach(session)
+        SessionExtensionActions.extensionsChanged = false
+        if (event == ExtensionStateEvent.ADDED || event == ExtensionStateEvent.REMOVED) {
+            session.reload()
+        }
+    }
 
     private lateinit var snapshotSettings: WebAppSettings
 
@@ -65,6 +77,16 @@ class PopupActivity : SessionPageActivity() {
             translationsSupported = TranslationLanguages.isEngineSupported()
             if (translationsSupported) rebuildFloatingControls()
         }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        GeckoRuntimeProvider.addExtensionStateListener(extensionStateListener)
+    }
+
+    override fun onStop() {
+        GeckoRuntimeProvider.removeExtensionStateListener(extensionStateListener)
+        super.onStop()
     }
 
     override fun onDestroy() {

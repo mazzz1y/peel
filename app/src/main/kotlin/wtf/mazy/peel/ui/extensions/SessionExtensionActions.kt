@@ -38,6 +38,7 @@ class SessionExtensionActions(
 
     fun snapshot(): List<Entry> {
         return defaults.values.mapNotNull { (ext, defaultAction) ->
+            if (ext.metaData.enabled == false) return@mapNotNull null
             val override = overrides[ext.id]
             val merged = override?.withDefault(defaultAction) ?: defaultAction
             if (merged.enabled == false) null else Entry(

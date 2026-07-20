@@ -87,6 +87,7 @@ class ExtensionsActivity : EntityListActivity<WebExtension>() {
             startActivity(ExtensionPageActivity.intentForExtension(this, it.id))
         },
         onUninstall = ::confirmUninstall,
+        onToggle = ::toggleExtension,
     )
 
     override fun loadEntities(): List<WebExtension> = lastLoadedExtensions
@@ -126,6 +127,17 @@ class ExtensionsActivity : EntityListActivity<WebExtension>() {
         lifecycleScope.launch {
             lastLoadedExtensions = GeckoRuntimeProvider.listUserExtensions(this@ExtensionsActivity)
             refreshList()
+        }
+    }
+
+    private fun toggleExtension(ext: WebExtension, enabled: Boolean) {
+        lifecycleScope.launch {
+            try {
+                GeckoRuntimeProvider.setExtensionEnabled(this@ExtensionsActivity, ext, enabled)
+            } catch (e: Exception) {
+                Log.w(TAG, "toggleExtension failed for ${ext.id}", e)
+            }
+            loadInstalledExtensions()
         }
     }
 

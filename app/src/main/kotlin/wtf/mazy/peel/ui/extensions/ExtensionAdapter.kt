@@ -7,6 +7,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.appcompat.widget.PopupMenu
+import com.google.android.material.materialswitch.MaterialSwitch
 import org.mozilla.geckoview.WebExtension
 import wtf.mazy.peel.R
 import wtf.mazy.peel.ui.entitylist.EntityListAdapter
@@ -21,6 +22,7 @@ class ExtensionAdapter(
     onUpdate: (WebExtension) -> Unit,
     onSettings: (WebExtension) -> Unit,
     onUninstall: (WebExtension) -> Unit,
+    private val onToggle: (WebExtension, Boolean) -> Unit,
 ) : EntityListAdapter<WebExtension, ExtensionAdapter.ViewHolder>(
     binder = WebExtensionBinder(context),
     actions = ExtensionItemActions(onUpdate, onSettings, onUninstall),
@@ -31,6 +33,7 @@ class ExtensionAdapter(
         override val indicators: List<ImageView> = emptyList()
         val name: TextView = itemView.findViewById(R.id.item_primary)
         val version: TextView = itemView.findViewById(R.id.item_secondary)
+        val toggle: MaterialSwitch = itemView.findViewById(R.id.item_toggle)
     }
 
     override fun layoutRes(): Int = R.layout.item_extension
@@ -41,6 +44,10 @@ class ExtensionAdapter(
         val meta = ext.metaData
         holder.name.text = meta.name ?: ext.id
         holder.version.text = meta.version
+        holder.toggle.setOnCheckedChangeListener(null)
+        holder.toggle.isChecked = meta.enabled != false
+        holder.toggle.isEnabled = !row.inSelectionMode
+        holder.toggle.setOnCheckedChangeListener { _, isChecked -> onToggle(ext, isChecked) }
     }
 
     private class ExtensionItemActions(

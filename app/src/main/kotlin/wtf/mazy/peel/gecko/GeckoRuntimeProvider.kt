@@ -172,6 +172,17 @@ object GeckoRuntimeProvider {
         return getRuntime(context).webExtensionController.update(ext).awaitNullable()
     }
 
+    suspend fun setExtensionEnabled(
+        context: Context,
+        ext: WebExtension,
+        enabled: Boolean,
+    ): WebExtension {
+        val controller = getRuntime(context).webExtensionController
+        val source = WebExtensionController.EnableSource.USER
+        return if (enabled) controller.enable(ext, source).await()
+        else controller.disable(ext, source).await()
+    }
+
     suspend fun listUserExtensions(context: Context): List<WebExtension> {
         val extensions = getRuntime(context).webExtensionController.list().await()
             .filter { it.id !in BUILT_IN_IDS }

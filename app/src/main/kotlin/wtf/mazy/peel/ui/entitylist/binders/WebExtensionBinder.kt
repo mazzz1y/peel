@@ -26,6 +26,6 @@ class WebExtensionBinder(context: Context) : EntityBinder<WebExtension> {
         val am = a.metaData
         val bm = b.metaData
         return am.name == bm.name && am.version == bm.version &&
-                am.optionsPageUrl == bm.optionsPageUrl
+                am.optionsPageUrl == bm.optionsPageUrl && am.enabled == bm.enabled
     }
 }

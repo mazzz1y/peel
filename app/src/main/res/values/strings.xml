@@ -250,6 +250,7 @@
     <string name="uninstall_extension">Uninstall</string>
     <string name="uninstall_extension_confirm">Uninstall %1$s?</string>
     <string name="extension_settings">Settings</string>
+    <string name="enable_extension">Enable extension</string>
     <string name="extension_update">Update</string>
     <string name="extension_updated_to">Updated to %1$s</string>
     <string name="extension_already_up_to_date">Already up to date</string>
