@@ -79,7 +79,6 @@
     <string name="user_agent_hint">Cadena del user agent</string>
     <string name="custom_locale">Anular configuración regional</string>
     <string name="custom_locale_hint">ej. en-US, fr</string>
-    <string name="back">Volver</string>
     <string name="share">Compartir</string>
     <string name="bioprompt_restricted_webapp">Restricción de acceso</string>
     <string name="enable_access_restriction">Bloqueo biométrico</string>
@@ -173,6 +172,7 @@
     <string name="no_app_found">No se encontró una app para este enlace</string>
     <string name="permission_prompt_microphone">¿Permitir a %1$s acceder al micrófono?</string>
     <string name="retry">Reintentar</string>
+    <string name="back">Volver</string>
     <string name="crash_restart_title">La página sigue fallando</string>
     <string name="crash_restart_message">Esta página sigue fallando. Reinicia la aplicación web para volver a intentarlo.</string>
     <string name="protection">Protección</string>

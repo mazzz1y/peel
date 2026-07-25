@@ -95,6 +95,7 @@
     <string name="site_not_found">Não foi possível carregar a página</string>
     <string name="connection_error">Erro de conexão: %1$s</string>
     <string name="retry">Tentar novamente</string>
+    <string name="back">Voltar</string>
     <string name="crash_restart_title">A página continua a falhar</string>
     <string name="crash_restart_message">Esta página continua a falhar. Reinicie a aplicação web para tentar novamente.</string>
     <string name="exit">Sair</string>
@@ -123,7 +124,6 @@
     <string name="user_agent_hint">String do user agent</string>
     <string name="custom_locale">Substituir locale</string>
     <string name="custom_locale_hint">ex.: en-US, fr</string>
-    <string name="back">Voltar</string>
     <string name="clone">Clonar</string>
     <string name="share">Compartilhar</string>
     <string name="bioprompt_restricted_webapp">Restrição de acesso</string>

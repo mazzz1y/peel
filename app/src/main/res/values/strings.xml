@@ -120,6 +120,7 @@
     <string name="site_not_found">Page could not be loaded</string>
     <string name="connection_error">Connection error: %1$s</string>
     <string name="retry">Retry</string>
+    <string name="back">Back</string>
     <string name="crash_restart_title">Page keeps crashing</string>
     <string name="crash_restart_message">This page keeps crashing. Restart the webapp to try again.</string>
     <string name="exit">Exit</string>
@@ -149,7 +150,6 @@
     <string name="custom_locale">Override locale</string>
     <string name="custom_locale_hint">e.g. en-US, fr</string>
     <string name="untitled_shortcut">Unknown</string>
-    <string name="back">Back</string>
     <string name="clone">Clone</string>
     <string name="share">Share</string>
     <string name="bioprompt_restricted_webapp">Access Restriction</string>

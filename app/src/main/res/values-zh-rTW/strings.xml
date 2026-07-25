@@ -95,6 +95,7 @@
     <string name="site_not_found">無法載入頁面</string>
     <string name="connection_error">連線錯誤：%1$s</string>
     <string name="retry">重試</string>
+    <string name="back">返回</string>
     <string name="crash_restart_title">頁面持續當機</string>
     <string name="crash_restart_message">此頁面持續當機。請重新啟動網頁應用程式以再次嘗試。</string>
     <string name="exit">結束</string>
@@ -123,7 +124,6 @@
     <string name="user_agent_hint">User-Agent 字串</string>
     <string name="custom_locale">覆寫地區設定</string>
     <string name="custom_locale_hint">例如 en-US, fr</string>
-    <string name="back">返回</string>
     <string name="clone">複製</string>
     <string name="share">分享</string>
     <string name="bioprompt_restricted_webapp">存取限制</string>

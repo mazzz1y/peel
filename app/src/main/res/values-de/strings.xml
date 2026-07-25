@@ -80,7 +80,6 @@
     <string name="user_agent_hint">User-Agent-Zeichenkette</string>
     <string name="custom_locale">Locale überschreiben</string>
     <string name="custom_locale_hint">z. B. en-US, fr</string>
-    <string name="back">Zurück</string>
     <string name="share">Teilen</string>
     <string name="bioprompt_restricted_webapp">Zugriffsbeschränkung</string>
     <string name="enable_access_restriction">Biometrische Sperre</string>
@@ -174,6 +173,7 @@
     <string name="no_app_found">Keine App für diesen Link gefunden</string>
     <string name="permission_prompt_microphone">%1$s Zugriff auf das Mikrofon erlauben?</string>
     <string name="retry">Erneut versuchen</string>
+    <string name="back">Zurück</string>
     <string name="crash_restart_title">Seite stürzt wiederholt ab</string>
     <string name="crash_restart_message">Diese Seite stürzt wiederholt ab. Starten Sie die Web-App neu, um es erneut zu versuchen.</string>
     <string name="protection">Schutz</string>

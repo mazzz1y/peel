@@ -41,7 +41,8 @@ class PeelNavigationDelegate(private val host: SessionHost) : GeckoSession.Navig
     @Volatile
     private var isInitialLoad = true
     @Volatile
-    private var lastLocation: String = ""
+    var lastLocation: String = ""
+        private set
 
     override fun onCanGoBack(session: GeckoSession, canGoBack: Boolean) {
         host.canGoBack = canGoBack

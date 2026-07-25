@@ -95,6 +95,7 @@
     <string name="site_not_found">পৃষ্ঠা লোড করা যায়নি।</string>
     <string name="connection_error">সংযোগ ত্রুটি: %1$s</string>
     <string name="retry">পুনরায় চেষ্টা</string>
+    <string name="back">পেছনে</string>
     <string name="crash_restart_title">পৃষ্ঠাটি বারবার ক্র্যাশ করছে</string>
     <string name="crash_restart_message">এই পৃষ্ঠাটি বারবার ক্র্যাশ করছে। আবার চেষ্টা করতে ওয়েব অ্যাপটি পুনরায় চালু করুন।</string>
     <string name="exit">প্রস্থান</string>
@@ -123,7 +124,6 @@
     <string name="user_agent_hint">User-Agent স্ট্রিং</string>
     <string name="custom_locale">লোকেল ওভাররাইড করুন</string>
     <string name="custom_locale_hint">যেমন en-US, fr</string>
-    <string name="back">পেছনে</string>
     <string name="clone">ক্লোন</string>
     <string name="share">শেয়ার</string>
     <string name="bioprompt_restricted_webapp">অ্যাক্সেস সীমাবদ্ধতা</string>

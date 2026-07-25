@@ -375,15 +375,24 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost, TranslationHo
     }
 
     override fun showConnectionError(description: String, url: String) {
-        MaterialAlertDialogBuilder(this)
+        val committed = navigationDelegate.lastLocation
+        val hasPreviousPage = committed.isNotBlank() && committed != url
+        val builder = MaterialAlertDialogBuilder(this)
             .setTitle(R.string.site_not_found)
             .setMessage(getString(R.string.connection_error, description))
             .setPositiveButton(R.string.retry) { _, _ -> loadURL(url) }
-            .setNegativeButton(if (canGoBack) R.string.back else R.string.exit) { _, _ ->
-                goBackOrFinish()
-            }
-            .setCancelable(false)
-            .show()
+        when {
+            hasPreviousPage -> builder.setNegativeButton(R.string.back) { _, _ ->
+                geckoSession?.reload()
+            }.setCancelable(false)
+            canGoBack -> builder.setNegativeButton(R.string.back) { _, _ ->
+                geckoSession?.goBack()
+            }.setCancelable(false)
+            else -> builder.setNegativeButton(R.string.exit) { _, _ ->
+                finish()
+            }.setCancelable(false)
+        }
+        builder.show()
     }
 
     override fun showHttpAuthDialog(
