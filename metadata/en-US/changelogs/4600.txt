@@ -1,0 +1,6 @@
+- Unify popup (new tab) windows with the main browser, with full floating controls and a home button
+- Add per-extension enable/disable toggle and extension auto-update
+- Show extension popups full screen, unified with the other extension pages
+- Fix broken logins on sites using SSO or cross-domain auth
+- Partition third-party cookies like Firefox instead of blocking them
+- Show a retry dialog instead of closing when a page fails to load, staying on the current page when there is one
