@@ -497,15 +497,6 @@ class BrowserActivity : BaseSessionHost() {
             .show()
     }
 
-    override fun showConnectionError(description: String, url: String) {
-        if (!pageLoadHandled) {
-            showToast(getString(R.string.connection_error, description))
-            finish()
-            return
-        }
-        super.showConnectionError(description, url)
-    }
-
     override fun updateSystemBarColors(top: Int, bottom: Int) {
         if (biometricController.isPromptActive) return
         super.updateSystemBarColors(top, bottom)

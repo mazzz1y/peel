@@ -116,7 +116,7 @@ class DownloadService : Service() {
             ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_DETACH)
             currentForegroundId = null
         }
-        (getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager).cancel(id)
+        (getSystemService(NOTIFICATION_SERVICE) as NotificationManager).cancel(id)
         if (activeJobs.isEmpty()) stopSelf()
     }
 
