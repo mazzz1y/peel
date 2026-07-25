@@ -28,17 +28,17 @@ class SessionExtensionActions(
         val clickable: WebExtension.Action,
     )
 
-    private data class Default(val extension: WebExtension, val action: WebExtension.Action)
-
     private val overrides = mutableMapOf<String, WebExtension.Action>()
     private val attachedSessions = mutableListOf<Pair<WebExtension, GeckoSession>>()
+    private var liveExtensions: List<WebExtension> = emptyList()
     private var currentContextId: String? = null
     private var currentPrivateMode: Boolean = false
     private var attachJob: Job? = null
 
     fun snapshot(): List<Entry> {
-        return defaults.values.mapNotNull { (ext, defaultAction) ->
+        return liveExtensions.mapNotNull { ext ->
             if (ext.metaData.enabled == false) return@mapNotNull null
+            val defaultAction = defaults[ext.id] ?: return@mapNotNull null
             val override = overrides[ext.id]
             val merged = override?.withDefault(defaultAction) ?: defaultAction
             if (merged.enabled == false) null else Entry(
@@ -60,6 +60,7 @@ class SessionExtensionActions(
 
         attachJob = activity.lifecycleScope.launch {
             val extensions = GeckoRuntimeProvider.listUserExtensions(activity)
+            liveExtensions = extensions
             hasExtensions = extensions.isNotEmpty()
             onExtensionsReady?.invoke(hasExtensions)
             defaults.keys.retainAll(extensions.mapTo(mutableSetOf()) { it.id })
@@ -87,6 +88,7 @@ class SessionExtensionActions(
         }
         attachedSessions.clear()
         overrides.clear()
+        liveExtensions = emptyList()
         currentContextId = null
         currentPrivateMode = false
         if (active === this) active = null
@@ -211,7 +213,7 @@ class SessionExtensionActions(
         @Volatile
         var extensionsChanged: Boolean = false
 
-        private val defaults = mutableMapOf<String, Default>()
+        private val defaults = mutableMapOf<String, WebExtension.Action>()
         private val managedExtensions = mutableMapOf<String, WebExtension>()
 
         private val globalActionDelegate = object : WebExtension.ActionDelegate {
@@ -220,7 +222,7 @@ class SessionExtensionActions(
                 session: GeckoSession?,
                 action: WebExtension.Action,
             ) {
-                defaults[extension.id] = Default(extension, action)
+                defaults[extension.id] = action
             }
 
             override fun onPageAction(
@@ -228,7 +230,7 @@ class SessionExtensionActions(
                 session: GeckoSession?,
                 action: WebExtension.Action,
             ) {
-                defaults[extension.id] = Default(extension, action)
+                defaults[extension.id] = action
             }
 
             override fun onTogglePopup(
