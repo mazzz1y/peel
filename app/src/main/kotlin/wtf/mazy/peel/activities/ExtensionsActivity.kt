@@ -26,9 +26,11 @@ import wtf.mazy.peel.ui.extensions.AmoExtensionsRepository
 import wtf.mazy.peel.ui.extensions.AmoExtensionsRepository.AmoExtension
 import wtf.mazy.peel.ui.extensions.ExtensionAdapter
 import wtf.mazy.peel.ui.extensions.ExtensionIconCache
+import wtf.mazy.peel.util.AppPrefs
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.NotificationUtils
 import wtf.mazy.peel.util.withBoldSpan
+import wtf.mazy.peel.work.ExtensionUpdateScheduler
 import java.io.File
 
 class ExtensionsActivity : EntityListActivity<WebExtension>() {
@@ -103,10 +105,24 @@ class ExtensionsActivity : EntityListActivity<WebExtension>() {
         return true
     }
 
+    override fun onPrepareOptionsMenu(menu: android.view.Menu): Boolean {
+        menu.findItem(R.id.action_auto_update)?.isChecked =
+            AppPrefs.isExtensionAutoUpdateEnabled(this)
+        return super.onPrepareOptionsMenu(menu)
+    }
+
     override fun onOptionsItemSelected(item: android.view.MenuItem): Boolean {
         return when (item.itemId) {
             R.id.action_update_all -> {
                 updateAllExtensions(); true
+            }
+
+            R.id.action_auto_update -> {
+                val enabled = !item.isChecked
+                item.isChecked = enabled
+                AppPrefs.setExtensionAutoUpdateEnabled(this, enabled)
+                ExtensionUpdateScheduler.apply(this)
+                true
             }
 
             else -> super.onOptionsItemSelected(item)

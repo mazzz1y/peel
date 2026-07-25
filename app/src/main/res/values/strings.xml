@@ -255,6 +255,7 @@
     <string name="extension_updated_to">Updated to %1$s</string>
     <string name="extension_already_up_to_date">Already up to date</string>
     <string name="update_all_extensions">Update all</string>
+    <string name="auto_update_extensions">Auto-update</string>
     <string name="loading_extension">Loading…</string>
     <string name="loading_extensions">Loading\u2026</string>
     <string name="install_extension_error">Failed to install extension</string>

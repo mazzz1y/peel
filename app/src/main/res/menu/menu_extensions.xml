@@ -9,4 +9,10 @@
         app:iconTint="?attr/colorOnSurface"
         app:showAsAction="ifRoom" />
 
+    <item
+        android:id="@+id/action_auto_update"
+        android:checkable="true"
+        android:title="@string/auto_update_extensions"
+        app:showAsAction="never" />
+
 </menu>
