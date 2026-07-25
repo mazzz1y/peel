@@ -319,7 +319,7 @@ object GeckoRuntimeProvider {
                 ContentBlocking.Settings.Builder()
                     .antiTracking(antiTracking)
                     .safeBrowsing(ContentBlocking.SafeBrowsing.DEFAULT)
-                    .cookieBehavior(ContentBlocking.CookieBehavior.ACCEPT_FIRST_PARTY)
+                    .cookieBehavior(ContentBlocking.CookieBehavior.ACCEPT_FIRST_PARTY_AND_ISOLATE_OTHERS)
                     .build()
             )
         val resolvedLocales = if (defaults.isUseCustomLocale == true) {
