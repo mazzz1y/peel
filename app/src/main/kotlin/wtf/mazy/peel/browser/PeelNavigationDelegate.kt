@@ -6,7 +6,6 @@ import org.mozilla.geckoview.AllowOrDeny
 import org.mozilla.geckoview.GeckoResult
 import org.mozilla.geckoview.GeckoSession
 import org.mozilla.geckoview.GeckoSession.NavigationDelegate.LoadRequest
-import org.mozilla.geckoview.GeckoSession.NavigationDelegate.TARGET_WINDOW_NEW
 import org.mozilla.geckoview.WebRequestError
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.WebAppSettings
@@ -78,7 +77,6 @@ class PeelNavigationDelegate(private val host: SessionHost) : GeckoSession.Navig
             settings.isAlwaysHttps == true && url.startsWith("http://") -> redirectToHttps(url)
             isPassthroughScheme(url) -> allow()
             settings.isOpenUrlExternal == true -> handleExternalRouting(url, request)
-            request.target == TARGET_WINDOW_NEW -> handleNewWindowInApp(url)
             else -> allow()
         }
     }
@@ -118,19 +116,8 @@ class PeelNavigationDelegate(private val host: SessionHost) : GeckoSession.Navig
         isInitialLoad = false
     }
 
-    private fun handleNewWindowInApp(url: String): GeckoResult<AllowOrDeny> {
-        if (url == "about:blank") return allow()
-        if (isSameOrigin(host.baseUrl, url)) return allow()
-        if (SameAppDomainMatcher.matches(url, host.effectiveSettings.sameAppDomains.orEmpty())) {
-            return allow()
-        }
-        return redirectToCurrentTab(url)
-    }
-
     private fun handleExternalRouting(url: String, request: LoadRequest): GeckoResult<AllowOrDeny> {
-        if (browsingExternally || isInitialLoad) {
-            return if (request.target == TARGET_WINDOW_NEW) redirectToCurrentTab(url) else allow()
-        }
+        if (browsingExternally || isInitialLoad) return allow()
 
         if (isSameOrigin(host.baseUrl, url)) return allow()
         if (SameAppDomainMatcher.matches(url, host.effectiveSettings.sameAppDomains.orEmpty())) {
@@ -138,14 +125,14 @@ class PeelNavigationDelegate(private val host: SessionHost) : GeckoSession.Navig
         }
 
         val isExternal = HostIdentity.affinity(host.baseUrl, url) <= HostIdentity.TLD_ONLY
-        if (isExternal && isExplicitDownload(url)) return allow()
+        if (!isExternal) return allow()
+        if (isExplicitDownload(url)) return allow()
+        if (request.isRedirect) return allow()
 
         val peelMatches = host.findPeelAppMatches(url)
-        if (peelMatches.isEmpty() && !isExternal) {
-            return if (request.target == TARGET_WINDOW_NEW) redirectToCurrentTab(url) else allow()
-        }
+        if (peelMatches.isEmpty() && !request.hasUserGesture) return allow()
 
-        showExternalLinkMenu(url, redirectFallbackFor(request))
+        showExternalLinkMenu(url, null)
         return deny()
     }
 
@@ -276,11 +263,6 @@ class PeelNavigationDelegate(private val host: SessionHost) : GeckoSession.Navig
 
     private fun redirectToHttps(url: String): GeckoResult<AllowOrDeny> {
         host.runOnUi { host.loadURL(url.replaceFirst("http://", "https://")) }
-        return deny()
-    }
-
-    private fun redirectToCurrentTab(url: String): GeckoResult<AllowOrDeny> {
-        host.runOnUi { host.loadURL(url) }
         return deny()
     }
 
