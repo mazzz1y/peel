@@ -125,7 +125,6 @@ class PopupActivity : SessionPageActivity() {
     }
 
     override fun onSessionStopped() {
-        sessionExtensionActions.dismissPopup()
         hideFloatingControls()
     }
 

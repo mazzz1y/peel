@@ -212,8 +212,8 @@
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".activities.ExtensionPageActivity"
+            android:configChanges="orientation|screenSize|smallestScreenSize|density|screenLayout|uiMode|keyboard|keyboardHidden|navigation"
             android:icon="@mipmap/ic_launcher"
-            android:parentActivityName=".activities.ExtensionsActivity"
             android:roundIcon="@mipmap/ic_launcher"
             android:theme="@style/AppTheme.Browser"
             android:windowSoftInputMode="adjustResize" />

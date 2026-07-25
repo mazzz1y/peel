@@ -354,7 +354,6 @@ class BrowserActivity : BaseSessionHost() {
         } else {
             startBackgroundKeepActive()
         }
-        sessionExtensionActions.dismissPopup()
 
         permissionDelegate.clearPagePermissions()
 

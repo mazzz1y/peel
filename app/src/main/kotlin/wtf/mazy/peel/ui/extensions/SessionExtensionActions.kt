@@ -10,8 +10,8 @@ import org.mozilla.geckoview.GeckoRuntime
 import org.mozilla.geckoview.GeckoSession
 import org.mozilla.geckoview.GeckoSessionSettings
 import org.mozilla.geckoview.WebExtension
-import org.mozilla.geckoview.WebResponse
 import wtf.mazy.peel.activities.ExtensionPageActivity
+import wtf.mazy.peel.browser.PopupSessionHolder
 import wtf.mazy.peel.browser.SessionHost
 import wtf.mazy.peel.gecko.GeckoRuntimeProvider
 import wtf.mazy.peel.util.ForegroundActivityTracker
@@ -19,8 +19,6 @@ import wtf.mazy.peel.util.ForegroundActivityTracker
 class SessionExtensionActions(
     private val activity: FragmentActivity,
     private val onExtensionsReady: ((hasExtensions: Boolean) -> Unit)? = null,
-    private val onNavigateToUrl: ((String) -> Unit)? = null,
-    private val onPopupDownload: ((WebResponse) -> Unit)? = null,
 ) {
     data class Entry(
         val extension: WebExtension,
@@ -94,21 +92,17 @@ class SessionExtensionActions(
         if (active === this) active = null
     }
 
-    internal fun dismissPopup() {
-        (activity.supportFragmentManager.findFragmentByTag(ExtensionPopupBottomSheet.TAG)
-                as? ExtensionPopupBottomSheet)
-            ?.dismissImmediately()
-    }
-
     private fun mainSession(): GeckoSession? = attachedSessions.firstOrNull()?.second
 
     private fun createPopupSession(extension: WebExtension): GeckoResult<GeckoSession> {
         val runtime = GeckoRuntimeProvider.getRuntime(activity)
         val session = GeckoSession(buildAuxiliarySettings())
-        session.contentDelegate = popupContentDelegate()
-        session.navigationDelegate = popupNavigationDelegate()
         session.open(runtime)
-        showSheet(activity, session, extension.metaData.name ?: extension.id, runtime)
+        val shown = showPage(activity, session, extension.metaData.name ?: extension.id, runtime)
+        if (!shown) {
+            session.close()
+            return GeckoResult.fromValue(null)
+        }
         return GeckoResult.fromValue(session)
     }
 
@@ -118,44 +112,26 @@ class SessionExtensionActions(
             .usePrivateMode(currentPrivateMode)
             .build()
 
-    private fun popupContentDelegate() = object : GeckoSession.ContentDelegate {
-        override fun onCloseRequest(session: GeckoSession) {
-            ExtensionPopupBottomSheet.dismissFor(session)
-        }
-
-        override fun onExternalResponse(session: GeckoSession, response: WebResponse) {
-            onPopupDownload?.invoke(response)
-        }
-    }
-
-    private fun popupNavigationDelegate() = object : GeckoSession.NavigationDelegate {
-        override fun onLoadRequest(
-            session: GeckoSession,
-            request: GeckoSession.NavigationDelegate.LoadRequest,
-        ): GeckoResult<AllowOrDeny> {
-            if (request.target == GeckoSession.NavigationDelegate.TARGET_WINDOW_NEW) {
-                dismissPopup()
-                onNavigateToUrl?.invoke(request.uri)
-                return GeckoResult.fromValue(AllowOrDeny.DENY)
-            }
-            return GeckoResult.fromValue(AllowOrDeny.ALLOW)
-        }
-    }
-
-    private fun showSheet(
+    private fun showPage(
         host: FragmentActivity,
         session: GeckoSession,
         title: String,
         runtime: GeckoRuntime,
-    ) {
+    ): Boolean {
         mainSession()?.let { main ->
-            ExtensionPopupBottomSheet.setOnDismissCallback(session) {
+            ExtensionPageActivity.setOnCloseCallback(session) {
                 runtime.webExtensionController.setTabActive(main, true)
             }
         }
-        host.runOnUiThread {
-            ExtensionPopupBottomSheet.showExistingSession(host, session, title)
+        val key = PopupSessionHolder.put(session)
+        val launched = runCatching {
+            host.startActivity(ExtensionPageActivity.intentForSession(host, key, title))
+        }.isSuccess
+        if (!launched) {
+            PopupSessionHolder.take(key)
+            ExtensionPageActivity.clearOnCloseCallback(session)
         }
+        return launched
     }
 
     private inner class SessionActionDelegate : WebExtension.ActionDelegate {
@@ -256,16 +232,21 @@ class SessionExtensionActions(
                 val owner = active
                 val runtime = GeckoRuntimeProvider.getRuntime(host)
                 val session = GeckoSession(buildSheetSessionSettings(owner))
-                session.contentDelegate = sheetContentDelegate(owner)
-                session.navigationDelegate = sheetNavigationDelegate()
                 owner?.mainSession()?.let { main ->
-                    ExtensionPopupBottomSheet.setOnDismissCallback(session) {
+                    ExtensionPageActivity.setOnCloseCallback(session) {
                         runtime.webExtensionController.setTabActive(main, true)
                     }
                 }
                 val title = source.metaData.name ?: source.id
-                host.runOnUiThread {
-                    ExtensionPopupBottomSheet.showExistingSession(host, session, title)
+                val key = PopupSessionHolder.put(session)
+                val launched = runCatching {
+                    host.startActivity(ExtensionPageActivity.intentForSession(host, key, title))
+                }.isSuccess
+                if (!launched) {
+                    PopupSessionHolder.take(key)
+                    ExtensionPageActivity.clearOnCloseCallback(session)
+                    session.close()
+                    return null
                 }
                 return GeckoResult.fromValue(session)
             }
@@ -275,7 +256,6 @@ class SessionExtensionActions(
                     ?: ForegroundActivityTracker.current as? FragmentActivity
                     ?: return
                 host.runOnUiThread {
-                    active?.dismissPopup()
                     host.startActivity(
                         ExtensionPageActivity.intentForExtension(host, source.id)
                     )
@@ -289,31 +269,6 @@ class SessionExtensionActions(
             .apply { owner?.currentContextId?.let { contextId(it) } }
             .usePrivateMode(owner?.currentPrivateMode == true)
             .build()
-
-        private fun sheetContentDelegate(
-            owner: SessionExtensionActions?,
-        ) = object : GeckoSession.ContentDelegate {
-            override fun onCloseRequest(session: GeckoSession) {
-                ExtensionPopupBottomSheet.dismissFor(session)
-            }
-
-            override fun onExternalResponse(session: GeckoSession, response: WebResponse) {
-                owner?.onPopupDownload?.invoke(response)
-            }
-        }
-
-        private fun sheetNavigationDelegate() = object : GeckoSession.NavigationDelegate {
-            override fun onLoadRequest(
-                session: GeckoSession,
-                request: GeckoSession.NavigationDelegate.LoadRequest,
-            ): GeckoResult<AllowOrDeny> {
-                if (request.target == GeckoSession.NavigationDelegate.TARGET_WINDOW_NEW) {
-                    session.loadUri(request.uri)
-                    return GeckoResult.fromValue(AllowOrDeny.DENY)
-                }
-                return GeckoResult.fromValue(AllowOrDeny.ALLOW)
-            }
-        }
 
         fun setActive(instance: SessionExtensionActions) {
             active = instance

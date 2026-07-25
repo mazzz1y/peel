@@ -218,8 +218,6 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost, TranslationHo
         SessionExtensionActions(
             activity = this,
             onExtensionsReady = { _ -> if (floatingControls != null) rebuildFloatingControls() },
-            onNavigateToUrl = ::loadURL,
-            onPopupDownload = { response -> downloadHandler.onExternalResponse(response) },
         )
     }
 
