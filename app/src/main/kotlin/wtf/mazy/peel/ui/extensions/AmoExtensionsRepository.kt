@@ -30,9 +30,10 @@ object AmoExtensionsRepository {
 
     private val TRUSTED_ADDON_SLUGS = listOf("84ec3815000144658945")
 
-    suspend fun fetchRecommended(context: Context): List<AmoExtension> =
+    suspend fun fetchRecommended(context: Context): List<AmoExtension>? =
         withContext(Dispatchers.IO) {
-            val recommended = fetchRecommendedJson()?.let(::parseAmoResponse) ?: emptyList()
+            val recommended = fetchRecommendedJson()?.let(::parseAmoResponse).orEmpty()
+            if (recommended.isEmpty()) return@withContext null
             val trusted = TRUSTED_ADDON_SLUGS.mapNotNull { slug ->
                 fetchAddonBySlug(slug)
             }

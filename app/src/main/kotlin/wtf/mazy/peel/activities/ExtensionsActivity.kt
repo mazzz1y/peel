@@ -258,7 +258,15 @@ class ExtensionsActivity : EntityListActivity<WebExtension>() {
         lifecycleScope.launch {
             val available = AmoExtensionsRepository.fetchRecommended(this@ExtensionsActivity)
             loader.dismiss()
-            if (available.isNotEmpty()) cachedRecommended = available
+            if (available == null) {
+                NotificationUtils.showToast(
+                    this@ExtensionsActivity,
+                    getString(R.string.recommended_extensions_error),
+                    Toast.LENGTH_SHORT,
+                )
+                return@launch
+            }
+            cachedRecommended = available
             proceedWithRecommended(available)
         }
     }

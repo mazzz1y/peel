@@ -244,6 +244,7 @@
     <string name="extensions">Extensions</string>
     <string name="no_extensions_installed">No extensions installed</string>
     <string name="recommended_extensions">Recommended extensions</string>
+    <string name="recommended_extensions_error">Failed to load recommended extensions</string>
     <string name="browse_all_extensions">Browse all</string>
     <string name="install_extension_confirm">Install %1$s?</string>
     <string name="extension_permissions">This extension requires:</string>
