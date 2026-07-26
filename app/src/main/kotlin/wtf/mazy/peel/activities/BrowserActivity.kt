@@ -417,6 +417,13 @@ class BrowserActivity : BaseSessionHost() {
             return
         }
 
+        // Android may recreate this activity with a stale task intent (e.g. after an update)
+        // before delivering the tapped one; point the pending startup at the tapped webapp.
+        if (!isStartupComplete) {
+            webappUuid = newUuid
+            return
+        }
+
         ensureDataReady(newUuid, forceReload = true) {
             applyLoadedWebAppIntent(newUuid)
         }
