@@ -1,0 +1,5 @@
+- Update GeckoView to 153.0.20260715202819
+- Add swap languages button to the translate dialog
+- Fix translation languages failing to load when opened too early
+- Fix a web app failing to open on the first tap after updating Peel
+- Translate the extension auto-update label
