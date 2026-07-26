@@ -77,6 +77,7 @@ object TranslateDialog {
         val view = activity.layoutInflater.inflate(R.layout.item_language_pair_entry, null)
         val fromBtn = view.findViewById<MaterialButton>(R.id.btnLanguageFrom)
         val toBtn = view.findViewById<MaterialButton>(R.id.btnLanguageTo)
+        val swapBtn = view.findViewById<MaterialButton>(R.id.btnLanguageArrow)
         view.findViewById<MaterialButton>(R.id.btnRemoveEntry).visibility = View.GONE
         val pad =
             activity.resources.getDimensionPixelSize(R.dimen.dialog_content_horizontal_padding)
@@ -86,16 +87,48 @@ object TranslateDialog {
         var fromIndex = pickFromIndex(fromLanguages, prefill)
         var toIndex = pickToIndex(toLanguages, fromLanguages, fromIndex, prefill)
 
+        val fromLabels = fromLanguages.map { it.label() }
+        val toLabels = toLanguages.map { it.label() }
+
+        fun swapTargets(): Pair<Int, Int>? {
+            val newFrom = matchLanguageIndex(fromLanguages, toLanguages[toIndex].code, null)
+            val newTo = matchLanguageIndex(toLanguages, fromLanguages[fromIndex].code, null)
+            return if (newFrom >= 0 && newTo >= 0) newFrom to newTo else null
+        }
+
+        fun refreshSwapState() {
+            swapBtn.isEnabled = swapTargets() != null
+        }
+
         fromBtn.bindDropdown(
-            items = fromLanguages.map { it.label() },
+            items = fromLabels,
             currentIndex = { fromIndex },
-            onSelected = { i -> fromIndex = i },
+            onSelected = { i ->
+                fromIndex = i
+                refreshSwapState()
+            },
         )
         toBtn.bindDropdown(
-            items = toLanguages.map { it.label() },
+            items = toLabels,
             currentIndex = { toIndex },
-            onSelected = { i -> toIndex = i },
+            onSelected = { i ->
+                toIndex = i
+                refreshSwapState()
+            },
         )
+
+        swapBtn.isClickable = true
+        swapBtn.isFocusable = true
+        swapBtn.contentDescription = activity.getString(R.string.translate_swap_languages)
+        refreshSwapState()
+        swapBtn.setOnClickListener {
+            val (newFrom, newTo) = swapTargets() ?: return@setOnClickListener
+            fromIndex = newFrom
+            toIndex = newTo
+            fromBtn.text = fromLabels[fromIndex]
+            toBtn.text = toLabels[toIndex]
+            refreshSwapState()
+        }
 
         val builder = MaterialAlertDialogBuilder(activity)
             .setTitle(R.string.translate_dialog_title)

@@ -320,6 +320,7 @@
     <string name="translate_error_engine_unavailable">Translations are not available on this device</string>
     <string name="translate_error_languages_unavailable">Translation languages could not be loaded</string>
     <string name="translate_error_same_language">Pick two different languages</string>
+    <string name="translate_swap_languages">Swap languages</string>
 
     <string name="setting_translator">Translator</string>
     <string name="setting_auto_translate_any_language">Any language</string>

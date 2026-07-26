@@ -1,7 +1,9 @@
 package wtf.mazy.peel.browser
 
 import android.content.Context
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import org.mozilla.geckoview.GeckoResult
@@ -74,16 +76,24 @@ object TranslationLanguages {
 
     suspend fun listSupportedLanguages(): RuntimeTranslation.TranslationSupport? {
         cachedSupport?.let { return it }
-        return try {
-            ensureRuntime()
-            val support = withContext(Dispatchers.Main) {
-                RuntimeTranslation.listSupportedLanguages()
-            }.awaitResult()
-            if (support != null) cachedSupport = support
-            support
-        } catch (_: Throwable) {
-            null
+        repeat(LANGUAGE_LOAD_ATTEMPTS) { attempt ->
+            val support = try {
+                ensureRuntime()
+                withContext(Dispatchers.Main) {
+                    RuntimeTranslation.listSupportedLanguages()
+                }.awaitResult()
+            } catch (e: CancellationException) {
+                throw e
+            } catch (_: Throwable) {
+                null
+            }
+            if (!support?.fromLanguages.isNullOrEmpty() && !support?.toLanguages.isNullOrEmpty()) {
+                cachedSupport = support
+                return support
+            }
+            if (attempt < LANGUAGE_LOAD_ATTEMPTS - 1) delay(LANGUAGE_LOAD_RETRY_MS)
         }
+        return null
     }
 
     suspend fun downloadedLanguageCodes(): Set<String> {
@@ -115,6 +125,9 @@ object TranslationLanguages {
             false
         }
     }
+
+    private const val LANGUAGE_LOAD_ATTEMPTS = 3
+    private const val LANGUAGE_LOAD_RETRY_MS = 400L
 
     private suspend fun <T> GeckoResult<T>.awaitResult(): T? =
         suspendCancellableCoroutine { cont ->
