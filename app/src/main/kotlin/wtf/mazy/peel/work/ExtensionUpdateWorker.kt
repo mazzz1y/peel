@@ -13,9 +13,11 @@ class ExtensionUpdateWorker(
 
     override suspend fun doWork(): Result {
         DataManager.instance.awaitReady()
-        val allSucceeded = runCatching {
+        return runCatching {
             GeckoRuntimeProvider.updateAllExtensions(applicationContext)
-        }.getOrDefault(false)
-        return if (allSucceeded) Result.success() else Result.retry()
+        }.fold(
+            onSuccess = { Result.success() },
+            onFailure = { Result.retry() },
+        )
     }
 }

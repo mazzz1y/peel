@@ -48,8 +48,6 @@ class PopupActivity : SessionPageActivity() {
     override val sessionPrivateMode: Boolean
         get() = intent.getBooleanExtra(EXTRA_PRIVATE_MODE, false)
 
-    override val retainSessionAcrossRecreation = true
-
     override val ownerWebAppUuid: String?
         get() = intent.getStringExtra(EXTRA_OWNER_UUID)
 

@@ -524,7 +524,6 @@ class BrowserActivity : BaseSessionHost() {
     override fun onPageFullyLoaded() {
         super.onPageFullyLoaded()
         closeStartupAuthTrackingIfInitialBaseLoaded()
-        lastLoadedUrl = currentUrl
         if (pageLoadHandled || biometricController.isPromptActive) return
         pageLoadHandled = true
     }

@@ -29,7 +29,6 @@ abstract class SessionPageActivity : BaseSessionHost() {
         get() = DataManager.instance.activeWebsites
     override val externalLinkIncludeLoadHere: Boolean = false
 
-    protected open val retainSessionAcrossRecreation = false
     protected open val showToolbar: Boolean = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -97,16 +96,13 @@ abstract class SessionPageActivity : BaseSessionHost() {
     override fun onDestroy() {
         geckoView?.releaseSession()
         geckoView = null
-        if (!retainSessionAcrossRecreation || !isChangingConfigurations) {
-            geckoSession?.close()
-            geckoSession = null
-        }
+        geckoSession?.close()
+        geckoSession = null
         super.onDestroy()
     }
 
     override fun onLocationChanged(url: String) {
         if (baseUrl.isEmpty() && url.isNotBlank() && url != "about:blank") baseUrl = url
-        lastLoadedUrl = url
     }
 
     protected open fun onPageTitleChanged(title: String?) = Unit

@@ -183,15 +183,12 @@ object GeckoRuntimeProvider {
         else controller.disable(ext, source).await()
     }
 
-    suspend fun updateAllExtensions(context: Context): Boolean = withContext(Dispatchers.Main) {
-        var failed = false
+    suspend fun updateAllExtensions(context: Context) = withContext(Dispatchers.Main) {
         for (ext in listUserExtensions(context)) {
             val result = runCatching { updateExtension(context, ext) }
-                .onFailure { failed = true }
                 .getOrNull()
             if (result != null) ExtensionIconCache.refreshFromExtension(context, result)
         }
-        !failed
     }
 
     suspend fun listUserExtensions(context: Context): List<WebExtension> {

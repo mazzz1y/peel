@@ -19,9 +19,6 @@ class ExtensionPageActivity : SessionPageActivity() {
     private val adoptedSessionKey: String?
         get() = intent.getStringExtra(EXTRA_SESSION_KEY)
 
-    override val retainSessionAcrossRecreation: Boolean
-        get() = adoptedSessionKey != null
-
     private var adoptedSession: GeckoSession? = null
 
     override fun onSessionHostReady() {
@@ -52,7 +49,6 @@ class ExtensionPageActivity : SessionPageActivity() {
     private fun openSession(url: String) {
         val session = createSession(effectiveSettings)
         baseUrl = url
-        lastLoadedUrl = url
         connectSession(session)
         session.open(GeckoRuntimeProvider.getRuntime(this))
         val restore = lastSessionState
@@ -62,7 +58,7 @@ class ExtensionPageActivity : SessionPageActivity() {
 
     override fun onDestroy() {
         val session = adoptedSession
-        if (session != null && isFinishing) {
+        if (session != null) {
             val callback = synchronized(onCloseCallbacks) { onCloseCallbacks.remove(session) }
             callback?.invoke()
         }

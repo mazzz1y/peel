@@ -14,6 +14,7 @@ import android.widget.LinearLayout
 import android.widget.ProgressBar
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
@@ -81,6 +82,7 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost, TranslationHo
 
     private var lastTopBarColor: Int? = null
     private var lastBottomBarColor: Int? = null
+    private var connectionErrorDialog: AlertDialog? = null
 
     override var hostOrientation: Int
         get() = requestedOrientation
@@ -376,15 +378,16 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost, TranslationHo
 
     override fun showConnectionError(description: String, url: String) {
         val committed = navigationDelegate.lastLocation
-        val hasPreviousPage = committed.isNotBlank() && committed != url
+        val hasPreviousPage = lastLoadedUrl.isNotBlank()
         val builder = MaterialAlertDialogBuilder(this)
             .setTitle(R.string.site_not_found)
             .setMessage(getString(R.string.connection_error, description))
             .setPositiveButton(R.string.retry) { _, _ -> loadURL(url) }
         when {
-            hasPreviousPage -> builder.setNegativeButton(R.string.back) { _, _ ->
-                geckoSession?.reload()
-            }.setCancelable(false)
+            hasPreviousPage && committed == lastLoadedUrl && committed != url ->
+                builder.setNegativeButton(R.string.back) { _, _ ->
+                    geckoSession?.reload()
+                }.setCancelable(false)
             canGoBack -> builder.setNegativeButton(R.string.back) { _, _ ->
                 geckoSession?.goBack()
             }.setCancelable(false)
@@ -392,7 +395,12 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost, TranslationHo
                 finish()
             }.setCancelable(false)
         }
-        builder.show()
+        connectionErrorDialog?.dismiss()
+        connectionErrorDialog = builder.show().also { dialog ->
+            dialog.setOnDismissListener {
+                if (connectionErrorDialog === dialog) connectionErrorDialog = null
+            }
+        }
     }
 
     override fun showHttpAuthDialog(
@@ -447,7 +455,15 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost, TranslationHo
     }
 
     override fun onPageFullyLoaded() {
+        lastLoadedUrl = navigationDelegate.lastLocation
+        connectionErrorDialog?.dismiss()
         navigationDelegate.onPageLoadFinished()
+    }
+
+    override fun onDestroy() {
+        connectionErrorDialog?.dismiss()
+        connectionErrorDialog = null
+        super.onDestroy()
     }
 
     protected fun tryStartActivity(intent: Intent): Boolean = try {
