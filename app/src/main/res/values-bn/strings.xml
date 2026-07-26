@@ -232,6 +232,7 @@
     <string name="extension_updated_to">%1$s-এ আপডেট হয়েছে</string>
     <string name="extension_already_up_to_date">ইতিমধ্যে আপডেট</string>
     <string name="update_all_extensions">সব আপডেট করুন</string>
+    <string name="auto_update_extensions">স্বয়ংক্রিয় আপডেট</string>
     <string name="extensions_update_summary">%1$d আপডেট, %2$d পরিবর্তন নেই</string>
     <string name="extensions_update_summary_with_failed">%1$d আপডেট, %2$d পরিবর্তন নেই, %3$d ব্যর্থ</string>
     <string name="install_extension_confirm_title">এক্সটেনশন ইনস্টল করবেন?</string>

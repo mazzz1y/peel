@@ -231,6 +231,7 @@
     <string name="extension_updated_to">已更新至 %1$s</string>
     <string name="extension_already_up_to_date">已是最新</string>
     <string name="update_all_extensions">全部更新</string>
+    <string name="auto_update_extensions">自动更新</string>
     <string name="extensions_update_summary">%1$d 已更新，%2$d 无变化</string>
     <string name="extensions_update_summary_with_failed">%1$d 已更新，%2$d 无变化，%3$d 失败</string>
     <string name="install_extension_confirm_title">安装扩展？</string>

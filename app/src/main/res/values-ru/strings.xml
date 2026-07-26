@@ -234,6 +234,7 @@
     <string name="extension_updated_to">Обновлено до %1$s</string>
     <string name="extension_already_up_to_date">Уже обновлено</string>
     <string name="update_all_extensions">Обновить все</string>
+    <string name="auto_update_extensions">Автообновление</string>
     <string name="extensions_update_summary">%1$d обновлено, %2$d без изменений</string>
     <string name="extensions_update_summary_with_failed">%1$d обновлено, %2$d без изменений, %3$d с ошибкой</string>
     <string name="install_extension_confirm_title">Установить расширение?</string>

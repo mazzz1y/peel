@@ -231,6 +231,7 @@
     <string name="extension_updated_to">%1$s ਵਿੱਚ ਅੱਪਡੇਟ ਕੀਤਾ</string>
     <string name="extension_already_up_to_date">ਪਹਿਲਾਂ ਹੀ ਅੱਪਡੇਟ ਹੈ</string>
     <string name="update_all_extensions">ਸਭ ਅੱਪਡੇਟ ਕਰੋ</string>
+    <string name="auto_update_extensions">ਸਵੈ-ਅੱਪਡੇਟ</string>
     <string name="extensions_update_summary">%1$d ਅੱਪਡੇਟ, %2$d ਬਿਨਾ ਬਦਲਾਅ</string>
     <string name="extensions_update_summary_with_failed">%1$d ਅੱਪਡੇਟ, %2$d ਬਿਨਾ ਬਦਲਾਅ, %3$d ਅਸਫਲ</string>
     <string name="install_extension_confirm_title">ਐਕਸਟੈਂਸ਼ਨ ਇੰਸਟਾਲ ਕਰੋ?</string>

@@ -232,6 +232,7 @@
     <string name="extension_updated_to">%1$s में अपडेट किया गया</string>
     <string name="extension_already_up_to_date">पहले से अपडेट है</string>
     <string name="update_all_extensions">सभी अपडेट करें</string>
+    <string name="auto_update_extensions">स्वतः अपडेट</string>
     <string name="extensions_update_summary">%1$d अपडेट, %2$d बिना बदलाव</string>
     <string name="extensions_update_summary_with_failed">%1$d अपडेट, %2$d बिना बदलाव, %3$d विफल</string>
     <string name="install_extension_confirm_title">एक्सटेंशन इंस्टॉल करें?</string>

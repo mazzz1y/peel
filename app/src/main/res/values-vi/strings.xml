@@ -231,6 +231,7 @@
     <string name="extension_updated_to">Đã cập nhật lên %1$s</string>
     <string name="extension_already_up_to_date">Đã là phiên bản mới nhất</string>
     <string name="update_all_extensions">Cập nhật tất cả</string>
+    <string name="auto_update_extensions">Tự động cập nhật</string>
     <string name="extensions_update_summary">%1$d đã cập nhật, %2$d không thay đổi</string>
     <string name="extensions_update_summary_with_failed">%1$d đã cập nhật, %2$d không thay đổi, %3$d thất bại</string>
     <string name="install_extension_confirm_title">Cài đặt tiện ích?</string>

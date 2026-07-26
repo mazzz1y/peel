@@ -232,6 +232,7 @@
     <string name="extension_updated_to">Aggiornato a %1$s</string>
     <string name="extension_already_up_to_date">Già aggiornato</string>
     <string name="update_all_extensions">Aggiorna tutto</string>
+    <string name="auto_update_extensions">Aggiornamento automatico</string>
     <string name="extensions_update_summary">%1$d aggiornate, %2$d già aggiornate</string>
     <string name="extensions_update_summary_with_failed">%1$d aggiornate, %2$d già aggiornate, %3$d fallite</string>
     <string name="install_extension_confirm_title">Installare l\'estensione?</string>
