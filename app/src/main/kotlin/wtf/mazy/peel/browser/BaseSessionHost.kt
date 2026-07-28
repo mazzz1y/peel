@@ -26,6 +26,7 @@ import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -38,6 +39,7 @@ import org.mozilla.geckoview.StorageController
 import wtf.mazy.peel.R
 import wtf.mazy.peel.activities.PopupActivity
 import wtf.mazy.peel.gecko.GeckoRuntimeProvider
+import wtf.mazy.peel.gecko.GeckoRuntimeProvider.awaitVoid
 import wtf.mazy.peel.gecko.VerticalSwipeRefreshLayout
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.model.WebAppSettings
@@ -274,14 +276,21 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost, TranslationHo
         val host = runCatching { lastLoadedUrl.toUri().host }.getOrNull()
         val flags = StorageController.ClearFlags.NETWORK_CACHE or
                 StorageController.ClearFlags.IMAGE_CACHE
-        val runtime = GeckoRuntimeProvider.getRuntime(this)
-        if (!host.isNullOrBlank()) {
-            runtime.storageController.clearDataFromBaseDomain(host, flags)
-        } else {
-            runtime.storageController.clearData(flags)
+        val storage = GeckoRuntimeProvider.getRuntime(this).storageController
+        lifecycleScope.launch {
+            if (!host.isNullOrBlank()) {
+                try {
+                    storage.clearDataFromBaseDomain(host, flags).awaitVoid()
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (_: Throwable) {
+                }
+            }
+            NotificationUtils.showToast(this@BaseSessionHost, getString(R.string.cache_cleared))
+            geckoSession?.reload(
+                GeckoSession.LOAD_FLAGS_BYPASS_CACHE or GeckoSession.LOAD_FLAGS_BYPASS_PROXY
+            )
         }
-        NotificationUtils.showToast(this, getString(R.string.cache_cleared))
-        reloadCurrentPage()
     }
 
     protected suspend fun setupThemeColorExtensionIfEnabled() {
