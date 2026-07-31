@@ -112,6 +112,7 @@ dependencies {
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2'
     implementation 'androidx.media3:media3-session:1.9.2'
     implementation 'androidx.work:work-runtime-ktx:2.11.2'
+    implementation 'org.unifiedpush.android:connector:3.3.3'
     implementation 'androidx.room:room-runtime:2.8.4'
     implementation 'androidx.room:room-ktx:2.8.4'
     ksp 'androidx.room:room-compiler:2.8.4'

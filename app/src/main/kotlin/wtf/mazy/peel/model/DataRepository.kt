@@ -3,6 +3,8 @@ package wtf.mazy.peel.model
 import android.content.Context
 import wtf.mazy.peel.model.db.AppDatabase
 import wtf.mazy.peel.model.db.ProxyDao
+import wtf.mazy.peel.model.db.PushSubscriptionDao
+import wtf.mazy.peel.model.db.PushSubscriptionEntity
 import wtf.mazy.peel.model.db.WebAppDao
 import wtf.mazy.peel.model.db.WebAppGroupDao
 import wtf.mazy.peel.model.db.toDomain
@@ -12,6 +14,7 @@ class DataRepository {
     private lateinit var webAppDao: WebAppDao
     private lateinit var groupDao: WebAppGroupDao
     private lateinit var proxyDao: ProxyDao
+    private lateinit var pushSubscriptionDao: PushSubscriptionDao
 
     val isInitialized: Boolean
         get() = ::webAppDao.isInitialized && ::groupDao.isInitialized && ::proxyDao.isInitialized
@@ -21,6 +24,7 @@ class DataRepository {
         webAppDao = db.webAppDao()
         groupDao = db.webAppGroupDao()
         proxyDao = db.proxyDao()
+        pushSubscriptionDao = db.pushSubscriptionDao()
     }
 
     fun getGlobalSettings(): WebApp? = webAppDao.getGlobalSettings()?.toDomain()
@@ -85,5 +89,24 @@ class DataRepository {
 
     fun replaceAllProxies(proxies: List<Proxy>) {
         proxyDao.replaceAll(proxies.map { it.toEntity() })
+    }
+
+    fun getAllPushSubscriptions(): List<PushSubscriptionEntity> = pushSubscriptionDao.getAll()
+
+    fun getPushSubscription(instance: String): PushSubscriptionEntity? =
+        pushSubscriptionDao.getByInstance(instance)
+
+    fun getPushSubscriptionByScope(scope: String): PushSubscriptionEntity? =
+        pushSubscriptionDao.getByScope(scope)
+
+    fun getPushSubscriptionsForContext(contextId: String): List<PushSubscriptionEntity> =
+        pushSubscriptionDao.getByContextId(contextId)
+
+    fun upsertPushSubscription(entity: PushSubscriptionEntity) {
+        pushSubscriptionDao.upsert(entity)
+    }
+
+    fun deletePushSubscription(instance: String) {
+        pushSubscriptionDao.deleteByInstance(instance)
     }
 }

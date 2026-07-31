@@ -316,4 +316,19 @@
     <string name="settings_section_export_summary">সব অ্যাপ ও সেটিংস একটি ফাইলে সংরক্ষণ করুন</string>
     <string name="settings_section_clear_summary">ব্রাউজিং ডেটা মুছুন বা অ্যাপ রিসেট করুন</string>
     <string name="settings_section_about_summary">সংস্করণ, ইঞ্জিন এবং লিঙ্ক</string>
+    <string name="notifications">বিজ্ঞপ্তি</string>
+    <string name="settings_section_notifications_summary">ওয়েব পুশ সাবস্ক্রিপশন পরিচালনা করুন</string>
+    <string name="notifications_empty_state">এখনও কোনও সাইট বিজ্ঞপ্তির অনুমতি চায়নি।</string>
+    <string name="push_distributor">বিতরণ অ্যাপ</string>
+    <string name="push_enable">পুশ বিজ্ঞপ্তি সক্রিয় করুন</string>
+    <string name="push_disable_confirm">পুশ বিজ্ঞপ্তি বন্ধ করবেন? সব পুশ সাবস্ক্রিপশন মুছে যাবে এবং বিতরণ অ্যাপের সংযোগ বিচ্ছিন্ন হবে।</string>
+    <string name="turn_off">বন্ধ করুন</string>
+    <string name="push_no_distributor">কোনও UnifiedPush অ্যাপ ইনস্টল করা নেই</string>
+    <string name="push_no_distributor_message">পুশ বিজ্ঞপ্তির জন্য ntfy বা Sunup-এর মতো একটি UnifiedPush ডিস্ট্রিবিউটর অ্যাপ প্রয়োজন। আরও জানুন unifiedpush.org-এ।</string>
+    <string name="push_scope_none">কোনও স্যান্ডবক্স নেই</string>
+    <string name="push_status_allowed">অনুমোদিত</string>
+    <string name="push_status_denied">প্রত্যাখ্যাত</string>
+    <string name="push_subscription_deleted">বিজ্ঞপ্তির অনুমতি রিসেট করা হয়েছে</string>
+    <string name="push_subscription_delete_confirm">এই সাইটের বিজ্ঞপ্তি রিসেট করবেন? যেকোনও সাবস্ক্রিপশন সরানো হবে এবং সাইটটি পরের বার প্রয়োজন হলে আবার অনুমতি চাইবে।</string>
+    <string name="permission_prompt_notifications">%1$s-কে আপনাকে বিজ্ঞপ্তি পাঠানোর অনুমতি দেবেন?</string>
 </resources>

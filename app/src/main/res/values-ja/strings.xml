@@ -313,4 +313,19 @@
     <string name="settings_section_export_summary">すべてのアプリと設定をファイルに保存</string>
     <string name="settings_section_clear_summary">閲覧データを消去、またはアプリをリセット</string>
     <string name="settings_section_about_summary">バージョン、エンジン、リンク</string>
+    <string name="notifications">通知</string>
+    <string name="settings_section_notifications_summary">ウェブプッシュの購読を管理</string>
+    <string name="notifications_empty_state">通知の許可を求めたサイトはまだありません。</string>
+    <string name="push_distributor">配信アプリ</string>
+    <string name="push_enable">プッシュ通知を有効にする</string>
+    <string name="push_disable_confirm">プッシュ通知を無効にしますか？すべてのプッシュ購読が削除され、配信アプリの連携が解除されます。</string>
+    <string name="turn_off">無効にする</string>
+    <string name="push_no_distributor">UnifiedPushアプリがインストールされていません</string>
+    <string name="push_no_distributor_message">プッシュ通知には、ntfyやSunupなどのUnifiedPushディストリビューターアプリが必要です。詳細はunifiedpush.orgをご覧ください。</string>
+    <string name="push_scope_none">サンドボックスなし</string>
+    <string name="push_status_allowed">許可</string>
+    <string name="push_status_denied">拒否</string>
+    <string name="push_subscription_deleted">通知の許可をリセットしました</string>
+    <string name="push_subscription_delete_confirm">このサイトの通知をリセットしますか？購読は削除され、次にサイトが通知を要求したときに再度許可を求めます。</string>
+    <string name="permission_prompt_notifications">%1$sに通知の送信を許可しますか？</string>
 </resources>

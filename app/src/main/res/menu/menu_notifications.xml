@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/action_distributor"
+        android:title="@string/push_distributor"
+        app:actionLayout="@layout/view_toolbar_label"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/action_push_enabled"
+        android:title="@string/push_enable"
+        app:actionLayout="@layout/view_toolbar_switch"
+        app:showAsAction="always" />
+
+</menu>

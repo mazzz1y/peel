@@ -74,6 +74,9 @@ class SettingsHubActivity : ToolbarBaseActivity<SettingsHubBinding>() {
         HubEntry(R.string.groups, R.string.settings_section_groups_summary, R.drawable.ic_symbols_folder_24) {
             startActivity(Intent(this, GroupListActivity::class.java))
         },
+        HubEntry(R.string.notifications, R.string.settings_section_notifications_summary, R.drawable.ic_symbols_notifications_24) {
+            startActivity(Intent(this, NotificationListActivity::class.java))
+        },
         HubEntry(R.string.extensions, R.string.settings_section_extensions_summary, R.drawable.ic_symbols_extension_24) {
             startActivity(Intent(this, ExtensionsActivity::class.java))
         },

@@ -1,6 +1,7 @@
 package wtf.mazy.peel.browser
 
 import android.Manifest
+import android.os.Build
 import org.mozilla.geckoview.GeckoResult
 import org.mozilla.geckoview.GeckoSession
 import wtf.mazy.peel.R
@@ -49,6 +50,20 @@ class PeelPermissionDelegate(private val host: SessionHost) : GeckoSession.Permi
                     result.complete(GeckoSession.PermissionDelegate.ContentPermission.VALUE_ALLOW)
                 } else {
                     result.complete(GeckoSession.PermissionDelegate.ContentPermission.VALUE_DENY)
+                }
+            }
+
+            GeckoSession.PermissionDelegate.PERMISSION_DESKTOP_NOTIFICATION -> {
+                handleTriState(
+                    WebAppSettings.PERMISSION_ASK,
+                    notificationOsPermissions(),
+                    PERM_KEY_NOTIFICATION,
+                    R.string.permission_prompt_notifications,
+                ) { granted ->
+                    result.complete(
+                        if (granted) GeckoSession.PermissionDelegate.ContentPermission.VALUE_ALLOW
+                        else GeckoSession.PermissionDelegate.ContentPermission.VALUE_DENY
+                    )
                 }
             }
 
@@ -207,10 +222,18 @@ class PeelPermissionDelegate(private val host: SessionHost) : GeckoSession.Permi
         }
     }
 
+    private fun notificationOsPermissions(): List<String> =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            listOf(Manifest.permission.POST_NOTIFICATIONS)
+        } else {
+            emptyList()
+        }
+
     companion object {
         private const val MAX_NAME_LENGTH = 30
         private const val PERM_KEY_LOCATION = 1
         private const val PERM_KEY_CAMERA = 2
         private const val PERM_KEY_MICROPHONE = 3
+        private const val PERM_KEY_NOTIFICATION = 4
     }
 }

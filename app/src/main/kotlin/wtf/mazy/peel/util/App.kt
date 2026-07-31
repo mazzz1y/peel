@@ -11,6 +11,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import wtf.mazy.peel.browser.ProxyRouterBridge
 import wtf.mazy.peel.model.DataManager
+import wtf.mazy.peel.push.PushBridge
 import wtf.mazy.peel.work.ExtensionUpdateScheduler
 
 class App : Application() {
@@ -32,6 +33,7 @@ class App : Application() {
             DataManager.instance.initialize(applicationContext)
             ProxyRouterBridge.ensure(applicationContext)
             ExtensionUpdateScheduler.apply(applicationContext)
+            PushBridge.reconcile(applicationContext)
         }
     }
 

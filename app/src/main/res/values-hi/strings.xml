@@ -316,4 +316,19 @@
     <string name="settings_section_export_summary">सभी ऐप्स और सेटिंग को फ़ाइल में सहेजें</string>
     <string name="settings_section_clear_summary">ब्राउज़िंग डेटा साफ़ करें या ऐप रीसेट करें</string>
     <string name="settings_section_about_summary">संस्करण, इंजन और लिंक</string>
+    <string name="notifications">सूचनाएं</string>
+    <string name="settings_section_notifications_summary">वेब पुश सदस्यताएं प्रबंधित करें</string>
+    <string name="notifications_empty_state">अभी तक किसी साइट ने सूचना की अनुमति नहीं मांगी है।</string>
+    <string name="push_distributor">वितरण ऐप</string>
+    <string name="push_enable">पुश सूचनाएं सक्षम करें</string>
+    <string name="push_disable_confirm">पुश सूचनाएं बंद करें? सभी पुश सदस्यताएं हटा दी जाएंगी और वितरण ऐप अनलिंक कर दिया जाएगा।</string>
+    <string name="turn_off">बंद करें</string>
+    <string name="push_no_distributor">कोई UnifiedPush ऐप इंस्टॉल नहीं है</string>
+    <string name="push_no_distributor_message">पुश सूचनाओं के लिए ntfy या Sunup जैसे UnifiedPush डिस्ट्रीब्यूटर ऐप की आवश्यकता होती है। अधिक जानें unifiedpush.org पर।</string>
+    <string name="push_scope_none">कोई सैंडबॉक्स नहीं</string>
+    <string name="push_status_allowed">अनुमत</string>
+    <string name="push_status_denied">अस्वीकृत</string>
+    <string name="push_subscription_deleted">सूचना अनुमति रीसेट की गई</string>
+    <string name="push_subscription_delete_confirm">इस साइट की सूचनाएं रीसेट करें? कोई भी सदस्यता हटा दी जाएगी और साइट अगली बार आवश्यकता होने पर फिर से अनुमति मांगेगी।</string>
+    <string name="permission_prompt_notifications">%1$s को आपको सूचनाएं भेजने की अनुमति दें?</string>
 </resources>

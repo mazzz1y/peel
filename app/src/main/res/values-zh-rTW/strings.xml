@@ -313,4 +313,19 @@
     <string name="settings_section_export_summary">將所有應用程式與設定儲存至檔案</string>
     <string name="settings_section_clear_summary">清除瀏覽資料或重設應用程式</string>
     <string name="settings_section_about_summary">版本、引擎與連結</string>
+    <string name="notifications">通知</string>
+    <string name="settings_section_notifications_summary">管理網頁推播訂閱</string>
+    <string name="notifications_empty_state">尚無網站請求通知權限。</string>
+    <string name="push_distributor">派送應用程式</string>
+    <string name="push_enable">啟用推播通知</string>
+    <string name="push_disable_confirm">關閉推播通知？所有推播訂閱將被刪除，派送應用程式將被解除連結。</string>
+    <string name="turn_off">關閉</string>
+    <string name="push_no_distributor">未安裝 UnifiedPush 應用程式</string>
+    <string name="push_no_distributor_message">推播通知需要 ntfy 或 Sunup 等 UnifiedPush 派送應用程式。詳見 unifiedpush.org。</string>
+    <string name="push_scope_none">無沙箱</string>
+    <string name="push_status_allowed">已允許</string>
+    <string name="push_status_denied">已拒絕</string>
+    <string name="push_subscription_deleted">通知權限已重設</string>
+    <string name="push_subscription_delete_confirm">重設此網站的通知？所有訂閱將被移除，該網站下次請求通知時會再次詢問權限。</string>
+    <string name="permission_prompt_notifications">允許 %1$s 向您傳送通知？</string>
 </resources>

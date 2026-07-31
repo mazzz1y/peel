@@ -313,4 +313,19 @@
     <string name="settings_section_export_summary">Lưu tất cả ứng dụng và cài đặt vào một tệp</string>
     <string name="settings_section_clear_summary">Xóa dữ liệu duyệt web hoặc đặt lại ứng dụng</string>
     <string name="settings_section_about_summary">Phiên bản, công cụ và liên kết</string>
+    <string name="notifications">Thông báo</string>
+    <string name="settings_section_notifications_summary">Quản lý các đăng ký web push</string>
+    <string name="notifications_empty_state">Chưa có trang nào yêu cầu quyền thông báo.</string>
+    <string name="push_distributor">Ứng dụng chuyển phát</string>
+    <string name="push_enable">Bật thông báo đẩy</string>
+    <string name="push_disable_confirm">Tắt thông báo đẩy? Tất cả đăng ký push sẽ bị xóa và ứng dụng chuyển phát sẽ bị hủy liên kết.</string>
+    <string name="turn_off">Tắt</string>
+    <string name="push_no_distributor">Chưa cài ứng dụng UnifiedPush</string>
+    <string name="push_no_distributor_message">Thông báo đẩy cần một ứng dụng phân phối UnifiedPush như ntfy hoặc Sunup. Tìm hiểu thêm tại unifiedpush.org.</string>
+    <string name="push_scope_none">Không có sandbox</string>
+    <string name="push_status_allowed">Đã cho phép</string>
+    <string name="push_status_denied">Đã từ chối</string>
+    <string name="push_subscription_deleted">Đã đặt lại quyền thông báo</string>
+    <string name="push_subscription_delete_confirm">Đặt lại thông báo cho trang này? Mọi đăng ký sẽ bị xóa và trang sẽ hỏi lại quyền vào lần tới khi cần.</string>
+    <string name="permission_prompt_notifications">Cho phép %1$s gửi thông báo cho bạn?</string>
 </resources>

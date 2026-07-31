@@ -395,11 +395,8 @@ class BrowserActivity : BaseSessionHost() {
         geckoSession?.close()
         geckoSession = null
         geckoView = null
-        if (resolvedWebapp != null && resolvedWebapp.isUseContainer && resolvedWebapp.resolveEphemeral()) {
-            val contextId = resolvedWebapp.resolveContextId()
-            if (contextId != null) {
-                SandboxManager.clearSandboxData(this, contextId)
-            }
+        resolvedWebapp?.resolveEphemeralContextId()?.let {
+            SandboxManager.clearSandboxData(this, it)
         }
         webappUuid?.let { DataManager.instance.removeTransientWebApp(it) }
         super.onDestroy()

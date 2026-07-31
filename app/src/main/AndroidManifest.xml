@@ -150,6 +150,26 @@
             android:exported="false"
             android:foregroundServiceType="dataSync" />
 
+        <service
+            android:name=".push.PeelPushService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="org.unifiedpush.android.connector.PUSH_EVENT" />
+            </intent-filter>
+        </service>
+
+        <receiver
+            android:name=".push.PushNotificationClickReceiver"
+            android:exported="false" />
+
+        <activity
+            android:name=".push.NotificationClickActivity"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:noHistory="true"
+            android:taskAffinity=""
+            android:theme="@style/AppTheme.Transparent" />
+
         <activity
             android:name=".activities.ShareReceiverActivity"
             android:excludeFromRecents="true"
@@ -236,6 +256,13 @@
             android:name=".activities.GroupListActivity"
             android:icon="@mipmap/ic_launcher"
             android:parentActivityName=".activities.MainActivity"
+            android:roundIcon="@mipmap/ic_launcher"
+            android:theme="@style/AppTheme"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".activities.NotificationListActivity"
+            android:icon="@mipmap/ic_launcher"
+            android:parentActivityName=".activities.SettingsHubActivity"
             android:roundIcon="@mipmap/ic_launcher"
             android:theme="@style/AppTheme"
             android:windowSoftInputMode="adjustResize" />

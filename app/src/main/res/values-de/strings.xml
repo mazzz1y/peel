@@ -316,4 +316,19 @@
     <string name="settings_section_export_summary">Alle Apps und Einstellungen in einer Datei speichern</string>
     <string name="settings_section_clear_summary">Browserdaten löschen oder App zurücksetzen</string>
     <string name="settings_section_about_summary">Version, Engine und Links</string>
+    <string name="notifications">Benachrichtigungen</string>
+    <string name="settings_section_notifications_summary">Web-Push-Abonnements verwalten</string>
+    <string name="notifications_empty_state">Noch keine Website hat um Benachrichtigungsberechtigung gebeten.</string>
+    <string name="push_distributor">Zustell-App</string>
+    <string name="push_enable">Push-Benachrichtigungen aktivieren</string>
+    <string name="push_disable_confirm">Push-Benachrichtigungen deaktivieren? Alle Push-Abonnements werden gelöscht und die Zustell-App wird getrennt.</string>
+    <string name="turn_off">Deaktivieren</string>
+    <string name="push_no_distributor">Keine UnifiedPush-App installiert</string>
+    <string name="push_no_distributor_message">Push-Benachrichtigungen benötigen eine UnifiedPush-Distributor-App wie ntfy oder Sunup. Mehr dazu auf unifiedpush.org.</string>
+    <string name="push_scope_none">Keine Sandbox</string>
+    <string name="push_status_allowed">Erlaubt</string>
+    <string name="push_status_denied">Verweigert</string>
+    <string name="push_subscription_deleted">Benachrichtigungsberechtigung zurückgesetzt</string>
+    <string name="push_subscription_delete_confirm">Benachrichtigungen für diese Website zurücksetzen? Vorhandene Abonnements werden entfernt und die Website fragt erneut nach der Berechtigung, wenn sie sie das nächste Mal anfordert.</string>
+    <string name="permission_prompt_notifications">%1$s erlauben, Ihnen Benachrichtigungen zu senden?</string>
 </resources>

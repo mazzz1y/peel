@@ -315,4 +315,19 @@
     <string name="settings_section_export_summary">ਸਾਰੀਆਂ ਐਪਾਂ ਅਤੇ ਸੈਟਿੰਗਾਂ ਨੂੰ ਇੱਕ ਫ਼ਾਈਲ ਵਿੱਚ ਸੰਭਾਲੋ</string>
     <string name="settings_section_clear_summary">ਬ੍ਰਾਊਜ਼ਿੰਗ ਡਾਟਾ ਸਾਫ਼ ਕਰੋ ਜਾਂ ਐਪ ਰੀਸੈੱਟ ਕਰੋ</string>
     <string name="settings_section_about_summary">ਵਰਜਨ, ਇੰਜਣ ਅਤੇ ਲਿੰਕ</string>
+    <string name="notifications">ਸੂਚਨਾਵਾਂ</string>
+    <string name="settings_section_notifications_summary">ਵੈੱਬ ਪੁਸ਼ ਮੈਂਬਰਸ਼ਿਪਾਂ ਦਾ ਪ੍ਰਬੰਧ ਕਰੋ</string>
+    <string name="notifications_empty_state">ਹਾਲੇ ਕਿਸੇ ਸਾਈਟ ਨੇ ਸੂਚਨਾ ਦੀ ਇਜਾਜ਼ਤ ਨਹੀਂ ਮੰਗੀ।</string>
+    <string name="push_distributor">ਡਿਲਿਵਰੀ ਐਪ</string>
+    <string name="push_enable">ਪੁਸ਼ ਸੂਚਨਾਵਾਂ ਚਾਲੂ ਕਰੋ</string>
+    <string name="push_disable_confirm">ਪੁਸ਼ ਸੂਚਨਾਵਾਂ ਬੰਦ ਕਰਨੀਆਂ ਹਨ? ਸਾਰੀਆਂ ਪੁਸ਼ ਮੈਂਬਰਸ਼ਿਪਾਂ ਮਿਟਾ ਦਿੱਤੀਆਂ ਜਾਣਗੀਆਂ ਅਤੇ ਡਿਲਿਵਰੀ ਐਪ ਅਣ-ਲਿੰਕ ਕਰ ਦਿੱਤੀ ਜਾਵੇਗੀ।</string>
+    <string name="turn_off">ਬੰਦ ਕਰੋ</string>
+    <string name="push_no_distributor">ਕੋਈ UnifiedPush ਐਪ ਇੰਸਟਾਲ ਨਹੀਂ ਹੈ</string>
+    <string name="push_no_distributor_message">ਪੁਸ਼ ਸੂਚਨਾਵਾਂ ਲਈ ntfy ਜਾਂ Sunup ਵਰਗੀ UnifiedPush ਡਿਸਟ੍ਰੀਬਿਊਟਰ ਐਪ ਦੀ ਲੋੜ ਹੁੰਦੀ ਹੈ। unifiedpush.org \'ਤੇ ਹੋਰ ਜਾਣੋ।</string>
+    <string name="push_scope_none">ਕੋਈ ਸੈਂਡਬਾਕਸ ਨਹੀਂ</string>
+    <string name="push_status_allowed">ਇਜਾਜ਼ਤ ਦਿੱਤੀ</string>
+    <string name="push_status_denied">ਇਨਕਾਰ ਕੀਤਾ</string>
+    <string name="push_subscription_deleted">ਸੂਚਨਾ ਇਜਾਜ਼ਤ ਰੀਸੈੱਟ ਕੀਤੀ ਗਈ</string>
+    <string name="push_subscription_delete_confirm">ਇਸ ਸਾਈਟ ਲਈ ਸੂਚਨਾਵਾਂ ਰੀਸੈੱਟ ਕਰਨੀਆਂ ਹਨ? ਕੋਈ ਵੀ ਮੈਂਬਰਸ਼ਿਪ ਹਟਾ ਦਿੱਤੀ ਜਾਵੇਗੀ ਅਤੇ ਸਾਈਟ ਅਗਲੀ ਵਾਰ ਲੋੜ ਪੈਣ \'ਤੇ ਦੁਬਾਰਾ ਇਜਾਜ਼ਤ ਮੰਗੇਗੀ।</string>
+    <string name="permission_prompt_notifications">%1$s ਨੂੰ ਤੁਹਾਨੂੰ ਸੂਚਨਾਵਾਂ ਭੇਜਣ ਦੀ ਇਜਾਜ਼ਤ ਦਿਓ?</string>
 </resources>

@@ -316,4 +316,19 @@
     <string name="settings_section_export_summary">Salvar todos os apps e configurações em um arquivo</string>
     <string name="settings_section_clear_summary">Limpar dados de navegação ou redefinir o app</string>
     <string name="settings_section_about_summary">Versão, motor e links</string>
+    <string name="notifications">Notificações</string>
+    <string name="settings_section_notifications_summary">Gerenciar inscrições de push da web</string>
+    <string name="notifications_empty_state">Nenhum site pediu permissão de notificações ainda.</string>
+    <string name="push_distributor">App de entrega</string>
+    <string name="push_enable">Ativar notificações push</string>
+    <string name="push_disable_confirm">Desativar as notificações push? Todas as inscrições push serão excluídas e o app de entrega será desvinculado.</string>
+    <string name="turn_off">Desativar</string>
+    <string name="push_no_distributor">Nenhum app UnifiedPush instalado</string>
+    <string name="push_no_distributor_message">As notificações push precisam de um app distribuidor UnifiedPush como o ntfy ou o Sunup. Saiba mais em unifiedpush.org.</string>
+    <string name="push_scope_none">Sem sandbox</string>
+    <string name="push_status_allowed">Permitido</string>
+    <string name="push_status_denied">Negado</string>
+    <string name="push_subscription_deleted">Permissão de notificações redefinida</string>
+    <string name="push_subscription_delete_confirm">Redefinir as notificações deste site? Qualquer inscrição será removida e o site pedirá permissão novamente na próxima vez que solicitar.</string>
+    <string name="permission_prompt_notifications">Permitir %1$s enviar notificações?</string>
 </resources>

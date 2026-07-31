@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import wtf.mazy.peel.model.db.PushSubscriptionEntity
 import wtf.mazy.peel.shortcut.ShortcutHelper
 import wtf.mazy.peel.shortcut.ShortcutIconUtils
 import wtf.mazy.peel.util.App
@@ -116,6 +117,16 @@ class DataManager private constructor() {
         data class RemoveProxy(
             override val done: CompletableDeferred<Unit>,
             val uuid: String,
+        ) : Action
+
+        data class UpsertPushSubscription(
+            override val done: CompletableDeferred<Unit>,
+            val entity: PushSubscriptionEntity,
+        ) : Action
+
+        data class RemovePushSubscription(
+            override val done: CompletableDeferred<Unit>,
+            val instance: String,
         ) : Action
     }
 
@@ -314,6 +325,9 @@ class DataManager private constructor() {
     fun getGroup(uuid: String): WebAppGroup? =
         currentState.groups.find { it.uuid == uuid }?.let { WebAppGroup(it) }
 
+    fun getSandboxOwner(contextId: String): SandboxOwner? =
+        getWebApp(contextId) ?: getGroup(contextId)
+
     suspend fun addGroup(group: WebAppGroup) {
         awaitReady()
         enqueueAndAwait(Action.AddGroup(CompletableDeferred(), WebAppGroup(group)))
@@ -351,6 +365,28 @@ class DataManager private constructor() {
     suspend fun removeProxy(uuid: String) {
         awaitReady()
         enqueueAndAwait(Action.RemoveProxy(CompletableDeferred(), uuid))
+    }
+
+    fun getPushSubscriptions(): List<PushSubscriptionEntity> =
+        if (repository.isInitialized) repository.getAllPushSubscriptions() else emptyList()
+
+    fun getPushSubscription(instance: String): PushSubscriptionEntity? =
+        if (repository.isInitialized) repository.getPushSubscription(instance) else null
+
+    fun getPushSubscriptionByScope(scope: String): PushSubscriptionEntity? =
+        if (repository.isInitialized) repository.getPushSubscriptionByScope(scope) else null
+
+    fun getPushSubscriptionsForContext(contextId: String): List<PushSubscriptionEntity> =
+        if (repository.isInitialized) repository.getPushSubscriptionsForContext(contextId) else emptyList()
+
+    suspend fun upsertPushSubscription(entity: PushSubscriptionEntity) {
+        awaitReady()
+        enqueueAndAwait(Action.UpsertPushSubscription(CompletableDeferred(), entity))
+    }
+
+    suspend fun removePushSubscription(instance: String) {
+        awaitReady()
+        enqueueAndAwait(Action.RemovePushSubscription(CompletableDeferred(), instance))
     }
 
     fun proxyDependents(uuid: String): Pair<List<WebApp>, List<WebAppGroup>> {
@@ -491,7 +527,9 @@ class DataManager private constructor() {
                 val importedAppUuids = action.importedWebApps.mapTo(mutableSetOf()) { it.uuid }
                 oldWebsites.filter { it.uuid !in importedAppUuids }
                     .forEach {
-                        SandboxManager.clearSandboxData(App.appContext, it.uuid)
+                        if (it.isUseContainer) {
+                            SandboxManager.clearSandboxData(App.appContext, it.uuid)
+                        }
                         it.deleteIcon()
                         deleteAppPrefs(App.appContext, it.uuid)
                     }
@@ -554,8 +592,8 @@ class DataManager private constructor() {
                     appsInGroup.forEach { repository.deleteWebApp(it.uuid) }
                     currentState.websites.filterNot { it.groupUuid == groupUuid }.map { WebApp(it) }
                 }
+                SandboxManager.clearSandboxData(App.appContext, groupUuid)
                 if (!action.ungroupApps) {
-                    SandboxManager.clearSandboxData(App.appContext, groupUuid)
                     appsInGroup.filter { it.isUseContainer }
                         .forEach { SandboxManager.clearSandboxData(App.appContext, it.uuid) }
                 }
@@ -643,6 +681,18 @@ class DataManager private constructor() {
                         emit = true,
                     )
                 )
+            }
+
+            is Action.UpsertPushSubscription -> {
+                if (!repository.isInitialized) return
+                repository.upsertPushSubscription(action.entity)
+                _state.tryEmit(currentState)
+            }
+
+            is Action.RemovePushSubscription -> {
+                if (!repository.isInitialized) return
+                repository.deletePushSubscription(action.instance)
+                _state.tryEmit(currentState)
             }
         }
     }

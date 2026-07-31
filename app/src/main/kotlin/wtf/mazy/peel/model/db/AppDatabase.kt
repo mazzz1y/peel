@@ -37,8 +37,13 @@ class StringListConverter {
 }
 
 @Database(
-    entities = [WebAppEntity::class, WebAppGroupEntity::class, ProxyEntity::class],
-    version = 20,
+    entities = [
+        WebAppEntity::class,
+        WebAppGroupEntity::class,
+        ProxyEntity::class,
+        PushSubscriptionEntity::class,
+    ],
+    version = 21,
     exportSchema = true,
 )
 @TypeConverters(StringMapConverter::class, StringListConverter::class)
@@ -49,6 +54,8 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun webAppGroupDao(): WebAppGroupDao
 
     abstract fun proxyDao(): ProxyDao
+
+    abstract fun pushSubscriptionDao(): PushSubscriptionDao
 
     companion object {
         private const val DATABASE_NAME = "peel.db"
@@ -436,6 +443,24 @@ abstract class AppDatabase : RoomDatabase() {
                 }
             }
 
+        val MIGRATION_20_21 =
+            object : Migration(20, 21) {
+                override fun migrate(db: SupportSQLiteDatabase) {
+                    ensureSettingsColumns(db)
+                    db.execSQL(
+                        """
+                        CREATE TABLE IF NOT EXISTS push_subscriptions (
+                            instance TEXT NOT NULL PRIMARY KEY,
+                            contextId TEXT,
+                            scope TEXT NOT NULL,
+                            endpoint TEXT NOT NULL,
+                            appServerKey TEXT
+                        )
+                        """
+                    )
+                }
+            }
+
         val MIGRATION_16_17 =
             object : Migration(16, 17) {
                 override fun migrate(db: SupportSQLiteDatabase) {
@@ -499,6 +524,7 @@ abstract class AppDatabase : RoomDatabase() {
                     MIGRATION_17_18,
                     MIGRATION_18_19,
                     MIGRATION_19_20,
+                    MIGRATION_20_21,
                 )
                 .allowMainThreadQueries()
                 .build()

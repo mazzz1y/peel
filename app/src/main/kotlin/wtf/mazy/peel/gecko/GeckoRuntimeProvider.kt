@@ -25,6 +25,9 @@ import wtf.mazy.peel.BuildConfig
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.WebAppSettings
+import wtf.mazy.peel.push.PushBridge
+import wtf.mazy.peel.push.ServiceWorkerBridge
+import wtf.mazy.peel.push.WebNotificationBridge
 import wtf.mazy.peel.ui.extensions.ExtensionIconCache
 import wtf.mazy.peel.ui.extensions.ExtensionPermissionPrompt
 import wtf.mazy.peel.ui.extensions.SessionExtensionActions
@@ -75,6 +78,9 @@ object GeckoRuntimeProvider {
                 runtime = rt
                 setupPromptDelegate(rt)
                 setupAddonManagerDelegate(rt, context.applicationContext)
+                PushBridge.attach(rt, context.applicationContext)
+                WebNotificationBridge.attach(rt, context.applicationContext)
+                ServiceWorkerBridge.attach(rt, context.applicationContext)
             }
         }
     }

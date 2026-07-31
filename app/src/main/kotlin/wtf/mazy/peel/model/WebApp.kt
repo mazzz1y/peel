@@ -86,9 +86,12 @@ data class WebApp(var baseUrl: String, override val uuid: String = UUID.randomUU
 
     fun resolvePrivateMode(): Boolean = isPrivateSession
 
-    fun resolveEphemeral(): Boolean =
+    override fun resolveEphemeral(): Boolean =
         isEphemeralSandbox ||
                 (groupUuid?.let { DataManager.instance.getGroup(it) }?.isEphemeralSandbox == true)
+
+    fun resolveEphemeralContextId(): String? =
+        uuid.takeIf { !isPrivateSession && isUseContainer && resolveEphemeral() }
 
     fun resolveProxyUuid(): String? {
         if (!isUseContainer) {

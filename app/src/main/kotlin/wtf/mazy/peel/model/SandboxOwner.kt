@@ -5,4 +5,6 @@ interface SandboxOwner {
     var isUseContainer: Boolean
     var isEphemeralSandbox: Boolean
     var proxyUuid: String?
+
+    fun resolveEphemeral(): Boolean = isEphemeralSandbox
 }
