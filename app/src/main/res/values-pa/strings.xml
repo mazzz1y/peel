@@ -252,6 +252,7 @@
     </plurals>
     <string name="setting_disable_quic">QUIC ਅਯੋਗ ਕਰੋ</string>
     <string name="setting_disable_ech">ECH ਅਯੋਗ ਕਰੋ</string>
+    <string name="setting_use_system_certs">ਸਿਸਟਮ ਸਰਟੀਫਿਕੇਟਾਂ ਉੱਤੇ ਭਰੋਸਾ ਕਰੋ</string>
     <string name="setting_custom_gecko_prefs">ਕਸਟਮ Gecko ਤਰਜੀਹਾਂ</string>
     <string name="setting_custom_gecko_prefs_key_hint">ਨਾਮ</string>
     <string name="setting_custom_gecko_prefs_value_hint">ਮੁੱਲ</string>

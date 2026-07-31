@@ -250,6 +250,7 @@
     </plurals>
     <string name="setting_disable_quic">停用 QUIC</string>
     <string name="setting_disable_ech">停用 ECH</string>
+    <string name="setting_use_system_certs">信任系統憑證</string>
     <string name="setting_custom_gecko_prefs">自訂 Gecko 偏好設定</string>
     <string name="setting_custom_gecko_prefs_key_hint">名稱</string>
     <string name="setting_custom_gecko_prefs_value_hint">值</string>

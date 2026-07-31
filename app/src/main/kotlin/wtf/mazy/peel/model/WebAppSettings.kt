@@ -35,6 +35,7 @@ data class WebAppSettings(
     var isBlockWebRtcIpLeak: Boolean? = null,
     var isDisableQuic: Boolean? = null,
     var isDisableEch: Boolean? = null,
+    var isUseSystemCerts: Boolean? = null,
     var isUseBasicAuth: Boolean? = null,
     var basicAuthUsername: String? = null,
     var basicAuthPassword: String? = null,

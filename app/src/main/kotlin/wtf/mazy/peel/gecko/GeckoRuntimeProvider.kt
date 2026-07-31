@@ -316,6 +316,7 @@ object GeckoRuntimeProvider {
             .aboutConfigEnabled(BuildConfig.DEBUG)
             .extensionsWebAPIEnabled(true)
             .globalPrivacyControlEnabled(defaults.isGlobalPrivacyControl == true)
+            .enterpriseRootsEnabled(defaults.isUseSystemCerts == true)
             .setLnaEnabled(lna)
             .setLnaBlocking(lna)
             .contentBlocking(

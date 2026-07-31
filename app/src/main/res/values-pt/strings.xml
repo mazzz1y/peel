@@ -253,6 +253,7 @@
     </plurals>
     <string name="setting_disable_quic">Desativar QUIC</string>
     <string name="setting_disable_ech">Desativar ECH</string>
+    <string name="setting_use_system_certs">Confiar nos certificados do sistema</string>
     <string name="setting_custom_gecko_prefs">Preferências Gecko personalizadas</string>
     <string name="setting_custom_gecko_prefs_key_hint">Nome</string>
     <string name="setting_custom_gecko_prefs_value_hint">Valor</string>
