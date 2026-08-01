@@ -23,6 +23,7 @@ import org.unifiedpush.android.connector.data.PushEndpoint
 import org.unifiedpush.android.connector.keys.DefaultKeyManager
 import wtf.mazy.peel.gecko.GeckoRuntimeProvider
 import wtf.mazy.peel.model.DataManager
+import wtf.mazy.peel.model.IconOwner
 import wtf.mazy.peel.model.db.PushSubscriptionEntity
 import wtf.mazy.peel.util.AppPrefs
 import wtf.mazy.peel.util.ForegroundActivityTracker
@@ -88,7 +89,7 @@ object PushBridge {
             UnifiedPush.register(
                 context,
                 instance,
-                messageForDistributor = scopeHost(scopeUrl),
+                messageForDistributor = distributorLabel(scopeUrl),
                 vapid = vapid,
             )
             withTimeoutOrNull(REGISTER_TIMEOUT_MS) { deferred.await() }
@@ -233,7 +234,7 @@ object PushBridge {
         UnifiedPush.register(
             context,
             entity.instance,
-            messageForDistributor = scopeHost(entity.scope),
+            messageForDistributor = distributorLabel(entity.scope),
             vapid = entity.appServerKey,
         )
     }
@@ -307,6 +308,11 @@ object PushBridge {
 
     fun scopeHost(scopeUrl: String): String? =
         runCatching { scopeUrlWithoutAttrs(scopeUrl).toUri().host }.getOrNull()
+
+    private fun distributorLabel(scopeUrl: String): String? {
+        val owner = scopeContextId(scopeUrl)?.let(DataManager.instance::getSandboxOwner)
+        return (owner as? IconOwner)?.title ?: scopeHost(scopeUrl)
+    }
 
     fun scopeContextId(scopeUrl: String): String? {
         val suffix = scopeUrl.substringAfter(ATTRS_SEPARATOR, "")
