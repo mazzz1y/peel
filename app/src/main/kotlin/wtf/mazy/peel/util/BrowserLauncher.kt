@@ -11,6 +11,7 @@ import wtf.mazy.peel.activities.BrowserActivity
 import wtf.mazy.peel.activities.ChromiumActivity
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.WebApp
+import wtf.mazy.peel.model.WebAppSettings
 import wtf.mazy.peel.ui.BiometricPromptHelper
 
 object BrowserLauncher {
@@ -62,7 +63,15 @@ object BrowserLauncher {
 
     internal fun createIntent(webapp: WebApp, c: Context?): Intent? {
         if (c == null) return null
-        return Intent(c, ChromiumActivity::class.java).apply {
+        
+        val settings = DataManager.instance.resolveEffectiveSettings(webapp)
+        val targetActivity = if (settings.browserEngine == WebAppSettings.ENGINE_GECKO) {
+            BrowserActivity::class.java
+        } else {
+            ChromiumActivity::class.java
+        }
+        
+        return Intent(c, targetActivity).apply {
             putExtra(Const.INTENT_WEBAPP_UUID, webapp.uuid)
             data = "app://${webapp.uuid}".toUri()
             action = Intent.ACTION_VIEW

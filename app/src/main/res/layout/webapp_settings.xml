@@ -36,6 +36,34 @@
                     <include layout="@layout/include_settings_icon_title_url" />
 
                     <LinearLayout
+                        android:id="@+id/engineRow"
+                        style="@style/SettingsRow.Inline">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/setting_browser_engine"
+                            android:textAppearance="?attr/textAppearanceBodyLarge" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnEnginePicker"
+                            style="@style/Widget.Material3.Button.OutlinedButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:ellipsize="end"
+                            android:maxLines="1" />
+
+                    </LinearLayout>
+
+                    <View
+                        android:id="@+id/engineDivider"
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginVertical="@dimen/settings_item_padding_vertical"
+                        android:background="?attr/colorOutlineVariant" />
+
+                    <LinearLayout
                         android:id="@+id/groupRow"
                         style="@style/SettingsRow.Inline"
                         android:visibility="gone">

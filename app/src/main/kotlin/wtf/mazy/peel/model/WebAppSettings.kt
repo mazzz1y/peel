@@ -47,6 +47,7 @@ data class WebAppSettings(
     var isTranslatorEnabled: Boolean? = null,
     var autoTranslatePairs: Map<String, String>? = null,
     var sameAppDomains: List<String>? = null,
+    var browserEngine: Int? = null,
 ) {
     companion object {
         const val PERMISSION_OFF = 0
@@ -60,6 +61,9 @@ data class WebAppSettings(
         const val TRACKER_PROTECTION_NONE = 0
         const val TRACKER_PROTECTION_DEFAULT = 1
         const val TRACKER_PROTECTION_STRICT = 2
+
+        const val ENGINE_CHROMIUM = 0
+        const val ENGINE_GECKO = 1
 
         @Suppress("UNCHECKED_CAST")
         private val PROPERTY_MAP: Map<String, KMutableProperty1<WebAppSettings, Any?>> by lazy {

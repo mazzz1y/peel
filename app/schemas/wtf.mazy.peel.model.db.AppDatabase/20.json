@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 20,
-    "identityHash": "ea80320f2e5e9f125dae35fe89745f69",
+    "identityHash": "579e586d9f230cac3e7fd1158c8818e6",
     "entities": [
       {
         "tableName": "webapps",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uuid` TEXT NOT NULL, `baseUrl` TEXT NOT NULL, `title` TEXT NOT NULL, `isUseContainer` INTEGER NOT NULL, `isEphemeralSandbox` INTEGER NOT NULL, `order` INTEGER NOT NULL, `groupUuid` TEXT, `proxyUuid` TEXT, `isOpenUrlExternal` INTEGER, `isAllowJs` INTEGER, `isRequestDesktop` INTEGER, `isClearCache` INTEGER, `isAlwaysHttps` INTEGER, `isAllowLocationAccess` INTEGER, `isAutoReload` INTEGER, `timeAutoReload` INTEGER, `colorScheme` INTEGER, `isDrmAllowed` INTEGER, `isShowFullscreen` INTEGER, `isKeepAwake` INTEGER, `isCameraPermission` INTEGER, `isMicrophonePermission` INTEGER, `isBiometricProtection` INTEGER, `isAllowMediaPlaybackInBackground` INTEGER, `isLongClickShare` INTEGER, `isShowProgressbar` INTEGER, `isDisableScreenshots` INTEGER, `isPullToRefresh` INTEGER, `isSafeBrowsing` INTEGER, `isDynamicStatusBar` INTEGER, `isShowNotification` INTEGER, `isAppLinksPermission` INTEGER, `isGlobalPrivacyControl` INTEGER, `isFingerprintingProtection` INTEGER, `isBlockLocalNetwork` INTEGER, `isBlockWebRtcIpLeak` INTEGER, `isDisableQuic` INTEGER, `isDisableEch` INTEGER, `isUseBasicAuth` INTEGER, `basicAuthUsername` TEXT, `basicAuthPassword` TEXT, `isUseCustomUserAgent` INTEGER, `customUserAgent` TEXT, `isUseCustomLocale` INTEGER, `customLocale` TEXT, `customGeckoPrefs` TEXT, `isAllowCertBypass` INTEGER, `isTranslatorEnabled` INTEGER, `autoTranslatePairs` TEXT, `sameAppDomains` TEXT, PRIMARY KEY(`uuid`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uuid` TEXT NOT NULL, `baseUrl` TEXT NOT NULL, `title` TEXT NOT NULL, `isUseContainer` INTEGER NOT NULL, `isEphemeralSandbox` INTEGER NOT NULL, `order` INTEGER NOT NULL, `groupUuid` TEXT, `proxyUuid` TEXT, `isOpenUrlExternal` INTEGER, `isAllowJs` INTEGER, `isRequestDesktop` INTEGER, `isClearCache` INTEGER, `isAlwaysHttps` INTEGER, `isAllowLocationAccess` INTEGER, `isAutoReload` INTEGER, `timeAutoReload` INTEGER, `colorScheme` INTEGER, `isDrmAllowed` INTEGER, `isShowFullscreen` INTEGER, `isKeepAwake` INTEGER, `isCameraPermission` INTEGER, `isMicrophonePermission` INTEGER, `isBiometricProtection` INTEGER, `isAllowMediaPlaybackInBackground` INTEGER, `isLongClickShare` INTEGER, `isShowProgressbar` INTEGER, `isDisableScreenshots` INTEGER, `isPullToRefresh` INTEGER, `isSafeBrowsing` INTEGER, `isDynamicStatusBar` INTEGER, `isShowNotification` INTEGER, `isAppLinksPermission` INTEGER, `isGlobalPrivacyControl` INTEGER, `isFingerprintingProtection` INTEGER, `isBlockLocalNetwork` INTEGER, `isBlockWebRtcIpLeak` INTEGER, `isDisableQuic` INTEGER, `isDisableEch` INTEGER, `isUseBasicAuth` INTEGER, `basicAuthUsername` TEXT, `basicAuthPassword` TEXT, `isUseCustomUserAgent` INTEGER, `customUserAgent` TEXT, `isUseCustomLocale` INTEGER, `customLocale` TEXT, `customGeckoPrefs` TEXT, `isAllowCertBypass` INTEGER, `isTranslatorEnabled` INTEGER, `autoTranslatePairs` TEXT, `sameAppDomains` TEXT, `browserEngine` INTEGER, PRIMARY KEY(`uuid`))",
         "fields": [
           {
             "fieldPath": "uuid",
@@ -263,6 +263,11 @@
             "fieldPath": "settings.sameAppDomains",
             "columnName": "sameAppDomains",
             "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "settings.browserEngine",
+            "columnName": "browserEngine",
+            "affinity": "INTEGER"
           }
         ],
         "primaryKey": {
@@ -274,7 +279,7 @@
       },
       {
         "tableName": "webapp_groups",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uuid` TEXT NOT NULL, `title` TEXT NOT NULL, `order` INTEGER NOT NULL, `isUseContainer` INTEGER NOT NULL, `isEphemeralSandbox` INTEGER NOT NULL, `proxyUuid` TEXT, `isOpenUrlExternal` INTEGER, `isAllowJs` INTEGER, `isRequestDesktop` INTEGER, `isClearCache` INTEGER, `isAlwaysHttps` INTEGER, `isAllowLocationAccess` INTEGER, `isAutoReload` INTEGER, `timeAutoReload` INTEGER, `colorScheme` INTEGER, `isDrmAllowed` INTEGER, `isShowFullscreen` INTEGER, `isKeepAwake` INTEGER, `isCameraPermission` INTEGER, `isMicrophonePermission` INTEGER, `isBiometricProtection` INTEGER, `isAllowMediaPlaybackInBackground` INTEGER, `isLongClickShare` INTEGER, `isShowProgressbar` INTEGER, `isDisableScreenshots` INTEGER, `isPullToRefresh` INTEGER, `isSafeBrowsing` INTEGER, `isDynamicStatusBar` INTEGER, `isShowNotification` INTEGER, `isAppLinksPermission` INTEGER, `isGlobalPrivacyControl` INTEGER, `isFingerprintingProtection` INTEGER, `isBlockLocalNetwork` INTEGER, `isBlockWebRtcIpLeak` INTEGER, `isDisableQuic` INTEGER, `isDisableEch` INTEGER, `isUseBasicAuth` INTEGER, `basicAuthUsername` TEXT, `basicAuthPassword` TEXT, `isUseCustomUserAgent` INTEGER, `customUserAgent` TEXT, `isUseCustomLocale` INTEGER, `customLocale` TEXT, `customGeckoPrefs` TEXT, `isAllowCertBypass` INTEGER, `isTranslatorEnabled` INTEGER, `autoTranslatePairs` TEXT, `sameAppDomains` TEXT, PRIMARY KEY(`uuid`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`uuid` TEXT NOT NULL, `title` TEXT NOT NULL, `order` INTEGER NOT NULL, `isUseContainer` INTEGER NOT NULL, `isEphemeralSandbox` INTEGER NOT NULL, `proxyUuid` TEXT, `isOpenUrlExternal` INTEGER, `isAllowJs` INTEGER, `isRequestDesktop` INTEGER, `isClearCache` INTEGER, `isAlwaysHttps` INTEGER, `isAllowLocationAccess` INTEGER, `isAutoReload` INTEGER, `timeAutoReload` INTEGER, `colorScheme` INTEGER, `isDrmAllowed` INTEGER, `isShowFullscreen` INTEGER, `isKeepAwake` INTEGER, `isCameraPermission` INTEGER, `isMicrophonePermission` INTEGER, `isBiometricProtection` INTEGER, `isAllowMediaPlaybackInBackground` INTEGER, `isLongClickShare` INTEGER, `isShowProgressbar` INTEGER, `isDisableScreenshots` INTEGER, `isPullToRefresh` INTEGER, `isSafeBrowsing` INTEGER, `isDynamicStatusBar` INTEGER, `isShowNotification` INTEGER, `isAppLinksPermission` INTEGER, `isGlobalPrivacyControl` INTEGER, `isFingerprintingProtection` INTEGER, `isBlockLocalNetwork` INTEGER, `isBlockWebRtcIpLeak` INTEGER, `isDisableQuic` INTEGER, `isDisableEch` INTEGER, `isUseBasicAuth` INTEGER, `basicAuthUsername` TEXT, `basicAuthPassword` TEXT, `isUseCustomUserAgent` INTEGER, `customUserAgent` TEXT, `isUseCustomLocale` INTEGER, `customLocale` TEXT, `customGeckoPrefs` TEXT, `isAllowCertBypass` INTEGER, `isTranslatorEnabled` INTEGER, `autoTranslatePairs` TEXT, `sameAppDomains` TEXT, `browserEngine` INTEGER, PRIMARY KEY(`uuid`))",
         "fields": [
           {
             "fieldPath": "uuid",
@@ -520,6 +525,11 @@
             "fieldPath": "settings.sameAppDomains",
             "columnName": "sameAppDomains",
             "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "settings.browserEngine",
+            "columnName": "browserEngine",
+            "affinity": "INTEGER"
           }
         ],
         "primaryKey": {
@@ -596,7 +606,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'ea80320f2e5e9f125dae35fe89745f69')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '579e586d9f230cac3e7fd1158c8818e6')"
     ]
   }
 }

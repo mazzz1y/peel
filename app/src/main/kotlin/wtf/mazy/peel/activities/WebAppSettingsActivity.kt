@@ -65,6 +65,7 @@ class WebAppSettingsActivity :
     private val textBaseUrl get() = binding.root.findViewById<TextView>(R.id.textBaseUrl)
     private val titleUrlBlock get() = binding.root.findViewById<View>(R.id.titleUrlBlock)
     private val btnFetch get() = binding.root.findViewById<ImageView>(R.id.btnFetch)
+    private val btnEnginePicker get() = binding.root.findViewById<MaterialButton>(R.id.btnEnginePicker)
     private val sandboxLabel get() = binding.root.findViewById<TextView>(R.id.sandboxLabel)
     private val switchSandbox get() = binding.root.findViewById<MaterialSwitch>(R.id.switchSandbox)
     private val switchEphemeralSandbox get() = binding.root.findViewById<MaterialSwitch>(R.id.switchEphemeralSandbox)
@@ -115,6 +116,7 @@ class WebAppSettingsActivity :
         imgWebAppIcon.setOnClickListener { iconEditor.onIconTap() }
         titleUrlBlock.setOnClickListener { showEditDialog(editableWebapp) }
         setupFetchButton(editableWebapp)
+        setupEnginePicker(editableWebapp)
         setupOverridePicker(editableWebapp)
         if (!isEditingDefaults) {
             setupSandboxSwitch(editableWebapp)
@@ -193,6 +195,31 @@ class WebAppSettingsActivity :
             textBaseUrl.text = prettyBaseUrl(webapp.baseUrl)
             iconEditor.refreshIcon()
         }
+    }
+
+    private fun setupEnginePicker(webapp: WebApp) {
+        if (isEditingDefaults) {
+            binding.engineRow.visibility = View.GONE
+            binding.engineDivider.visibility = View.GONE
+            return
+        }
+
+        binding.engineRow.visibility = View.VISIBLE
+        binding.engineDivider.visibility = View.VISIBLE
+
+        val values = intArrayOf(WebAppSettings.ENGINE_CHROMIUM, WebAppSettings.ENGINE_GECKO)
+        val labels = listOf(getString(R.string.browser_engine_chromium), getString(R.string.browser_engine_gecko))
+
+        btnEnginePicker.bindDropdown(
+            items = labels,
+            currentIndex = {
+                val current = webapp.settings.browserEngine ?: WebAppSettings.ENGINE_CHROMIUM
+                values.indexOf(current).coerceAtLeast(0)
+            },
+            onSelected = { i ->
+                webapp.settings.browserEngine = values[i]
+            }
+        )
     }
 
     private fun setupGroupPicker(webapp: WebApp) {

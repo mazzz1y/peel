@@ -162,6 +162,7 @@ object ApplyTimingRegistry {
         "isAllowMediaPlaybackInBackground",
         "isUseCustomUserAgent",
         "customUserAgent",
+        "browserEngine",
     )
 
     private val PEEL_RESTART_KEYS = setOf(
@@ -298,6 +299,19 @@ object SettingRegistry {
                 R.string.setting_translator,
                 SettingCategory.BEHAVIOR,
                 mapField = SettingField(WebAppSettings::autoTranslatePairs, null),
+            ),
+            SettingDefinition.ChoiceSetting(
+                SettingField(WebAppSettings::browserEngine, WebAppSettings.ENGINE_CHROMIUM),
+                R.string.setting_browser_engine,
+                SettingCategory.BEHAVIOR,
+                values = intArrayOf(
+                    WebAppSettings.ENGINE_CHROMIUM,
+                    WebAppSettings.ENGINE_GECKO,
+                ),
+                labels = intArrayOf(
+                    R.string.browser_engine_chromium,
+                    R.string.browser_engine_gecko,
+                ),
             ),
             // Permissions
             SettingDefinition.ChoiceSetting.permissionChoice(

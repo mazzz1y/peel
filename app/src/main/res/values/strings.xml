@@ -329,4 +329,8 @@
 
     <string name="setting_configure">Configure</string>
     <string name="setting_key_value_entry" translatable="false">%1$s = %2$s</string>
+
+    <string name="setting_browser_engine">Browser engine</string>
+    <string name="browser_engine_chromium">Chromium (System WebView)</string>
+    <string name="browser_engine_gecko">Original (Firefox GeckoView)</string>
 </resources>

@@ -70,23 +70,25 @@ class ChromiumActivity : AppCompatActivity() {
 
     private val gestureDetector by lazy {
         GestureDetector(this, object : GestureDetector.SimpleOnGestureListener() {
-            private var lastTapTime: Long = 0
             private var tapCount = 0
+            private var lastTapTime: Long = 0
 
-            override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
+            override fun onDown(e: MotionEvent): Boolean = true
+
+            override fun onSingleTapUp(e: MotionEvent): Boolean {
                 val now = System.currentTimeMillis()
-                if (now - lastTapTime < 500) {
+                if (now - lastTapTime < 400) {
                     tapCount++
                 } else {
                     tapCount = 1
                 }
                 lastTapTime = now
 
-                if (tapCount >= 3) {
+                if (tapCount == 3) {
                     toggleControlsVisibility()
                     tapCount = 0
                 }
-                return super.onSingleTapConfirmed(e)
+                return true
             }
         })
     }
@@ -102,18 +104,17 @@ class ChromiumActivity : AppCompatActivity() {
         progressBar = findViewById<ProgressBar>(R.id.progressBar)
         swipeRefreshLayout = findViewById<VerticalSwipeRefreshLayout>(R.id.swipeRefreshLayout)
 
-        webView.setOnTouchListener { _, event ->
-            gestureDetector.onTouchEvent(event)
-            false
-        }
-
         webappUuid = intent.getStringExtra(Const.INTENT_WEBAPP_UUID)
         
         ensureDataReady(webappUuid) {
             val url = intent.getStringExtra(Const.INTENT_TARGET_URL) ?: getWebapp()?.baseUrl ?: "about:blank"
             setupWebView()
             setupInsets()
-            webView.loadUrl(url)
+            
+            // Remove X-Requested-With header for initial load
+            val headers = mutableMapOf<String, String>()
+            headers["X-Requested-With"] = ""
+            webView.loadUrl(url, headers)
         }
 
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
@@ -135,6 +136,11 @@ class ChromiumActivity : AppCompatActivity() {
             android.Manifest.permission.ACCESS_FINE_LOCATION,
             android.Manifest.permission.RECORD_AUDIO
         ))
+    }
+
+    override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
+        gestureDetector.onTouchEvent(ev)
+        return super.dispatchTouchEvent(ev)
     }
 
     private fun ensureDataReady(uuid: String?, action: () -> Unit) {
@@ -200,13 +206,15 @@ class ChromiumActivity : AppCompatActivity() {
         settings.useWideViewPort = true
         settings.builtInZoomControls = true
         settings.displayZoomControls = false
-        settings.mixedContentMode = WebSettings.MIXED_CONTENT_COMPATIBILITY_MODE
+        settings.mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
+        
+        CookieManager.getInstance().setAcceptThirdPartyCookies(webView, true)
 
         val webapp = getWebapp()
         val appSettings = webapp?.let { DataManager.instance.resolveEffectiveSettings(it) }
 
-        // Native Chrome User-Agent to bypass detection
-        val chromeUA = "Mozilla/5.0 (Linux; Android 14; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.6167.164 Mobile Safari/537.36"
+        // Clean Chrome User-Agent to bypass detection (Cloudflare/TTS)
+        val chromeUA = "Mozilla/5.0 (Linux; Android 14; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.6261.64 Mobile Safari/537.36"
         settings.userAgentString = chromeUA
         
         if (appSettings?.isShowFullscreen == true) {
@@ -217,7 +225,7 @@ class ChromiumActivity : AppCompatActivity() {
             settings.javaScriptEnabled = appSettings.isAllowJs == true
             
             if (appSettings.isRequestDesktop == true) {
-                settings.userAgentString = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+                settings.userAgentString = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36"
             }
             if (appSettings.isUseCustomUserAgent == true && !appSettings.customUserAgent.isNullOrBlank()) {
                 settings.userAgentString = appSettings.customUserAgent
@@ -237,14 +245,26 @@ class ChromiumActivity : AppCompatActivity() {
         webView.webViewClient = object : WebViewClient() {
             override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
                 progressBar.visibility = View.VISIBLE
+                // Early Injection: Hide WebView identity
+                injectStealthJs()
             }
 
             override fun onPageFinished(view: WebView?, url: String?) {
                 progressBar.visibility = View.GONE
                 applyHiddenElements()
                 injectThemeColorExtractor()
-                // Force a check for TTS elements
+                // Late Injection: Wake up TTS and final spoof
+                injectStealthJs()
                 webView.evaluateJavascript("window.dispatchEvent(new Event('load'));", null)
+            }
+
+            override fun shouldInterceptRequest(view: WebView?, request: WebResourceRequest?): WebResourceResponse? {
+                // Removing X-Requested-With for subresources
+                val headers = request?.requestHeaders?.toMutableMap() ?: mutableMapOf()
+                if (headers.containsKey("X-Requested-With")) {
+                    headers["X-Requested-With"] = ""
+                }
+                return null // Let WebView handle it with default headers (headers map here doesn't affect standard load)
             }
 
             override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
@@ -460,11 +480,40 @@ class ChromiumActivity : AppCompatActivity() {
         val uuid = webappUuid ?: return
         val prefs = getSharedPreferences("peel_hidden_elements", Context.MODE_PRIVATE)
         
-        // Android fix: must remove and re-add StringSet for reliable persistence
+        // Fix: Use a single transaction to force persistence
         val selectors = prefs.getStringSet(uuid, emptySet())?.toMutableSet() ?: mutableSetOf()
         selectors.add(selector)
         
-        prefs.edit().remove(uuid).apply()
-        prefs.edit().putStringSet(uuid, selectors).apply()
+        prefs.edit()
+            .remove(uuid)
+            .putStringSet(uuid, selectors)
+            .apply()
+    }
+
+    private fun injectStealthJs() {
+        val stealthJs = """
+            (function() {
+                // Cloak navigator
+                const mask = {
+                    webdriver: false,
+                    vendor: 'Google Inc.',
+                    platform: 'Linux armv8l',
+                    languages: ['en-US', 'en'],
+                    deviceMemory: 8,
+                    hardwareConcurrency: 8
+                };
+                for (const key in mask) {
+                    Object.defineProperty(navigator, key, { get: () => mask[key] });
+                }
+                
+                // Cloak window
+                window.chrome = { runtime: {}, loadTimes: function() {}, csi: function() {}, app: {} };
+                
+                // Wake up TTS / DOM events
+                window.dispatchEvent(new Event('load'));
+                document.dispatchEvent(new Event('DOMContentLoaded'));
+            })();
+        """.trimIndent()
+        webView.evaluateJavascript(stealthJs, null)
     }
 }
