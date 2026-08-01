@@ -124,6 +124,18 @@
             android:theme="@style/AppTheme.Trampoline" />
 
         <activity
+            android:name=".activities.ChromiumActivity"
+            android:configChanges="orientation|screenSize|smallestScreenSize|density|screenLayout|uiMode|keyboard|keyboardHidden|navigation"
+            android:documentLaunchMode="intoExisting"
+            android:exported="false"
+            android:icon="@mipmap/ic_launcher"
+            android:launchMode="singleTask"
+            android:roundIcon="@mipmap/ic_launcher"
+            android:taskAffinity=""
+            android:theme="@style/AppTheme.Browser"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
             android:name=".activities.BrowserActivity"
             android:configChanges="orientation|screenSize|smallestScreenSize|density|screenLayout|uiMode|keyboard|keyboardHidden|navigation"
             android:documentLaunchMode="intoExisting"
@@ -138,7 +150,7 @@
         <activity-alias
             android:name=".activities.WebAppShortcutAlias"
             android:exported="true"
-            android:targetActivity=".activities.BrowserActivity" />
+            android:targetActivity=".activities.ChromiumActivity" />
 
         <service
             android:name=".media.MediaPlaybackService"

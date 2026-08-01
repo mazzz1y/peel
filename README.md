@@ -12,7 +12,7 @@ Peel is an open-source Android app that turns websites into standalone, app-like
 lets you create lightweight web apps with custom icons, isolated storage, and fine-grained privacy
 controls, separate from your browser.
 
-Powered by GeckoView (Mozilla's browser engine)
+Powered by Chromium (via Cromite)
 
 <a href="https://apps.obtainium.imranr.dev/redirect.html?r=obtainium://add/https://github.com/mazzz1y/peel">
 <img src="https://raw.githubusercontent.com/ImranR98/Obtainium/refs/heads/main/assets/graphics/badge_obtainium.png"
@@ -35,11 +35,9 @@ alt="Get it on my F-Droid repo" align="center" height="80" /></a>
 - App grouping with home screen group shortcuts
 - Per-group and per-app optional isolated sandbox with separate cookies and storage
 - Per-sandbox HTTP, HTTPS, SOCKS4, and SOCKS5 proxy support
-- Offline on-device page translations powered by Mozilla's translation models
 - Smart external link routing to other Peel apps or system browser
 - Privacy controls: GPC signal, fingerprinting protection, local network blocking, WebRTC IP leak
   prevention
-- Firefox extensions support
 - Enhanced Tracking Protection, HTTPS-only mode, custom headers
 - Lock sensitive web apps behind biometric authentication, block screenshots
 - Dynamic status bar color matching web content
@@ -50,13 +48,13 @@ alt="Get it on my F-Droid repo" align="center" height="80" /></a>
 
 ## Screenshots
 
-| ![Screenshot 1](metadata/en-US/images/phoneScreenshots/1.png) | ![Screenshot 2](metadata/en-US/images/phoneScreenshots/2.png) | ![Screenshot 3](metadata/en-US/images/phoneScreenshots/3.png) | ![Screenshot 4](metadata/en-US/images/phoneScreenshots/4.png) |
-| :----------------------------------------: | :----------------------------------------: | :----------------------------------------: | :----------------------------------------: |
+ ![Screenshot 1](metadata/en-US/images/phoneScreenshots/1.png) | ![Screenshot 2](metadata/en-US/images/phoneScreenshots/2.png) | ![Screenshot 3](metadata/en-US/images/phoneScreenshots/3.png) | ![Screenshot 4](metadata/en-US/images/phoneScreenshots/4.png) |
+ :----------------------------------------: | :----------------------------------------: | :----------------------------------------: | :----------------------------------------: |
 
 ## Acknowledgments
 
 Hard fork of [Native Alpha](https://github.com/cylonid/NativeAlphaForAndroid) with significant
-changes including a full migration from WebView to GeckoView, flow refactoring, removal of redundant
+changes including a migration to Chromium (Cromite), flow refactoring, removal of redundant
 options, and new features. Not compatible with the original.
 
 ## License

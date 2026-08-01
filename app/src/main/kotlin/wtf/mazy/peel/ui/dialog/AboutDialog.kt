@@ -21,8 +21,9 @@ object AboutDialog {
         val view = activity.layoutInflater.inflate(R.layout.dialog_about, null)
         view.findViewById<TextView>(R.id.aboutVersion).text =
             activity.getString(R.string.about_version, BuildConfig.VERSION_NAME)
+        val webViewVersion = android.webkit.WebView.getCurrentWebViewPackage()?.versionName ?: "Unknown"
         view.findViewById<TextView>(R.id.aboutEngine).text =
-            activity.getString(R.string.about_engine, BuildConfig.GECKOVIEW_VERSION)
+            activity.getString(R.string.about_engine, webViewVersion)
         view.findViewById<View>(R.id.aboutGithub).setOnClickListener {
             activity.startActivity(Intent(Intent.ACTION_VIEW, GITHUB_URL.toUri()))
         }

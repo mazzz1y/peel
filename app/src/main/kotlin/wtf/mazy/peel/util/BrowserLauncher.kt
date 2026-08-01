@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.net.toUri
 import wtf.mazy.peel.R
 import wtf.mazy.peel.activities.BrowserActivity
+import wtf.mazy.peel.activities.ChromiumActivity
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.ui.BiometricPromptHelper
@@ -40,7 +41,7 @@ object BrowserLauncher {
             privateSession = true,
         )
         c.startActivity(
-            Intent(c, BrowserActivity::class.java)
+            Intent(c, ChromiumActivity::class.java)
                 .putExtra(Const.INTENT_WEBAPP_UUID, uuid)
                 .setData("app://$uuid".toUri())
                 .setAction(Intent.ACTION_VIEW)
@@ -61,7 +62,7 @@ object BrowserLauncher {
 
     internal fun createIntent(webapp: WebApp, c: Context?): Intent? {
         if (c == null) return null
-        return Intent(c, BrowserActivity::class.java).apply {
+        return Intent(c, ChromiumActivity::class.java).apply {
             putExtra(Const.INTENT_WEBAPP_UUID, webapp.uuid)
             data = "app://${webapp.uuid}".toUri()
             action = Intent.ACTION_VIEW

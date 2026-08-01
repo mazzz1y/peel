@@ -132,10 +132,9 @@ class HeadlessFetcher(
                         userAgentMode(GeckoSessionSettings.USER_AGENT_MODE_DESKTOP)
                         viewportMode(GeckoSessionSettings.VIEWPORT_MODE_DESKTOP)
                     }
-                    val customUa = customUserAgent
-                    if (!customUa.isNullOrBlank()) {
-                        userAgentOverride(customUa)
-                    }
+                    val customUa = customUserAgent ?: "Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36"
+                    userAgentOverride(customUa)
+
                     if (contextId != null) contextId(contextId)
                     usePrivateMode(usePrivateMode)
                 }

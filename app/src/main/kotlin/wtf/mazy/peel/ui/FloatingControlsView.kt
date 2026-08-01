@@ -36,6 +36,7 @@ class FloatingControlsView(
     onTranslate: (() -> Unit)? = null,
     onTranslateLongPress: (() -> Unit)? = null,
     onExtensions: (() -> Unit)? = null,
+    onPicker: (() -> Unit)? = null,
     onReloadLongPress: (() -> Unit)? = null,
     onOpenInApp: (() -> Unit)? = null,
     private val onExpandedChange: ((expanded: Boolean, durationMs: Long) -> Unit)? = null,
@@ -99,6 +100,7 @@ class FloatingControlsView(
                 ),
             )
         }
+        onPicker?.let { add(Action(R.drawable.ic_symbols_delete_24, it)) }
         onExtensions?.let { add(Action(R.drawable.ic_symbols_extension_wght300_24, it)) }
         onOpenInApp?.let { add(Action(R.drawable.ic_symbols_open_in_new_24, it)) }
     }

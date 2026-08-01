@@ -3,7 +3,7 @@
     <string name="global_settings">Global Settings</string>
     <string name="settings_section_global_summary">Default settings for all apps, overridable per app</string>
     <string name="settings_section_engine">Engine</string>
-    <string name="settings_section_engine_summary">Privacy, protection and advanced Gecko options</string>
+    <string name="settings_section_engine_summary">Privacy, protection and advanced Chromium options</string>
     <string name="settings_section_proxies_summary">Manage proxy servers</string>
     <string name="settings_section_extensions_summary">Install and manage extensions</string>
     <string name="settings_section_groups_summary">Organize apps into groups</string>
@@ -172,8 +172,8 @@
     <string name="password">Password</string>
     <string name="app_info">About</string>
     <string name="about_version">%1$s</string>
-    <string name="about_engine">GeckoView %1$s</string>
-    <string name="about_description">A lightweight browser for web apps\nPowered by Mozilla GeckoView</string>
+    <string name="about_engine">Chromium %1$s</string>
+    <string name="about_description">A lightweight browser for web apps\nPowered by Chromium (Cromite)</string>
     <string name="about_github" translatable="false">GitHub</string>
     <string name="about_fdroid" translatable="false">F-Droid</string>
     <string name="about_google_play" translatable="false">Google Play</string>
