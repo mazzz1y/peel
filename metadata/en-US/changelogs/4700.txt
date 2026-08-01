@@ -1,0 +1,4 @@
+- Add web push notifications via UnifiedPush, with per-site permissions and a subscription manager
+- Add an engine option to trust system certificates, for private or corporate CAs
+- Update GeckoView to 153.0.20260730155536
+- Fix long-press reload racing the cache clear, reload now bypasses caches
