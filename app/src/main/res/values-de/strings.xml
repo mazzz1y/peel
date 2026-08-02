@@ -328,6 +328,7 @@
     <string name="push_no_distributor_message">Push-Benachrichtigungen benötigen eine UnifiedPush-Distributor-App wie ntfy oder Sunup. Mehr dazu auf unifiedpush.org.</string>
     <string name="push_scope_none">Keine Sandbox</string>
     <string name="push_status_allowed">Erlaubt</string>
+    <string name="push_status_local">Erlaubt, Benachrichtigungen nur bei geöffneter App</string>
     <string name="push_status_denied">Verweigert</string>
     <string name="push_subscription_deleted">Benachrichtigungsberechtigung zurückgesetzt</string>
     <string name="push_subscription_delete_confirm">Benachrichtigungen für diese Website zurücksetzen? Vorhandene Abonnements werden entfernt und die Website fragt erneut nach der Berechtigung, wenn sie sie das nächste Mal anfordert.</string>

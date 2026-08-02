@@ -290,6 +290,11 @@ object PushBridge {
 
     private suspend fun ensureDistributor(context: Context): Boolean {
         if (UnifiedPush.getAckDistributor(context) != null) return true
+        if (DataManager.instance.getPushSubscriptions().isNotEmpty()) {
+            AppPrefs.setPushEnabled(context, false)
+            reset(context)
+            return false
+        }
         val activity = ForegroundActivityTracker.current ?: return false
         val linked = CompletableDeferred<Boolean>()
         UnifiedPush.tryUseCurrentOrDefaultDistributor(activity) { success ->

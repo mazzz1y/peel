@@ -22,6 +22,7 @@
     <string name="push_no_distributor_message">Push notifications need a UnifiedPush distributor app such as ntfy or Sunup. Learn more at unifiedpush.org.</string>
     <string name="push_scope_none">No sandbox</string>
     <string name="push_status_allowed">Allowed</string>
+    <string name="push_status_local">Allowed, notifications only while the app is open</string>
     <string name="push_status_denied">Denied</string>
     <string name="push_subscription_deleted">Notification permission reset</string>
     <string name="push_subscription_delete_confirm">Reset notifications for this site? Any subscription is removed and the site will ask for permission again the next time it requests it.</string>

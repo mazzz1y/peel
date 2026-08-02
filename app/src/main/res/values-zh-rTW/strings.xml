@@ -325,6 +325,7 @@
     <string name="push_no_distributor_message">推播通知需要 ntfy 或 Sunup 等 UnifiedPush 派送應用程式。詳見 unifiedpush.org。</string>
     <string name="push_scope_none">無沙箱</string>
     <string name="push_status_allowed">已允許</string>
+    <string name="push_status_local">已允許，僅在應用程式開啟時顯示通知</string>
     <string name="push_status_denied">已拒絕</string>
     <string name="push_subscription_deleted">通知權限已重設</string>
     <string name="push_subscription_delete_confirm">重設此網站的通知？所有訂閱將被移除，該網站下次請求通知時會再次詢問權限。</string>

@@ -328,6 +328,7 @@
     <string name="push_no_distributor_message">पुश सूचनाओं के लिए ntfy या Sunup जैसे UnifiedPush डिस्ट्रीब्यूटर ऐप की आवश्यकता होती है। अधिक जानें unifiedpush.org पर।</string>
     <string name="push_scope_none">कोई सैंडबॉक्स नहीं</string>
     <string name="push_status_allowed">अनुमत</string>
+    <string name="push_status_local">अनुमत, सूचनाएं केवल ऐप खुला होने पर</string>
     <string name="push_status_denied">अस्वीकृत</string>
     <string name="push_subscription_deleted">सूचना अनुमति रीसेट की गई</string>
     <string name="push_subscription_delete_confirm">इस साइट की सूचनाएं रीसेट करें? कोई भी सदस्यता हटा दी जाएगी और साइट अगली बार आवश्यकता होने पर फिर से अनुमति मांगेगी।</string>

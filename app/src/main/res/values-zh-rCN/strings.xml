@@ -325,6 +325,7 @@
     <string name="push_no_distributor_message">推送通知需要 ntfy 或 Sunup 等 UnifiedPush 分发应用。详见 unifiedpush.org。</string>
     <string name="push_scope_none">无沙盒</string>
     <string name="push_status_allowed">已允许</string>
+    <string name="push_status_local">已允许，仅在应用打开时显示通知</string>
     <string name="push_status_denied">已拒绝</string>
     <string name="push_subscription_deleted">通知权限已重置</string>
     <string name="push_subscription_delete_confirm">重置此网站的通知？所有订阅将被移除，该网站下次请求通知时会再次询问权限。</string>

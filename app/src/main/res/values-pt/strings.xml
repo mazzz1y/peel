@@ -328,6 +328,7 @@
     <string name="push_no_distributor_message">As notificações push precisam de um app distribuidor UnifiedPush como o ntfy ou o Sunup. Saiba mais em unifiedpush.org.</string>
     <string name="push_scope_none">Sem sandbox</string>
     <string name="push_status_allowed">Permitido</string>
+    <string name="push_status_local">Permitido, notificações apenas com o app aberto</string>
     <string name="push_status_denied">Negado</string>
     <string name="push_subscription_deleted">Permissão de notificações redefinida</string>
     <string name="push_subscription_delete_confirm">Redefinir as notificações deste site? Qualquer inscrição será removida e o site pedirá permissão novamente na próxima vez que solicitar.</string>

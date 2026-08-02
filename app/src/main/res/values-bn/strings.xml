@@ -328,6 +328,7 @@
     <string name="push_no_distributor_message">পুশ বিজ্ঞপ্তির জন্য ntfy বা Sunup-এর মতো একটি UnifiedPush ডিস্ট্রিবিউটর অ্যাপ প্রয়োজন। আরও জানুন unifiedpush.org-এ।</string>
     <string name="push_scope_none">কোনও স্যান্ডবক্স নেই</string>
     <string name="push_status_allowed">অনুমোদিত</string>
+    <string name="push_status_local">অনুমোদিত, শুধুমাত্র অ্যাপ খোলা থাকলে বিজ্ঞপ্তি</string>
     <string name="push_status_denied">প্রত্যাখ্যাত</string>
     <string name="push_subscription_deleted">বিজ্ঞপ্তির অনুমতি রিসেট করা হয়েছে</string>
     <string name="push_subscription_delete_confirm">এই সাইটের বিজ্ঞপ্তি রিসেট করবেন? যেকোনও সাবস্ক্রিপশন সরানো হবে এবং সাইটটি পরের বার প্রয়োজন হলে আবার অনুমতি চাইবে।</string>

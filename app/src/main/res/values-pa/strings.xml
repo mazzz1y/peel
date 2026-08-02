@@ -327,6 +327,7 @@
     <string name="push_no_distributor_message">ਪੁਸ਼ ਸੂਚਨਾਵਾਂ ਲਈ ntfy ਜਾਂ Sunup ਵਰਗੀ UnifiedPush ਡਿਸਟ੍ਰੀਬਿਊਟਰ ਐਪ ਦੀ ਲੋੜ ਹੁੰਦੀ ਹੈ। unifiedpush.org \'ਤੇ ਹੋਰ ਜਾਣੋ।</string>
     <string name="push_scope_none">ਕੋਈ ਸੈਂਡਬਾਕਸ ਨਹੀਂ</string>
     <string name="push_status_allowed">ਇਜਾਜ਼ਤ ਦਿੱਤੀ</string>
+    <string name="push_status_local">ਇਜਾਜ਼ਤ ਦਿੱਤੀ, ਸੂਚਨਾਵਾਂ ਸਿਰਫ਼ ਐਪ ਖੁੱਲ੍ਹੀ ਹੋਣ ਉੱਤੇ</string>
     <string name="push_status_denied">ਇਨਕਾਰ ਕੀਤਾ</string>
     <string name="push_subscription_deleted">ਸੂਚਨਾ ਇਜਾਜ਼ਤ ਰੀਸੈੱਟ ਕੀਤੀ ਗਈ</string>
     <string name="push_subscription_delete_confirm">ਇਸ ਸਾਈਟ ਲਈ ਸੂਚਨਾਵਾਂ ਰੀਸੈੱਟ ਕਰਨੀਆਂ ਹਨ? ਕੋਈ ਵੀ ਮੈਂਬਰਸ਼ਿਪ ਹਟਾ ਦਿੱਤੀ ਜਾਵੇਗੀ ਅਤੇ ਸਾਈਟ ਅਗਲੀ ਵਾਰ ਲੋੜ ਪੈਣ \'ਤੇ ਦੁਬਾਰਾ ਇਜਾਜ਼ਤ ਮੰਗੇਗੀ।</string>

@@ -65,13 +65,20 @@ class PushSubscriptionListAdapter(
     override fun bindRow(holder: ViewHolder, row: EntityRow<PushSubscriptionItem>) {
         val item = row.entity
         val context = holder.itemView.context
-        val statusRes =
-            if (item.allowed) R.string.push_status_allowed else R.string.push_status_denied
+        val local = item.allowed && item.subscription == null
+        val statusRes = when {
+            !item.allowed -> R.string.push_status_denied
+            local -> R.string.push_status_local
+            else -> R.string.push_status_allowed
+        }
         holder.primary.text = item.sandboxTitle ?: context.getString(R.string.push_scope_none)
         holder.secondary.text = item.host
         holder.statusIcon.setImageResource(
-            if (item.allowed) R.drawable.ic_symbols_notifications_24
-            else R.drawable.ic_symbols_notifications_off_24
+            when {
+                !item.allowed -> R.drawable.ic_symbols_notifications_off_24
+                local -> R.drawable.ic_symbols_cloud_off_24
+                else -> R.drawable.ic_symbols_notifications_24
+            }
         )
         holder.statusIcon.contentDescription = context.getString(statusRes)
     }

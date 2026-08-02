@@ -334,6 +334,7 @@
     <string name="push_no_distributor_message">Для push-уведомлений нужно приложение-распространитель UnifiedPush, например ntfy или Sunup. Подробнее на unifiedpush.org.</string>
     <string name="push_scope_none">Без песочницы</string>
     <string name="push_status_allowed">Разрешено</string>
+    <string name="push_status_local">Разрешено, уведомления только при открытом приложении</string>
     <string name="push_status_denied">Запрещено</string>
     <string name="push_subscription_deleted">Разрешение на уведомления сброшено</string>
     <string name="push_subscription_delete_confirm">Сбросить уведомления для этого сайта? Подписка будет удалена, и сайт снова запросит разрешение, когда оно ему потребуется.</string>

@@ -325,6 +325,7 @@
     <string name="push_no_distributor_message">Thông báo đẩy cần một ứng dụng phân phối UnifiedPush như ntfy hoặc Sunup. Tìm hiểu thêm tại unifiedpush.org.</string>
     <string name="push_scope_none">Không có sandbox</string>
     <string name="push_status_allowed">Đã cho phép</string>
+    <string name="push_status_local">Đã cho phép, chỉ nhận thông báo khi ứng dụng đang mở</string>
     <string name="push_status_denied">Đã từ chối</string>
     <string name="push_subscription_deleted">Đã đặt lại quyền thông báo</string>
     <string name="push_subscription_delete_confirm">Đặt lại thông báo cho trang này? Mọi đăng ký sẽ bị xóa và trang sẽ hỏi lại quyền vào lần tới khi cần.</string>

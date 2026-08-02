@@ -325,6 +325,7 @@
     <string name="push_no_distributor_message">プッシュ通知には、ntfyやSunupなどのUnifiedPushディストリビューターアプリが必要です。詳細はunifiedpush.orgをご覧ください。</string>
     <string name="push_scope_none">サンドボックスなし</string>
     <string name="push_status_allowed">許可</string>
+    <string name="push_status_local">許可、通知はアプリを開いている間のみ</string>
     <string name="push_status_denied">拒否</string>
     <string name="push_subscription_deleted">通知の許可をリセットしました</string>
     <string name="push_subscription_delete_confirm">このサイトの通知をリセットしますか？購読は削除され、次にサイトが通知を要求したときに再度許可を求めます。</string>
