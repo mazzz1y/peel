@@ -19,6 +19,7 @@ import wtf.mazy.peel.model.IconOwner
 import wtf.mazy.peel.model.db.PushSubscriptionEntity
 import wtf.mazy.peel.push.PushBridge
 import wtf.mazy.peel.shortcut.LetterIconGenerator
+import wtf.mazy.peel.ui.PickerDialog
 import wtf.mazy.peel.ui.entitylist.EntityListActivity
 import wtf.mazy.peel.ui.entitylist.EntityListAdapter
 import wtf.mazy.peel.ui.entitylist.EntityRowActions
@@ -68,15 +69,43 @@ class NotificationListActivity : EntityListActivity<PushSubscriptionItem>() {
     private fun onPushSwitchChanged(checked: Boolean) {
         if (checked == AppPrefs.isPushEnabled(this)) return
         if (checked) {
-            if (UnifiedPush.getDistributors(this).isEmpty()) {
-                pushSwitch?.isChecked = false
-                showDistributorInfo()
-                return
+            val distributors = UnifiedPush.getDistributors(this)
+            when {
+                distributors.isEmpty() -> {
+                    pushSwitch?.isChecked = false
+                    showDistributorInfo()
+                }
+
+                distributors.size == 1 -> enablePush(distributors.single())
+                else -> chooseDistributor(distributors)
             }
-            AppPrefs.setPushEnabled(this, true)
-            updateDistributorLabel()
         } else {
             confirmDisable()
+        }
+    }
+
+    private fun enablePush(distributor: String) {
+        UnifiedPush.saveDistributor(this, distributor)
+        AppPrefs.setPushEnabled(this, true)
+        pushSwitch?.isChecked = true
+        updateDistributorLabel()
+    }
+
+    private fun chooseDistributor(distributors: List<String>) {
+        PickerDialog.show(
+            activity = this,
+            title = getString(R.string.push_distributor),
+            items = distributors,
+            onPick = ::enablePush,
+            configure = {
+                setNegativeButton(R.string.cancel, null)
+                setOnDismissListener {
+                    pushSwitch?.isChecked = AppPrefs.isPushEnabled(this@NotificationListActivity)
+                }
+            },
+        ) { pkg, icon, name, _, _ ->
+            name.text = distributorLabel(pkg)
+            runCatching { icon.setImageDrawable(packageManager.getApplicationIcon(pkg)) }
         }
     }
 
@@ -170,8 +199,7 @@ class NotificationListActivity : EntityListActivity<PushSubscriptionItem>() {
         LetterIconGenerator.generate(host, host, IconOwner.defaultIconSizePx())
 
     private fun updateDistributorLabel() {
-        val distributor = (UnifiedPush.getAckDistributor(this)
-            ?: UnifiedPush.getDistributors(this).firstOrNull())
+        val distributor = UnifiedPush.getSavedDistributor(this)
             ?.takeIf { AppPrefs.isPushEnabled(this) }
         distributorItem?.isVisible = distributor != null
         distributor?.let { distributorLabelView?.text = distributorLabel(it) }

@@ -26,7 +26,6 @@ import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.IconOwner
 import wtf.mazy.peel.model.db.PushSubscriptionEntity
 import wtf.mazy.peel.util.AppPrefs
-import wtf.mazy.peel.util.ForegroundActivityTracker
 import java.math.BigInteger
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
@@ -310,18 +309,10 @@ object PushBridge {
     }
 
     private suspend fun ensureDistributor(context: Context): Boolean {
-        if (UnifiedPush.getAckDistributor(context) != null) return true
-        if (DataManager.instance.getPushSubscriptions().isNotEmpty()) {
-            AppPrefs.setPushEnabled(context, false)
-            reset(context)
-            return false
-        }
-        val activity = ForegroundActivityTracker.current ?: return false
-        val linked = CompletableDeferred<Boolean>()
-        UnifiedPush.tryUseCurrentOrDefaultDistributor(activity) { success ->
-            linked.complete(success)
-        }
-        return withTimeoutOrNull(DISTRIBUTOR_TIMEOUT_MS) { linked.await() } ?: false
+        if (UnifiedPush.getSavedDistributor(context) != null) return true
+        AppPrefs.setPushEnabled(context, false)
+        if (DataManager.instance.getPushSubscriptions().isNotEmpty()) reset(context)
+        return false
     }
 
     fun scopeUrlWithoutAttrs(scopeUrl: String): String = scopeUrl.substringBefore(ATTRS_SEPARATOR)
@@ -398,5 +389,4 @@ object PushBridge {
     private const val GECKO_CONTEXT_PREFIX = "gvctx"
     private const val GECKO_CONTEXT_EMPTY = "gvctxempty"
     private const val REGISTER_TIMEOUT_MS = 10_000L
-    private const val DISTRIBUTOR_TIMEOUT_MS = 60_000L
 }
