@@ -72,6 +72,8 @@ object GeckoRuntimeProvider {
         extensionStateListeners.remove(listener)
     }
 
+    fun runtimeOrNull(): GeckoRuntime? = runtime
+
     fun getRuntime(context: Context): GeckoRuntime {
         return runtime ?: synchronized(this) {
             runtime ?: createRuntime(context.applicationContext).also { rt ->

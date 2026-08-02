@@ -40,6 +40,12 @@ object PushBridge {
 
     fun attach(runtime: GeckoRuntime, context: Context) {
         val appContext = context.applicationContext
+        if (AppPrefs.isPushPermissionResetPending(appContext)) {
+            scope.launch {
+                resetMatchingPermissions(appContext) { true }
+                AppPrefs.setPushPermissionResetPending(appContext, false)
+            }
+        }
         runtime.webPushController.setDelegate(object : WebPushDelegate {
             override fun onSubscribe(
                 scopeUrl: String,
@@ -163,13 +169,16 @@ object PushBridge {
     private suspend fun clearContext(
         context: Context,
         contextId: String?,
+        requireRuntime: Boolean = true,
         matches: (ContentPermission) -> Boolean,
     ) {
         DataManager.instance.awaitReady()
         subscriptionsForContext(contextId).forEach { removeRegistration(context, it) }
-        val permissions = notificationPermissions(context) { it.getAllPermissions() }
-            .filter(matches)
-        resetPermissions(context, permissions)
+        if (!requireRuntime && GeckoRuntimeProvider.runtimeOrNull() == null) {
+            AppPrefs.setPushPermissionResetPending(context, true)
+            return
+        }
+        resetMatchingPermissions(context, matches)
     }
 
     private suspend fun subscriptionsForContext(contextId: String?): List<PushSubscriptionEntity> =
@@ -182,6 +191,15 @@ object PushBridge {
     private suspend fun removeRegistration(context: Context, entity: PushSubscriptionEntity) {
         withContext(Dispatchers.IO) { UnifiedPush.unregister(context, entity.instance) }
         DataManager.instance.removePushSubscription(entity.instance)
+    }
+
+    private suspend fun resetMatchingPermissions(
+        context: Context,
+        matches: (ContentPermission) -> Boolean,
+    ) {
+        val permissions = notificationPermissions(context) { it.getAllPermissions() }
+            .filter(matches)
+        if (permissions.isNotEmpty()) resetPermissions(context, permissions)
     }
 
     private suspend fun notificationPermissions(
@@ -207,23 +225,26 @@ object PushBridge {
 
     suspend fun reconcile(context: Context) {
         DataManager.instance.awaitReady()
-        val subscriptions = DataManager.instance.getPushSubscriptions()
+        val subscriptions = withContext(Dispatchers.IO) {
+            DataManager.instance.getPushSubscriptions()
+        }
         if (subscriptions.isEmpty()) return
 
-        val linked = UnifiedPush.getAckDistributor(context)
-        if (AppPrefs.isPushEnabled(context) && linked != null &&
-            linked in UnifiedPush.getDistributors(context)
-        ) {
+        val linkedInstalled = withContext(Dispatchers.IO) {
+            val linked = UnifiedPush.getAckDistributor(context)
+            linked != null && linked in UnifiedPush.getDistributors(context)
+        }
+        if (AppPrefs.isPushEnabled(context) && linkedInstalled) {
             subscriptions.forEach { reRegister(context, it) }
         } else {
             AppPrefs.setPushEnabled(context, false)
-            reset(context)
+            reset(context, requireRuntime = false)
         }
     }
 
-    suspend fun reset(context: Context) {
+    suspend fun reset(context: Context, requireRuntime: Boolean = true) {
         withContext(Dispatchers.IO) { UnifiedPush.removeDistributor(context) }
-        clearContext(context, null) { true }
+        clearContext(context, null, requireRuntime) { true }
     }
 
     fun matchesScope(permission: ContentPermission, scopeUrl: String): Boolean =

@@ -33,6 +33,8 @@ class App : Application() {
             DataManager.instance.initialize(applicationContext)
             ProxyRouterBridge.ensure(applicationContext)
             ExtensionUpdateScheduler.apply(applicationContext)
+        }
+        appScope.launch {
             PushBridge.reconcile(applicationContext)
         }
     }
