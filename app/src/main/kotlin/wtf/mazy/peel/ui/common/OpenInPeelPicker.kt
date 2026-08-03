@@ -7,18 +7,16 @@ import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.ui.PickerDialog
 import wtf.mazy.peel.util.BrowserLauncher
-import wtf.mazy.peel.util.HostIdentity
 import wtf.mazy.peel.util.NotificationUtils
 import wtf.mazy.peel.util.shortLabel
+import wtf.mazy.peel.util.sortedByAffinity
 
 fun AppCompatActivity.showOpenInPeelPicker(
     apps: List<WebApp>,
     url: String,
     onDismiss: () -> Unit = {},
 ) {
-    val sorted = apps.sortedWith(
-        compareByDescending<WebApp> { HostIdentity.affinity(it.baseUrl, url) }.thenBy { it.title }
-    )
+    val sorted = apps.sortedByAffinity(url)
     if (sorted.isEmpty()) {
         NotificationUtils.showToast(this, getString(R.string.no_web_apps_available))
         onDismiss()

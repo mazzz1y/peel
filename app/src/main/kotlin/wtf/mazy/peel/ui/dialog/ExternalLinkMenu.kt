@@ -16,9 +16,11 @@ import wtf.mazy.peel.ui.PickerDialog
 import wtf.mazy.peel.util.BrowserLauncher
 import wtf.mazy.peel.util.HostIdentity
 import wtf.mazy.peel.util.NotificationUtils
+import wtf.mazy.peel.util.linkAffinity
 import wtf.mazy.peel.util.shouldOfferOpenInSystem
 import wtf.mazy.peel.util.normalizedHost
 import wtf.mazy.peel.util.shortLabel
+import wtf.mazy.peel.util.sortedByAffinity
 
 object ExternalLinkMenu {
 
@@ -137,7 +139,7 @@ object ExternalLinkMenu {
     ): WebApp? {
         val scores = peelApps
             .filter { it.uuid != excludeUuid }
-            .associateWith { HostIdentity.affinity(it.baseUrl, url) }
+            .associateWith { it.linkAffinity(url) }
         val topScore = scores.values.maxOrNull() ?: return null
         if (topScore <= HostIdentity.TLD_ONLY) return null
         val topMatches = scores.filterValues { it == topScore }
@@ -153,10 +155,7 @@ object ExternalLinkMenu {
         activity.lifecycleScope.launch {
             val apps = DataManager.instance.queryAllWebApps()
                 .filter { it.uuid != excludeUuid }
-                .sortedWith(
-                    compareByDescending<WebApp> { HostIdentity.affinity(it.baseUrl, url) }
-                        .thenBy { it.title }
-                )
+                .sortedByAffinity(url)
             if (apps.isEmpty()) {
                 NotificationUtils.showToast(
                     activity,
