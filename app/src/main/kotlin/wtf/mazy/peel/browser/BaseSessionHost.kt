@@ -636,7 +636,13 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost, TranslationHo
     }
 
     protected open fun reloadCurrentPage() {
-        geckoSession?.reload()
+        val committed = navigationDelegate.lastLocation
+        if (committed.isEmpty() || committed == "about:blank") {
+            val fallback = lastLoadedUrl.ifBlank { baseUrl }
+            if (fallback.isNotBlank()) loadURL(fallback)
+        } else {
+            geckoSession?.reload()
+        }
     }
 
     protected open fun createFloatingControls(): FloatingControlsView? = null

@@ -134,6 +134,7 @@ class BrowserActivity : BaseSessionHost() {
     }
 
     private var pageLoadHandled = false
+    private var pendingSessionRecovery = false
     private var crashRecoveryCount = 0
     private var mediaPlaybackManager: MediaPlaybackManager? = null
     private var sessionSetupJob: Job? = null
@@ -155,7 +156,9 @@ class BrowserActivity : BaseSessionHost() {
             getWebappUuid = { webappUuid },
             onSuccess = {
                 browserContent?.visibility = View.VISIBLE
-                if (!pageLoadHandled) {
+                if (pendingSessionRecovery) {
+                    recoverSession()
+                } else if (!pageLoadHandled) {
                     launchSessionExtensionsAndLoad(
                         effectiveSettings,
                         sharedUrlFromIntent() ?: webapp.baseUrl
@@ -568,7 +571,12 @@ class BrowserActivity : BaseSessionHost() {
     }
 
     private fun recoverSession() {
-        if (isFinishing || isDestroyed || biometricController.isPromptActive) return
+        if (isFinishing || isDestroyed) return
+        if (biometricController.isPromptActive) {
+            pendingSessionRecovery = true
+            return
+        }
+        pendingSessionRecovery = false
         val restore = lastSessionState
         val url = lastLoadedUrl.ifBlank { sharedUrlFromIntent() ?: webapp.baseUrl }
         configureSession(effectiveSettings)
@@ -687,7 +695,7 @@ class BrowserActivity : BaseSessionHost() {
             wtf.mazy.peel.browser.ProxyRouterBridge.ensure(applicationContext)
             if (DataManager.instance.isTransientWebApp(webappUuid!!))
                 wtf.mazy.peel.browser.ProxyRouterBridge.pushRoutes(force = true)
-            wtf.mazy.peel.browser.ProxyRouterBridge.awaitRoutesReady()
+            wtf.mazy.peel.browser.ProxyRouterBridge.awaitRoutesReady(sessionContextId)
             attachPageBridge()
             if (restore != null) geckoSession?.restoreState(restore) else loadURL(url)
             setupThemeColorExtensionIfEnabled()

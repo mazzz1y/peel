@@ -22,6 +22,7 @@ object ProxyRouterBridge {
 
     const val NATIVE_APP = "proxyRouter"
     private const val CONTAINER_PREFIX = "firefox-container-"
+    private val DIRECT = mapOf<String, Any?>("type" to "direct")
 
     private val ext = AtomicReference<WebExtension?>(null)
     private val port = AtomicReference<WebExtension.Port?>(null)
@@ -59,8 +60,14 @@ object ProxyRouterBridge {
         return installed
     }
 
-    suspend fun awaitRoutesReady() {
+    suspend fun awaitRoutesReady(contextId: String?) {
+        if (contextId == null || !hasProxiedRoute(contextId)) return
         routesReady.first { it }
+    }
+
+    private fun hasProxiedRoute(contextId: String): Boolean {
+        val cfg = buildSnapshot()[CONTAINER_PREFIX + contextId] ?: return false
+        return cfg !== DIRECT
     }
 
     private fun attachMessageDelegate(extension: WebExtension) {
@@ -158,13 +165,11 @@ object ProxyRouterBridge {
         val proxies = dm.getProxies().associateBy { it.uuid }
         val out = LinkedHashMap<String, Map<String, Any?>>()
 
-        val direct = mapOf<String, Any?>("type" to "direct")
-
         for (group in dm.getGroups()) {
             if (!group.isUseContainer) continue
             val storeId = CONTAINER_PREFIX + group.uuid
             val proxy = group.proxyUuid?.let { proxies[it] }
-            out[storeId] = proxy?.let(::proxyToMap) ?: direct
+            out[storeId] = proxy?.let(::proxyToMap) ?: DIRECT
         }
         for (app in dm.getWebsites() + dm.getTransientWebApps()) {
             if (!app.isUseContainer) continue
@@ -175,7 +180,7 @@ object ProxyRouterBridge {
                 ?: app.groupUuid
                     ?.let { gid -> dm.getGroup(gid)?.takeIf { it.isUseContainer }?.proxyUuid }
             val proxy = pUuid?.let { proxies[it] }
-            out[storeId] = proxy?.let(::proxyToMap) ?: direct
+            out[storeId] = proxy?.let(::proxyToMap) ?: DIRECT
         }
         return out
     }
