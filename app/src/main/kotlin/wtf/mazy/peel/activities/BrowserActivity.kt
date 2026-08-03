@@ -516,9 +516,6 @@ class BrowserActivity : BaseSessionHost() {
         currentUrl = url
         translationDelegate?.onLocationChanged(url)
         handleStartupAuthHistoryReset(url)
-        if (url.normalizedHost() == webapp.baseUrl.normalizedHost()) {
-            navigationDelegate.browsingExternally = false
-        }
     }
 
     override fun onPageStarted() {

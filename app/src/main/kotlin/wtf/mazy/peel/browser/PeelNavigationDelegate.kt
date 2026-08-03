@@ -57,6 +57,7 @@ class PeelNavigationDelegate(private val host: SessionHost) : GeckoSession.Navig
         if (url.isNullOrBlank()) return
         if (url != lastLocation) isOnJumpHost = false
         lastLocation = url
+        if (browsingExternally && belongsToApp(url)) browsingExternally = false
         host.onLocationChanged(url)
     }
 
@@ -112,6 +113,12 @@ class PeelNavigationDelegate(private val host: SessionHost) : GeckoSession.Navig
         isOnJumpHost = true
     }
 
+    private fun belongsToApp(url: String): Boolean {
+        if (isSameOrigin(host.baseUrl, url)) return true
+        val affinity = linkAffinity(host.baseUrl, url, host.effectiveSettings.sameAppDomains)
+        return affinity > HostIdentity.TLD_ONLY
+    }
+
     fun onPageLoadFinished() {
         if (lastLocation.isEmpty() || lastLocation == "about:blank") return
         isInitialLoad = false
@@ -120,17 +127,15 @@ class PeelNavigationDelegate(private val host: SessionHost) : GeckoSession.Navig
     private fun handleExternalRouting(url: String, request: LoadRequest): GeckoResult<AllowOrDeny> {
         if (browsingExternally || isInitialLoad) return allow()
 
-        if (isSameOrigin(host.baseUrl, url)) return allow()
-
-        val affinity = linkAffinity(host.baseUrl, url, host.effectiveSettings.sameAppDomains)
-        if (affinity > HostIdentity.TLD_ONLY) return allow()
+        if (belongsToApp(url)) return allow()
         if (isExplicitDownload(url)) return allow()
-        if (request.isRedirect) return allow()
 
         val peelMatches = host.findPeelAppMatches(url)
-        if (peelMatches.isEmpty() && !request.hasUserGesture) return allow()
+        if (peelMatches.isEmpty() && !request.hasUserGesture && !request.isRedirect) {
+            return allow()
+        }
 
-        showExternalLinkMenu(url, null)
+        showExternalLinkMenu(url, redirectFallbackFor(request))
         return deny()
     }
 
