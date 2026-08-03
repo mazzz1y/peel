@@ -105,8 +105,6 @@ class PopupActivity : SessionPageActivity() {
 
     override fun navigateHome() = launchOwnerApp(url = null)
 
-    private fun openInOwnerApp() = launchOwnerApp(url = lastLoadedUrl.ifBlank { null })
-
     private fun launchOwnerApp(url: String?) {
         val ownerUuid = ownerWebAppUuid ?: return
         val webapp = DataManager.instance.getWebApp(ownerUuid) ?: run {
@@ -141,7 +139,6 @@ class PopupActivity : SessionPageActivity() {
             onExtensions = if (SessionExtensionActions.hasExtensions)
                 ({ ExtensionPickerDialog.show(this, sessionExtensionActions) }) else null,
             onReloadLongPress = ::clearSiteCacheAndReload,
-            onOpenInApp = if (ownerWebAppUuid != null) ({ openInOwnerApp() }) else null,
             onExpandedChange = { expanded, durationMs ->
                 systemBarController.setDim(expanded, durationMs)
             },
