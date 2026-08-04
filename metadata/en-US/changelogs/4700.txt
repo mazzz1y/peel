@@ -1,4 +1,8 @@
-- Add web push notifications via UnifiedPush, with per-site permissions and a subscription manager
-- Add an engine option to trust system certificates, for private or corporate CAs
-- Update GeckoView to 153.0.20260730155536
-- Fix long-press reload racing the cache clear, reload now bypasses caches
+- Add web push notifications via UnifiedPush
+- Add auto-hide bar and persistent panel browser control modes
+- Add an engine option to trust system certificates
+- Rank same-app domains higher in "Open in Peel"
+- Fix prompt on cross-origin redirects
+- Recover web apps stuck after a failed offline load
+- Fix long-press reload racing the cache clear
+- Update GeckoView to 153.0.20260803132010
