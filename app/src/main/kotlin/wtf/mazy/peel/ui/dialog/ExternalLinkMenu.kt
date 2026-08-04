@@ -17,9 +17,9 @@ import wtf.mazy.peel.util.BrowserLauncher
 import wtf.mazy.peel.util.HostIdentity
 import wtf.mazy.peel.util.NotificationUtils
 import wtf.mazy.peel.util.linkAffinity
-import wtf.mazy.peel.util.shouldOfferOpenInSystem
 import wtf.mazy.peel.util.normalizedHost
 import wtf.mazy.peel.util.shortLabel
+import wtf.mazy.peel.util.shouldOfferOpenInSystem
 import wtf.mazy.peel.util.sortedByAffinity
 
 object ExternalLinkMenu {
@@ -115,7 +115,13 @@ object ExternalLinkMenu {
         }
 
         dialog = MaterialAlertDialogBuilder(activity)
-            .setCustomTitle(MenuDialogHelper.buildHeader(activity, null, MenuDialogHelper.prettyDataUrl(url)))
+            .setCustomTitle(
+                MenuDialogHelper.buildHeader(
+                    activity,
+                    null,
+                    MenuDialogHelper.prettyDataUrl(url)
+                )
+            )
             .setView(content)
             .setOnCancelListener { onResult(ExternalLinkResult.Dismissed) }
             .show()

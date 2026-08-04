@@ -27,7 +27,7 @@ data class WebAppSettings(
     var isPullToRefresh: Boolean? = null,
     var isSafeBrowsing: Int? = null,
     var isDynamicStatusBar: Boolean? = null,
-    var isShowNotification: Boolean? = null,
+    var browserControlsMode: Int? = null,
     var isAppLinksPermission: Int? = null,
     var isGlobalPrivacyControl: Boolean? = null,
     var isFingerprintingProtection: Boolean? = null,
@@ -61,6 +61,11 @@ data class WebAppSettings(
         const val TRACKER_PROTECTION_NONE = 0
         const val TRACKER_PROTECTION_DEFAULT = 1
         const val TRACKER_PROTECTION_STRICT = 2
+
+        const val BROWSER_CONTROLS_OFF = 0
+        const val BROWSER_CONTROLS_BUTTON = 1
+        const val BROWSER_CONTROLS_BAR = 2
+        const val BROWSER_CONTROLS_PANEL = 3
 
         @Suppress("UNCHECKED_CAST")
         private val PROPERTY_MAP: Map<String, KMutableProperty1<WebAppSettings, Any?>> by lazy {

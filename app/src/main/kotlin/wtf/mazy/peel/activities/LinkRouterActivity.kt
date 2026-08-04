@@ -101,7 +101,13 @@ class LinkRouterActivity : AppCompatActivity() {
         }
 
         dialog = MaterialAlertDialogBuilder(this)
-            .setCustomTitle(MenuDialogHelper.buildHeader(this, null, MenuDialogHelper.prettyDataUrl(url)))
+            .setCustomTitle(
+                MenuDialogHelper.buildHeader(
+                    this,
+                    null,
+                    MenuDialogHelper.prettyDataUrl(url)
+                )
+            )
             .setView(content)
             .setOnCancelListener { finish() }
             .show()

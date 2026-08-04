@@ -127,7 +127,7 @@ object SettingDialogs {
         val layout = outlinedField(context, hintRes)
         val inputType = if (maxLines > 1) {
             InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_MULTI_LINE or
-                InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
+                    InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
         } else {
             InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
         }

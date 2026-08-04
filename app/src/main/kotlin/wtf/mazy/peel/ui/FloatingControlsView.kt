@@ -14,7 +14,6 @@ import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
-import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
 import androidx.core.content.edit
 import androidx.core.graphics.Insets
@@ -24,27 +23,15 @@ import androidx.core.view.doOnLayout
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import com.google.android.material.card.MaterialCardView
 import wtf.mazy.peel.R
+import wtf.mazy.peel.ui.controls.BrowserControls
+import wtf.mazy.peel.ui.controls.ControlAction
 
 class FloatingControlsView(
     private val parent: FrameLayout,
     webappUuid: String,
-    onHome: (() -> Unit)? = null,
-    onReload: () -> Unit,
-    onShare: () -> Unit,
-    onShareLongPress: (() -> Unit)? = null,
-    onFind: (() -> Unit)? = null,
-    onTranslate: (() -> Unit)? = null,
-    onTranslateLongPress: (() -> Unit)? = null,
-    onExtensions: (() -> Unit)? = null,
-    onReloadLongPress: (() -> Unit)? = null,
+    private val actions: List<ControlAction>,
     private val onExpandedChange: ((expanded: Boolean, durationMs: Long) -> Unit)? = null,
-) {
-    private data class Action(
-        @param:DrawableRes val iconRes: Int,
-        val onClick: () -> Unit,
-        val onLongClick: (() -> Unit)? = null,
-        val tag: String? = null,
-    )
+) : BrowserControls {
 
     private data class SavedOffset(val xFraction: Float, val yFraction: Float)
 
@@ -82,24 +69,6 @@ class FloatingControlsView(
     private val scrimColor = ContextCompat.getColor(context, R.color.floating_controls_scrim)
 
     private val buttonPrefs = Prefs(context, webappUuid)
-
-    private val actions: List<Action> = buildList {
-        onHome?.let { add(Action(R.drawable.ic_symbols_home_wght300_24, it)) }
-        add(Action(R.drawable.ic_symbols_share_wght300_24, onShare, onShareLongPress))
-        onFind?.let { add(Action(R.drawable.ic_symbols_search_wght300_24, it)) }
-        add(Action(R.drawable.ic_symbols_refresh_wght300_24, onReload, onReloadLongPress))
-        onTranslate?.let {
-            add(
-                Action(
-                    R.drawable.ic_symbols_translate_wght300_24,
-                    it,
-                    onLongClick = onTranslateLongPress,
-                    tag = TAG_TRANSLATE,
-                ),
-            )
-        }
-        onExtensions?.let { add(Action(R.drawable.ic_symbols_extension_wght300_24, it)) }
-    }
 
     private val panelHeightPx: Int =
         buttonSizePx * actions.size +
@@ -153,7 +122,7 @@ class FloatingControlsView(
         }
     }
 
-    fun remove() {
+    override fun remove() {
         if (destroyed) return
         destroyed = true
         cancelAllAnimations()
@@ -163,7 +132,7 @@ class FloatingControlsView(
         parent.removeView(trigger)
     }
 
-    fun setHidden(hidden: Boolean) {
+    override fun setHidden(hidden: Boolean) {
         if (destroyed) return
         if (hidden) {
             if (expanded) collapseInstantly()
@@ -211,13 +180,13 @@ class FloatingControlsView(
         }
     }
 
-    fun setTranslateActive(active: Boolean) {
+    override fun setTranslateActive(active: Boolean) {
         if (translateActive == active) return
         translateActive = active
         translateActiveDot?.visibility = if (active) View.VISIBLE else View.GONE
     }
 
-    fun setIncognito(active: Boolean) {
+    override fun setIncognito(active: Boolean) {
         trigger.setCardBackgroundColor(
             if (active) {
                 ColorStateList.valueOf(ContextCompat.getColor(context, R.color.incognito_fab))
@@ -234,9 +203,9 @@ class FloatingControlsView(
         triggerIconClose.imageTintList = foreground
     }
 
-    private fun createActionView(action: Action): View {
+    private fun createActionView(action: ControlAction): View {
         val btn = createActionButton(action)
-        if (action.tag != TAG_TRANSLATE) return btn
+        if (action.tag != ControlAction.TAG_TRANSLATE) return btn
         val wrapper = FrameLayout(context)
         wrapper.addView(
             btn,
@@ -252,10 +221,11 @@ class FloatingControlsView(
         return wrapper
     }
 
-    private fun createActionButton(action: Action): ImageButton {
+    private fun createActionButton(action: ControlAction): ImageButton {
         val btn =
             inflater.inflate(R.layout.view_floating_action, panelContainer, false) as ImageButton
         btn.setImageResource(action.iconRes)
+        btn.contentDescription = context.getString(action.labelRes)
         btn.setOnClickListener {
             collapse()
             action.onClick()
@@ -329,11 +299,17 @@ class FloatingControlsView(
 
     private fun positionPanel(expandDown: Boolean) {
         panel.x = trigger.x
-        panel.y = if (expandDown) {
+        val preferredY = if (expandDown) {
             trigger.y + buttonSizePx + panelTriggerGapPx
         } else {
             trigger.y - panelTriggerGapPx - panelHeightPx
         }
+        val location = IntArray(2).also { parent.getLocationInWindow(it) }
+        val minY = (systemBars.top - location[1]).toFloat().coerceAtLeast(0f)
+        val maxY = (parent.height - systemBars.bottom - panelHeightPx)
+            .toFloat()
+            .coerceAtLeast(minY)
+        panel.y = preferredY.coerceIn(minY, maxY)
     }
 
     private fun toggle() {
@@ -341,8 +317,14 @@ class FloatingControlsView(
         if (expanded) collapse() else expand()
     }
 
-    private fun shouldExpandDown(): Boolean =
-        trigger.y + buttonSizePx / 2f < parent.height / 2f
+    private fun shouldExpandDown(): Boolean {
+        val location = IntArray(2).also { parent.getLocationInWindow(it) }
+        val minY = (systemBars.top - location[1]).toFloat().coerceAtLeast(0f)
+        val maxY = (parent.height - systemBars.bottom).toFloat()
+        val below = maxY - (trigger.y + buttonSizePx + panelTriggerGapPx)
+        val above = trigger.y - panelTriggerGapPx - minY
+        return below >= panelHeightPx || below >= above
+    }
 
     private fun expand() {
         if (destroyed || expanded) return
@@ -560,7 +542,6 @@ class FloatingControlsView(
     }
 
     private companion object {
-        const val TAG_TRANSLATE = "translate"
         const val ANIM_DURATION_MS = 180L
         const val SCALE_ANIM_MS = 120L
         const val DEFAULT_X_FRACTION = -0.035f

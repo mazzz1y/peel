@@ -145,6 +145,7 @@ class SettingViewFactory(
 
         textName.text = context.getString(setting.displayNameResId)
         val labels = setting.labels.map { context.getString(it) }
+        val shortLabels = setting.shortLabels.map { context.getString(it) }
 
         fun currentIndex(): Int {
             val current = settings.getValue(setting.key) as? Int ?: setting.values[0]
@@ -158,10 +159,11 @@ class SettingViewFactory(
                 settings.setValue(setting.key, setting.values[i])
                 updateUndoVisibility(btnUndo, setting, settings)
             },
+            buttonItems = shortLabels,
         )
 
         configureButtons(view, btnRemove, btnUndo, setting, settings) {
-            txtValue.text = labels[currentIndex()]
+            txtValue.text = shortLabels[currentIndex()]
         }
     }
 
@@ -750,7 +752,7 @@ class SettingViewFactory(
             hintRes = setting.entryHintResId,
             value = prefill,
             inputType = android.text.InputType.TYPE_CLASS_TEXT or
-                android.text.InputType.TYPE_TEXT_VARIATION_URI,
+                    android.text.InputType.TYPE_TEXT_VARIATION_URI,
             validate = { entry ->
                 when {
                     entry.isEmpty() -> setting.entryHintResId

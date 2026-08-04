@@ -36,10 +36,13 @@ class PeelNavigationDelegate(private val host: SessionHost) : GeckoSession.Navig
 
     @Volatile
     private var appLinkDialogShowing = false
+
     @Volatile
     private var externalMenuShowing = false
+
     @Volatile
     private var isInitialLoad = true
+
     @Volatile
     var lastLocation: String = ""
         private set

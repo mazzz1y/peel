@@ -8,11 +8,13 @@ fun MaterialButton.bindDropdown(
     items: List<String>,
     currentIndex: () -> Int,
     onSelected: (index: Int) -> Unit,
+    buttonItems: List<String> = items,
 ) {
     bindDropdown(
         itemsProvider = { items },
         currentIndex = currentIndex,
         onSelected = onSelected,
+        buttonItemsProvider = { buttonItems },
     )
 }
 
@@ -20,9 +22,10 @@ fun MaterialButton.bindDropdown(
     itemsProvider: () -> List<String>,
     currentIndex: () -> Int,
     onSelected: (index: Int) -> Unit,
+    buttonItemsProvider: () -> List<String> = itemsProvider,
 ) {
     fun refreshText() {
-        val items = itemsProvider()
+        val items = buttonItemsProvider()
         text = items.getOrNull(currentIndex()).orEmpty()
     }
     refreshText()

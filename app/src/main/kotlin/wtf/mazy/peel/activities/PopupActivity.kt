@@ -15,7 +15,8 @@ import wtf.mazy.peel.gecko.ExtensionStateListener
 import wtf.mazy.peel.gecko.GeckoRuntimeProvider
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.WebAppSettings
-import wtf.mazy.peel.ui.FloatingControlsView
+import wtf.mazy.peel.ui.controls.BrowserControls
+import wtf.mazy.peel.ui.controls.ControlActions
 import wtf.mazy.peel.ui.extensions.ExtensionPickerDialog
 import wtf.mazy.peel.ui.extensions.SessionExtensionActions
 import wtf.mazy.peel.util.BrowserLauncher
@@ -73,7 +74,7 @@ class PopupActivity : SessionPageActivity() {
         lifecycleScope.launch {
             setupThemeColorExtensionIfEnabled()
             translationsSupported = TranslationLanguages.isEngineSupported()
-            if (translationsSupported) rebuildFloatingControls()
+            if (translationsSupported) rebuildBrowserControls()
         }
     }
 
@@ -117,37 +118,32 @@ class PopupActivity : SessionPageActivity() {
 
     override fun onSessionStarted() {
         SessionExtensionActions.setActive(sessionExtensionActions)
-        showFloatingControls()
+        showBrowserControls()
     }
 
     override fun onSessionStopped() {
-        hideFloatingControls()
+        hideBrowserControls()
     }
 
-    override fun createFloatingControls(): FloatingControlsView {
+    override fun createBrowserControls(mode: Int): BrowserControls {
         val translateEnabled =
             translationsSupported && effectiveSettings.isTranslatorEnabled == true
-        val controls = FloatingControlsView(
-            parent = findViewById(R.id.browserContent),
-            webappUuid = ownerWebAppUuid ?: FLOATING_CONTROLS_KEY,
+        val actions = ControlActions(
             onHome = if (ownerWebAppUuid != null) ({ homeAction() }) else null,
             onReload = ::reloadCurrentPage,
+            onReloadLongPress = ::clearSiteCacheAndReload,
             onShare = { shareText(lastLoadedUrl) },
             onFind = ::openFindInPage,
             onTranslate = if (translateEnabled) ({ openTranslateDialog() }) else null,
             onTranslateLongPress = if (translateEnabled) ({ onTranslateLongPress() }) else null,
             onExtensions = if (SessionExtensionActions.hasExtensions)
                 ({ ExtensionPickerDialog.show(this, sessionExtensionActions) }) else null,
-            onReloadLongPress = ::clearSiteCacheAndReload,
-            onExpandedChange = { expanded, durationMs ->
-                systemBarController.setDim(expanded, durationMs)
-            },
+        ).toList()
+        return buildBrowserControls(
+            mode,
+            floatingKey = ownerWebAppUuid ?: FLOATING_CONTROLS_KEY,
+            actions = actions,
         )
-        controls.setIncognito(sessionPrivateMode)
-        if (translationsSupported) {
-            controls.setTranslateActive(translationDelegate?.isPageTranslated == true)
-        }
-        return controls
     }
 
     companion object {

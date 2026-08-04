@@ -1,6 +1,7 @@
 package wtf.mazy.peel.ui.dialog
 
 import android.view.View
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -8,7 +9,6 @@ import kotlinx.coroutines.launch
 import org.mozilla.geckoview.GeckoSession
 import org.mozilla.geckoview.TranslationsController
 import org.mozilla.geckoview.TranslationsController.RuntimeTranslation
-import androidx.appcompat.app.AppCompatActivity
 import wtf.mazy.peel.R
 import wtf.mazy.peel.browser.PeelTranslationDelegate
 import wtf.mazy.peel.browser.TranslationLanguages

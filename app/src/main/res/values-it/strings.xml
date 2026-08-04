@@ -130,6 +130,17 @@
     <string name="setting_allow_cert_bypass">Consenti di ignorare errori HTTPS</string>
     <string name="setting_basic_auth">Autorizzazione HTTP</string>
     <string name="setting_dynamic_status_bar">Colore dinamico della barra di stato</string>
+    <string name="setting_browser_controls">Controlli del browser</string>
+    <string name="browser_controls_off">Disattivato</string>
+    <string name="browser_controls_button">Pulsante flottante</string>
+    <string name="browser_controls_bar">Barra a scomparsa</string>
+    <string name="browser_controls_panel">Pannello fisso</string>
+    <string name="browser_controls_button_short">Pulsante</string>
+    <string name="browser_controls_bar_short">Barra</string>
+    <string name="browser_controls_panel_short">Pannello</string>
+    <string name="browser_controls_show">Mostra i controlli del browser</string>
+    <string name="browser_controls_home">Pagina iniziale</string>
+    <string name="browser_controls_reload">Ricarica</string>
     <string name="groups">Gruppi</string>
     <string name="group">Gruppo</string>
     <string name="add_group">Aggiungi gruppo</string>
@@ -146,7 +157,6 @@
     <string name="delete_group_title">Elimina gruppo</string>
     <string name="delete_group_confirm">Eliminare il gruppo %1$s?</string>
     <string name="ungroup_apps_on_delete">Sposta app in \"Senza gruppo\"</string>
-    <string name="setting_floating_controls">Controlli flottanti</string>
     <string name="bioprompt_not_recognized">Non riconosciuto. Riprova</string>
     <string name="choose_icon">Scegli icona e titolo</string>
     <string name="manifest_start_url_title">Aggiornare URL?</string>

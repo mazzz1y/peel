@@ -6,10 +6,12 @@ import android.content.res.Resources
 import android.net.Uri
 import android.text.InputType
 import android.util.TypedValue
+import android.view.MotionEvent
 import android.view.View
 import android.view.Window
 import android.view.WindowManager
 import android.webkit.MimeTypeMap
+import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import androidx.activity.result.contract.ActivityResultContracts
@@ -40,6 +42,7 @@ import wtf.mazy.peel.R
 import wtf.mazy.peel.activities.PopupActivity
 import wtf.mazy.peel.gecko.GeckoRuntimeProvider
 import wtf.mazy.peel.gecko.GeckoRuntimeProvider.awaitVoid
+import wtf.mazy.peel.gecko.NestedGeckoView
 import wtf.mazy.peel.gecko.VerticalSwipeRefreshLayout
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.model.WebAppSettings
@@ -47,6 +50,10 @@ import wtf.mazy.peel.ui.FindInPageView
 import wtf.mazy.peel.ui.FloatingControlsView
 import wtf.mazy.peel.ui.browser.SystemBarController
 import wtf.mazy.peel.ui.common.LoadingDialogController
+import wtf.mazy.peel.ui.controls.BrowserControls
+import wtf.mazy.peel.ui.controls.ControlAction
+import wtf.mazy.peel.ui.controls.PanelControlsView
+import wtf.mazy.peel.ui.controls.BarControlsView
 import wtf.mazy.peel.ui.dialog.ExternalLinkMenu
 import wtf.mazy.peel.ui.dialog.InputDialogConfig
 import wtf.mazy.peel.ui.dialog.TranslateDialog
@@ -70,9 +77,13 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost, TranslationHo
     protected var statusBarScrim: View? = null
     protected var navigationBarScrim: View? = null
     protected var browserContent: View? = null
-    protected var floatingControls: FloatingControlsView? = null
+    protected var panelControls: FrameLayout? = null
+    protected var browserControls: BrowserControls? = null
+    protected var appliedControlsMode: Int? = null
+    private var browserControlsFullscreen = false
     protected var findInPage: FindInPageView? = null
     protected var isFullscreen: Boolean = false
+    private var controlsGesture = false
     protected lateinit var navigationDelegate: PeelNavigationDelegate
     protected lateinit var downloadHandler: DownloadHandler
     protected var pendingPermissionCallback: ((Boolean) -> Unit)? = null
@@ -192,7 +203,7 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost, TranslationHo
     override val translationLoader: LoadingDialogController by lazy { LoadingDialogController(this) }
 
     override fun setTranslateButtonActive(active: Boolean) {
-        floatingControls?.setTranslateActive(active)
+        browserControls?.setTranslateActive(active)
     }
 
     protected var translationDelegate: PeelTranslationDelegate? = null
@@ -215,13 +226,17 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost, TranslationHo
     }
 
     override fun updateSystemBarColors(top: Int, bottom: Int) {
-        systemBarController.update(top, bottom, UI_ANIMATION_DURATION_MS)
+        val effectiveBottom = if (hasPanelControls) themeBackgroundColor else bottom
+        systemBarController.update(top, effectiveBottom, UI_ANIMATION_DURATION_MS)
     }
+
+    private val hasPanelControls: Boolean
+        get() = appliedControlsMode == WebAppSettings.BROWSER_CONTROLS_PANEL
 
     protected val sessionExtensionActions by lazy {
         SessionExtensionActions(
             activity = this,
-            onExtensionsReady = { _ -> if (floatingControls != null) rebuildFloatingControls() },
+            onExtensionsReady = { _ -> if (browserControls != null) rebuildBrowserControls() },
         )
     }
 
@@ -232,10 +247,9 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost, TranslationHo
 
     protected open fun navigateHome() = Unit
 
-    protected fun rebuildFloatingControls() {
-        val current = floatingControls ?: return
-        current.remove()
-        floatingControls = createFloatingControls()
+    protected fun rebuildBrowserControls() {
+        if (browserControls == null) return
+        replaceBrowserControls(controlsMode)
     }
 
     protected fun openTranslateDialog() {
@@ -246,7 +260,10 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost, TranslationHo
         val configuredTarget = if (activePair == null && !docLang.isNullOrBlank() &&
             effectiveSettings.isTranslatorEnabled == true
         ) {
-            TranslationLanguages.resolveConfiguredTarget(effectiveSettings.autoTranslatePairs, docLang)
+            TranslationLanguages.resolveConfiguredTarget(
+                effectiveSettings.autoTranslatePairs,
+                docLang
+            )
         } else null
         val prefill = TranslateDialog.Prefill(
             fromCode = activePair?.fromLanguage ?: docLang,
@@ -397,9 +414,11 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost, TranslationHo
                 builder.setNegativeButton(R.string.back) { _, _ ->
                     geckoSession?.reload()
                 }.setCancelable(false)
+
             canGoBack -> builder.setNegativeButton(R.string.back) { _, _ ->
                 geckoSession?.goBack()
             }.setCancelable(false)
+
             else -> builder.setNegativeButton(R.string.exit) { _, _ ->
                 finish()
             }.setCancelable(false)
@@ -547,6 +566,10 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost, TranslationHo
         toolbar = findViewById(R.id.toolbar)
         statusBarScrim = findViewById(R.id.statusBarScrim)
         navigationBarScrim = findViewById(R.id.navigationBarScrim)
+        panelControls = findViewById(R.id.panelControls)
+        panelControls?.addOnLayoutChangeListener { _, _, top, _, bottom, _, oldTop, _, oldBottom ->
+            if (bottom - top != oldBottom - oldTop) requestInsetsUpdate()
+        }
 
         if (showToolbar) installToolbarInsetsListener()
         else installEdgeToEdgeInsetsListener()
@@ -566,10 +589,24 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost, TranslationHo
                 it.requestLayout()
             }
             val topPad = if (isFullscreen) 0 else sys.top
-            val bottomPad = maxOf(sys.bottom, ime.bottom)
-            browserContent?.setPadding(0, topPad, 0, bottomPad)
+            val systemBottom = maxOf(sys.bottom, ime.bottom)
+            panelControls?.let {
+                val lp = it.layoutParams as FrameLayout.LayoutParams
+                if (lp.bottomMargin != systemBottom) {
+                    lp.bottomMargin = systemBottom
+                    it.requestLayout()
+                }
+            }
+            browserContent?.setPadding(0, topPad, 0, systemBottom + panelControlsHeight)
             WindowInsetsCompat.CONSUMED
         }
+    }
+
+    private val panelControlsHeight: Int
+        get() = browserControls?.reservedBottomHeight() ?: 0
+
+    protected fun requestInsetsUpdate() {
+        findViewById<View>(R.id.browser_root)?.let { it.post(it::requestApplyInsets) }
     }
 
     private fun installToolbarInsetsListener() {
@@ -645,31 +682,121 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost, TranslationHo
         }
     }
 
-    protected open fun createFloatingControls(): FloatingControlsView? = null
-
-    protected fun showFloatingControls() {
-        if (effectiveSettings.isShowNotification != true || floatingControls != null) return
-        floatingControls = createFloatingControls()
+    override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
+        val claimed = browserControls?.onHostTouchEvent(ev) == true
+        if (claimed && !controlsGesture) {
+            controlsGesture = true
+            val cancel = MotionEvent.obtain(ev).also { it.action = MotionEvent.ACTION_CANCEL }
+            super.dispatchTouchEvent(cancel)
+            cancel.recycle()
+        }
+        if (!controlsGesture) return super.dispatchTouchEvent(ev)
+        if (ev.actionMasked == MotionEvent.ACTION_UP ||
+            ev.actionMasked == MotionEvent.ACTION_CANCEL
+        ) {
+            controlsGesture = false
+        }
+        return true
     }
 
-    protected fun hideFloatingControls() {
+    private fun cancelControlsGesture() {
+        controlsGesture = false
+    }
+
+    protected fun attachScrollDelegate(session: GeckoSession) {
+        val nestedView = geckoView as? NestedGeckoView
+        session.scrollDelegate = object : GeckoSession.ScrollDelegate {
+            override fun onScrollChanged(session: GeckoSession, scrollX: Int, scrollY: Int) {
+                nestedView?.updateScrollPosition(scrollY)
+                browserControls?.onContentScrolled(scrollY)
+            }
+        }
+    }
+
+    protected open fun createBrowserControls(mode: Int): BrowserControls? = null
+
+    protected fun buildBrowserControls(
+        mode: Int,
+        floatingKey: String,
+        actions: List<ControlAction>,
+    ): BrowserControls {
+        val parent = findViewById<FrameLayout>(R.id.browserContent)
+        val panel = panelControls
+        return when {
+            mode == WebAppSettings.BROWSER_CONTROLS_BAR ->
+                BarControlsView(parent, actions)
+
+            mode == WebAppSettings.BROWSER_CONTROLS_PANEL && panel != null ->
+                PanelControlsView(panel, actions, ::requestInsetsUpdate)
+
+            else -> FloatingControlsView(
+                parent = parent,
+                webappUuid = floatingKey,
+                actions = actions,
+                onExpandedChange = { expanded, durationMs ->
+                    systemBarController.setDim(expanded, durationMs)
+                },
+            )
+        }.also { controls ->
+            controls.setIncognito(sessionPrivateMode)
+            if (translationsSupported) {
+                controls.setTranslateActive(translationDelegate?.isPageTranslated == true)
+            }
+        }
+    }
+
+    protected val controlsMode: Int
+        get() = effectiveSettings.browserControlsMode
+            ?: WebAppSettings.BROWSER_CONTROLS_BUTTON
+
+    protected fun showBrowserControls() {
+        val mode = controlsMode
+        if (browserControls != null && appliedControlsMode == mode) return
+        replaceBrowserControls(mode)
+    }
+
+    protected fun hideBrowserControls() {
         closeFindInPage()
-        floatingControls?.remove()
-        floatingControls = null
+        cancelControlsGesture()
+        browserControls?.remove()
+        browserControls = null
+        appliedControlsMode = null
+        browserControlsFullscreen = false
+    }
+
+    protected fun setBrowserControlsFullscreen(fullscreen: Boolean) {
+        browserControlsFullscreen = fullscreen
+        updateBrowserControlsVisibility()
+    }
+
+    private fun replaceBrowserControls(mode: Int) {
+        cancelControlsGesture()
+        browserControls?.remove()
+        appliedControlsMode = mode
+        browserControls =
+            if (mode == WebAppSettings.BROWSER_CONTROLS_OFF) null else createBrowserControls(mode)
+        updateBrowserControlsVisibility()
+        restoreSystemBarColors()
+    }
+
+    private fun updateBrowserControlsVisibility() {
+        val hidden = browserControlsFullscreen || findInPage != null
+        if (hidden) cancelControlsGesture()
+        browserControls?.setHidden(hidden)
     }
 
     protected fun openFindInPage() {
         if (findInPage != null) return
         val session = geckoSession ?: return
-        floatingControls?.setHidden(true)
         findInPage = FindInPageView(
             parent = findViewById(R.id.browserContent),
             session = session,
             onClose = {
                 findInPage = null
-                floatingControls?.setHidden(false)
+                updateBrowserControlsVisibility()
             },
         )
+        updateBrowserControlsVisibility()
     }
 
     protected fun closeFindInPage() {

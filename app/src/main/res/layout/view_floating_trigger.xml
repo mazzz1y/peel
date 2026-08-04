@@ -4,6 +4,7 @@
     style="?attr/materialCardViewElevatedStyle"
     android:layout_width="@dimen/floating_controls_button_size"
     android:layout_height="@dimen/floating_controls_button_size"
+    android:contentDescription="@string/browser_controls_show"
     app:cardBackgroundColor="?attr/colorSurfaceContainerHigh"
     app:cardCornerRadius="@dimen/floating_controls_corner_radius"
     app:cardElevation="@dimen/floating_controls_elevation"

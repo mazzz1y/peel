@@ -12,5 +12,6 @@ data class WebAppSurrogate(
     val proxyUuid: String? = null,
     val order: Int = 0,
     val groupUuid: String? = null,
+    @Serializable(with = LegacyWebAppSettingsSerializer::class)
     val settings: WebAppSettings = WebAppSettings(),
 )

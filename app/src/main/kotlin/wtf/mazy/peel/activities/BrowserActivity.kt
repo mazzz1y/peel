@@ -51,9 +51,10 @@ import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.SandboxManager
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.model.WebAppSettings
-import wtf.mazy.peel.ui.FloatingControlsView
 import wtf.mazy.peel.ui.browser.AutoReloadController
 import wtf.mazy.peel.ui.browser.BiometricUnlockController
+import wtf.mazy.peel.ui.controls.BrowserControls
+import wtf.mazy.peel.ui.controls.ControlActions
 import wtf.mazy.peel.ui.dialog.ExternalLinkMenu
 import wtf.mazy.peel.ui.extensions.ExtensionPickerDialog
 import wtf.mazy.peel.ui.extensions.SessionExtensionActions
@@ -206,7 +207,7 @@ class BrowserActivity : BaseSessionHost() {
             val supported = TranslationLanguages.isEngineSupported()
             if (supported != translationsSupported) {
                 translationsSupported = supported
-                if (floatingControls != null) rebuildFloatingControls()
+                if (browserControls != null) rebuildBrowserControls()
             }
         }
 
@@ -275,11 +276,11 @@ class BrowserActivity : BaseSessionHost() {
             val enabledChanged = enabled != lastTranslatorEnabled
             lastTranslatorEnabled = enabled
             lastTranslatorPairs = pairs
-            if (enabledChanged && floatingControls != null) rebuildFloatingControls()
+            if (enabledChanged && browserControls != null) rebuildBrowserControls()
         }
         applyVisualSettings(effectiveSettings)
 
-        showFloatingControls()
+        showBrowserControls()
 
         biometricController.showPromptIfNeeded(
             effectiveSettings.isBiometricProtection == true,
@@ -302,36 +303,27 @@ class BrowserActivity : BaseSessionHost() {
         } catch (_: Exception) {
         }
         if (!isStartupComplete) return
-        hideFloatingControls()
+        hideBrowserControls()
         autoReloadController.stop()
     }
 
-    override fun createFloatingControls(): FloatingControlsView? {
+    override fun createBrowserControls(mode: Int): BrowserControls? {
         val uuid = webappUuid ?: return null
-        val controls = FloatingControlsView(
-            parent = findViewById(R.id.browserContent),
-            webappUuid = uuid,
+        val translateEnabled =
+            translationsSupported && effectiveSettings.isTranslatorEnabled == true
+        val actions = ControlActions(
             onHome = { homeAction() },
             onReload = ::reloadCurrentPage,
+            onReloadLongPress = ::clearSiteCacheAndReload,
             onShare = { shareCurrentUrl() },
             onShareLongPress = { currentUrl.takeIf { it.isNotBlank() }?.let(::openInPeel) },
             onFind = ::openFindInPage,
-            onTranslate = if (translationsSupported && effectiveSettings.isTranslatorEnabled == true)
-                ({ openTranslateDialog() }) else null,
-            onTranslateLongPress = if (translationsSupported && effectiveSettings.isTranslatorEnabled == true)
-                ({ onTranslateLongPress() }) else null,
+            onTranslate = if (translateEnabled) ({ openTranslateDialog() }) else null,
+            onTranslateLongPress = if (translateEnabled) ({ onTranslateLongPress() }) else null,
             onExtensions = if (SessionExtensionActions.hasExtensions)
                 ({ ExtensionPickerDialog.show(this, sessionExtensionActions) }) else null,
-            onReloadLongPress = ::clearSiteCacheAndReload,
-            onExpandedChange = { expanded, durationMs ->
-                systemBarController.setDim(expanded, durationMs)
-            },
-        )
-        if (translationsSupported) {
-            controls.setTranslateActive(translationDelegate?.isPageTranslated == true)
-        }
-        controls.setIncognito(webapp.resolvePrivateMode())
-        return controls
+        ).toList()
+        return buildBrowserControls(mode, floatingKey = uuid, actions = actions)
     }
 
     private fun shareCurrentUrl() {
@@ -489,7 +481,9 @@ class BrowserActivity : BaseSessionHost() {
         Snackbar.make(root, getString(R.string.download_complete), Snackbar.LENGTH_LONG)
             .setAction(getString(R.string.open)) {
                 if (notificationId != -1) {
-                    (getSystemService(NOTIFICATION_SERVICE) as NotificationManager).cancel(notificationId)
+                    (getSystemService(NOTIFICATION_SERVICE) as NotificationManager).cancel(
+                        notificationId
+                    )
                 }
                 try {
                     val intent = Intent(Intent.ACTION_VIEW).apply {
@@ -583,12 +577,12 @@ class BrowserActivity : BaseSessionHost() {
     override fun onWebFullscreenEnter() {
         systemBarController.hide()
         closeFindInPage()
-        floatingControls?.setHidden(true)
+        setBrowserControlsFullscreen(true)
     }
 
     override fun onWebFullscreenExit() {
         systemBarController.show(effectiveSettings.isShowFullscreen == true)
-        floatingControls?.setHidden(false)
+        setBrowserControlsFullscreen(false)
     }
 
     private fun setupGeckoView() {
@@ -665,14 +659,7 @@ class BrowserActivity : BaseSessionHost() {
             session.translationsSessionDelegate = it
         }
 
-        val nestedView = geckoView as? NestedGeckoView
-        if (nestedView != null) {
-            session.scrollDelegate = object : GeckoSession.ScrollDelegate {
-                override fun onScrollChanged(session: GeckoSession, scrollX: Int, scrollY: Int) {
-                    nestedView.updateScrollPosition(scrollY)
-                }
-            }
-        }
+        attachScrollDelegate(session)
 
         val runtime = GeckoRuntimeProvider.getRuntime(this)
         session.open(runtime)
@@ -829,8 +816,8 @@ class BrowserActivity : BaseSessionHost() {
 
     private val isTaskSnapshotProtected: Boolean
         get() = isStartupComplete &&
-            (effectiveSettings.isBiometricProtection == true ||
-                effectiveSettings.isDisableScreenshots == true)
+                (effectiveSettings.isBiometricProtection == true ||
+                        effectiveSettings.isDisableScreenshots == true)
 
     private fun applyTaskSnapshotProtection() {
         val shouldProtect = effectiveSettings.isBiometricProtection == true

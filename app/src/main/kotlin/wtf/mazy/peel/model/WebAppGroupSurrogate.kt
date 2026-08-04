@@ -10,5 +10,6 @@ data class WebAppGroupSurrogate(
     val isUseContainer: Boolean = false,
     val isEphemeralSandbox: Boolean = false,
     val proxyUuid: String? = null,
+    @Serializable(with = LegacyWebAppSettingsSerializer::class)
     val settings: WebAppSettings = WebAppSettings(),
 )

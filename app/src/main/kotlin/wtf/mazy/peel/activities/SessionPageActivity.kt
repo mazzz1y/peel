@@ -68,6 +68,7 @@ abstract class SessionPageActivity : BaseSessionHost() {
         )
         session.progressDelegate = PeelProgressDelegate(this)
         session.promptDelegate = PeelPromptDelegate(this)
+        attachScrollDelegate(session)
     }
 
     protected fun displaySession(session: GeckoSession) {
@@ -110,8 +111,13 @@ abstract class SessionPageActivity : BaseSessionHost() {
     override fun onPageStarted() = Unit
     override fun onFirstContentfulPaint() = Unit
 
-    override fun onWebFullscreenEnter() = Unit
-    override fun onWebFullscreenExit() = Unit
+    override fun onWebFullscreenEnter() {
+        setBrowserControlsFullscreen(true)
+    }
+
+    override fun onWebFullscreenExit() {
+        setBrowserControlsFullscreen(false)
+    }
 
     override fun findPeelAppMatches(url: String): List<WebApp> {
         return ExternalLinkMenu.findPeelAppMatches(

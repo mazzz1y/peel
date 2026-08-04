@@ -40,8 +40,8 @@ object PushSubscriptionBinder : EntityBinder<PushSubscriptionItem> {
 
     override fun contentEquals(a: PushSubscriptionItem, b: PushSubscriptionItem): Boolean =
         a.subscription == b.subscription &&
-            a.sandboxTitle == b.sandboxTitle &&
-            a.allowed == b.allowed
+                a.sandboxTitle == b.sandboxTitle &&
+                a.allowed == b.allowed
 }
 
 class PushSubscriptionListAdapter(

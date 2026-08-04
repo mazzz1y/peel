@@ -30,6 +30,7 @@
     <dimen name="settings_hub_icon_size">24dp</dimen>
     <dimen name="settings_hub_icon_text_gap">20dp</dimen>
     <dimen name="settings_hub_list_padding_vertical">6dp</dimen>
+    <dimen name="settings_dropdown_max_width">160dp</dimen>
 
     <!-- Floating controls panel + trigger -->
     <dimen name="floating_controls_button_size">36dp</dimen>
@@ -42,6 +43,15 @@
     <!-- Indicator dot -->
     <dimen name="indicator_dot_size">8dp</dimen>
     <dimen name="indicator_dot_inset">2dp</dimen>
+
+    <!-- Bottom controls bar -->
+    <dimen name="bar_controls_margin">8dp</dimen>
+    <dimen name="bar_controls_margin_bottom">16dp</dimen>
+    <dimen name="bar_controls_min_height">48dp</dimen>
+    <dimen name="bar_controls_padding_horizontal">8dp</dimen>
+    <dimen name="bar_controls_slot_width">44dp</dimen>
+    <dimen name="bar_controls_button_gap">4dp</dimen>
+    <dimen name="bar_controls_scroll_threshold">24dp</dimen>
 
     <!-- Find-in-page bar -->
     <dimen name="find_in_page_margin">8dp</dimen>

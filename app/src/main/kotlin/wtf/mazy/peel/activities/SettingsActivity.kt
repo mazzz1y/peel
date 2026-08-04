@@ -9,7 +9,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import wtf.mazy.peel.R
 import wtf.mazy.peel.databinding.GlobalSettingsBinding
 import wtf.mazy.peel.model.ApplyTimingRegistry
 import wtf.mazy.peel.model.DataManager

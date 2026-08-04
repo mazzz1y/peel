@@ -95,7 +95,9 @@ class DownloadService : Service() {
                 }
                 if (uri != null) {
                     notification.showSuccess(fileName, webappName, uri, mimeType)
-                    broadcastComplete(fileName, uri.toString(), mimeType, notification.id)
+                    broadcastComplete(
+                        fileName, uri.toString(), mimeType, notification.id
+                    )
                 } else {
                     notification.showError(fileName, webappName)
                 }
@@ -233,7 +235,8 @@ class DownloadService : Service() {
         return mimeType
             ?: MimeTypeMap.getSingleton()
                 .getMimeTypeFromExtension(
-                    fileName.substringAfterLast('.', "").lowercase())
+                    fileName.substringAfterLast('.', "").lowercase()
+                )
             ?: "application/octet-stream"
     }
 

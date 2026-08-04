@@ -130,6 +130,17 @@
     <string name="setting_allow_cert_bypass">Umgehen von HTTPS-Fehlern erlauben</string>
     <string name="setting_basic_auth">HTTP-Autorisierung</string>
     <string name="setting_dynamic_status_bar">Dynamische Statusleistenfarbe</string>
+    <string name="setting_browser_controls">Browser-Steuerung</string>
+    <string name="browser_controls_off">Aus</string>
+    <string name="browser_controls_button">Schwebende Schaltfläche</string>
+    <string name="browser_controls_bar">Ausblendbare Leiste</string>
+    <string name="browser_controls_panel">Festes Panel</string>
+    <string name="browser_controls_button_short">Schaltfläche</string>
+    <string name="browser_controls_bar_short">Leiste</string>
+    <string name="browser_controls_panel_short">Panel</string>
+    <string name="browser_controls_show">Browser-Steuerung anzeigen</string>
+    <string name="browser_controls_home">Startseite</string>
+    <string name="browser_controls_reload">Neu laden</string>
     <string name="groups">Gruppen</string>
     <string name="group">Gruppe</string>
     <string name="add_group">Gruppe hinzufügen</string>
@@ -146,7 +157,6 @@
     <string name="delete_group_title">Gruppe löschen</string>
     <string name="delete_group_confirm">Gruppe %1$s löschen?</string>
     <string name="ungroup_apps_on_delete">Apps zu „Ohne Gruppe" verschieben</string>
-    <string name="setting_floating_controls">Schwebende Steuerung</string>
     <string name="bioprompt_not_recognized">Nicht erkannt. Versuchen Sie es erneut</string>
     <string name="choose_icon">Symbol und Titel auswählen</string>
     <string name="manifest_start_url_title">URL aktualisieren?</string>

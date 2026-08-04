@@ -10,8 +10,8 @@ import org.mozilla.geckoview.GeckoSession
 import wtf.mazy.peel.R
 import wtf.mazy.peel.util.BrowserLauncher
 import wtf.mazy.peel.util.copyToClipboard
-import wtf.mazy.peel.util.shouldOfferOpenInSystem
 import wtf.mazy.peel.util.shareText
+import wtf.mazy.peel.util.shouldOfferOpenInSystem
 
 class BrowserContextMenu(
     private val activity: Context,

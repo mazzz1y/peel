@@ -9,6 +9,7 @@ import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import kotlinx.serialization.json.Json
+import wtf.mazy.peel.model.WebAppSettings
 
 class StringMapConverter {
     @TypeConverter
@@ -43,7 +44,7 @@ class StringListConverter {
         ProxyEntity::class,
         PushSubscriptionEntity::class,
     ],
-    version = 22,
+    version = 23,
     exportSchema = true,
 )
 @TypeConverters(StringMapConverter::class, StringListConverter::class)
@@ -194,7 +195,7 @@ abstract class AppDatabase : RoomDatabase() {
             "isPullToRefresh" to "INTEGER",
             "isSafeBrowsing" to "INTEGER",
             "isDynamicStatusBar" to "INTEGER",
-            "isShowNotification" to "INTEGER",
+            "browserControlsMode" to "INTEGER",
             "isAppLinksPermission" to "INTEGER",
             "isGlobalPrivacyControl" to "INTEGER",
             "isFingerprintingProtection" to "INTEGER",
@@ -223,13 +224,18 @@ abstract class AppDatabase : RoomDatabase() {
         private val SETTINGS_COL_NAMES =
             SETTINGS_COLUMNS.joinToString(", ") { it.first }
 
+        private fun tableColumns(db: SupportSQLiteDatabase, table: String): Set<String> {
+            val cursor = db.query("PRAGMA table_info($table)")
+            val existing = mutableSetOf<String>()
+            val nameIdx = cursor.getColumnIndex("name")
+            while (cursor.moveToNext()) existing.add(cursor.getString(nameIdx))
+            cursor.close()
+            return existing
+        }
+
         private fun ensureSettingsColumns(db: SupportSQLiteDatabase) {
             for (table in listOf("webapps", "webapp_groups")) {
-                val cursor = db.query("PRAGMA table_info($table)")
-                val existing = mutableSetOf<String>()
-                val nameIdx = cursor.getColumnIndex("name")
-                while (cursor.moveToNext()) existing.add(cursor.getString(nameIdx))
-                cursor.close()
+                val existing = tableColumns(db, table)
                 for ((col, type) in SETTINGS_COLUMNS) {
                     if (col !in existing) {
                         db.execSQL("ALTER TABLE $table ADD COLUMN $col $type DEFAULT NULL")
@@ -469,6 +475,85 @@ abstract class AppDatabase : RoomDatabase() {
                 }
             }
 
+        private fun recreateTablesWithProxy(db: SupportSQLiteDatabase) {
+            db.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS webapps_new (
+                    uuid TEXT NOT NULL PRIMARY KEY,
+                    baseUrl TEXT NOT NULL,
+                    title TEXT NOT NULL,
+                    isUseContainer INTEGER NOT NULL,
+                    isEphemeralSandbox INTEGER NOT NULL,
+                    `order` INTEGER NOT NULL,
+                    groupUuid TEXT,
+                    proxyUuid TEXT,
+                    $SETTINGS_COLS
+                )
+                """
+            )
+            db.execSQL(
+                """
+                INSERT INTO webapps_new (
+                    uuid, baseUrl, title, isUseContainer, isEphemeralSandbox,
+                    `order`, groupUuid, proxyUuid, $SETTINGS_COL_NAMES
+                )
+                SELECT uuid, baseUrl, title, isUseContainer, isEphemeralSandbox,
+                    `order`, groupUuid, proxyUuid, $SETTINGS_COL_NAMES
+                FROM webapps
+                """
+            )
+            db.execSQL("DROP TABLE webapps")
+            db.execSQL("ALTER TABLE webapps_new RENAME TO webapps")
+
+            db.execSQL(
+                """
+                CREATE TABLE IF NOT EXISTS webapp_groups_new (
+                    uuid TEXT NOT NULL PRIMARY KEY,
+                    title TEXT NOT NULL,
+                    `order` INTEGER NOT NULL,
+                    isUseContainer INTEGER NOT NULL,
+                    isEphemeralSandbox INTEGER NOT NULL,
+                    proxyUuid TEXT,
+                    $SETTINGS_COLS
+                )
+                """
+            )
+            db.execSQL(
+                """
+                INSERT INTO webapp_groups_new (
+                    uuid, title, `order`, isUseContainer, isEphemeralSandbox,
+                    proxyUuid, $SETTINGS_COL_NAMES
+                )
+                SELECT uuid, title, `order`, isUseContainer, isEphemeralSandbox,
+                    proxyUuid, $SETTINGS_COL_NAMES
+                FROM webapp_groups
+                """
+            )
+            db.execSQL("DROP TABLE webapp_groups")
+            db.execSQL("ALTER TABLE webapp_groups_new RENAME TO webapp_groups")
+        }
+
+        val MIGRATION_22_23 =
+            object : Migration(22, 23) {
+                override fun migrate(db: SupportSQLiteDatabase) {
+                    ensureSettingsColumns(db)
+                    for (table in listOf("webapps", "webapp_groups")) {
+                        if ("isShowNotification" !in tableColumns(db, table)) continue
+                        db.execSQL(
+                            """
+                            UPDATE $table SET browserControlsMode =
+                                CASE isShowNotification
+                                    WHEN 1 THEN ${WebAppSettings.BROWSER_CONTROLS_BUTTON}
+                                    WHEN 0 THEN ${WebAppSettings.BROWSER_CONTROLS_OFF}
+                                END
+                            WHERE isShowNotification IS NOT NULL
+                            """
+                        )
+                    }
+                    recreateTablesWithProxy(db)
+                }
+            }
+
         val MIGRATION_16_17 =
             object : Migration(16, 17) {
                 override fun migrate(db: SupportSQLiteDatabase) {
@@ -534,6 +619,7 @@ abstract class AppDatabase : RoomDatabase() {
                     MIGRATION_19_20,
                     MIGRATION_20_21,
                     MIGRATION_21_22,
+                    MIGRATION_22_23,
                 )
                 .allowMainThreadQueries()
                 .build()

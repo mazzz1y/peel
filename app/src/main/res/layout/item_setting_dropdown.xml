@@ -25,7 +25,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:ellipsize="end"
-        android:maxLines="1" />
+        android:maxLines="2"
+        android:maxWidth="@dimen/settings_dropdown_max_width" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnRemoveOverride"

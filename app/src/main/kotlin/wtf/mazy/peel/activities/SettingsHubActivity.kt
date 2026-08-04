@@ -65,34 +65,74 @@ class SettingsHubActivity : ToolbarBaseActivity<SettingsHubBinding>() {
     }
 
     private fun entries(): List<HubEntry> = listOf(
-        HubEntry(R.string.global_settings, R.string.settings_section_global_summary, R.drawable.ic_symbols_tune_24) {
+        HubEntry(
+            R.string.global_settings,
+            R.string.settings_section_global_summary,
+            R.drawable.ic_symbols_tune_24
+        ) {
             openSection(SettingSection.GLOBAL)
         },
-        HubEntry(R.string.settings_section_engine, R.string.settings_section_engine_summary, R.drawable.ic_symbols_memory_24) {
+        HubEntry(
+            R.string.settings_section_engine,
+            R.string.settings_section_engine_summary,
+            R.drawable.ic_symbols_memory_24
+        ) {
             openSection(SettingSection.ENGINE)
         },
-        HubEntry(R.string.groups, R.string.settings_section_groups_summary, R.drawable.ic_symbols_folder_24) {
+        HubEntry(
+            R.string.groups,
+            R.string.settings_section_groups_summary,
+            R.drawable.ic_symbols_folder_24
+        ) {
             startActivity(Intent(this, GroupListActivity::class.java))
         },
-        HubEntry(R.string.notifications, R.string.settings_section_notifications_summary, R.drawable.ic_symbols_notifications_24) {
+        HubEntry(
+            R.string.notifications,
+            R.string.settings_section_notifications_summary,
+            R.drawable.ic_symbols_notifications_24
+        ) {
             startActivity(Intent(this, NotificationListActivity::class.java))
         },
-        HubEntry(R.string.extensions, R.string.settings_section_extensions_summary, R.drawable.ic_symbols_extension_24) {
+        HubEntry(
+            R.string.extensions,
+            R.string.settings_section_extensions_summary,
+            R.drawable.ic_symbols_extension_24
+        ) {
             startActivity(Intent(this, ExtensionsActivity::class.java))
         },
-        HubEntry(R.string.proxies, R.string.settings_section_proxies_summary, R.drawable.ic_symbols_dns_24) {
+        HubEntry(
+            R.string.proxies,
+            R.string.settings_section_proxies_summary,
+            R.drawable.ic_symbols_dns_24
+        ) {
             startActivity(Intent(this, ProxyListActivity::class.java))
         },
-        HubEntry(R.string.import_data, R.string.settings_section_import_summary, R.drawable.ic_symbols_download_24) {
+        HubEntry(
+            R.string.import_data,
+            R.string.settings_section_import_summary,
+            R.drawable.ic_symbols_download_24
+        ) {
             actions.importBackup()
         },
-        HubEntry(R.string.export_data, R.string.settings_section_export_summary, R.drawable.ic_symbols_upload_24) {
+        HubEntry(
+            R.string.export_data,
+            R.string.settings_section_export_summary,
+            R.drawable.ic_symbols_upload_24
+        ) {
             actions.exportBackup()
         },
-        HubEntry(R.string.clear_data, R.string.settings_section_clear_summary, R.drawable.ic_symbols_delete_24) {
+        HubEntry(
+            R.string.clear_data,
+            R.string.settings_section_clear_summary,
+            R.drawable.ic_symbols_delete_24
+        ) {
             actions.clearData()
         },
-        HubEntry(R.string.app_info, R.string.settings_section_about_summary, R.drawable.ic_symbols_info_24) {
+        HubEntry(
+            R.string.app_info,
+            R.string.settings_section_about_summary,
+            R.drawable.ic_symbols_info_24
+        ) {
             AboutDialog.show(this)
         },
     )
@@ -109,7 +149,8 @@ class SettingsHubActivity : ToolbarBaseActivity<SettingsHubBinding>() {
         private val onClick: (HubEntry) -> Unit,
     ) : RecyclerView.Adapter<HubAdapter.ViewHolder>() {
 
-        class ViewHolder(val binding: ItemSettingsHubBinding) : RecyclerView.ViewHolder(binding.root)
+        class ViewHolder(val binding: ItemSettingsHubBinding) :
+            RecyclerView.ViewHolder(binding.root)
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder =
             ViewHolder(

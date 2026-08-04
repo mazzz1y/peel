@@ -41,9 +41,11 @@ sealed class SettingDefinition(
         globalOnly: Boolean = false,
         val values: IntArray,
         @param:StringRes val labels: IntArray,
+        @param:StringRes val shortLabels: IntArray = labels,
     ) : SettingDefinition(toggle, displayNameResId, category, globalOnly) {
         init {
             require(values.size == labels.size) { "values and labels count must match" }
+            require(shortLabels.size == labels.size) { "short labels count must match" }
             require(values.isNotEmpty()) { "at least one choice required" }
         }
 
@@ -262,10 +264,31 @@ object SettingRegistry {
                 R.string.setting_pull_to_refresh,
                 SettingCategory.APPEARANCE,
             ),
-            SettingDefinition.BooleanSetting(
-                SettingField(WebAppSettings::isShowNotification, true),
-                R.string.setting_floating_controls,
+            SettingDefinition.ChoiceSetting(
+                SettingField(
+                    WebAppSettings::browserControlsMode,
+                    WebAppSettings.BROWSER_CONTROLS_BUTTON,
+                ),
+                R.string.setting_browser_controls,
                 SettingCategory.APPEARANCE,
+                values = intArrayOf(
+                    WebAppSettings.BROWSER_CONTROLS_OFF,
+                    WebAppSettings.BROWSER_CONTROLS_BUTTON,
+                    WebAppSettings.BROWSER_CONTROLS_BAR,
+                    WebAppSettings.BROWSER_CONTROLS_PANEL,
+                ),
+                labels = intArrayOf(
+                    R.string.browser_controls_off,
+                    R.string.browser_controls_button,
+                    R.string.browser_controls_bar,
+                    R.string.browser_controls_panel,
+                ),
+                shortLabels = intArrayOf(
+                    R.string.browser_controls_off,
+                    R.string.browser_controls_button_short,
+                    R.string.browser_controls_bar_short,
+                    R.string.browser_controls_panel_short,
+                ),
             ),
             SettingDefinition.BooleanSetting(
                 SettingField(WebAppSettings::isLongClickShare, true),

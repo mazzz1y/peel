@@ -38,6 +38,13 @@
 
     </FrameLayout>
 
+    <FrameLayout
+        android:id="@+id/panelControls"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:visibility="gone" />
+
     <View
         android:id="@+id/statusBarScrim"
         android:layout_width="match_parent"

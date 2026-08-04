@@ -32,7 +32,11 @@ class NotificationClickActivity : AppCompatActivity() {
             }
             val pending = NotificationClickCoordinator.record(webapp?.uuid)
             tag?.let {
-                WebNotificationBridge.onNotificationOpened(this@NotificationClickActivity, it, fallback)
+                WebNotificationBridge.onNotificationOpened(
+                    this@NotificationClickActivity,
+                    it,
+                    fallback
+                )
             }
             when {
                 webapp != null -> BrowserLauncher.launch(webapp, this@NotificationClickActivity)

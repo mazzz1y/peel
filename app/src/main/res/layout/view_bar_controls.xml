@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/barControlsActions"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@drawable/find_in_page_bg"
+    android:elevation="@dimen/find_in_page_elevation"
+    android:gravity="center_vertical"
+    android:minHeight="@dimen/bar_controls_min_height"
+    android:orientation="horizontal"
+    android:paddingStart="@dimen/bar_controls_padding_horizontal"
+    android:paddingEnd="@dimen/bar_controls_padding_horizontal" />

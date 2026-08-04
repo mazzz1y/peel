@@ -35,7 +35,8 @@ import kotlin.coroutines.resumeWithException
 object PushBridge {
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
-    private val pendingRegistrations = ConcurrentHashMap<String, CompletableDeferred<PushEndpoint?>>()
+    private val pendingRegistrations =
+        ConcurrentHashMap<String, CompletableDeferred<PushEndpoint?>>()
 
     fun attach(runtime: GeckoRuntime, context: Context) {
         val appContext = context.applicationContext
@@ -49,7 +50,8 @@ object PushBridge {
             override fun onSubscribe(
                 scopeUrl: String,
                 appServerKey: ByteArray?,
-            ): GeckoResult<WebPushSubscription>? = geckoResult { subscribe(appContext, scopeUrl, appServerKey) }
+            ): GeckoResult<WebPushSubscription>? =
+                geckoResult { subscribe(appContext, scopeUrl, appServerKey) }
 
             override fun onGetSubscription(scopeUrl: String): GeckoResult<WebPushSubscription>? =
                 geckoResult { getSubscription(appContext, scopeUrl) }
@@ -248,7 +250,7 @@ object PushBridge {
 
     fun matchesScope(permission: ContentPermission, scopeUrl: String): Boolean =
         scopeOrigin(permission.uri) == scopeOrigin(scopeUrl) &&
-            permission.contextId.orEmpty() == scopeContextId(scopeUrl).orEmpty()
+                permission.contextId.orEmpty() == scopeContextId(scopeUrl).orEmpty()
 
     private fun reRegister(context: Context, entity: PushSubscriptionEntity) {
         UnifiedPush.register(
@@ -355,7 +357,10 @@ object PushBridge {
         if (!encoded.startsWith(GECKO_CONTEXT_PREFIX)) return null
         if (encoded == GECKO_CONTEXT_EMPTY) return null
         return runCatching {
-            String(BigInteger(encoded.removePrefix(GECKO_CONTEXT_PREFIX), 16).toByteArray(), Charsets.UTF_8)
+            String(
+                BigInteger(encoded.removePrefix(GECKO_CONTEXT_PREFIX), 16).toByteArray(),
+                Charsets.UTF_8
+            )
         }.getOrNull()
     }
 
