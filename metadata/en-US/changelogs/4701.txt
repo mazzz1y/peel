@@ -1,0 +1,3 @@
+- Notifications toggle now turns off local notifications too
+- Choose local or a delivery app on the notifications screen
+- Swipe only over the bar controls, not the full screen width, to show or hide them
