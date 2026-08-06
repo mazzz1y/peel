@@ -102,7 +102,7 @@ class BarControlsView(
         when (event.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
                 if (shown) restartAutoHide()
-                tracking = root.height > 0 && event.y >= root.top
+                tracking = isInTriggerZone(event)
                 trackingStartY = event.y
                 trackingFromShown = shown
                 trackingStartOffset = if (shown) 0f else hiddenOffset()
@@ -168,6 +168,12 @@ class BarControlsView(
 
     private fun isWrongDirection(delta: Float): Boolean =
         if (trackingFromShown) delta < 0f else delta > 0f
+
+    private fun isInTriggerZone(event: MotionEvent): Boolean =
+        root.height > 0 &&
+                event.y >= root.top &&
+                event.x >= root.left &&
+                event.x <= root.right
 
     private fun hiddenOffset(): Float = (root.height + bottomMarginPx).toFloat()
 
