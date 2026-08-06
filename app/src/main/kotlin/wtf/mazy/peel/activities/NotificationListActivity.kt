@@ -69,49 +69,67 @@ class NotificationListActivity : EntityListActivity<PushSubscriptionItem>() {
     private fun onPushSwitchChanged(checked: Boolean) {
         if (checked == AppPrefs.isPushEnabled(this)) return
         if (checked) {
-            val distributors = UnifiedPush.getDistributors(this)
-            when {
-                distributors.isEmpty() -> {
-                    pushSwitch?.isChecked = false
-                    showDistributorInfo()
-                }
-
-                distributors.size == 1 -> enablePush(distributors.single())
-                else -> chooseDistributor(distributors)
-            }
+            AppPrefs.setPushEnabled(this, true)
+            updateDistributorLabel()
+            refreshPermissions()
         } else {
             confirmDisable()
         }
     }
 
-    private fun enablePush(distributor: String) {
-        UnifiedPush.saveDistributor(this, distributor)
-        AppPrefs.setPushEnabled(this, true)
-        pushSwitch?.isChecked = true
-        updateDistributorLabel()
+    private fun selectDistributor(distributor: String) {
+        if (distributor == UnifiedPush.getSavedDistributor(this)) return
+        lifecycleScope.launch {
+            PushBridge.switchDistributor(this@NotificationListActivity, distributor)
+            if (isFinishing || isDestroyed) return@launch
+            updateDistributorLabel()
+            refreshPermissions()
+        }
     }
 
-    private fun chooseDistributor(distributors: List<String>) {
+    private fun selectLocalDelivery() {
+        if (PushBridge.isLocalDelivery(this)) return
+        MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.push_delivery_local)
+            .setMessage(R.string.push_delivery_local_confirm)
+            .setPositiveButton(R.string.push_switch_to_local) { _, _ ->
+                lifecycleScope.launch {
+                    PushBridge.reset(this@NotificationListActivity)
+                    if (isFinishing || isDestroyed) return@launch
+                    updateDistributorLabel()
+                    refreshPermissions()
+                }
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
+    }
+
+    private fun chooseDelivery() {
+        val options = listOf(LOCAL_DELIVERY) + UnifiedPush.getDistributors(this)
         PickerDialog.show(
             activity = this,
             title = getString(R.string.push_distributor),
-            items = distributors,
-            onPick = ::enablePush,
-            configure = {
-                setNegativeButton(R.string.cancel, null)
-                setOnDismissListener {
-                    pushSwitch?.isChecked = AppPrefs.isPushEnabled(this@NotificationListActivity)
-                }
+            items = options,
+            onPick = { pkg ->
+                if (pkg == LOCAL_DELIVERY) selectLocalDelivery() else selectDistributor(pkg)
             },
-        ) { pkg, icon, name, _, _ ->
-            name.text = distributorLabel(pkg)
-            runCatching { icon.setImageDrawable(packageManager.getApplicationIcon(pkg)) }
+            configure = { setNegativeButton(R.string.cancel, null) },
+        ) { pkg, icon, name, _, detail ->
+            if (pkg == LOCAL_DELIVERY) {
+                name.setText(R.string.push_delivery_local)
+                detail.setText(R.string.push_delivery_local_summary)
+                detail.visibility = View.VISIBLE
+                icon.setImageResource(R.drawable.ic_symbols_cloud_off_24)
+            } else {
+                name.text = distributorLabel(pkg)
+                runCatching { icon.setImageDrawable(packageManager.getApplicationIcon(pkg)) }
+            }
         }
     }
 
     private fun confirmDisable() {
         MaterialAlertDialogBuilder(this)
-            .setTitle(R.string.push_enable)
+            .setTitle(R.string.push_disable)
             .setMessage(R.string.push_disable_confirm)
             .setPositiveButton(R.string.turn_off) { _, _ ->
                 AppPrefs.setPushEnabled(this, false)
@@ -199,30 +217,21 @@ class NotificationListActivity : EntityListActivity<PushSubscriptionItem>() {
         LetterIconGenerator.generate(host, host, IconOwner.defaultIconSizePx())
 
     private fun updateDistributorLabel() {
+        val enabled = AppPrefs.isPushEnabled(this)
+        distributorItem?.isVisible = enabled
+        emptyStateText.setText(if (enabled) emptyStateRes else R.string.notifications_disabled)
+        if (!enabled) return
         val distributor = UnifiedPush.getSavedDistributor(this)
-            ?.takeIf { AppPrefs.isPushEnabled(this) }
-        distributorItem?.isVisible = distributor != null
-        distributor?.let { distributorLabelView?.text = distributorLabel(it) }
-        if (UnifiedPush.getDistributors(this).isEmpty()) {
-            emptyStateText.setText(R.string.push_no_distributor)
-            emptyStateText.setOnClickListener { showDistributorInfo() }
-        } else {
-            emptyStateText.setText(emptyStateRes)
-            emptyStateText.setOnClickListener(null)
+        distributorLabelView?.apply {
+            text = distributor?.let(::distributorLabel) ?: getString(R.string.push_delivery_local)
+            contentDescription = getString(R.string.push_distributor)
+            setOnClickListener { chooseDelivery() }
         }
     }
 
     private fun distributorLabel(pkg: String): String = runCatching {
         packageManager.getApplicationLabel(packageManager.getApplicationInfo(pkg, 0))
     }.getOrNull()?.toString() ?: pkg
-
-    private fun showDistributorInfo() {
-        MaterialAlertDialogBuilder(this)
-            .setTitle(R.string.push_no_distributor)
-            .setMessage(R.string.push_no_distributor_message)
-            .setPositiveButton(android.R.string.ok, null)
-            .show()
-    }
 
     private fun confirmDelete(item: PushSubscriptionItem) {
         MaterialAlertDialogBuilder(this)
@@ -253,5 +262,9 @@ class NotificationListActivity : EntityListActivity<PushSubscriptionItem>() {
         override fun onItemMenu(view: View, item: PushSubscriptionItem) {
             confirmDelete(item)
         }
+    }
+
+    private companion object {
+        const val LOCAL_DELIVERY = ""
     }
 }

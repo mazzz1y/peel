@@ -31,6 +31,7 @@
     <dimen name="settings_hub_icon_text_gap">20dp</dimen>
     <dimen name="settings_hub_list_padding_vertical">6dp</dimen>
     <dimen name="settings_dropdown_max_width">160dp</dimen>
+    <dimen name="toolbar_label_max_width">140dp</dimen>
 
     <!-- Floating controls panel + trigger -->
     <dimen name="floating_controls_button_size">36dp</dimen>

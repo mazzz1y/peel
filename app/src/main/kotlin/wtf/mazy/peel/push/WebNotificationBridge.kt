@@ -19,6 +19,7 @@ import wtf.mazy.peel.R
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.ui.dialog.ExternalLinkMenu
+import wtf.mazy.peel.util.AppPrefs
 
 object WebNotificationBridge {
 
@@ -64,6 +65,7 @@ object WebNotificationBridge {
 
     private fun show(context: Context, notification: WebNotification) {
         if (notification.privateBrowsing) return
+        if (!AppPrefs.isPushEnabled(context)) return
         val manager = NotificationManagerCompat.from(context)
         if (!manager.areNotificationsEnabled()) return
 

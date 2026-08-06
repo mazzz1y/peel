@@ -86,7 +86,7 @@ object PushBridge {
         if (!AppPrefs.isPushEnabled(context)) return null
         if (isPrivateScope(scopeUrl) || isEphemeralScope(scopeUrl)) return null
         getSubscription(context, scopeUrl)?.let { return it }
-        if (!ensureDistributor(context)) return null
+        if (isLocalDelivery(context)) return null
 
         val instance = UUID.randomUUID().toString()
         val vapid = appServerKey?.let { encodeKey(it) }
@@ -229,7 +229,16 @@ object PushBridge {
         val subscriptions = withContext(Dispatchers.IO) {
             DataManager.instance.getPushSubscriptions()
         }
-        if (subscriptions.isEmpty()) return
+        val savedMissing = withContext(Dispatchers.IO) {
+            val saved = UnifiedPush.getSavedDistributor(context)
+            saved != null && saved !in UnifiedPush.getDistributors(context)
+        }
+        if (subscriptions.isEmpty()) {
+            if (savedMissing) {
+                withContext(Dispatchers.IO) { UnifiedPush.removeDistributor(context) }
+            }
+            return
+        }
 
         val linkedInstalled = withContext(Dispatchers.IO) {
             val linked = UnifiedPush.getAckDistributor(context)
@@ -238,9 +247,15 @@ object PushBridge {
         if (AppPrefs.isPushEnabled(context) && linkedInstalled) {
             subscriptions.forEach { reRegister(context, it) }
         } else {
-            AppPrefs.setPushEnabled(context, false)
             reset(context, requireRuntime = false)
         }
+    }
+
+    suspend fun switchDistributor(context: Context, distributor: String) {
+        withContext(Dispatchers.IO) { UnifiedPush.saveDistributor(context, distributor) }
+        DataManager.instance.awaitReady()
+        withContext(Dispatchers.IO) { DataManager.instance.getPushSubscriptions() }
+            .forEach { reRegister(context, it) }
     }
 
     suspend fun reset(context: Context, requireRuntime: Boolean = true) {
@@ -310,12 +325,8 @@ object PushBridge {
         pendingRegistrations[instance]?.complete(null)
     }
 
-    private suspend fun ensureDistributor(context: Context): Boolean {
-        if (UnifiedPush.getSavedDistributor(context) != null) return true
-        AppPrefs.setPushEnabled(context, false)
-        if (DataManager.instance.getPushSubscriptions().isNotEmpty()) reset(context)
-        return false
-    }
+    fun isLocalDelivery(context: Context): Boolean =
+        UnifiedPush.getSavedDistributor(context) == null
 
     fun scopeUrlWithoutAttrs(scopeUrl: String): String = scopeUrl.substringBefore(ATTRS_SEPARATOR)
 

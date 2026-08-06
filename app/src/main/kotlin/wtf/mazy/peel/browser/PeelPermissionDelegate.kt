@@ -6,6 +6,7 @@ import org.mozilla.geckoview.GeckoResult
 import org.mozilla.geckoview.GeckoSession
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.WebAppSettings
+import wtf.mazy.peel.util.AppPrefs
 import wtf.mazy.peel.util.withBoldSpan
 
 class PeelPermissionDelegate(private val host: SessionHost) : GeckoSession.PermissionDelegate {
@@ -54,16 +55,25 @@ class PeelPermissionDelegate(private val host: SessionHost) : GeckoSession.Permi
             }
 
             GeckoSession.PermissionDelegate.PERMISSION_DESKTOP_NOTIFICATION -> {
-                handleTriState(
-                    WebAppSettings.PERMISSION_ASK,
-                    notificationOsPermissions(),
-                    PERM_KEY_NOTIFICATION,
-                    R.string.permission_prompt_notifications,
-                ) { granted ->
+                if (!AppPrefs.isPushEnabled(host.hostWindow.context)) {
                     result.complete(
-                        if (granted) GeckoSession.PermissionDelegate.ContentPermission.VALUE_ALLOW
-                        else GeckoSession.PermissionDelegate.ContentPermission.VALUE_DENY
+                        GeckoSession.PermissionDelegate.ContentPermission.VALUE_PROMPT
                     )
+                } else {
+                    handleTriState(
+                        WebAppSettings.PERMISSION_ASK,
+                        notificationOsPermissions(),
+                        PERM_KEY_NOTIFICATION,
+                        R.string.permission_prompt_notifications,
+                    ) { granted ->
+                        result.complete(
+                            if (granted) {
+                                GeckoSession.PermissionDelegate.ContentPermission.VALUE_ALLOW
+                            } else {
+                                GeckoSession.PermissionDelegate.ContentPermission.VALUE_DENY
+                            }
+                        )
+                    }
                 }
             }
 
