@@ -11,6 +11,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.materialswitch.MaterialSwitch
 import kotlinx.coroutines.launch
 import wtf.mazy.peel.R
+import wtf.mazy.peel.browser.SessionContextRegistry
 import wtf.mazy.peel.browser.TranslationLanguages
 import wtf.mazy.peel.model.BackupManager
 import wtf.mazy.peel.model.DataManager
@@ -128,12 +129,15 @@ class SettingsHubActions(private val activity: AppCompatActivity) {
         }
     }
 
+    private suspend fun wipeStorage(includeSandbox: Boolean) {
+        SessionContextRegistry.closeAllSessions()
+        SandboxManager.clearNonSandboxData()
+        if (includeSandbox) SandboxManager.clearAllSandboxData(activity)
+    }
+
     private fun clearBrowsingData(includeSandbox: Boolean) {
         BrowserActivity.finishAll()
-        SandboxManager.clearNonSandboxData()
-        if (includeSandbox) {
-            SandboxManager.clearAllSandboxData(activity)
-        }
+        DataManager.instance.appScope.launch { wipeStorage(includeSandbox) }
     }
 
     private fun clearTranslationModels() {
@@ -144,10 +148,9 @@ class SettingsHubActions(private val activity: AppCompatActivity) {
 
     private fun performFactoryReset() {
         BrowserActivity.finishAll()
-        SandboxManager.clearNonSandboxData()
-        SandboxManager.clearAllSandboxData(activity)
 
-        activity.lifecycleScope.launch {
+        DataManager.instance.appScope.launch {
+            wipeStorage(includeSandbox = true)
             TranslationLanguages.deleteAllModels()
             DataManager.instance.getWebsites().forEach { webapp ->
                 DataManager.instance.cleanupAndRemoveWebApp(webapp.uuid, activity)

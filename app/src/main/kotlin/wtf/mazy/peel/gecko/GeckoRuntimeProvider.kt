@@ -24,6 +24,7 @@ import org.mozilla.geckoview.WebExtensionController
 import wtf.mazy.peel.BuildConfig
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.DataManager
+import wtf.mazy.peel.model.SandboxManager
 import wtf.mazy.peel.model.WebAppSettings
 import wtf.mazy.peel.push.PushBridge
 import wtf.mazy.peel.push.ServiceWorkerBridge
@@ -83,6 +84,7 @@ object GeckoRuntimeProvider {
                 PushBridge.attach(rt, context.applicationContext)
                 WebNotificationBridge.attach(rt, context.applicationContext)
                 ServiceWorkerBridge.attach(rt, context.applicationContext)
+                SandboxManager.flushPendingClears(context.applicationContext, rt)
             }
         }
     }

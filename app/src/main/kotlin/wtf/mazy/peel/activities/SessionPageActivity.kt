@@ -12,6 +12,7 @@ import wtf.mazy.peel.browser.PeelContentDelegate
 import wtf.mazy.peel.browser.PeelNavigationDelegate
 import wtf.mazy.peel.browser.PeelProgressDelegate
 import wtf.mazy.peel.browser.PeelPromptDelegate
+import wtf.mazy.peel.browser.SessionContextRegistry
 import wtf.mazy.peel.gecko.GeckoRuntimeProvider
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.WebApp
@@ -47,6 +48,7 @@ abstract class SessionPageActivity : BaseSessionHost() {
         }
 
         geckoView?.coverUntilFirstPaint(themeBackgroundColor)
+        SessionContextRegistry.register(this, sessionContextId)
         onSessionHostReady()
     }
 
@@ -100,6 +102,7 @@ abstract class SessionPageActivity : BaseSessionHost() {
         geckoSession?.close()
         geckoSession = null
         super.onDestroy()
+        SessionContextRegistry.unregister(this)
     }
 
     override fun onLocationChanged(url: String) {

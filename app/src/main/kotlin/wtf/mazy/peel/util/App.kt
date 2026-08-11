@@ -10,7 +10,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import wtf.mazy.peel.browser.ProxyRouterBridge
+import wtf.mazy.peel.gecko.GeckoRuntimeProvider
 import wtf.mazy.peel.model.DataManager
+import wtf.mazy.peel.model.SandboxManager
 import wtf.mazy.peel.push.PushBridge
 import wtf.mazy.peel.work.ExtensionUpdateScheduler
 
@@ -29,6 +31,11 @@ class App : Application() {
             return
         }
         registerActivityLifecycleCallbacks(ForegroundActivityTracker)
+        ForegroundActivityTracker.onBackground = {
+            GeckoRuntimeProvider.runtimeOrNull()?.let {
+                SandboxManager.flushPendingClears(applicationContext, it)
+            }
+        }
         appScope.launch {
             DataManager.instance.initialize(applicationContext)
             ProxyRouterBridge.ensure(applicationContext)

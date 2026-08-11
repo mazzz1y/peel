@@ -522,13 +522,13 @@ class DataManager private constructor() {
                 val oldWebsites = currentState.websites
                 val importedGroupUuids = action.importedGroups.mapTo(mutableSetOf()) { it.uuid }
                 oldGroups.filter { it.uuid !in importedGroupUuids }
-                    .forEach { SandboxManager.clearSandboxData(App.appContext, it.uuid) }
+                    .forEach { SandboxManager.enqueueSandboxClear(App.appContext, it.uuid) }
 
                 val importedAppUuids = action.importedWebApps.mapTo(mutableSetOf()) { it.uuid }
                 oldWebsites.filter { it.uuid !in importedAppUuids }
                     .forEach {
                         if (it.isUseContainer) {
-                            SandboxManager.clearSandboxData(App.appContext, it.uuid)
+                            SandboxManager.enqueueSandboxClear(App.appContext, it.uuid)
                         }
                         it.deleteIcon()
                         deleteAppPrefs(App.appContext, it.uuid)
@@ -592,10 +592,10 @@ class DataManager private constructor() {
                     appsInGroup.forEach { repository.deleteWebApp(it.uuid) }
                     currentState.websites.filterNot { it.groupUuid == groupUuid }.map { WebApp(it) }
                 }
-                SandboxManager.clearSandboxData(App.appContext, groupUuid)
+                SandboxManager.enqueueSandboxClear(App.appContext, groupUuid)
                 if (!action.ungroupApps) {
                     appsInGroup.filter { it.isUseContainer }
-                        .forEach { SandboxManager.clearSandboxData(App.appContext, it.uuid) }
+                        .forEach { SandboxManager.enqueueSandboxClear(App.appContext, it.uuid) }
                 }
                 repository.deleteGroup(groupUuid)
                 val nextGroups =

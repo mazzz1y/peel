@@ -3,10 +3,11 @@ package wtf.mazy.peel.ui.settings
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.materialswitch.MaterialSwitch
+import kotlinx.coroutines.launch
 import wtf.mazy.peel.R
-import wtf.mazy.peel.activities.BrowserActivity
 import wtf.mazy.peel.model.SandboxManager
 import wtf.mazy.peel.model.SandboxOwner
 import wtf.mazy.peel.util.NotificationUtils.showToast
@@ -101,10 +102,15 @@ class SandboxSwitchController(
     }
 
     private fun clearSandboxData() {
-        BrowserActivity.finishByUuid(owner.uuid)
-        if (SandboxManager.clearSandboxData(activity, owner.uuid)) {
-            showToast(activity, activity.getString(R.string.clear_sandbox_data), Toast.LENGTH_SHORT)
+        activity.lifecycleScope.launch {
+            if (SandboxManager.clearSandboxData(activity, owner.uuid)) {
+                showToast(
+                    activity,
+                    activity.getString(R.string.clear_sandbox_data),
+                    Toast.LENGTH_SHORT,
+                )
+            }
+            updateClearButtonVisibility()
         }
-        updateClearButtonVisibility()
     }
 }

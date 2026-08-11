@@ -40,6 +40,7 @@ import wtf.mazy.peel.browser.PeelPermissionDelegate
 import wtf.mazy.peel.browser.PeelProgressDelegate
 import wtf.mazy.peel.browser.PeelPromptDelegate
 import wtf.mazy.peel.browser.PeelTranslationDelegate
+import wtf.mazy.peel.browser.SessionContextRegistry
 import wtf.mazy.peel.browser.StartupAuthReturnTracker
 import wtf.mazy.peel.browser.TranslationLanguages
 import wtf.mazy.peel.gecko.ExtensionStateEvent
@@ -375,8 +376,9 @@ class BrowserActivity : BaseSessionHost() {
             DataManager.instance.resolveEffectiveSettings(resolvedWebapp).isClearCache == true &&
             liveInstances.isEmpty()
         ) {
-            val runtime = GeckoRuntimeProvider.getRuntime(this)
-            runtime.storageController.clearData(StorageController.ClearFlags.ALL_CACHES)
+            GeckoRuntimeProvider.runtimeOrNull()
+                ?.storageController
+                ?.clearData(StorageController.ClearFlags.ALL_CACHES)
         }
         closeFindInPage()
         biometricController.unregisterReceiver()
@@ -390,8 +392,11 @@ class BrowserActivity : BaseSessionHost() {
         geckoSession?.close()
         geckoSession = null
         geckoView = null
-        resolvedWebapp?.resolveEphemeralContextId()?.let {
-            SandboxManager.clearSandboxData(this, it)
+        SessionContextRegistry.unregister(this)
+        if (isFinishing) {
+            resolvedWebapp?.resolveEphemeralContextId()?.let {
+                SandboxManager.enqueueSandboxClear(applicationContext, it)
+            }
         }
         webappUuid?.let { DataManager.instance.removeTransientWebApp(it) }
         super.onDestroy()
@@ -640,6 +645,7 @@ class BrowserActivity : BaseSessionHost() {
 
         val session = createSession(settings)
         geckoSession = session
+        SessionContextRegistry.register(this, sessionContextId)
 
         session.navigationDelegate = navigationDelegate
         if (settings.isLongClickShare == true) setupContextMenu() else contextMenu = null
@@ -850,10 +856,6 @@ class BrowserActivity : BaseSessionHost() {
         private val liveInstances = mutableSetOf<BrowserActivity>()
 
         fun hasLiveInstances(): Boolean = liveInstances.isNotEmpty()
-
-        fun finishByUuid(uuid: String) {
-            liveInstances.filter { it.webappUuid == uuid }.forEach { it.finish() }
-        }
 
         fun finishAll() {
             liveInstances.toList().forEach { it.finish() }

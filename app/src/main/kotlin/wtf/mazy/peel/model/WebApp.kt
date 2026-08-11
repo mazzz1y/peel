@@ -55,7 +55,7 @@ data class WebApp(var baseUrl: String, override val uuid: String = UUID.randomUU
         ShortcutIconUtils.deleteShortcuts(listOf(uuid), activity)
     }
 
-    fun cleanupWebAppData(activity: Activity) {
+    suspend fun cleanupWebAppData(activity: Activity) {
         if (isUseContainer) SandboxManager.clearSandboxData(activity, uuid)
         deleteIcon()
         deleteAppPrefs(activity, uuid)
