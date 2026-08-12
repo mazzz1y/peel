@@ -1,0 +1,4 @@
+- Fix sandbox data surviving app or group deletion
+- Ask before opening external links in new windows
+- Keep bar controls hidden while the keyboard is open
+- Update GeckoView to 153.0.20260810162159
