@@ -607,6 +607,7 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost, TranslationHo
                 }
             }
             browserContent?.setPadding(0, topPad, 0, systemBottom + panelControlsHeight)
+            browserControls?.onImeVisibilityChanged(ime.bottom > 0)
             WindowInsetsCompat.CONSUMED
         }
     }

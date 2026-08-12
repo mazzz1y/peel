@@ -86,6 +86,7 @@ interface BrowserControls {
     fun setTranslateActive(active: Boolean)
     fun setIncognito(active: Boolean)
     fun onContentScrolled(scrollY: Int) = Unit
+    fun onImeVisibilityChanged(visible: Boolean) = Unit
     fun onHostTouchEvent(event: MotionEvent): Boolean = false
     fun reservedBottomHeight(): Int = 0
 }

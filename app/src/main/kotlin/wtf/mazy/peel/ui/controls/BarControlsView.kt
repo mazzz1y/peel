@@ -8,6 +8,8 @@ import android.view.View
 import android.view.ViewConfiguration
 import android.widget.FrameLayout
 import android.widget.LinearLayout
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.doOnLayout
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import wtf.mazy.peel.R
@@ -63,6 +65,12 @@ class BarControlsView(
         }
         parent.addView(root)
         root.doOnLayout { it.translationY = hiddenOffset() }
+    }
+
+    override fun onImeVisibilityChanged(visible: Boolean) {
+        if (!visible || destroyed || hostHidden || !(shown || tracking)) return
+        tracking = false
+        animateTo(hidden = true)
     }
 
     override fun remove() {
@@ -170,10 +178,14 @@ class BarControlsView(
         if (trackingFromShown) delta < 0f else delta > 0f
 
     private fun isInTriggerZone(event: MotionEvent): Boolean =
-        root.height > 0 &&
+        !isImeVisible() &&
+                root.height > 0 &&
                 event.y >= root.top &&
                 event.x >= root.left &&
                 event.x <= root.right
+
+    private fun isImeVisible(): Boolean =
+        ViewCompat.getRootWindowInsets(root)?.isVisible(WindowInsetsCompat.Type.ime()) == true
 
     private fun hiddenOffset(): Float = (root.height + bottomMarginPx).toFloat()
 
