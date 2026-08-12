@@ -6,6 +6,7 @@ import org.mozilla.geckoview.AllowOrDeny
 import org.mozilla.geckoview.GeckoResult
 import org.mozilla.geckoview.GeckoSession
 import org.mozilla.geckoview.GeckoSession.NavigationDelegate.LoadRequest
+import org.mozilla.geckoview.GeckoSession.NavigationDelegate.TARGET_WINDOW_NEW
 import org.mozilla.geckoview.WebRequestError
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.WebAppSettings
@@ -25,7 +26,10 @@ internal fun parseIntentUri(url: String): Intent? {
     }.getOrNull()
 }
 
-class PeelNavigationDelegate(private val host: SessionHost) : GeckoSession.NavigationDelegate {
+class PeelNavigationDelegate(
+    private val host: SessionHost,
+    private val isContentInitiatedWindow: Boolean = false,
+) : GeckoSession.NavigationDelegate {
 
     @Volatile
     var browsingExternally = false
@@ -41,7 +45,7 @@ class PeelNavigationDelegate(private val host: SessionHost) : GeckoSession.Navig
     private var externalMenuShowing = false
 
     @Volatile
-    private var isInitialLoad = true
+    private var isInitialLoad = !isContentInitiatedWindow
 
     @Volatile
     var lastLocation: String = ""
@@ -117,15 +121,18 @@ class PeelNavigationDelegate(private val host: SessionHost) : GeckoSession.Navig
     }
 
     private fun belongsToApp(url: String): Boolean {
-        if (isSameOrigin(host.baseUrl, url)) return true
-        val affinity = linkAffinity(host.baseUrl, url, host.effectiveSettings.sameAppDomains)
+        if (isSameOrigin(host.policyOrigin, url)) return true
+        val affinity = linkAffinity(host.policyOrigin, url, host.effectiveSettings.sameAppDomains)
         return affinity > HostIdentity.TLD_ONLY
     }
 
     fun onPageLoadFinished() {
-        if (lastLocation.isEmpty() || lastLocation == "about:blank") return
+        if (!hasCommittedContent()) return
         isInitialLoad = false
     }
+
+    private fun hasCommittedContent(): Boolean =
+        lastLocation.isNotEmpty() && lastLocation != "about:blank"
 
     private fun handleExternalRouting(url: String, request: LoadRequest): GeckoResult<AllowOrDeny> {
         if (browsingExternally || isInitialLoad) return allow()
@@ -134,7 +141,9 @@ class PeelNavigationDelegate(private val host: SessionHost) : GeckoSession.Navig
         if (isExplicitDownload(url)) return allow()
 
         val peelMatches = host.findPeelAppMatches(url)
-        if (peelMatches.isEmpty() && !request.hasUserGesture && !request.isRedirect) {
+        if (peelMatches.isEmpty() && !request.hasUserGesture && !request.isRedirect &&
+            request.target != TARGET_WINDOW_NEW
+        ) {
             return allow()
         }
 
@@ -145,6 +154,7 @@ class PeelNavigationDelegate(private val host: SessionHost) : GeckoSession.Navig
     private fun showExternalLinkMenu(url: String, redirectFallback: String?) {
         if (externalMenuShowing) return
         externalMenuShowing = true
+        val stranded = strandedWithoutContent()
         host.runOnUi {
             host.showExternalLinkMenu(url) { result ->
                 externalMenuShowing = false
@@ -157,9 +167,26 @@ class PeelNavigationDelegate(private val host: SessionHost) : GeckoSession.Navig
                     ExternalLinkResult.Dismissed -> dismissRedirect(redirectFallback)
                     is ExternalLinkResult.OpenInPeelApp -> result.launcher()
                 }
+                if (abandonsWindow(result) && stranded) {
+                    host.onInitialNavigationDenied()
+                }
             }
         }
     }
+
+    private fun abandonsWindow(result: ExternalLinkResult): Boolean = when (result) {
+        ExternalLinkResult.LoadHere,
+        is ExternalLinkResult.OpenInPeelApp -> false
+
+        ExternalLinkResult.OpenInSystem,
+        ExternalLinkResult.OpenIncognito,
+        ExternalLinkResult.Share,
+        ExternalLinkResult.CopyLink,
+        ExternalLinkResult.Dismissed -> true
+    }
+
+    private fun strandedWithoutContent(): Boolean =
+        isContentInitiatedWindow && !hasCommittedContent()
 
     private fun loadExternallyInCurrentTab(url: String) {
         browsingExternally = true
@@ -273,7 +300,9 @@ class PeelNavigationDelegate(private val host: SessionHost) : GeckoSession.Navig
     }
 
     private fun redirectFallbackFor(request: LoadRequest): String? =
-        if (request.isRedirect) host.lastLoadedUrl.ifEmpty { host.baseUrl } else null
+        if (request.isRedirect) {
+            host.lastLoadedUrl.ifEmpty { host.baseUrl }.takeIf { it.isNotBlank() }
+        } else null
 
     companion object {
         private val BROWSER_SCHEMES = arrayOf(

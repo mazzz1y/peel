@@ -41,8 +41,16 @@ class PopupActivity : SessionPageActivity() {
 
     override val showToolbar = false
 
+    override val isContentInitiatedWindow = true
+
     override val webAppName: String
         get() = intent.getStringExtra(EXTRA_TITLE).orEmpty().ifEmpty { lastLoadedUrl }
+
+    override val policyOrigin: String
+        get() = intent.getStringExtra(EXTRA_POLICY_ORIGIN).orEmpty()
+
+    override val externalLinkExcludeUuid: String?
+        get() = ownerWebAppUuid
 
     override val sessionContextId: String?
         get() = intent.getStringExtra(EXTRA_CONTEXT_ID)
@@ -104,6 +112,8 @@ class PopupActivity : SessionPageActivity() {
 
     override fun onContentCrashed() = finish()
 
+    override fun onInitialNavigationDenied() = finish()
+
     override fun navigateHome() = launchOwnerApp(url = null)
 
     private fun launchOwnerApp(url: String?) {
@@ -154,6 +164,7 @@ class PopupActivity : SessionPageActivity() {
         const val EXTRA_PRIVATE_MODE = "popup_private_mode"
         const val EXTRA_OWNER_UUID = "popup_owner_uuid"
         const val EXTRA_TRANSLATE_TARGET = "popup_translate_target"
+        const val EXTRA_POLICY_ORIGIN = "popup_policy_origin"
 
         private const val FLOATING_CONTROLS_KEY = "popup"
 
@@ -172,6 +183,7 @@ class PopupActivity : SessionPageActivity() {
             privateMode: Boolean,
             ownerWebAppUuid: String?,
             translateTarget: String?,
+            policyOrigin: String,
         ): Intent {
             return Intent(context, PopupActivity::class.java)
                 .putExtra(EXTRA_SESSION_KEY, key)
@@ -181,6 +193,7 @@ class PopupActivity : SessionPageActivity() {
                 .putExtra(EXTRA_PRIVATE_MODE, privateMode)
                 .putExtra(EXTRA_OWNER_UUID, ownerWebAppUuid)
                 .putExtra(EXTRA_TRANSLATE_TARGET, translateTarget)
+                .putExtra(EXTRA_POLICY_ORIGIN, policyOrigin)
         }
     }
 }

@@ -761,15 +761,8 @@ class BrowserActivity : BaseSessionHost() {
 
 
     override fun findPeelAppMatches(url: String): List<WebApp> {
-        val currentUuid = webappUuid ?: return emptyList()
-        val targetHost = url.normalizedHost() ?: return emptyList()
-        if (targetHost == webapp.baseUrl.normalizedHost()) return emptyList()
-        val pending = DataManager.instance.pendingDeleteWebAppUuids
-        return cachedPeelApps.filter { app ->
-            app.uuid != currentUuid &&
-                    app.uuid !in pending &&
-                    app.baseUrl.normalizedHost() == targetHost
-        }
+        if (url.normalizedHost() == webapp.baseUrl.normalizedHost()) return emptyList()
+        return super.findPeelAppMatches(url)
     }
 
     private fun bestPeelMatchIcon(url: String): Bitmap? {

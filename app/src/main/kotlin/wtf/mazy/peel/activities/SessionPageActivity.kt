@@ -16,7 +16,6 @@ import wtf.mazy.peel.browser.SessionContextRegistry
 import wtf.mazy.peel.gecko.GeckoRuntimeProvider
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.WebApp
-import wtf.mazy.peel.ui.dialog.ExternalLinkMenu
 import wtf.mazy.peel.util.disableSystemBarContrastEnforcement
 
 abstract class SessionPageActivity : BaseSessionHost() {
@@ -31,6 +30,7 @@ abstract class SessionPageActivity : BaseSessionHost() {
     override val externalLinkIncludeLoadHere: Boolean = false
 
     protected open val showToolbar: Boolean = true
+    protected open val isContentInitiatedWindow: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.AppTheme_Browser)
@@ -55,7 +55,7 @@ abstract class SessionPageActivity : BaseSessionHost() {
     protected abstract fun onSessionHostReady()
 
     protected fun connectSession(session: GeckoSession) {
-        navigationDelegate = PeelNavigationDelegate(this)
+        navigationDelegate = PeelNavigationDelegate(this, isContentInitiatedWindow)
         downloadHandler = DownloadHandler(
             activity = this,
             getRuntime = { GeckoRuntimeProvider.getRuntime(this) },
@@ -120,13 +120,5 @@ abstract class SessionPageActivity : BaseSessionHost() {
 
     override fun onWebFullscreenExit() {
         setBrowserControlsFullscreen(false)
-    }
-
-    override fun findPeelAppMatches(url: String): List<WebApp> {
-        return ExternalLinkMenu.findPeelAppMatches(
-            DataManager.instance.activeWebsites,
-            url,
-            excludeUuid = null,
-        )
     }
 }

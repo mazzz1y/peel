@@ -133,8 +133,11 @@ object ExternalLinkMenu {
         excludeUuid: String?,
     ): List<WebApp> {
         val targetHost = url.normalizedHost() ?: return emptyList()
+        val pending = DataManager.instance.pendingDeleteWebAppUuids
         return peelApps.filter { app ->
-            app.uuid != excludeUuid && app.baseUrl.normalizedHost() == targetHost
+            app.uuid != excludeUuid &&
+                    app.uuid !in pending &&
+                    app.baseUrl.normalizedHost() == targetHost
         }
     }
 

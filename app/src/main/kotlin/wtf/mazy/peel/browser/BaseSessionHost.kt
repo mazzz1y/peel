@@ -339,6 +339,11 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost, TranslationHo
         if (navigationDelegate.isOnJumpHost) goBackOrFinish() else finish()
     }
 
+    override val policyOrigin: String
+        get() = baseUrl
+
+    override fun onInitialNavigationDenied() = Unit
+
     protected open val ownerWebAppUuid: String? = null
     protected open val activeTranslateTarget: String? = null
 
@@ -356,6 +361,7 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost, TranslationHo
                     privateMode = sessionPrivateMode,
                     ownerWebAppUuid = ownerWebAppUuid,
                     translateTarget = activeTranslateTarget,
+                    policyOrigin = policyOrigin,
                 )
             )
         }.isSuccess
@@ -481,6 +487,9 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost, TranslationHo
             onResult = onResult,
         )
     }
+
+    override fun findPeelAppMatches(url: String): List<WebApp> =
+        ExternalLinkMenu.findPeelAppMatches(externalLinkPeelApps, url, externalLinkExcludeUuid)
 
     override fun onPageFullyLoaded() {
         lastLoadedUrl = navigationDelegate.lastLocation

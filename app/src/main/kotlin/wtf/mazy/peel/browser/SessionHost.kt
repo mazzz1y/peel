@@ -28,6 +28,7 @@ sealed interface ExternalLinkResult {
 interface SessionHost {
     val effectiveSettings: WebAppSettings
     val baseUrl: String
+    val policyOrigin: String
     val webAppName: String
     var canGoBack: Boolean
     var lastLoadedUrl: String
@@ -57,6 +58,7 @@ interface SessionHost {
     fun loadURL(url: String)
     fun goBackOrFinish()
     fun onWindowCloseRequest()
+    fun onInitialNavigationDenied()
     fun markCurrentPageAsJumpHost()
     fun dismissRedirectToFallback(fallback: String)
     fun showConnectionError(description: String, url: String)
