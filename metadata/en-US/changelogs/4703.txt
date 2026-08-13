@@ -1,0 +1,1 @@
+- Fix external links opening without a prompt on HTTPS only web apps
