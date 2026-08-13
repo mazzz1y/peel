@@ -193,9 +193,7 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost, TranslationHo
     }
 
     override fun loadURL(url: String) {
-        val finalUrl = if (url.startsWith("http://") && effectiveSettings.isAlwaysHttps == true)
-            url.replaceFirst("http://", "https://") else url
-        geckoSession?.loadUri(finalUrl)
+        geckoSession?.loadUri(effectiveSettings.upgradeUrl(url))
     }
 
     override val translationScope: CoroutineScope get() = lifecycleScope

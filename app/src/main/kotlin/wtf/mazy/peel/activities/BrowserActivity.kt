@@ -63,7 +63,7 @@ import wtf.mazy.peel.util.BrowserLauncher
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.NotificationUtils
 import wtf.mazy.peel.util.disableSystemBarContrastEnforcement
-import wtf.mazy.peel.util.normalizedHost
+import wtf.mazy.peel.util.isSameHost
 import wtf.mazy.peel.util.shareText
 
 class BrowserActivity : BaseSessionHost() {
@@ -754,14 +754,13 @@ class BrowserActivity : BaseSessionHost() {
 
     private fun closeStartupAuthTrackingIfInitialBaseLoaded() {
         if (!isStartupAuthTrackingActive) return
-        if (currentUrl.normalizedHost() == webapp.baseUrl.normalizedHost()) {
+        if (isSameHost(webapp.baseUrl, currentUrl)) {
             isStartupAuthTrackingActive = false
         }
     }
 
-
     override fun findPeelAppMatches(url: String): List<WebApp> {
-        if (url.normalizedHost() == webapp.baseUrl.normalizedHost()) return emptyList()
+        if (isSameHost(webapp.baseUrl, url)) return emptyList()
         return super.findPeelAppMatches(url)
     }
 

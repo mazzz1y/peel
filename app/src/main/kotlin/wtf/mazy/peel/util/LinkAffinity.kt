@@ -2,6 +2,18 @@ package wtf.mazy.peel.util
 
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.WebApp
+import wtf.mazy.peel.model.WebAppSettings
+
+fun isSameHost(origin: String, url: String): Boolean {
+    val originHost = origin.normalizedHost() ?: return false
+    return originHost == url.normalizedHost()
+}
+
+fun belongsToApp(origin: String, url: String, settings: WebAppSettings): Boolean {
+    val base = settings.upgradeUrl(origin)
+    if (isSameHost(base, url)) return true
+    return linkAffinity(base, url, settings.sameAppDomains) > HostIdentity.TLD_ONLY
+}
 
 fun linkAffinity(baseUrl: String, url: String, sameAppDomains: List<String>?): Int {
     val heuristic = HostIdentity.affinity(baseUrl, url)

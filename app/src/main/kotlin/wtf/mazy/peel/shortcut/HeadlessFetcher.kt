@@ -93,9 +93,7 @@ class HeadlessFetcher(
         customUserAgent =
             if (settings.isUseCustomUserAgent == true) settings.customUserAgent else null
 
-        var loadUrl = url
-        if (loadUrl.startsWith("http://") && settings.isAlwaysHttps == true)
-            loadUrl = loadUrl.replaceFirst("http://", "https://")
+        val loadUrl = settings.upgradeUrl(url)
 
         scope.launch {
             val result = try {

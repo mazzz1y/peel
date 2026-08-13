@@ -10,9 +10,7 @@ import org.mozilla.geckoview.GeckoSession.NavigationDelegate.TARGET_WINDOW_NEW
 import org.mozilla.geckoview.WebRequestError
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.WebAppSettings
-import wtf.mazy.peel.util.HostIdentity
-import wtf.mazy.peel.util.linkAffinity
-import wtf.mazy.peel.util.normalizedHost
+import wtf.mazy.peel.util.belongsToApp
 import wtf.mazy.peel.util.withBoldSpan
 import wtf.mazy.peel.util.withMonoSpan
 
@@ -64,7 +62,7 @@ class PeelNavigationDelegate(
         if (url.isNullOrBlank()) return
         if (url != lastLocation) isOnJumpHost = false
         lastLocation = url
-        if (browsingExternally && belongsToApp(url)) browsingExternally = false
+        if (browsingExternally && isInApp(url)) browsingExternally = false
         host.onLocationChanged(url)
     }
 
@@ -83,11 +81,24 @@ class PeelNavigationDelegate(
                 deny()
             }
 
-            settings.isAlwaysHttps == true && url.startsWith("http://") -> redirectToHttps(url)
             isPassthroughScheme(url) -> allow()
-            settings.isOpenUrlExternal == true -> handleExternalRouting(url, request)
-            else -> allow()
+            else -> routeBrowserLoad(url, settings, request)
         }
+    }
+
+    private fun routeBrowserLoad(
+        url: String,
+        settings: WebAppSettings,
+        request: LoadRequest,
+    ): GeckoResult<AllowOrDeny> {
+        val target = settings.upgradeUrl(url)
+
+        if (settings.isOpenUrlExternal == true && shouldRouteExternally(target, request)) {
+            showExternalLinkMenu(target, redirectFallbackFor(request))
+            return deny()
+        }
+
+        return if (target != url) redirectTo(target) else allow()
     }
 
     override fun onNewSession(
@@ -120,11 +131,8 @@ class PeelNavigationDelegate(
         isOnJumpHost = true
     }
 
-    private fun belongsToApp(url: String): Boolean {
-        if (isSameOrigin(host.policyOrigin, url)) return true
-        val affinity = linkAffinity(host.policyOrigin, url, host.effectiveSettings.sameAppDomains)
-        return affinity > HostIdentity.TLD_ONLY
-    }
+    private fun isInApp(url: String): Boolean =
+        belongsToApp(host.policyOrigin, url, host.effectiveSettings)
 
     fun onPageLoadFinished() {
         if (!hasCommittedContent()) return
@@ -134,21 +142,14 @@ class PeelNavigationDelegate(
     private fun hasCommittedContent(): Boolean =
         lastLocation.isNotEmpty() && lastLocation != "about:blank"
 
-    private fun handleExternalRouting(url: String, request: LoadRequest): GeckoResult<AllowOrDeny> {
-        if (browsingExternally || isInitialLoad) return allow()
-
-        if (belongsToApp(url)) return allow()
-        if (isExplicitDownload(url)) return allow()
+    private fun shouldRouteExternally(url: String, request: LoadRequest): Boolean {
+        if (browsingExternally || isInitialLoad) return false
+        if (isInApp(url)) return false
+        if (isExplicitDownload(url)) return false
 
         val peelMatches = host.findPeelAppMatches(url)
-        if (peelMatches.isEmpty() && !request.hasUserGesture && !request.isRedirect &&
-            request.target != TARGET_WINDOW_NEW
-        ) {
-            return allow()
-        }
-
-        showExternalLinkMenu(url, redirectFallbackFor(request))
-        return deny()
+        return peelMatches.isNotEmpty() || request.hasUserGesture || request.isRedirect ||
+                request.target == TARGET_WINDOW_NEW
     }
 
     private fun showExternalLinkMenu(url: String, redirectFallback: String?) {
@@ -294,8 +295,8 @@ class PeelNavigationDelegate(
             .withBoldSpan(truncated)
     }
 
-    private fun redirectToHttps(url: String): GeckoResult<AllowOrDeny> {
-        host.runOnUi { host.loadURL(url.replaceFirst("http://", "https://")) }
+    private fun redirectTo(url: String): GeckoResult<AllowOrDeny> {
+        host.runOnUi { host.loadURL(url) }
         return deny()
     }
 
@@ -333,17 +334,6 @@ class PeelNavigationDelegate(
                     error.code == WebRequestError.ERROR_SECURITY_BAD_CERT ||
                     error.code == WebRequestError.ERROR_SECURITY_SSL ||
                     error.code == WebRequestError.ERROR_BAD_HSTS_CERT
-
-        private fun isSameOrigin(base: String, url: String): Boolean {
-            val baseHost = base.normalizedHost() ?: return false
-            val targetHost = url.normalizedHost() ?: return false
-            return baseHost == targetHost && schemeOf(base) == schemeOf(url)
-        }
-
-        private fun schemeOf(url: String): String? {
-            val end = url.indexOf("://").takeIf { it > 0 } ?: return null
-            return url.substring(0, end)
-        }
 
         private fun isExplicitDownload(url: String): Boolean {
             val query = url.substringAfter('?', "").lowercase()

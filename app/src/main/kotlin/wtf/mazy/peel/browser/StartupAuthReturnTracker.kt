@@ -1,15 +1,14 @@
 package wtf.mazy.peel.browser
 
-import androidx.core.net.toUri
+import wtf.mazy.peel.util.isSameHost
 
-class StartupAuthReturnTracker(baseUrl: String) {
-    private val baseHost = baseUrl.toUri().host?.removePrefix("www.")
+class StartupAuthReturnTracker(private val baseUrl: String) {
     private var sawNonBaseHost = false
     private var pendingReset = false
 
     fun onLocationChange(url: String) {
         if (url.startsWith("about:")) return
-        if (!isBaseHost(url)) {
+        if (!isSameHost(baseUrl, url)) {
             sawNonBaseHost = true
             return
         }
@@ -20,10 +19,5 @@ class StartupAuthReturnTracker(baseUrl: String) {
         val shouldReset = pendingReset
         pendingReset = false
         return shouldReset
-    }
-
-    private fun isBaseHost(url: String): Boolean {
-        val urlHost = url.toUri().host?.removePrefix("www.") ?: return false
-        return baseHost != null && urlHost == baseHost
     }
 }
