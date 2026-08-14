@@ -48,6 +48,7 @@ data class WebAppSettings(
     var isTranslatorEnabled: Boolean? = null,
     var autoTranslatePairs: Map<String, String>? = null,
     var sameAppDomains: List<String>? = null,
+    var blockedDomains: List<String>? = null,
 ) {
     companion object {
         const val PERMISSION_OFF = 0
@@ -244,5 +245,6 @@ data class WebAppSettings(
         customGeckoPrefs = customGeckoPrefs?.toMap(),
         autoTranslatePairs = autoTranslatePairs?.toMap(),
         sameAppDomains = sameAppDomains?.toList(),
+        blockedDomains = blockedDomains?.toList(),
     )
 }

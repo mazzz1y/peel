@@ -309,6 +309,8 @@
     <string name="setting_same_app_domains">Same-app domains</string>
     <string name="setting_same_app_domains_hint">example.com or /regex/</string>
     <string name="setting_same_app_domains_invalid_regex">Invalid regular expression</string>
+    <string name="setting_blocked_domains">Blocked domains</string>
+    <string name="setting_blocked_domains_hint">example.com or /regex/</string>
     <string name="setting_allow_cert_bypass">Allow bypassing HTTPS errors</string>
     <string name="find_in_page_hint">Find in page</string>
     <string name="find_in_page_counter">%1$d / %2$d</string>

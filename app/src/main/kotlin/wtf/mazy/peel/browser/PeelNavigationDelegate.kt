@@ -10,6 +10,7 @@ import org.mozilla.geckoview.GeckoSession.NavigationDelegate.TARGET_WINDOW_NEW
 import org.mozilla.geckoview.WebRequestError
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.WebAppSettings
+import wtf.mazy.peel.util.SameAppDomainMatcher
 import wtf.mazy.peel.util.belongsToApp
 import wtf.mazy.peel.util.withBoldSpan
 import wtf.mazy.peel.util.withMonoSpan
@@ -75,6 +76,7 @@ class PeelNavigationDelegate(
 
         return when {
             url.isBlank() -> allow()
+            isBlocked(url, settings) -> deny()
             url.startsWith("data:") && request.isDirectNavigation -> deny()
             !isBrowserScheme(url) -> {
                 handleAppLink(url, settings, request)
@@ -85,6 +87,9 @@ class PeelNavigationDelegate(
             else -> routeBrowserLoad(url, settings, request)
         }
     }
+
+    private fun isBlocked(url: String, settings: WebAppSettings): Boolean =
+        SameAppDomainMatcher.matches(url, settings.blockedDomains.orEmpty())
 
     private fun routeBrowserLoad(
         url: String,
