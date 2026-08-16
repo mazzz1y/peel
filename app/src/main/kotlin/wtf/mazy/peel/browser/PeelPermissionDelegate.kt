@@ -11,12 +11,14 @@ import wtf.mazy.peel.util.withBoldSpan
 
 class PeelPermissionDelegate(private val host: SessionHost) : GeckoSession.PermissionDelegate {
 
-    private val pageGranted = mutableSetOf<Int>()
-    private val pageDenied = mutableSetOf<Int>()
+    private val memory = SessionPermissionMemory()
 
     fun clearPagePermissions() {
-        pageGranted.clear()
-        pageDenied.clear()
+        memory.clearPage()
+    }
+
+    fun clearSessionPermissions() {
+        memory.clearSession()
     }
 
     private val trimmedName: String
@@ -38,6 +40,7 @@ class PeelPermissionDelegate(private val host: SessionHost) : GeckoSession.Permi
                     ),
                     PERM_KEY_LOCATION,
                     R.string.permission_prompt_location,
+                    perm.uri,
                 ) { granted ->
                     result.complete(
                         if (granted) GeckoSession.PermissionDelegate.ContentPermission.VALUE_ALLOW
@@ -65,6 +68,7 @@ class PeelPermissionDelegate(private val host: SessionHost) : GeckoSession.Permi
                         notificationOsPermissions(),
                         PERM_KEY_NOTIFICATION,
                         R.string.permission_prompt_notifications,
+                        perm.uri,
                     ) { granted ->
                         result.complete(
                             if (granted) {
@@ -120,7 +124,7 @@ class PeelPermissionDelegate(private val host: SessionHost) : GeckoSession.Permi
             )
         }
 
-        resolveMediaPermissions(pending, 0, null, null, callback)
+        resolveMediaPermissions(pending, 0, uri, null, null, callback)
     }
 
     override fun onAndroidPermissionsRequest(
@@ -154,6 +158,7 @@ class PeelPermissionDelegate(private val host: SessionHost) : GeckoSession.Permi
     private fun resolveMediaPermissions(
         pending: List<PendingMediaPermission>,
         index: Int,
+        origin: String,
         grantedVideo: GeckoSession.PermissionDelegate.MediaSource?,
         grantedAudio: GeckoSession.PermissionDelegate.MediaSource?,
         callback: GeckoSession.PermissionDelegate.MediaCallback,
@@ -168,10 +173,17 @@ class PeelPermissionDelegate(private val host: SessionHost) : GeckoSession.Permi
         }
 
         val p = pending[index]
-        handleTriState(p.state, p.androidPermissions, p.key, p.promptResId) { granted ->
+        handleTriState(
+            p.state,
+            p.androidPermissions,
+            p.key,
+            p.promptResId,
+            origin,
+            allowRemember = true,
+        ) { granted ->
             val nextVideo = if (granted && p.isVideo) p.source else grantedVideo
             val nextAudio = if (granted && !p.isVideo) p.source else grantedAudio
-            resolveMediaPermissions(pending, index + 1, nextVideo, nextAudio, callback)
+            resolveMediaPermissions(pending, index + 1, origin, nextVideo, nextAudio, callback)
         }
     }
 
@@ -180,15 +192,18 @@ class PeelPermissionDelegate(private val host: SessionHost) : GeckoSession.Permi
         androidPermissions: List<String>,
         key: Int,
         promptResId: Int,
+        origin: String,
+        allowRemember: Boolean = false,
         onResult: (Boolean) -> Unit,
     ) {
+        val remembered = if (state == WebAppSettings.PERMISSION_ASK) {
+            memory.remembered(origin, key)
+        } else null
         when {
-            key in pageDenied -> onResult(false)
-            state == WebAppSettings.PERMISSION_ON || key in pageGranted -> {
-                ensureOsPermission(androidPermissions) { granted ->
-                    if (granted) pageGranted.add(key)
-                    onResult(granted)
-                }
+            state == WebAppSettings.PERMISSION_OFF -> onResult(false)
+            remembered == false -> onResult(false)
+            state == WebAppSettings.PERMISSION_ON || remembered == true -> {
+                ensureOsPermission(androidPermissions, onResult)
             }
 
             state == WebAppSettings.PERMISSION_ASK -> {
@@ -199,24 +214,15 @@ class PeelPermissionDelegate(private val host: SessionHost) : GeckoSession.Permi
                     }
                     host.showPermissionDialog(
                         host.hostResources.getString(promptResId, trimmedName)
-                            .withBoldSpan(trimmedName)
-                    ) { result ->
-                        when (result) {
-                            PermissionResult.ALLOW -> {
-                                pageGranted.add(key)
-                                onResult(true)
-                            }
-
-                            PermissionResult.DENY -> {
-                                pageDenied.add(key)
-                                onResult(false)
-                            }
-                        }
+                            .withBoldSpan(trimmedName),
+                        allowRemember,
+                    ) { result, remember ->
+                        val granted = result == PermissionResult.ALLOW
+                        memory.remember(origin, key, granted, forSession = remember)
+                        onResult(granted)
                     }
                 }
             }
-
-            state == WebAppSettings.PERMISSION_OFF -> onResult(false)
         }
     }
 

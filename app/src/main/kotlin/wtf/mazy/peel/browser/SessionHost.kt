@@ -81,7 +81,11 @@ interface SessionHost {
     fun openIncognito(url: String)
     fun shareUrl(url: String)
     fun copyLink(url: String)
-    fun showPermissionDialog(message: CharSequence, onResult: (PermissionResult) -> Unit)
+    fun showPermissionDialog(
+        message: CharSequence,
+        allowRemember: Boolean = false,
+        onResult: (result: PermissionResult, remember: Boolean) -> Unit,
+    )
 
     val themeBackgroundColor: Int
 

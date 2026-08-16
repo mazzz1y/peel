@@ -275,7 +275,7 @@ class PeelNavigationDelegate(
         appLinkDialogShowing = true
         val message = buildAppLinkMessage(targetPackage, display)
         host.runOnUi {
-            host.showPermissionDialog(message) { result ->
+            host.showPermissionDialog(message) { result, _ ->
                 when (result) {
                     PermissionResult.ALLOW -> applyAppLinkAllow(url, redirectFallback)
                     PermissionResult.DENY -> applyAppLinkDeny(browserFallback, redirectFallback)

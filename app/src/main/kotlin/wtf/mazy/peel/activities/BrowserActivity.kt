@@ -635,7 +635,7 @@ class BrowserActivity : BaseSessionHost() {
         filePathCallback = null
         navigationDelegate.resetDialogState()
         navigationDelegate.browsingExternally = false
-        permissionDelegate.clearPagePermissions()
+        permissionDelegate.clearSessionPermissions()
         promptDelegate.clearAutoAuth()
         (geckoView as? NestedGeckoView)?.resetScrollPosition()
         autoReloadController.stop()

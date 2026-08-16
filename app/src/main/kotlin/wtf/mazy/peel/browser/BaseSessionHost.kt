@@ -25,6 +25,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.appbar.MaterialToolbar
+import com.google.android.material.checkbox.MaterialCheckBox
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
@@ -153,17 +154,27 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost, TranslationHo
             ContextCompat.checkSelfPermission(this, it) == PackageManager.PERMISSION_GRANTED
         }
 
-    override fun showPermissionDialog(message: CharSequence, onResult: (PermissionResult) -> Unit) {
+    override fun showPermissionDialog(
+        message: CharSequence,
+        allowRemember: Boolean,
+        onResult: (result: PermissionResult, remember: Boolean) -> Unit,
+    ) {
+        val rememberView = if (allowRemember) {
+            layoutInflater.inflate(R.layout.dialog_permission_remember, null)
+        } else null
+        val remember = rememberView?.findViewById<MaterialCheckBox>(R.id.checkRememberPermission)
+
         MaterialAlertDialogBuilder(this)
             .setMessage(message)
             .setCancelable(false)
+            .apply { rememberView?.let { setView(it) } }
             .setPositiveButton(R.string.permission_prompt_allow) { dialog, _ ->
                 dialog.dismiss()
-                onResult(PermissionResult.ALLOW)
+                onResult(PermissionResult.ALLOW, remember?.isChecked == true)
             }
             .setNegativeButton(R.string.permission_prompt_deny) { dialog, _ ->
                 dialog.dismiss()
-                onResult(PermissionResult.DENY)
+                onResult(PermissionResult.DENY, remember?.isChecked == true)
             }
             .show()
     }
