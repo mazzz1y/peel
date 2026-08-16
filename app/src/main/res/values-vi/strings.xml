@@ -108,6 +108,7 @@
     <string name="permission_allow">Bật</string>
     <string name="permission_prompt_allow">Cho phép</string>
     <string name="permission_prompt_deny">Từ chối</string>
+    <string name="permission_prompt_remember">Ghi nhớ cho phiên này</string>
     <string name="permission_prompt_camera">Cho phép %1$s truy cập camera?</string>
     <string name="permission_prompt_microphone">Cho phép %1$s truy cập micro?</string>
     <string name="permission_prompt_location">Cho phép %1$s truy cập vị trí?</string>
@@ -124,6 +125,7 @@
     <string name="user_agent_hint">Chuỗi User-Agent</string>
     <string name="custom_locale">Ghi đè locale</string>
     <string name="custom_locale_hint">ví dụ: en-US, fr</string>
+    <string name="untitled_shortcut">Không rõ</string>
     <string name="clone">Nhân bản</string>
     <string name="share">Chia sẻ</string>
     <string name="bioprompt_restricted_webapp">Hạn chế truy cập</string>
@@ -132,6 +134,7 @@
     <string name="allow_media_playback_in_background">Phát nền</string>
     <string name="media_channel_name">Phát phương tiện</string>
     <string name="media_channel_description">Điều khiển phát phương tiện nền</string>
+    <string name="media_stop_description">Dừng</string>
     <string name="more">Thêm</string>
     <string name="cancel">Hủy</string>
     <string name="ok">OK</string>
@@ -228,12 +231,14 @@
     <string name="extensions">Tiện ích mở rộng</string>
     <string name="no_extensions_installed">Chưa cài tiện ích nào.\nNhấn + để duyệt tiện ích có sẵn.</string>
     <string name="recommended_extensions">Tiện ích mở rộng được đề xuất</string>
+    <string name="recommended_extensions_error">Không thể tải tiện ích mở rộng được đề xuất</string>
     <string name="browse_all_extensions">Xem tất cả</string>
     <string name="install_extension_confirm">Cài đặt %1$s?</string>
     <string name="extension_permissions">Tiện ích này yêu cầu:</string>
     <string name="uninstall_extension">Gỡ cài đặt</string>
     <string name="uninstall_extension_confirm">Gỡ cài đặt %1$s?</string>
     <string name="extension_settings">Cài đặt</string>
+    <string name="enable_extension">Bật tiện ích mở rộng</string>
     <string name="loading_extension">Đang tải…</string>
     <string name="loading_extensions">Đang tải\u2026</string>
     <string name="install_extension_error">Cài đặt tiện ích thất bại</string>
@@ -267,6 +272,8 @@
     <string name="setting_same_app_domains">Tên miền bổ sung của ứng dụng</string>
     <string name="setting_same_app_domains_hint">example.com hoặc /regex/</string>
     <string name="setting_same_app_domains_invalid_regex">Biểu thức chính quy không hợp lệ</string>
+    <string name="setting_blocked_domains">Tên miền bị chặn</string>
+    <string name="setting_blocked_domains_hint">example.com hoặc /regex/</string>
     <string name="setting_configure">Cấu hình</string>
     <string name="find_in_page_hint">Tìm trong trang</string>
     <string name="find_in_page_counter">%1$d / %2$d</string>
@@ -309,6 +316,7 @@
     <string name="translate_error_engine_unavailable">Bản dịch không khả dụng trên thiết bị này</string>
     <string name="translate_error_languages_unavailable">Không thể tải danh sách ngôn ngữ dịch</string>
     <string name="translate_error_same_language">Chọn hai ngôn ngữ khác nhau</string>
+    <string name="translate_swap_languages">Hoán đổi ngôn ngữ</string>
 
     <string name="setting_translator">Trình dịch</string>
     <string name="setting_auto_translate_any_language">Bất kỳ ngôn ngữ nào</string>

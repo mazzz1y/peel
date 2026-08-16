@@ -108,6 +108,7 @@
     <string name="permission_allow">開</string>
     <string name="permission_prompt_allow">允許</string>
     <string name="permission_prompt_deny">拒絕</string>
+    <string name="permission_prompt_remember">在本次工作階段中記住</string>
     <string name="permission_prompt_camera">允許 %1$s 存取相機？</string>
     <string name="permission_prompt_microphone">允許 %1$s 存取麥克風？</string>
     <string name="permission_prompt_location">允許 %1$s 存取位置？</string>
@@ -124,6 +125,7 @@
     <string name="user_agent_hint">User-Agent 字串</string>
     <string name="custom_locale">覆寫地區設定</string>
     <string name="custom_locale_hint">例如 en-US, fr</string>
+    <string name="untitled_shortcut">未知</string>
     <string name="clone">複製</string>
     <string name="share">分享</string>
     <string name="bioprompt_restricted_webapp">存取限制</string>
@@ -132,6 +134,7 @@
     <string name="allow_media_playback_in_background">背景播放</string>
     <string name="media_channel_name">媒體播放</string>
     <string name="media_channel_description">背景媒體播放控制</string>
+    <string name="media_stop_description">停止</string>
     <string name="more">更多</string>
     <string name="cancel">取消</string>
     <string name="ok">確定</string>
@@ -228,12 +231,14 @@
     <string name="extensions">擴充功能</string>
     <string name="no_extensions_installed">未安裝擴充功能。\n點選 + 瀏覽可用的擴充功能。</string>
     <string name="recommended_extensions">推薦擴充功能</string>
+    <string name="recommended_extensions_error">無法載入推薦擴充功能</string>
     <string name="browse_all_extensions">瀏覽全部</string>
     <string name="install_extension_confirm">安裝 %1$s？</string>
     <string name="extension_permissions">此擴充功能需要：</string>
     <string name="uninstall_extension">解除安裝</string>
     <string name="uninstall_extension_confirm">解除安裝 %1$s？</string>
     <string name="extension_settings">設定</string>
+    <string name="enable_extension">啟用擴充功能</string>
     <string name="loading_extension">載入中…</string>
     <string name="loading_extensions">載入中\u2026</string>
     <string name="install_extension_error">擴充功能安裝失敗</string>
@@ -267,6 +272,8 @@
     <string name="setting_same_app_domains">應用程式的額外網域</string>
     <string name="setting_same_app_domains_hint">example.com 或 /regex/</string>
     <string name="setting_same_app_domains_invalid_regex">正規表示式無效</string>
+    <string name="setting_blocked_domains">已封鎖的網域</string>
+    <string name="setting_blocked_domains_hint">example.com 或 /regex/</string>
     <string name="setting_configure">設定</string>
     <string name="find_in_page_hint">在頁面中尋找</string>
     <string name="find_in_page_counter">%1$d / %2$d</string>
@@ -309,6 +316,7 @@
     <string name="translate_error_engine_unavailable">此裝置不支援翻譯</string>
     <string name="translate_error_languages_unavailable">無法載入翻譯語言</string>
     <string name="translate_error_same_language">請選擇兩種不同的語言</string>
+    <string name="translate_swap_languages">交換語言</string>
 
     <string name="setting_translator">翻譯</string>
     <string name="setting_auto_translate_any_language">任何語言</string>

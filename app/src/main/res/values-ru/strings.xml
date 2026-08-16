@@ -108,6 +108,7 @@
     <string name="permission_allow">Вкл</string>
     <string name="permission_prompt_allow">Да</string>
     <string name="permission_prompt_deny">Нет</string>
+    <string name="permission_prompt_remember">Запомнить для этого сеанса</string>
     <string name="permission_prompt_camera">Разрешить %1$s доступ к камере?</string>
     <string name="permission_prompt_microphone">Разрешить %1$s доступ к микрофону?</string>
     <string name="permission_prompt_location">Разрешить %1$s доступ к местоположению?</string>
@@ -124,6 +125,7 @@
     <string name="user_agent_hint">Строка User-Agent</string>
     <string name="custom_locale">Переопределить локаль</string>
     <string name="custom_locale_hint">например, en-US, fr</string>
+    <string name="untitled_shortcut">Неизвестно</string>
     <string name="clone">Клонировать</string>
     <string name="share">Поделиться</string>
     <string name="bioprompt_restricted_webapp">Ограничение доступа</string>
@@ -132,6 +134,7 @@
     <string name="allow_media_playback_in_background">Фоновое воспроизведение</string>
     <string name="media_channel_name">Воспроизведение медиа</string>
     <string name="media_channel_description">Управление фоновым воспроизведением медиа</string>
+    <string name="media_stop_description">Остановить</string>
     <string name="more">Ещё</string>
     <string name="cancel">Отмена</string>
     <string name="ok">ОК</string>
@@ -231,12 +234,14 @@
     <string name="extensions">Расширения</string>
     <string name="no_extensions_installed">Расширения не установлены.\nНажмите +, чтобы просмотреть доступные расширения.</string>
     <string name="recommended_extensions">Рекомендуемые расширения</string>
+    <string name="recommended_extensions_error">Не удалось загрузить рекомендуемые расширения</string>
     <string name="browse_all_extensions">Показать все</string>
     <string name="install_extension_confirm">Установить %1$s?</string>
     <string name="extension_permissions">Это расширение запрашивает:</string>
     <string name="uninstall_extension">Удалить</string>
     <string name="uninstall_extension_confirm">Удалить %1$s?</string>
     <string name="extension_settings">Настройки</string>
+    <string name="enable_extension">Включить расширение</string>
     <string name="loading_extension">Загрузка…</string>
     <string name="loading_extensions">Загрузка\u2026</string>
     <string name="install_extension_error">Не удалось установить расширение</string>
@@ -276,6 +281,8 @@
     <string name="setting_same_app_domains">Дополнительные домены приложения</string>
     <string name="setting_same_app_domains_hint">example.com или /regex/</string>
     <string name="setting_same_app_domains_invalid_regex">Некорректный regex</string>
+    <string name="setting_blocked_domains">Заблокированные домены</string>
+    <string name="setting_blocked_domains_hint">example.com или /regex/</string>
     <string name="setting_configure">Настроить</string>
     <string name="find_in_page_hint">Найти на странице</string>
     <string name="find_in_page_counter">%1$d / %2$d</string>
@@ -318,6 +325,7 @@
     <string name="translate_error_engine_unavailable">Переводы недоступны на этом устройстве</string>
     <string name="translate_error_languages_unavailable">Не удалось загрузить список языков</string>
     <string name="translate_error_same_language">Выберите два разных языка</string>
+    <string name="translate_swap_languages">Поменять языки местами</string>
 
     <string name="setting_translator">Переводчик</string>
     <string name="setting_auto_translate_any_language">Любой язык</string>

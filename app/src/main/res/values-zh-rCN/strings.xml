@@ -108,6 +108,7 @@
     <string name="permission_allow">开</string>
     <string name="permission_prompt_allow">允许</string>
     <string name="permission_prompt_deny">拒绝</string>
+    <string name="permission_prompt_remember">在本次会话中记住</string>
     <string name="permission_prompt_camera">允许 %1$s 访问相机？</string>
     <string name="permission_prompt_microphone">允许 %1$s 访问麦克风？</string>
     <string name="permission_prompt_location">允许 %1$s 访问位置？</string>
@@ -124,6 +125,7 @@
     <string name="user_agent_hint">User-Agent 字符串</string>
     <string name="custom_locale">覆盖区域设置</string>
     <string name="custom_locale_hint">例如 en-US, fr</string>
+    <string name="untitled_shortcut">未知</string>
     <string name="clone">克隆</string>
     <string name="share">分享</string>
     <string name="bioprompt_restricted_webapp">访问限制</string>
@@ -132,6 +134,7 @@
     <string name="allow_media_playback_in_background">后台播放</string>
     <string name="media_channel_name">媒体播放</string>
     <string name="media_channel_description">后台媒体播放控制</string>
+    <string name="media_stop_description">停止</string>
     <string name="more">更多</string>
     <string name="cancel">取消</string>
     <string name="ok">确定</string>
@@ -228,12 +231,14 @@
     <string name="extensions">扩展</string>
     <string name="no_extensions_installed">未安装扩展。\n点击 + 浏览可用扩展。</string>
     <string name="recommended_extensions">推荐扩展</string>
+    <string name="recommended_extensions_error">无法加载推荐扩展</string>
     <string name="browse_all_extensions">浏览全部</string>
     <string name="install_extension_confirm">安装 %1$s？</string>
     <string name="extension_permissions">此扩展需要：</string>
     <string name="uninstall_extension">卸载</string>
     <string name="uninstall_extension_confirm">卸载 %1$s？</string>
     <string name="extension_settings">设置</string>
+    <string name="enable_extension">启用扩展</string>
     <string name="loading_extension">加载中…</string>
     <string name="loading_extensions">加载中\u2026</string>
     <string name="install_extension_error">扩展安装失败</string>
@@ -267,6 +272,8 @@
     <string name="setting_same_app_domains">应用的附加域名</string>
     <string name="setting_same_app_domains_hint">example.com 或 /regex/</string>
     <string name="setting_same_app_domains_invalid_regex">正则表达式无效</string>
+    <string name="setting_blocked_domains">已屏蔽的域名</string>
+    <string name="setting_blocked_domains_hint">example.com 或 /regex/</string>
     <string name="setting_configure">配置</string>
     <string name="find_in_page_hint">在页面中查找</string>
     <string name="find_in_page_counter">%1$d / %2$d</string>
@@ -309,6 +316,7 @@
     <string name="translate_error_engine_unavailable">此设备不支持翻译</string>
     <string name="translate_error_languages_unavailable">无法加载翻译语言</string>
     <string name="translate_error_same_language">请选择两种不同的语言</string>
+    <string name="translate_swap_languages">交换语言</string>
 
     <string name="setting_translator">翻译</string>
     <string name="setting_auto_translate_any_language">任意语言</string>

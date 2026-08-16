@@ -108,6 +108,7 @@
     <string name="permission_allow">Ligado</string>
     <string name="permission_prompt_allow">Permitir</string>
     <string name="permission_prompt_deny">Negar</string>
+    <string name="permission_prompt_remember">Lembrar nesta sessão</string>
     <string name="permission_prompt_camera">Permitir %1$s acessar a câmera?</string>
     <string name="permission_prompt_microphone">Permitir %1$s acessar o microfone?</string>
     <string name="permission_prompt_location">Permitir %1$s acessar a localização?</string>
@@ -124,6 +125,7 @@
     <string name="user_agent_hint">String do user agent</string>
     <string name="custom_locale">Substituir locale</string>
     <string name="custom_locale_hint">ex.: en-US, fr</string>
+    <string name="untitled_shortcut">Desconhecido</string>
     <string name="clone">Clonar</string>
     <string name="share">Compartilhar</string>
     <string name="bioprompt_restricted_webapp">Restrição de acesso</string>
@@ -132,6 +134,7 @@
     <string name="allow_media_playback_in_background">Reprodução em segundo plano</string>
     <string name="media_channel_name">Reprodução de mídia</string>
     <string name="media_channel_description">Controles de reprodução de mídia em segundo plano</string>
+    <string name="media_stop_description">Parar</string>
     <string name="more">Mais</string>
     <string name="cancel">Cancelar</string>
     <string name="ok">OK</string>
@@ -229,12 +232,14 @@
     <string name="extensions">Extensões</string>
     <string name="no_extensions_installed">Nenhuma extensão instalada.\nToque em + para explorar extensões disponíveis.</string>
     <string name="recommended_extensions">Extensões recomendadas</string>
+    <string name="recommended_extensions_error">Não foi possível carregar as extensões recomendadas</string>
     <string name="browse_all_extensions">Ver todas</string>
     <string name="install_extension_confirm">Instalar %1$s?</string>
     <string name="extension_permissions">Esta extensão requer:</string>
     <string name="uninstall_extension">Desinstalar</string>
     <string name="uninstall_extension_confirm">Desinstalar %1$s?</string>
     <string name="extension_settings">Configurações</string>
+    <string name="enable_extension">Ativar extensão</string>
     <string name="loading_extension">Carregando…</string>
     <string name="loading_extensions">Carregando\u2026</string>
     <string name="install_extension_error">Falha ao instalar a extensão</string>
@@ -270,6 +275,8 @@
     <string name="setting_same_app_domains">Domínios adicionais do app</string>
     <string name="setting_same_app_domains_hint">example.com ou /regex/</string>
     <string name="setting_same_app_domains_invalid_regex">Expressão regular inválida</string>
+    <string name="setting_blocked_domains">Domínios bloqueados</string>
+    <string name="setting_blocked_domains_hint">example.com ou /regex/</string>
     <string name="setting_configure">Configurar</string>
     <string name="find_in_page_hint">Localizar na página</string>
     <string name="find_in_page_counter">%1$d / %2$d</string>
@@ -312,6 +319,7 @@
     <string name="translate_error_engine_unavailable">As traduções não estão disponíveis neste dispositivo</string>
     <string name="translate_error_languages_unavailable">Não foi possível carregar os idiomas de tradução</string>
     <string name="translate_error_same_language">Escolha dois idiomas diferentes</string>
+    <string name="translate_swap_languages">Inverter idiomas</string>
 
     <string name="setting_translator">Tradutor</string>
     <string name="setting_auto_translate_any_language">Qualquer idioma</string>

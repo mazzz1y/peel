@@ -108,6 +108,7 @@
     <string name="permission_allow">চালু</string>
     <string name="permission_prompt_allow">হ্যাঁ</string>
     <string name="permission_prompt_deny">না</string>
+    <string name="permission_prompt_remember">এই সেশনের জন্য মনে রাখুন</string>
     <string name="permission_prompt_camera">%1$s-কে ক্যামেরা অ্যাক্সেসের অনুমতি দেবেন?</string>
     <string name="permission_prompt_microphone">%1$s-কে মাইক্রোফোন অ্যাক্সেসের অনুমতি দেবেন?</string>
     <string name="permission_prompt_location">%1$s-কে অবস্থান অ্যাক্সেসের অনুমতি দেবেন?</string>
@@ -124,6 +125,7 @@
     <string name="user_agent_hint">User-Agent স্ট্রিং</string>
     <string name="custom_locale">লোকেল ওভাররাইড করুন</string>
     <string name="custom_locale_hint">যেমন en-US, fr</string>
+    <string name="untitled_shortcut">অজানা</string>
     <string name="clone">ক্লোন</string>
     <string name="share">শেয়ার</string>
     <string name="bioprompt_restricted_webapp">অ্যাক্সেস সীমাবদ্ধতা</string>
@@ -132,6 +134,7 @@
     <string name="allow_media_playback_in_background">ব্যাকগ্রাউন্ড প্লেব্যাক</string>
     <string name="media_channel_name">মিডিয়া প্লেব্যাক</string>
     <string name="media_channel_description">ব্যাকগ্রাউন্ড মিডিয়া প্লেব্যাক নিয়ন্ত্রণ</string>
+    <string name="media_stop_description">বন্ধ করুন</string>
     <string name="more">আরও</string>
     <string name="cancel">বাতিল</string>
     <string name="ok">ঠিক আছে</string>
@@ -229,12 +232,14 @@
     <string name="extensions">এক্সটেনশন</string>
     <string name="no_extensions_installed">কোনো এক্সটেনশন ইনস্টল করা নেই।\n+ ট্যাপ করে উপলব্ধ এক্সটেনশন দেখুন।</string>
     <string name="recommended_extensions">প্রস্তাবিত এক্সটেনশন</string>
+    <string name="recommended_extensions_error">প্রস্তাবিত এক্সটেনশন লোড করা যায়নি</string>
     <string name="browse_all_extensions">সব ব্রাউজ করুন</string>
     <string name="install_extension_confirm">%1$s ইনস্টল করবেন?</string>
     <string name="extension_permissions">এই এক্সটেনশনের প্রয়োজন:</string>
     <string name="uninstall_extension">আনইনস্টল</string>
     <string name="uninstall_extension_confirm">%1$s আনইনস্টল করবেন?</string>
     <string name="extension_settings">সেটিংস</string>
+    <string name="enable_extension">এক্সটেনশন সক্রিয় করুন</string>
     <string name="loading_extension">লোড হচ্ছে…</string>
     <string name="loading_extensions">লোড হচ্ছে\u2026</string>
     <string name="install_extension_error">এক্সটেনশন ইনস্টল ব্যর্থ হয়েছে</string>
@@ -270,6 +275,8 @@
     <string name="setting_same_app_domains">অ্যাপের অতিরিক্ত ডোমেইন</string>
     <string name="setting_same_app_domains_hint">example.com বা /regex/</string>
     <string name="setting_same_app_domains_invalid_regex">অবৈধ রেগুলার এক্সপ্রেশন</string>
+    <string name="setting_blocked_domains">ব্লক করা ডোমেইন</string>
+    <string name="setting_blocked_domains_hint">example.com বা /regex/</string>
     <string name="setting_configure">কনফিগার করুন</string>
     <string name="find_in_page_hint">পেজে খুঁজুন</string>
     <string name="find_in_page_counter">%1$d / %2$d</string>
@@ -312,6 +319,7 @@
     <string name="translate_error_engine_unavailable">এই ডিভাইসে অনুবাদ উপলব্ধ নয়</string>
     <string name="translate_error_languages_unavailable">অনুবাদের ভাষা লোড করা যায়নি</string>
     <string name="translate_error_same_language">দুটি ভিন্ন ভাষা নির্বাচন করুন</string>
+    <string name="translate_swap_languages">ভাষা অদলবদল করুন</string>
 
     <string name="setting_translator">অনুবাদক</string>
     <string name="setting_auto_translate_any_language">যেকোনো ভাষা</string>

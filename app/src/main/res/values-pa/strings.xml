@@ -108,6 +108,7 @@
     <string name="permission_allow">ਚਾਲੂ</string>
     <string name="permission_prompt_allow">ਹਾਂ</string>
     <string name="permission_prompt_deny">ਨਹੀਂ</string>
+    <string name="permission_prompt_remember">ਇਸ ਸੈਸ਼ਨ ਲਈ ਯਾਦ ਰੱਖੋ</string>
     <string name="permission_prompt_camera">%1$s ਨੂੰ ਕੈਮਰਾ ਐਕਸੈਸ ਦੀ ਇਜਾਜ਼ਤ ਦਿਓ?</string>
     <string name="permission_prompt_microphone">%1$s ਨੂੰ ਮਾਈਕ੍ਰੋਫ਼ੋਨ ਐਕਸੈਸ ਦੀ ਇਜਾਜ਼ਤ ਦਿਓ?</string>
     <string name="permission_prompt_location">%1$s ਨੂੰ ਟਿਕਾਣਾ ਐਕਸੈਸ ਦੀ ਇਜਾਜ਼ਤ ਦਿਓ?</string>
@@ -124,6 +125,7 @@
     <string name="user_agent_hint">User-Agent ਸਤਰ</string>
     <string name="custom_locale">ਲੋਕੇਲ ਓਵਰਰਾਈਡ ਕਰੋ</string>
     <string name="custom_locale_hint">ਉਦਾ. en-US, fr</string>
+    <string name="untitled_shortcut">ਅਣਜਾਣ</string>
     <string name="clone">ਕਲੋਨ</string>
     <string name="share">ਸਾਂਝਾ ਕਰੋ</string>
     <string name="bioprompt_restricted_webapp">ਐਕਸੈਸ ਪਾਬੰਦੀ</string>
@@ -132,6 +134,7 @@
     <string name="allow_media_playback_in_background">ਬੈਕਗ੍ਰਾਊਂਡ ਪਲੇਬੈਕ</string>
     <string name="media_channel_name">ਮੀਡੀਆ ਪਲੇਬੈਕ</string>
     <string name="media_channel_description">ਬੈਕਗ੍ਰਾਊਂਡ ਮੀਡੀਆ ਪਲੇਬੈਕ ਕੰਟਰੋਲ</string>
+    <string name="media_stop_description">ਰੋਕੋ</string>
     <string name="more">ਹੋਰ</string>
     <string name="cancel">ਰੱਦ ਕਰੋ</string>
     <string name="ok">ਠੀਕ ਹੈ</string>
@@ -228,12 +231,14 @@
     <string name="extensions">ਐਕਸਟੈਂਸ਼ਨ</string>
     <string name="no_extensions_installed">ਕੋਈ ਐਕਸਟੈਂਸ਼ਨ ਇੰਸਟਾਲ ਨਹੀਂ ਹੈ।\n+ ਟੈਪ ਕਰਕੇ ਉਪਲਬਧ ਐਕਸਟੈਂਸ਼ਨ ਦੇਖੋ।</string>
     <string name="recommended_extensions">ਸਿਫ਼ਾਰਸ਼ੀ ਐਕਸਟੈਂਸ਼ਨ</string>
+    <string name="recommended_extensions_error">ਸਿਫ਼ਾਰਸ਼ੀ ਐਕਸਟੈਂਸ਼ਨ ਲੋਡ ਨਹੀਂ ਹੋ ਸਕੇ</string>
     <string name="browse_all_extensions">ਸਾਰੇ ਬ੍ਰਾਊਜ਼ ਕਰੋ</string>
     <string name="install_extension_confirm">%1$s ਇੰਸਟਾਲ ਕਰੋ?</string>
     <string name="extension_permissions">ਇਸ ਐਕਸਟੈਂਸ਼ਨ ਨੂੰ ਚਾਹੀਦਾ:</string>
     <string name="uninstall_extension">ਅਣਇੰਸਟਾਲ</string>
     <string name="uninstall_extension_confirm">%1$s ਅਣਇੰਸਟਾਲ ਕਰੋ?</string>
     <string name="extension_settings">ਸੈਟਿੰਗਜ਼</string>
+    <string name="enable_extension">ਐਕਸਟੈਂਸ਼ਨ ਚਾਲੂ ਕਰੋ</string>
     <string name="loading_extension">ਲੋਡ ਹੋ ਰਿਹਾ ਹੈ…</string>
     <string name="loading_extensions">ਲੋਡ ਹੋ ਰਿਹਾ\u2026</string>
     <string name="install_extension_error">ਐਕਸਟੈਂਸ਼ਨ ਇੰਸਟਾਲ ਅਸਫਲ</string>
@@ -269,6 +274,8 @@
     <string name="setting_same_app_domains">ਐਪ ਦੇ ਵਾਧੂ ਡੋਮੇਨ</string>
     <string name="setting_same_app_domains_hint">example.com ਜਾਂ /regex/</string>
     <string name="setting_same_app_domains_invalid_regex">ਗਲਤ ਰੈਗੂਲਰ ਸਮੀਕਰਨ</string>
+    <string name="setting_blocked_domains">ਬਲੌਕ ਕੀਤੇ ਡੋਮੇਨ</string>
+    <string name="setting_blocked_domains_hint">example.com ਜਾਂ /regex/</string>
     <string name="setting_configure">ਸੰਰਚਨਾ ਕਰੋ</string>
     <string name="find_in_page_hint">ਪੰਨੇ ਵਿੱਚ ਲੱਭੋ</string>
     <string name="find_in_page_counter">%1$d / %2$d</string>
@@ -311,6 +318,7 @@
     <string name="translate_error_engine_unavailable">ਇਸ ਡਿਵਾਈਸ \'ਤੇ ਅਨੁਵਾਦ ਉਪਲਬਧ ਨਹੀਂ ਹੈ</string>
     <string name="translate_error_languages_unavailable">ਅਨੁਵਾਦ ਦੀਆਂ ਭਾਸ਼ਾਵਾਂ ਲੋਡ ਨਹੀਂ ਹੋ ਸਕੀਆਂ</string>
     <string name="translate_error_same_language">ਦੋ ਵੱਖਰੀਆਂ ਭਾਸ਼ਾਵਾਂ ਚੁਣੋ</string>
+    <string name="translate_swap_languages">ਭਾਸ਼ਾਵਾਂ ਬਦਲੋ</string>
 
     <string name="setting_translator">ਅਨੁਵਾਦਕ</string>
     <string name="setting_auto_translate_any_language">ਕੋਈ ਵੀ ਭਾਸ਼ਾ</string>

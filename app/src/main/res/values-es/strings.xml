@@ -79,6 +79,7 @@
     <string name="user_agent_hint">Cadena del user agent</string>
     <string name="custom_locale">Anular configuración regional</string>
     <string name="custom_locale_hint">ej. en-US, fr</string>
+    <string name="untitled_shortcut">Desconocido</string>
     <string name="share">Compartir</string>
     <string name="bioprompt_restricted_webapp">Restricción de acceso</string>
     <string name="enable_access_restriction">Bloqueo biométrico</string>
@@ -170,6 +171,7 @@
     <string name="icon_remove">Eliminar imagen</string>
     <string name="icon_update">Actualizar imagen</string>
     <string name="media_channel_description">Controles de reproducción de medios en segundo plano</string>
+    <string name="media_stop_description">Detener</string>
     <string name="media_channel_name">Reproducción de medios</string>
     <string name="permission_allow">Permitir</string>
     <string name="permission_ask">Preguntar</string>
@@ -214,6 +216,7 @@
     <string name="open_in_system">Abrir en el sistema</string>
     <string name="permission_prompt_allow">Permitir</string>
     <string name="permission_prompt_deny">Denegar</string>
+    <string name="permission_prompt_remember">Recordar durante esta sesión</string>
     <string name="restart">Reiniciar</string>
     <string name="setting_block_local_network">Bloquear acceso a red local</string>
     <string name="setting_block_webrtc_ip_leak">Bloquear filtración IP por WebRTC</string>
@@ -228,12 +231,14 @@
     <string name="extensions">Extensiones</string>
     <string name="no_extensions_installed">No hay extensiones instaladas.\nToca + para explorar extensiones disponibles.</string>
     <string name="recommended_extensions">Extensiones recomendadas</string>
+    <string name="recommended_extensions_error">No se pudieron cargar las extensiones recomendadas</string>
     <string name="browse_all_extensions">Ver todas</string>
     <string name="install_extension_confirm">¿Instalar %1$s?</string>
     <string name="extension_permissions">Esta extensión requiere:</string>
     <string name="uninstall_extension">Desinstalar</string>
     <string name="uninstall_extension_confirm">¿Desinstalar %1$s?</string>
     <string name="extension_settings">Configuración</string>
+    <string name="enable_extension">Activar extensión</string>
     <string name="loading_extension">Cargando…</string>
     <string name="loading_extensions">Cargando\u2026</string>
     <string name="install_extension_error">No se pudo instalar la extensión</string>
@@ -269,6 +274,8 @@
     <string name="setting_same_app_domains">Dominios adicionales de la app</string>
     <string name="setting_same_app_domains_hint">example.com o /regex/</string>
     <string name="setting_same_app_domains_invalid_regex">Expresión regular no válida</string>
+    <string name="setting_blocked_domains">Dominios bloqueados</string>
+    <string name="setting_blocked_domains_hint">example.com o /regex/</string>
     <string name="setting_configure">Configurar</string>
     <string name="find_in_page_hint">Buscar en la página</string>
     <string name="find_in_page_counter">%1$d / %2$d</string>
@@ -311,6 +318,7 @@
     <string name="translate_error_engine_unavailable">Las traducciones no están disponibles en este dispositivo</string>
     <string name="translate_error_languages_unavailable">No se pudieron cargar los idiomas de traducción</string>
     <string name="translate_error_same_language">Elige dos idiomas distintos</string>
+    <string name="translate_swap_languages">Intercambiar idiomas</string>
 
     <string name="setting_translator">Traductor</string>
     <string name="setting_auto_translate_any_language">Cualquier idioma</string>

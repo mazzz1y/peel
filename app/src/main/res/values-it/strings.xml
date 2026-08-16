@@ -80,6 +80,7 @@
     <string name="user_agent_hint">Stringa user agent</string>
     <string name="custom_locale">Sovrascrivi locale</string>
     <string name="custom_locale_hint">es. en-US, fr</string>
+    <string name="untitled_shortcut">Sconosciuto</string>
     <string name="share">Condividi</string>
     <string name="bioprompt_restricted_webapp">Restrizione di accesso</string>
     <string name="enable_access_restriction">Blocco biometrico</string>
@@ -171,6 +172,7 @@
     <string name="icon_remove">Rimuovi immagine</string>
     <string name="icon_update">Aggiorna immagine</string>
     <string name="media_channel_description">Controlli per la riproduzione multimediale in background</string>
+    <string name="media_stop_description">Interrompi</string>
     <string name="media_channel_name">Riproduzione multimediale</string>
     <string name="permission_allow">Consenti</string>
     <string name="permission_ask">Chiedi</string>
@@ -215,6 +217,7 @@
     <string name="open_in_system">Apri nel sistema</string>
     <string name="permission_prompt_allow">Consenti</string>
     <string name="permission_prompt_deny">Nega</string>
+    <string name="permission_prompt_remember">Ricorda per questa sessione</string>
     <string name="restart">Riavvia</string>
     <string name="setting_block_local_network">Blocca accesso alla rete locale</string>
     <string name="setting_block_webrtc_ip_leak">Blocca fuga IP tramite WebRTC</string>
@@ -229,12 +232,14 @@
     <string name="extensions">Estensioni</string>
     <string name="no_extensions_installed">Nessuna estensione installata.\nTocca + per sfogliare le estensioni disponibili.</string>
     <string name="recommended_extensions">Estensioni consigliate</string>
+    <string name="recommended_extensions_error">Impossibile caricare le estensioni consigliate</string>
     <string name="browse_all_extensions">Sfoglia tutte</string>
     <string name="install_extension_confirm">Installare %1$s?</string>
     <string name="extension_permissions">Questa estensione richiede:</string>
     <string name="uninstall_extension">Disinstalla</string>
     <string name="uninstall_extension_confirm">Disinstallare %1$s?</string>
     <string name="extension_settings">Impostazioni</string>
+    <string name="enable_extension">Attiva estensione</string>
     <string name="loading_extension">Caricamento…</string>
     <string name="loading_extensions">Caricamento\u2026</string>
     <string name="install_extension_error">Impossibile installare l\'estensione</string>
@@ -270,6 +275,8 @@
     <string name="setting_same_app_domains">Domini aggiuntivi dell\'app</string>
     <string name="setting_same_app_domains_hint">example.com o /regex/</string>
     <string name="setting_same_app_domains_invalid_regex">Espressione regolare non valida</string>
+    <string name="setting_blocked_domains">Domini bloccati</string>
+    <string name="setting_blocked_domains_hint">example.com o /regex/</string>
     <string name="setting_configure">Configura</string>
     <string name="find_in_page_hint">Trova nella pagina</string>
     <string name="find_in_page_counter">%1$d / %2$d</string>
@@ -312,6 +319,7 @@
     <string name="translate_error_engine_unavailable">Le traduzioni non sono disponibili su questo dispositivo</string>
     <string name="translate_error_languages_unavailable">Impossibile caricare le lingue di traduzione</string>
     <string name="translate_error_same_language">Scegli due lingue diverse</string>
+    <string name="translate_swap_languages">Scambia lingue</string>
 
     <string name="setting_translator">Traduttore</string>
     <string name="setting_auto_translate_any_language">Qualsiasi lingua</string>

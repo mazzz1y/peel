@@ -108,6 +108,7 @@
     <string name="permission_allow">オン</string>
     <string name="permission_prompt_allow">許可</string>
     <string name="permission_prompt_deny">拒否</string>
+    <string name="permission_prompt_remember">このセッションの間は記憶する</string>
     <string name="permission_prompt_camera">%1$sにカメラへのアクセスを許可しますか？</string>
     <string name="permission_prompt_microphone">%1$sにマイクへのアクセスを許可しますか？</string>
     <string name="permission_prompt_location">%1$sに位置情報へのアクセスを許可しますか？</string>
@@ -124,6 +125,7 @@
     <string name="user_agent_hint">User-Agent 文字列</string>
     <string name="custom_locale">ロケールを上書き</string>
     <string name="custom_locale_hint">例: en-US, fr</string>
+    <string name="untitled_shortcut">不明</string>
     <string name="clone">複製</string>
     <string name="share">共有</string>
     <string name="bioprompt_restricted_webapp">アクセス制限</string>
@@ -132,6 +134,7 @@
     <string name="allow_media_playback_in_background">バックグラウンド再生</string>
     <string name="media_channel_name">メディア再生</string>
     <string name="media_channel_description">バックグラウンドメディア再生コントロール</string>
+    <string name="media_stop_description">停止</string>
     <string name="more">その他</string>
     <string name="cancel">キャンセル</string>
     <string name="ok">OK</string>
@@ -228,12 +231,14 @@
     <string name="extensions">拡張機能</string>
     <string name="no_extensions_installed">拡張機能がインストールされていません。\n+ をタップして利用可能な拡張機能を参照してください。</string>
     <string name="recommended_extensions">おすすめの拡張機能</string>
+    <string name="recommended_extensions_error">おすすめの拡張機能を読み込めませんでした</string>
     <string name="browse_all_extensions">すべて見る</string>
     <string name="install_extension_confirm">%1$s をインストールしますか？</string>
     <string name="extension_permissions">この拡張機能は以下を要求します：</string>
     <string name="uninstall_extension">アンインストール</string>
     <string name="uninstall_extension_confirm">%1$s をアンインストールしますか？</string>
     <string name="extension_settings">設定</string>
+    <string name="enable_extension">拡張機能を有効にする</string>
     <string name="loading_extension">読み込み中…</string>
     <string name="loading_extensions">読み込み中\u2026</string>
     <string name="install_extension_error">拡張機能のインストールに失敗しました</string>
@@ -267,6 +272,8 @@
     <string name="setting_same_app_domains">アプリの追加ドメイン</string>
     <string name="setting_same_app_domains_hint">example.com または /regex/</string>
     <string name="setting_same_app_domains_invalid_regex">正規表現が無効です</string>
+    <string name="setting_blocked_domains">ブロックするドメイン</string>
+    <string name="setting_blocked_domains_hint">example.com または /regex/</string>
     <string name="setting_configure">設定</string>
     <string name="find_in_page_hint">ページ内を検索</string>
     <string name="find_in_page_counter">%1$d / %2$d</string>
@@ -309,6 +316,7 @@
     <string name="translate_error_engine_unavailable">このデバイスでは翻訳を利用できません</string>
     <string name="translate_error_languages_unavailable">翻訳用の言語を読み込めませんでした</string>
     <string name="translate_error_same_language">異なる 2 つの言語を選択してください</string>
+    <string name="translate_swap_languages">言語を入れ替える</string>
 
     <string name="setting_translator">翻訳</string>
     <string name="setting_auto_translate_any_language">すべての言語</string>

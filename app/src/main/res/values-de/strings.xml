@@ -80,6 +80,7 @@
     <string name="user_agent_hint">User-Agent-Zeichenkette</string>
     <string name="custom_locale">Locale überschreiben</string>
     <string name="custom_locale_hint">z. B. en-US, fr</string>
+    <string name="untitled_shortcut">Unbekannt</string>
     <string name="share">Teilen</string>
     <string name="bioprompt_restricted_webapp">Zugriffsbeschränkung</string>
     <string name="enable_access_restriction">Biometrische Sperre</string>
@@ -171,6 +172,7 @@
     <string name="icon_remove">Bild entfernen</string>
     <string name="icon_update">Bild aktualisieren</string>
     <string name="media_channel_description">Steuerung für Medienwiedergabe im Hintergrund</string>
+    <string name="media_stop_description">Stopp</string>
     <string name="media_channel_name">Medienwiedergabe</string>
     <string name="permission_allow">Erlauben</string>
     <string name="permission_ask">Fragen</string>
@@ -215,6 +217,7 @@
     <string name="open_in_system">Im System öffnen</string>
     <string name="permission_prompt_allow">Erlauben</string>
     <string name="permission_prompt_deny">Verweigern</string>
+    <string name="permission_prompt_remember">Für diese Sitzung merken</string>
     <string name="restart">Neustart</string>
     <string name="setting_block_local_network">Lokalen Netzwerkzugriff blockieren</string>
     <string name="setting_block_webrtc_ip_leak">WebRTC-IP-Leak blockieren</string>
@@ -229,12 +232,14 @@
     <string name="extensions">Erweiterungen</string>
     <string name="no_extensions_installed">Keine Erweiterungen installiert.\nTippen Sie auf +, um verfügbare Erweiterungen zu durchsuchen.</string>
     <string name="recommended_extensions">Empfohlene Erweiterungen</string>
+    <string name="recommended_extensions_error">Empfohlene Erweiterungen konnten nicht geladen werden</string>
     <string name="browse_all_extensions">Alle durchsuchen</string>
     <string name="install_extension_confirm">%1$s installieren?</string>
     <string name="extension_permissions">Diese Erweiterung benötigt:</string>
     <string name="uninstall_extension">Deinstallieren</string>
     <string name="uninstall_extension_confirm">%1$s deinstallieren?</string>
     <string name="extension_settings">Einstellungen</string>
+    <string name="enable_extension">Erweiterung aktivieren</string>
     <string name="loading_extension">Wird geladen…</string>
     <string name="loading_extensions">Wird geladen\u2026</string>
     <string name="install_extension_error">Erweiterung konnte nicht installiert werden</string>
@@ -270,6 +275,8 @@
     <string name="setting_same_app_domains">Zusätzliche App-Domains</string>
     <string name="setting_same_app_domains_hint">example.com oder /regex/</string>
     <string name="setting_same_app_domains_invalid_regex">Ungültiger regulärer Ausdruck</string>
+    <string name="setting_blocked_domains">Blockierte Domains</string>
+    <string name="setting_blocked_domains_hint">example.com oder /regex/</string>
     <string name="setting_configure">Konfigurieren</string>
     <string name="find_in_page_hint">Auf Seite suchen</string>
     <string name="find_in_page_counter">%1$d / %2$d</string>
@@ -312,6 +319,7 @@
     <string name="translate_error_engine_unavailable">Übersetzungen sind auf diesem Gerät nicht verfügbar</string>
     <string name="translate_error_languages_unavailable">Übersetzungssprachen konnten nicht geladen werden</string>
     <string name="translate_error_same_language">Wähle zwei verschiedene Sprachen</string>
+    <string name="translate_swap_languages">Sprachen tauschen</string>
 
     <string name="setting_translator">Übersetzer</string>
     <string name="setting_auto_translate_any_language">Beliebige Sprache</string>
