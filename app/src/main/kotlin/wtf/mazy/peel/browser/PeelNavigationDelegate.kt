@@ -25,6 +25,21 @@ internal fun parseIntentUri(url: String): Intent? {
     }.getOrNull()
 }
 
+private class ExternalLinkPrompt(
+    val url: String,
+    val redirectFallback: String?,
+    val wasUpgraded: Boolean,
+    private val decision: GeckoResult<AllowOrDeny>,
+) {
+    private var settled = false
+
+    fun settle(value: AllowOrDeny) {
+        if (settled) return
+        settled = true
+        decision.complete(value)
+    }
+}
+
 class PeelNavigationDelegate(
     private val host: SessionHost,
     private val isContentInitiatedWindow: Boolean = false,
@@ -40,8 +55,9 @@ class PeelNavigationDelegate(
     @Volatile
     private var appLinkDialogShowing = false
 
-    @Volatile
-    private var externalMenuShowing = false
+    private val pendingPrompts = ArrayDeque<ExternalLinkPrompt>()
+
+    private var promptGeneration = 0
 
     @Volatile
     private var isInitialLoad = !isContentInitiatedWindow
@@ -99,8 +115,7 @@ class PeelNavigationDelegate(
         val target = settings.upgradeUrl(url)
 
         if (settings.isOpenUrlExternal == true && shouldRouteExternally(target, request)) {
-            showExternalLinkMenu(target, redirectFallbackFor(request))
-            return deny()
+            return promptForExternalLink(target, redirectFallbackFor(request), target != url)
         }
 
         return if (target != url) redirectTo(target) else allow()
@@ -129,7 +144,6 @@ class PeelNavigationDelegate(
 
     fun resetDialogState() {
         appLinkDialogShowing = false
-        externalMenuShowing = false
     }
 
     fun markCurrentPageAsJumpHost() {
@@ -157,26 +171,67 @@ class PeelNavigationDelegate(
                 request.target == TARGET_WINDOW_NEW
     }
 
-    private fun showExternalLinkMenu(url: String, redirectFallback: String?) {
-        if (externalMenuShowing) return
-        externalMenuShowing = true
-        val stranded = strandedWithoutContent()
+    private fun promptForExternalLink(
+        url: String,
+        redirectFallback: String?,
+        wasUpgraded: Boolean,
+    ): GeckoResult<AllowOrDeny> {
+        val decision = GeckoResult<AllowOrDeny>()
+        val prompt = ExternalLinkPrompt(
+            url = url,
+            redirectFallback = redirectFallback,
+            wasUpgraded = wasUpgraded,
+            decision = decision,
+        )
+        pendingPrompts.addLast(prompt)
+        if (pendingPrompts.size == 1) showNextExternalLinkMenu()
+        return decision
+    }
+
+    private fun showNextExternalLinkMenu() {
+        val prompt = pendingPrompts.firstOrNull() ?: return
+        val generation = promptGeneration
         host.runOnUi {
-            host.showExternalLinkMenu(url) { result ->
-                externalMenuShowing = false
-                when (result) {
-                    ExternalLinkResult.LoadHere -> loadExternallyInCurrentTab(url)
-                    ExternalLinkResult.OpenInSystem -> openInSystem(url, redirectFallback)
-                    ExternalLinkResult.OpenIncognito -> openIncognito(url, redirectFallback)
-                    ExternalLinkResult.Share -> shareUrl(url, redirectFallback)
-                    ExternalLinkResult.CopyLink -> copyLink(url, redirectFallback)
-                    ExternalLinkResult.Dismissed -> dismissRedirect(redirectFallback)
-                    is ExternalLinkResult.OpenInPeelApp -> result.launcher()
-                }
-                if (abandonsWindow(result) && stranded) {
-                    host.onInitialNavigationDenied()
-                }
+            host.showExternalLinkMenu(prompt.url) { result ->
+                if (generation != promptGeneration) return@showExternalLinkMenu
+                pendingPrompts.removeFirstOrNull()
+                resolveExternalLink(prompt, result)
+                showNextExternalLinkMenu()
             }
+        }
+    }
+
+    private fun resolveExternalLink(prompt: ExternalLinkPrompt, result: ExternalLinkResult) {
+        if (result == ExternalLinkResult.LoadHere) {
+            browsingExternally = true
+            if (prompt.wasUpgraded) {
+                prompt.settle(AllowOrDeny.DENY)
+                host.loadURL(prompt.url)
+            } else {
+                prompt.settle(AllowOrDeny.ALLOW)
+            }
+            return
+        }
+
+        prompt.settle(AllowOrDeny.DENY)
+        when (result) {
+            ExternalLinkResult.OpenInSystem -> openInSystem(prompt.url, prompt.redirectFallback)
+            ExternalLinkResult.OpenIncognito -> openIncognito(prompt.url, prompt.redirectFallback)
+            ExternalLinkResult.Share -> shareUrl(prompt.url, prompt.redirectFallback)
+            ExternalLinkResult.CopyLink -> copyLink(prompt.url, prompt.redirectFallback)
+            ExternalLinkResult.Dismissed -> dismissRedirect(prompt.redirectFallback)
+            is ExternalLinkResult.OpenInPeelApp -> result.launcher()
+            ExternalLinkResult.LoadHere -> Unit
+        }
+        if (abandonsWindow(result) && strandedWithoutContent()) {
+            host.onInitialNavigationDenied()
+        }
+    }
+
+    fun cancelPendingPrompts() {
+        promptGeneration++
+        while (pendingPrompts.isNotEmpty()) {
+            pendingPrompts.removeFirst().settle(AllowOrDeny.DENY)
         }
     }
 
@@ -193,11 +248,6 @@ class PeelNavigationDelegate(
 
     private fun strandedWithoutContent(): Boolean =
         isContentInitiatedWindow && !hasCommittedContent()
-
-    private fun loadExternallyInCurrentTab(url: String) {
-        browsingExternally = true
-        host.loadURL(url)
-    }
 
     private fun openInSystem(url: String, redirectFallback: String?) {
         host.startExternalIntent(url.toUri())

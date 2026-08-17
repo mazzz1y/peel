@@ -634,6 +634,7 @@ class BrowserActivity : BaseSessionHost() {
         pageLoadHandled = false
         filePathCallback = null
         navigationDelegate.resetDialogState()
+        navigationDelegate.cancelPendingPrompts()
         navigationDelegate.browsingExternally = false
         permissionDelegate.clearSessionPermissions()
         promptDelegate.clearAutoAuth()

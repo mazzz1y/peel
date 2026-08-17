@@ -518,6 +518,7 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost, TranslationHo
     override fun onDestroy() {
         connectionErrorDialog?.dismiss()
         connectionErrorDialog = null
+        if (::navigationDelegate.isInitialized) navigationDelegate.cancelPendingPrompts()
         super.onDestroy()
     }
 
