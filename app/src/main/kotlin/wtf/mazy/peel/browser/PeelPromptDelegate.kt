@@ -15,6 +15,8 @@ import org.mozilla.geckoview.GeckoResult
 import org.mozilla.geckoview.GeckoSession
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.DataManager
+import wtf.mazy.peel.ui.dialog.DateTimePickerRequest
+import wtf.mazy.peel.ui.dialog.DateTimePickerType
 import wtf.mazy.peel.util.NotificationUtils
 import java.io.File
 
@@ -232,6 +234,44 @@ class PeelPromptDelegate(private val host: SessionHost) : GeckoSession.PromptDel
                         .show()
                 }
             }
+        }
+        return result
+    }
+
+    override fun onDateTimePrompt(
+        session: GeckoSession,
+        prompt: GeckoSession.PromptDelegate.DateTimePrompt,
+    ): GeckoResult<GeckoSession.PromptDelegate.PromptResponse> {
+        val result = GeckoResult<GeckoSession.PromptDelegate.PromptResponse>()
+        val type = when (prompt.type) {
+            GeckoSession.PromptDelegate.DateTimePrompt.Type.DATE -> DateTimePickerType.DATE
+            GeckoSession.PromptDelegate.DateTimePrompt.Type.MONTH -> DateTimePickerType.MONTH
+            GeckoSession.PromptDelegate.DateTimePrompt.Type.WEEK -> DateTimePickerType.WEEK
+            GeckoSession.PromptDelegate.DateTimePrompt.Type.TIME -> DateTimePickerType.TIME
+            else -> DateTimePickerType.DATETIME_LOCAL
+        }
+
+        host.runOnUi {
+            val picker = host.showDateTimePicker(
+                DateTimePickerRequest(
+                    type = type,
+                    value = prompt.defaultValue,
+                    min = prompt.minValue,
+                    max = prompt.maxValue,
+                ),
+                onResult = { value ->
+                    if (!prompt.isComplete) result.complete(prompt.confirm(value))
+                },
+                onCancel = {
+                    if (!prompt.isComplete) result.complete(prompt.dismiss())
+                },
+            )
+            prompt.setDelegate(object : GeckoSession.PromptDelegate.PromptInstanceDelegate {
+                override fun onPromptDismiss(closed: GeckoSession.PromptDelegate.BasePrompt) {
+                    picker.dismiss()
+                    if (!closed.isComplete) result.complete(closed.dismiss())
+                }
+            })
         }
         return result
     }

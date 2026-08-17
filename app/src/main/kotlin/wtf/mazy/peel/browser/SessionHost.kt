@@ -9,6 +9,8 @@ import org.mozilla.geckoview.GeckoResult
 import org.mozilla.geckoview.GeckoSession
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.model.WebAppSettings
+import wtf.mazy.peel.ui.dialog.DateTimePickerRequest
+import wtf.mazy.peel.ui.dialog.DateTimePickerSession
 
 enum class PermissionResult {
     ALLOW,
@@ -86,6 +88,12 @@ interface SessionHost {
         allowRemember: Boolean = false,
         onResult: (result: PermissionResult, remember: Boolean) -> Unit,
     )
+
+    fun showDateTimePicker(
+        request: DateTimePickerRequest,
+        onResult: (String) -> Unit,
+        onCancel: () -> Unit,
+    ): DateTimePickerSession
 
     val themeBackgroundColor: Int
 

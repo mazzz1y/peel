@@ -52,6 +52,9 @@ import wtf.mazy.peel.ui.FloatingControlsView
 import wtf.mazy.peel.ui.browser.SystemBarController
 import wtf.mazy.peel.ui.common.LoadingDialogController
 import wtf.mazy.peel.ui.controls.BrowserControls
+import wtf.mazy.peel.ui.dialog.DateTimePickerRequest
+import wtf.mazy.peel.ui.dialog.DateTimePickerSession
+import wtf.mazy.peel.ui.dialog.showDateTimePickerDialog
 import wtf.mazy.peel.ui.controls.ControlAction
 import wtf.mazy.peel.ui.controls.PanelControlsView
 import wtf.mazy.peel.ui.controls.BarControlsView
@@ -153,6 +156,12 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost, TranslationHo
         permissions.all {
             ContextCompat.checkSelfPermission(this, it) == PackageManager.PERMISSION_GRANTED
         }
+
+    override fun showDateTimePicker(
+        request: DateTimePickerRequest,
+        onResult: (String) -> Unit,
+        onCancel: () -> Unit,
+    ): DateTimePickerSession = showDateTimePickerDialog(this, request, onResult, onCancel)
 
     override fun showPermissionDialog(
         message: CharSequence,
