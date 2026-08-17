@@ -1,6 +1,5 @@
 package wtf.mazy.peel.ui.controls
 
-import android.os.SystemClock
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.MotionEvent
@@ -37,9 +36,6 @@ class BarControlsView(
     private var shown = false
     private var tracking = false
     private var trackingStartY = 0f
-    private var trackingStartOffset = 0f
-    private var trackingFromShown = false
-    private var shownAt = 0L
     private var lastContentScrollY = 0
 
     init {
@@ -87,7 +83,6 @@ class BarControlsView(
         hostHidden = hidden
         tracking = false
         shown = false
-        shownAt = 0L
         root.removeCallbacks(autoHideRunnable)
         root.animate().cancel()
         root.visibility = if (hidden) View.GONE else View.VISIBLE
@@ -95,13 +90,10 @@ class BarControlsView(
     }
 
     override fun onContentScrolled(scrollY: Int) {
-        if (destroyed || hostHidden || !shown || tracking) return
-        if (SystemClock.uptimeMillis() - shownAt < SCROLL_GRACE_MS) {
-            lastContentScrollY = scrollY
-            return
-        }
-        if (abs(scrollY - lastContentScrollY) < scrollThresholdPx) return
+        if (destroyed || hostHidden) return
+        val delta = abs(scrollY - lastContentScrollY)
         lastContentScrollY = scrollY
+        if (!shown || delta < scrollThresholdPx) return
         animateTo(hidden = true)
     }
 
@@ -110,14 +102,17 @@ class BarControlsView(
         when (event.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
                 if (shown) restartAutoHide()
-                tracking = isInTriggerZone(event)
+                tracking = !shown && isInTriggerZone(event)
                 trackingStartY = event.y
-                trackingFromShown = shown
-                trackingStartOffset = if (shown) 0f else hiddenOffset()
             }
 
             MotionEvent.ACTION_MOVE -> {
-                if (!tracking) return false
+                if (!tracking) {
+                    if (shown && abs(event.y - trackingStartY) >= scrollThresholdPx) {
+                        animateTo(hidden = true)
+                    }
+                    return false
+                }
                 val delta = event.y - trackingStartY
                 if (abs(delta) <= touchSlop) return false
                 if (isWrongDirection(delta)) {
@@ -126,8 +121,7 @@ class BarControlsView(
                 }
                 root.removeCallbacks(autoHideRunnable)
                 root.animate().cancel()
-                root.translationY =
-                    (trackingStartOffset + delta).coerceIn(0f, hiddenOffset())
+                root.translationY = (hiddenOffset() + delta).coerceIn(0f, hiddenOffset())
                 return true
             }
 
@@ -139,8 +133,7 @@ class BarControlsView(
                     return false
                 }
                 tracking = false
-                val committed = abs(delta) >= commitDistance()
-                animateTo(hidden = if (trackingFromShown) committed else !committed)
+                animateTo(hidden = abs(delta) < commitDistance())
                 return true
             }
 
@@ -163,19 +156,16 @@ class BarControlsView(
     }
 
     private fun restartAutoHide() {
-        shownAt = SystemClock.uptimeMillis()
         root.removeCallbacks(autoHideRunnable)
         root.postDelayed(autoHideRunnable, AUTO_HIDE_DELAY_MS)
     }
 
     private fun abortDrag() {
         tracking = false
-        root.translationY = trackingStartOffset
-        if (trackingFromShown) restartAutoHide()
+        root.translationY = hiddenOffset()
     }
 
-    private fun isWrongDirection(delta: Float): Boolean =
-        if (trackingFromShown) delta < 0f else delta > 0f
+    private fun isWrongDirection(delta: Float): Boolean = delta > 0f
 
     private fun isInTriggerZone(event: MotionEvent): Boolean =
         !isImeVisible() &&
@@ -196,6 +186,5 @@ class BarControlsView(
         const val AUTO_HIDE_DELAY_MS = 3_000L
         const val BACKGROUND_ALPHA = 217
         const val COMMIT_FRACTION = 0.5f
-        const val SCROLL_GRACE_MS = 400L
     }
 }
