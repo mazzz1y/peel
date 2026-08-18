@@ -1,0 +1,8 @@
+- Add "Trusted certificate authorities" setting: install your own CA certificates
+- Add native date and time pickers for web forms
+- Add "Blocked domains" setting: block navigation by domain or /regex/
+- Add "Remember for this session" to camera and microphone prompts
+- Hide the auto-hide bar when the page scrolls
+- Keep the original request when opening an external link in the current tab
+- Fix external link prompts being dropped when several open at once
+- Update GeckoView to 154.0.20260814215756
