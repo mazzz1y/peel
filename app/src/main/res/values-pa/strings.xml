@@ -268,6 +268,13 @@
     <string name="setting_disable_quic">QUIC ਅਯੋਗ ਕਰੋ</string>
     <string name="setting_disable_ech">ECH ਅਯੋਗ ਕਰੋ</string>
     <string name="setting_use_system_certs">ਸਿਸਟਮ ਸਰਟੀਫਿਕੇਟਾਂ ਉੱਤੇ ਭਰੋਸਾ ਕਰੋ</string>
+    <string name="setting_trusted_certificates">ਭਰੋਸੇਯੋਗ ਸਰਟੀਫਿਕੇਟ ਅਥਾਰਟੀਆਂ</string>
+    <string name="setting_trusted_certificates_hint">PEM ਸਰਟੀਫਿਕੇਟ ਚਿਪਕਾਓ</string>
+    <string name="setting_trusted_certificates_invalid">ਵੈਧ PEM ਸਰਟੀਫਿਕੇਟ ਨਹੀਂ ਹੈ</string>
+    <string name="setting_trusted_certificates_not_ca">ਸਰਟੀਫਿਕੇਟ ਸਰਟੀਫਿਕੇਟ ਅਥਾਰਟੀ ਨਹੀਂ ਹੈ</string>
+    <string name="setting_trusted_certificates_import">ਫਾਈਲ ਤੋਂ ਇੰਪੋਰਟ ਕਰੋ</string>
+    <string name="setting_trusted_certificates_read_failed">ਸਰਟੀਫਿਕੇਟ ਫਾਈਲ ਪੜ੍ਹੀ ਨਹੀਂ ਜਾ ਸਕੀ</string>
+    <string name="setting_trusted_certificates_unnamed">ਬਿਨਾਂ ਨਾਮ ਸਰਟੀਫਿਕੇਟ</string>
     <string name="setting_custom_gecko_prefs">ਕਸਟਮ Gecko ਤਰਜੀਹਾਂ</string>
     <string name="setting_custom_gecko_prefs_key_hint">ਨਾਮ</string>
     <string name="setting_custom_gecko_prefs_value_hint">ਮੁੱਲ</string>

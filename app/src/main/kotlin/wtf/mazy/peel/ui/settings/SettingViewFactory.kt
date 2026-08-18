@@ -22,6 +22,7 @@ import wtf.mazy.peel.browser.label
 import wtf.mazy.peel.model.SettingDefinition
 import wtf.mazy.peel.model.WebAppSettings
 import wtf.mazy.peel.ui.bindDropdown
+import wtf.mazy.peel.util.CertificatePem
 import wtf.mazy.peel.util.SameAppDomainMatcher
 import java.util.WeakHashMap
 
@@ -29,6 +30,7 @@ class SettingViewFactory(
     private val inflater: LayoutInflater,
     private val buttonStrategy: ButtonStrategy,
     private val coroutineScope: CoroutineScope,
+    private val certificateImporter: (((String) -> Unit) -> Unit)? = null,
 ) {
 
     sealed interface ButtonStrategy {
@@ -721,7 +723,7 @@ class SettingViewFactory(
         val btnValue = entryView.findViewById<MaterialButton>(R.id.btnEntryValue)
         val btnRemoveEntry = entryView.findViewById<MaterialButton>(R.id.btnRemoveEntry)
 
-        btnValue.text = value
+        btnValue.text = entryLabel(context, setting, value)
         btnValue.setOnClickListener {
             showStringListEntryDialog(context, setting, value) { entry ->
                 val values = getList(settings, setting.key).orEmpty()
@@ -740,28 +742,75 @@ class SettingViewFactory(
         container.addView(entryView)
     }
 
+    private fun entryLabel(
+        context: android.content.Context,
+        setting: SettingDefinition.StringListSetting,
+        value: String,
+    ): String = when (setting.entryKind) {
+        SettingDefinition.StringListSetting.EntryKind.DOMAIN -> value
+        SettingDefinition.StringListSetting.EntryKind.CERTIFICATE ->
+            CertificatePem.label(value)
+                ?: context.getString(R.string.setting_trusted_certificates_unnamed)
+    }
+
     private fun showStringListEntryDialog(
         context: android.content.Context,
         setting: SettingDefinition.StringListSetting,
         prefill: String,
         onCommit: (String) -> Unit,
     ) {
-        SettingDialogs.showValidatedString(
-            context = context,
-            titleRes = setting.displayNameResId,
-            hintRes = setting.entryHintResId,
-            value = prefill,
-            inputType = android.text.InputType.TYPE_CLASS_TEXT or
-                    android.text.InputType.TYPE_TEXT_VARIATION_URI,
-            validate = { entry ->
-                when {
-                    entry.isEmpty() -> setting.entryHintResId
-                    !SameAppDomainMatcher.isValid(entry) -> setting.invalidEntryResId
-                    else -> null
-                }
-            },
-            onCommit = onCommit,
-        )
+        when (setting.entryKind) {
+            SettingDefinition.StringListSetting.EntryKind.DOMAIN -> {
+                SettingDialogs.showValidatedString(
+                    context = context,
+                    titleRes = setting.displayNameResId,
+                    hintRes = setting.entryHintResId,
+                    value = prefill,
+                    inputType = android.text.InputType.TYPE_CLASS_TEXT or
+                            android.text.InputType.TYPE_TEXT_VARIATION_URI,
+                    validate = { entry ->
+                        when {
+                            entry.isEmpty() -> setting.entryHintResId
+                            !SameAppDomainMatcher.isValid(entry) -> setting.invalidEntryResId
+                            else -> null
+                        }
+                    },
+                    onCommit = onCommit,
+                )
+            }
+
+            SettingDefinition.StringListSetting.EntryKind.CERTIFICATE -> {
+                SettingDialogs.showValidatedString(
+                    context = context,
+                    titleRes = setting.displayNameResId,
+                    hintRes = setting.entryHintResId,
+                    value = prefill,
+                    inputType = android.text.InputType.TYPE_CLASS_TEXT or
+                            android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE or
+                            android.text.InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS,
+                    maxLines = CERTIFICATE_DIALOG_MAX_LINES,
+                    validate = { entry ->
+                        when (CertificatePem.validate(entry)) {
+                            CertificatePem.Result.Valid -> null
+                            CertificatePem.Result.NotCa ->
+                                R.string.setting_trusted_certificates_not_ca
+
+                            CertificatePem.Result.Unparsable ->
+                                if (entry.isEmpty()) setting.entryHintResId
+                                else setting.invalidEntryResId
+                        }
+                    },
+                    // Store canonical PEM so entries that differ only in
+                    // whitespace dedupe against each other.
+                    onCommit = { entry -> onCommit(CertificatePem.normalize(entry) ?: entry) },
+                    neutral = certificateImporter?.let { pick ->
+                        SettingDialogs.Neutral(
+                            R.string.setting_trusted_certificates_import,
+                        ) { setText -> pick(setText) }
+                    },
+                )
+            }
+        }
     }
 
     private fun setupStringMap(
@@ -909,4 +958,7 @@ class SettingViewFactory(
         setting.allFields.forEach { field -> settings.setValue(field.key, field.defaultValue) }
     }
 
+    private companion object {
+        const val CERTIFICATE_DIALOG_MAX_LINES = 12
+    }
 }

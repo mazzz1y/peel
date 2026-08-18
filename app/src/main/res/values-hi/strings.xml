@@ -269,6 +269,13 @@
     <string name="setting_disable_quic">QUIC अक्षम करें</string>
     <string name="setting_disable_ech">ECH अक्षम करें</string>
     <string name="setting_use_system_certs">सिस्टम प्रमाणपत्रों पर भरोसा करें</string>
+    <string name="setting_trusted_certificates">विश्वसनीय प्रमाणपत्र प्राधिकरण</string>
+    <string name="setting_trusted_certificates_hint">PEM प्रमाणपत्र चिपकाएँ</string>
+    <string name="setting_trusted_certificates_invalid">मान्य PEM प्रमाणपत्र नहीं है</string>
+    <string name="setting_trusted_certificates_not_ca">प्रमाणपत्र प्रमाणपत्र प्राधिकरण नहीं है</string>
+    <string name="setting_trusted_certificates_import">फ़ाइल से आयात करें</string>
+    <string name="setting_trusted_certificates_read_failed">प्रमाणपत्र फ़ाइल पढ़ी नहीं जा सकी</string>
+    <string name="setting_trusted_certificates_unnamed">बिना नाम का प्रमाणपत्र</string>
     <string name="setting_custom_gecko_prefs">कस्टम Gecko प्राथमिकताएँ</string>
     <string name="setting_custom_gecko_prefs_key_hint">नाम</string>
     <string name="setting_custom_gecko_prefs_value_hint">मान</string>

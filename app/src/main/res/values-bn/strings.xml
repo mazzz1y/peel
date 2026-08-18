@@ -269,6 +269,13 @@
     <string name="setting_disable_quic">QUIC নিষ্ক্রিয় করুন</string>
     <string name="setting_disable_ech">ECH নিষ্ক্রিয় করুন</string>
     <string name="setting_use_system_certs">সিস্টেম সার্টিফিকেট বিশ্বাস করুন</string>
+    <string name="setting_trusted_certificates">বিশ্বস্ত সার্টিফিকেট অথরিটি</string>
+    <string name="setting_trusted_certificates_hint">একটি PEM সার্টিফিকেট পেস্ট করুন</string>
+    <string name="setting_trusted_certificates_invalid">বৈধ PEM সার্টিফিকেট নয়</string>
+    <string name="setting_trusted_certificates_not_ca">সার্টিফিকেটটি সার্টিফিকেট অথরিটি নয়</string>
+    <string name="setting_trusted_certificates_import">ফাইল থেকে ইমপোর্ট করুন</string>
+    <string name="setting_trusted_certificates_read_failed">সার্টিফিকেট ফাইল পড়া যায়নি</string>
+    <string name="setting_trusted_certificates_unnamed">নামহীন সার্টিফিকেট</string>
     <string name="setting_custom_gecko_prefs">কাস্টম Gecko পছন্দ</string>
     <string name="setting_custom_gecko_prefs_key_hint">নাম</string>
     <string name="setting_custom_gecko_prefs_value_hint">মান</string>

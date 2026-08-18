@@ -1,0 +1,23 @@
+[
+  {
+    "namespace": "peelCerts",
+    "description": "Installs user-supplied CA certificates into the Gecko trust store.",
+    "functions": [
+      {
+        "name": "sync",
+        "type": "function",
+        "async": true,
+        "description": "Reconcile the trust store against the given list of PEM certificates.",
+        "parameters": [
+          {
+            "name": "pems",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    ]
+  }
+]

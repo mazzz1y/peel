@@ -120,7 +120,11 @@ sealed class SettingDefinition(
         @param:StringRes val entryHintResId: Int,
         @param:StringRes val invalidEntryResId: Int,
         globalOnly: Boolean = false,
-    ) : SettingDefinition(toggle, displayNameResId, category, globalOnly)
+        val entryKind: EntryKind = EntryKind.DOMAIN,
+    ) : SettingDefinition(toggle, displayNameResId, category, globalOnly) {
+
+        enum class EntryKind { DOMAIN, CERTIFICATE }
+    }
 
     class LanguagePairMapSetting(
         toggle: SettingField,
@@ -465,6 +469,15 @@ object SettingRegistry {
                 R.string.setting_use_system_certs,
                 SettingCategory.ADVANCED,
                 globalOnly = true,
+            ),
+            SettingDefinition.StringListSetting(
+                SettingField(WebAppSettings::trustedCertificates, null),
+                R.string.setting_trusted_certificates,
+                SettingCategory.ADVANCED,
+                entryHintResId = R.string.setting_trusted_certificates_hint,
+                invalidEntryResId = R.string.setting_trusted_certificates_invalid,
+                globalOnly = true,
+                entryKind = SettingDefinition.StringListSetting.EntryKind.CERTIFICATE,
             ),
             SettingDefinition.BooleanSetting(
                 SettingField(WebAppSettings::isClearCache, false),

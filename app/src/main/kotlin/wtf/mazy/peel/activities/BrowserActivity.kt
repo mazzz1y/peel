@@ -687,6 +687,8 @@ class BrowserActivity : BaseSessionHost() {
             if (DataManager.instance.isTransientWebApp(webappUuid!!))
                 wtf.mazy.peel.browser.ProxyRouterBridge.pushRoutes(force = true)
             wtf.mazy.peel.browser.ProxyRouterBridge.awaitRoutesReady(sessionContextId)
+            wtf.mazy.peel.browser.CertStoreBridge.ensure(applicationContext)
+            wtf.mazy.peel.browser.CertStoreBridge.awaitCertsReady()
             attachPageBridge()
             if (restore != null) geckoSession?.restoreState(restore) else loadURL(url)
             setupThemeColorExtensionIfEnabled()

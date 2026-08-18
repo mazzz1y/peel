@@ -61,6 +61,9 @@ object GeckoRuntimeProvider {
     @Volatile
     private var proxyRouterExtension: WebExtension? = null
 
+    @Volatile
+    private var certStoreExtension: WebExtension? = null
+
     private val initStarted = AtomicBoolean(false)
 
     private val extensionStateListeners = CopyOnWriteArraySet<ExtensionStateListener>()
@@ -301,6 +304,19 @@ object GeckoRuntimeProvider {
         }
     }
 
+    suspend fun ensureCertStoreExtension(context: Context): WebExtension? {
+        certStoreExtension?.let { return it }
+        return try {
+            val ext = getRuntime(context).webExtensionController
+                .ensureBuiltIn(CERT_STORE_URI, CERT_STORE_ID)
+                .await()
+            certStoreExtension = ext
+            ext
+        } catch (_: Throwable) {
+            null
+        }
+    }
+
     private fun createRuntime(context: Context): GeckoRuntime {
         val defaults = DataManager.instance.defaultSettings.settings
         val lna = defaults.isBlockLocalNetwork == true
@@ -426,7 +442,8 @@ object GeckoRuntimeProvider {
         awaitNullable()
     }
 
-    private val BUILT_IN_IDS = setOf(THEME_COLOR_ID, PAGE_BRIDGE_ID, PROXY_ROUTER_ID)
+    private val BUILT_IN_IDS =
+        setOf(THEME_COLOR_ID, PAGE_BRIDGE_ID, PROXY_ROUTER_ID, CERT_STORE_ID)
 
     private const val GECKO_CONFIG_FILE = "geckoview-config.yaml"
     private const val TAG = "PeelGecko"
@@ -436,4 +453,6 @@ object GeckoRuntimeProvider {
     private const val PAGE_BRIDGE_ID = "peel@mazy.wtf"
     private const val PROXY_ROUTER_URI = "resource://android/assets/extensions/proxy-router/"
     private const val PROXY_ROUTER_ID = "proxy-router@peel.mazy.wtf"
+    private const val CERT_STORE_URI = "resource://android/assets/extensions/cert-store/"
+    private const val CERT_STORE_ID = "cert-store@peel.mazy.wtf"
 }

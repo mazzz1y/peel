@@ -119,6 +119,8 @@ class HeadlessFetcher(
 
         wtf.mazy.peel.browser.ProxyRouterBridge.ensure(appContext)
         wtf.mazy.peel.browser.ProxyRouterBridge.awaitRoutesReady(contextId)
+        wtf.mazy.peel.browser.CertStoreBridge.ensure(appContext)
+        wtf.mazy.peel.browser.CertStoreBridge.awaitCertsReady()
 
         val ext = GeckoRuntimeProvider.ensurePageBridgeExtension(appContext)
 

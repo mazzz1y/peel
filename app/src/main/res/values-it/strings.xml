@@ -269,6 +269,13 @@
     <string name="setting_disable_quic">Disabilita QUIC</string>
     <string name="setting_disable_ech">Disabilita ECH</string>
     <string name="setting_use_system_certs">Considera attendibili i certificati di sistema</string>
+    <string name="setting_trusted_certificates">Autorità di certificazione attendibili</string>
+    <string name="setting_trusted_certificates_hint">Incolla un certificato PEM</string>
+    <string name="setting_trusted_certificates_invalid">Certificato PEM non valido</string>
+    <string name="setting_trusted_certificates_not_ca">Il certificato non è un\'autorità di certificazione</string>
+    <string name="setting_trusted_certificates_import">Importa da file</string>
+    <string name="setting_trusted_certificates_read_failed">Impossibile leggere il file del certificato</string>
+    <string name="setting_trusted_certificates_unnamed">Certificato senza nome</string>
     <string name="setting_custom_gecko_prefs">Preferenze Gecko personalizzate</string>
     <string name="setting_custom_gecko_prefs_key_hint">Nome</string>
     <string name="setting_custom_gecko_prefs_value_hint">Valore</string>

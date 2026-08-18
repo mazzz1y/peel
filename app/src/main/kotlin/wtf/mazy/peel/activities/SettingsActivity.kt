@@ -4,11 +4,15 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import wtf.mazy.peel.R
 import wtf.mazy.peel.databinding.GlobalSettingsBinding
 import wtf.mazy.peel.model.ApplyTimingRegistry
 import wtf.mazy.peel.model.DataManager
@@ -19,12 +23,39 @@ import wtf.mazy.peel.model.WebAppSettings
 import wtf.mazy.peel.ui.settings.SettingViewFactory
 import wtf.mazy.peel.ui.settings.SettingsAdapter
 import wtf.mazy.peel.ui.settings.SettingsListItem
+import wtf.mazy.peel.util.NotificationUtils
 
 class SettingsActivity : ToolbarBaseActivity<GlobalSettingsBinding>() {
 
     private lateinit var editableSettings: WebApp
     private lateinit var originalSnapshot: WebAppSettings
     private lateinit var section: SettingSection
+
+    private var pendingCertificateConsumer: ((String) -> Unit)? = null
+
+    private val certificatePickerLauncher = registerForActivityResult(
+        ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        val consumer = pendingCertificateConsumer ?: return@registerForActivityResult
+        pendingCertificateConsumer = null
+        uri ?: return@registerForActivityResult
+        lifecycleScope.launch {
+            val text = withContext(Dispatchers.IO) {
+                runCatching {
+                    contentResolver.openInputStream(uri)?.use { it.readBytes().decodeToString() }
+                }.getOrNull()
+            }
+            if (text == null) {
+                NotificationUtils.showToast(
+                    this@SettingsActivity,
+                    getString(R.string.setting_trusted_certificates_read_failed),
+                    Toast.LENGTH_SHORT,
+                )
+                return@launch
+            }
+            consumer(text)
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -69,6 +100,10 @@ class SettingsActivity : ToolbarBaseActivity<GlobalSettingsBinding>() {
             layoutInflater,
             SettingViewFactory.ButtonStrategy.GlobalDefaults,
             lifecycleScope,
+            certificateImporter = { consumer ->
+                pendingCertificateConsumer = consumer
+                certificatePickerLauncher.launch(CERTIFICATE_MIME_TYPES)
+            },
         )
 
         val settingsGrouped =
@@ -91,6 +126,13 @@ class SettingsActivity : ToolbarBaseActivity<GlobalSettingsBinding>() {
 
     companion object {
         const val EXTRA_SECTION = "section"
+
+        private val CERTIFICATE_MIME_TYPES = arrayOf(
+            "application/x-pem-file",
+            "application/x-x509-ca-cert",
+            "text/plain",
+            "application/octet-stream",
+        )
 
         fun intentForSection(context: Context, section: SettingSection): Intent =
             Intent(context, SettingsActivity::class.java)
