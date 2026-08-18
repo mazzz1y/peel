@@ -18,6 +18,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.withTimeoutOrNull
+import kotlin.time.Duration.Companion.milliseconds
 import org.json.JSONArray
 import org.json.JSONObject
 import org.mozilla.geckoview.AllowOrDeny
@@ -97,7 +98,7 @@ class HeadlessFetcher(
 
         scope.launch {
             val result = try {
-                withTimeout(TIMEOUT_MS) { doFetch(loadUrl) }
+                withTimeout(TIMEOUT_MS.milliseconds) { doFetch(loadUrl) }
             } catch (_: TimeoutCancellationException) {
                 FetchResult.EMPTY
             } catch (_: Exception) {
@@ -376,7 +377,7 @@ class HeadlessFetcher(
         pending = PendingMessage(requestId, deferred)
         command.put("requestId", requestId)
         p.postMessage(command)
-        val msg = withTimeoutOrNull(COMMAND_TIMEOUT_MS) { deferred.await() }
+        val msg = withTimeoutOrNull(COMMAND_TIMEOUT_MS.milliseconds) { deferred.await() }
         pending = null
         return msg
     }

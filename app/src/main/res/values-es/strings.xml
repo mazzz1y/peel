@@ -46,7 +46,7 @@
     <string name="no_filemanager">Por favor, instala un gestor de archivos</string>
     <string name="allow_location_access">Permitir el acceso a la ubicación</string>
     <string name="allow_drm_content">Permitir contenidos DRM</string>
-    <string name="file_download">El archivo se está descargando...</string>
+    <string name="file_download">El archivo se está descargando…</string>
     <string name="download_in_progress">Descargando…</string>
     <string name="download_complete">Descarga completa — toca para abrir</string>
     <string name="download_channel_name">Descargas</string>

@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
+import kotlin.time.Duration.Companion.milliseconds
 import org.json.JSONArray
 import org.json.JSONObject
 import org.mozilla.geckoview.WebExtension
@@ -73,7 +74,7 @@ object CertStoreBridge {
      */
     suspend fun awaitCertsReady() {
         if (buildSnapshot().isEmpty()) return
-        if (withTimeoutOrNull(READY_TIMEOUT_MS) { certsReady.first { it } } == null) {
+        if (withTimeoutOrNull(READY_TIMEOUT_MS.milliseconds) { certsReady.first { it } } == null) {
             Log.w(TAG, "certificates not ready after ${READY_TIMEOUT_MS}ms, loading anyway")
         }
     }
