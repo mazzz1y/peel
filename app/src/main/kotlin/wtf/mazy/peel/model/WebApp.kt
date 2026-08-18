@@ -3,6 +3,7 @@ package wtf.mazy.peel.model
 import android.app.Activity
 import android.content.Context
 import wtf.mazy.peel.shortcut.ShortcutIconUtils
+import wtf.mazy.peel.util.prettyHostLabel
 import java.io.File
 import java.util.Objects
 import java.util.UUID
@@ -28,12 +29,7 @@ data class WebApp(var baseUrl: String, override val uuid: String = UUID.randomUU
     var settings = WebAppSettings()
 
     init {
-        title =
-            baseUrl
-                .takeIf { it.isNotEmpty() }
-                ?.replace("http://", "")
-                ?.replace("https://", "")
-                ?.replace("www.", "") ?: baseUrl
+        title = baseUrl.takeIf { it.isNotEmpty() }?.let { prettyHostLabel(it) } ?: baseUrl
     }
 
     constructor(baseUrl: String, uuid: String, order: Int) : this(baseUrl, uuid) {

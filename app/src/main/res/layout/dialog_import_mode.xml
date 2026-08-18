@@ -3,22 +3,22 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:paddingStart="24dp"
-    android:paddingTop="16dp"
-    android:paddingEnd="24dp"
-    android:paddingBottom="8dp">
+    android:paddingStart="@dimen/dialog_content_horizontal_padding"
+    android:paddingTop="@dimen/dialog_content_top_padding"
+    android:paddingEnd="@dimen/dialog_content_horizontal_padding">
 
     <TextView
         android:id="@+id/import_mode_message"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textAppearance="?attr/textAppearanceBodyMedium" />
+        android:textAppearance="?attr/textAppearanceBodyMedium"
+        android:textColor="?attr/colorOnSurfaceVariant" />
 
     <com.google.android.material.materialswitch.MaterialSwitch
         android:id="@+id/switchMergeMode"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="@dimen/dialog_content_gap"
         android:checked="false"
         android:text="@string/import_mode_merge_switch" />
 

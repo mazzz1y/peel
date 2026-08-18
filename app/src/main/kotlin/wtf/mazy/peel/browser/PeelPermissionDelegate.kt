@@ -7,6 +7,7 @@ import org.mozilla.geckoview.GeckoSession
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.WebAppSettings
 import wtf.mazy.peel.util.AppPrefs
+import wtf.mazy.peel.util.prettyHostLabel
 import wtf.mazy.peel.util.withBoldSpan
 
 class PeelPermissionDelegate(private val host: SessionHost) : GeckoSession.PermissionDelegate {
@@ -22,7 +23,7 @@ class PeelPermissionDelegate(private val host: SessionHost) : GeckoSession.Permi
     }
 
     private val trimmedName: String
-        get() = host.webAppName.take(MAX_NAME_LENGTH)
+        get() = prettyHostLabel(host.webAppName).take(MAX_NAME_LENGTH)
 
     override fun onContentPermissionRequest(
         session: GeckoSession,

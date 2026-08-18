@@ -31,6 +31,12 @@ fun prettyBaseUrl(url: String): String {
     return clean.trimEnd('/')
 }
 
+fun prettyHostLabel(url: String): String =
+    prettyBaseUrl(url)
+        .removePrefix("https://")
+        .removePrefix("http://")
+        .removePrefix("www.")
+
 
 fun shortLabel(title: String): String =
     leadingEmojis(title, 3) ?: title

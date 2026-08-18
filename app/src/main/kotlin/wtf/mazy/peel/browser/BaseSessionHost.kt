@@ -54,6 +54,7 @@ import wtf.mazy.peel.ui.common.LoadingDialogController
 import wtf.mazy.peel.ui.controls.BrowserControls
 import wtf.mazy.peel.ui.dialog.DateTimePickerRequest
 import wtf.mazy.peel.ui.dialog.DateTimePickerSession
+import wtf.mazy.peel.ui.dialog.DialogContent
 import wtf.mazy.peel.ui.dialog.showDateTimePickerDialog
 import wtf.mazy.peel.ui.controls.ControlAction
 import wtf.mazy.peel.ui.controls.PanelControlsView
@@ -168,15 +169,16 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost, TranslationHo
         allowRemember: Boolean,
         onResult: (result: PermissionResult, remember: Boolean) -> Unit,
     ) {
-        val rememberView = if (allowRemember) {
-            layoutInflater.inflate(R.layout.dialog_permission_remember, null)
+        val content = DialogContent.of(this).message(message)
+        val remember = if (allowRemember) {
+            MaterialCheckBox(this).apply {
+                setText(R.string.permission_prompt_remember)
+            }.also { content.add(it) }
         } else null
-        val remember = rememberView?.findViewById<MaterialCheckBox>(R.id.checkRememberPermission)
 
         MaterialAlertDialogBuilder(this)
-            .setMessage(message)
+            .setView(content.view)
             .setCancelable(false)
-            .apply { rememberView?.let { setView(it) } }
             .setPositiveButton(R.string.permission_prompt_allow) { dialog, _ ->
                 dialog.dismiss()
                 onResult(PermissionResult.ALLOW, remember?.isChecked == true)

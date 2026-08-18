@@ -39,14 +39,10 @@ fun Activity.showInputDialogRaw(
     config: InputDialogConfig,
     onPositive: (TextInputEditText, View) -> Unit,
 ) {
-    val container = LinearLayout(this).apply {
-        orientation = LinearLayout.VERTICAL
-        val ta = context.obtainStyledAttributes(intArrayOf(android.R.attr.dialogPreferredPadding))
-        val padding = ta.getDimensionPixelSize(0, 0)
-        ta.recycle()
-        setPadding(padding, padding, padding, padding)
-    }
+    val content = DialogContent.of(this)
+    config.message?.let { content.message(it) }
 
+    val container = content.column
     val inputLayout = TextInputLayout(container.context).apply {
         hint = getString(config.hintRes)
         layoutParams = LinearLayout.LayoutParams(
@@ -66,15 +62,14 @@ fun Activity.showInputDialogRaw(
         }
     }
     inputLayout.addView(input)
-    container.addView(inputLayout)
+    content.add(inputLayout)
     config.extraContent?.invoke(container)
 
     val builder = MaterialAlertDialogBuilder(this)
-        .setView(container)
+        .setView(content.view)
         .setPositiveButton(config.positiveRes) { _, _ -> onPositive(input, container) }
         .setNegativeButton(android.R.string.cancel) { _, _ -> config.onCancel?.invoke() }
     if (config.titleRes != 0) builder.setTitle(config.titleRes)
-    if (config.message != null) builder.setMessage(config.message)
     val dialog = builder.create()
 
     if (config.onCancel != null) {
