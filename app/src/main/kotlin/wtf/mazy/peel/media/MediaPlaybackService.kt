@@ -396,9 +396,7 @@ open class MediaPlaybackService : MediaSessionService() {
             session: MediaSession,
             controller: MediaSession.ControllerInfo,
         ): MediaSession.ConnectionResult =
-            MediaSession.ConnectionResult.AcceptedResultBuilder(session)
-                .setAvailableSessionCommands(MediaSession.ConnectionResult.DEFAULT_SESSION_COMMANDS)
-                .build()
+            MediaSession.ConnectionResult.AcceptedResultBuilder(session, controller).build()
     }
 
     companion object {

@@ -819,6 +819,7 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost, TranslationHo
         val session = geckoSession ?: return
         findInPage = FindInPageView(
             parent = findViewById(R.id.browserContent),
+            window = window,
             session = session,
             onClose = {
                 findInPage = null

@@ -2,9 +2,10 @@ package wtf.mazy.peel.ui.webapplist
 
 import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.InputMethodManager
 import android.widget.TextView
 import androidx.appcompat.widget.SearchView
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import wtf.mazy.peel.R
@@ -57,10 +58,9 @@ class SearchModeController(
         host.updateBackPressEnabled()
 
         val activity = host.hostActivity
-        activity.currentFocus?.let { focused ->
-            val imm = activity.getSystemService(InputMethodManager::class.java)
-            imm?.hideSoftInputFromWindow(focused.windowToken, 0)
-        }
+        val focused = activity.currentFocus ?: activity.window.decorView
+        WindowCompat.getInsetsController(activity.window, focused)
+            .hide(WindowInsetsCompat.Type.ime())
 
         host.onSearchModeExited()
 
@@ -130,8 +130,9 @@ class SearchModeController(
             )
             searchView.post {
                 searchView.requestFocusFromTouch()
-                val imm = activity.getSystemService(InputMethodManager::class.java)
-                imm?.showSoftInput(searchView.findFocus(), InputMethodManager.SHOW_IMPLICIT)
+                val focused = searchView.findFocus() ?: searchView
+                WindowCompat.getInsetsController(host.hostActivity.window, focused)
+                    .show(WindowInsetsCompat.Type.ime())
             }
         }
     }

@@ -87,7 +87,9 @@ object TranslationLanguages {
             } catch (_: Throwable) {
                 null
             }
-            if (!support?.fromLanguages.isNullOrEmpty() && !support?.toLanguages.isNullOrEmpty()) {
+            if (support != null && !support.fromLanguages.isNullOrEmpty() &&
+                !support.toLanguages.isNullOrEmpty()
+            ) {
                 cachedSupport = support
                 return support
             }

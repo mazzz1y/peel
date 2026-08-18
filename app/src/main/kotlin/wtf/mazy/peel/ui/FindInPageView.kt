@@ -1,16 +1,17 @@
 package wtf.mazy.peel.ui
 
-import android.content.Context
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
+import android.view.Window
 import android.view.inputmethod.EditorInfo
-import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.FrameLayout
 import android.widget.ImageButton
 import android.widget.TextView
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.doOnLayout
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import org.mozilla.geckoview.GeckoSession
@@ -18,6 +19,7 @@ import wtf.mazy.peel.R
 
 class FindInPageView(
     private val parent: FrameLayout,
+    private val window: Window,
     private val session: GeckoSession,
     private val onClose: () -> Unit,
 ) {
@@ -26,6 +28,7 @@ class FindInPageView(
     private val root: View =
         LayoutInflater.from(parent.context).inflate(R.layout.view_find_in_page, parent, false)
     private val query: EditText = root.findViewById(R.id.findInPageQuery)
+    private val insetsController = WindowCompat.getInsetsController(window, query)
     private val counter: TextView = root.findViewById(R.id.findInPageCounter)
     private val prevButton: ImageButton = root.findViewById(R.id.findInPagePrev)
     private val nextButton: ImageButton = root.findViewById(R.id.findInPageNext)
@@ -122,15 +125,11 @@ class FindInPageView(
     }
 
     private fun showKeyboard() {
-        val imm =
-            parent.context.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
-        imm?.showSoftInput(query, InputMethodManager.SHOW_IMPLICIT)
+        insetsController.show(WindowInsetsCompat.Type.ime())
     }
 
     private fun hideKeyboard() {
-        val imm =
-            parent.context.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
-        imm?.hideSoftInputFromWindow(query.windowToken, 0)
+        insetsController.hide(WindowInsetsCompat.Type.ime())
     }
 
     private companion object {
