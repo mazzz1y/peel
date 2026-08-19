@@ -279,10 +279,8 @@
     <string name="setting_custom_gecko_prefs_key_hint">Nombre</string>
     <string name="setting_custom_gecko_prefs_value_hint">Valor</string>
     <string name="setting_same_app_domains">Dominios adicionales de la app</string>
-    <string name="setting_same_app_domains_hint">example.com o /regex/</string>
-    <string name="setting_same_app_domains_invalid_regex">Expresión regular no válida</string>
     <string name="setting_blocked_domains">Dominios bloqueados</string>
-    <string name="setting_blocked_domains_hint">example.com o /regex/</string>
+    <string name="setting_domain_entry_invalid">Expresión regular no válida</string>
     <string name="setting_configure">Configurar</string>
     <string name="find_in_page_hint">Buscar en la página</string>
     <string name="find_in_page_counter">%1$d / %2$d</string>

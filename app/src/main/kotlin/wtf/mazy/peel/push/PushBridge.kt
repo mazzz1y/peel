@@ -8,19 +8,18 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 import org.mozilla.geckoview.GeckoResult
 import org.mozilla.geckoview.GeckoRuntime
 import org.mozilla.geckoview.GeckoSession
 import org.mozilla.geckoview.GeckoSession.PermissionDelegate.ContentPermission
-import org.mozilla.geckoview.StorageController
 import org.mozilla.geckoview.WebPushDelegate
 import org.mozilla.geckoview.WebPushSubscription
 import org.unifiedpush.android.connector.UnifiedPush
 import org.unifiedpush.android.connector.data.PushEndpoint
 import org.unifiedpush.android.connector.keys.DefaultKeyManager
+import wtf.mazy.peel.gecko.ContentPermissionStore
 import wtf.mazy.peel.gecko.GeckoRuntimeProvider
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.IconOwner
@@ -29,8 +28,6 @@ import wtf.mazy.peel.util.AppPrefs
 import java.math.BigInteger
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
 
 object PushBridge {
 
@@ -141,13 +138,17 @@ object PushBridge {
         subscription?.let { removeRegistration(context, it) }
         val permissions = when {
             permission != null -> listOf(permission)
-            subscription != null -> notificationPermissions(context) {
-                it.getPermissions(scopeOrigin(subscription.scope), subscription.contextId, false)
-            }
+            subscription != null -> notificationPermissions(
+                ContentPermissionStore.forOrigin(
+                    context,
+                    scopeOrigin(subscription.scope),
+                    subscription.contextId,
+                )
+            )
 
             else -> return
         }
-        resetPermissions(context, permissions)
+        ContentPermissionStore.neutralize(context, permissions)
     }
 
     fun onContextCleared(context: Context, contextId: String) {
@@ -164,8 +165,8 @@ object PushBridge {
     }
 
     suspend fun getNotificationPermissions(context: Context): List<ContentPermission> =
-        notificationPermissions(context) { it.getAllPermissions() }
-            .filter { !it.privateMode && it.value != ContentPermission.VALUE_PROMPT }
+        notificationPermissions(ContentPermissionStore.all(context))
+            .filter { !it.privateMode && it.value != ContentPermissionStore.UNDECIDED }
 
     private suspend fun clearContext(
         context: Context,
@@ -198,30 +199,16 @@ object PushBridge {
         context: Context,
         matches: (ContentPermission) -> Boolean,
     ) {
-        val permissions = notificationPermissions(context) { it.getAllPermissions() }
-            .filter(matches)
-        if (permissions.isNotEmpty()) resetPermissions(context, permissions)
+        ContentPermissionStore.neutralize(
+            context,
+            notificationPermissions(ContentPermissionStore.all(context)).filter(matches),
+        )
     }
 
-    private suspend fun notificationPermissions(
-        context: Context,
-        query: (StorageController) -> GeckoResult<List<ContentPermission>>,
-    ): List<ContentPermission> = withContext(Dispatchers.Main) {
-        val storage = GeckoRuntimeProvider.getRuntime(context).storageController
-        runCatching { query(storage).awaitList() }
-            .getOrNull()
-            .orEmpty()
-            .filter {
-                it.permission == GeckoSession.PermissionDelegate.PERMISSION_DESKTOP_NOTIFICATION
-            }
-    }
-
-    private suspend fun resetPermissions(
-        context: Context,
+    private fun notificationPermissions(
         permissions: List<ContentPermission>,
-    ) = withContext(Dispatchers.Main) {
-        val storage = GeckoRuntimeProvider.getRuntime(context).storageController
-        permissions.forEach { storage.setPermission(it, ContentPermission.VALUE_PROMPT) }
+    ): List<ContentPermission> = permissions.filter {
+        it.permission == GeckoSession.PermissionDelegate.PERMISSION_DESKTOP_NOTIFICATION
     }
 
     suspend fun reconcile(context: Context) {
@@ -391,14 +378,6 @@ object PushBridge {
 
     private fun decodeKey(encoded: String): ByteArray =
         Base64.decode(encoded, Base64.URL_SAFE or Base64.NO_PADDING or Base64.NO_WRAP)
-
-    private suspend fun <T> GeckoResult<T>.awaitList(): T? =
-        suspendCancellableCoroutine { cont ->
-            then(
-                { value -> cont.resume(value); GeckoResult() },
-                { throwable -> cont.resumeWithException(throwable); GeckoResult<Void>() },
-            )
-        }
 
     private const val ATTRS_SEPARATOR = '^'
     private const val CONTEXT_ID_ATTR = "geckoViewUserContextId="

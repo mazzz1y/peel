@@ -497,15 +497,15 @@ object SettingRegistry {
                 SettingField(WebAppSettings::sameAppDomains, null),
                 R.string.setting_same_app_domains,
                 SettingCategory.BEHAVIOR,
-                entryHintResId = R.string.setting_same_app_domains_hint,
-                invalidEntryResId = R.string.setting_same_app_domains_invalid_regex,
+                entryHintResId = R.string.setting_domain_entry_hint,
+                invalidEntryResId = R.string.setting_domain_entry_invalid,
             ),
             SettingDefinition.StringListSetting(
                 SettingField(WebAppSettings::blockedDomains, null),
                 R.string.setting_blocked_domains,
                 SettingCategory.BEHAVIOR,
-                entryHintResId = R.string.setting_blocked_domains_hint,
-                invalidEntryResId = R.string.setting_same_app_domains_invalid_regex,
+                entryHintResId = R.string.setting_domain_entry_hint,
+                invalidEntryResId = R.string.setting_domain_entry_invalid,
             ),
         )
 

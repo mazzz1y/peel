@@ -43,6 +43,7 @@ import wtf.mazy.peel.browser.PeelTranslationDelegate
 import wtf.mazy.peel.browser.SessionContextRegistry
 import wtf.mazy.peel.browser.StartupAuthReturnTracker
 import wtf.mazy.peel.browser.TranslationLanguages
+import wtf.mazy.peel.gecko.ContentPermissionStore
 import wtf.mazy.peel.gecko.ExtensionStateEvent
 import wtf.mazy.peel.gecko.ExtensionStateListener
 import wtf.mazy.peel.gecko.GeckoRuntimeProvider
@@ -394,6 +395,7 @@ class BrowserActivity : BaseSessionHost() {
         geckoView = null
         SessionContextRegistry.unregister(this)
         if (isFinishing) {
+            ContentPermissionStore.requestSweep(applicationContext)
             resolvedWebapp?.resolveEphemeralContextId()?.let {
                 SandboxManager.enqueueSandboxClear(applicationContext, it)
             }
@@ -637,6 +639,7 @@ class BrowserActivity : BaseSessionHost() {
         navigationDelegate.cancelPendingPrompts()
         navigationDelegate.browsingExternally = false
         permissionDelegate.clearSessionPermissions()
+        ContentPermissionStore.requestSweep(this)
         promptDelegate.clearAutoAuth()
         (geckoView as? NestedGeckoView)?.resetScrollPosition()
         autoReloadController.stop()

@@ -5,6 +5,7 @@ import android.os.Build
 import org.mozilla.geckoview.GeckoResult
 import org.mozilla.geckoview.GeckoSession
 import wtf.mazy.peel.R
+import wtf.mazy.peel.gecko.ContentPermissionStore
 import wtf.mazy.peel.model.WebAppSettings
 import wtf.mazy.peel.util.AppPrefs
 import wtf.mazy.peel.util.prettyHostLabel
@@ -30,59 +31,44 @@ class PeelPermissionDelegate(private val host: SessionHost) : GeckoSession.Permi
         perm: GeckoSession.PermissionDelegate.ContentPermission,
     ): GeckoResult<Int> {
         val result = GeckoResult<Int>()
+        val type = perm.permission
+        val reply: (Boolean) -> Unit = { granted ->
+            result.complete(ContentPermissionStore.valueFor(type, granted))
+        }
 
-        when (perm.permission) {
-            GeckoSession.PermissionDelegate.PERMISSION_GEOLOCATION -> {
-                handleTriState(
-                    host.effectiveSettings.isAllowLocationAccess,
-                    listOf(
-                        Manifest.permission.ACCESS_COARSE_LOCATION,
-                        Manifest.permission.ACCESS_FINE_LOCATION
-                    ),
-                    PERM_KEY_LOCATION,
-                    R.string.permission_prompt_location,
-                    perm.uri,
-                ) { granted ->
-                    result.complete(
-                        if (granted) GeckoSession.PermissionDelegate.ContentPermission.VALUE_ALLOW
-                        else GeckoSession.PermissionDelegate.ContentPermission.VALUE_DENY
-                    )
-                }
-            }
+        when (type) {
+            GeckoSession.PermissionDelegate.PERMISSION_GEOLOCATION -> handleTriState(
+                host.effectiveSettings.isAllowLocationAccess,
+                listOf(
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                ),
+                PERM_KEY_LOCATION,
+                R.string.permission_prompt_location,
+                perm.uri,
+                allowRemember = true,
+                onResult = reply,
+            )
 
-            GeckoSession.PermissionDelegate.PERMISSION_MEDIA_KEY_SYSTEM_ACCESS -> {
-                if (host.effectiveSettings.isDrmAllowed == true) {
-                    result.complete(GeckoSession.PermissionDelegate.ContentPermission.VALUE_ALLOW)
-                } else {
-                    result.complete(GeckoSession.PermissionDelegate.ContentPermission.VALUE_DENY)
-                }
-            }
+            GeckoSession.PermissionDelegate.PERMISSION_MEDIA_KEY_SYSTEM_ACCESS ->
+                reply(host.effectiveSettings.isDrmAllowed == true)
 
             GeckoSession.PermissionDelegate.PERMISSION_DESKTOP_NOTIFICATION -> {
-                if (!AppPrefs.isPushEnabled(host.hostWindow.context)) {
-                    result.complete(
-                        GeckoSession.PermissionDelegate.ContentPermission.VALUE_PROMPT
-                    )
-                } else {
+                if (AppPrefs.isPushEnabled(host.hostWindow.context)) {
                     handleTriState(
                         WebAppSettings.PERMISSION_ASK,
                         notificationOsPermissions(),
                         PERM_KEY_NOTIFICATION,
                         R.string.permission_prompt_notifications,
                         perm.uri,
-                    ) { granted ->
-                        result.complete(
-                            if (granted) {
-                                GeckoSession.PermissionDelegate.ContentPermission.VALUE_ALLOW
-                            } else {
-                                GeckoSession.PermissionDelegate.ContentPermission.VALUE_DENY
-                            }
-                        )
-                    }
+                        onResult = reply,
+                    )
+                } else {
+                    result.complete(ContentPermissionStore.UNDECIDED)
                 }
             }
 
-            else -> result.complete(GeckoSession.PermissionDelegate.ContentPermission.VALUE_DENY)
+            else -> reply(false)
         }
 
         return result
