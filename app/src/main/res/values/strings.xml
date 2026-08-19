@@ -305,10 +305,8 @@
     <string name="setting_disable_ech">Disable ECH</string>
     <string name="setting_use_system_certs">Trust system certificates</string>
     <string name="setting_trusted_certificates">Trusted certificate authorities</string>
-    <string name="setting_trusted_certificates_hint">Paste a PEM certificate</string>
     <string name="setting_trusted_certificates_invalid">Not a valid PEM certificate</string>
     <string name="setting_trusted_certificates_not_ca">Certificate is not a certificate authority</string>
-    <string name="setting_trusted_certificates_import">Import from file</string>
     <string name="setting_trusted_certificates_read_failed">Could not read certificate file</string>
     <string name="setting_trusted_certificates_unnamed">Unnamed certificate</string>
     <string name="setting_custom_gecko_prefs">Custom Gecko preferences</string>

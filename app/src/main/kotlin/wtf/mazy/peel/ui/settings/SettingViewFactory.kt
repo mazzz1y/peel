@@ -700,13 +700,21 @@ class SettingViewFactory(
 
         renderEntries()
 
+        fun addEntry(entry: String) {
+            val values = getList(settings, setting.key).orEmpty()
+            if (entry !in values) {
+                setList(settings, setting.key, values + entry)
+                renderEntries()
+            }
+        }
+
         btnAdd.setOnClickListener {
-            showStringListEntryDialog(view.context, setting, "") { entry ->
-                val values = getList(settings, setting.key).orEmpty()
-                if (entry !in values) {
-                    setList(settings, setting.key, values + entry)
-                    renderEntries()
-                }
+            when (setting.entryKind) {
+                SettingDefinition.StringListSetting.EntryKind.DOMAIN ->
+                    showDomainEntryDialog(view.context, setting, "", ::addEntry)
+
+                SettingDefinition.StringListSetting.EntryKind.CERTIFICATE ->
+                    certificateImporter?.invoke(::addEntry)
             }
         }
     }
@@ -724,15 +732,19 @@ class SettingViewFactory(
         val btnRemoveEntry = entryView.findViewById<MaterialButton>(R.id.btnRemoveEntry)
 
         btnValue.text = entryLabel(context, setting, value)
-        btnValue.setOnClickListener {
-            showStringListEntryDialog(context, setting, value) { entry ->
-                val values = getList(settings, setting.key).orEmpty()
-                if (entry == value) return@showStringListEntryDialog
-                if (entry !in values) {
+        when (setting.entryKind) {
+            SettingDefinition.StringListSetting.EntryKind.DOMAIN -> btnValue.setOnClickListener {
+                showDomainEntryDialog(context, setting, value) { entry ->
+                    val values = getList(settings, setting.key).orEmpty()
+                    if (entry == value || entry in values) return@showDomainEntryDialog
                     setList(settings, setting.key, values.map { if (it == value) entry else it })
                     onChanged()
                 }
             }
+
+            // A certificate is imported, never typed, so there is nothing to edit.
+            SettingDefinition.StringListSetting.EntryKind.CERTIFICATE ->
+                btnValue.isClickable = false
         }
         btnRemoveEntry.setOnClickListener {
             setList(settings, setting.key, getList(settings, setting.key).orEmpty() - value)
@@ -753,64 +765,28 @@ class SettingViewFactory(
                 ?: context.getString(R.string.setting_trusted_certificates_unnamed)
     }
 
-    private fun showStringListEntryDialog(
+    private fun showDomainEntryDialog(
         context: android.content.Context,
         setting: SettingDefinition.StringListSetting,
         prefill: String,
         onCommit: (String) -> Unit,
     ) {
-        when (setting.entryKind) {
-            SettingDefinition.StringListSetting.EntryKind.DOMAIN -> {
-                SettingDialogs.showValidatedString(
-                    context = context,
-                    titleRes = setting.displayNameResId,
-                    hintRes = setting.entryHintResId,
-                    value = prefill,
-                    inputType = android.text.InputType.TYPE_CLASS_TEXT or
-                            android.text.InputType.TYPE_TEXT_VARIATION_URI,
-                    validate = { entry ->
-                        when {
-                            entry.isEmpty() -> setting.entryHintResId
-                            !SameAppDomainMatcher.isValid(entry) -> setting.invalidEntryResId
-                            else -> null
-                        }
-                    },
-                    onCommit = onCommit,
-                )
-            }
-
-            SettingDefinition.StringListSetting.EntryKind.CERTIFICATE -> {
-                SettingDialogs.showValidatedString(
-                    context = context,
-                    titleRes = setting.displayNameResId,
-                    hintRes = setting.entryHintResId,
-                    value = prefill,
-                    inputType = android.text.InputType.TYPE_CLASS_TEXT or
-                            android.text.InputType.TYPE_TEXT_FLAG_MULTI_LINE or
-                            android.text.InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS,
-                    maxLines = CERTIFICATE_DIALOG_MAX_LINES,
-                    validate = { entry ->
-                        when (CertificatePem.validate(entry)) {
-                            CertificatePem.Result.Valid -> null
-                            CertificatePem.Result.NotCa ->
-                                R.string.setting_trusted_certificates_not_ca
-
-                            CertificatePem.Result.Unparsable ->
-                                if (entry.isEmpty()) setting.entryHintResId
-                                else setting.invalidEntryResId
-                        }
-                    },
-                    // Store canonical PEM so entries that differ only in
-                    // whitespace dedupe against each other.
-                    onCommit = { entry -> onCommit(CertificatePem.normalize(entry) ?: entry) },
-                    neutral = certificateImporter?.let { pick ->
-                        SettingDialogs.Neutral(
-                            R.string.setting_trusted_certificates_import,
-                        ) { setText -> pick(setText) }
-                    },
-                )
-            }
-        }
+        SettingDialogs.showValidatedString(
+            context = context,
+            titleRes = setting.displayNameResId,
+            hintRes = R.string.setting_domain_entry_hint,
+            value = prefill,
+            inputType = android.text.InputType.TYPE_CLASS_TEXT or
+                    android.text.InputType.TYPE_TEXT_VARIATION_URI,
+            validate = { entry ->
+                when {
+                    entry.isEmpty() -> R.string.setting_domain_entry_hint
+                    !SameAppDomainMatcher.isValid(entry) -> R.string.setting_domain_entry_invalid
+                    else -> null
+                }
+            },
+            onCommit = onCommit,
+        )
     }
 
     private fun setupStringMap(
@@ -956,9 +932,5 @@ class SettingViewFactory(
 
     private fun resetSettingToDefault(setting: SettingDefinition, settings: WebAppSettings) {
         setting.allFields.forEach { field -> settings.setValue(field.key, field.defaultValue) }
-    }
-
-    private companion object {
-        const val CERTIFICATE_DIALOG_MAX_LINES = 12
     }
 }

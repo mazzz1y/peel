@@ -3,7 +3,6 @@ package wtf.mazy.peel.ui.settings
 import android.app.AlertDialog
 import android.content.Context
 import android.text.InputType
-import android.view.Gravity
 import android.widget.LinearLayout
 import androidx.core.widget.doAfterTextChanged
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -14,11 +13,6 @@ import wtf.mazy.peel.R
 object SettingDialogs {
 
     data class Credentials(val username: String, val password: String)
-
-    /** Extra dialog action that fills the field instead of dismissing. */
-    class Neutral(val labelRes: Int, val action: ((String) -> Unit) -> Unit)
-
-    private const val MULTILINE_MIN_LINES = 5
 
     private fun contentPadding(context: Context): Int =
         context.resources.getDimensionPixelSize(R.dimen.dialog_content_horizontal_padding)
@@ -164,25 +158,18 @@ object SettingDialogs {
         inputType: Int,
         validate: (String) -> Int?,
         onCommit: (String) -> Unit,
-        maxLines: Int = 1,
-        neutral: Neutral? = null,
     ) {
         val wrapper = buildWrapper(context)
         val layout = outlinedField(context, hintRes)
-        val edit = editIn(layout, value, inputType, maxLines = maxLines)
-        if (maxLines > 1) {
-            edit.minLines = MULTILINE_MIN_LINES
-            edit.gravity = Gravity.TOP or Gravity.START
-        }
+        val edit = editIn(layout, value, inputType, maxLines = 1)
         wrapper.addView(layout)
 
-        val builder = MaterialAlertDialogBuilder(context)
+        val dialog = MaterialAlertDialogBuilder(context)
             .setTitle(titleRes)
             .setView(wrapper)
             .setPositiveButton(android.R.string.ok, null)
             .setNegativeButton(android.R.string.cancel, null)
-        if (neutral != null) builder.setNeutralButton(neutral.labelRes, null)
-        val dialog = builder.create()
+            .create()
 
         edit.doAfterTextChanged { layout.error = null }
         dialog.setOnShowListener {
@@ -196,17 +183,9 @@ object SettingDialogs {
                     dialog.dismiss()
                 }
             }
-            if (neutral != null) {
-                dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener {
-                    neutral.action { text ->
-                        edit.setText(text)
-                        edit.setSelection(text.length)
-                    }
-                }
-            }
         }
         dialog.show()
-        if (maxLines <= 1) edit.requestFocus()
+        edit.requestFocus()
     }
 
     fun showKeyValue(

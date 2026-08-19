@@ -117,8 +117,6 @@ sealed class SettingDefinition(
         toggle: SettingField,
         @StringRes displayNameResId: Int,
         category: SettingCategory,
-        @param:StringRes val entryHintResId: Int,
-        @param:StringRes val invalidEntryResId: Int,
         globalOnly: Boolean = false,
         val entryKind: EntryKind = EntryKind.DOMAIN,
     ) : SettingDefinition(toggle, displayNameResId, category, globalOnly) {
@@ -465,6 +463,12 @@ object SettingRegistry {
                 globalOnly = true,
             ),
             SettingDefinition.BooleanSetting(
+                SettingField(WebAppSettings::isClearCache, false),
+                R.string.clear_cache_after_usage,
+                SettingCategory.ADVANCED,
+                globalOnly = true,
+            ),
+            SettingDefinition.BooleanSetting(
                 SettingField(WebAppSettings::isUseSystemCerts, false),
                 R.string.setting_use_system_certs,
                 SettingCategory.ADVANCED,
@@ -474,16 +478,8 @@ object SettingRegistry {
                 SettingField(WebAppSettings::trustedCertificates, null),
                 R.string.setting_trusted_certificates,
                 SettingCategory.ADVANCED,
-                entryHintResId = R.string.setting_trusted_certificates_hint,
-                invalidEntryResId = R.string.setting_trusted_certificates_invalid,
                 globalOnly = true,
                 entryKind = SettingDefinition.StringListSetting.EntryKind.CERTIFICATE,
-            ),
-            SettingDefinition.BooleanSetting(
-                SettingField(WebAppSettings::isClearCache, false),
-                R.string.clear_cache_after_usage,
-                SettingCategory.ADVANCED,
-                globalOnly = true,
             ),
             SettingDefinition.StringMapSetting(
                 SettingField(WebAppSettings::customGeckoPrefs, null),
@@ -497,15 +493,11 @@ object SettingRegistry {
                 SettingField(WebAppSettings::sameAppDomains, null),
                 R.string.setting_same_app_domains,
                 SettingCategory.BEHAVIOR,
-                entryHintResId = R.string.setting_domain_entry_hint,
-                invalidEntryResId = R.string.setting_domain_entry_invalid,
             ),
             SettingDefinition.StringListSetting(
                 SettingField(WebAppSettings::blockedDomains, null),
                 R.string.setting_blocked_domains,
                 SettingCategory.BEHAVIOR,
-                entryHintResId = R.string.setting_domain_entry_hint,
-                invalidEntryResId = R.string.setting_domain_entry_invalid,
             ),
         )
 

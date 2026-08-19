@@ -23,6 +23,7 @@ import wtf.mazy.peel.model.WebAppSettings
 import wtf.mazy.peel.ui.settings.SettingViewFactory
 import wtf.mazy.peel.ui.settings.SettingsAdapter
 import wtf.mazy.peel.ui.settings.SettingsListItem
+import wtf.mazy.peel.util.CertificatePem
 import wtf.mazy.peel.util.NotificationUtils
 
 class SettingsActivity : ToolbarBaseActivity<GlobalSettingsBinding>() {
@@ -45,15 +46,25 @@ class SettingsActivity : ToolbarBaseActivity<GlobalSettingsBinding>() {
                     contentResolver.openInputStream(uri)?.use { it.readBytes().decodeToString() }
                 }.getOrNull()
             }
-            if (text == null) {
+            // Store canonical PEM so files differing only in armour or
+            // whitespace dedupe against each other.
+            val pem = text?.let { CertificatePem.normalize(it) }
+            if (pem == null) {
+                val reason = when {
+                    text == null -> R.string.setting_trusted_certificates_read_failed
+                    CertificatePem.validate(text) == CertificatePem.Result.NotCa ->
+                        R.string.setting_trusted_certificates_not_ca
+
+                    else -> R.string.setting_trusted_certificates_invalid
+                }
                 NotificationUtils.showToast(
                     this@SettingsActivity,
-                    getString(R.string.setting_trusted_certificates_read_failed),
+                    getString(reason),
                     Toast.LENGTH_SHORT,
                 )
                 return@launch
             }
-            consumer(text)
+            consumer(pem)
         }
     }
 

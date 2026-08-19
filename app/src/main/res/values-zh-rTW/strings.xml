@@ -267,10 +267,8 @@
     <string name="setting_disable_ech">停用 ECH</string>
     <string name="setting_use_system_certs">信任系統憑證</string>
     <string name="setting_trusted_certificates">受信任的憑證授權單位</string>
-    <string name="setting_trusted_certificates_hint">貼上 PEM 憑證</string>
     <string name="setting_trusted_certificates_invalid">不是有效的 PEM 憑證</string>
     <string name="setting_trusted_certificates_not_ca">該憑證不是憑證授權單位</string>
-    <string name="setting_trusted_certificates_import">從檔案匯入</string>
     <string name="setting_trusted_certificates_read_failed">無法讀取憑證檔案</string>
     <string name="setting_trusted_certificates_unnamed">未命名憑證</string>
     <string name="setting_custom_gecko_prefs">自訂 Gecko 偏好設定</string>

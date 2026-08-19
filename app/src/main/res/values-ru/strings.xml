@@ -276,10 +276,8 @@
     <string name="setting_disable_ech">Отключить ECH</string>
     <string name="setting_use_system_certs">Доверять системным сертификатам</string>
     <string name="setting_trusted_certificates">Доверенные центры сертификации</string>
-    <string name="setting_trusted_certificates_hint">Вставьте сертификат в формате PEM</string>
     <string name="setting_trusted_certificates_invalid">Некорректный сертификат PEM</string>
     <string name="setting_trusted_certificates_not_ca">Сертификат не является центром сертификации</string>
-    <string name="setting_trusted_certificates_import">Импорт из файла</string>
     <string name="setting_trusted_certificates_read_failed">Не удалось прочитать файл сертификата</string>
     <string name="setting_trusted_certificates_unnamed">Сертификат без имени</string>
     <string name="setting_custom_gecko_prefs">Параметры Gecko</string>

@@ -267,10 +267,8 @@
     <string name="setting_disable_ech">Tắt ECH</string>
     <string name="setting_use_system_certs">Tin cậy chứng chỉ hệ thống</string>
     <string name="setting_trusted_certificates">Tổ chức phát hành chứng chỉ tin cậy</string>
-    <string name="setting_trusted_certificates_hint">Dán chứng chỉ PEM</string>
     <string name="setting_trusted_certificates_invalid">Không phải chứng chỉ PEM hợp lệ</string>
     <string name="setting_trusted_certificates_not_ca">Chứng chỉ không phải là tổ chức phát hành chứng chỉ</string>
-    <string name="setting_trusted_certificates_import">Nhập từ tệp</string>
     <string name="setting_trusted_certificates_read_failed">Không thể đọc tệp chứng chỉ</string>
     <string name="setting_trusted_certificates_unnamed">Chứng chỉ không tên</string>
     <string name="setting_custom_gecko_prefs">Tùy chọn Gecko tùy chỉnh</string>

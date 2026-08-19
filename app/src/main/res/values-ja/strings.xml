@@ -267,10 +267,8 @@
     <string name="setting_disable_ech">ECH を無効にする</string>
     <string name="setting_use_system_certs">システム証明書を信頼する</string>
     <string name="setting_trusted_certificates">信頼する証明書認証局</string>
-    <string name="setting_trusted_certificates_hint">PEM 証明書を貼り付けてください</string>
     <string name="setting_trusted_certificates_invalid">有効な PEM 証明書ではありません</string>
     <string name="setting_trusted_certificates_not_ca">証明書が認証局ではありません</string>
-    <string name="setting_trusted_certificates_import">ファイルからインポート</string>
     <string name="setting_trusted_certificates_read_failed">証明書ファイルを読み込めませんでした</string>
     <string name="setting_trusted_certificates_unnamed">名前のない証明書</string>
     <string name="setting_custom_gecko_prefs">カスタム Gecko 設定</string>

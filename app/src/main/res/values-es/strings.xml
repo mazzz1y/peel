@@ -269,10 +269,8 @@
     <string name="setting_disable_ech">Desactivar ECH</string>
     <string name="setting_use_system_certs">Confiar en los certificados del sistema</string>
     <string name="setting_trusted_certificates">Autoridades de certificación de confianza</string>
-    <string name="setting_trusted_certificates_hint">Pega un certificado PEM</string>
     <string name="setting_trusted_certificates_invalid">No es un certificado PEM válido</string>
     <string name="setting_trusted_certificates_not_ca">El certificado no es una autoridad de certificación</string>
-    <string name="setting_trusted_certificates_import">Importar desde archivo</string>
     <string name="setting_trusted_certificates_read_failed">No se ha podido leer el archivo del certificado</string>
     <string name="setting_trusted_certificates_unnamed">Certificado sin nombre</string>
     <string name="setting_custom_gecko_prefs">Preferencias Gecko personalizadas</string>
