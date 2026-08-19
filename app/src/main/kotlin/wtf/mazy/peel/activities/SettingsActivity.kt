@@ -46,8 +46,6 @@ class SettingsActivity : ToolbarBaseActivity<GlobalSettingsBinding>() {
                     contentResolver.openInputStream(uri)?.use { it.readBytes().decodeToString() }
                 }.getOrNull()
             }
-            // Store canonical PEM so files differing only in armour or
-            // whitespace dedupe against each other.
             val pem = text?.let { CertificatePem.normalize(it) }
             if (pem == null) {
                 val reason = when {

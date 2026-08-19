@@ -2,6 +2,8 @@ package wtf.mazy.peel.browser
 
 import android.Manifest
 import android.os.Build
+import androidx.annotation.OptIn
+import org.mozilla.geckoview.ExperimentalGeckoViewApi
 import org.mozilla.geckoview.GeckoResult
 import org.mozilla.geckoview.GeckoSession
 import wtf.mazy.peel.R
@@ -26,6 +28,7 @@ class PeelPermissionDelegate(private val host: SessionHost) : GeckoSession.Permi
     private val trimmedName: String
         get() = prettyHostLabel(host.webAppName).take(MAX_NAME_LENGTH)
 
+    @OptIn(ExperimentalGeckoViewApi::class)
     override fun onContentPermissionRequest(
         session: GeckoSession,
         perm: GeckoSession.PermissionDelegate.ContentPermission,
@@ -35,6 +38,7 @@ class PeelPermissionDelegate(private val host: SessionHost) : GeckoSession.Permi
         val reply: (Boolean) -> Unit = { granted ->
             result.complete(ContentPermissionStore.valueFor(type, granted))
         }
+        val notifyShown: () -> Unit = { perm.notifyShown() }
 
         when (type) {
             GeckoSession.PermissionDelegate.PERMISSION_GEOLOCATION -> handleTriState(
@@ -47,6 +51,7 @@ class PeelPermissionDelegate(private val host: SessionHost) : GeckoSession.Permi
                 R.string.permission_prompt_location,
                 perm.uri,
                 allowRemember = true,
+                onShown = notifyShown,
                 onResult = reply,
             )
 
@@ -61,6 +66,7 @@ class PeelPermissionDelegate(private val host: SessionHost) : GeckoSession.Permi
                         PERM_KEY_NOTIFICATION,
                         R.string.permission_prompt_notifications,
                         perm.uri,
+                        onShown = notifyShown,
                         onResult = reply,
                     )
                 } else {
@@ -181,6 +187,7 @@ class PeelPermissionDelegate(private val host: SessionHost) : GeckoSession.Permi
         promptResId: Int,
         origin: String,
         allowRemember: Boolean = false,
+        onShown: (() -> Unit)? = null,
         onResult: (Boolean) -> Unit,
     ) {
         val remembered = if (state == WebAppSettings.PERMISSION_ASK) {
@@ -203,6 +210,7 @@ class PeelPermissionDelegate(private val host: SessionHost) : GeckoSession.Permi
                         host.hostResources.getString(promptResId, trimmedName)
                             .withBoldSpan(trimmedName),
                         allowRemember,
+                        onShown,
                     ) { result, remember ->
                         val granted = result == PermissionResult.ALLOW
                         memory.remember(origin, key, granted, forSession = remember)

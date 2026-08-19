@@ -28,6 +28,8 @@ class SessionExtensionActions(
 
     private val overrides = mutableMapOf<String, WebExtension.Action>()
     private val attachedSessions = mutableListOf<Pair<WebExtension, GeckoSession>>()
+    private val sessionDelegate = SessionActionDelegate()
+    private val sessionTabDelegate = SessionTabBoundDelegate()
     private var liveExtensions: List<WebExtension> = emptyList()
     private var currentContextId: String? = null
     private var currentPrivateMode: Boolean = false
@@ -56,6 +58,8 @@ class SessionExtensionActions(
         currentPrivateMode = session.settings.usePrivateMode
         active = this
 
+        bindSessionDelegates(session, managedExtensions.values)
+
         attachJob = activity.lifecycleScope.launch {
             val extensions = GeckoRuntimeProvider.listUserExtensions(activity)
             liveExtensions = extensions
@@ -65,15 +69,21 @@ class SessionExtensionActions(
 
             applyGlobalDelegates(extensions)
 
-            val sessionDelegate = SessionActionDelegate()
-            val sessionTabDelegate = SessionTabBoundDelegate()
+            bindSessionDelegates(session, extensions)
+        }
+    }
 
-            val controller = session.webExtensionController
-            for (ext in extensions) {
-                controller.setActionDelegate(ext, sessionDelegate)
-                controller.setTabDelegate(ext, sessionTabDelegate)
-                attachedSessions += ext to session
-            }
+    private fun bindSessionDelegates(
+        session: GeckoSession,
+        extensions: Collection<WebExtension>,
+    ) {
+        val controller = session.webExtensionController
+        val bound = attachedSessions.mapTo(mutableSetOf()) { it.first.id }
+        for (ext in extensions) {
+            if (!bound.add(ext.id)) continue
+            controller.setActionDelegate(ext, sessionDelegate)
+            controller.setTabDelegate(ext, sessionTabDelegate)
+            attachedSessions += ext to session
         }
     }
 

@@ -742,7 +742,6 @@ class SettingViewFactory(
                 }
             }
 
-            // A certificate is imported, never typed, so there is nothing to edit.
             SettingDefinition.StringListSetting.EntryKind.CERTIFICATE ->
                 btnValue.isClickable = false
         }

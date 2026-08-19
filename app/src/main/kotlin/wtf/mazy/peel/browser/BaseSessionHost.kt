@@ -167,6 +167,7 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost, TranslationHo
     override fun showPermissionDialog(
         message: CharSequence,
         allowRemember: Boolean,
+        onShown: (() -> Unit)?,
         onResult: (result: PermissionResult, remember: Boolean) -> Unit,
     ) {
         val content = DialogContent.of(this).message(message)
@@ -187,6 +188,8 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost, TranslationHo
                 dialog.dismiss()
                 onResult(PermissionResult.DENY, remember?.isChecked == true)
             }
+            .create()
+            .apply { setOnShowListener { onShown?.invoke() } }
             .show()
     }
 

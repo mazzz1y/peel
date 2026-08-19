@@ -86,6 +86,7 @@ interface SessionHost {
     fun showPermissionDialog(
         message: CharSequence,
         allowRemember: Boolean = false,
+        onShown: (() -> Unit)? = null,
         onResult: (result: PermissionResult, remember: Boolean) -> Unit,
     )
 
