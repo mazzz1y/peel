@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.net.toUri
 import wtf.mazy.peel.R
 import wtf.mazy.peel.activities.BrowserActivity
 import wtf.mazy.peel.model.DataManager
@@ -41,9 +40,7 @@ object BrowserLauncher {
         )
         c.startActivity(
             Intent(c, BrowserActivity::class.java)
-                .putExtra(Const.INTENT_WEBAPP_UUID, uuid)
-                .setData("app://$uuid".toUri())
-                .setAction(Intent.ACTION_VIEW)
+                .identifyWebApp(uuid)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
         )
     }
@@ -61,11 +58,7 @@ object BrowserLauncher {
 
     internal fun createIntent(webapp: WebApp, c: Context?): Intent? {
         if (c == null) return null
-        return Intent(c, BrowserActivity::class.java).apply {
-            putExtra(Const.INTENT_WEBAPP_UUID, webapp.uuid)
-            data = "app://${webapp.uuid}".toUri()
-            action = Intent.ACTION_VIEW
-        }
+        return Intent(c, BrowserActivity::class.java).identifyWebApp(webapp.uuid)
     }
 
     private fun showBiometricError(c: Context, error: String) {

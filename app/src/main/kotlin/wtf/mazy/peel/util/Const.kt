@@ -10,6 +10,8 @@ object Const {
 
     const val WEBAPP_SHORTCUT_ALIAS: String = "wtf.mazy.peel.activities.WebAppShortcutAlias"
 
+    const val WEBAPP_URI_SCHEME: String = "app"
+
     const val GLOBAL_WEBAPP_UUID: String = "00000000-0000-0000-0000-000000000000"
 
     const val ANIM_DURATION_FAST = 100L

@@ -32,6 +32,7 @@ import wtf.mazy.peel.ui.dialog.showInputDialogRaw
 import wtf.mazy.peel.util.App
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.NotificationUtils
+import wtf.mazy.peel.util.identifyWebApp
 import kotlin.math.min
 
 object ShortcutHelper {
@@ -312,9 +313,7 @@ object ShortcutHelper {
         return when (owner) {
             is WebApp -> Intent().apply {
                 setClassName(context, Const.WEBAPP_SHORTCUT_ALIAS)
-                putExtra(Const.INTENT_WEBAPP_UUID, owner.uuid)
-                data = "app://${owner.uuid}".toUri()
-                action = Intent.ACTION_VIEW
+                identifyWebApp(owner.uuid)
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
             }
 

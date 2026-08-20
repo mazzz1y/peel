@@ -66,6 +66,7 @@ import wtf.mazy.peel.util.NotificationUtils
 import wtf.mazy.peel.util.disableSystemBarContrastEnforcement
 import wtf.mazy.peel.util.isSameHost
 import wtf.mazy.peel.util.shareText
+import wtf.mazy.peel.util.webAppUuid
 
 class BrowserActivity : BaseSessionHost() {
     var webappUuid: String? = null
@@ -191,7 +192,7 @@ class BrowserActivity : BaseSessionHost() {
         sanitizeExternalIntent(intent)
         window.setBackgroundDrawable(themeBackgroundColor.toDrawable())
         setupSessionHostLayout(showToolbar = false)
-        webappUuid = intent.getStringExtra(Const.INTENT_WEBAPP_UUID)
+        webappUuid = intent.webAppUuid()
         ensureDataReady(webappUuid, forceReload = false) {
             continueStartupAfterDataReady()
         }
@@ -409,17 +410,10 @@ class BrowserActivity : BaseSessionHost() {
         sanitizeExternalIntent(intent)
         setIntent(intent)
 
-        val newUuid = intent.getStringExtra(Const.INTENT_WEBAPP_UUID) ?: return
+        val newUuid = intent.webAppUuid() ?: return
 
         if (newUuid == webappUuid) {
             sharedUrlFromIntent()?.let { loadURL(it) }
-            return
-        }
-
-        // Android may recreate this activity with a stale task intent (e.g. after an update)
-        // before delivering the tapped one; point the pending startup at the tapped webapp.
-        if (!isStartupComplete) {
-            webappUuid = newUuid
             return
         }
 
