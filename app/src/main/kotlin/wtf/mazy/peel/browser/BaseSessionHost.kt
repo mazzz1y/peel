@@ -327,6 +327,8 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost, TranslationHo
                 }
             }
             NotificationUtils.showToast(this@BaseSessionHost, getString(R.string.cache_cleared))
+            // BYPASS_PROXY skips intermediate proxy caches, not proxy routing: it maps to
+            // LOAD_BYPASS_CACHE | LOAD_FRESH_CONNECTION, and proxy.onRequest still applies.
             geckoSession?.reload(
                 GeckoSession.LOAD_FLAGS_BYPASS_CACHE or GeckoSession.LOAD_FLAGS_BYPASS_PROXY
             )
@@ -431,13 +433,13 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost, TranslationHo
         return lastGood
     }
 
-    override fun showConnectionError(description: String, url: String) {
+    override fun showConnectionError(description: String, url: String, onRetry: (() -> Unit)?) {
         val committed = navigationDelegate.lastLocation
         val hasPreviousPage = lastLoadedUrl.isNotBlank()
         val builder = MaterialAlertDialogBuilder(this)
             .setTitle(R.string.site_not_found)
             .setMessage(getString(R.string.connection_error, description))
-            .setPositiveButton(R.string.retry) { _, _ -> loadURL(url) }
+            .setPositiveButton(R.string.retry) { _, _ -> onRetry?.invoke() ?: loadURL(url) }
         when {
             hasPreviousPage && committed == lastLoadedUrl && committed != url ->
                 builder.setNegativeButton(R.string.back) { _, _ ->

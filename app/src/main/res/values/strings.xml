@@ -138,6 +138,7 @@
     <string name="show_fullscreen">Fullscreen mode</string>
     <string name="site_not_found">Page could not be loaded</string>
     <string name="connection_error">Connection error: %1$s</string>
+    <string name="proxy_not_ready" translatable="false">PROXY_ROUTES_NOT_READY</string>
     <string name="retry">Retry</string>
     <string name="back">Back</string>
     <string name="crash_restart_title">Page keeps crashing</string>

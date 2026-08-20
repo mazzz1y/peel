@@ -119,7 +119,9 @@ class HeadlessFetcher(
         var capturedUrl: String? = null
 
         wtf.mazy.peel.browser.ProxyRouterBridge.ensure(appContext)
-        wtf.mazy.peel.browser.ProxyRouterBridge.awaitRoutesReady(contextId)
+        if (!wtf.mazy.peel.browser.ProxyRouterBridge.awaitRoutesReady(contextId)) {
+            return FetchResult.EMPTY
+        }
         wtf.mazy.peel.browser.CertStoreBridge.ensure(appContext)
         wtf.mazy.peel.browser.CertStoreBridge.awaitCertsReady()
 

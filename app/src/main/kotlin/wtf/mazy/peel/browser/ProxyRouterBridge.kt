@@ -1,6 +1,7 @@
 package wtf.mazy.peel.browser
 
 import android.content.Context
+import androidx.annotation.CheckResult
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -8,6 +9,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
+import kotlin.time.Duration.Companion.milliseconds
 import org.json.JSONArray
 import org.json.JSONObject
 import org.mozilla.geckoview.WebExtension
@@ -60,9 +63,10 @@ object ProxyRouterBridge {
         return installed
     }
 
-    suspend fun awaitRoutesReady(contextId: String?) {
-        if (contextId == null || !hasProxiedRoute(contextId)) return
-        routesReady.first { it }
+    @CheckResult
+    suspend fun awaitRoutesReady(contextId: String?): Boolean {
+        if (contextId == null || !hasProxiedRoute(contextId)) return true
+        return withTimeoutOrNull(READY_TIMEOUT_MS.milliseconds) { routesReady.first { it } } != null
     }
 
     private fun hasProxiedRoute(contextId: String): Boolean {
@@ -221,4 +225,6 @@ object ProxyRouterBridge {
         Proxy.TYPE_SOCKS5 -> "socks5"
         else -> "http"
     }
+
+    private const val READY_TIMEOUT_MS = 5000L
 }

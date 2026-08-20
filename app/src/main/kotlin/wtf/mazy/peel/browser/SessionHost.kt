@@ -63,7 +63,7 @@ interface SessionHost {
     fun onInitialNavigationDenied()
     fun markCurrentPageAsJumpHost()
     fun dismissRedirectToFallback(fallback: String)
-    fun showConnectionError(description: String, url: String)
+    fun showConnectionError(description: String, url: String, onRetry: (() -> Unit)? = null)
     fun updateSystemBarColors(top: Int, bottom: Int)
     fun resetSystemBarColorsForNewPage()
     fun restoreSystemBarColors()

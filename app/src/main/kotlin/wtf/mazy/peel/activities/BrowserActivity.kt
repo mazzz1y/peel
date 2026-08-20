@@ -689,7 +689,12 @@ class BrowserActivity : BaseSessionHost() {
             wtf.mazy.peel.browser.ProxyRouterBridge.ensure(applicationContext)
             if (DataManager.instance.isTransientWebApp(webappUuid!!))
                 wtf.mazy.peel.browser.ProxyRouterBridge.pushRoutes(force = true)
-            wtf.mazy.peel.browser.ProxyRouterBridge.awaitRoutesReady(sessionContextId)
+            if (!wtf.mazy.peel.browser.ProxyRouterBridge.awaitRoutesReady(sessionContextId)) {
+                showConnectionError(getString(R.string.proxy_not_ready), url) {
+                    launchSessionExtensionsAndLoad(settings, url, restore)
+                }
+                return@launch
+            }
             wtf.mazy.peel.browser.CertStoreBridge.ensure(applicationContext)
             wtf.mazy.peel.browser.CertStoreBridge.awaitCertsReady()
             attachPageBridge()
