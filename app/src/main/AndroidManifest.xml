@@ -125,6 +125,7 @@
 
         <activity
             android:name=".activities.BrowserActivity"
+            android:autoRemoveFromRecents="true"
             android:configChanges="orientation|screenSize|smallestScreenSize|density|screenLayout|uiMode|keyboard|keyboardHidden|navigation"
             android:documentLaunchMode="intoExisting"
             android:exported="false"

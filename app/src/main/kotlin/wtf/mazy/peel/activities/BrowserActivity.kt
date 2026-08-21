@@ -92,6 +92,7 @@ class BrowserActivity : BaseSessionHost() {
         set(value) {
             if (historyPurged && value) return
             field = value
+            backCallback.isEnabled = value || launchedFromMenu
         }
 
     @Volatile
@@ -782,26 +783,24 @@ class BrowserActivity : BaseSessionHost() {
         ExternalLinkMenu.openInPeelPicker(this, url, webappUuid)
     }
 
-    private fun setupBackNavigation() {
-        onBackPressedDispatcher.addCallback(
-            this,
-            object : OnBackPressedCallback(true) {
-                override fun handleOnBackPressed() {
-                    if (canGoBack) {
-                        geckoSession?.goBack()
-                        return
-                    }
-                    if (launchedFromMenu) {
-                        startActivity(
-                            Intent(this@BrowserActivity, MainActivity::class.java).apply {
-                                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
-                            }
-                        )
-                    }
-                    finishAndRemoveTask()
+    private val backCallback = object : OnBackPressedCallback(false) {
+        override fun handleOnBackPressed() {
+            if (canGoBack) {
+                geckoSession?.goBack()
+                return
+            }
+            startActivity(
+                Intent(this@BrowserActivity, MainActivity::class.java).apply {
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
                 }
-            },
-        )
+            )
+            finishAndRemoveTask()
+        }
+    }
+
+    private fun setupBackNavigation() {
+        backCallback.isEnabled = canGoBack || launchedFromMenu
+        onBackPressedDispatcher.addCallback(this, backCallback)
     }
 
     private fun sharedUrlFromIntent(): String? =

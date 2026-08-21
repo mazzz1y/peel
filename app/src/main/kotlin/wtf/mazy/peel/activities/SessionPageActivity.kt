@@ -1,6 +1,7 @@
 package wtf.mazy.peel.activities
 
 import android.os.Bundle
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
 import androidx.core.graphics.drawable.toDrawable
 import androidx.lifecycle.lifecycleScope
@@ -32,6 +33,19 @@ abstract class SessionPageActivity : BaseSessionHost() {
     protected open val showToolbar: Boolean = true
     protected open val isContentInitiatedWindow: Boolean = false
 
+    private val backCallback = object : OnBackPressedCallback(false) {
+        override fun handleOnBackPressed() {
+            geckoSession?.goBack()
+        }
+    }
+
+    override var canGoBack: Boolean
+        get() = super.canGoBack
+        set(value) {
+            super.canGoBack = value
+            backCallback.isEnabled = value
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.AppTheme_Browser)
         enableEdgeToEdge()
@@ -49,6 +63,7 @@ abstract class SessionPageActivity : BaseSessionHost() {
 
         geckoView?.coverUntilFirstPaint(themeBackgroundColor)
         SessionContextRegistry.register(this, sessionContextId)
+        onBackPressedDispatcher.addCallback(this, backCallback)
         onSessionHostReady()
     }
 
