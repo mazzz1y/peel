@@ -37,6 +37,7 @@ class PeelProgressDelegate(
     }
 
     override fun onPageStop(session: GeckoSession, success: Boolean) {
+        host.onPageLoadEnded()
         if (isBlank(currentUrl)) return
         if (ticking) runTail()
         if (success) host.onPageFullyLoaded()

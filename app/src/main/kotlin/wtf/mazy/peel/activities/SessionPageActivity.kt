@@ -92,12 +92,12 @@ abstract class SessionPageActivity : BaseSessionHost() {
         geckoSession = session
         geckoView?.setSession(session)
         geckoView?.coverUntilFirstPaint(themeBackgroundColor)
-        setupPullToRefresh(effectiveSettings)
     }
 
     override fun onStart() {
         super.onStart()
         reattachSessionToView()
+        pullToRefreshController.update(effectiveSettings)
         onSessionStarted()
     }
 
@@ -131,9 +131,11 @@ abstract class SessionPageActivity : BaseSessionHost() {
 
     override fun onWebFullscreenEnter() {
         setBrowserControlsFullscreen(true)
+        pullToRefreshController.setSuspended(true)
     }
 
     override fun onWebFullscreenExit() {
         setBrowserControlsFullscreen(false)
+        pullToRefreshController.setSuspended(false)
     }
 }

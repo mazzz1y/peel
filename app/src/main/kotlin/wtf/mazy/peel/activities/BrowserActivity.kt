@@ -47,7 +47,6 @@ import wtf.mazy.peel.gecko.ContentPermissionStore
 import wtf.mazy.peel.gecko.ExtensionStateEvent
 import wtf.mazy.peel.gecko.ExtensionStateListener
 import wtf.mazy.peel.gecko.GeckoRuntimeProvider
-import wtf.mazy.peel.gecko.NestedGeckoView
 import wtf.mazy.peel.media.MediaPlaybackManager
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.SandboxManager
@@ -580,11 +579,13 @@ class BrowserActivity : BaseSessionHost() {
         systemBarController.hide()
         closeFindInPage()
         setBrowserControlsFullscreen(true)
+        pullToRefreshController.setSuspended(true)
     }
 
     override fun onWebFullscreenExit() {
         systemBarController.show(effectiveSettings.isShowFullscreen == true)
         setBrowserControlsFullscreen(false)
+        pullToRefreshController.setSuspended(false)
     }
 
     private fun setupGeckoView() {
@@ -636,8 +637,8 @@ class BrowserActivity : BaseSessionHost() {
         permissionDelegate.clearSessionPermissions()
         ContentPermissionStore.requestSweep(this)
         promptDelegate.clearAutoAuth()
-        (geckoView as? NestedGeckoView)?.resetScrollPosition()
         autoReloadController.stop()
+        pullToRefreshController.stopRefreshing()
         startupAuthReturnTracker = StartupAuthReturnTracker(webapp.baseUrl)
         isStartupAuthTrackingActive = true
         historyPurged = false
@@ -731,7 +732,7 @@ class BrowserActivity : BaseSessionHost() {
 
     private fun applyVisualSettings(settings: WebAppSettings) {
         applyWindowFlags(settings)
-        setupPullToRefresh(settings)
+        pullToRefreshController.update(settings)
         if (settings.isShowFullscreen == true) systemBarController.hide() else systemBarController.show(
             false
         )

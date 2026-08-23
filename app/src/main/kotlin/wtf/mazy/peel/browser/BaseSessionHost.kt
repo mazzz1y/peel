@@ -49,6 +49,7 @@ import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.model.WebAppSettings
 import wtf.mazy.peel.ui.FindInPageView
 import wtf.mazy.peel.ui.FloatingControlsView
+import wtf.mazy.peel.ui.browser.PullToRefreshController
 import wtf.mazy.peel.ui.browser.SystemBarController
 import wtf.mazy.peel.ui.common.LoadingDialogController
 import wtf.mazy.peel.ui.controls.BrowserControls
@@ -241,6 +242,14 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost, TranslationHo
             getThemeColor = ::themeBackgroundColor,
             scrimColor = ContextCompat.getColor(this, R.color.floating_controls_scrim),
             setFullscreen = { isFullscreen = it },
+        )
+    }
+
+    protected val pullToRefreshController by lazy {
+        PullToRefreshController(
+            layout = swipeRefreshLayout,
+            onRefresh = ::reloadCurrentPage,
+            canOverscrollTop = { (geckoView as? NestedGeckoView)?.canOverscrollTop == true },
         )
     }
 
@@ -522,6 +531,10 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost, TranslationHo
         navigationDelegate.onPageLoadFinished()
     }
 
+    override fun onPageLoadEnded() {
+        pullToRefreshController.stopRefreshing()
+    }
+
     override fun onDestroy() {
         connectionErrorDialog?.dismiss()
         connectionErrorDialog = null
@@ -694,25 +707,12 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost, TranslationHo
         }
     }
 
-    protected fun setupPullToRefresh(settings: WebAppSettings) {
-        if (settings.isPullToRefresh == true) {
-            swipeRefreshLayout?.apply {
-                isEnabled = true
-                setOnRefreshListener {
-                    reloadCurrentPage()
-                    isRefreshing = false
-                }
-            }
-        } else {
-            swipeRefreshLayout?.isEnabled = false
-        }
-    }
-
     protected open fun reloadCurrentPage() {
         val committed = navigationDelegate.lastLocation
         if (committed.isEmpty() || committed == "about:blank") {
             val fallback = lastLoadedUrl.ifBlank { baseUrl }
-            if (fallback.isNotBlank()) loadURL(fallback)
+            if (fallback.isBlank()) pullToRefreshController.stopRefreshing()
+            else loadURL(fallback)
         } else {
             geckoSession?.reload()
         }
@@ -740,10 +740,8 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost, TranslationHo
     }
 
     protected fun attachScrollDelegate(session: GeckoSession) {
-        val nestedView = geckoView as? NestedGeckoView
         session.scrollDelegate = object : GeckoSession.ScrollDelegate {
             override fun onScrollChanged(session: GeckoSession, scrollX: Int, scrollY: Int) {
-                nestedView?.updateScrollPosition(scrollY)
                 browserControls?.onContentScrolled(scrollY)
             }
         }

@@ -45,6 +45,7 @@ interface SessionHost {
     fun onLocationChanged(url: String)
     fun onPageStarted()
     fun onPageFullyLoaded()
+    fun onPageLoadEnded()
     fun onFirstContentfulPaint()
     fun onSessionStateUpdated(state: GeckoSession.SessionState)
     fun onProcessKilled()

@@ -92,11 +92,11 @@ class PeelNavigationDelegate(
 
         return when {
             url.isBlank() -> allow()
-            isBlocked(url, settings) -> deny()
-            url.startsWith("data:") && request.isDirectNavigation -> deny()
+            isBlocked(url, settings) -> refuse()
+            url.startsWith("data:") && request.isDirectNavigation -> refuse()
             !isBrowserScheme(url) -> {
                 handleAppLink(url, settings, request)
-                deny()
+                refuse()
             }
 
             isPassthroughScheme(url) -> allow()
@@ -106,6 +106,12 @@ class PeelNavigationDelegate(
 
     private fun isBlocked(url: String, settings: WebAppSettings): Boolean =
         SameAppDomainMatcher.matches(url, settings.blockedDomains.orEmpty())
+
+    // No load will start, so nothing downstream will report the page as settled.
+    private fun refuse(): GeckoResult<AllowOrDeny> {
+        host.runOnUi { host.onPageLoadEnded() }
+        return deny()
+    }
 
     private fun routeBrowserLoad(
         url: String,

@@ -21,27 +21,17 @@ class NestedGeckoView @JvmOverloads constructor(
     private val childHelper = NestedScrollingChildHelper(this)
 
     @Volatile
-    private var inputResult = PanZoomController.INPUT_RESULT_UNHANDLED
-
-    @Volatile
     private var allowOverscroll = false
-    private var geckoScrollY = 0
+
+    // Defaults to true so the first gesture of a page is not swallowed: SwipeRefreshLayout
+    // decides at ACTION_DOWN, before the asynchronous APZ result can arrive, and a gesture
+    // rejected there cannot be revived by a later value.
+    @Volatile
+    var canOverscrollTop = true
+        private set
 
     init {
         isNestedScrollingEnabled = true
-    }
-
-    override fun canScrollVertically(direction: Int): Boolean {
-        if (direction < 0) return geckoScrollY > 0
-        return super.canScrollVertically(direction)
-    }
-
-    fun updateScrollPosition(y: Int) {
-        geckoScrollY = y
-    }
-
-    fun resetScrollPosition() {
-        geckoScrollY = 0
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -82,27 +72,25 @@ class NestedGeckoView @JvmOverloads constructor(
             }
 
             MotionEvent.ACTION_DOWN -> {
-                inputResult = PanZoomController.INPUT_RESULT_UNHANDLED
                 allowOverscroll = false
                 parent?.requestDisallowInterceptTouchEvent(true)
                 super.onTouchEventForDetailResult(event)
                     .accept { result ->
                         if (result == null) return@accept
-                        inputResult = result.handledResult()
+                        if (!canOverscrollTop) return@accept
+                        val handled = result.handledResult()
                         allowOverscroll =
-                            inputResult == PanZoomController.INPUT_RESULT_HANDLED &&
+                            handled == PanZoomController.INPUT_RESULT_HANDLED &&
                                     (result.overscrollDirections() and PanZoomController.OVERSCROLL_FLAG_VERTICAL) != 0
 
-                        val canOverscrollTop =
-                            inputResult != PanZoomController.INPUT_RESULT_HANDLED_CONTENT &&
+                        canOverscrollTop =
+                            handled != PanZoomController.INPUT_RESULT_HANDLED_CONTENT &&
                                     (result.scrollableDirections() and PanZoomController.SCROLLABLE_FLAG_TOP) == 0 &&
                                     (result.overscrollDirections() and PanZoomController.OVERSCROLL_FLAG_VERTICAL) != 0
-                        post {
-                            if (canOverscrollTop) {
-                                parent?.requestDisallowInterceptTouchEvent(false)
-                            }
-                            startNestedScroll(ViewCompat.SCROLL_AXIS_VERTICAL)
+                        if (canOverscrollTop) {
+                            parent?.requestDisallowInterceptTouchEvent(false)
                         }
+                        startNestedScroll(ViewCompat.SCROLL_AXIS_VERTICAL)
                     }
                 lastY = eventY
                 event.recycle()
@@ -112,6 +100,7 @@ class NestedGeckoView @JvmOverloads constructor(
             MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
                 stopNestedScroll()
                 parent?.requestDisallowInterceptTouchEvent(false)
+                canOverscrollTop = true
             }
         }
 
