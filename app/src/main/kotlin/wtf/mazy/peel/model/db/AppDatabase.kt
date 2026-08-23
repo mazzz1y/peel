@@ -10,6 +10,7 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import kotlinx.serialization.json.Json
 import wtf.mazy.peel.model.WebAppSettings
+import wtf.mazy.peel.util.Const
 
 class StringMapConverter {
     @TypeConverter
@@ -44,7 +45,7 @@ class StringListConverter {
         ProxyEntity::class,
         PushSubscriptionEntity::class,
     ],
-    version = 25,
+    version = 26,
     exportSchema = true,
 )
 @TypeConverters(StringMapConverter::class, StringListConverter::class)
@@ -570,6 +571,53 @@ abstract class AppDatabase : RoomDatabase() {
                 }
             }
 
+        // Pre-26 clients could end up with duplicate `order` values within the same group:
+        // drag-reorder wrote a dense 0..n-1 range per group, and moving an app between groups
+        // never renumbered it, so it kept carrying its old value into the destination. This
+        // renumbers every table into a single dense, gap-free sequence per scope (webapps within
+        // their groupUuid, groups amongst themselves) so `order` is unique within its scope again.
+        private fun renumberOrderColumn(
+            db: SupportSQLiteDatabase,
+            table: String,
+            excludeUuid: String? = null,
+            scopeColumn: String? = null,
+        ) {
+            val where = if (excludeUuid != null) "WHERE uuid != '$excludeUuid'" else ""
+            val scopeSelect = scopeColumn ?: "NULL"
+            val cursor = db.query(
+                "SELECT uuid, $scopeSelect FROM $table $where ORDER BY $scopeSelect, `order`, uuid"
+            )
+            var previousScope: String? = ""
+            var nextOrder = 0
+            cursor.use {
+                while (it.moveToNext()) {
+                    val uuid = it.getString(0)
+                    val scope = if (it.isNull(1)) null else it.getString(1)
+                    if (scope != previousScope) {
+                        previousScope = scope
+                        nextOrder = 0
+                    }
+                    db.execSQL(
+                        "UPDATE $table SET `order` = $nextOrder WHERE uuid = '$uuid'"
+                    )
+                    nextOrder++
+                }
+            }
+        }
+
+        val MIGRATION_25_26 =
+            object : Migration(25, 26) {
+                override fun migrate(db: SupportSQLiteDatabase) {
+                    renumberOrderColumn(
+                        db,
+                        table = "webapps",
+                        excludeUuid = Const.GLOBAL_WEBAPP_UUID,
+                        scopeColumn = "groupUuid",
+                    )
+                    renumberOrderColumn(db, table = "webapp_groups")
+                }
+            }
+
         val MIGRATION_16_17 =
             object : Migration(16, 17) {
                 override fun migrate(db: SupportSQLiteDatabase) {
@@ -638,6 +686,7 @@ abstract class AppDatabase : RoomDatabase() {
                     MIGRATION_22_23,
                     MIGRATION_23_24,
                     MIGRATION_24_25,
+                    MIGRATION_25_26,
                 )
                 .allowMainThreadQueries()
                 .build()

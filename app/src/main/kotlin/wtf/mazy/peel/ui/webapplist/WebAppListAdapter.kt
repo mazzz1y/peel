@@ -201,8 +201,8 @@ class WebAppListAdapter(
             val clonedWebApp = WebApp(webapp.baseUrl)
             clonedWebApp.title = webapp.title
             clonedWebApp.settings = webapp.settings.deepCopy()
-            clonedWebApp.order = webapp.order
             clonedWebApp.groupUuid = webapp.groupUuid
+            clonedWebApp.order = DataManager.instance.nextOrderInGroup(webapp.groupUuid)
             clonedWebApp.isUseContainer = webapp.isUseContainer
             clonedWebApp.isEphemeralSandbox = webapp.isEphemeralSandbox
             clonedWebApp.isPrivateSession = webapp.isPrivateSession

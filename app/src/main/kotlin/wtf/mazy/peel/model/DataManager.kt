@@ -14,7 +14,6 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -177,7 +176,7 @@ class DataManager private constructor() {
 
     suspend fun awaitReady() {
         if (_isReady.value) return
-        isReady.filter { it }.first()
+        isReady.first { it }
     }
 
     suspend fun persistDefaultSettings() {
@@ -315,7 +314,13 @@ class DataManager private constructor() {
     }
 
     val incrementedOrder: Int
-        get() = activeWebsitesCount + 1
+        get() = nextOrderInGroup(null)
+
+    fun nextOrderInGroup(groupUuid: String?): Int =
+        currentState.websites
+            .filter { it.groupUuid == groupUuid }
+            .maxOfOrNull { it.order }
+            ?.plus(1) ?: 0
 
     fun getGroups(): List<WebAppGroup> = currentState.groups.map { WebAppGroup(it) }
 
@@ -426,15 +431,13 @@ class DataManager private constructor() {
                     repository.getGlobalSettings()?.let(::ensureDefaultSettingsConcrete)
                         ?: currentState.defaultSettings
 
-                val nextWebsites = currentState.websites
-                    .filterNot { it.uuid == loadedWebApp.uuid }
-                    .toMutableList()
-                    .apply { add(loadedWebApp) }
+                val nextWebsites = currentState.websites.replacingOrAppending(loadedWebApp) {
+                    it.uuid == loadedWebApp.uuid
+                }
                 val nextGroups = if (loadedGroup != null) {
-                    currentState.groups
-                        .filterNot { it.uuid == loadedGroup.uuid }
-                        .toMutableList()
-                        .apply { add(loadedGroup) }
+                    currentState.groups.replacingOrAppending(loadedGroup) {
+                        it.uuid == loadedGroup.uuid
+                    }
                 } else {
                     currentState.groups
                 }
@@ -761,5 +764,11 @@ class DataManager private constructor() {
     companion object {
         @JvmField
         val instance = DataManager()
+
+        private fun <T> List<T>.replacingOrAppending(item: T, match: (T) -> Boolean): List<T> {
+            val index = indexOfFirst(match)
+            if (index < 0) return this + item
+            return toMutableList().apply { set(index, item) }
+        }
     }
 }

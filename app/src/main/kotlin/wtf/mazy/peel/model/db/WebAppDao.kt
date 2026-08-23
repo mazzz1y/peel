@@ -11,7 +11,7 @@ import wtf.mazy.peel.util.Const
 @Dao
 interface WebAppDao {
 
-    @Query("SELECT * FROM webapps WHERE uuid != '${Const.GLOBAL_WEBAPP_UUID}'")
+    @Query("SELECT * FROM webapps WHERE uuid != '${Const.GLOBAL_WEBAPP_UUID}' ORDER BY `order`")
     fun getAllWebApps(): List<WebAppEntity>
 
     @Query("SELECT * FROM webapps WHERE uuid = '${Const.GLOBAL_WEBAPP_UUID}' LIMIT 1")

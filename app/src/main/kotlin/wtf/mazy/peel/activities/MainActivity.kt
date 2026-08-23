@@ -404,7 +404,6 @@ class MainActivity :
                 if (url.startsWith("https://") || url.startsWith("http://")) url
                 else "https://$url"
             val newSite = WebApp(urlWithProtocol)
-            newSite.order = DataManager.instance.incrementedOrder
             newSite.isUseContainer = result.sandbox
             newSite.isEphemeralSandbox = result.ephemeral
             newSite.proxyUuid = result.proxyUuid
@@ -414,6 +413,7 @@ class MainActivity :
             if (groups.isNotEmpty() && currentPage < groups.size) {
                 newSite.groupUuid = groups[currentPage].uuid
             }
+            newSite.order = DataManager.instance.nextOrderInGroup(newSite.groupUuid)
 
             lifecycleScope.launch {
                 DataManager.instance.addWebsite(newSite)
