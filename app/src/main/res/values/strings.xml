@@ -349,6 +349,9 @@
     <string name="proxy_delete_confirm">Delete this proxy?</string>
     <string name="proxy_in_use_warning">Used by %1$d apps/groups. Their proxy will revert to Direct.</string>
     <string name="proxy_auth_failed">Proxy authentication failed</string>
+    <string name="beforeunload_message">Changes you made may not be saved</string>
+    <string name="beforeunload_leave">Leave page</string>
+    <string name="beforeunload_stay">Stay on page</string>
     <string name="proxies">Proxies</string>
     <string name="proxies_empty_state">No proxies yet. Tap + to add one.</string>
 

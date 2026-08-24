@@ -312,6 +312,9 @@
     <string name="proxy_delete_confirm">এই প্রক্সিটি মুছবেন?</string>
     <string name="proxy_in_use_warning">%1$d অ্যাপ/গ্রুপে ব্যবহৃত। তাদের প্রক্সি «কোনো প্রক্সি নেই» হয়ে যাবে।</string>
     <string name="proxy_auth_failed">প্রক্সি প্রমাণীকরণ ব্যর্থ</string>
+    <string name="beforeunload_message">করা পরিবর্তনগুলো সংরক্ষিত নাও হতে পারে</string>
+    <string name="beforeunload_leave">পেজ ছেড়ে যান</string>
+    <string name="beforeunload_stay">পেজে থাকুন</string>
     <string name="proxies">প্রক্সি</string>
     <string name="proxies_empty_state">কোনো প্রক্সি নেই। যোগ করতে + চাপুন।</string>
 

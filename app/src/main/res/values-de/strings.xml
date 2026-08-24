@@ -312,6 +312,9 @@
     <string name="proxy_delete_confirm">Diesen Proxy löschen?</string>
     <string name="proxy_in_use_warning">Wird von %1$d Apps/Gruppen verwendet. Deren Proxy wird auf „Kein Proxy“ zurückgesetzt.</string>
     <string name="proxy_auth_failed">Proxy-Authentifizierung fehlgeschlagen</string>
+    <string name="beforeunload_message">Vorgenommene Änderungen werden möglicherweise nicht gespeichert</string>
+    <string name="beforeunload_leave">Seite verlassen</string>
+    <string name="beforeunload_stay">Auf Seite bleiben</string>
     <string name="proxies">Proxys</string>
     <string name="proxies_empty_state">Noch keine Proxys. Tippe auf +, um einen hinzuzufügen.</string>
 

@@ -312,6 +312,9 @@
     <string name="proxy_delete_confirm">Excluir este proxy?</string>
     <string name="proxy_in_use_warning">Usado por %1$d apps/grupos. O proxy deles voltará para «Sem proxy».</string>
     <string name="proxy_auth_failed">Falha na autenticação do proxy</string>
+    <string name="beforeunload_message">As alterações feitas podem não ser salvas</string>
+    <string name="beforeunload_leave">Sair da página</string>
+    <string name="beforeunload_stay">Permanecer na página</string>
     <string name="proxies">Proxies</string>
     <string name="proxies_empty_state">Nenhum proxy ainda. Toque em + para adicionar.</string>
 

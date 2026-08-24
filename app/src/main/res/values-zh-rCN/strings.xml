@@ -309,6 +309,9 @@
     <string name="proxy_delete_confirm">删除此代理?</string>
     <string name="proxy_in_use_warning">正在被 %1$d 个应用/分组使用。它们的代理将变回「不使用代理」。</string>
     <string name="proxy_auth_failed">代理身份验证失败</string>
+    <string name="beforeunload_message">所做的更改可能不会被保存</string>
+    <string name="beforeunload_leave">离开页面</string>
+    <string name="beforeunload_stay">留在页面</string>
     <string name="proxies">代理</string>
     <string name="proxies_empty_state">尚无代理。点击 + 添加。</string>
 

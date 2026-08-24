@@ -312,6 +312,9 @@
     <string name="proxy_delete_confirm">इस प्रॉक्सी को हटाएँ?</string>
     <string name="proxy_in_use_warning">%1$d ऐप्स/समूहों द्वारा उपयोग में. उनका प्रॉक्सी «कोई प्रॉक्सी नहीं» पर वापस आ जाएगा.</string>
     <string name="proxy_auth_failed">प्रॉक्सी प्रमाणीकरण विफल</string>
+    <string name="beforeunload_message">किए गए बदलाव सेव नहीं हो सकते हैं</string>
+    <string name="beforeunload_leave">पेज छोड़ें</string>
+    <string name="beforeunload_stay">पेज पर रहें</string>
     <string name="proxies">प्रॉक्सीज़</string>
     <string name="proxies_empty_state">अभी तक कोई प्रॉक्सी नहीं. जोड़ने के लिए + दबाएँ.</string>
 

@@ -318,6 +318,9 @@
     <string name="proxy_delete_confirm">Удалить этот прокси?</string>
     <string name="proxy_in_use_warning">Используется в %1$d приложениях/группах. Их прокси сбросится в «Без прокси».</string>
     <string name="proxy_auth_failed">Не удалось пройти аутентификацию прокси</string>
+    <string name="beforeunload_message">Внесённые изменения могут не сохраниться</string>
+    <string name="beforeunload_leave">Покинуть страницу</string>
+    <string name="beforeunload_stay">Остаться на странице</string>
     <string name="proxies">Прокси</string>
     <string name="proxies_empty_state">Прокси не настроены. Нажмите +, чтобы добавить.</string>
 

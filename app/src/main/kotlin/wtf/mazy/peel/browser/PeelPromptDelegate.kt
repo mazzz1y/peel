@@ -11,6 +11,7 @@ import android.text.style.StyleSpan
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.FileProvider
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import org.mozilla.geckoview.AllowOrDeny
 import org.mozilla.geckoview.GeckoResult
 import org.mozilla.geckoview.GeckoSession
 import wtf.mazy.peel.R
@@ -30,13 +31,25 @@ class PeelPromptDelegate(private val host: SessionHost) : GeckoSession.PromptDel
         proxyAuthAttempted.clear()
     }
 
+    private fun GeckoSession.PromptDelegate.BasePrompt.guardEngineDismiss(
+        dialog: AlertDialog,
+        result: GeckoResult<GeckoSession.PromptDelegate.PromptResponse>,
+    ) {
+        setDelegate(object : GeckoSession.PromptDelegate.PromptInstanceDelegate {
+            override fun onPromptDismiss(closed: GeckoSession.PromptDelegate.BasePrompt) {
+                dialog.dismiss()
+                if (!closed.isComplete) result.complete(closed.dismiss())
+            }
+        })
+    }
+
     override fun onAlertPrompt(
         session: GeckoSession,
         prompt: GeckoSession.PromptDelegate.AlertPrompt,
     ): GeckoResult<GeckoSession.PromptDelegate.PromptResponse> {
         val result = GeckoResult<GeckoSession.PromptDelegate.PromptResponse>()
         host.runOnUi {
-            MaterialAlertDialogBuilder(host.hostWindow.context)
+            val dialog = MaterialAlertDialogBuilder(host.hostWindow.context)
                 .setTitle(prompt.title)
                 .setMessage(prompt.message)
                 .setPositiveButton(android.R.string.ok) { _, _ ->
@@ -44,6 +57,28 @@ class PeelPromptDelegate(private val host: SessionHost) : GeckoSession.PromptDel
                 }
                 .setOnCancelListener { result.complete(prompt.dismiss()) }
                 .show()
+            prompt.guardEngineDismiss(dialog, result)
+        }
+        return result
+    }
+
+    override fun onBeforeUnloadPrompt(
+        session: GeckoSession,
+        prompt: GeckoSession.PromptDelegate.BeforeUnloadPrompt,
+    ): GeckoResult<GeckoSession.PromptDelegate.PromptResponse> {
+        val result = GeckoResult<GeckoSession.PromptDelegate.PromptResponse>()
+        host.runOnUi {
+            val dialog = MaterialAlertDialogBuilder(host.hostWindow.context)
+                .setMessage(R.string.beforeunload_message)
+                .setPositiveButton(R.string.beforeunload_leave) { _, _ ->
+                    result.complete(prompt.confirm(AllowOrDeny.ALLOW))
+                }
+                .setNegativeButton(R.string.beforeunload_stay) { _, _ ->
+                    result.complete(prompt.confirm(AllowOrDeny.DENY))
+                }
+                .setOnCancelListener { result.complete(prompt.confirm(AllowOrDeny.DENY)) }
+                .show()
+            prompt.guardEngineDismiss(dialog, result)
         }
         return result
     }
@@ -54,7 +89,7 @@ class PeelPromptDelegate(private val host: SessionHost) : GeckoSession.PromptDel
     ): GeckoResult<GeckoSession.PromptDelegate.PromptResponse> {
         val result = GeckoResult<GeckoSession.PromptDelegate.PromptResponse>()
         host.runOnUi {
-            MaterialAlertDialogBuilder(host.hostWindow.context)
+            val dialog = MaterialAlertDialogBuilder(host.hostWindow.context)
                 .setTitle(prompt.title)
                 .setMessage(prompt.message)
                 .setPositiveButton(android.R.string.ok) { _, _ ->
@@ -67,6 +102,7 @@ class PeelPromptDelegate(private val host: SessionHost) : GeckoSession.PromptDel
                     result.complete(prompt.dismiss())
                 }
                 .show()
+            prompt.guardEngineDismiss(dialog, result)
         }
         return result
     }
@@ -80,7 +116,7 @@ class PeelPromptDelegate(private val host: SessionHost) : GeckoSession.PromptDel
             val input = android.widget.EditText(host.hostWindow.context).apply {
                 setText(prompt.defaultValue ?: "")
             }
-            MaterialAlertDialogBuilder(host.hostWindow.context)
+            val dialog = MaterialAlertDialogBuilder(host.hostWindow.context)
                 .setTitle(prompt.title)
                 .setMessage(prompt.message)
                 .setView(input)
@@ -92,6 +128,7 @@ class PeelPromptDelegate(private val host: SessionHost) : GeckoSession.PromptDel
                 }
                 .setOnCancelListener { result.complete(prompt.dismiss()) }
                 .show()
+            prompt.guardEngineDismiss(dialog, result)
         }
         return result
     }

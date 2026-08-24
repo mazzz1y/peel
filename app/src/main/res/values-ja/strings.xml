@@ -309,6 +309,9 @@
     <string name="proxy_delete_confirm">このプロキシを削除しますか?</string>
     <string name="proxy_in_use_warning">%1$d 個のアプリ/グループで使用中です。それらのプロキシは「プロキシなし」に戻ります。</string>
     <string name="proxy_auth_failed">プロキシ認証に失敗しました</string>
+    <string name="beforeunload_message">変更内容が保存されない場合があります</string>
+    <string name="beforeunload_leave">ページを離れる</string>
+    <string name="beforeunload_stay">ページにとどまる</string>
     <string name="proxies">プロキシ</string>
     <string name="proxies_empty_state">プロキシが登録されていません。+ をタップして追加してください。</string>
 

@@ -311,6 +311,9 @@
     <string name="proxy_delete_confirm">ਇਹ ਪ੍ਰੌਕਸੀ ਮਿਟਾਉਣਾ ਹੈ?</string>
     <string name="proxy_in_use_warning">%1$d ਐਪਾਂ/ਗਰੁੱਪਾਂ ਵੱਲੋਂ ਵਰਤੀ ਜਾ ਰਹੀ ਹੈ। ਉਹਨਾਂ ਦੀ ਪ੍ਰੌਕਸੀ «ਕੋਈ ਪ੍ਰੌਕਸੀ ਨਹੀਂ» ਵਿੱਚ ਬਦਲ ਜਾਵੇਗੀ।</string>
     <string name="proxy_auth_failed">ਪ੍ਰੌਕਸੀ ਪ੍ਰਮਾਣੀਕਰਨ ਅਸਫਲ</string>
+    <string name="beforeunload_message">ਕੀਤੀਆਂ ਤਬਦੀਲੀਆਂ ਸੇਵ ਨਹੀਂ ਹੋ ਸਕਦੀਆਂ</string>
+    <string name="beforeunload_leave">ਪੰਨਾ ਛੱਡੋ</string>
+    <string name="beforeunload_stay">ਪੰਨੇ \'ਤੇ ਰਹੋ</string>
     <string name="proxies">ਪ੍ਰੌਕਸੀਆਂ</string>
     <string name="proxies_empty_state">ਅਜੇ ਕੋਈ ਪ੍ਰੌਕਸੀ ਨਹੀਂ। ਜੋੜਨ ਲਈ + ਦਬਾਓ।</string>
 

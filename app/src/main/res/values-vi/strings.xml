@@ -309,6 +309,9 @@
     <string name="proxy_delete_confirm">Xoá proxy này?</string>
     <string name="proxy_in_use_warning">Đang được dùng bởi %1$d ứng dụng/nhóm. Proxy của chúng sẽ trở về «Không proxy».</string>
     <string name="proxy_auth_failed">Xác thực proxy thất bại</string>
+    <string name="beforeunload_message">Các thay đổi bạn thực hiện có thể không được lưu</string>
+    <string name="beforeunload_leave">Rời khỏi trang</string>
+    <string name="beforeunload_stay">Ở lại trang</string>
     <string name="proxies">Proxy</string>
     <string name="proxies_empty_state">Chưa có proxy. Nhấn + để thêm.</string>
 
