@@ -305,7 +305,7 @@ object SettingRegistry {
             ),
             SettingDefinition.BooleanSetting(
                 SettingField(WebAppSettings::isOpenUrlExternal, true),
-                R.string.open_external_links_in_browser_app,
+                R.string.setting_external_link_prompt,
                 SettingCategory.BEHAVIOR,
             ),
             SettingDefinition.BooleanSetting(

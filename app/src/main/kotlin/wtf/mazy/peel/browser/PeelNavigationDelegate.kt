@@ -10,7 +10,7 @@ import org.mozilla.geckoview.GeckoSession.NavigationDelegate.TARGET_WINDOW_NEW
 import org.mozilla.geckoview.WebRequestError
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.WebAppSettings
-import wtf.mazy.peel.util.SameAppDomainMatcher
+import wtf.mazy.peel.util.NotificationUtils
 import wtf.mazy.peel.util.belongsToApp
 import wtf.mazy.peel.util.withBoldSpan
 import wtf.mazy.peel.util.withMonoSpan
@@ -28,7 +28,7 @@ internal fun parseIntentUri(url: String): Intent? {
 private class ExternalLinkPrompt(
     val url: String,
     val redirectFallback: String?,
-    val wasUpgraded: Boolean,
+    val reloadOnLoadHere: Boolean,
     private val decision: GeckoResult<AllowOrDeny>,
 ) {
     private var settled = false
@@ -90,41 +90,63 @@ class PeelNavigationDelegate(
         val url = request.uri
         val settings = host.effectiveSettings
 
-        return when {
-            url.isBlank() -> allow()
-            isBlocked(url, settings) -> refuse()
-            url.startsWith("data:") && request.isDirectNavigation -> refuse()
-            !isBrowserScheme(url) -> {
+        return when (val route = routeFor(url, settings, request)) {
+            LinkRoute.Allow -> allow()
+            LinkRoute.Blocked -> {
+                showBlockedToast()
+                refuse()
+            }
+
+            LinkRoute.Refused -> refuse()
+            LinkRoute.AppLink -> {
                 handleAppLink(url, settings, request)
                 refuse()
             }
 
-            isPassthroughScheme(url) -> allow()
-            else -> routeBrowserLoad(url, settings, request)
+            is LinkRoute.Redirect -> redirectTo(route.target)
+            is LinkRoute.PromptExternal -> promptForExternalLink(
+                route.target,
+                redirectFallbackFor(request),
+                reloadOnLoadHere = route.wasUpgraded,
+            )
         }
     }
 
-    private fun isBlocked(url: String, settings: WebAppSettings): Boolean =
-        SameAppDomainMatcher.matches(url, settings.blockedDomains.orEmpty())
+    private fun routeFor(
+        url: String,
+        settings: WebAppSettings,
+        request: LoadRequest,
+    ): LinkRoute = LinkRouter.route(
+        url = url,
+        settings = settings,
+        nav = NavigationFacts(
+            hasUserGesture = request.hasUserGesture,
+            isRedirect = request.isRedirect,
+            opensNewWindow = request.target == TARGET_WINDOW_NEW,
+            isDirectNavigation = request.isDirectNavigation,
+        ),
+        context = LinkContext(
+            policyOrigin = host.policyOrigin,
+            browsingExternally = browsingExternally,
+            isInitialLoad = isInitialLoad,
+            hasPeelAppMatch = { host.findPeelAppMatches(it).isNotEmpty() },
+        ),
+    )
+
+    private fun showBlockedToast() {
+        host.runOnUi {
+            val context = host.hostWindow.context
+            NotificationUtils.showToastSafe(
+                context,
+                context.getString(R.string.domain_blocked_toast),
+            )
+        }
+    }
 
     // No load will start, so nothing downstream will report the page as settled.
     private fun refuse(): GeckoResult<AllowOrDeny> {
         host.runOnUi { host.onPageLoadEnded() }
         return deny()
-    }
-
-    private fun routeBrowserLoad(
-        url: String,
-        settings: WebAppSettings,
-        request: LoadRequest,
-    ): GeckoResult<AllowOrDeny> {
-        val target = settings.upgradeUrl(url)
-
-        if (settings.isOpenUrlExternal == true && shouldRouteExternally(target, request)) {
-            return promptForExternalLink(target, redirectFallbackFor(request), target != url)
-        }
-
-        return if (target != url) redirectTo(target) else allow()
     }
 
     override fun onNewSession(
@@ -137,7 +159,7 @@ class PeelNavigationDelegate(
         uri: String?,
         error: WebRequestError,
     ): GeckoResult<String>? {
-        if (uri == null || !isBrowserScheme(uri)) return null
+        if (uri == null || !LinkRouter.isBrowserScheme(uri)) return null
         if (isSpuriousError(error)) return null
         if (isCertError(error) && host.effectiveSettings.isAllowCertBypass == true) {
             return GeckoResult.fromValue(CertErrorPage.urlFor(uri))
@@ -167,26 +189,16 @@ class PeelNavigationDelegate(
     private fun hasCommittedContent(): Boolean =
         lastLocation.isNotEmpty() && lastLocation != "about:blank"
 
-    private fun shouldRouteExternally(url: String, request: LoadRequest): Boolean {
-        if (browsingExternally || isInitialLoad) return false
-        if (isInApp(url)) return false
-        if (isExplicitDownload(url)) return false
-
-        val peelMatches = host.findPeelAppMatches(url)
-        return peelMatches.isNotEmpty() || request.hasUserGesture || request.isRedirect ||
-                request.target == TARGET_WINDOW_NEW
-    }
-
     private fun promptForExternalLink(
         url: String,
         redirectFallback: String?,
-        wasUpgraded: Boolean,
+        reloadOnLoadHere: Boolean,
     ): GeckoResult<AllowOrDeny> {
         val decision = GeckoResult<AllowOrDeny>()
         val prompt = ExternalLinkPrompt(
             url = url,
             redirectFallback = redirectFallback,
-            wasUpgraded = wasUpgraded,
+            reloadOnLoadHere = reloadOnLoadHere,
             decision = decision,
         )
         pendingPrompts.addLast(prompt)
@@ -210,7 +222,7 @@ class PeelNavigationDelegate(
     private fun resolveExternalLink(prompt: ExternalLinkPrompt, result: ExternalLinkResult) {
         if (result == ExternalLinkResult.LoadHere) {
             browsingExternally = true
-            if (prompt.wasUpgraded) {
+            if (prompt.reloadOnLoadHere) {
                 prompt.settle(AllowOrDeny.DENY)
                 host.loadURL(prompt.url)
             } else {
@@ -315,8 +327,38 @@ class PeelNavigationDelegate(
 
     private fun applyAppLinkDeny(browserFallback: String?, redirectFallback: String?) {
         when {
-            browserFallback != null -> host.loadURL(browserFallback)
+            browserFallback != null -> loadFallback(browserFallback, redirectFallback)
             else -> dismissRedirect(redirectFallback)
+        }
+    }
+
+    private fun loadFallback(url: String, redirectFallback: String?) {
+        val route = LinkRouter.route(
+            url = url,
+            settings = host.effectiveSettings,
+            nav = NavigationFacts(
+                hasUserGesture = false,
+                isRedirect = true,
+                opensNewWindow = false,
+                isDirectNavigation = false,
+            ),
+            context = LinkContext(
+                policyOrigin = host.policyOrigin,
+                browsingExternally = browsingExternally,
+                isInitialLoad = isInitialLoad,
+                hasPeelAppMatch = { host.findPeelAppMatches(it).isNotEmpty() },
+            ),
+        )
+        when (route) {
+            LinkRoute.Blocked -> showBlockedToast()
+            is LinkRoute.PromptExternal -> promptForExternalLink(
+                route.target,
+                redirectFallback,
+                reloadOnLoadHere = true,
+            )
+
+            is LinkRoute.Redirect -> host.loadURL(route.target)
+            else -> host.loadURL(url)
         }
     }
 
@@ -367,24 +409,11 @@ class PeelNavigationDelegate(
         } else null
 
     companion object {
-        private val BROWSER_SCHEMES = arrayOf(
-            "http://", "https://", "moz-extension://",
-            "file://", "about:", "blob:", "data:",
-        )
-
-        private val PASSTHROUGH_SCHEMES = arrayOf("blob:", "data:", "moz-extension://")
-
         private val ERROR_NAMES: Map<Int, String> by lazy {
             WebRequestError::class.java.declaredFields
                 .filter { it.name.startsWith("ERROR_") && it.type == Int::class.javaPrimitiveType }
                 .associate { it.getInt(null) to it.name.removePrefix("ERROR_") }
         }
-
-        private fun isBrowserScheme(url: String): Boolean =
-            BROWSER_SCHEMES.any { url.startsWith(it) }
-
-        private fun isPassthroughScheme(url: String): Boolean =
-            PASSTHROUGH_SCHEMES.any { url.startsWith(it) }
 
         private fun isSpuriousError(error: WebRequestError): Boolean =
             error.code == WebRequestError.ERROR_UNKNOWN &&
@@ -395,13 +424,6 @@ class PeelNavigationDelegate(
                     error.code == WebRequestError.ERROR_SECURITY_BAD_CERT ||
                     error.code == WebRequestError.ERROR_SECURITY_SSL ||
                     error.code == WebRequestError.ERROR_BAD_HSTS_CERT
-
-        private fun isExplicitDownload(url: String): Boolean {
-            val query = url.substringAfter('?', "").lowercase()
-            if (query.isEmpty()) return false
-            return "response-content-disposition=attachment" in query ||
-                    "rscd=attachment" in query
-        }
 
         private fun truncateUrl(url: String, maxLen: Int = 80, tail: Int = 10): String {
             if (url.length <= maxLen) return url

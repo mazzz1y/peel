@@ -3,7 +3,7 @@
     <string name="action_settings">设置</string>
     <string name="global_settings">全局设置</string>
     <string name="save">保存</string>
-    <string name="open_external_links_in_browser_app">打开外部链接前询问</string>
+    <string name="setting_external_link_prompt">打开外部链接前询问</string>
     <string name="allow_javascript">允许 JavaScript</string>
     <string name="clear_cache_after_usage">退出时清除缓存</string>
     <string name="fetch_failed">无法从网站获取数据</string>
@@ -112,7 +112,8 @@
     <string name="permission_prompt_camera">允许 %1$s 访问相机？</string>
     <string name="permission_prompt_microphone">允许 %1$s 访问麦克风？</string>
     <string name="permission_prompt_location">允许 %1$s 访问位置？</string>
-    <string name="open_app_links">在外部应用中打开链接</string>
+    <string name="open_app_links">外部应用链接</string>
+    <string name="domain_blocked_toast">链接已被此应用的设置屏蔽</string>
     <string name="permission_prompt_open_app">在外部应用中打开此链接？\n\n%1$s</string>
     <string name="permission_prompt_open_app_intent">在 %1$s 中打开？</string>
     <string name="no_app_found">未找到可处理此链接的应用</string>

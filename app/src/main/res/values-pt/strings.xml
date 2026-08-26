@@ -3,7 +3,7 @@
     <string name="action_settings">Configurações</string>
     <string name="global_settings">Configurações globais</string>
     <string name="save">Salvar</string>
-    <string name="open_external_links_in_browser_app">Perguntar sobre links externos</string>
+    <string name="setting_external_link_prompt">Perguntar sobre links externos</string>
     <string name="allow_javascript">Permitir JavaScript</string>
     <string name="clear_cache_after_usage">Limpar cache ao sair</string>
     <string name="fetch_failed">Não foi possível obter dados do site</string>
@@ -112,7 +112,8 @@
     <string name="permission_prompt_camera">Permitir %1$s acessar a câmera?</string>
     <string name="permission_prompt_microphone">Permitir %1$s acessar o microfone?</string>
     <string name="permission_prompt_location">Permitir %1$s acessar a localização?</string>
-    <string name="open_app_links">Abrir links em apps externos</string>
+    <string name="open_app_links">Links para apps externos</string>
+    <string name="domain_blocked_toast">Link bloqueado pelas configurações deste app</string>
     <string name="permission_prompt_open_app">Abrir este link em um app externo?\n\n%1$s</string>
     <string name="permission_prompt_open_app_intent">Abrir em %1$s?</string>
     <string name="no_app_found">Nenhum app encontrado para este link</string>

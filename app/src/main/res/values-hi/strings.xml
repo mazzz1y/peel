@@ -3,7 +3,7 @@
     <string name="action_settings">सेटिंग्स</string>
     <string name="global_settings">वैश्विक सेटिंग्स</string>
     <string name="save">सहेजें</string>
-    <string name="open_external_links_in_browser_app">बाहरी लिंक के लिए पूछें</string>
+    <string name="setting_external_link_prompt">बाहरी लिंक के लिए पूछें</string>
     <string name="allow_javascript">JavaScript अनुमति दें</string>
     <string name="clear_cache_after_usage">बंद करने पर कैश साफ़ करें</string>
     <string name="fetch_failed">वेबसाइट से डेटा प्राप्त नहीं हो सका</string>
@@ -112,7 +112,8 @@
     <string name="permission_prompt_camera">%1$s को कैमरा एक्सेस की अनुमति दें?</string>
     <string name="permission_prompt_microphone">%1$s को माइक्रोफ़ोन एक्सेस की अनुमति दें?</string>
     <string name="permission_prompt_location">%1$s को स्थान एक्सेस की अनुमति दें?</string>
-    <string name="open_app_links">बाहरी ऐप्स में लिंक खोलें</string>
+    <string name="open_app_links">बाहरी ऐप लिंक</string>
+    <string name="domain_blocked_toast">इस ऐप की सेटिंग्स द्वारा लिंक ब्लॉक किया गया</string>
     <string name="permission_prompt_open_app">इस लिंक को बाहरी ऐप में खोलें?\n\n%1$s</string>
     <string name="permission_prompt_open_app_intent">%1$s में खोलें?</string>
     <string name="no_app_found">इस लिंक के लिए कोई ऐप नहीं मिला</string>

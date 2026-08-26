@@ -3,7 +3,7 @@
     <string name="action_settings">Cài đặt</string>
     <string name="global_settings">Cài đặt toàn cục</string>
     <string name="save">Lưu</string>
-    <string name="open_external_links_in_browser_app">Hỏi khi mở liên kết bên ngoài</string>
+    <string name="setting_external_link_prompt">Hỏi khi mở liên kết bên ngoài</string>
     <string name="allow_javascript">Cho phép JavaScript</string>
     <string name="clear_cache_after_usage">Xóa bộ nhớ đệm khi thoát</string>
     <string name="fetch_failed">Không thể lấy dữ liệu từ trang web</string>
@@ -112,7 +112,8 @@
     <string name="permission_prompt_camera">Cho phép %1$s truy cập camera?</string>
     <string name="permission_prompt_microphone">Cho phép %1$s truy cập micro?</string>
     <string name="permission_prompt_location">Cho phép %1$s truy cập vị trí?</string>
-    <string name="open_app_links">Mở liên kết trong ứng dụng bên ngoài</string>
+    <string name="open_app_links">Liên kết ứng dụng bên ngoài</string>
+    <string name="domain_blocked_toast">Liên kết bị chặn bởi cài đặt của ứng dụng này</string>
     <string name="permission_prompt_open_app">Mở liên kết này trong ứng dụng bên ngoài?\n\n%1$s</string>
     <string name="permission_prompt_open_app_intent">Mở trong %1$s?</string>
     <string name="no_app_found">Không tìm thấy ứng dụng cho liên kết này</string>

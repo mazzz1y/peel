@@ -31,7 +31,7 @@
     <string name="push_subscription_deleted">Notification permission reset</string>
     <string name="push_subscription_delete_confirm">Reset notifications for this site? Any subscription is removed and the site will ask for permission again the next time it requests it.</string>
     <string name="save">Save</string>
-    <string name="open_external_links_in_browser_app">Prompt for external links</string>
+    <string name="setting_external_link_prompt">Prompt for external links</string>
     <string name="allow_javascript">Allow JavaScript</string>
     <string name="clear_cache_after_usage">Clear cache on exit</string>
     <string name="cache_cleared">Cache cleared</string>
@@ -158,7 +158,8 @@
     <string name="permission_prompt_microphone">Allow %1$s to access your microphone?</string>
     <string name="permission_prompt_location">Allow %1$s to access your location?</string>
     <string name="permission_prompt_notifications">Allow %1$s to send you notifications?</string>
-    <string name="open_app_links">Open links in external apps</string>
+    <string name="open_app_links">External app links</string>
+    <string name="domain_blocked_toast">Link blocked by this app\'s settings</string>
     <string name="permission_prompt_open_app">Open this link in an external app?\n\n%1$s</string>
     <string name="permission_prompt_open_app_intent">Open in %1$s?</string>
     <string name="no_app_found">No app found to handle this link</string>

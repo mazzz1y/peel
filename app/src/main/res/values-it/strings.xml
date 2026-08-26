@@ -3,7 +3,7 @@
     <string name="action_settings">Impostazioni</string>
     <string name="global_settings">Impostazioni generali</string>
     <string name="save">Salva</string>
-    <string name="open_external_links_in_browser_app">Chiedi per i collegamenti esterni</string>
+    <string name="setting_external_link_prompt">Chiedi per i collegamenti esterni</string>
     <string name="allow_javascript">Consenti Javascript</string>
     <string name="clear_cache_after_usage">Cancella la cache dopo l\'utilizzo</string>
     <string name="enter_valid_url">Inserire un indirizzo web valido</string>
@@ -179,7 +179,8 @@
     <string name="permission_deny">Nega</string>
     <string name="permission_prompt_camera">Consentire a %1$s di accedere alla fotocamera?</string>
     <string name="permission_prompt_location">Consentire a %1$s di accedere alla posizione?</string>
-    <string name="open_app_links">Apri link in app esterne</string>
+    <string name="open_app_links">Link ad app esterne</string>
+    <string name="domain_blocked_toast">Link bloccato dalle impostazioni di questa app</string>
     <string name="permission_prompt_open_app">Aprire questo link in un\'app esterna?\n\n%1$s</string>
     <string name="permission_prompt_open_app_intent">Aprire in %1$s?</string>
     <string name="no_app_found">Nessuna app trovata per questo link</string>

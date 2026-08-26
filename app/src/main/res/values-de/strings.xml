@@ -4,7 +4,7 @@
     <string name="clear_cache_after_usage">Cache nach Benutzung löschen</string>
     <string name="save">Speichern</string>
     <string name="action_settings">Einstellungen</string>
-    <string name="open_external_links_in_browser_app">Bei externen Links nachfragen</string>
+    <string name="setting_external_link_prompt">Bei externen Links nachfragen</string>
     <string name="allow_javascript">Javascript zulassen</string>
     <string name="enter_valid_url">Bitte geben Sie eine gültige URL an</string>
     <string name="add_webapp">Web-App hinzufügen</string>
@@ -179,7 +179,8 @@
     <string name="permission_deny">Verweigern</string>
     <string name="permission_prompt_camera">%1$s Zugriff auf die Kamera erlauben?</string>
     <string name="permission_prompt_location">%1$s Zugriff auf den Standort erlauben?</string>
-    <string name="open_app_links">Links in externen Apps öffnen</string>
+    <string name="open_app_links">Externe App-Links</string>
+    <string name="domain_blocked_toast">Link durch die Einstellungen dieser App blockiert</string>
     <string name="permission_prompt_open_app">Diesen Link in einer externen App öffnen?\n\n%1$s</string>
     <string name="permission_prompt_open_app_intent">In %1$s öffnen?</string>
     <string name="no_app_found">Keine App für diesen Link gefunden</string>

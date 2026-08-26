@@ -3,7 +3,7 @@
     <string name="action_settings">設定</string>
     <string name="global_settings">グローバル設定</string>
     <string name="save">保存</string>
-    <string name="open_external_links_in_browser_app">外部リンクを開く前に確認</string>
+    <string name="setting_external_link_prompt">外部リンクを開く前に確認</string>
     <string name="allow_javascript">JavaScriptを許可</string>
     <string name="clear_cache_after_usage">終了時にキャッシュを消去</string>
     <string name="fetch_failed">ウェブサイトからデータを取得できませんでした</string>
@@ -112,7 +112,8 @@
     <string name="permission_prompt_camera">%1$sにカメラへのアクセスを許可しますか？</string>
     <string name="permission_prompt_microphone">%1$sにマイクへのアクセスを許可しますか？</string>
     <string name="permission_prompt_location">%1$sに位置情報へのアクセスを許可しますか？</string>
-    <string name="open_app_links">外部アプリでリンクを開く</string>
+    <string name="open_app_links">外部アプリのリンク</string>
+    <string name="domain_blocked_toast">このアプリの設定によりリンクがブロックされました</string>
     <string name="permission_prompt_open_app">このリンクを外部アプリで開きますか？\n\n%1$s</string>
     <string name="permission_prompt_open_app_intent">%1$s で開きますか?</string>
     <string name="no_app_found">このリンクに対応するアプリが見つかりません</string>
