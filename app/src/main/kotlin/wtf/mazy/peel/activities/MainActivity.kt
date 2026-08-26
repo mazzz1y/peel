@@ -413,10 +413,9 @@ class MainActivity :
             if (groups.isNotEmpty() && currentPage < groups.size) {
                 newSite.groupUuid = groups[currentPage].uuid
             }
-            newSite.order = DataManager.instance.nextOrderInGroup(newSite.groupUuid)
 
             lifecycleScope.launch {
-                DataManager.instance.addWebsite(newSite)
+                DataManager.instance.addWebsite(newSite, appendOrder = true)
 
                 val settingsIntent = Intent(this@MainActivity, WebAppSettingsActivity::class.java)
                 settingsIntent.putExtra(Const.INTENT_WEBAPP_UUID, newSite.uuid)

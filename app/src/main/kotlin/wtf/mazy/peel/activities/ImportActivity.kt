@@ -116,15 +116,12 @@ class ImportActivity : AppCompatActivity() {
                     ) { result ->
                         val title = result.text.trim()
                         if (title.isEmpty()) return@showSandboxInputDialog
-                        val group = WebAppGroup(
-                            title = title,
-                            order = DataManager.instance.getGroups().size,
-                        )
+                        val group = WebAppGroup(title = title)
                         group.isUseContainer = result.sandbox
                         group.isEphemeralSandbox = result.ephemeral
                         group.proxyUuid = result.proxyUuid
                         lifecycleScope.launch {
-                            DataManager.instance.addGroup(group)
+                            DataManager.instance.addGroup(group, appendOrder = true)
                             selectedGroupUuid = group.uuid
 
                             groupValues.add(groupValues.size - 2, group.uuid)

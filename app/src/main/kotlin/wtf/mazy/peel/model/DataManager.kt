@@ -48,8 +48,11 @@ class DataManager private constructor() {
             val value: WebApp
         ) : Action
 
-        data class AddWebsite(override val done: CompletableDeferred<Unit>, val site: WebApp) :
-            Action
+        data class AddWebsite(
+            override val done: CompletableDeferred<Unit>,
+            val site: WebApp,
+            val appendOrder: Boolean,
+        ) : Action
 
         data class RemoveWebsite(override val done: CompletableDeferred<Unit>, val uuid: String) :
             Action
@@ -84,8 +87,11 @@ class DataManager private constructor() {
             val importedProxies: List<Proxy>,
         ) : Action
 
-        data class AddGroup(override val done: CompletableDeferred<Unit>, val group: WebAppGroup) :
-            Action
+        data class AddGroup(
+            override val done: CompletableDeferred<Unit>,
+            val group: WebAppGroup,
+            val appendOrder: Boolean,
+        ) : Action
 
         data class ReplaceGroup(
             override val done: CompletableDeferred<Unit>,
@@ -189,9 +195,9 @@ class DataManager private constructor() {
         enqueueAndAwait(Action.SetDefaultSettings(CompletableDeferred(), WebApp(value)))
     }
 
-    suspend fun addWebsite(newSite: WebApp) {
+    suspend fun addWebsite(newSite: WebApp, appendOrder: Boolean = false) {
         awaitReady()
-        enqueueAndAwait(Action.AddWebsite(CompletableDeferred(), WebApp(newSite)))
+        enqueueAndAwait(Action.AddWebsite(CompletableDeferred(), WebApp(newSite), appendOrder))
     }
 
     suspend fun removeWebApp(uuid: String) {
@@ -313,15 +319,6 @@ class DataManager private constructor() {
         return withContext(Dispatchers.IO) { repository.getGroup(uuid) }
     }
 
-    val incrementedOrder: Int
-        get() = nextOrderInGroup(null)
-
-    fun nextOrderInGroup(groupUuid: String?): Int =
-        currentState.websites
-            .filter { it.groupUuid == groupUuid }
-            .maxOfOrNull { it.order }
-            ?.plus(1) ?: 0
-
     fun getGroups(): List<WebAppGroup> = currentState.groups.map { WebAppGroup(it) }
 
     val sortedGroups: List<WebAppGroup>
@@ -333,9 +330,9 @@ class DataManager private constructor() {
     fun getSandboxOwner(contextId: String): SandboxOwner? =
         getWebApp(contextId) ?: getGroup(contextId)
 
-    suspend fun addGroup(group: WebAppGroup) {
+    suspend fun addGroup(group: WebAppGroup, appendOrder: Boolean = false) {
         awaitReady()
-        enqueueAndAwait(Action.AddGroup(CompletableDeferred(), WebAppGroup(group)))
+        enqueueAndAwait(Action.AddGroup(CompletableDeferred(), WebAppGroup(group), appendOrder))
     }
 
     suspend fun replaceGroup(group: WebAppGroup) {
@@ -468,10 +465,14 @@ class DataManager private constructor() {
 
             is Action.AddWebsite -> {
                 if (!repository.isInitialized) return
-                repository.upsertWebApp(action.site)
+                val site = WebApp(action.site)
+                if (action.appendOrder) {
+                    site.order = OrderAllocator(currentState).nextWebAppOrder(site.groupUuid)
+                }
+                repository.upsertWebApp(site)
                 updateState(
                     DataReducer.withWebsites(
-                        currentState.websites + WebApp(action.site),
+                        currentState.websites + WebApp(site),
                         emit = true
                     )
                 )
@@ -555,19 +556,35 @@ class DataManager private constructor() {
                 val nextDefault = WebApp(currentState.defaultSettings).apply {
                     settings = action.globalSettings.deepCopy()
                 }
+                val localApps = currentState.websites.associateBy { it.uuid }
+                val localGroups = currentState.groups.associateBy { it.uuid }
+                val allocator = OrderAllocator(currentState)
+                val mergedWebApps = action.importedWebApps.map { site ->
+                    val localOrder = localApps[site.uuid]
+                        ?.takeIf { it.groupUuid == site.groupUuid }
+                        ?.order
+                    WebApp(site).apply {
+                        order = localOrder ?: allocator.nextWebAppOrder(site.groupUuid)
+                    }
+                }
+                val mergedGroups = action.importedGroups.map { group ->
+                    group.copy(order = localGroups[group.uuid]?.order ?: allocator.nextGroupOrder())
+                }
                 repository.persistGlobalSettings(nextDefault)
-                repository.upsertWebApps(action.importedWebApps)
-                repository.upsertGroups(action.importedGroups)
+                repository.upsertWebApps(mergedWebApps)
+                repository.upsertGroups(mergedGroups)
                 repository.upsertProxies(action.importedProxies)
                 reloadAll()
             }
 
             is Action.AddGroup -> {
                 if (!repository.isInitialized) return
-                repository.upsertGroup(action.group)
+                val group = WebAppGroup(action.group)
+                if (action.appendOrder) group.order = OrderAllocator(currentState).nextGroupOrder()
+                repository.upsertGroup(group)
                 updateState(
                     DataReducer.withGroups(
-                        currentState.groups + WebAppGroup(action.group),
+                        currentState.groups + WebAppGroup(group),
                         emit = true
                     )
                 )

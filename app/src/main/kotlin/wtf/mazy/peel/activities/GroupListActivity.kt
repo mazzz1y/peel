@@ -97,13 +97,12 @@ class GroupListActivity : EntityListActivity<WebAppGroup>() {
             titleRes = R.string.add_group,
             hintRes = R.string.group_name_hint,
         ) { result ->
-            val group =
-                WebAppGroup(title = result.text, order = DataManager.instance.getGroups().size)
+            val group = WebAppGroup(title = result.text)
             group.isUseContainer = result.sandbox
             group.isEphemeralSandbox = result.ephemeral
             group.proxyUuid = result.proxyUuid
             DataManager.instance.appScope.launch {
-                DataManager.instance.addGroup(group)
+                DataManager.instance.addGroup(group, appendOrder = true)
             }
         }
     }

@@ -7,22 +7,18 @@ import java.util.UUID
 object EntityCloner {
 
     suspend fun cloneWebApp(webapp: WebApp) {
-        val clone = webapp.cloneWith(
-            webapp.groupUuid,
-            DataManager.instance.nextOrderInGroup(webapp.groupUuid),
-        )
+        val clone = webapp.cloneWith(webapp.groupUuid, order = 0)
         withContext(Dispatchers.IO) { clone.copyIconFrom(webapp) }
-        DataManager.instance.addWebsite(clone)
+        DataManager.instance.addWebsite(clone, appendOrder = true)
     }
 
     suspend fun deepCloneGroup(group: WebAppGroup) {
         val newGroup = group.copy(
             uuid = UUID.randomUUID().toString(),
-            order = DataManager.instance.getGroups().maxOfOrNull { it.order }?.plus(1) ?: 0,
             settings = group.settings.deepCopy(),
         )
         withContext(Dispatchers.IO) { newGroup.copyIconFrom(group) }
-        DataManager.instance.addGroup(newGroup)
+        DataManager.instance.addGroup(newGroup, appendOrder = true)
 
         DataManager.instance.activeWebsitesForGroup(group.uuid).forEach { webapp ->
             val clone = webapp.cloneWith(newGroup.uuid, webapp.order)

@@ -31,7 +31,6 @@ object BackupImportService {
         val dataManager = DataManager.instance
         val existingUuids = dataManager.getWebsites().mapTo(mutableSetOf()) { it.uuid }
         var importedCount = 0
-        var nextOrder = dataManager.incrementedOrder
 
         parsed.backupData.websites.forEach { surrogate ->
             if (surrogate.uuid !in selectedUuids) return@forEach
@@ -43,9 +42,8 @@ object BackupImportService {
 
             val webApp = surrogate.toDomain(targetUuid)
             webApp.groupUuid = destinationGroupUuid
-            webApp.order = nextOrder++
 
-            dataManager.addWebsite(webApp)
+            dataManager.addWebsite(webApp, appendOrder = true)
             parsed.icons[surrogate.uuid]?.let { BackupArchiveCodec.saveIcon(webApp.uuid, it) }
             ShortcutHelper.updatePinnedShortcut(webApp, App.appContext)
             importedCount++
@@ -65,16 +63,14 @@ object BackupImportService {
         val dataManager = DataManager.instance
         val existingUuids = dataManager.getWebsites().mapTo(mutableSetOf()) { it.uuid }
         val groupUuidMap = mutableMapOf<String, String>()
-        var nextGroupOrder = dataManager.getGroups().size
 
         parsed.backupData.groups.forEach { groupSurrogate ->
             if (groupSurrogate.uuid !in selectedGroupUuids) return@forEach
             val originalGroupUuid = groupSurrogate.uuid
             val importedGroup = groupSurrogate.toDomain().copy(
                 uuid = UUID.randomUUID().toString(),
-                order = nextGroupOrder++,
             )
-            dataManager.addGroup(importedGroup)
+            dataManager.addGroup(importedGroup, appendOrder = true)
             groupUuidMap[originalGroupUuid] = importedGroup.uuid
             parsed.icons[originalGroupUuid]?.let {
                 BackupArchiveCodec.saveIcon(
@@ -88,7 +84,6 @@ object BackupImportService {
 
         val defaultGroupUuid = groupUuidMap.values.first()
         var importedCount = 0
-        var nextOrder = dataManager.incrementedOrder
 
         parsed.backupData.websites.forEach { surrogate ->
             if (surrogate.uuid !in selectedUuids) return@forEach
@@ -100,9 +95,8 @@ object BackupImportService {
 
             val webApp = surrogate.toDomain(targetUuid)
             webApp.groupUuid = surrogate.groupUuid?.let(groupUuidMap::get) ?: defaultGroupUuid
-            webApp.order = nextOrder++
 
-            dataManager.addWebsite(webApp)
+            dataManager.addWebsite(webApp, appendOrder = true)
             parsed.icons[surrogate.uuid]?.let { BackupArchiveCodec.saveIcon(webApp.uuid, it) }
             ShortcutHelper.updatePinnedShortcut(webApp, App.appContext)
             importedCount++
