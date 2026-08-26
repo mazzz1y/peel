@@ -10,6 +10,7 @@ import wtf.mazy.peel.model.IconOwner
 import wtf.mazy.peel.model.ParsedBackup
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.util.App
+import wtf.mazy.peel.util.isCanonicalUuid
 import java.io.File
 import java.io.FileOutputStream
 import java.util.zip.ZipEntry
@@ -131,9 +132,11 @@ object BackupArchiveCodec {
                 entry.name.startsWith(BackupPolicy.ICONS_PREFIX) && entry.name.endsWith(".png") -> {
                     val appUuid =
                         entry.name.removePrefix(BackupPolicy.ICONS_PREFIX).removeSuffix(".png")
-                    val bytes = zip.readBytes()
-                    val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
-                    if (bitmap != null) icons[appUuid] = bitmap
+                    if (appUuid.isCanonicalUuid()) {
+                        val bytes = zip.readBytes()
+                        val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+                        if (bitmap != null) icons[appUuid] = bitmap
+                    }
                 }
             }
             entry = zip.nextEntry
@@ -148,7 +151,14 @@ object BackupArchiveCodec {
                 return null
             }
         if (backupData.version != BackupPolicy.BACKUP_VERSION) return null
+        if (!hasValidUuids(backupData)) return null
         return ParsedBackup(backupData, icons, markerVersion)
     }
 
+    // Uuids from a backup end up in filesystem paths (IconOwner.iconFile), so a
+    // malformed uuid is a path traversal vector, not just bad data.
+    private fun hasValidUuids(backupData: BackupData): Boolean =
+        backupData.websites.all { it.uuid.isCanonicalUuid() } &&
+                backupData.groups.all { it.uuid.isCanonicalUuid() } &&
+                backupData.proxies.all { it.uuid.isCanonicalUuid() }
 }
