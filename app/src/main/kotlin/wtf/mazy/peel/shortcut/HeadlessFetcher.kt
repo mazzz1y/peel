@@ -462,18 +462,16 @@ class HeadlessFetcher(
         portReady?.cancel()
         portReady = null
         if (session != null || view != null) {
-            handler.post {
-                try {
-                    session?.let {
-                        GeckoRuntimeProvider.getRuntime(appContext)
-                            .webExtensionController.setTabActive(it, false)
-                    }
-                    session?.setActive(false)
-                    view?.releaseSession()
-                    session?.close()
-                    (view?.parent as? ViewGroup)?.removeView(view)
-                } catch (_: Exception) {
+            try {
+                session?.let {
+                    GeckoRuntimeProvider.getRuntime(appContext)
+                        .webExtensionController.setTabActive(it, false)
                 }
+                session?.setActive(false)
+                view?.releaseSession()
+                session?.close()
+                (view?.parent as? ViewGroup)?.removeView(view)
+            } catch (_: Exception) {
             }
         }
     }
