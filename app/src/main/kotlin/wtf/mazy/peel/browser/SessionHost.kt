@@ -5,6 +5,7 @@ import android.content.res.Resources
 import android.net.Uri
 import android.view.Window
 import android.widget.ProgressBar
+import androidx.appcompat.app.AlertDialog
 import org.mozilla.geckoview.GeckoResult
 import org.mozilla.geckoview.GeckoSession
 import wtf.mazy.peel.model.WebApp
@@ -56,7 +57,7 @@ interface SessionHost {
         onResult: (username: String, password: String) -> Unit,
         onCancel: () -> Unit,
         url: String?,
-    )
+    ): AlertDialog
 
     fun loadURL(url: String)
     fun goBackOrFinish()

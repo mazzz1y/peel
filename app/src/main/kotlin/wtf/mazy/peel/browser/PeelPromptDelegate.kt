@@ -166,13 +166,14 @@ class PeelPromptDelegate(private val host: SessionHost) : GeckoSession.PromptDel
         }
 
         val result = GeckoResult<GeckoSession.PromptDelegate.PromptResponse>()
-        host.showHttpAuthDialog(
+        val dialog = host.showHttpAuthDialog(
             onResult = { username, password ->
-                result.complete(prompt.confirm(username, password))
+                if (!prompt.isComplete) result.complete(prompt.confirm(username, password))
             },
-            onCancel = { result.complete(prompt.dismiss()) },
+            onCancel = { if (!prompt.isComplete) result.complete(prompt.dismiss()) },
             url = authUri,
         )
+        prompt.guardEngineDismiss(dialog, result)
         return result
     }
 
@@ -323,16 +324,24 @@ class PeelPromptDelegate(private val host: SessionHost) : GeckoSession.PromptDel
         val isMultiple = prompt.type == GeckoSession.PromptDelegate.FilePrompt.Type.MULTIPLE
 
         host.filePathCallback = { uris ->
-            if (!uris.isNullOrEmpty()) {
-                if (isMultiple) {
-                    result.complete(prompt.confirm(context, uris))
+            if (!prompt.isComplete) {
+                if (!uris.isNullOrEmpty()) {
+                    if (isMultiple) {
+                        result.complete(prompt.confirm(context, uris))
+                    } else {
+                        result.complete(prompt.confirm(context, uris.first()))
+                    }
                 } else {
-                    result.complete(prompt.confirm(context, uris.first()))
+                    result.complete(prompt.dismiss())
                 }
-            } else {
-                result.complete(prompt.dismiss())
             }
         }
+        prompt.setDelegate(object : GeckoSession.PromptDelegate.PromptInstanceDelegate {
+            override fun onPromptDismiss(closed: GeckoSession.PromptDelegate.BasePrompt) {
+                host.filePathCallback = null
+                if (!closed.isComplete) result.complete(closed.dismiss())
+            }
+        })
 
         fun matchesAny(prefix: String) =
             mimeTypes.isEmpty() || mimeTypes.any { it.startsWith(prefix) || it == "*/*" }
@@ -354,7 +363,7 @@ class PeelPromptDelegate(private val host: SessionHost) : GeckoSession.PromptDel
                 if (directIntent != null) {
                     if (!host.launchFilePicker(directIntent)) {
                         host.filePathCallback = null
-                        result.complete(prompt.dismiss())
+                        if (!prompt.isComplete) result.complete(prompt.dismiss())
                     }
                     return
                 }
@@ -394,7 +403,7 @@ class PeelPromptDelegate(private val host: SessionHost) : GeckoSession.PromptDel
 
             if (!host.launchFilePicker(launchIntent)) {
                 host.filePathCallback = null
-                result.complete(prompt.dismiss())
+                if (!prompt.isComplete) result.complete(prompt.dismiss())
             }
         }
 

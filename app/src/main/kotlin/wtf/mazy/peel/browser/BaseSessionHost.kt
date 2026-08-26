@@ -475,10 +475,10 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost, TranslationHo
         onResult: (username: String, password: String) -> Unit,
         onCancel: () -> Unit,
         url: String?,
-    ) {
+    ): AlertDialog {
         var passwordInput: TextInputEditText? = null
         val dp8 = (resources.displayMetrics.density * 8).toInt()
-        showInputDialogRaw(
+        return showInputDialogRaw(
             InputDialogConfig(
                 titleRes = R.string.setting_basic_auth,
                 hintRes = R.string.username,

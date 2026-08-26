@@ -38,7 +38,7 @@ fun Activity.showInputDialog(
 fun Activity.showInputDialogRaw(
     config: InputDialogConfig,
     onPositive: (TextInputEditText, View) -> Unit,
-) {
+): androidx.appcompat.app.AlertDialog {
     val content = DialogContent.of(this)
     config.message?.let { content.message(it) }
 
@@ -83,4 +83,5 @@ fun Activity.showInputDialogRaw(
         okButton.isEnabled = config.prefill.isNotBlank()
         input.doAfterTextChanged { okButton.isEnabled = !it.isNullOrBlank() }
     }
+    return dialog
 }
