@@ -709,6 +709,8 @@ class BrowserActivity : BaseSessionHost() {
     }
 
     private fun setupMediaPlayback(settings: WebAppSettings) {
+        mediaPlaybackManager?.release()
+        mediaPlaybackManager = null
         if (settings.isAllowMediaPlaybackInBackground != true) return
         val session = geckoSession ?: return
         val manager = MediaPlaybackManager(this)
