@@ -75,8 +75,7 @@ class ExtensionPageActivity : SessionPageActivity() {
             return
         }
         if (isFinishing || isDestroyed) return
-        geckoView?.releaseSession()
-        geckoSession?.close()
+        closeGeckoSession()
         openSession(baseUrl)
     }
 

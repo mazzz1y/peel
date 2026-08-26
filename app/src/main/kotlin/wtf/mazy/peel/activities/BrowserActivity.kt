@@ -390,9 +390,7 @@ class BrowserActivity : BaseSessionHost() {
         sessionExtensionActions.detach()
         pageBridge?.detach(closingSession = true)
         pageBridge = null
-        geckoView?.releaseSession()
-        geckoSession?.close()
-        geckoSession = null
+        closeGeckoSession()
         geckoView = null
         SessionContextRegistry.unregister(this)
         if (isFinishing) {
@@ -621,8 +619,7 @@ class BrowserActivity : BaseSessionHost() {
         (geckoSession?.contentDelegate as? PeelContentDelegate)?.exitFullscreen()
         pageBridge?.detach(closingSession = true)
         pageBridge = null
-        geckoView?.releaseSession()
-        geckoSession?.close()
+        closeGeckoSession()
 
         currentUrl = ""
         lastLoadedUrl = ""

@@ -112,10 +112,8 @@ abstract class SessionPageActivity : BaseSessionHost() {
     protected open fun onSessionStopped() = Unit
 
     override fun onDestroy() {
-        geckoView?.releaseSession()
+        closeGeckoSession()
         geckoView = null
-        geckoSession?.close()
-        geckoSession = null
         super.onDestroy()
         SessionContextRegistry.unregister(this)
     }

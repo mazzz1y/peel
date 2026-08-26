@@ -122,6 +122,14 @@ class PeelProgressDelegate(
         }
     }
 
+    fun release() {
+        ticking = false
+        animator?.removeAllListeners()
+        animator?.cancel()
+        animator = null
+        host.hostProgressBar?.removeCallbacks(tickRunnable)
+    }
+
     private fun applyProgress(bar: ProgressBar) {
         bar.progress = (displayProgress * PROGRESS_SCALE).toInt()
     }

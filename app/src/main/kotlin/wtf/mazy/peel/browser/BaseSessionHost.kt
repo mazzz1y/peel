@@ -542,6 +542,13 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost, TranslationHo
         super.onDestroy()
     }
 
+    protected fun closeGeckoSession() {
+        (geckoSession?.progressDelegate as? PeelProgressDelegate)?.release()
+        geckoView?.releaseSession()
+        geckoSession?.close()
+        geckoSession = null
+    }
+
     protected fun tryStartActivity(intent: Intent): Boolean = try {
         startActivity(intent)
         true
