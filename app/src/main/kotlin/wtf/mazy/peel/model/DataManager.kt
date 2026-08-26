@@ -7,6 +7,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -144,7 +145,7 @@ class DataManager private constructor() {
     val pendingDeleteGroupUuids: MutableSet<String> = ConcurrentHashMap.newKeySet()
 
     private val _state =
-        MutableSharedFlow<DataState>(replay = 1)
+        MutableSharedFlow<DataState>(replay = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
     val state: SharedFlow<DataState> = _state.asSharedFlow()
     private val _isReady = MutableStateFlow(false)
     val isReady: StateFlow<Boolean> = _isReady.asStateFlow()
