@@ -337,7 +337,7 @@ class BrowserActivity : BaseSessionHost() {
         super.onStop()
         GeckoRuntimeProvider.removeExtensionStateListener(extensionStateListener)
         if (isTaskSnapshotProtected) systemBarController.resetToTheme()
-        if (!isStartupComplete || biometricController.isPromptActive) {
+        if (!isStartupComplete) {
             biometricController.onStop(); return
         }
 
