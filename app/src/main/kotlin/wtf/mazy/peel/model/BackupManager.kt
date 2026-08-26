@@ -39,8 +39,8 @@ object BackupManager {
         val websites = dataManager.getWebsites()
         return BackupArchiveCodec.writeBackupToUri(
             buildFullBackupData(dataManager, websites),
-            websites,
-            uri
+            websites + dataManager.getGroups(),
+            uri,
         )
     }
 
@@ -78,12 +78,7 @@ object BackupManager {
             },
             groups = safeGroups,
         )
-        return BackupArchiveCodec.buildBackupFile(
-            backupData = backupData,
-            websites = webApps,
-            prefix = "group",
-            extraIconOwners = groups,
-        )
+        return BackupArchiveCodec.buildBackupFile(backupData, webApps + groups, "group")
     }
 
     fun launchShareChooser(activity: Activity, file: File): Boolean {

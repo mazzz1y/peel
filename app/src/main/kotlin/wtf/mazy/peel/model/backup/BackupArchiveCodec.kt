@@ -8,11 +8,11 @@ import wtf.mazy.peel.model.BackupData
 import wtf.mazy.peel.model.IconCache
 import wtf.mazy.peel.model.IconOwner
 import wtf.mazy.peel.model.ParsedBackup
-import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.util.App
 import wtf.mazy.peel.util.isCanonicalUuid
 import java.io.File
 import java.io.FileOutputStream
+import java.io.OutputStream
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
@@ -34,18 +34,12 @@ object BackupArchiveCodec {
 
     fun writeBackupToUri(
         backupData: BackupData,
-        websites: List<WebApp>,
+        iconOwners: List<IconOwner>,
         uri: Uri,
     ): Boolean {
         return try {
             val stream = App.appContext.contentResolver.openOutputStream(uri) ?: return false
-            stream.use { outputStream ->
-                ZipOutputStream(outputStream).use { zip ->
-                    writeMarker(zip)
-                    writeDataJson(zip, backupData)
-                    websites.forEach { writeIconEntry(zip, it) }
-                }
-            }
+            stream.use { writeArchive(it, backupData, iconOwners) }
             true
         } catch (_: Exception) {
             false
@@ -54,26 +48,30 @@ object BackupArchiveCodec {
 
     fun buildBackupFile(
         backupData: BackupData,
-        websites: List<WebApp>,
+        iconOwners: List<IconOwner>,
         prefix: String,
-        extraIconOwners: List<IconOwner> = emptyList(),
     ): File? {
         return try {
             val filename = BackupPolicy.buildFilename(prefix)
             val file = File(App.appContext.cacheDir, "${BackupPolicy.SHARE_DIR}/$filename")
             file.parentFile?.mkdirs()
             if (file.exists()) file.delete()
-            FileOutputStream(file).use { outputStream ->
-                ZipOutputStream(outputStream).use { zip ->
-                    writeMarker(zip)
-                    writeDataJson(zip, backupData)
-                    websites.forEach { writeIconEntry(zip, it) }
-                    extraIconOwners.forEach { writeIconEntry(zip, it) }
-                }
-            }
+            FileOutputStream(file).use { writeArchive(it, backupData, iconOwners) }
             file
         } catch (_: Exception) {
             null
+        }
+    }
+
+    private fun writeArchive(
+        outputStream: OutputStream,
+        backupData: BackupData,
+        iconOwners: List<IconOwner>,
+    ) {
+        ZipOutputStream(outputStream).use { zip ->
+            writeMarker(zip)
+            writeDataJson(zip, backupData)
+            iconOwners.forEach { writeIconEntry(zip, it) }
         }
     }
 
