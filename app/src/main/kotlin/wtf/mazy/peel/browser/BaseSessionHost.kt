@@ -92,7 +92,7 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost, TranslationHo
     private var controlsGesture = false
     protected lateinit var navigationDelegate: PeelNavigationDelegate
     protected lateinit var downloadHandler: DownloadHandler
-    protected var pendingPermissionCallback: ((Boolean) -> Unit)? = null
+    private val pendingPermissionCallbacks = ArrayDeque<(Boolean) -> Unit>()
 
     override var canGoBack: Boolean = false
     override var lastLoadedUrl: String = ""
@@ -130,8 +130,7 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost, TranslationHo
     protected val permissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { results ->
             val granted = results.isNotEmpty() && results.values.all { it }
-            pendingPermissionCallback?.invoke(granted)
-            pendingPermissionCallback = null
+            pendingPermissionCallbacks.removeFirstOrNull()?.invoke(granted)
         }
 
     override fun runOnUi(action: Runnable) = runOnUiThread(action)
@@ -150,8 +149,13 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost, TranslationHo
         permissions: Array<String>,
         onResult: (granted: Boolean) -> Unit,
     ) {
-        pendingPermissionCallback = onResult
-        permissionLauncher.launch(permissions)
+        pendingPermissionCallbacks.addLast(onResult)
+        try {
+            permissionLauncher.launch(permissions)
+        } catch (_: Exception) {
+            pendingPermissionCallbacks.removeLast()
+            onResult(false)
+        }
     }
 
     override fun hasPermissions(vararg permissions: String): Boolean =
