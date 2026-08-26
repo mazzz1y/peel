@@ -47,6 +47,19 @@ data class WebApp(var baseUrl: String, override val uuid: String = UUID.randomUU
         settings = other.settings.deepCopy()
     }
 
+    fun cloneWith(groupUuid: String?, order: Int): WebApp {
+        val clone = WebApp(baseUrl)
+        clone.title = title
+        clone.isUseContainer = isUseContainer
+        clone.isEphemeralSandbox = isEphemeralSandbox
+        clone.isPrivateSession = isPrivateSession
+        clone.proxyUuid = proxyUuid
+        clone.groupUuid = groupUuid
+        clone.order = order
+        clone.settings = settings.deepCopy()
+        return clone
+    }
+
     fun deleteShortcuts(activity: Activity) {
         ShortcutIconUtils.deleteShortcuts(listOf(uuid), activity)
     }

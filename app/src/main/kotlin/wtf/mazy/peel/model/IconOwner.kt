@@ -50,6 +50,16 @@ interface IconOwner {
         IconCache.evict(this)
     }
 
+    fun copyIconFrom(source: IconOwner) {
+        if (!source.hasCustomIcon) return
+        try {
+            iconFile.parentFile?.mkdirs()
+            source.iconFile.copyTo(iconFile, overwrite = true)
+        } catch (_: Exception) {
+        }
+        IconCache.evict(this)
+    }
+
     companion object {
         fun defaultIconSizePx(): Int =
             (48 * App.appContext.resources.displayMetrics.density).toInt()

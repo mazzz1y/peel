@@ -125,12 +125,14 @@ class PeelNavigationDelegate(
             opensNewWindow = request.target == TARGET_WINDOW_NEW,
             isDirectNavigation = request.isDirectNavigation,
         ),
-        context = LinkContext(
-            policyOrigin = host.policyOrigin,
-            browsingExternally = browsingExternally,
-            isInitialLoad = isInitialLoad,
-            hasPeelAppMatch = { host.findPeelAppMatches(it).isNotEmpty() },
-        ),
+        context = linkContext(),
+    )
+
+    private fun linkContext(): LinkContext = LinkContext(
+        policyOrigin = host.policyOrigin,
+        browsingExternally = browsingExternally,
+        isInitialLoad = isInitialLoad,
+        hasPeelAppMatch = { host.findPeelAppMatches(it).isNotEmpty() },
     )
 
     private fun showBlockedToast() {
@@ -342,12 +344,7 @@ class PeelNavigationDelegate(
                 opensNewWindow = false,
                 isDirectNavigation = false,
             ),
-            context = LinkContext(
-                policyOrigin = host.policyOrigin,
-                browsingExternally = browsingExternally,
-                isInitialLoad = isInitialLoad,
-                hasPeelAppMatch = { host.findPeelAppMatches(it).isNotEmpty() },
-            ),
+            context = linkContext(),
         )
         when (route) {
             LinkRoute.Blocked -> showBlockedToast()

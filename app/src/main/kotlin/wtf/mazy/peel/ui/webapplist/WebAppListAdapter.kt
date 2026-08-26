@@ -1,19 +1,17 @@
 package wtf.mazy.peel.ui.webapplist
 
 import android.content.Intent
-import android.util.Log
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.PopupMenu
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import wtf.mazy.peel.R
 import wtf.mazy.peel.activities.MainActivity
 import wtf.mazy.peel.activities.WebAppSettingsActivity
 import wtf.mazy.peel.model.DataManager
+import wtf.mazy.peel.model.EntityCloner
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.shortcut.ShortcutHelper
 import wtf.mazy.peel.ui.common.ShareSecretsDialog
@@ -198,30 +196,8 @@ class WebAppListAdapter(
         }
 
         private fun cloneWebApp(webapp: WebApp) {
-            val clonedWebApp = WebApp(webapp.baseUrl)
-            clonedWebApp.title = webapp.title
-            clonedWebApp.settings = webapp.settings.deepCopy()
-            clonedWebApp.groupUuid = webapp.groupUuid
-            clonedWebApp.order = DataManager.instance.nextOrderInGroup(webapp.groupUuid)
-            clonedWebApp.isUseContainer = webapp.isUseContainer
-            clonedWebApp.isEphemeralSandbox = webapp.isEphemeralSandbox
-            clonedWebApp.isPrivateSession = webapp.isPrivateSession
-            clonedWebApp.proxyUuid = webapp.proxyUuid
-            val copyIcon = webapp.hasCustomIcon
-
             DataManager.instance.appScope.launch {
-                if (copyIcon) {
-                    withContext(Dispatchers.IO) {
-                        try {
-                            val destFile = clonedWebApp.iconFile
-                            destFile.parentFile?.mkdirs()
-                            webapp.iconFile.copyTo(destFile, overwrite = true)
-                        } catch (e: Exception) {
-                            Log.w(TAG, "cloneWebApp: icon copy failed for ${webapp.uuid}", e)
-                        }
-                    }
-                }
-                DataManager.instance.addWebsite(clonedWebApp)
+                EntityCloner.cloneWebApp(webapp)
             }
         }
 
@@ -247,7 +223,6 @@ class WebAppListAdapter(
         }
 
         companion object {
-            private const val TAG = "WebAppListAdapter"
             private const val MENU_GROUP_BASE = 10000
         }
     }

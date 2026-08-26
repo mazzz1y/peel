@@ -12,6 +12,7 @@ import wtf.mazy.peel.R
 import wtf.mazy.peel.model.ApplyTiming
 import wtf.mazy.peel.model.ApplyTimingRegistry
 import wtf.mazy.peel.model.DataManager
+import wtf.mazy.peel.model.EntityCloner
 import wtf.mazy.peel.model.WebAppGroup
 import wtf.mazy.peel.shortcut.ShortcutHelper
 import wtf.mazy.peel.ui.common.LoadingDialogController
@@ -193,6 +194,13 @@ class GroupListActivity : EntityListActivity<WebAppGroup>() {
 
                     R.id.action_create_shortcut -> {
                         ShortcutHelper.createShortcut(item, this@GroupListActivity); true
+                    }
+
+                    R.id.action_clone -> {
+                        DataManager.instance.appScope.launch {
+                            EntityCloner.deepCloneGroup(item)
+                        }
+                        true
                     }
 
                     R.id.action_edit -> {
