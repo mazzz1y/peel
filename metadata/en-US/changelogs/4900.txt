@@ -1,0 +1,10 @@
+- Fix pages staying active behind the biometric lock
+- Fix stale media notifications after a page crash or reload
+- Fix a permission prompt lost when two arrive at once
+- Fix cancelling the wrong download when several run
+- Fix app link fallbacks bypassing the external link prompt
+- Show a message when a link is blocked by settings
+- Warn before leaving a page with unsaved changes
+- Clone groups with all their apps
+- Update GeckoView to 154.0.20260824154132
+- Other fixes and improvements
