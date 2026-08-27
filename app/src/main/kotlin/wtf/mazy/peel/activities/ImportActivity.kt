@@ -37,7 +37,6 @@ class ImportActivity : AppCompatActivity() {
         setContentView(R.layout.activity_import)
 
         val parsed = pendingBackup ?: run { finish(); return }
-        pendingBackup = null
 
         val groupShareMode = intent.getBooleanExtra(EXTRA_GROUP_SHARE, false)
 
@@ -91,16 +90,25 @@ class ImportActivity : AppCompatActivity() {
         } else if (!hasGroups) {
             groupLayout.visibility = View.GONE
         } else {
-            selectedGroupUuid = groups[0].uuid
+            selectedGroupUuid =
+                if (savedInstanceState?.containsKey(STATE_GROUP_UUID) == true) {
+                    savedInstanceState.getString(STATE_GROUP_UUID)
+                } else {
+                    groups[0].uuid
+                }
             groupValues.add(null)
             groupLabels.add(getString(R.string.ungrouped))
             groupValues.add(CREATE_GROUP_SENTINEL)
             groupLabels.add(getString(R.string.import_group_mode_new))
 
+            if (selectedGroupUuid != null && selectedGroupUuid !in groupValues) {
+                selectedGroupUuid = groups[0].uuid
+            }
+
             val dropdownAdapter =
                 ArrayAdapter(this, android.R.layout.simple_list_item_1, groupLabels)
             dropdown.setAdapter(dropdownAdapter)
-            dropdown.setText(groupLabels[0], false)
+            dropdown.setText(groupLabels[groupValues.indexOf(selectedGroupUuid)], false)
 
             dropdown.setOnItemClickListener { _, _, position, _ ->
                 val value = groupValues[position]
@@ -167,11 +175,16 @@ class ImportActivity : AppCompatActivity() {
             descriptionView.text = getString(descriptionRes, appsText)
         }
 
-        val selectedUuids = websites.mapTo(mutableSetOf()) { it.uuid }
-        val selectedGroupUuids = mutableSetOf<String>()
+        val selectedUuids =
+            savedInstanceState?.getStringArray(STATE_SELECTED_UUIDS)?.toMutableSet()
+                ?: websites.mapTo(mutableSetOf()) { it.uuid }
+        val selectedGroupUuids =
+            savedInstanceState?.getStringArray(STATE_SELECTED_GROUP_UUIDS)?.toMutableSet()
+                ?: mutableSetOf()
+        val restoringSelection = savedInstanceState != null
         val groupSections = if (groupShareMode) {
             parsed.backupData.groups.map { group ->
-                selectedGroupUuids.add(group.uuid)
+                if (!restoringSelection) selectedGroupUuids.add(group.uuid)
                 ImportMappingAdapter.GroupSection(
                     uuid = group.uuid,
                     title = group.title.ifBlank { getString(R.string.group) },
@@ -197,6 +210,18 @@ class ImportActivity : AppCompatActivity() {
         emptyView.visibility = if (isEmpty) View.VISIBLE else View.GONE
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        mappingAdapter?.let { adapter ->
+            outState.putStringArray(STATE_SELECTED_UUIDS, adapter.selectedUuids.toTypedArray())
+            outState.putStringArray(
+                STATE_SELECTED_GROUP_UUIDS,
+                adapter.selectedGroupUuids.toTypedArray(),
+            )
+        }
+        outState.putString(STATE_GROUP_UUID, selectedGroupUuid)
+    }
+
     companion object {
         const val EXTRA_GROUP_SHARE = "group_share"
         const val RESULT_SELECTED_UUIDS = "selected_uuids"
@@ -204,6 +229,9 @@ class ImportActivity : AppCompatActivity() {
         const val RESULT_GROUP_UUID = "group_uuid"
 
         private const val CREATE_GROUP_SENTINEL = "__create_group__"
+        private const val STATE_SELECTED_UUIDS = "state_selected_uuids"
+        private const val STATE_SELECTED_GROUP_UUIDS = "state_selected_group_uuids"
+        private const val STATE_GROUP_UUID = "state_group_uuid"
 
         @Volatile
         var pendingBackup: ParsedBackup? = null

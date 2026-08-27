@@ -24,8 +24,6 @@ data class WebAppGroup(
         settings = other.settings.deepCopy(),
     )
 
-    override val iconStamp: Long = if (iconFile.exists()) iconFile.lastModified() else 0L
-
     val contentFingerprint: Int
         get() = Objects.hash(title, isUseContainer, isEphemeralSandbox, proxyUuid, iconStamp)
 }

@@ -123,19 +123,18 @@ class MediaPlaybackManager(context: Context) : GeckoMediaSession.Delegate {
             return
         }
         generation++
+        val startIntent = MediaPlaybackService.createStartIntent(
+            context, title, icon, webappUuid, generation, contentIntent,
+        )
         try {
-            ContextCompat.startForegroundService(
-                context,
-                MediaPlaybackService.createStartIntent(
-                    context, title, icon, webappUuid, generation, contentIntent,
-                ),
-            )
+            ContextCompat.startForegroundService(context, startIntent)
             serviceStarted = true
         } catch (_: IllegalStateException) {
             serviceStarted = false
         } catch (_: SecurityException) {
             serviceStarted = false
         }
+        if (!serviceStarted) MediaPlaybackService.reclaimStashedBitmap(startIntent)
     }
 
     override fun onPause(session: GeckoSession, mediaSession: GeckoMediaSession) {
@@ -179,10 +178,13 @@ class MediaPlaybackManager(context: Context) : GeckoMediaSession.Delegate {
             })
         meta.artwork?.getBitmap(ARTWORK_SIZE)?.accept { bitmap ->
             if (bitmap != null && serviceStarted) {
-                MediaPlaybackService.pendingArtwork = bitmap
                 startService(
                     Intent(context, MediaPlaybackService.resolveServiceClass()).apply {
                         action = MediaPlaybackService.ACTION_UPDATE_ARTWORK
+                        putExtra(
+                            MediaPlaybackService.EXTRA_BITMAP_ID,
+                            MediaPlaybackService.stashBitmap(bitmap),
+                        )
                     })
             }
         }
@@ -250,8 +252,10 @@ class MediaPlaybackManager(context: Context) : GeckoMediaSession.Delegate {
             context.startService(intent)
         } catch (_: IllegalStateException) {
             serviceStarted = false
+            MediaPlaybackService.reclaimStashedBitmap(intent)
         } catch (_: SecurityException) {
             serviceStarted = false
+            MediaPlaybackService.reclaimStashedBitmap(intent)
         }
     }
 

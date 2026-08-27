@@ -11,6 +11,7 @@ import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.Proxy
+import wtf.mazy.peel.ui.dialog.dismissOnDestroyOf
 
 object ProxyEditorDialog {
 
@@ -128,6 +129,7 @@ object ProxyEditorDialog {
                 dialog.dismiss()
             }
         }
+        dialog.dismissOnDestroyOf(activity)
         dialog.show()
     }
 }

@@ -96,7 +96,7 @@ open class MediaPlaybackService : MediaSessionService() {
             ACTION_STOP -> stopPlayback()
 
             ACTION_UPDATE_METADATA -> handleUpdateMetadata(intent)
-            ACTION_UPDATE_ARTWORK -> handleUpdateArtwork()
+            ACTION_UPDATE_ARTWORK -> handleUpdateArtwork(intent)
             ACTION_UPDATE_ACTIONS -> {
                 hasPrevious = intent.getBooleanExtra(EXTRA_HAS_PREVIOUS, false)
                 hasNext = intent.getBooleanExtra(EXTRA_HAS_NEXT, false)
@@ -165,9 +165,8 @@ open class MediaPlaybackService : MediaSessionService() {
         appTitle = intent.getStringExtra(EXTRA_TITLE) ?: ""
         generation = intent.getIntExtra(EXTRA_GENERATION, 0)
         webappUuid = intent.getStringExtra(EXTRA_WEBAPP_UUID)
-        appIcon = pendingIcon
+        appIcon = intent.takeStashedBitmap()
         appIconBytes = appIcon?.toPngBytes()
-        pendingIcon = null
         IntentCompat.getParcelableExtra(intent, EXTRA_CONTENT_INTENT, PendingIntent::class.java)
             ?.let { session?.setSessionActivity(it) }
 
@@ -199,11 +198,15 @@ open class MediaPlaybackService : MediaSessionService() {
         notifyPlayerChanged()
     }
 
-    private fun handleUpdateArtwork() {
-        val bmp = pendingArtwork ?: return
-        pendingArtwork = null
+    private fun handleUpdateArtwork(intent: Intent) {
+        val bmp = intent.takeStashedBitmap() ?: return
         trackArtworkBytes = bmp.toPngBytes()
         notifyPlayerChanged()
+    }
+
+    private fun Intent.takeStashedBitmap(): Bitmap? {
+        val id = getIntExtra(EXTRA_BITMAP_ID, -1)
+        return if (id >= 0) takeBitmap(id) else null
     }
 
     private fun setPlaying(value: Boolean) {
@@ -440,12 +443,24 @@ open class MediaPlaybackService : MediaSessionService() {
         const val EXTRA_SEEK_POSITION_MS = "seek_position_ms"
         const val EXTRA_GENERATION = "generation"
         const val EXTRA_CONTENT_INTENT = "content_intent"
+        const val EXTRA_BITMAP_ID = "bitmap_id"
 
-        @Volatile
-        var pendingIcon: Bitmap? = null
+        private val pendingBitmaps =
+            java.util.concurrent.ConcurrentHashMap<Int, Bitmap>()
+        private val nextBitmapId = java.util.concurrent.atomic.AtomicInteger()
 
-        @Volatile
-        var pendingArtwork: Bitmap? = null
+        fun stashBitmap(bitmap: Bitmap): Int {
+            val id = nextBitmapId.getAndIncrement()
+            pendingBitmaps[id] = bitmap
+            return id
+        }
+
+        fun takeBitmap(id: Int): Bitmap? = pendingBitmaps.remove(id)
+
+        fun reclaimStashedBitmap(intent: Intent) {
+            val id = intent.getIntExtra(EXTRA_BITMAP_ID, -1)
+            if (id >= 0) pendingBitmaps.remove(id)
+        }
 
         fun createStartIntent(
             context: Context,
@@ -455,13 +470,13 @@ open class MediaPlaybackService : MediaSessionService() {
             generation: Int,
             contentIntent: PendingIntent?,
         ): Intent {
-            pendingIcon = icon
             return Intent(context, resolveServiceClass()).apply {
                 action = ACTION_START
                 putExtra(EXTRA_TITLE, title)
                 putExtra(EXTRA_WEBAPP_UUID, webappUuid)
                 putExtra(EXTRA_GENERATION, generation)
                 putExtra(EXTRA_CONTENT_INTENT, contentIntent)
+                icon?.let { putExtra(EXTRA_BITMAP_ID, stashBitmap(it)) }
             }
         }
 

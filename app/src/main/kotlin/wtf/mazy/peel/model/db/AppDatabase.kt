@@ -582,26 +582,30 @@ abstract class AppDatabase : RoomDatabase() {
             excludeUuid: String? = null,
             scopeColumn: String? = null,
         ) {
-            val where = if (excludeUuid != null) "WHERE uuid != '$excludeUuid'" else ""
+            val where = if (excludeUuid != null) "WHERE uuid != ?" else ""
+            val whereArgs = if (excludeUuid != null) arrayOf<Any>(excludeUuid) else emptyArray()
             val scopeSelect = scopeColumn ?: "NULL"
-            val cursor = db.query(
-                "SELECT uuid, $scopeSelect FROM $table $where ORDER BY $scopeSelect, `order`, uuid"
-            )
+            val rows = mutableListOf<Pair<String, String?>>()
+            db.query(
+                "SELECT uuid, $scopeSelect FROM $table $where ORDER BY $scopeSelect, `order`, uuid",
+                whereArgs,
+            ).use {
+                while (it.moveToNext()) {
+                    rows.add(it.getString(0) to if (it.isNull(1)) null else it.getString(1))
+                }
+            }
             var previousScope: String? = ""
             var nextOrder = 0
-            cursor.use {
-                while (it.moveToNext()) {
-                    val uuid = it.getString(0)
-                    val scope = if (it.isNull(1)) null else it.getString(1)
-                    if (scope != previousScope) {
-                        previousScope = scope
-                        nextOrder = 0
-                    }
-                    db.execSQL(
-                        "UPDATE $table SET `order` = $nextOrder WHERE uuid = '$uuid'"
-                    )
-                    nextOrder++
+            for ((uuid, scope) in rows) {
+                if (scope != previousScope) {
+                    previousScope = scope
+                    nextOrder = 0
                 }
+                db.execSQL(
+                    "UPDATE $table SET `order` = ? WHERE uuid = ?",
+                    arrayOf<Any>(nextOrder, uuid),
+                )
+                nextOrder++
             }
         }
 
@@ -688,7 +692,6 @@ abstract class AppDatabase : RoomDatabase() {
                     MIGRATION_24_25,
                     MIGRATION_25_26,
                 )
-                .allowMainThreadQueries()
                 .build()
         }
     }

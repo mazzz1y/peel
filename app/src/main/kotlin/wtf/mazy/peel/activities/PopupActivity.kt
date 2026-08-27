@@ -97,6 +97,7 @@ class PopupActivity : SessionPageActivity() {
     }
 
     override fun onDestroy() {
+        intent.getStringExtra(EXTRA_SESSION_KEY)?.let { PopupSessionHolder.take(it)?.close() }
         sessionExtensionActions.detach()
         systemBarController.release()
         liveInstances.remove(this)

@@ -24,6 +24,7 @@ import wtf.mazy.peel.ui.entitylist.EntityListActivity
 import wtf.mazy.peel.ui.entitylist.EntityListAdapter
 import wtf.mazy.peel.ui.extensions.AmoExtensionsRepository
 import wtf.mazy.peel.ui.extensions.AmoExtensionsRepository.AmoExtension
+import wtf.mazy.peel.ui.dialog.dismissOnDestroyOf
 import wtf.mazy.peel.ui.extensions.ExtensionAdapter
 import wtf.mazy.peel.ui.extensions.ExtensionIconCache
 import wtf.mazy.peel.util.AppPrefs
@@ -246,6 +247,7 @@ class ExtensionsActivity : EntityListActivity<WebExtension>() {
             }
             .setNegativeButton(R.string.cancel, null)
             .show()
+            .dismissOnDestroyOf(this)
     }
 
     private fun showAvailableExtensions() {

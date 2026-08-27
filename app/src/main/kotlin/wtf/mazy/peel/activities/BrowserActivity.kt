@@ -101,9 +101,7 @@ class BrowserActivity : BaseSessionHost() {
         currentlyReloading = true
     }
 
-    private val launchedFromMenu by lazy {
-        intent.getBooleanExtra(Const.INTENT_LAUNCHED_FROM_MENU, false)
-    }
+    private var launchedFromMenu = false
 
     private val mainHandler = Handler(Looper.getMainLooper())
 
@@ -190,6 +188,7 @@ class BrowserActivity : BaseSessionHost() {
         liveInstances.add(this)
 
         sanitizeExternalIntent(intent)
+        launchedFromMenu = intent.getBooleanExtra(Const.INTENT_LAUNCHED_FROM_MENU, false)
         window.setBackgroundDrawable(themeBackgroundColor.toDrawable())
         setupSessionHostLayout(showToolbar = false)
         webappUuid = intent.webAppUuid()
@@ -407,6 +406,8 @@ class BrowserActivity : BaseSessionHost() {
         super.onNewIntent(intent)
         sanitizeExternalIntent(intent)
         setIntent(intent)
+        launchedFromMenu = intent.getBooleanExtra(Const.INTENT_LAUNCHED_FROM_MENU, false)
+        backCallback.isEnabled = canGoBack || launchedFromMenu
 
         val newUuid = intent.webAppUuid() ?: return
 
@@ -628,6 +629,7 @@ class BrowserActivity : BaseSessionHost() {
         currentlyReloading = true
         pageLoadHandled = false
         filePathCallback = null
+        pendingCaptureFile = null
         navigationDelegate.resetDialogState()
         navigationDelegate.cancelPendingPrompts()
         navigationDelegate.browsingExternally = false

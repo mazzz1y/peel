@@ -30,12 +30,23 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.InputStream
 import java.io.OutputStream
+import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 
 class DownloadService : Service() {
 
+    private class ActiveDownload(
+        val notification: DownloadNotification,
+        val fileName: String,
+        val webappName: String?,
+        val cancelPending: PendingIntent,
+    ) {
+        val cancelled = AtomicBoolean(false)
+        var job: Job? = null
+    }
+
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
-    private val activeJobs = mutableMapOf<Int, Job>()
+    private val downloads = mutableMapOf<Int, ActiveDownload>()
     private var currentForegroundId: Int? = null
 
     override fun onBind(intent: Intent?): IBinder? = null
@@ -59,24 +70,29 @@ class DownloadService : Service() {
         val mimeType = resolveMime(fileName, intent.getStringExtra(EXTRA_MIME_TYPE))
         val contentLength = intent.getLongExtra(EXTRA_CONTENT_LENGTH, -1L)
         val webappName = intent.getStringExtra(EXTRA_WEBAPP_NAME)
-        val body = pendingStreams.remove(requestId) ?: return
 
         val notification = DownloadNotification(this)
         val cancelPending = buildCancelPendingIntent(notification.id)
-        val progressNotification = notification.buildProgress(fileName, webappName, cancelPending)
-
-        ServiceCompat.startForeground(
-            this, notification.id, progressNotification,
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-                ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
-            else 0,
+        startForegroundWith(
+            notification.id,
+            notification.buildProgress(fileName, webappName, cancelPending),
         )
-        currentForegroundId = notification.id
+
+        val body = pendingStreams.remove(requestId)
+        if (body == null) {
+            releaseForeground(notification.id)
+            notification.dismiss()
+            if (downloads.isEmpty()) stopSelf()
+            return
+        }
+
+        val download = ActiveDownload(notification, fileName, webappName, cancelPending)
+        downloads[notification.id] = download
 
         var lastNotifyTime = 0L
         val onProgress = { bytesCopied: Long ->
             val now = SystemClock.elapsedRealtime()
-            if (now - lastNotifyTime >= 1000 && activeJobs.containsKey(notification.id)) {
+            if (now - lastNotifyTime >= 1000 && !download.cancelled.get()) {
                 lastNotifyTime = now
                 notification.updateProgress(
                     fileName,
@@ -88,11 +104,13 @@ class DownloadService : Service() {
             }
         }
 
-        val job = scope.launch {
+        download.job = scope.launch {
             try {
                 val uri = withContext(Dispatchers.IO) {
                     saveToDownloads(body, fileName, mimeType, onProgress)
                 }
+                downloads.remove(notification.id)
+                releaseForeground(notification.id)
                 if (uri != null) {
                     notification.showSuccess(fileName, webappName, uri, mimeType)
                     broadcastComplete(
@@ -104,29 +122,45 @@ class DownloadService : Service() {
             } catch (_: CancellationException) {
                 notification.dismiss()
             } finally {
-                activeJobs.remove(notification.id)
-                stopForegroundIfIdle()
+                downloads.remove(notification.id)
+                if (downloads.isEmpty()) stopSelf()
             }
         }
-        activeJobs[notification.id] = job
     }
 
     private fun handleCancel(intent: Intent) {
         val id = intent.getIntExtra(EXTRA_NOTIFICATION_ID, -1)
-        activeJobs.remove(id)?.cancel()
-        if (currentForegroundId == id) {
-            ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_DETACH)
-            currentForegroundId = null
+        downloads.remove(id)?.let {
+            it.cancelled.set(true)
+            it.job?.cancel()
         }
+        releaseForeground(id)
         (getSystemService(NOTIFICATION_SERVICE) as NotificationManager).cancel(id)
-        if (activeJobs.isEmpty()) stopSelf()
+        if (downloads.isEmpty()) stopSelf()
     }
 
-    private fun stopForegroundIfIdle() {
-        if (activeJobs.isEmpty()) {
+    private fun startForegroundWith(id: Int, notification: android.app.Notification) {
+        ServiceCompat.startForeground(
+            this, id, notification,
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+                ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
+            else 0,
+        )
+        currentForegroundId = id
+    }
+
+    private fun releaseForeground(id: Int) {
+        if (currentForegroundId != id) return
+        val next = downloads.entries.firstOrNull()
+        if (next != null) {
+            val d = next.value
+            startForegroundWith(
+                next.key,
+                d.notification.buildProgress(d.fileName, d.webappName, d.cancelPending),
+            )
+        } else {
             ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_DETACH)
             currentForegroundId = null
-            stopSelf()
         }
     }
 

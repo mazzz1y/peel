@@ -11,6 +11,7 @@ import wtf.mazy.peel.browser.BaseSessionHost
 import wtf.mazy.peel.browser.DownloadHandler
 import wtf.mazy.peel.browser.PeelContentDelegate
 import wtf.mazy.peel.browser.PeelNavigationDelegate
+import wtf.mazy.peel.browser.PeelPermissionDelegate
 import wtf.mazy.peel.browser.PeelProgressDelegate
 import wtf.mazy.peel.browser.PeelPromptDelegate
 import wtf.mazy.peel.browser.SessionContextRegistry
@@ -85,6 +86,7 @@ abstract class SessionPageActivity : BaseSessionHost() {
         )
         session.progressDelegate = PeelProgressDelegate(this)
         session.promptDelegate = PeelPromptDelegate(this)
+        session.permissionDelegate = PeelPermissionDelegate(this)
         attachScrollDelegate(session)
     }
 

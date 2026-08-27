@@ -25,6 +25,13 @@ fun Activity.disableSystemBarContrastEnforcement() {
     }
 }
 
+const val STALE_UPLOAD_FILE_MAX_AGE_MS = 24L * 60 * 60 * 1000
+
+fun java.io.File.deleteFilesOlderThan(maxAgeMs: Long = STALE_UPLOAD_FILE_MAX_AGE_MS) {
+    val cutoff = System.currentTimeMillis() - maxAgeMs
+    listFiles()?.forEach { if (it.lastModified() < cutoff) it.delete() }
+}
+
 fun prettyBaseUrl(url: String): String {
     val queryStart = url.indexOf('?')
     val clean = if (queryStart >= 0) url.substring(0, queryStart) else url

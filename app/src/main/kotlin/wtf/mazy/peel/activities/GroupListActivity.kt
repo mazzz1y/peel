@@ -16,6 +16,7 @@ import wtf.mazy.peel.model.EntityCloner
 import wtf.mazy.peel.model.WebAppGroup
 import wtf.mazy.peel.shortcut.ShortcutHelper
 import wtf.mazy.peel.ui.common.LoadingDialogController
+import wtf.mazy.peel.ui.dialog.dismissOnDestroyOf
 import wtf.mazy.peel.ui.dialog.showSandboxInputDialog
 import wtf.mazy.peel.ui.entitylist.EntityListActivity
 import wtf.mazy.peel.ui.entitylist.EntityListAdapter
@@ -68,6 +69,7 @@ class GroupListActivity : EntityListActivity<WebAppGroup>() {
                 titleResForCount = R.string.n_groups_selected,
                 selectionMenuRes = R.menu.menu_selection_group,
                 deleteActionId = R.id.action_delete_selected,
+                idleFabDescription = R.string.add_group,
             ),
         )
         return GroupListAdapter(GroupItemActions(), checkIconColor)
@@ -142,6 +144,7 @@ class GroupListActivity : EntityListActivity<WebAppGroup>() {
             }
             .setNegativeButton(R.string.cancel, null)
             .show()
+            .dismissOnDestroyOf(this)
     }
 
     private fun scheduleGroupDelete(group: WebAppGroup, ungroupApps: Boolean) {
@@ -154,14 +157,6 @@ class GroupListActivity : EntityListActivity<WebAppGroup>() {
             commitDelete = { uuids ->
                 uuids.forEach { uuid ->
                     val target = DataManager.instance.getGroup(uuid) ?: return@forEach
-                    if (!ungroupApps) {
-                        DataManager.instance.activeWebsitesForGroup(uuid).forEach { app ->
-                            DataManager.instance.cleanupAndRemoveWebApp(
-                                app.uuid,
-                                this@GroupListActivity,
-                            )
-                        }
-                    }
                     DataManager.instance.removeGroup(target, ungroupApps = ungroupApps)
                 }
             },

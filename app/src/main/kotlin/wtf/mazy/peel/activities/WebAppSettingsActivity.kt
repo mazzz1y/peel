@@ -72,7 +72,6 @@ class WebAppSettingsActivity :
     private val proxyRow get() = binding.root.findViewById<LinearLayout>(R.id.proxyRow)
     private val btnProxyPicker get() = binding.root.findViewById<MaterialButton>(R.id.btnProxyPicker)
     private val btnClearSandbox get() = binding.root.findViewById<MaterialButton>(R.id.btnClearSandbox)
-    private var proxyDropdownController: wtf.mazy.peel.ui.settings.ProxyDropdownController? = null
     private val btnAddOverride get() = binding.root.findViewById<MaterialButton>(R.id.btnAddOverride)
     private val linearLayoutOverrides get() = binding.root.findViewById<LinearLayout>(R.id.linearLayoutOverrides)
     private val sectionOverrideHeader get() = binding.root.findViewById<View>(R.id.sectionOverrideHeader)
@@ -124,7 +123,9 @@ class WebAppSettingsActivity :
         iconEditor.refreshIcon()
 
         if (intent.getBooleanExtra(Const.INTENT_AUTO_FETCH, false)) {
-            binding.root.post { fetchIconAndName(editableWebapp) }
+            binding.root.post {
+                if (!isDestroyed && !isFinishing) fetchIconAndName(editableWebapp)
+            }
         }
 
         setupKeyboardPadding(binding.scrollView)
@@ -145,6 +146,12 @@ class WebAppSettingsActivity :
                 }
             }
         }
+    }
+
+    override fun onDestroy() {
+        cancelActiveFetch()
+        dismissFetchProgress()
+        super.onDestroy()
     }
 
     override fun inflateBinding(layoutInflater: LayoutInflater): WebappSettingsBinding {
@@ -230,7 +237,6 @@ class WebAppSettingsActivity :
             proxyRow = proxyRow,
             proxyButton = btnProxyPicker,
         )
-        proxyDropdownController = proxyController
         SandboxSwitchController(
             this,
             modifiedWebapp,

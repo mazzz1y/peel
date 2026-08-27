@@ -24,21 +24,18 @@ class ImportDialogHelper(
 ) {
 
     private val loader = LoadingDialogController(activity)
-    private var pendingParsed: ParsedBackup? = null
-    private var pendingGroupShare = false
 
     val importLauncher: ActivityResultLauncher<Intent> =
         activity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            val parsed = pendingParsed ?: return@registerForActivityResult
-            pendingParsed = null
+            val parsed = ImportActivity.pendingBackup ?: return@registerForActivityResult
+            ImportActivity.pendingBackup = null
             if (result.resultCode != Activity.RESULT_OK) return@registerForActivityResult
             val data = result.data ?: return@registerForActivityResult
             val selectedUuids = data.getStringArrayExtra(ImportActivity.RESULT_SELECTED_UUIDS)
                 ?.toSet() ?: return@registerForActivityResult
-            if (pendingGroupShare) {
-                val selectedGroupUuids =
-                    data.getStringArrayExtra(ImportActivity.RESULT_SELECTED_GROUP_UUIDS)
-                        ?.toSet() ?: return@registerForActivityResult
+            val selectedGroupUuids =
+                data.getStringArrayExtra(ImportActivity.RESULT_SELECTED_GROUP_UUIDS)?.toSet()
+            if (selectedGroupUuids != null) {
                 performGroupSharedImport(parsed, selectedUuids, selectedGroupUuids)
             } else {
                 val groupUuid = data.getStringExtra(ImportActivity.RESULT_GROUP_UUID)
@@ -104,11 +101,10 @@ class ImportDialogHelper(
             }
             .setNegativeButton(R.string.cancel, null)
             .show()
+            .dismissOnDestroyOf(activity)
     }
 
     private fun launchImportActivity(parsed: ParsedBackup, groupShare: Boolean) {
-        pendingParsed = parsed
-        pendingGroupShare = groupShare
         ImportActivity.pendingBackup = parsed
         importLauncher.launch(
             Intent(activity, ImportActivity::class.java)
@@ -179,5 +175,6 @@ class ImportDialogHelper(
             )
             .setPositiveButton(R.string.ok, null)
             .show()
+            .dismissOnDestroyOf(activity)
     }
 }

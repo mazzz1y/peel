@@ -1,6 +1,5 @@
 package wtf.mazy.peel.model
 
-import android.app.Activity
 import android.content.Context
 import wtf.mazy.peel.shortcut.ShortcutIconUtils
 import wtf.mazy.peel.util.prettyHostLabel
@@ -13,7 +12,7 @@ internal fun deleteAppPrefs(context: Context, uuid: String) {
     prefsDir.listFiles { f -> f.name.startsWith(uuid) }?.forEach { it.delete() }
 }
 
-data class WebApp(var baseUrl: String, override val uuid: String = UUID.randomUUID().toString()) :
+class WebApp(var baseUrl: String, override val uuid: String = UUID.randomUUID().toString()) :
     IconOwner, SandboxOwner {
     override var title: String
     override val letterIconSeed: String
@@ -60,17 +59,15 @@ data class WebApp(var baseUrl: String, override val uuid: String = UUID.randomUU
         return clone
     }
 
-    fun deleteShortcuts(activity: Activity) {
-        ShortcutIconUtils.deleteShortcuts(listOf(uuid), activity)
+    fun deleteShortcuts(context: Context) {
+        ShortcutIconUtils.deleteShortcuts(listOf(uuid), context)
     }
 
-    suspend fun cleanupWebAppData(activity: Activity) {
-        if (isUseContainer) SandboxManager.clearSandboxData(activity, uuid)
+    suspend fun cleanupWebAppData(context: Context) {
+        if (isUseContainer) SandboxManager.clearSandboxData(context, uuid)
         deleteIcon()
-        deleteAppPrefs(activity, uuid)
+        deleteAppPrefs(context, uuid)
     }
-
-    override val iconStamp: Long = if (iconFile.exists()) iconFile.lastModified() else 0L
 
     val contentFingerprint: Int
         get() = Objects.hash(

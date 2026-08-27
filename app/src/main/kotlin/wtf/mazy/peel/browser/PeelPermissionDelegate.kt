@@ -218,6 +218,8 @@ class PeelPermissionDelegate(private val host: SessionHost) : GeckoSession.Permi
                     }
                 }
             }
+
+            else -> onResult(false)
         }
     }
 

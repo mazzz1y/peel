@@ -24,7 +24,6 @@ import wtf.mazy.peel.model.WebAppSettings
 import wtf.mazy.peel.ui.bindDropdown
 import wtf.mazy.peel.util.CertificatePem
 import wtf.mazy.peel.util.SameAppDomainMatcher
-import java.util.WeakHashMap
 
 class SettingViewFactory(
     private val inflater: LayoutInflater,
@@ -39,11 +38,9 @@ class SettingViewFactory(
         class Override(val onRemove: (SettingDefinition, View) -> Unit) : ButtonStrategy
     }
 
-    private val watchers = WeakHashMap<EditText, TextWatcher>()
-
     private fun EditText.replaceWatcher(action: (Editable?) -> Unit) {
-        watchers.remove(this)?.let { removeTextChangedListener(it) }
-        watchers[this] = doAfterTextChanged(action)
+        (getTag(R.id.tag_text_watcher) as? TextWatcher)?.let { removeTextChangedListener(it) }
+        setTag(R.id.tag_text_watcher, doAfterTextChanged(action))
     }
 
     private fun resetWidgetListeners(view: View) {

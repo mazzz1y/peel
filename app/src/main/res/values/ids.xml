@@ -3,4 +3,5 @@
     <item name="entity_row_pending_slide" type="id" />
     <item name="toolbar_pending_swap" type="id" />
     <item name="toolbar_in_flight" type="id" />
+    <item name="tag_text_watcher" type="id" />
 </resources>

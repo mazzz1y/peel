@@ -1,6 +1,5 @@
 package wtf.mazy.peel.model
 
-import android.app.Activity
 import android.content.Context
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
@@ -206,10 +205,11 @@ class DataManager private constructor() {
         enqueueAndAwait(Action.RemoveWebsite(CompletableDeferred(), uuid))
     }
 
-    suspend fun cleanupAndRemoveWebApp(uuid: String, activity: Activity) {
+    suspend fun cleanupAndRemoveWebApp(uuid: String, context: Context) {
         val webapp = currentState.websites.find { it.uuid == uuid }?.let { WebApp(it) } ?: return
-        webapp.deleteShortcuts(activity)
-        webapp.cleanupWebAppData(activity)
+        val appContext = context.applicationContext
+        webapp.deleteShortcuts(appContext)
+        webapp.cleanupWebAppData(appContext)
         removeWebApp(uuid)
     }
 
@@ -228,8 +228,8 @@ class DataManager private constructor() {
         enqueueAndAwait(Action.ReorderWebApps(CompletableDeferred(), orderedUuids))
     }
 
-    suspend fun deleteWebApps(uuids: List<String>, activity: Activity) {
-        uuids.forEach { cleanupAndRemoveWebApp(it, activity) }
+    suspend fun deleteWebApps(uuids: List<String>, context: Context) {
+        uuids.forEach { cleanupAndRemoveWebApp(it, context) }
     }
 
     suspend fun importData(
@@ -370,17 +370,25 @@ class DataManager private constructor() {
         enqueueAndAwait(Action.RemoveProxy(CompletableDeferred(), uuid))
     }
 
-    fun getPushSubscriptions(): List<PushSubscriptionEntity> =
-        if (repository.isInitialized) repository.getAllPushSubscriptions() else emptyList()
+    suspend fun getPushSubscriptions(): List<PushSubscriptionEntity> {
+        awaitReady()
+        return withContext(Dispatchers.IO) { repository.getAllPushSubscriptions() }
+    }
 
-    fun getPushSubscription(instance: String): PushSubscriptionEntity? =
-        if (repository.isInitialized) repository.getPushSubscription(instance) else null
+    suspend fun getPushSubscription(instance: String): PushSubscriptionEntity? {
+        awaitReady()
+        return withContext(Dispatchers.IO) { repository.getPushSubscription(instance) }
+    }
 
-    fun getPushSubscriptionByScope(scope: String): PushSubscriptionEntity? =
-        if (repository.isInitialized) repository.getPushSubscriptionByScope(scope) else null
+    suspend fun getPushSubscriptionByScope(scope: String): PushSubscriptionEntity? {
+        awaitReady()
+        return withContext(Dispatchers.IO) { repository.getPushSubscriptionByScope(scope) }
+    }
 
-    fun getPushSubscriptionsForContext(contextId: String): List<PushSubscriptionEntity> =
-        if (repository.isInitialized) repository.getPushSubscriptionsForContext(contextId) else emptyList()
+    suspend fun getPushSubscriptionsForContext(contextId: String): List<PushSubscriptionEntity> {
+        awaitReady()
+        return withContext(Dispatchers.IO) { repository.getPushSubscriptionsForContext(contextId) }
+    }
 
     suspend fun upsertPushSubscription(entity: PushSubscriptionEntity) {
         awaitReady()
@@ -530,14 +538,17 @@ class DataManager private constructor() {
                     .forEach { SandboxManager.enqueueSandboxClear(App.appContext, it.uuid) }
 
                 val importedAppUuids = action.importedWebApps.mapTo(mutableSetOf()) { it.uuid }
-                oldWebsites.filter { it.uuid !in importedAppUuids }
-                    .forEach {
-                        if (it.isUseContainer) {
-                            SandboxManager.enqueueSandboxClear(App.appContext, it.uuid)
-                        }
-                        it.deleteIcon()
-                        deleteAppPrefs(App.appContext, it.uuid)
+                val removedApps = oldWebsites.filter { it.uuid !in importedAppUuids }
+                removedApps.forEach {
+                    if (it.isUseContainer) {
+                        SandboxManager.enqueueSandboxClear(App.appContext, it.uuid)
                     }
+                    it.deleteIcon()
+                    deleteAppPrefs(App.appContext, it.uuid)
+                }
+                if (removedApps.isNotEmpty()) {
+                    ShortcutIconUtils.deleteShortcuts(removedApps.map { it.uuid }, App.appContext)
+                }
 
                 val nextDefault = WebApp(currentState.defaultSettings).apply {
                     settings = action.globalSettings.deepCopy()
@@ -614,9 +625,15 @@ class DataManager private constructor() {
                     currentState.websites.filterNot { it.groupUuid == groupUuid }.map { WebApp(it) }
                 }
                 SandboxManager.enqueueSandboxClear(App.appContext, groupUuid)
+                action.group.deleteIcon()
                 if (!action.ungroupApps) {
-                    appsInGroup.filter { it.isUseContainer }
-                        .forEach { SandboxManager.enqueueSandboxClear(App.appContext, it.uuid) }
+                    appsInGroup.forEach { app ->
+                        if (app.isUseContainer) {
+                            SandboxManager.enqueueSandboxClear(App.appContext, app.uuid)
+                        }
+                        app.deleteIcon()
+                        deleteAppPrefs(App.appContext, app.uuid)
+                    }
                 }
                 repository.deleteGroup(groupUuid)
                 val nextGroups =
@@ -756,7 +773,7 @@ class DataManager private constructor() {
     }
 
     private suspend fun enqueueAndAwait(action: Action) {
-        actions.trySend(action).getOrThrow()
+        actions.send(action)
         action.done.await()
     }
 

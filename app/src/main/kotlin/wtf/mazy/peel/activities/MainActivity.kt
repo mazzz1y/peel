@@ -68,6 +68,7 @@ class MainActivity :
     override val hostActivity: AppCompatActivity get() = this
 
     private var pagerAdapter: GroupPagerAdapter? = null
+    private var tabMediator: TabLayoutMediator? = null
     private var lastGroupKeys: List<Pair<String, String>> = emptyList()
     private var lastShowUngrouped: Boolean = true
     private lateinit var exportLoader: LoadingDialogController
@@ -250,6 +251,8 @@ class MainActivity :
     }
 
     private fun setupViewPager() {
+        tabMediator?.detach()
+        tabMediator = null
         val groups = DataManager.instance.sortedGroups
         val newAdapter: GroupPagerAdapter
         if (groups.isEmpty()) {
@@ -268,9 +271,9 @@ class MainActivity :
             lastGroupKeys = groups.map { it.uuid to it.title }
             lastShowUngrouped = hasUngrouped
 
-            TabLayoutMediator(tabLayout, viewPager) { tab, position ->
+            tabMediator = TabLayoutMediator(tabLayout, viewPager) { tab, position ->
                 tab.text = newAdapter.getPageTitle(position)
-            }.attach()
+            }.also { it.attach() }
         }
         pagerAdapter = newAdapter
     }

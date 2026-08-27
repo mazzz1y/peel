@@ -12,6 +12,7 @@ import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.model.WebAppSettings
 import wtf.mazy.peel.ui.dialog.DateTimePickerRequest
 import wtf.mazy.peel.ui.dialog.DateTimePickerSession
+import java.io.File
 
 enum class PermissionResult {
     ALLOW,
@@ -42,6 +43,7 @@ interface SessionHost {
     val hostWindow: Window
 
     var filePathCallback: ((Array<Uri>?) -> Unit)?
+    var pendingCaptureFile: File?
 
     fun onLocationChanged(url: String)
     fun onPageStarted()
@@ -57,6 +59,14 @@ interface SessionHost {
         onResult: (username: String, password: String) -> Unit,
         onCancel: () -> Unit,
         url: String?,
+    ): AlertDialog
+
+    fun showTextPromptDialog(
+        title: String?,
+        message: String?,
+        defaultValue: String?,
+        onResult: (String) -> Unit,
+        onCancel: () -> Unit,
     ): AlertDialog
 
     fun loadURL(url: String)

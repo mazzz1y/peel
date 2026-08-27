@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -20,6 +21,9 @@ fun <T> runWithLoader(
     activity.lifecycleScope.launch {
         val result = try {
             withContext(Dispatchers.IO) { ioTask() }
+        } catch (e: CancellationException) {
+            if (showLoader) loader.dismiss()
+            throw e
         } catch (e: Exception) {
             Log.e("LoaderWork", "IO task failed", e)
             if (showLoader) loader.dismiss()

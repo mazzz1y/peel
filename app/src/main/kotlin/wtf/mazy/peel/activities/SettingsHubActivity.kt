@@ -56,7 +56,7 @@ class SettingsHubActivity : ToolbarBaseActivity<SettingsHubBinding>() {
 
     private fun forwardApplyTiming(data: Intent?) {
         val name = data?.getStringExtra(ApplyTimingRegistry.EXTRA_APPLY_TIMING) ?: return
-        val timing = runCatching { ApplyTiming.valueOf(name) }.getOrNull() ?: return
+        val timing = ApplyTiming.valueOf(name)
         pendingTiming = maxOf(timing, pendingTiming ?: timing)
     }
 

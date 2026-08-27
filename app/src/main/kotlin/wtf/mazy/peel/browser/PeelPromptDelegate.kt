@@ -3,7 +3,6 @@ package wtf.mazy.peel.browser
 import android.Manifest
 import android.content.ClipData
 import android.content.Intent
-import android.net.Uri
 import android.provider.MediaStore
 import android.text.SpannableString
 import android.text.Spanned
@@ -19,6 +18,7 @@ import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.ui.dialog.DateTimePickerRequest
 import wtf.mazy.peel.ui.dialog.DateTimePickerType
 import wtf.mazy.peel.util.NotificationUtils
+import wtf.mazy.peel.util.deleteFilesOlderThan
 import java.io.File
 
 class PeelPromptDelegate(private val host: SessionHost) : GeckoSession.PromptDelegate {
@@ -113,21 +113,13 @@ class PeelPromptDelegate(private val host: SessionHost) : GeckoSession.PromptDel
     ): GeckoResult<GeckoSession.PromptDelegate.PromptResponse> {
         val result = GeckoResult<GeckoSession.PromptDelegate.PromptResponse>()
         host.runOnUi {
-            val input = android.widget.EditText(host.hostWindow.context).apply {
-                setText(prompt.defaultValue ?: "")
-            }
-            val dialog = MaterialAlertDialogBuilder(host.hostWindow.context)
-                .setTitle(prompt.title)
-                .setMessage(prompt.message)
-                .setView(input)
-                .setPositiveButton(android.R.string.ok) { _, _ ->
-                    result.complete(prompt.confirm(input.text.toString()))
-                }
-                .setNegativeButton(android.R.string.cancel) { _, _ ->
-                    result.complete(prompt.dismiss())
-                }
-                .setOnCancelListener { result.complete(prompt.dismiss()) }
-                .show()
+            val dialog = host.showTextPromptDialog(
+                title = prompt.title,
+                message = prompt.message,
+                defaultValue = prompt.defaultValue,
+                onResult = { value -> result.complete(prompt.confirm(value)) },
+                onCancel = { result.complete(prompt.dismiss()) },
+            )
             prompt.guardEngineDismiss(dialog, result)
         }
         return result
@@ -339,6 +331,7 @@ class PeelPromptDelegate(private val host: SessionHost) : GeckoSession.PromptDel
         prompt.setDelegate(object : GeckoSession.PromptDelegate.PromptInstanceDelegate {
             override fun onPromptDismiss(closed: GeckoSession.PromptDelegate.BasePrompt) {
                 host.filePathCallback = null
+                host.pendingCaptureFile = null
                 if (!closed.isComplete) result.complete(closed.dismiss())
             }
         })
@@ -363,6 +356,7 @@ class PeelPromptDelegate(private val host: SessionHost) : GeckoSession.PromptDel
                 if (directIntent != null) {
                     if (!host.launchFilePicker(directIntent)) {
                         host.filePathCallback = null
+                        host.pendingCaptureFile = null
                         if (!prompt.isComplete) result.complete(prompt.dismiss())
                     }
                     return
@@ -403,6 +397,7 @@ class PeelPromptDelegate(private val host: SessionHost) : GeckoSession.PromptDel
 
             if (!host.launchFilePicker(launchIntent)) {
                 host.filePathCallback = null
+                host.pendingCaptureFile = null
                 if (!prompt.isComplete) result.complete(prompt.dismiss())
             }
         }
@@ -421,7 +416,7 @@ class PeelPromptDelegate(private val host: SessionHost) : GeckoSession.PromptDel
     private fun buildImageCaptureIntent(): Intent? {
         val context = host.hostWindow.context
         val capturesDir = File(context.cacheDir, "captures").apply { mkdirs() }
-        capturesDir.listFiles()?.forEach { it.delete() }
+        capturesDir.deleteFilesOlderThan()
         val photoFile = try {
             File.createTempFile("img_", ".jpg", capturesDir)
         } catch (_: Exception) {
@@ -433,21 +428,11 @@ class PeelPromptDelegate(private val host: SessionHost) : GeckoSession.PromptDel
             "${context.packageName}.fileprovider",
             photoFile,
         )
-        captureFile = photoFile
+        host.pendingCaptureFile = photoFile
         return Intent(MediaStore.ACTION_IMAGE_CAPTURE).apply {
             putExtra(MediaStore.EXTRA_OUTPUT, photoUri)
             clipData = ClipData.newRawUri(null, photoUri)
             addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION or Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        }
-    }
-
-    companion object {
-        private var captureFile: File? = null
-
-        fun consumeCaptureUri(): Uri? {
-            val file = captureFile
-            captureFile = null
-            return file?.let { Uri.fromFile(it) }
         }
     }
 }

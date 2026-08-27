@@ -161,6 +161,8 @@ object ProxyRouterBridge {
             activePort.postMessage(payload)
             lastSnapshot = snapshot
         } catch (_: Exception) {
+            lastPushedSeq.set(lastAckedSeq.get())
+            routesReady.value = true
         }
     }
 

@@ -20,6 +20,7 @@ import wtf.mazy.peel.model.db.PushSubscriptionEntity
 import wtf.mazy.peel.push.PushBridge
 import wtf.mazy.peel.shortcut.LetterIconGenerator
 import wtf.mazy.peel.ui.PickerDialog
+import wtf.mazy.peel.ui.dialog.dismissOnDestroyOf
 import wtf.mazy.peel.ui.entitylist.EntityListActivity
 import wtf.mazy.peel.ui.entitylist.EntityListAdapter
 import wtf.mazy.peel.ui.entitylist.EntityRowActions
@@ -35,6 +36,7 @@ class NotificationListActivity : EntityListActivity<PushSubscriptionItem>() {
     override val supportsDrag: Boolean = false
 
     private var permissions: List<ContentPermission> = emptyList()
+    private var subscriptions: List<PushSubscriptionEntity> = emptyList()
     private var distributorItem: MenuItem? = null
     private var distributorLabelView: TextView? = null
     private var pushSwitch: MaterialSwitch? = null
@@ -49,6 +51,10 @@ class NotificationListActivity : EntityListActivity<PushSubscriptionItem>() {
         pushSwitch?.isChecked = AppPrefs.isPushEnabled(this)
         updateDistributorLabel()
         refreshPermissions()
+    }
+
+    override fun subscribeDataChanges(onChange: () -> Unit) {
+        super.subscribeDataChanges(::refreshPermissions)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -102,6 +108,7 @@ class NotificationListActivity : EntityListActivity<PushSubscriptionItem>() {
             }
             .setNegativeButton(R.string.cancel, null)
             .show()
+            .dismissOnDestroyOf(this)
     }
 
     private fun chooseDelivery() {
@@ -143,17 +150,18 @@ class NotificationListActivity : EntityListActivity<PushSubscriptionItem>() {
             .setNegativeButton(R.string.cancel) { _, _ -> pushSwitch?.isChecked = true }
             .setOnCancelListener { pushSwitch?.isChecked = true }
             .show()
+            .dismissOnDestroyOf(this)
     }
 
     override fun createAdapter(): EntityListAdapter<PushSubscriptionItem, *> =
         PushSubscriptionListAdapter(SubscriptionActions())
 
     override fun loadEntities(): List<PushSubscriptionItem> {
-        val subscriptions = DataManager.instance.getPushSubscriptions().toMutableList()
+        val unmatched = subscriptions.toMutableList()
         val fromPermissions = permissions.map { permission ->
-            val subscription = subscriptions
+            val subscription = unmatched
                 .firstOrNull { PushBridge.matchesScope(permission, it.scope) }
-                ?.also(subscriptions::remove)
+                ?.also(unmatched::remove)
             item(
                 key = permission.uri + '|' + permission.contextId.orEmpty(),
                 permission = permission,
@@ -163,7 +171,7 @@ class NotificationListActivity : EntityListActivity<PushSubscriptionItem>() {
                 allowed = permission.value == ContentPermission.VALUE_ALLOW,
             )
         }
-        val orphaned = subscriptions.mapNotNull { subscription ->
+        val orphaned = unmatched.mapNotNull { subscription ->
             val host = PushBridge.scopeHost(subscription.scope) ?: return@mapNotNull null
             item(
                 key = subscription.instance,
@@ -206,9 +214,12 @@ class NotificationListActivity : EntityListActivity<PushSubscriptionItem>() {
 
     private fun refreshPermissions() {
         lifecycleScope.launch {
-            val loaded = PushBridge.getNotificationPermissions(this@NotificationListActivity)
+            val loadedPermissions =
+                PushBridge.getNotificationPermissions(this@NotificationListActivity)
+            val loadedSubscriptions = DataManager.instance.getPushSubscriptions()
             if (isFinishing || isDestroyed) return@launch
-            permissions = loaded
+            permissions = loadedPermissions
+            subscriptions = loadedSubscriptions
             refreshList()
         }
     }
@@ -254,6 +265,7 @@ class NotificationListActivity : EntityListActivity<PushSubscriptionItem>() {
             }
             .setNegativeButton(R.string.cancel, null)
             .show()
+            .dismissOnDestroyOf(this)
     }
 
     private inner class SubscriptionActions : EntityRowActions<PushSubscriptionItem> {

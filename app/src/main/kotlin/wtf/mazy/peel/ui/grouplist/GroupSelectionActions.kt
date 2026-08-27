@@ -53,12 +53,6 @@ class GroupSelectionActions(
 
     override suspend fun commitDelete(uuids: List<String>) {
         val groups = DataManager.instance.getGroups().filter { it.uuid in uuids }
-        groups.forEach { group ->
-            val appsInGroup = DataManager.instance.activeWebsitesForGroup(group.uuid)
-            appsInGroup.forEach {
-                DataManager.instance.cleanupAndRemoveWebApp(it.uuid, activity)
-            }
-            DataManager.instance.removeGroup(group, ungroupApps = false)
-        }
+        groups.forEach { DataManager.instance.removeGroup(it, ungroupApps = false) }
     }
 }

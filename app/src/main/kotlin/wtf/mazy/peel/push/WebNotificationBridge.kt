@@ -12,6 +12,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.mozilla.geckoview.GeckoRuntime
 import org.mozilla.geckoview.WebNotification
 import org.mozilla.geckoview.WebNotificationDelegate
@@ -24,7 +25,12 @@ import wtf.mazy.peel.util.AppPrefs
 object WebNotificationBridge {
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
-    private val activeNotifications = mutableMapOf<String, WebNotification>()
+    private val activeNotifications =
+        object : LinkedHashMap<String, WebNotification>(16, 0.75f, true) {
+            override fun removeEldestEntry(
+                eldest: MutableMap.MutableEntry<String, WebNotification>,
+            ): Boolean = size > MAX_ACTIVE_NOTIFICATIONS
+        }
 
     fun attach(runtime: GeckoRuntime, context: Context) {
         val appContext = context.applicationContext
@@ -63,7 +69,7 @@ object WebNotificationBridge {
         manager.deleteNotificationChannel(channelKey)
     }
 
-    private fun show(context: Context, notification: WebNotification) {
+    private suspend fun show(context: Context, notification: WebNotification) {
         if (notification.privateBrowsing) return
         if (!AppPrefs.isPushEnabled(context)) return
         val manager = NotificationManagerCompat.from(context)
@@ -79,6 +85,8 @@ object WebNotificationBridge {
         ensureChannel(context, channelKey, channelName)
         activeNotifications[notification.tag] = notification
 
+        val largeIcon = target?.let { withContext(Dispatchers.IO) { it.resolveIcon() } }
+        if (notification.tag !in activeNotifications) return
         val builder = NotificationCompat.Builder(context, channelKey)
             .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle(notification.title ?: channelName)
@@ -89,7 +97,7 @@ object WebNotificationBridge {
                 clickIntent(context, notification.tag, target?.uuid, originUrl, notification)
             )
             .setDeleteIntent(dismissIntent(context, notification.tag, notification))
-        target?.let { builder.setLargeIcon(it.resolveIcon()) }
+            .setLargeIcon(largeIcon)
 
         runCatching { manager.notify(notification.tag, NOTIFICATION_ID, builder.build()) }
         notification.show()
@@ -161,4 +169,5 @@ object WebNotificationBridge {
 
     private const val NOTIFICATION_ID = 800_000
     private const val DISMISS_REQUEST_SALT = 0x5A5A5A
+    private const val MAX_ACTIVE_NOTIFICATIONS = 64
 }

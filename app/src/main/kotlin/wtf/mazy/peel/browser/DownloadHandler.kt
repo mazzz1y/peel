@@ -196,7 +196,10 @@ class DownloadHandler(
     }
 
     private fun showDownloadPrompt(fileName: String, onResult: (Boolean) -> Unit) {
-        if (promptShowing) return
+        if (promptShowing) {
+            onResult(false)
+            return
+        }
         promptShowing = true
         val message = activity.getString(R.string.permission_prompt_download, fileName)
             .withMonoSpan(fileName)
@@ -261,11 +264,13 @@ class DownloadHandler(
         val data = uri.substringAfter(",", "")
         if (data.isEmpty()) return null
         val mime = header.removePrefix("data:").removeSuffix(";base64").takeIf { it.isNotBlank() }
-        val bytes = if (header.endsWith(";base64")) {
-            Base64.decode(data, Base64.DEFAULT)
-        } else {
-            java.net.URLDecoder.decode(data, "UTF-8").toByteArray()
-        }
+        val bytes = runCatching {
+            if (header.endsWith(";base64")) {
+                Base64.decode(data, Base64.DEFAULT)
+            } else {
+                java.net.URLDecoder.decode(data, "UTF-8").toByteArray()
+            }
+        }.getOrNull() ?: return null
         return DataUriPayload(mime, bytes)
     }
 }

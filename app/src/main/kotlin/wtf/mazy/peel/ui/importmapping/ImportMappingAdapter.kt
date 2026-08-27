@@ -54,16 +54,6 @@ class ImportMappingAdapter(
 
     init {
         setHasStableIds(true)
-        if (groupSections.isEmpty()) {
-            selectedGroupUuids.clear()
-        } else {
-            if (selectedGroupUuids.isEmpty()) {
-                selectedGroupUuids.addAll(groupSections.map { it.uuid })
-            }
-            if (selectedUuids.isEmpty()) {
-                groupSections.flatMap { it.apps }.forEach { selectedUuids.add(it.uuid) }
-            }
-        }
         submit()
     }
 
@@ -136,6 +126,9 @@ class ImportMappingAdapter(
                     if (section != null) selectedGroupUuids.add(section)
                 } else {
                     selectedUuids.remove(item.uuid)
+                    if (section != null && sectionHasNoSelectedApps(section)) {
+                        selectedGroupUuids.remove(section)
+                    }
                 }
                 submit()
             }
@@ -219,6 +212,10 @@ class ImportMappingAdapter(
         }
         return out
     }
+
+    private fun sectionHasNoSelectedApps(sectionUuid: String): Boolean =
+        groupSections.firstOrNull { it.uuid == sectionUuid }
+            ?.apps?.none { it.uuid in selectedUuids } != false
 
     private fun submit() {
         submitList(buildRows())

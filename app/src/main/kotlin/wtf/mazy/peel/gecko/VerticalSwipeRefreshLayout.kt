@@ -50,5 +50,6 @@ class VerticalSwipeRefreshLayout @JvmOverloads constructor(
 
     override fun requestDisallowInterceptTouchEvent(b: Boolean) {
         disallowIntercept = b
+        super.requestDisallowInterceptTouchEvent(b)
     }
 }

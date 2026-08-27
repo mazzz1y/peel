@@ -16,8 +16,9 @@ class DataRepository {
     private lateinit var proxyDao: ProxyDao
     private lateinit var pushSubscriptionDao: PushSubscriptionDao
 
-    val isInitialized: Boolean
-        get() = ::webAppDao.isInitialized && ::groupDao.isInitialized && ::proxyDao.isInitialized
+    @Volatile
+    var isInitialized: Boolean = false
+        private set
 
     fun initialize(context: Context) {
         val db = AppDatabase.getInstance(context)
@@ -25,6 +26,7 @@ class DataRepository {
         groupDao = db.webAppGroupDao()
         proxyDao = db.proxyDao()
         pushSubscriptionDao = db.pushSubscriptionDao()
+        isInitialized = true
     }
 
     fun getGlobalSettings(): WebApp? = webAppDao.getGlobalSettings()?.toDomain()

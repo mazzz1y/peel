@@ -49,6 +49,7 @@ object LinkRouter {
         nav: NavigationFacts,
         context: LinkContext,
     ): LinkRoute {
+        if (!isHttpUrl(url)) return LinkRoute.Allow
         val target = settings.upgradeUrl(url)
         if (settings.isOpenUrlExternal == true &&
             shouldRouteExternally(target, settings, nav, context)
@@ -76,6 +77,9 @@ object LinkRouter {
 
     fun isBrowserScheme(url: String): Boolean =
         BROWSER_SCHEMES.any { url.startsWith(it) }
+
+    private fun isHttpUrl(url: String): Boolean =
+        url.startsWith("http://") || url.startsWith("https://")
 
     private fun isPassthroughScheme(url: String): Boolean =
         PASSTHROUGH_SCHEMES.any { url.startsWith(it) }

@@ -14,8 +14,9 @@ import com.google.android.material.textfield.TextInputLayout
 enum class InitialSelection { SELECT_ALL, CURSOR_AT_END }
 
 data class InputDialogConfig(
-    @param:StringRes val hintRes: Int,
+    @param:StringRes val hintRes: Int = 0,
     @param:StringRes val titleRes: Int = 0,
+    val title: CharSequence? = null,
     val prefill: String = "",
     @param:StringRes val positiveRes: Int = android.R.string.ok,
     val inputType: Int = InputType.TYPE_CLASS_TEXT,
@@ -44,7 +45,7 @@ fun Activity.showInputDialogRaw(
 
     val container = content.column
     val inputLayout = TextInputLayout(container.context).apply {
-        hint = getString(config.hintRes)
+        if (config.hintRes != 0) hint = getString(config.hintRes)
         layoutParams = LinearLayout.LayoutParams(
             LinearLayout.LayoutParams.MATCH_PARENT,
             LinearLayout.LayoutParams.WRAP_CONTENT,
@@ -70,12 +71,14 @@ fun Activity.showInputDialogRaw(
         .setPositiveButton(config.positiveRes) { _, _ -> onPositive(input, container) }
         .setNegativeButton(android.R.string.cancel) { _, _ -> config.onCancel?.invoke() }
     if (config.titleRes != 0) builder.setTitle(config.titleRes)
+    else config.title?.let { builder.setTitle(it) }
     val dialog = builder.create()
 
     if (config.onCancel != null) {
         dialog.setOnCancelListener { config.onCancel.invoke() }
     }
 
+    dialog.dismissOnDestroyOf(this)
     dialog.show()
 
     if (!config.allowEmpty) {

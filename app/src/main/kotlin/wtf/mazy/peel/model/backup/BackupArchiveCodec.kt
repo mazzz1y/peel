@@ -10,6 +10,7 @@ import wtf.mazy.peel.model.IconOwner
 import wtf.mazy.peel.model.ParsedBackup
 import wtf.mazy.peel.util.App
 import wtf.mazy.peel.util.isCanonicalUuid
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.io.OutputStream
@@ -115,25 +116,30 @@ object BackupArchiveCodec {
         var jsonString: String? = null
         var markerVersion: String? = null
         val icons = mutableMapOf<String, Bitmap>()
+        var iconBudget = MAX_TOTAL_ICON_MEMORY_BYTES
 
         var entry: ZipEntry? = zip.nextEntry
         while (entry != null) {
             when {
                 entry.name == BackupPolicy.MARKER_ENTRY -> {
-                    markerVersion = zip.readBytes().toString(Charsets.UTF_8).trim()
+                    markerVersion = zip.readBounded(MAX_MARKER_BYTES)
+                        ?.toString(Charsets.UTF_8)?.trim()
                 }
 
                 entry.name == BackupPolicy.DATA_ENTRY -> {
-                    jsonString = zip.readBytes().toString(Charsets.UTF_8)
+                    jsonString = zip.readBounded(MAX_DATA_BYTES)?.toString(Charsets.UTF_8)
                 }
 
                 entry.name.startsWith(BackupPolicy.ICONS_PREFIX) && entry.name.endsWith(".png") -> {
                     val appUuid =
                         entry.name.removePrefix(BackupPolicy.ICONS_PREFIX).removeSuffix(".png")
-                    if (appUuid.isCanonicalUuid()) {
-                        val bytes = zip.readBytes()
-                        val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
-                        if (bitmap != null) icons[appUuid] = bitmap
+                    if (appUuid.isCanonicalUuid() && icons.size < MAX_ICON_COUNT) {
+                        zip.readBounded(MAX_ICON_BYTES)?.let { bytes ->
+                            decodeIconBitmap(bytes, iconBudget)?.let {
+                                iconBudget -= it.byteCount
+                                icons[appUuid] = it
+                            }
+                        }
                     }
                 }
             }
@@ -159,4 +165,34 @@ object BackupArchiveCodec {
         backupData.websites.all { it.uuid.isCanonicalUuid() } &&
                 backupData.groups.all { it.uuid.isCanonicalUuid() } &&
                 backupData.proxies.all { it.uuid.isCanonicalUuid() }
+
+    // Zip entries report their own size, which an attacker controls; read with a
+    // hard cap instead of trusting it.
+    private fun ZipInputStream.readBounded(maxBytes: Int): ByteArray? {
+        val out = ByteArrayOutputStream()
+        val buffer = ByteArray(8 * 1024)
+        while (true) {
+            val n = read(buffer)
+            if (n < 0) break
+            if (out.size() + n > maxBytes) return null
+            out.write(buffer, 0, n)
+        }
+        return out.toByteArray()
+    }
+
+    private fun decodeIconBitmap(bytes: ByteArray, remainingBudget: Int): Bitmap? {
+        val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+        BitmapFactory.decodeByteArray(bytes, 0, bytes.size, bounds)
+        if (bounds.outWidth !in 1..MAX_ICON_DIMENSION_PX) return null
+        if (bounds.outHeight !in 1..MAX_ICON_DIMENSION_PX) return null
+        if (bounds.outWidth.toLong() * bounds.outHeight * 4 > remainingBudget) return null
+        return BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+    }
+
+    private const val MAX_MARKER_BYTES = 64
+    private const val MAX_DATA_BYTES = 32 * 1024 * 1024
+    private const val MAX_ICON_BYTES = 4 * 1024 * 1024
+    private const val MAX_ICON_COUNT = 1024
+    private const val MAX_ICON_DIMENSION_PX = 2048
+    private const val MAX_TOTAL_ICON_MEMORY_BYTES = 128 * 1024 * 1024
 }

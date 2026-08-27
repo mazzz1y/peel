@@ -148,7 +148,7 @@ object GeckoRuntimeProvider {
     fun initAsync(context: Context, warmUp: Boolean = true) {
         if (!initStarted.compareAndSet(false, true)) return
         val appContext = context.applicationContext
-        CoroutineScope(SupervisorJob() + Dispatchers.Default).launch {
+        DataManager.instance.appScope.launch {
             DataManager.instance.awaitReady()
             try {
                 withContext(Dispatchers.Main) {

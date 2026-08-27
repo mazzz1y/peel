@@ -184,11 +184,9 @@ object PushBridge {
     }
 
     private suspend fun subscriptionsForContext(contextId: String?): List<PushSubscriptionEntity> =
-        withContext(Dispatchers.IO) {
-            contextId
-                ?.let { DataManager.instance.getPushSubscriptionsForContext(it) }
-                ?: DataManager.instance.getPushSubscriptions()
-        }
+        contextId
+            ?.let { DataManager.instance.getPushSubscriptionsForContext(it) }
+            ?: DataManager.instance.getPushSubscriptions()
 
     private suspend fun removeRegistration(context: Context, entity: PushSubscriptionEntity) {
         withContext(Dispatchers.IO) { UnifiedPush.unregister(context, entity.instance) }
@@ -213,9 +211,7 @@ object PushBridge {
 
     suspend fun reconcile(context: Context) {
         DataManager.instance.awaitReady()
-        val subscriptions = withContext(Dispatchers.IO) {
-            DataManager.instance.getPushSubscriptions()
-        }
+        val subscriptions = DataManager.instance.getPushSubscriptions()
         val savedMissing = withContext(Dispatchers.IO) {
             val saved = UnifiedPush.getSavedDistributor(context)
             saved != null && saved !in UnifiedPush.getDistributors(context)
@@ -240,9 +236,7 @@ object PushBridge {
 
     suspend fun switchDistributor(context: Context, distributor: String) {
         withContext(Dispatchers.IO) { UnifiedPush.saveDistributor(context, distributor) }
-        DataManager.instance.awaitReady()
-        withContext(Dispatchers.IO) { DataManager.instance.getPushSubscriptions() }
-            .forEach { reRegister(context, it) }
+        DataManager.instance.getPushSubscriptions().forEach { reRegister(context, it) }
     }
 
     suspend fun reset(context: Context, requireRuntime: Boolean = true) {

@@ -61,6 +61,7 @@ import wtf.mazy.peel.ui.controls.ControlAction
 import wtf.mazy.peel.ui.controls.PanelControlsView
 import wtf.mazy.peel.ui.controls.BarControlsView
 import wtf.mazy.peel.ui.dialog.ExternalLinkMenu
+import wtf.mazy.peel.ui.dialog.InitialSelection
 import wtf.mazy.peel.ui.dialog.InputDialogConfig
 import wtf.mazy.peel.ui.dialog.TranslateDialog
 import wtf.mazy.peel.ui.dialog.showInputDialogRaw
@@ -68,6 +69,7 @@ import wtf.mazy.peel.ui.extensions.SessionExtensionActions
 import wtf.mazy.peel.util.BrowserLauncher
 import wtf.mazy.peel.util.NotificationUtils
 import wtf.mazy.peel.util.copyToClipboard
+import wtf.mazy.peel.util.deleteFilesOlderThan
 import wtf.mazy.peel.util.shareText
 import java.io.File
 
@@ -98,6 +100,7 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost, TranslationHo
     override var lastLoadedUrl: String = ""
     override var currentlyReloading: Boolean = false
     override var filePathCallback: ((Array<Uri>?) -> Unit)? = null
+    override var pendingCaptureFile: File? = null
 
     private var lastTopBarColor: Int? = null
     private var lastBottomBarColor: Int? = null
@@ -133,7 +136,9 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost, TranslationHo
             pendingPermissionCallbacks.removeFirstOrNull()?.invoke(granted)
         }
 
-    override fun runOnUi(action: Runnable) = runOnUiThread(action)
+    override fun runOnUi(action: Runnable) = runOnUiThread {
+        if (!isFinishing && !isDestroyed) action.run()
+    }
 
     override fun launchFilePicker(intent: Intent?): Boolean {
         val safeIntent = intent ?: return false
@@ -515,6 +520,25 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost, TranslationHo
         }
     }
 
+    override fun showTextPromptDialog(
+        title: String?,
+        message: String?,
+        defaultValue: String?,
+        onResult: (String) -> Unit,
+        onCancel: () -> Unit,
+    ): AlertDialog = showInputDialogRaw(
+        InputDialogConfig(
+            title = title,
+            allowEmpty = true,
+            prefill = defaultValue.orEmpty(),
+            message = message,
+            initialSelection = InitialSelection.CURSOR_AT_END,
+            onCancel = { onCancel() },
+        ),
+    ) { input, _ ->
+        onResult(input.text.toString())
+    }
+
     override fun showExternalLinkMenu(url: String, onResult: (ExternalLinkResult) -> Unit) {
         ExternalLinkMenu.show(
             activity = this,
@@ -564,17 +588,23 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost, TranslationHo
         NotificationUtils.showToast(this, getString(R.string.no_app_found))
     }
 
+    private fun consumeCaptureUri(): Uri? {
+        val file = pendingCaptureFile
+        pendingCaptureFile = null
+        return file?.let { Uri.fromFile(it) }
+    }
+
     protected open fun onFilePickerResult(resultCode: Int?, data: Intent?) {
         val callback = filePathCallback ?: return
         filePathCallback = null
         if (resultCode != RESULT_OK) {
-            PeelPromptDelegate.consumeCaptureUri()
+            consumeCaptureUri()
             callback.invoke(null)
             return
         }
         val contentUris = extractUris(data)
         if (contentUris.isNullOrEmpty()) {
-            val captured = PeelPromptDelegate.consumeCaptureUri()
+            val captured = consumeCaptureUri()
             callback.invoke(captured?.let { arrayOf(it) })
             return
         }
@@ -583,7 +613,7 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost, TranslationHo
             if (fileUris.isNotEmpty()) {
                 callback.invoke(fileUris)
             } else {
-                val captured = PeelPromptDelegate.consumeCaptureUri()
+                val captured = consumeCaptureUri()
                 callback.invoke(captured?.let { arrayOf(it) })
             }
         }
@@ -595,7 +625,7 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost, TranslationHo
 
     private fun resolveToFileUris(uris: Array<Uri>): Array<Uri> {
         val picksDir = File(cacheDir, "picks").apply { mkdirs() }
-        picksDir.listFiles()?.forEach { it.delete() }
+        picksDir.deleteFilesOlderThan()
         return uris.mapNotNull { uri ->
             if (uri.scheme == "file") return@mapNotNull uri
             try {
