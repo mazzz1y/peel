@@ -1,0 +1,1 @@
+- Fix regression with "Open in current session" reprompting for new-tab links
