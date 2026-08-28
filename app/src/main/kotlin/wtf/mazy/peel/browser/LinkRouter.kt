@@ -10,7 +10,11 @@ sealed interface LinkRoute {
     data object Refused : LinkRoute
     data object AppLink : LinkRoute
     data class Redirect(val target: String) : LinkRoute
-    data class PromptExternal(val target: String, val wasUpgraded: Boolean) : LinkRoute
+    data class PromptExternal(
+        val target: String,
+        val wasUpgraded: Boolean,
+        val opensNewWindow: Boolean,
+    ) : LinkRoute
 }
 
 data class NavigationFacts(
@@ -54,7 +58,11 @@ object LinkRouter {
         if (settings.isOpenUrlExternal == true &&
             shouldRouteExternally(target, settings, nav, context)
         ) {
-            return LinkRoute.PromptExternal(target, wasUpgraded = target != url)
+            return LinkRoute.PromptExternal(
+                target,
+                wasUpgraded = target != url,
+                opensNewWindow = nav.opensNewWindow,
+            )
         }
         return if (target != url) LinkRoute.Redirect(target) else LinkRoute.Allow
     }

@@ -104,10 +104,12 @@ class PeelNavigationDelegate(
             }
 
             is LinkRoute.Redirect -> redirectTo(route.target)
+            // ALLOW on a TARGET_WINDOW_NEW request opens a new session via onNewSession
+            // instead of loading here, so "load here" must deny and reload explicitly.
             is LinkRoute.PromptExternal -> promptForExternalLink(
                 route.target,
                 redirectFallbackFor(request),
-                reloadOnLoadHere = route.wasUpgraded,
+                reloadOnLoadHere = route.wasUpgraded || route.opensNewWindow,
             )
         }
     }
