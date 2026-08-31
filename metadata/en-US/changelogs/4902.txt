@@ -1,0 +1,2 @@
+- Fix download progress notification getting stuck before completion
+- Fix repeated permission prompts when a site asks for the same permission multiple times
