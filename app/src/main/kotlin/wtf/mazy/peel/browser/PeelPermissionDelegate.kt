@@ -201,9 +201,10 @@ class PeelPermissionDelegate(private val host: SessionHost) : GeckoSession.Permi
             }
 
             state == WebAppSettings.PERMISSION_ASK -> {
+                if (memory.joinAsk(origin, key, onResult)) return
                 ensureOsPermission(androidPermissions) { osGranted ->
                     if (!osGranted) {
-                        onResult(false)
+                        if (!memory.resolveAsk(origin, key, false)) onResult(false)
                         return@ensureOsPermission
                     }
                     host.showPermissionDialog(
@@ -214,7 +215,7 @@ class PeelPermissionDelegate(private val host: SessionHost) : GeckoSession.Permi
                     ) { result, remember ->
                         val granted = result == PermissionResult.ALLOW
                         memory.remember(origin, key, granted, forSession = remember)
-                        onResult(granted)
+                        if (!memory.resolveAsk(origin, key, granted)) onResult(granted)
                     }
                 }
             }

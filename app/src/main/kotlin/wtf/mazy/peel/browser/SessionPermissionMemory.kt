@@ -6,6 +6,7 @@ class SessionPermissionMemory {
 
     private val page = mutableMapOf<Pair<String, Int>, Boolean>()
     private val session = mutableMapOf<Pair<String, Int>, Boolean>()
+    private val pendingAsks = mutableMapOf<Pair<String, Int>, MutableList<(Boolean) -> Unit>>()
 
     fun remembered(origin: String, key: Int): Boolean? {
         val id = keyFor(origin, key) ?: return null
@@ -15,6 +16,28 @@ class SessionPermissionMemory {
     fun remember(origin: String, key: Int, granted: Boolean, forSession: Boolean) {
         val id = keyFor(origin, key) ?: return
         if (forSession) session[id] = granted else page[id] = granted
+    }
+
+    // Websites that repeatedly re-request the same permission (e.g. calling
+    // getCurrentPosition in a loop) would otherwise stack a native dialog per call.
+    fun joinAsk(origin: String, key: Int, onResult: (Boolean) -> Unit): Boolean {
+        val id = keyFor(origin, key) ?: return false
+        val queued = pendingAsks[id]
+        if (queued != null) {
+            queued.add(onResult)
+            return true
+        }
+        pendingAsks[id] = mutableListOf(onResult)
+        return false
+    }
+
+    // Returns false when there was nothing to resolve (unkeyable origin), so the
+    // caller can fall back to answering its own request directly.
+    fun resolveAsk(origin: String, key: Int, granted: Boolean): Boolean {
+        val id = keyFor(origin, key) ?: return false
+        val callbacks = pendingAsks.remove(id) ?: return false
+        callbacks.forEach { it(granted) }
+        return true
     }
 
     fun clearPage() {
