@@ -21,6 +21,7 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.currentCoroutineContext
@@ -40,9 +41,13 @@ class DownloadService : Service() {
         val fileName: String,
         val webappName: String?,
         val cancelPending: PendingIntent,
+        val contentLength: Long,
     ) {
         val cancelled = AtomicBoolean(false)
         var job: Job? = null
+
+        @Volatile
+        var bytesCopied = 0L
     }
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
@@ -75,7 +80,7 @@ class DownloadService : Service() {
         val cancelPending = buildCancelPendingIntent(notification.id)
         startForegroundWith(
             notification.id,
-            notification.buildProgress(fileName, webappName, cancelPending),
+            notification.buildProgress(fileName, webappName, 0, contentLength, cancelPending),
         )
 
         val body = pendingStreams.remove(requestId)
@@ -86,11 +91,13 @@ class DownloadService : Service() {
             return
         }
 
-        val download = ActiveDownload(notification, fileName, webappName, cancelPending)
+        val download =
+            ActiveDownload(notification, fileName, webappName, cancelPending, contentLength)
         downloads[notification.id] = download
 
         var lastNotifyTime = 0L
         val onProgress = { bytesCopied: Long ->
+            download.bytesCopied = bytesCopied
             val now = SystemClock.elapsedRealtime()
             if (now - lastNotifyTime >= 1000 && !download.cancelled.get()) {
                 lastNotifyTime = now
@@ -109,15 +116,17 @@ class DownloadService : Service() {
                 val uri = withContext(Dispatchers.IO) {
                     saveToDownloads(body, fileName, mimeType, onProgress)
                 }
-                downloads.remove(notification.id)
-                releaseForeground(notification.id)
-                if (uri != null) {
-                    notification.showSuccess(fileName, webappName, uri, mimeType)
-                    broadcastComplete(
-                        fileName, uri.toString(), mimeType, notification.id
-                    )
-                } else {
-                    notification.showError(fileName, webappName)
+                withContext(NonCancellable) {
+                    if (uri != null) {
+                        notification.showSuccess(fileName, webappName, uri, mimeType)
+                        broadcastComplete(
+                            fileName, uri.toString(), mimeType, notification.id
+                        )
+                    } else {
+                        notification.showError(fileName, webappName)
+                    }
+                    downloads.remove(notification.id)
+                    releaseForeground(notification.id)
                 }
             } catch (_: CancellationException) {
                 notification.dismiss()
@@ -156,7 +165,10 @@ class DownloadService : Service() {
             val d = next.value
             startForegroundWith(
                 next.key,
-                d.notification.buildProgress(d.fileName, d.webappName, d.cancelPending),
+                d.notification.buildProgress(
+                    d.fileName, d.webappName,
+                    d.bytesCopied, d.contentLength, d.cancelPending,
+                ),
             )
         } else {
             ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_DETACH)

@@ -23,28 +23,25 @@ class DownloadNotification(private val context: Context) {
     }
 
     fun buildProgress(
-        fileName: String,
-        webappName: String?,
-        cancelIntent: PendingIntent
-    ): Notification =
-        progressBuilder(fileName, webappName, cancelIntent)
-            .setContentText(context.getString(R.string.download_in_progress))
-            .setProgress(0, 0, true)
-            .build()
-
-    fun updateProgress(
         fileName: String, webappName: String?,
         current: Long, total: Long, cancelIntent: PendingIntent,
-    ) {
+    ): Notification {
         val builder = progressBuilder(fileName, webappName, cancelIntent)
-        if (total > 0) {
+        if (total > 0 && current > 0) {
             val percent = (current * 100 / total).toInt()
             builder.setProgress(100, percent, false).setContentText("$percent%")
         } else {
             builder.setProgress(0, 0, true)
                 .setContentText(context.getString(R.string.download_in_progress))
         }
-        manager.notify(id, builder.build())
+        return builder.build()
+    }
+
+    fun updateProgress(
+        fileName: String, webappName: String?,
+        current: Long, total: Long, cancelIntent: PendingIntent,
+    ) {
+        manager.notify(id, buildProgress(fileName, webappName, current, total, cancelIntent))
     }
 
     fun showSuccess(fileName: String, webappName: String?, contentUri: Uri, mimeType: String?) {
