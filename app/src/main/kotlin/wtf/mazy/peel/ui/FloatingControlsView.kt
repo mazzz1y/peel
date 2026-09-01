@@ -4,6 +4,8 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.res.ColorStateList
+import android.view.ViewGroup
+import android.view.Gravity
 import android.view.HapticFeedbackConstants
 import android.view.LayoutInflater
 import android.view.MotionEvent
@@ -25,6 +27,7 @@ import com.google.android.material.card.MaterialCardView
 import wtf.mazy.peel.R
 import wtf.mazy.peel.ui.controls.BrowserControls
 import wtf.mazy.peel.ui.controls.ControlAction
+import wtf.mazy.peel.util.isAutomotiveHost
 
 class FloatingControlsView(
     private val parent: FrameLayout,
@@ -35,9 +38,12 @@ class FloatingControlsView(
 
     private data class SavedOffset(val xFraction: Float, val yFraction: Float)
 
-    private class Prefs(context: Context, webappUuid: String) {
+    private class Prefs(context: Context, webappUuid: String, automotive: Boolean) {
         private val prefs: SharedPreferences =
-            context.getSharedPreferences("${webappUuid}_floating_controls", 0)
+            context.getSharedPreferences(
+                "${webappUuid}_floating_controls${if (automotive) "_aaos6" else ""}",
+                0,
+            )
 
         fun load(): SavedOffset? {
             if (!prefs.contains(KEY_X)) return null
@@ -68,12 +74,18 @@ class FloatingControlsView(
     private val touchSlop = ViewConfiguration.get(context).scaledTouchSlop.toFloat()
     private val scrimColor = ContextCompat.getColor(context, R.color.floating_controls_scrim)
 
-    private val buttonPrefs = Prefs(context, webappUuid)
+    private val automotiveHost = context.isAutomotiveHost()
+    private val buttonPrefs = Prefs(context, webappUuid, automotiveHost)
+    private val expandHorizontal = automotiveHost
+    private val cornerMarginPx = res.getDimensionPixelSize(R.dimen.fab_margin)
 
-    private val panelHeightPx: Int =
+    private val panelSpanPx: Int =
         buttonSizePx * actions.size +
-                gapPx * (actions.size - 1).coerceAtLeast(0) +
-                panelPaddingPx * 2
+            gapPx * (actions.size - 1).coerceAtLeast(0) +
+            panelPaddingPx * 2
+
+    private val panelHeightPx: Int get() = if (expandHorizontal) buttonSizePx else panelSpanPx
+    private val panelWidthPx: Int get() = if (expandHorizontal) panelSpanPx else buttonSizePx
 
     private val inflater = LayoutInflater.from(context)
     private val trigger: MaterialCardView =
@@ -94,15 +106,21 @@ class FloatingControlsView(
     private var destroyed = false
     private var translateActiveDot: View? = null
     private var translateActive: Boolean = false
+    private var automotivePositionedByGravity = automotiveHost
 
     private val layoutChangeListener =
         View.OnLayoutChangeListener { _, l, t, r, b, oldL, oldT, oldR, oldB ->
             if (r - l != oldR - oldL || b - t != oldB - oldT) {
                 applyPosition()
                 if (expanded) {
-                    expandDown = shouldExpandDown()
-                    panel.pivotY = if (expandDown) 0f else panelHeightPx.toFloat()
-                    positionPanel(expandDown)
+                    if (expandHorizontal) {
+                        panel.pivotX = resolvedPanelWidthPx().toFloat()
+                        panel.pivotY = buttonSizePx / 2f
+                    } else {
+                        expandDown = shouldExpandDown()
+                        panel.pivotY = if (expandDown) 0f else panelHeightPx.toFloat()
+                    }
+                    positionPanel()
                 }
             }
         }
@@ -139,17 +157,41 @@ class FloatingControlsView(
             gestureHandler.cancel()
         }
         trigger.visibility = if (hidden) View.GONE else View.VISIBLE
+        if (!hidden && automotiveHost) {
+            parent.bringChildToFront(panel)
+            parent.bringChildToFront(trigger)
+        }
     }
 
     private fun setupLayout() {
         trigger.layoutParams = FrameLayout.LayoutParams(buttonSizePx, buttonSizePx)
-        panel.layoutParams = FrameLayout.LayoutParams(buttonSizePx, panelHeightPx)
+        if (expandHorizontal) {
+            panelContainer.orientation = LinearLayout.HORIZONTAL
+            panelContainer.gravity = Gravity.CENTER_VERTICAL
+            panelContainer.setPaddingRelative(panelPaddingPx, 0, panelPaddingPx, 0)
+            panelContainer.layoutParams = FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+            )
+            panel.layoutParams = FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                panelHeightPx,
+            )
+        } else {
+            panelContainer.setPaddingRelative(0, panelPaddingPx, 0, panelPaddingPx)
+            panel.layoutParams = FrameLayout.LayoutParams(panelWidthPx, panelHeightPx)
+        }
         populatePanel()
         panel.alpha = 0f
         panel.visibility = View.INVISIBLE
         parent.addView(scrim)
         parent.addView(panel)
         parent.addView(trigger)
+        if (automotiveHost) {
+            val elevationPx = res.getDimension(R.dimen.floating_controls_elevation)
+            trigger.elevation = elevationPx
+            panel.elevation = elevationPx
+        }
     }
 
     private fun attachListeners() {
@@ -174,7 +216,9 @@ class FloatingControlsView(
         translateActiveDot = null
         actions.forEachIndexed { index, action ->
             val lp = LinearLayout.LayoutParams(buttonSizePx, buttonSizePx).apply {
-                if (index > 0) topMargin = gapPx
+                if (index > 0) {
+                    if (expandHorizontal) marginStart = gapPx else topMargin = gapPx
+                }
             }
             panelContainer.addView(createActionView(action), lp)
         }
@@ -249,18 +293,75 @@ class FloatingControlsView(
 
     private fun applyPosition() {
         if (parent.width <= 0 || parent.height <= 0) return
+        if (automotiveHost) {
+            val saved = buttonPrefs.load()
+            if (saved == null || automotivePositionedByGravity) {
+                applyAutomotiveGravityPosition()
+            } else {
+                applyAutomotiveAbsolutePosition(
+                    resolveOffset(saved.xFraction, parent.width),
+                    resolveOffset(saved.yFraction, parent.height),
+                )
+            }
+            parent.bringChildToFront(panel)
+            parent.bringChildToFront(trigger)
+            return
+        }
         val saved = buttonPrefs.load()
         val x = resolveOffset(saved?.xFraction ?: DEFAULT_X_FRACTION, parent.width)
         val y = resolveOffset(saved?.yFraction ?: DEFAULT_Y_FRACTION, parent.height)
         moveTriggerTo(x, y)
     }
 
+    private fun applyAutomotiveGravityPosition() {
+        automotivePositionedByGravity = true
+        val lp = trigger.layoutParams as FrameLayout.LayoutParams
+        lp.gravity = Gravity.NO_GRAVITY
+        lp.setMargins(0, 0, 0, 0)
+        trigger.layoutParams = lp
+        if (parent.width > 0 && parent.height > 0) {
+            moveTriggerTo(automotiveDefaultX(), automotiveDefaultY())
+        }
+    }
+
+    private val automotiveEdgeToEdge: Boolean
+        get() = automotiveHost && parent.id == R.id.browser_root
+
+    private fun automotiveEndMarginPx(): Int =
+        if (automotiveEdgeToEdge) {
+            cornerMarginPx +
+                res.getDimensionPixelSize(R.dimen.automotive_floating_controls_end_inset)
+        } else {
+            cornerMarginPx
+        }
+
+    private fun automotiveDefaultX(): Float =
+        (parent.width - buttonSizePx - automotiveEndMarginPx()).toFloat().coerceAtLeast(0f)
+
+    private fun automotiveDefaultY(): Float =
+        (parent.height - buttonSizePx - cornerMarginPx).toFloat().coerceAtLeast(0f)
+
+    private fun applyAutomotiveAbsolutePosition(x: Float, y: Float) {
+        automotivePositionedByGravity = false
+        val lp = trigger.layoutParams as FrameLayout.LayoutParams
+        lp.gravity = Gravity.NO_GRAVITY
+        lp.setMargins(0, 0, 0, 0)
+        trigger.layoutParams = lp
+        moveTriggerTo(x, y)
+    }
+
+    private fun moveTriggerToAutomotiveDefault() {
+        buttonPrefs.clear()
+        applyAutomotiveGravityPosition()
+    }
+
     private fun savePosition() {
         if (parent.width <= 0 || parent.height <= 0) return
+        if (automotiveHost && automotivePositionedByGravity) return
         buttonPrefs.save(
             SavedOffset(
-                encodeOffset(trigger.x, parent.width),
-                encodeOffset(trigger.y, parent.height),
+                encodeOffset(if (automotiveHost) triggerX() else trigger.x, parent.width),
+                encodeOffset(if (automotiveHost) triggerY() else trigger.y, parent.height),
             ),
         )
     }
@@ -268,7 +369,11 @@ class FloatingControlsView(
     private fun resetPosition() {
         if (expanded) collapseInstantly()
         buttonPrefs.clear()
-        applyPosition()
+        if (automotiveHost) {
+            applyAutomotiveGravityPosition()
+        } else {
+            applyPosition()
+        }
     }
 
     private fun encodeOffset(pos: Float, parentSize: Int): Float {
@@ -287,6 +392,13 @@ class FloatingControlsView(
     }
 
     private fun moveTriggerTo(x: Float, y: Float) {
+        if (automotiveHost) {
+            val maxX = (parent.width - buttonSizePx).toFloat().coerceAtLeast(0f)
+            val maxY = (parent.height - buttonSizePx).toFloat().coerceAtLeast(0f)
+            trigger.x = x.coerceIn(0f, maxX)
+            trigger.y = y.coerceIn(0f, maxY)
+            return
+        }
         val insets = systemBars
         val location = IntArray(2).also { parent.getLocationInWindow(it) }
         val parentTop = location[1]
@@ -297,9 +409,26 @@ class FloatingControlsView(
         trigger.y = y.coerceIn(minY, maxY)
     }
 
-    private fun positionPanel(expandDown: Boolean) {
+    private fun triggerX(): Float =
+        if (automotiveHost && automotivePositionedByGravity) automotiveDefaultX() else trigger.x
+
+    private fun triggerY(): Float =
+        if (automotiveHost && automotivePositionedByGravity) automotiveDefaultY() else trigger.y
+
+    private fun resolvedPanelWidthPx(): Int =
+        if (panel.width > 0) panel.width else panelWidthPx
+
+    private fun positionPanel() {
+        if (expandHorizontal) {
+            val width = resolvedPanelWidthPx()
+            val triggerLeft = triggerX()
+            panel.x = (triggerLeft - panelTriggerGapPx - width).coerceAtLeast(0f)
+            panel.y = triggerY()
+            return
+        }
+        val down = expandDown
         panel.x = trigger.x
-        val preferredY = if (expandDown) {
+        val preferredY = if (down) {
             trigger.y + buttonSizePx + panelTriggerGapPx
         } else {
             trigger.y - panelTriggerGapPx - panelHeightPx
@@ -329,10 +458,22 @@ class FloatingControlsView(
     private fun expand() {
         if (destroyed || expanded) return
         expanded = true
-        expandDown = shouldExpandDown()
-        positionPanel(expandDown)
-        panel.pivotX = buttonSizePx / 2f
-        panel.pivotY = if (expandDown) 0f else panelHeightPx.toFloat()
+        if (expandHorizontal) {
+            if (panel.width <= 0) {
+                panel.measure(
+                    View.MeasureSpec.makeMeasureSpec(parent.width, View.MeasureSpec.AT_MOST),
+                    View.MeasureSpec.makeMeasureSpec(panelHeightPx, View.MeasureSpec.EXACTLY),
+                )
+            }
+            positionPanel()
+            panel.pivotX = resolvedPanelWidthPx().toFloat()
+            panel.pivotY = buttonSizePx / 2f
+        } else {
+            expandDown = shouldExpandDown()
+            positionPanel()
+            panel.pivotX = buttonSizePx / 2f
+            panel.pivotY = if (expandDown) 0f else panelHeightPx.toFloat()
+        }
         showPanel()
         animateTriggerIcons(toClose = true)
         fadeScrim(visible = true)
@@ -468,8 +609,8 @@ class FloatingControlsView(
                 state = GestureState.WAITING
                 startX = event.rawX
                 startY = event.rawY
-                triggerStartX = trigger.x
-                triggerStartY = trigger.y
+                triggerStartX = triggerX()
+                triggerStartY = triggerY()
                 trigger.postDelayed(armDragRunnable, DRAG_ARM_HOLD_MS)
                 trigger.postDelayed(resetRunnable, RESET_HOLD_MS)
                 true
@@ -510,6 +651,9 @@ class FloatingControlsView(
                     if (pastSlop) {
                         state = GestureState.DRAGGING
                         trigger.removeCallbacks(resetRunnable)
+                        if (automotiveHost && automotivePositionedByGravity) {
+                            applyAutomotiveAbsolutePosition(triggerX(), triggerY())
+                        }
                     }
                     if (state == GestureState.DRAGGING) {
                         moveTriggerTo(triggerStartX + dx, triggerStartY + dy)

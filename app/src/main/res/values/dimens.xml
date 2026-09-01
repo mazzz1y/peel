@@ -60,4 +60,15 @@
     <dimen name="find_in_page_elevation">6dp</dimen>
     <dimen name="find_in_page_min_height">48dp</dimen>
     <dimen name="find_in_page_button_gap">2dp</dimen>
+
+    <!-- AAOS safe zone for immersive PWA (fallback when system horizontal insets are zero) -->
+    <dimen name="automotive_safe_zone_start">120dp</dimen>
+    <dimen name="automotive_safe_zone_top">16dp</dimen>
+    <dimen name="automotive_safe_zone_bottom">28dp</dimen>
+    <dimen name="automotive_safe_zone_end_portrait">0dp</dimen>
+    <dimen name="automotive_safe_zone_end_ultrawide">120dp</dimen>
+    <dimen name="automotive_safe_zone_end_horizontal">80dp</dimen>
+
+    <!-- Fullscreen floating trigger clearance from physical display cutout (not safe zone) -->
+    <dimen name="automotive_floating_controls_end_inset">48dp</dimen>
 </resources>

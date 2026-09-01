@@ -52,6 +52,8 @@ import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.SandboxManager
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.model.WebAppSettings
+import wtf.mazy.peel.ui.browser.AutomotiveFullscreen
+import wtf.mazy.peel.ui.browser.AutomotiveWindow
 import wtf.mazy.peel.ui.browser.AutoReloadController
 import wtf.mazy.peel.ui.browser.BiometricUnlockController
 import wtf.mazy.peel.ui.controls.BrowserControls
@@ -63,12 +65,16 @@ import wtf.mazy.peel.util.BrowserLauncher
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.NotificationUtils
 import wtf.mazy.peel.util.disableSystemBarContrastEnforcement
+import wtf.mazy.peel.util.isAutomotiveHost
 import wtf.mazy.peel.util.isSameHost
 import wtf.mazy.peel.util.shareText
 import wtf.mazy.peel.util.webAppUuid
 
 class BrowserActivity : BaseSessionHost() {
     var webappUuid: String? = null
+
+    override val applyAutomotiveFullscreen: Boolean
+        get() = isAutomotiveHost && effectiveSettings.isShowFullscreen == true
 
     override val ownerWebAppUuid: String?
         get() = webappUuid
@@ -182,14 +188,20 @@ class BrowserActivity : BaseSessionHost() {
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        enableEdgeToEdge()
+        if (!isAutomotiveHost()) {
+            enableEdgeToEdge()
+        } else {
+            AutomotiveWindow.applyStandardWindow(window)
+        }
         disableSystemBarContrastEnforcement()
         super.onCreate(savedInstanceState)
         liveInstances.add(this)
 
         sanitizeExternalIntent(intent)
         launchedFromMenu = intent.getBooleanExtra(Const.INTENT_LAUNCHED_FROM_MENU, false)
-        window.setBackgroundDrawable(themeBackgroundColor.toDrawable())
+        window.setBackgroundDrawable(
+            (if (isAutomotiveHost) android.graphics.Color.BLACK else themeBackgroundColor).toDrawable(),
+        )
         setupSessionHostLayout(showToolbar = false)
         webappUuid = intent.webAppUuid()
         ensureDataReady(webappUuid, forceReload = false) {
@@ -250,6 +262,7 @@ class BrowserActivity : BaseSessionHost() {
 
     override fun onResume() {
         super.onResume()
+        if (applyAutomotiveFullscreen) applyAutomotiveFullscreenMode()
         ContextCompat.registerReceiver(
             this, downloadCompleteReceiver,
             IntentFilter(DownloadService.ACTION_DOWNLOAD_COMPLETE),
@@ -575,16 +588,40 @@ class BrowserActivity : BaseSessionHost() {
     }
 
     override fun onWebFullscreenEnter() {
-        systemBarController.hide()
+        updateWebContentFullscreen(true)
+        systemBarController.hide(persistent = automotivePersistentSystemBars)
         closeFindInPage()
         setBrowserControlsFullscreen(true)
         pullToRefreshController.setSuspended(true)
     }
 
     override fun onWebFullscreenExit() {
-        systemBarController.show(effectiveSettings.isShowFullscreen == true)
+        updateWebContentFullscreen(false)
+        if (applyAutomotiveFullscreen) {
+            applyAutomotiveFullscreenMode()
+        } else {
+            if (isAutomotiveHost) AutomotiveWindow.applyStandardWindow(window)
+            systemBarController.show(effectiveSettings.isShowFullscreen == true)
+            requestInsetsUpdate()
+        }
         setBrowserControlsFullscreen(false)
         pullToRefreshController.setSuspended(false)
+    }
+
+    private fun applyAutomotiveFullscreenMode() {
+        AutomotiveFullscreen.apply(window)
+        systemBarController.hide(persistent = true)
+        requestInsetsUpdate()
+    }
+
+    private fun applyAutomotiveStandardWindow() {
+        AutomotiveWindow.applyStandardWindow(window)
+        requestInsetsUpdate()
+    }
+
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (hasFocus && applyAutomotiveFullscreen) applyAutomotiveFullscreenMode()
     }
 
     private fun setupGeckoView() {
@@ -734,14 +771,26 @@ class BrowserActivity : BaseSessionHost() {
     private fun applyVisualSettings(settings: WebAppSettings) {
         applyWindowFlags(settings)
         pullToRefreshController.update(settings)
-        if (settings.isShowFullscreen == true) systemBarController.hide() else systemBarController.show(
-            false
-        )
+        when {
+            applyAutomotiveFullscreen -> applyAutomotiveFullscreenMode()
+            isAutomotiveHost -> {
+                applyAutomotiveStandardWindow()
+                systemBarController.show(false)
+            }
+            settings.isShowFullscreen == true -> systemBarController.hide()
+            else -> systemBarController.show(false)
+        }
     }
 
     private fun bindViews() {
-        findViewById<View>(R.id.browser_root)?.setBackgroundColor(themeBackgroundColor)
-        browserContent?.setBackgroundColor(themeBackgroundColor)
+        val root = findViewById<View>(R.id.browser_root)
+        if (isAutomotiveHost) {
+            root?.setBackgroundColor(android.graphics.Color.BLACK)
+            browserContent?.setBackgroundColor(android.graphics.Color.TRANSPARENT)
+        } else {
+            root?.setBackgroundColor(themeBackgroundColor)
+            browserContent?.setBackgroundColor(themeBackgroundColor)
+        }
     }
 
     private fun resetHistoryAfterAuthReturn() {

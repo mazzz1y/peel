@@ -21,7 +21,9 @@ import wtf.mazy.peel.R
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.ui.common.Theming
 import wtf.mazy.peel.ui.dragReorderCallback
+import wtf.mazy.peel.ui.browser.AutomotiveWindow
 import wtf.mazy.peel.util.disableSystemBarContrastEnforcement
+import wtf.mazy.peel.util.isAutomotiveHost
 
 abstract class EntityListActivity<T : Any> : AppCompatActivity(), EntityListHost {
 
@@ -77,10 +79,11 @@ abstract class EntityListActivity<T : Any> : AppCompatActivity(), EntityListHost
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.AppTheme)
-        enableEdgeToEdge()
+        if (!isAutomotiveHost()) enableEdgeToEdge()
         disableSystemBarContrastEnforcement()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_base_list)
+        AutomotiveWindow.installSafeAreaOnRoot(this, findViewById(R.id.base_list_root))
 
         toolbar = findViewById(R.id.toolbar)
         fab = findViewById(R.id.base_fab)

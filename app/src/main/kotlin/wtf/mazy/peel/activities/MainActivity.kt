@@ -51,9 +51,11 @@ import wtf.mazy.peel.ui.webapplist.SearchableHost
 import wtf.mazy.peel.ui.webapplist.WebAppListFragment
 import wtf.mazy.peel.ui.webapplist.WebAppSelectionActions
 import wtf.mazy.peel.ui.webapplist.WebAppShareHost
+import wtf.mazy.peel.ui.browser.AutomotiveWindow
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.NotificationUtils
 import wtf.mazy.peel.util.disableSystemBarContrastEnforcement
+import wtf.mazy.peel.util.isAutomotiveHost
 import wtf.mazy.peel.util.restartApp
 
 class MainActivity :
@@ -103,10 +105,11 @@ class MainActivity :
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.AppTheme)
-        enableEdgeToEdge()
+        if (!isAutomotiveHost()) enableEdgeToEdge()
         disableSystemBarContrastEnforcement()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        AutomotiveWindow.installSafeAreaOnRoot(this, findViewById(R.id.main_root))
 
         toolbar = findViewById(R.id.toolbar)
         fab = findViewById(R.id.fab)

@@ -74,13 +74,15 @@ class SystemBarController(
         return ColorUtils.compositeColors(overlay, color)
     }
 
-    fun hide() {
+    fun hide(persistent: Boolean = false) {
         setFullscreen(true)
         statusBarScrim?.visibility = View.GONE
         navigationBarScrim?.visibility = View.GONE
         insetsController.hide(WindowInsetsCompat.Type.systemBars())
-        insetsController.systemBarsBehavior =
-            WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        if (!persistent) {
+            insetsController.systemBarsBehavior =
+                WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        }
         ViewCompat.requestApplyInsets(window.decorView)
     }
 

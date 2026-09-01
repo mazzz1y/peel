@@ -49,6 +49,8 @@ import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.model.WebAppSettings
 import wtf.mazy.peel.ui.FindInPageView
 import wtf.mazy.peel.ui.FloatingControlsView
+import wtf.mazy.peel.ui.browser.AutomotiveSafeZoneInsets
+import wtf.mazy.peel.ui.browser.AutomotiveWindow
 import wtf.mazy.peel.ui.browser.PullToRefreshController
 import wtf.mazy.peel.ui.browser.SystemBarController
 import wtf.mazy.peel.ui.common.LoadingDialogController
@@ -70,6 +72,7 @@ import wtf.mazy.peel.util.BrowserLauncher
 import wtf.mazy.peel.util.NotificationUtils
 import wtf.mazy.peel.util.copyToClipboard
 import wtf.mazy.peel.util.deleteFilesOlderThan
+import wtf.mazy.peel.util.isAutomotiveHost
 import wtf.mazy.peel.util.shareText
 import java.io.File
 
@@ -91,6 +94,7 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost, TranslationHo
     private var browserControlsFullscreen = false
     protected var findInPage: FindInPageView? = null
     protected var isFullscreen: Boolean = false
+    protected var webContentFullscreen: Boolean = false
     private var controlsGesture = false
     protected lateinit var navigationDelegate: PeelNavigationDelegate
     protected lateinit var downloadHandler: DownloadHandler
@@ -242,6 +246,20 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost, TranslationHo
     protected var translationDelegate: PeelTranslationDelegate? = null
     protected var translationsSupported: Boolean = false
 
+    protected val isAutomotiveHost: Boolean by lazy { isAutomotiveHost() }
+
+    protected fun updateWebContentFullscreen(fullscreen: Boolean) {
+        if (webContentFullscreen == fullscreen) return
+        webContentFullscreen = fullscreen
+        requestInsetsUpdate()
+    }
+
+    protected open val applyAutomotiveFullscreen: Boolean
+        get() = false
+
+    protected open val automotivePersistentSystemBars: Boolean
+        get() = applyAutomotiveFullscreen
+
     protected open val applyDynamicStatusBar: Boolean
         get() = effectiveSettings.isDynamicStatusBar == true
 
@@ -269,6 +287,11 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost, TranslationHo
     override fun updateSystemBarColors(top: Int, bottom: Int) {
         val effectiveBottom = if (hasPanelControls) themeBackgroundColor else bottom
         systemBarController.update(top, effectiveBottom, UI_ANIMATION_DURATION_MS)
+        if (isAutomotiveHost) updateBrowserLetterboxColor(top)
+    }
+
+    private fun updateBrowserLetterboxColor(color: Int) {
+        findViewById<View>(R.id.browser_root)?.setBackgroundColor(color)
     }
 
     private val hasPanelControls: Boolean
@@ -666,8 +689,10 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost, TranslationHo
 
     private fun installEdgeToEdgeInsetsListener() {
         val root = findViewById<View>(R.id.browser_root) ?: return
+        val insetTypes = WindowInsetsCompat.Type.systemBars() or
+            WindowInsetsCompat.Type.displayCutout()
         ViewCompat.setOnApplyWindowInsetsListener(root) { _, insets ->
-            val sys = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            val sys = insets.getInsets(insetTypes)
             val ime = insets.getInsets(WindowInsetsCompat.Type.ime())
             statusBarScrim?.let {
                 it.layoutParams.height = sys.top
@@ -677,16 +702,36 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost, TranslationHo
                 it.layoutParams.height = sys.bottom
                 it.requestLayout()
             }
-            val topPad = if (isFullscreen) 0 else sys.top
-            val systemBottom = maxOf(sys.bottom, ime.bottom)
-            panelControls?.let {
-                val lp = it.layoutParams as FrameLayout.LayoutParams
-                if (lp.bottomMargin != systemBottom) {
-                    lp.bottomMargin = systemBottom
-                    it.requestLayout()
-                }
+            val automotiveEdgeToEdge = isAutomotiveHost &&
+                (applyAutomotiveFullscreen || webContentFullscreen)
+            if (automotiveEdgeToEdge) {
+                statusBarScrim?.visibility = View.GONE
+                navigationBarScrim?.visibility = View.GONE
+                applyPanelControlsBottomMargin(0)
+                applyBrowserContentLayoutInsets(0, 0, 0, panelControlsHeight)
+            } else if (isAutomotiveHost) {
+                statusBarScrim?.visibility = View.VISIBLE
+                navigationBarScrim?.visibility = View.VISIBLE
+                val horizontal = AutomotiveWindow.horizontalInsetPx(
+                    this,
+                    sys.left,
+                    sys.right,
+                    useFallback = false,
+                )
+                val systemBottom = maxOf(sys.bottom, ime.bottom)
+                applyPanelControlsBottomMargin(systemBottom)
+                applyBrowserContentLayoutInsets(
+                    horizontal.first,
+                    sys.top,
+                    horizontal.second,
+                    systemBottom + panelControlsHeight,
+                )
+            } else {
+                val topPad = if (isFullscreen) 0 else sys.top
+                val systemBottom = maxOf(sys.bottom, ime.bottom)
+                applyPanelControlsBottomMargin(systemBottom)
+                applyBrowserContentLayoutInsets(0, topPad, 0, systemBottom + panelControlsHeight)
             }
-            browserContent?.setPadding(0, topPad, 0, systemBottom + panelControlsHeight)
             browserControls?.onImeVisibilityChanged(ime.bottom > 0)
             WindowInsetsCompat.CONSUMED
         }
@@ -694,6 +739,31 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost, TranslationHo
 
     private val panelControlsHeight: Int
         get() = browserControls?.reservedBottomHeight() ?: 0
+
+    /** Insets the web content frame via margins so GeckoView is not padded (avoids letterbox bleed). */
+    private fun applyBrowserContentLayoutInsets(left: Int, top: Int, right: Int, bottom: Int) {
+        val content = browserContent ?: return
+        content.setPaddingRelative(0, 0, 0, 0)
+        val lp = content.layoutParams as? FrameLayout.LayoutParams ?: return
+        val changed = lp.marginStart != left || lp.topMargin != top ||
+            lp.marginEnd != right || lp.bottomMargin != bottom
+        if (!changed) return
+        lp.marginStart = left
+        lp.topMargin = top
+        lp.marginEnd = right
+        lp.bottomMargin = bottom
+        content.layoutParams = lp
+    }
+
+    private fun applyPanelControlsBottomMargin(bottom: Int) {
+        panelControls?.let {
+            val lp = it.layoutParams as FrameLayout.LayoutParams
+            if (lp.bottomMargin != bottom) {
+                lp.bottomMargin = bottom
+                it.requestLayout()
+            }
+        }
+    }
 
     protected fun requestInsetsUpdate() {
         findViewById<View>(R.id.browser_root)?.let { it.post(it::requestApplyInsets) }
@@ -790,16 +860,22 @@ abstract class BaseSessionHost : AppCompatActivity(), SessionHost, TranslationHo
 
     protected open fun createBrowserControls(mode: Int): BrowserControls? = null
 
+    protected open fun floatingControlsParent(): FrameLayout {
+        val content = findViewById<FrameLayout>(R.id.browserContent)!!
+        if (!isAutomotiveHost || !applyAutomotiveFullscreen) return content
+        return findViewById(R.id.browser_root) ?: content
+    }
+
     protected fun buildBrowserControls(
         mode: Int,
         floatingKey: String,
         actions: List<ControlAction>,
     ): BrowserControls {
-        val parent = findViewById<FrameLayout>(R.id.browserContent)
+        val parent = floatingControlsParent()
         val panel = panelControls
         return when {
             mode == WebAppSettings.BROWSER_CONTROLS_BAR ->
-                BarControlsView(parent, actions)
+                BarControlsView(findViewById(R.id.browserContent), actions)
 
             mode == WebAppSettings.BROWSER_CONTROLS_PANEL && panel != null ->
                 PanelControlsView(panel, actions, ::requestInsetsUpdate)

@@ -12,7 +12,9 @@ import androidx.core.widget.NestedScrollView
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
 import wtf.mazy.peel.databinding.ActivityToolbarBaseBinding
+import wtf.mazy.peel.ui.browser.AutomotiveWindow
 import wtf.mazy.peel.util.disableSystemBarContrastEnforcement
+import wtf.mazy.peel.util.isAutomotiveHost
 
 abstract class ToolbarBaseActivity<VB : ViewBinding> : AppCompatActivity() {
 
@@ -25,12 +27,13 @@ abstract class ToolbarBaseActivity<VB : ViewBinding> : AppCompatActivity() {
     abstract fun inflateBinding(layoutInflater: LayoutInflater): VB
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        enableEdgeToEdge()
+        if (!isAutomotiveHost()) enableEdgeToEdge()
         disableSystemBarContrastEnforcement()
         super.onCreate(savedInstanceState)
 
         baseBinding = ActivityToolbarBaseBinding.inflate(layoutInflater)
         setContentView(baseBinding.root)
+        AutomotiveWindow.installSafeAreaOnRoot(this, baseBinding.toolbarBaseRoot)
 
         _binding = inflateBinding(layoutInflater)
         baseBinding.activityContent.addView(_binding.root)
