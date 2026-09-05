@@ -72,6 +72,7 @@ import wtf.mazy.peel.ui.dialog.showInputDialogRaw
 import wtf.mazy.peel.ui.extensions.SessionExtensionActions
 import wtf.mazy.peel.util.BrowserLauncher
 import wtf.mazy.peel.util.NotificationUtils
+import wtf.mazy.peel.util.applyToolbarScreenInsets
 import wtf.mazy.peel.util.copyToClipboard
 import wtf.mazy.peel.util.deleteFilesOlderThan
 import wtf.mazy.peel.util.isTelevisionHost
@@ -89,6 +90,7 @@ abstract class BaseSessionHost : PeelActivity(), SessionHost, TranslationHost {
     protected var toolbar: MaterialToolbar? = null
     protected var statusBarScrim: View? = null
     protected var navigationBarScrim: View? = null
+    protected var browserRoot: View? = null
     protected var browserContent: View? = null
     protected var panelControls: FrameLayout? = null
     protected var browserControls: BrowserControls? = null
@@ -658,6 +660,7 @@ abstract class BaseSessionHost : PeelActivity(), SessionHost, TranslationHost {
         geckoView = findViewById(R.id.geckoview)
         progressBar = findViewById(R.id.progressBar)
         swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout)
+        browserRoot = findViewById(R.id.browser_root)
         browserContent = findViewById(R.id.browserContent)
         appBar = findViewById(R.id.appBar)
         toolbar = findViewById(R.id.toolbar)
@@ -690,9 +693,11 @@ abstract class BaseSessionHost : PeelActivity(), SessionHost, TranslationHost {
     }
 
     private fun installEdgeToEdgeInsetsListener() {
-        val root = findViewById<View>(R.id.browser_root) ?: return
+        val root = browserRoot ?: return
+        val insetTypes = WindowInsetsCompat.Type.systemBars() or
+            WindowInsetsCompat.Type.displayCutout()
         ViewCompat.setOnApplyWindowInsetsListener(root) { _, insets ->
-            val sys = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            val sys = insets.getInsets(insetTypes)
             val ime = insets.getInsets(WindowInsetsCompat.Type.ime())
             statusBarScrim?.let {
                 it.layoutParams.height = sys.top
@@ -702,34 +707,64 @@ abstract class BaseSessionHost : PeelActivity(), SessionHost, TranslationHost {
                 it.layoutParams.height = sys.bottom
                 it.requestLayout()
             }
-            val topPad = if (isFullscreen) 0 else sys.top
+            val leftPad = sys.left
+            val rightPad = sys.right
+            val topPad = sys.top
             val systemBottom = maxOf(sys.bottom, ime.bottom)
             panelControls?.let {
                 val lp = it.layoutParams as FrameLayout.LayoutParams
-                if (lp.bottomMargin != systemBottom) {
+                if (lp.leftMargin != leftPad || lp.rightMargin != rightPad ||
+                    lp.bottomMargin != systemBottom
+                ) {
+                    lp.leftMargin = leftPad
+                    lp.rightMargin = rightPad
                     lp.bottomMargin = systemBottom
                     it.requestLayout()
                 }
             }
-            browserContent?.setPadding(0, topPad, 0, systemBottom + panelControlsHeight)
+            applyBrowserContentInsets(leftPad, topPad, rightPad, systemBottom + panelControlsHeight)
             browserControls?.onImeVisibilityChanged(ime.bottom > 0)
             WindowInsetsCompat.CONSUMED
         }
+    }
+
+    // margins, not padding: padding would paint browserContent's own background into the inset
+    private fun applyBrowserContentInsets(left: Int, top: Int, right: Int, bottom: Int) {
+        val content = browserContent ?: return
+        val lp = content.layoutParams as FrameLayout.LayoutParams
+        if (lp.leftMargin == left && lp.topMargin == top &&
+            lp.rightMargin == right && lp.bottomMargin == bottom
+        ) {
+            return
+        }
+        lp.leftMargin = left
+        lp.topMargin = top
+        lp.rightMargin = right
+        lp.bottomMargin = bottom
+        content.layoutParams = lp
     }
 
     private val panelControlsHeight: Int
         get() = browserControls?.reservedBottomHeight() ?: 0
 
     protected fun requestInsetsUpdate() {
-        findViewById<View>(R.id.browser_root)?.let { it.post(it::requestApplyInsets) }
+        browserRoot?.let { it.post(it::requestApplyInsets) }
     }
 
+    // The content root already pads the navigation bar away, so only the keyboard's overhang past
+    // it is left. Insets stay unconsumed because the app bar still needs the top.
     private fun installToolbarInsetsListener() {
+        applyToolbarScreenInsets()
         val content = browserContent ?: return
         ViewCompat.setOnApplyWindowInsetsListener(content) { v, insets ->
-            val navBottom = insets.getInsets(WindowInsetsCompat.Type.systemBars()).bottom
+            val navBottom = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
             val imeBottom = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom
-            v.setPadding(v.paddingLeft, v.paddingTop, v.paddingRight, maxOf(navBottom, imeBottom))
+            v.setPadding(
+                v.paddingLeft,
+                v.paddingTop,
+                v.paddingRight,
+                (imeBottom - navBottom).coerceAtLeast(0),
+            )
             insets
         }
     }

@@ -20,6 +20,7 @@ import wtf.mazy.peel.model.ParsedBackup
 import wtf.mazy.peel.model.WebAppGroup
 import wtf.mazy.peel.ui.dialog.showSandboxInputDialog
 import wtf.mazy.peel.ui.importmapping.ImportMappingAdapter
+import wtf.mazy.peel.util.applyToolbarScreenInsets
 import wtf.mazy.peel.util.disableSystemBarContrastEnforcement
 import wtf.mazy.peel.util.withBoldSpan
 
@@ -34,6 +35,7 @@ class ImportActivity : PeelActivity() {
         disableSystemBarContrastEnforcement()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_import)
+        applyToolbarScreenInsets()
 
         val parsed = pendingBackup ?: run { finish(); return }
 

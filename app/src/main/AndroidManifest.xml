@@ -21,6 +21,9 @@
         android:name="android.hardware.camera.autofocus"
         android:required="false" />
     <uses-feature
+        android:name="android.hardware.type.automotive"
+        android:required="false" />
+    <uses-feature
         android:name="android.software.leanback"
         android:required="false" />
     <uses-feature

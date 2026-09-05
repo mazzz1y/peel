@@ -578,6 +578,13 @@ class BrowserActivity : BaseSessionHost() {
         launchSessionExtensionsAndLoad(effectiveSettings, url, restore)
     }
 
+    // AAOS shells (notification shade, HVAC panel) can steal focus and re-show system bars
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (!hasFocus || !isAutomotiveHost() || !isStartupComplete) return
+        if (isFullscreen) systemBarController.hide()
+    }
+
     override fun onWebFullscreenEnter() {
         systemBarController.hide()
         closeFindInPage()
@@ -744,7 +751,7 @@ class BrowserActivity : BaseSessionHost() {
     }
 
     private fun bindViews() {
-        findViewById<View>(R.id.browser_root)?.setBackgroundColor(themeBackgroundColor)
+        browserRoot?.setBackgroundColor(themeBackgroundColor)
         browserContent?.setBackgroundColor(themeBackgroundColor)
     }
 

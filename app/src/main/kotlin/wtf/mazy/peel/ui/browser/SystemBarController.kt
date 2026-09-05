@@ -79,6 +79,8 @@ class SystemBarController(
         statusBarScrim?.visibility = View.GONE
         navigationBarScrim?.visibility = View.GONE
         insetsController.hide(WindowInsetsCompat.Type.systemBars())
+        // With BEHAVIOR_DEFAULT a system gesture (e.g. the AAOS shade swipe) permanently
+        // re-shows the bars and discards the hide request; transient keeps the hide authoritative.
         insetsController.systemBarsBehavior =
             WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
         ViewCompat.requestApplyInsets(window.decorView)

@@ -1,0 +1,13 @@
+<resources>
+    <!-- Density is already scaled per host, so these are deviations from the handheld
+         proportions, not conversions of them. -->
+
+    <!-- Head units have no swipe-to-reveal affordance, so the strip that brings the hidden
+         bar back has to be found without looking. -->
+    <dimen name="bar_controls_edge_trigger_height">64dp</dimen>
+
+    <!-- Buttons sit in a single row with a divider; matching the gap to the padding keeps
+         each section optically centred. -->
+    <dimen name="bar_controls_padding_horizontal">16dp</dimen>
+    <dimen name="bar_controls_button_gap">16dp</dimen>
+</resources>

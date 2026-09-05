@@ -11,6 +11,7 @@ import androidx.core.widget.NestedScrollView
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
 import wtf.mazy.peel.databinding.ActivityToolbarBaseBinding
+import wtf.mazy.peel.util.applyToolbarScreenInsets
 import wtf.mazy.peel.util.disableSystemBarContrastEnforcement
 
 abstract class ToolbarBaseActivity<VB : ViewBinding> : PeelActivity() {
@@ -30,6 +31,7 @@ abstract class ToolbarBaseActivity<VB : ViewBinding> : PeelActivity() {
 
         baseBinding = ActivityToolbarBaseBinding.inflate(layoutInflater)
         setContentView(baseBinding.root)
+        applyToolbarScreenInsets()
 
         _binding = inflateBinding(layoutInflater)
         baseBinding.activityContent.addView(_binding.root)
