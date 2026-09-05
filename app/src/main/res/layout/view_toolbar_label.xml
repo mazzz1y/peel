@@ -12,5 +12,5 @@
     android:maxLines="1"
     android:maxWidth="@dimen/toolbar_label_max_width"
     android:paddingHorizontal="8dp"
-    android:textAppearance="@style/TextAppearance.Material3.LabelMedium"
+    android:textAppearance="?attr/textAppearanceLabelMedium"
     android:textColor="?attr/colorOnSurfaceVariant" />

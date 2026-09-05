@@ -23,7 +23,7 @@
             android:background="@android:color/transparent"
             app:navigationIcon="@drawable/ic_symbols_arrow_back_24"
             app:navigationIconTint="?attr/colorOnSurface"
-            app:titleTextAppearance="@style/TextAppearance.Material3.TitleMedium"
+            app:titleTextAppearance="?attr/textAppearanceTitleMedium"
             app:titleTextColor="?attr/colorOnSurface" />
 
     </com.google.android.material.appbar.AppBarLayout>
