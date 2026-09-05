@@ -78,6 +78,7 @@
     <string name="color_scheme_auto">स्वचालित</string>
     <string name="color_scheme_light">हल्का</string>
     <string name="color_scheme_dark">गहरा</string>
+    <string name="setting_web_content_scale">स्केल</string>
     <string name="webapp_already_deleted">यह वेब ऐप हटा दिया गया है। आप यह शॉर्टकट हटा सकते हैं।</string>
     <string name="global_web_app_settings">वैश्विक वेब ऐप सेटिंग्स</string>
     <string name="behavior">व्यवहार</string>

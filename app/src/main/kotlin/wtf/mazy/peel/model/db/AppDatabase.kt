@@ -45,7 +45,7 @@ class StringListConverter {
         ProxyEntity::class,
         PushSubscriptionEntity::class,
     ],
-    version = 26,
+    version = 27,
     exportSchema = true,
 )
 @TypeConverters(StringMapConverter::class, StringListConverter::class)
@@ -183,6 +183,7 @@ abstract class AppDatabase : RoomDatabase() {
             "isAutoReload" to "INTEGER",
             "timeAutoReload" to "INTEGER",
             "colorScheme" to "INTEGER",
+            "webContentZoom" to "INTEGER",
             "isDrmAllowed" to "INTEGER",
             "isShowFullscreen" to "INTEGER",
             "isKeepAwake" to "INTEGER",
@@ -622,6 +623,13 @@ abstract class AppDatabase : RoomDatabase() {
                 }
             }
 
+        val MIGRATION_26_27 =
+            object : Migration(26, 27) {
+                override fun migrate(db: SupportSQLiteDatabase) {
+                    ensureSettingsColumns(db)
+                }
+            }
+
         val MIGRATION_16_17 =
             object : Migration(16, 17) {
                 override fun migrate(db: SupportSQLiteDatabase) {
@@ -691,6 +699,7 @@ abstract class AppDatabase : RoomDatabase() {
                     MIGRATION_23_24,
                     MIGRATION_24_25,
                     MIGRATION_25_26,
+                    MIGRATION_26_27,
                 )
                 .build()
         }

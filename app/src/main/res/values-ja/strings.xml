@@ -78,6 +78,7 @@
     <string name="color_scheme_auto">自動</string>
     <string name="color_scheme_light">ライト</string>
     <string name="color_scheme_dark">ダーク</string>
+    <string name="setting_web_content_scale">拡大率</string>
     <string name="webapp_already_deleted">このウェブアプリは削除されました。このショートカットを削除できます</string>
     <string name="global_web_app_settings">グローバルウェブアプリ設定</string>
     <string name="behavior">動作</string>

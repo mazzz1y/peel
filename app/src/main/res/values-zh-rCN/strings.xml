@@ -78,6 +78,7 @@
     <string name="color_scheme_auto">自动</string>
     <string name="color_scheme_light">浅色</string>
     <string name="color_scheme_dark">深色</string>
+    <string name="setting_web_content_scale">缩放</string>
     <string name="webapp_already_deleted">此网页应用已删除。您可以删除此快捷方式</string>
     <string name="global_web_app_settings">全局网页应用设置</string>
     <string name="behavior">行为</string>

@@ -42,9 +42,13 @@ fun Context.withHostDensity(): Context {
 /**
  * GeckoView sizes web content from the application context, which [withHostDensity] never
  * reaches, so the same factor has to be handed to the runtime for pages to match the chrome.
+ * The user's zoom percentage composes on top of it.
  */
-fun Context.webContentDensityOverride(): Float? =
-    if (isAutomotiveHost()) resources.displayMetrics.density * AUTOMOTIVE_DENSITY_SCALE else null
+fun Context.webContentDensityOverride(zoomPercent: Int): Float? {
+    val hostScale = if (isAutomotiveHost()) AUTOMOTIVE_DENSITY_SCALE else 1f
+    val scale = hostScale * zoomPercent / 100f
+    return if (scale == 1f) null else resources.displayMetrics.density * scale
+}
 
 private fun scaleToDensity(dp: Int): Int =
     if (dp == Configuration.SCREEN_WIDTH_DP_UNDEFINED) dp

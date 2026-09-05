@@ -181,6 +181,7 @@ object ApplyTimingRegistry {
         "customLocale",
         "customGeckoPrefs",
         "colorScheme",
+        "webContentZoom",
     )
 
     fun getTiming(key: String): ApplyTiming = when (key) {
@@ -244,6 +245,22 @@ object SettingRegistry {
                     R.string.color_scheme_auto,
                     R.string.color_scheme_light,
                     R.string.color_scheme_dark,
+                ),
+            ),
+            SettingDefinition.ChoiceSetting(
+                SettingField(WebAppSettings::webContentZoom, WebAppSettings.WEB_CONTENT_ZOOM_DEFAULT),
+                R.string.setting_web_content_scale,
+                SettingCategory.APPEARANCE,
+                globalOnly = true,
+                values = WebAppSettings.WEB_CONTENT_ZOOM_VALUES,
+                labels = intArrayOf(
+                    R.string.web_content_scale_50,
+                    R.string.web_content_scale_75,
+                    R.string.web_content_scale_100,
+                    R.string.web_content_scale_125,
+                    R.string.web_content_scale_150,
+                    R.string.web_content_scale_175,
+                    R.string.web_content_scale_200,
                 ),
             ),
             SettingDefinition.BooleanSetting(

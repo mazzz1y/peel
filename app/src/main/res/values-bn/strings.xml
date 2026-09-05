@@ -78,6 +78,7 @@
     <string name="color_scheme_auto">স্বয়ংক্রিয়</string>
     <string name="color_scheme_light">হালকা</string>
     <string name="color_scheme_dark">গাঢ়</string>
+    <string name="setting_web_content_scale">স্কেল</string>
     <string name="webapp_already_deleted">এই ওয়েব অ্যাপটি মুছে ফেলা হয়েছে। আপনি এই শর্টকাটটি মুছতে পারেন।</string>
     <string name="global_web_app_settings">গ্লোবাল ওয়েব অ্যাপ সেটিংস</string>
     <string name="behavior">আচরণ</string>

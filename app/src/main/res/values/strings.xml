@@ -122,6 +122,14 @@
     <string name="color_scheme_auto">Auto</string>
     <string name="color_scheme_light">Light</string>
     <string name="color_scheme_dark">Dark</string>
+    <string name="setting_web_content_scale">Scale</string>
+    <string name="web_content_scale_50" translatable="false">50%</string>
+    <string name="web_content_scale_75" translatable="false">75%</string>
+    <string name="web_content_scale_100" translatable="false">100%</string>
+    <string name="web_content_scale_125" translatable="false">125%</string>
+    <string name="web_content_scale_150" translatable="false">150%</string>
+    <string name="web_content_scale_175" translatable="false">175%</string>
+    <string name="web_content_scale_200" translatable="false">200%</string>
     <string name="webapp_already_deleted">This Web App is no longer available. You can delete this shortcut</string>
     <string name="global_web_app_settings">Global Web App Settings</string>
     <string name="behavior">Behavior</string>

@@ -78,6 +78,7 @@
     <string name="color_scheme_auto">Tự động</string>
     <string name="color_scheme_light">Sáng</string>
     <string name="color_scheme_dark">Tối</string>
+    <string name="setting_web_content_scale">Tỷ lệ</string>
     <string name="webapp_already_deleted">Ứng dụng web này đã bị xóa. Bạn có thể xóa lối tắt này</string>
     <string name="global_web_app_settings">Cài đặt toàn cục ứng dụng web</string>
     <string name="behavior">Hành vi</string>

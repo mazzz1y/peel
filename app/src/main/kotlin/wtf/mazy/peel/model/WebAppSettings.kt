@@ -14,6 +14,7 @@ data class WebAppSettings(
     var isAutoReload: Boolean? = null,
     var timeAutoReload: Int? = null,
     var colorScheme: Int? = null,
+    var webContentZoom: Int? = null,
     var isDrmAllowed: Boolean? = null,
     var isShowFullscreen: Boolean? = null,
     var isKeepAwake: Boolean? = null,
@@ -59,6 +60,9 @@ data class WebAppSettings(
         const val COLOR_SCHEME_AUTO = 0
         const val COLOR_SCHEME_LIGHT = 1
         const val COLOR_SCHEME_DARK = 2
+
+        const val WEB_CONTENT_ZOOM_DEFAULT = 100
+        val WEB_CONTENT_ZOOM_VALUES = intArrayOf(50, 75, 100, 125, 150, 175, 200)
 
         const val TRACKER_PROTECTION_NONE = 0
         const val TRACKER_PROTECTION_DEFAULT = 1

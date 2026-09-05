@@ -353,7 +353,8 @@ object GeckoRuntimeProvider {
             systemLocalesAsArray()
         }
         builder.locales(resolvedLocales)
-        context.webContentDensityOverride()?.let { builder.displayDensityOverride(it) }
+        val zoom = defaults.webContentZoom ?: WebAppSettings.WEB_CONTENT_ZOOM_DEFAULT
+        context.webContentDensityOverride(zoom)?.let { builder.displayDensityOverride(it) }
         writeGeckoConfig(context, defaults)?.let { builder.configFilePath(it) }
         val rt = GeckoRuntime.create(context, builder.build())
         rt.settings.setFingerprintingProtection(defaults.isFingerprintingProtection == true)

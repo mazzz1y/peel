@@ -78,6 +78,7 @@
     <string name="color_scheme_auto">ਆਟੋ</string>
     <string name="color_scheme_light">ਹਲਕਾ</string>
     <string name="color_scheme_dark">ਗੂੜ੍ਹਾ</string>
+    <string name="setting_web_content_scale">ਸਕੇਲ</string>
     <string name="webapp_already_deleted">ਇਹ ਵੈੱਬ ਐਪ ਮਿਟਾ ਦਿੱਤੀ ਗਈ ਹੈ। ਤੁਸੀਂ ਇਹ ਸ਼ਾਰਟਕੱਟ ਮਿਟਾ ਸਕਦੇ ਹੋ।</string>
     <string name="global_web_app_settings">ਗਲੋਬਲ ਵੈੱਬ ਐਪ ਸੈਟਿੰਗਾਂ</string>
     <string name="behavior">ਵਿਹਾਰ</string>
