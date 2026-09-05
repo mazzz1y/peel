@@ -56,6 +56,8 @@
     <dimen name="bar_controls_slot_width">44dp</dimen>
     <dimen name="bar_controls_button_gap">4dp</dimen>
     <dimen name="bar_controls_scroll_threshold">24dp</dimen>
+    <!-- Swipe-up strip along the bottom edge that reveals the hidden bar. -->
+    <dimen name="bar_controls_edge_trigger_height">48dp</dimen>
 
     <!-- Find-in-page bar -->
     <dimen name="find_in_page_margin">8dp</dimen>

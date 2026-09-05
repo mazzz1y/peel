@@ -28,9 +28,12 @@ class BarControlsView(
         context.resources.getDimensionPixelSize(R.dimen.bar_controls_margin_bottom)
     private val scrollThresholdPx =
         context.resources.getDimensionPixelSize(R.dimen.bar_controls_scroll_threshold)
+    private val edgeTriggerHeightPx =
+        context.resources.getDimensionPixelSize(R.dimen.bar_controls_edge_trigger_height)
     private val touchSlop = ViewConfiguration.get(context).scaledTouchSlop
 
     private val autoHideRunnable = Runnable { animateTo(hidden = true) }
+    private val parentLocation = IntArray(2)
 
     private var hostHidden = false
     private var shown = false
@@ -167,12 +170,21 @@ class BarControlsView(
 
     private fun isWrongDirection(delta: Float): Boolean = delta > 0f
 
-    private fun isInTriggerZone(event: MotionEvent): Boolean =
-        !isImeVisible() &&
-                root.height > 0 &&
-                event.y >= root.top &&
-                event.x >= root.left &&
-                event.x <= root.right
+    /**
+     * The bar is swiped up from the bottom edge of its parent. [root] is translated off-screen
+     * while hidden, so its own bounds cannot describe the zone; anchor to the parent instead.
+     * The host hands over window-space events, while the parent may sit inside system-bar
+     * margins, so the point is first brought into the parent's own coordinates.
+     */
+    private fun isInTriggerZone(event: MotionEvent): Boolean {
+        if (isImeVisible() || root.height == 0) return false
+        parent.getLocationInWindow(parentLocation)
+        val x = event.x - parentLocation[0]
+        val y = event.y - parentLocation[1]
+        return y >= parent.height - edgeTriggerHeightPx &&
+                x >= root.left &&
+                x <= root.right
+    }
 
     private fun isImeVisible(): Boolean =
         ViewCompat.getRootWindowInsets(root)?.isVisible(WindowInsetsCompat.Type.ime()) == true
