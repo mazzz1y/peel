@@ -65,4 +65,8 @@
     <dimen name="find_in_page_elevation">6dp</dimen>
     <dimen name="find_in_page_min_height">48dp</dimen>
     <dimen name="find_in_page_button_gap">2dp</dimen>
+
+    <!-- Virtual cursor (D-pad hosts) -->
+    <dimen name="virtual_cursor_size">24dp</dimen>
+    <dimen name="virtual_cursor_elevation">8dp</dimen>
 </resources>

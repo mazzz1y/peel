@@ -6,6 +6,7 @@ import android.content.res.Resources
 import android.net.Uri
 import android.text.InputType
 import android.util.TypedValue
+import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.View
 import android.view.Window
@@ -37,6 +38,8 @@ import org.mozilla.geckoview.GeckoResult
 import org.mozilla.geckoview.GeckoSession
 import org.mozilla.geckoview.GeckoSessionSettings
 import org.mozilla.geckoview.GeckoView
+import org.mozilla.geckoview.PanZoomController
+import org.mozilla.geckoview.ScreenLength
 import org.mozilla.geckoview.StorageController
 import wtf.mazy.peel.R
 import wtf.mazy.peel.activities.PeelActivity
@@ -51,6 +54,7 @@ import wtf.mazy.peel.ui.FindInPageView
 import wtf.mazy.peel.ui.FloatingControlsView
 import wtf.mazy.peel.ui.browser.PullToRefreshController
 import wtf.mazy.peel.ui.browser.SystemBarController
+import wtf.mazy.peel.ui.browser.VirtualCursorController
 import wtf.mazy.peel.ui.common.LoadingDialogController
 import wtf.mazy.peel.ui.controls.BrowserControls
 import wtf.mazy.peel.ui.dialog.DateTimePickerRequest
@@ -70,6 +74,7 @@ import wtf.mazy.peel.util.BrowserLauncher
 import wtf.mazy.peel.util.NotificationUtils
 import wtf.mazy.peel.util.copyToClipboard
 import wtf.mazy.peel.util.deleteFilesOlderThan
+import wtf.mazy.peel.util.isTelevisionHost
 import wtf.mazy.peel.util.shareText
 import java.io.File
 
@@ -90,6 +95,7 @@ abstract class BaseSessionHost : PeelActivity(), SessionHost, TranslationHost {
     protected var appliedControlsMode: Int? = null
     private var browserControlsFullscreen = false
     protected var findInPage: FindInPageView? = null
+    private var virtualCursor: VirtualCursorController? = null
     protected var isFullscreen: Boolean = false
     private var controlsGesture = false
     protected lateinit var navigationDelegate: PeelNavigationDelegate
@@ -564,6 +570,8 @@ abstract class BaseSessionHost : PeelActivity(), SessionHost, TranslationHost {
     }
 
     override fun onDestroy() {
+        virtualCursor?.release()
+        virtualCursor = null
         connectionErrorDialog?.dismiss()
         connectionErrorDialog = null
         if (::navigationDelegate.isInitialized) navigationDelegate.cancelPendingPrompts()
@@ -662,6 +670,23 @@ abstract class BaseSessionHost : PeelActivity(), SessionHost, TranslationHost {
 
         if (showToolbar) installToolbarInsetsListener()
         else installEdgeToEdgeInsetsListener()
+
+        if (isTelevisionHost()) installVirtualCursor()
+    }
+
+    private fun installVirtualCursor() {
+        virtualCursor = VirtualCursorController(
+            content = browserContent as FrameLayout,
+            dispatchTouch = ::dispatchTouchEvent,
+            onBackPressedDispatcher = onBackPressedDispatcher,
+            onScroll = { dx, dy ->
+                geckoSession?.panZoomController?.scrollBy(
+                    ScreenLength.fromPixels(dx.toDouble()),
+                    ScreenLength.fromPixels(dy.toDouble()),
+                    PanZoomController.SCROLL_BEHAVIOR_AUTO,
+                )
+            },
+        )
     }
 
     private fun installEdgeToEdgeInsetsListener() {
@@ -757,6 +782,16 @@ abstract class BaseSessionHost : PeelActivity(), SessionHost, TranslationHost {
         } else {
             geckoSession?.reload()
         }
+    }
+
+    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        if (virtualCursor?.onKeyEvent(event) == true) return true
+        return super.dispatchKeyEvent(event)
+    }
+
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (!hasFocus) virtualCursor?.cancel()
     }
 
     override fun dispatchTouchEvent(ev: MotionEvent): Boolean {

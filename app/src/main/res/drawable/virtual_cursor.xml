@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Fixed colours: a pointer over arbitrary web content can't follow the app theme. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="@dimen/virtual_cursor_size"
+    android:height="@dimen/virtual_cursor_size"
+    android:viewportWidth="960"
+    android:viewportHeight="960">
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M551,880L406,568L240,800L240,80L800,520L516,520L660,829L551,880Z"
+        android:strokeWidth="40"
+        android:strokeColor="#B3000000" />
+</vector>

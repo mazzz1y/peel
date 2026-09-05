@@ -112,6 +112,9 @@ class MainActivity :
         fab = findViewById(R.id.fab)
         tabLayout = findViewById(R.id.tabLayout)
         viewPager = findViewById(R.id.viewPager)
+        // ViewPager2's inner RecyclerView is focusable and traps D-pad focus with no highlight,
+        // making the FAB unreachable
+        viewPager.getChildAt(0).isFocusable = false
         exportLoader = LoadingDialogController(this)
 
         EntityListAnimations.bindFabResizeOnRotation(this, fab)
