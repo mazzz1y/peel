@@ -33,6 +33,7 @@ import wtf.mazy.peel.ui.extensions.ExtensionIconCache
 import wtf.mazy.peel.ui.extensions.ExtensionPermissionPrompt
 import wtf.mazy.peel.ui.extensions.SessionExtensionActions
 import wtf.mazy.peel.util.ForegroundActivityTracker
+import wtf.mazy.peel.util.webContentDensityOverride
 import java.io.File
 import java.util.Locale
 import java.util.concurrent.CopyOnWriteArraySet
@@ -352,6 +353,7 @@ object GeckoRuntimeProvider {
             systemLocalesAsArray()
         }
         builder.locales(resolvedLocales)
+        context.webContentDensityOverride()?.let { builder.displayDensityOverride(it) }
         writeGeckoConfig(context, defaults)?.let { builder.configFilePath(it) }
         val rt = GeckoRuntime.create(context, builder.build())
         rt.settings.setFingerprintingProtection(defaults.isFingerprintingProtection == true)

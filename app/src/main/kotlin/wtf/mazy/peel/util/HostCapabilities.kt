@@ -39,6 +39,13 @@ fun Context.withHostDensity(): Context {
     return createConfigurationContext(configuration)
 }
 
+/**
+ * GeckoView sizes web content from the application context, which [withHostDensity] never
+ * reaches, so the same factor has to be handed to the runtime for pages to match the chrome.
+ */
+fun Context.webContentDensityOverride(): Float? =
+    if (isAutomotiveHost()) resources.displayMetrics.density * AUTOMOTIVE_DENSITY_SCALE else null
+
 private fun scaleToDensity(dp: Int): Int =
     if (dp == Configuration.SCREEN_WIDTH_DP_UNDEFINED) dp
     else (dp / AUTOMOTIVE_DENSITY_SCALE).roundToInt()
