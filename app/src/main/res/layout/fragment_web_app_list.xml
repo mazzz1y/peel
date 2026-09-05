@@ -9,7 +9,7 @@
         android:layout_height="match_parent"
         android:clipToPadding="false"
         android:paddingTop="6dp"
-        android:paddingBottom="100dp" />
+        android:paddingBottom="@dimen/list_fab_clearance" />
 
     <TextView
         android:id="@+id/empty_state_text"

@@ -71,7 +71,7 @@
             android:nestedScrollingEnabled="true"
             android:overScrollMode="ifContentScrolls"
             android:paddingTop="6dp"
-            android:paddingBottom="100dp"
+            android:paddingBottom="@dimen/list_fab_clearance"
             android:scrollbars="vertical" />
 
         <TextView
