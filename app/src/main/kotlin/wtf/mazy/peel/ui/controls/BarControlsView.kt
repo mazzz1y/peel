@@ -54,12 +54,12 @@ class BarControlsView(
             context.resources.getDimensionPixelSize(R.dimen.bar_controls_slot_width)
         val buttonGapPx =
             context.resources.getDimensionPixelSize(R.dimen.bar_controls_button_gap)
-        populate(actions) { index ->
+        populate(actions) { sectionStart ->
             LinearLayout.LayoutParams(
                 slotWidthPx,
                 LinearLayout.LayoutParams.MATCH_PARENT,
             ).apply {
-                if (index > 0) marginStart = buttonGapPx
+                if (!sectionStart) marginStart = buttonGapPx
             }
         }
         parent.addView(root)

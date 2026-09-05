@@ -38,15 +38,38 @@ abstract class ActionRowView(
         }
     }
 
+    /**
+     * [layoutParams] receives whether the slot is the first in its section: the row start or the
+     * slot right after a divider, which already carries the gap on both sides.
+     */
     protected fun populate(
         actions: List<ControlAction>,
-        layoutParams: (index: Int) -> LinearLayout.LayoutParams,
+        layoutParams: (sectionStart: Boolean) -> LinearLayout.LayoutParams,
     ) {
         root.removeAllViews()
         translateActiveDot = null
-        actions.forEachIndexed { index, action ->
-            root.addView(createActionView(action), layoutParams(index))
+        var sectionStart = true
+        actions.forEach { action ->
+            root.addView(createActionView(action), layoutParams(sectionStart))
+            sectionStart = action.dividerAfter
+            if (action.dividerAfter) addDivider()
         }
+    }
+
+    private fun addDivider() {
+        val gap = context.resources.getDimensionPixelSize(R.dimen.bar_controls_button_gap)
+        val divider = inflater.inflate(R.layout.view_controls_divider_vertical, root, false)
+        root.addView(
+            divider,
+            LinearLayout.LayoutParams(
+                divider.layoutParams.width,
+                divider.layoutParams.height,
+            ).apply {
+                gravity = Gravity.CENTER_VERTICAL
+                marginStart = gap
+                marginEnd = gap
+            },
+        )
     }
 
     private fun createActionView(action: ControlAction): View {

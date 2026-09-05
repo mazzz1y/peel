@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.enableEdgeToEdge
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.widget.NestedScrollView
@@ -14,7 +13,7 @@ import androidx.viewbinding.ViewBinding
 import wtf.mazy.peel.databinding.ActivityToolbarBaseBinding
 import wtf.mazy.peel.util.disableSystemBarContrastEnforcement
 
-abstract class ToolbarBaseActivity<VB : ViewBinding> : AppCompatActivity() {
+abstract class ToolbarBaseActivity<VB : ViewBinding> : PeelActivity() {
 
     private lateinit var _binding: VB
     protected val binding

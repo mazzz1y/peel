@@ -2,7 +2,6 @@ package wtf.mazy.peel.activities
 
 import android.content.Intent
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import wtf.mazy.peel.R
@@ -10,7 +9,7 @@ import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.ui.common.showOpenInPeelPicker
 import wtf.mazy.peel.util.NotificationUtils
 
-class ShareReceiverActivity : AppCompatActivity() {
+class ShareReceiverActivity : PeelActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

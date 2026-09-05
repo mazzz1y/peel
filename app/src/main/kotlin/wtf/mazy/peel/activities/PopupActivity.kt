@@ -21,6 +21,7 @@ import wtf.mazy.peel.ui.extensions.ExtensionPickerDialog
 import wtf.mazy.peel.ui.extensions.SessionExtensionActions
 import wtf.mazy.peel.util.BrowserLauncher
 import wtf.mazy.peel.util.NotificationUtils
+import wtf.mazy.peel.util.isAutomotiveHost
 import wtf.mazy.peel.util.shareText
 
 class PopupActivity : SessionPageActivity() {
@@ -140,6 +141,7 @@ class PopupActivity : SessionPageActivity() {
         val translateEnabled =
             translationsSupported && effectiveSettings.isTranslatorEnabled == true
         val actions = ControlActions(
+            onBack = if (isAutomotiveHost()) ({ onBackPressedDispatcher.onBackPressed() }) else null,
             onHome = if (ownerWebAppUuid != null) ({ homeAction() }) else null,
             onReload = ::reloadCurrentPage,
             onReloadLongPress = ::clearSiteCacheAndReload,

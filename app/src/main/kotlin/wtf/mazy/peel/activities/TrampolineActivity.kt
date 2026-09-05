@@ -2,7 +2,6 @@ package wtf.mazy.peel.activities
 
 import android.os.Bundle
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import wtf.mazy.peel.R
@@ -13,7 +12,7 @@ import wtf.mazy.peel.ui.PickerDialog
 import wtf.mazy.peel.util.BrowserLauncher
 import wtf.mazy.peel.util.Const
 
-class TrampolineActivity : AppCompatActivity() {
+class TrampolineActivity : PeelActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

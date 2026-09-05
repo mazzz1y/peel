@@ -7,7 +7,6 @@ import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -24,7 +23,7 @@ import wtf.mazy.peel.ui.importmapping.ImportMappingAdapter
 import wtf.mazy.peel.util.disableSystemBarContrastEnforcement
 import wtf.mazy.peel.util.withBoldSpan
 
-class ImportActivity : AppCompatActivity() {
+class ImportActivity : PeelActivity() {
 
     private var mappingAdapter: ImportMappingAdapter? = null
     private var selectedGroupUuid: String? = null

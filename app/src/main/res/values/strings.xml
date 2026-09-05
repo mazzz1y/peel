@@ -243,6 +243,7 @@
     <string name="browser_controls_bar_short">Bar</string>
     <string name="browser_controls_panel_short">Panel</string>
     <string name="browser_controls_show">Show browser controls</string>
+    <string name="browser_controls_back">Back</string>
     <string name="browser_controls_home">Home</string>
     <string name="browser_controls_reload">Reload</string>
     <string name="setting_requires_peel_restart">Changes take effect after Peel restart</string>
@@ -259,6 +260,7 @@
     <string name="group_empty">No apps in this group</string>
     <string name="ungrouped">Ungrouped</string>
     <string name="open_in_peel">Open in Peel</string>
+    <string name="open_peel">Open Peel</string>
     <string name="open_incognito_action">Open in private mode</string>
     <string name="open_in_current_session">Open in current session</string>
     <string name="open_in_system">Open in system</string>

@@ -63,7 +63,9 @@ import wtf.mazy.peel.util.BrowserLauncher
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.NotificationUtils
 import wtf.mazy.peel.util.disableSystemBarContrastEnforcement
+import wtf.mazy.peel.util.isAutomotiveHost
 import wtf.mazy.peel.util.isSameHost
+import wtf.mazy.peel.util.isSingleWindowHost
 import wtf.mazy.peel.util.shareText
 import wtf.mazy.peel.util.webAppUuid
 
@@ -314,6 +316,7 @@ class BrowserActivity : BaseSessionHost() {
         val translateEnabled =
             translationsSupported && effectiveSettings.isTranslatorEnabled == true
         val actions = ControlActions(
+            onBack = if (isAutomotiveHost()) ({ onBackPressedDispatcher.onBackPressed() }) else null,
             onHome = { homeAction() },
             onReload = ::reloadCurrentPage,
             onReloadLongPress = ::clearSiteCacheAndReload,
@@ -324,6 +327,7 @@ class BrowserActivity : BaseSessionHost() {
             onTranslateLongPress = if (translateEnabled) ({ onTranslateLongPress() }) else null,
             onExtensions = if (SessionExtensionActions.hasExtensions)
                 ({ ExtensionPickerDialog.show(this, sessionExtensionActions) }) else null,
+            onOpenAppList = if (isSingleWindowHost()) ({ openAppList() }) else null,
         ).toList()
         return buildBrowserControls(mode, floatingKey = uuid, actions = actions)
     }
@@ -783,6 +787,14 @@ class BrowserActivity : BaseSessionHost() {
 
     private fun openInPeel(url: String) {
         ExternalLinkMenu.openInPeelPicker(this, url, webappUuid)
+    }
+
+    private fun openAppList() {
+        startActivity(
+            Intent(this, MainActivity::class.java).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            }
+        )
     }
 
     private val backCallback = object : OnBackPressedCallback(false) {

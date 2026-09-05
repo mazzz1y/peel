@@ -41,6 +41,7 @@
     <dimen name="floating_controls_button_gap">16dp</dimen>
     <dimen name="floating_controls_panel_padding">8dp</dimen>
     <dimen name="floating_controls_panel_trigger_gap">8dp</dimen>
+    <dimen name="floating_controls_divider_inset">6dp</dimen>
     <dimen name="floating_controls_corner_radius">18dp</dimen>
     <dimen name="floating_controls_elevation">6dp</dimen>
 

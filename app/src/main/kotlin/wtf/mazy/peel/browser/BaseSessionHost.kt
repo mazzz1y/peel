@@ -17,7 +17,6 @@ import android.widget.ProgressBar
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.core.view.ViewCompat
@@ -40,6 +39,7 @@ import org.mozilla.geckoview.GeckoSessionSettings
 import org.mozilla.geckoview.GeckoView
 import org.mozilla.geckoview.StorageController
 import wtf.mazy.peel.R
+import wtf.mazy.peel.activities.PeelActivity
 import wtf.mazy.peel.activities.PopupActivity
 import wtf.mazy.peel.gecko.GeckoRuntimeProvider
 import wtf.mazy.peel.gecko.GeckoRuntimeProvider.awaitVoid
@@ -73,7 +73,7 @@ import wtf.mazy.peel.util.deleteFilesOlderThan
 import wtf.mazy.peel.util.shareText
 import java.io.File
 
-abstract class BaseSessionHost : AppCompatActivity(), SessionHost, TranslationHost {
+abstract class BaseSessionHost : PeelActivity(), SessionHost, TranslationHost {
 
     protected var geckoSession: GeckoSession? = null
     protected var lastSessionState: GeckoSession.SessionState? = null

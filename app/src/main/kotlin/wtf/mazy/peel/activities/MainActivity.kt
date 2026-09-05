@@ -57,7 +57,7 @@ import wtf.mazy.peel.util.disableSystemBarContrastEnforcement
 import wtf.mazy.peel.util.restartApp
 
 class MainActivity :
-    AppCompatActivity(),
+    PeelActivity(),
     SearchableHost,
     WebAppShareHost {
 

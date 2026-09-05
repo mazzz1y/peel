@@ -65,15 +65,33 @@ class FloatingControlsView(
     private val panelTriggerGapPx =
         res.getDimensionPixelSize(R.dimen.floating_controls_panel_trigger_gap)
     private val panelPaddingPx = res.getDimensionPixelSize(R.dimen.floating_controls_panel_padding)
+    private val dividerInsetPx = res.getDimensionPixelSize(R.dimen.floating_controls_divider_inset)
+    private val dividerHeightPx = res.getDimensionPixelSize(R.dimen.divider_height)
     private val touchSlop = ViewConfiguration.get(context).scaledTouchSlop.toFloat()
     private val scrimColor = ContextCompat.getColor(context, R.color.floating_controls_scrim)
 
     private val buttonPrefs = Prefs(context, webappUuid)
 
-    private val panelHeightPx: Int =
+    private val dividerCount = actions.count { it.dividerAfter }
+
+    private val contentHeightPx: Int =
         buttonSizePx * actions.size +
+                (dividerHeightPx + gapPx) * dividerCount +
                 gapPx * (actions.size - 1).coerceAtLeast(0) +
                 panelPaddingPx * 2
+
+    /**
+     * The panel scrolls, so it may be shorter than its content; on short screens the actions
+     * would otherwise run off the edge or sit under the trigger.
+     */
+    private val panelHeightPx: Int
+        get() {
+            val bars = barsWithinParent()
+            val available = parent.height - bars.top - bars.bottom -
+                    buttonSizePx - panelTriggerGapPx * 2
+            if (available <= 0) return contentHeightPx
+            return contentHeightPx.coerceAtMost(available)
+        }
 
     private val inflater = LayoutInflater.from(context)
     private val trigger: MaterialCardView =
@@ -109,8 +127,28 @@ class FloatingControlsView(
 
     private val systemBars: Insets
         get() = ViewCompat.getRootWindowInsets(parent)
-            ?.getInsets(WindowInsetsCompat.Type.systemBars())
+            ?.getInsets(
+                WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout()
+            )
             ?: Insets.NONE
+
+    /**
+     * The bars' intrusion into the parent, in the parent's own coordinates.
+     *
+     * Insets are measured against the window, but the parent may already be inset away from the
+     * bars; subtracting them again would keep the trigger a bar's width away from the finger.
+     */
+    private fun barsWithinParent(): Insets {
+        val bars = systemBars
+        val origin = IntArray(2).also { parent.getLocationInWindow(it) }
+        val root = parent.rootView
+        return Insets.of(
+            (bars.left - origin[0]).coerceIn(0, bars.left),
+            (bars.top - origin[1]).coerceIn(0, bars.top),
+            (origin[0] + parent.width - (root.width - bars.right)).coerceIn(0, bars.right),
+            (origin[1] + parent.height - (root.height - bars.bottom)).coerceIn(0, bars.bottom),
+        )
+    }
 
     init {
         setupLayout()
@@ -143,7 +181,7 @@ class FloatingControlsView(
 
     private fun setupLayout() {
         trigger.layoutParams = FrameLayout.LayoutParams(buttonSizePx, buttonSizePx)
-        panel.layoutParams = FrameLayout.LayoutParams(buttonSizePx, panelHeightPx)
+        panel.layoutParams = FrameLayout.LayoutParams(buttonSizePx, contentHeightPx)
         populatePanel()
         panel.alpha = 0f
         panel.visibility = View.INVISIBLE
@@ -177,7 +215,24 @@ class FloatingControlsView(
                 if (index > 0) topMargin = gapPx
             }
             panelContainer.addView(createActionView(action), lp)
+            if (action.dividerAfter) addPanelDivider()
         }
+    }
+
+    private fun addPanelDivider() {
+        val divider =
+            inflater.inflate(R.layout.view_controls_divider_horizontal, panelContainer, false)
+        panelContainer.addView(
+            divider,
+            LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                divider.layoutParams.height,
+            ).apply {
+                topMargin = gapPx
+                marginStart = dividerInsetPx
+                marginEnd = dividerInsetPx
+            },
+        )
     }
 
     override fun setTranslateActive(active: Boolean) {
@@ -245,6 +300,8 @@ class FloatingControlsView(
     private fun attachTriggerInput() {
         trigger.isClickable = true
         trigger.setOnTouchListener { _, event -> gestureHandler.onTouch(event) }
+        // touch is consumed above; this only fires for D-pad/keyboard clicks
+        trigger.setOnClickListener { toggle() }
     }
 
     private fun applyPosition() {
@@ -287,28 +344,29 @@ class FloatingControlsView(
     }
 
     private fun moveTriggerTo(x: Float, y: Float) {
-        val insets = systemBars
-        val location = IntArray(2).also { parent.getLocationInWindow(it) }
-        val parentTop = location[1]
-        val maxX = (parent.width - buttonSizePx).toFloat().coerceAtLeast(0f)
-        val minY = (insets.top - parentTop).toFloat().coerceAtLeast(0f)
-        val maxY = (parent.height - insets.bottom - buttonSizePx).toFloat().coerceAtLeast(minY)
-        trigger.x = x.coerceIn(0f, maxX)
+        val bars = barsWithinParent()
+        val minX = bars.left.toFloat()
+        val maxX = (parent.width - bars.right - buttonSizePx).toFloat().coerceAtLeast(minX)
+        val minY = bars.top.toFloat()
+        val maxY = (parent.height - bars.bottom - buttonSizePx).toFloat().coerceAtLeast(minY)
+        trigger.x = x.coerceIn(minX, maxX)
         trigger.y = y.coerceIn(minY, maxY)
     }
 
     private fun positionPanel(expandDown: Boolean) {
+        val bars = barsWithinParent()
+        val height = panelHeightPx
+        if (panel.layoutParams.height != height) {
+            panel.layoutParams = panel.layoutParams.apply { this.height = height }
+        }
         panel.x = trigger.x
         val preferredY = if (expandDown) {
             trigger.y + buttonSizePx + panelTriggerGapPx
         } else {
-            trigger.y - panelTriggerGapPx - panelHeightPx
+            trigger.y - panelTriggerGapPx - height
         }
-        val location = IntArray(2).also { parent.getLocationInWindow(it) }
-        val minY = (systemBars.top - location[1]).toFloat().coerceAtLeast(0f)
-        val maxY = (parent.height - systemBars.bottom - panelHeightPx)
-            .toFloat()
-            .coerceAtLeast(minY)
+        val minY = bars.top.toFloat()
+        val maxY = (parent.height - bars.bottom - height).toFloat().coerceAtLeast(minY)
         panel.y = preferredY.coerceIn(minY, maxY)
     }
 
@@ -318,11 +376,9 @@ class FloatingControlsView(
     }
 
     private fun shouldExpandDown(): Boolean {
-        val location = IntArray(2).also { parent.getLocationInWindow(it) }
-        val minY = (systemBars.top - location[1]).toFloat().coerceAtLeast(0f)
-        val maxY = (parent.height - systemBars.bottom).toFloat()
-        val below = maxY - (trigger.y + buttonSizePx + panelTriggerGapPx)
-        val above = trigger.y - panelTriggerGapPx - minY
+        val bars = barsWithinParent()
+        val below = parent.height - bars.bottom - (trigger.y + buttonSizePx + panelTriggerGapPx)
+        val above = trigger.y - panelTriggerGapPx - bars.top
         return below >= panelHeightPx || below >= above
     }
 

@@ -9,12 +9,20 @@
     app:cardElevation="@dimen/floating_controls_elevation"
     app:contentPadding="0dp">
 
-    <LinearLayout
-        android:id="@+id/floatingPanelActions"
+    <androidx.core.widget.NestedScrollView
         android:layout_width="@dimen/floating_controls_button_size"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
         android:paddingTop="@dimen/floating_controls_panel_padding"
-        android:paddingBottom="@dimen/floating_controls_panel_padding" />
+        android:paddingBottom="@dimen/floating_controls_panel_padding"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:id="@+id/floatingPanelActions"
+            android:layout_width="@dimen/floating_controls_button_size"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
+
+    </androidx.core.widget.NestedScrollView>
 
 </com.google.android.material.card.MaterialCardView>

@@ -11,6 +11,7 @@ data class ControlAction(
     val onClick: () -> Unit,
     val onLongClick: (() -> Unit)? = null,
     val tag: String? = null,
+    val dividerAfter: Boolean = false,
 ) {
     companion object {
         const val TAG_TRANSLATE = "translate"
@@ -18,6 +19,7 @@ data class ControlAction(
 }
 
 class ControlActions(
+    private val onBack: (() -> Unit)? = null,
     private val onHome: (() -> Unit)? = null,
     private val onReload: () -> Unit,
     private val onReloadLongPress: (() -> Unit)? = null,
@@ -27,8 +29,28 @@ class ControlActions(
     private val onTranslate: (() -> Unit)? = null,
     private val onTranslateLongPress: (() -> Unit)? = null,
     private val onExtensions: (() -> Unit)? = null,
+    private val onOpenAppList: (() -> Unit)? = null,
 ) {
     fun toList(): List<ControlAction> = buildList {
+        onOpenAppList?.let {
+            add(
+                ControlAction(
+                    R.drawable.ic_symbols_apps_wght300_24,
+                    R.string.open_peel,
+                    it,
+                    dividerAfter = true,
+                )
+            )
+        }
+        onBack?.let {
+            add(
+                ControlAction(
+                    R.drawable.ic_symbols_arrow_back_wght300_24,
+                    R.string.browser_controls_back,
+                    it
+                )
+            )
+        }
         onHome?.let {
             add(
                 ControlAction(

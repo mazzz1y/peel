@@ -2,18 +2,18 @@ package wtf.mazy.peel.push
 
 import android.content.Intent
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.IntentCompat
 import androidx.core.net.toUri
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import org.mozilla.geckoview.WebNotification
 import wtf.mazy.peel.activities.LinkRouterActivity
+import wtf.mazy.peel.activities.PeelActivity
 import wtf.mazy.peel.gecko.GeckoRuntimeProvider
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.util.BrowserLauncher
 
-class NotificationClickActivity : AppCompatActivity() {
+class NotificationClickActivity : PeelActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

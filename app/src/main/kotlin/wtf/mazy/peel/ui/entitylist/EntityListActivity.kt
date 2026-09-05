@@ -18,12 +18,13 @@ import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.launch
 import wtf.mazy.peel.R
+import wtf.mazy.peel.activities.PeelActivity
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.ui.common.Theming
 import wtf.mazy.peel.ui.dragReorderCallback
 import wtf.mazy.peel.util.disableSystemBarContrastEnforcement
 
-abstract class EntityListActivity<T : Any> : AppCompatActivity(), EntityListHost {
+abstract class EntityListActivity<T : Any> : PeelActivity(), EntityListHost {
 
     final override lateinit var toolbar: MaterialToolbar
     final override lateinit var fab: FloatingActionButton
