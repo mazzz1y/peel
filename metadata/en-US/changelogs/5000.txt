@@ -1,0 +1,7 @@
+- Add basic Android TV support
+- Add basic Android Automotive support
+- Add "Scale" global setting to scale web content
+- Add "Open Peel" and back controls on TV and car, where there is no task switcher
+- Fix the About dialog clipping on short screens
+- Update GeckoView to 155.0.20260903215306
+- Other fixes and improvements
