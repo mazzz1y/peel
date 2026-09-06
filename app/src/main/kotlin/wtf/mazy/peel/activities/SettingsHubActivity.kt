@@ -37,6 +37,7 @@ class SettingsHubActivity : ToolbarBaseActivity<SettingsHubBinding>() {
 
         binding.recyclerHub.layoutManager = LinearLayoutManager(this)
         binding.recyclerHub.adapter = HubAdapter(entries()) { it.onClick() }
+        setupScrollInsets(binding.recyclerHub)
     }
 
     override fun onDestroy() {

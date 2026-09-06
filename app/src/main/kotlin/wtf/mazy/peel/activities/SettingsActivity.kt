@@ -130,7 +130,7 @@ class SettingsActivity : ToolbarBaseActivity<GlobalSettingsBinding>() {
 
         binding.recyclerSettings.layoutManager = LinearLayoutManager(this)
         binding.recyclerSettings.adapter = SettingsAdapter(items, settings, factory)
-        setupKeyboardPadding(binding.recyclerSettings)
+        setupScrollInsets(binding.recyclerSettings)
     }
 
     companion object {

@@ -11,6 +11,7 @@ import androidx.core.widget.NestedScrollView
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
 import wtf.mazy.peel.databinding.ActivityToolbarBaseBinding
+import wtf.mazy.peel.util.applyBottomScreenInsets
 import wtf.mazy.peel.util.applyToolbarScreenInsets
 import wtf.mazy.peel.util.disableSystemBarContrastEnforcement
 
@@ -47,48 +48,17 @@ abstract class ToolbarBaseActivity<VB : ViewBinding> : PeelActivity() {
         supportActionBar?.title = title
     }
 
-    protected fun setupKeyboardPadding(scrollView: NestedScrollView) {
-        setupKeyboardPadding(scrollView as ViewGroup) { container, bottom ->
-            val content = container.getChildAt(0) ?: return@setupKeyboardPadding
-            content.setPadding(
-                content.paddingLeft,
-                content.paddingTop,
-                content.paddingRight,
-                bottom
-            )
-        }
-    }
-
-    protected fun setupKeyboardPadding(recyclerView: RecyclerView) {
-        val baseBottom = recyclerView.paddingBottom
-        setupKeyboardPadding(recyclerView as ViewGroup) { _, bottom ->
-            recyclerView.setPadding(
-                recyclerView.paddingLeft,
-                recyclerView.paddingTop,
-                recyclerView.paddingRight,
-                baseBottom + bottom,
-            )
-        }
-    }
-
-    private fun setupKeyboardPadding(
-        scrollContainer: ViewGroup,
-        applyBottomPadding: (ViewGroup, Int) -> Unit,
-    ) {
+    // The container pads itself past the navigation bar and keyboard; this only keeps the focused
+    // field in view when the keyboard rises.
+    protected fun setupScrollInsets(scrollContainer: ViewGroup) {
+        scrollContainer.applyBottomScreenInsets()
         var keyboardHeight = 0
-        val contentView = baseBinding.activityContent
 
-        ViewCompat.setOnApplyWindowInsetsListener(contentView) { view, insets ->
-            val imeBottom = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom
-            val navBottom = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
-            keyboardHeight = (imeBottom - navBottom).coerceAtLeast(0)
-
-            applyBottomPadding(scrollContainer, keyboardHeight)
-
+        ViewCompat.setOnApplyWindowInsetsListener(baseBinding.activityContent) { view, insets ->
+            keyboardHeight = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom
             if (keyboardHeight > 0) {
                 scrollContainer.post { scrollToFocused(scrollContainer, keyboardHeight) }
             }
-
             ViewCompat.onApplyWindowInsets(view, insets)
         }
 

@@ -16,6 +16,7 @@ import wtf.mazy.peel.R
 import wtf.mazy.peel.activities.MainActivity
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.ui.dragReorderCallback
+import wtf.mazy.peel.util.applyBottomScreenInsets
 
 class WebAppListFragment : Fragment(R.layout.fragment_web_app_list) {
     private lateinit var adapter: WebAppListAdapter
@@ -44,6 +45,7 @@ class WebAppListFragment : Fragment(R.layout.fragment_web_app_list) {
 
         list.layoutManager = LinearLayoutManager(requireContext())
         list.adapter = adapter
+        list.applyBottomScreenInsets()
 
         attachDragHelper()
         updateDragEnabled()

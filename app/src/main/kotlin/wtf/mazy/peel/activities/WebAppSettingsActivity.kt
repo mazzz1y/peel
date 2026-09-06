@@ -128,7 +128,7 @@ class WebAppSettingsActivity :
             }
         }
 
-        setupKeyboardPadding(binding.scrollView)
+        setupScrollInsets(binding.scrollView)
     }
 
     override fun onPause() {

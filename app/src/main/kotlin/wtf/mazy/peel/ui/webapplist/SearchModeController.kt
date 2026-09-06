@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.util.Const
+import wtf.mazy.peel.util.applyBottomScreenInsets
 
 class SearchModeController(
     private val host: SearchableHost,
@@ -22,6 +23,10 @@ class SearchModeController(
         private set
 
     private var searchAdapter: WebAppListAdapter? = null
+
+    init {
+        searchResultsList.applyBottomScreenInsets()
+    }
 
     fun enter() {
         if (isActive) return

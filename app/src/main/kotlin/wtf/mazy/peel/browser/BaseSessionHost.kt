@@ -72,6 +72,7 @@ import wtf.mazy.peel.ui.dialog.showInputDialogRaw
 import wtf.mazy.peel.ui.extensions.SessionExtensionActions
 import wtf.mazy.peel.util.BrowserLauncher
 import wtf.mazy.peel.util.NotificationUtils
+import wtf.mazy.peel.util.applyBottomScreenInsets
 import wtf.mazy.peel.util.applyToolbarScreenInsets
 import wtf.mazy.peel.util.copyToClipboard
 import wtf.mazy.peel.util.deleteFilesOlderThan
@@ -751,22 +752,9 @@ abstract class BaseSessionHost : PeelActivity(), SessionHost, TranslationHost {
         browserRoot?.let { it.post(it::requestApplyInsets) }
     }
 
-    // The content root already pads the navigation bar away, so only the keyboard's overhang past
-    // it is left. Insets stay unconsumed because the app bar still needs the top.
     private fun installToolbarInsetsListener() {
         applyToolbarScreenInsets()
-        val content = browserContent ?: return
-        ViewCompat.setOnApplyWindowInsetsListener(content) { v, insets ->
-            val navBottom = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
-            val imeBottom = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom
-            v.setPadding(
-                v.paddingLeft,
-                v.paddingTop,
-                v.paddingRight,
-                (imeBottom - navBottom).coerceAtLeast(0),
-            )
-            insets
-        }
+        browserContent?.applyBottomScreenInsets()
     }
 
     protected open val sessionContextId: String? = null

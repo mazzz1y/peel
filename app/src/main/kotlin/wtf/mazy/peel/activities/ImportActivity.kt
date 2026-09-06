@@ -20,6 +20,7 @@ import wtf.mazy.peel.model.ParsedBackup
 import wtf.mazy.peel.model.WebAppGroup
 import wtf.mazy.peel.ui.dialog.showSandboxInputDialog
 import wtf.mazy.peel.ui.importmapping.ImportMappingAdapter
+import wtf.mazy.peel.util.applyBottomScreenInsets
 import wtf.mazy.peel.util.applyToolbarScreenInsets
 import wtf.mazy.peel.util.disableSystemBarContrastEnforcement
 import wtf.mazy.peel.util.withBoldSpan
@@ -76,6 +77,8 @@ class ImportActivity : PeelActivity() {
         val dropdown = findViewById<AutoCompleteTextView>(R.id.destination_group_dropdown)
         val recycler = findViewById<RecyclerView>(R.id.import_app_list)
         val emptyView = findViewById<View>(R.id.import_mapping_empty)
+        recycler.applyBottomScreenInsets()
+        emptyView.applyBottomScreenInsets()
 
         val groups = DataManager.instance.sortedGroups
         val hasGroups = groups.isNotEmpty()

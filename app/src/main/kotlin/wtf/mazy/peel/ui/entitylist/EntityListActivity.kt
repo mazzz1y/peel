@@ -22,6 +22,7 @@ import wtf.mazy.peel.activities.PeelActivity
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.ui.common.Theming
 import wtf.mazy.peel.ui.dragReorderCallback
+import wtf.mazy.peel.util.applyBottomScreenInsets
 import wtf.mazy.peel.util.applyToolbarScreenInsets
 import wtf.mazy.peel.util.disableSystemBarContrastEnforcement
 
@@ -88,6 +89,7 @@ abstract class EntityListActivity<T : Any> : PeelActivity(), EntityListHost {
         toolbar = findViewById(R.id.toolbar)
         fab = findViewById(R.id.base_fab)
         list = findViewById(R.id.base_list)
+        list.applyBottomScreenInsets()
         emptyStateText = findViewById(R.id.base_empty_state)
         emptyStateText.setText(emptyStateRes)
 
