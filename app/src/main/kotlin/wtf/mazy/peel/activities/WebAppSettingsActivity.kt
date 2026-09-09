@@ -38,11 +38,14 @@ import wtf.mazy.peel.ui.PickerDialog
 import wtf.mazy.peel.ui.bindDropdown
 import wtf.mazy.peel.ui.dialog.InputDialogConfig
 import wtf.mazy.peel.ui.dialog.OverridePickerDialog
+import wtf.mazy.peel.ui.dialog.ScopeExtensionsPrompt
 import wtf.mazy.peel.ui.dialog.showInputDialogRaw
 import wtf.mazy.peel.ui.settings.OverridePickerController
 import wtf.mazy.peel.ui.settings.SandboxSwitchController
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.NotificationUtils.showToast
+import wtf.mazy.peel.util.SameAppDomainMatcher
+import wtf.mazy.peel.util.isSameHost
 import wtf.mazy.peel.util.prettyBaseUrl
 import wtf.mazy.peel.util.withBoldSpan
 import wtf.mazy.peel.util.withMonoSpan
@@ -364,6 +367,7 @@ class WebAppSettingsActivity :
         }
         val urlSuggestion =
             resolveUrlSuggestion(webapp.baseUrl, result.startUrl, result.redirectedUrl)
+        val scopeDomains = result.scopeExtensionDomains
         val withIcon = candidates.filter { it.icon != null }
         if (!webapp.hasCustomIcon && webapp.title.isEmpty() && withIcon.size == 1) {
             val candidate = withIcon.first()
@@ -372,10 +376,10 @@ class WebAppSettingsActivity :
                 candidate.icon,
                 candidate.source
             ) else candidate
-            applyFetchResult(webapp, titled, urlSuggestion)
+            applyFetchResult(webapp, titled, urlSuggestion, scopeDomains)
             return
         }
-        showFetchPickerDialog(webapp, candidates, urlSuggestion)
+        showFetchPickerDialog(webapp, candidates, urlSuggestion, scopeDomains)
     }
 
     private fun resolveUrlSuggestion(
@@ -393,6 +397,7 @@ class WebAppSettingsActivity :
         webapp: WebApp,
         candidates: List<FetchCandidate>,
         urlSuggestion: Pair<String, Int>?,
+        scopeDomains: List<String>,
     ) {
         dismissFetchProgress()
         val defaultIconSizePx = (resources.displayMetrics.density * 48).toInt()
@@ -402,11 +407,13 @@ class WebAppSettingsActivity :
             activity = this,
             title = getString(R.string.choose_icon),
             items = candidates,
-            onPick = { candidate -> applyFetchResult(webapp, candidate, urlSuggestion) },
+            onPick = { candidate ->
+                applyFetchResult(webapp, candidate, urlSuggestion, scopeDomains)
+            },
             configure = {
                 setOnCancelListener {
-                    urlSuggestion?.let { (url, messageResId) ->
-                        promptUrlUpdate(webapp, url, messageResId)
+                    promptUrlUpdate(webapp, urlSuggestion) {
+                        promptScopeExtensions(webapp, scopeDomains)
                     }
                 }
             },
@@ -435,6 +442,7 @@ class WebAppSettingsActivity :
         webapp: WebApp,
         candidate: FetchCandidate,
         urlSuggestion: Pair<String, Int>?,
+        scopeDomains: List<String>,
     ) {
         dismissFetchProgress()
         if (!candidate.title.isNullOrEmpty()) {
@@ -447,11 +455,16 @@ class WebAppSettingsActivity :
             IconCache.evict(webapp)
         }
         iconEditor.refreshIcon()
-        urlSuggestion?.let { (url, messageResId) -> promptUrlUpdate(webapp, url, messageResId) }
+        promptUrlUpdate(webapp, urlSuggestion) { promptScopeExtensions(webapp, scopeDomains) }
     }
 
-    private fun promptUrlUpdate(webapp: WebApp, suggestedUrl: String, messageResId: Int) {
-        if (suggestedUrl.trimEnd('/') == webapp.baseUrl.trimEnd('/')) return
+    private fun promptUrlUpdate(
+        webapp: WebApp,
+        urlSuggestion: Pair<String, Int>?,
+        onDone: () -> Unit,
+    ) {
+        val (suggestedUrl, messageResId) = urlSuggestion ?: return onDone()
+        if (suggestedUrl.trimEnd('/') == webapp.baseUrl.trimEnd('/')) return onDone()
         val message = getString(messageResId, suggestedUrl)
             .withMonoSpan(suggestedUrl)
             .withBoldSpan(suggestedUrl)
@@ -461,9 +474,32 @@ class WebAppSettingsActivity :
             .setPositiveButton(R.string.manifest_start_url_update) { _, _ ->
                 webapp.baseUrl = suggestedUrl
                 textBaseUrl.text = prettyBaseUrl(suggestedUrl)
+                onDone()
             }
-            .setNegativeButton(R.string.manifest_start_url_keep, null)
+            .setNegativeButton(R.string.manifest_start_url_keep) { _, _ -> onDone() }
+            .setOnCancelListener { onDone() }
             .show()
+    }
+
+    private fun promptScopeExtensions(webapp: WebApp, domains: List<String>) {
+        if (domains.isEmpty()) return
+        val effective =
+            DataManager.instance.resolveEffectiveSettings(webapp).sameAppDomains.orEmpty()
+        val proposed = domains.filterNot { host ->
+            val probe = "https://$host"
+            isSameHost(webapp.baseUrl, probe) || SameAppDomainMatcher.matches(probe, effective)
+        }
+        if (proposed.isEmpty()) return
+        lifecycleScope.launch {
+            val accepted = ScopeExtensionsPrompt.confirm(
+                activity = this@WebAppSettingsActivity,
+                appName = webapp.title.ifEmpty { prettyBaseUrl(webapp.baseUrl) },
+                domains = proposed,
+            )
+            if (!accepted) return@launch
+            webapp.settings.sameAppDomains = effective + proposed
+            overrideController.refresh()
+        }
     }
 
     private lateinit var overrideController: OverridePickerController

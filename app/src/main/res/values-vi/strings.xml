@@ -19,6 +19,9 @@
     <string name="manifest_start_url_update">Cập nhật</string>
     <string name="manifest_start_url_keep">Giữ hiện tại</string>
     <string name="redirect_url_message">Trang web này chuyển hướng đến một địa chỉ khác:\n\n%1$s\n\nBạn có muốn cập nhật URL không? Bạn luôn có thể thay đổi trong cài đặt ứng dụng.</string>
+    <string name="scope_extensions_title">Thêm tên miền của cùng ứng dụng?</string>
+    <string name="scope_extensions_message">%1$s cho biết các tên miền này thuộc cùng một ứng dụng. Thêm chúng sẽ giữ các liên kết trong ứng dụng thay vì mở trình duyệt</string>
+    <string name="scope_extensions_header">Tên miền:</string>
     <string name="fetch_step_loading">Đang kết nối…</string>
     <string name="fetch_step_loading_host">Đang lấy siêu dữ liệu…</string>
     <string name="fetch_step_downloading_icons">Đang tải biểu tượng…</string>

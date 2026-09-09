@@ -19,6 +19,9 @@
     <string name="manifest_start_url_update">更新</string>
     <string name="manifest_start_url_keep">保持当前</string>
     <string name="redirect_url_message">此网站重定向到其他地址：\n\n%1$s\n\n是否更新网址？您随时可以在应用设置中更改。</string>
+    <string name="scope_extensions_title">添加同一应用的域名？</string>
+    <string name="scope_extensions_message">%1$s 表示这些域名属于同一应用。添加后，它们的链接将在应用内打开，而不是在浏览器中打开</string>
+    <string name="scope_extensions_header">域名：</string>
     <string name="fetch_step_loading">连接中…</string>
     <string name="fetch_step_loading_host">获取元数据…</string>
     <string name="fetch_step_downloading_icons">下载图标…</string>

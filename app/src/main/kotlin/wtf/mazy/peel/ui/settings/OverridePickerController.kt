@@ -32,6 +32,10 @@ class OverridePickerController(
         container.addView(viewFactory.createView(container, setting, settings))
     }
 
+    fun refresh() {
+        refreshList()
+    }
+
     private fun createViewFactory(): SettingViewFactory =
         SettingViewFactory(
             activity.layoutInflater,

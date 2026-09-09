@@ -19,6 +19,9 @@
     <string name="manifest_start_url_update">更新</string>
     <string name="manifest_start_url_keep">現在のまま</string>
     <string name="redirect_url_message">このウェブサイトは別のアドレスにリダイレクトします:\n\n%1$s\n\nURLを更新しますか？アプリの設定でいつでも変更できます。</string>
+    <string name="scope_extensions_title">同じアプリのドメインを追加しますか？</string>
+    <string name="scope_extensions_message">%1$sはこれらのドメインを同じアプリの一部として指定しています。追加すると、それらのリンクはブラウザではなくアプリ内で開くようになります</string>
+    <string name="scope_extensions_header">ドメイン:</string>
     <string name="fetch_step_loading">接続中…</string>
     <string name="fetch_step_loading_host">メタデータを取得中…</string>
     <string name="fetch_step_downloading_icons">アイコンをダウンロード中…</string>

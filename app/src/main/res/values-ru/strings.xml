@@ -19,6 +19,9 @@
     <string name="manifest_start_url_update">Обновить</string>
     <string name="manifest_start_url_keep">Оставить текущий</string>
     <string name="redirect_url_message">Этот сайт перенаправляет на другой адрес:\n\n%1$s\n\nОбновить URL? Вы всегда можете изменить его позже в настройках приложения.</string>
+    <string name="scope_extensions_title">Добавить домены того же приложения?</string>
+    <string name="scope_extensions_message">%1$s сообщает, что эти домены являются частью того же приложения. Добавление их сохранит ссылки внутри приложения, а не в браузере</string>
+    <string name="scope_extensions_header">Домены:</string>
     <string name="fetch_step_loading">Подключение…</string>
     <string name="fetch_step_loading_host">Загрузка метаданных…</string>
     <string name="fetch_step_downloading_icons">Загрузка иконок…</string>

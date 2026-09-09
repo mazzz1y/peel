@@ -44,6 +44,7 @@ data class FetchResult(
     val title: String?,
     val startUrl: String?,
     val redirectedUrl: String?,
+    val scopeExtensionDomains: List<String> = emptyList(),
 ) {
     companion object {
         val EMPTY = FetchResult(emptyList(), null, null, null)
@@ -231,7 +232,8 @@ class HeadlessFetcher(
 
         postProgress(appContext.getString(R.string.fetch_step_downloading_manifest))
 
-        val manifestUrls = pages.mapNotNull { it.manifestUrl.ifEmpty { null } }.distinct()
+        val manifestUrls =
+            pages.reversed().mapNotNull { it.manifestUrl.ifEmpty { null } }.distinct()
 
         var manifest: JSONObject? = null
         var manifestUrlUsed: String? = null
@@ -267,6 +269,7 @@ class HeadlessFetcher(
         val startUrl = manifest?.optString("start_url")?.ifEmpty { null }
             ?.let { resolveUrl(manifestUrlUsed ?: pageUrl, it) }
         val bestTitle = manifestName ?: pages.lastOrNull()?.title
+        val scopeExtensionDomains = parseScopeExtensions(manifest)
 
         val allRefs = mutableListOf<IconRef>()
         val seenHrefs = mutableSetOf<String>()
@@ -332,7 +335,7 @@ class HeadlessFetcher(
         } else {
             listOfNotNull(bestTitle?.let { FetchCandidate(it, null, "PWA") })
         }
-        return FetchResult(candidates, bestTitle, startUrl, redirected)
+        return FetchResult(candidates, bestTitle, startUrl, redirected, scopeExtensionDomains)
     }
 
     private suspend fun loadPage(session: GeckoSession, url: String): PageInfo? {
@@ -420,6 +423,24 @@ class HeadlessFetcher(
         }
     }
 
+    private fun parseScopeExtensions(manifest: JSONObject?): List<String> {
+        val entries = manifest?.optJSONArray("scope_extensions") ?: return emptyList()
+        val hosts = LinkedHashSet<String>()
+        for (i in 0 until entries.length()) {
+            if (hosts.size >= MAX_SCOPE_EXTENSIONS) break
+            val obj = entries.optJSONObject(i) ?: continue
+            if (obj.optString("type") != "origin") continue
+            val origin = obj.optString("origin")
+            if (!isAllowedRemoteUrl(origin)) continue
+            val host = runCatching { URL(origin).host }.getOrNull()
+                ?.lowercase()
+                ?.removePrefix("www.")
+            if (host.isNullOrEmpty()) continue
+            hosts += host
+        }
+        return hosts.toList()
+    }
+
     private fun decodeDataUrl(dataUrl: String): Bitmap? {
         if (dataUrl.length > MAX_DATA_URL_CHARS) return null
         val base64 = dataUrl.substringAfter(",", "")
@@ -495,6 +516,7 @@ class HeadlessFetcher(
         private const val MAX_MANIFEST_BYTES = 1024 * 1024
         private const val MAX_ICON_DIM = 1024
         private const val MAX_ICONS = 20
+        private const val MAX_SCOPE_EXTENSIONS = 20
         private const val MAX_DATA_URL_CHARS = 2 * 1024 * 1024
         private const val MAX_URL_LENGTH = 2048
 

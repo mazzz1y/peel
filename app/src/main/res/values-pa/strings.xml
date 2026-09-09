@@ -19,6 +19,9 @@
     <string name="manifest_start_url_update">ਅੱਪਡੇਟ ਕਰੋ</string>
     <string name="manifest_start_url_keep">ਮੌਜੂਦਾ ਰੱਖੋ</string>
     <string name="redirect_url_message">ਇਹ ਵੈੱਬਸਾਈਟ ਇੱਕ ਵੱਖਰੇ ਪਤੇ ਤੇ ਰੀਡਾਇਰੈਕਟ ਕਰਦੀ ਹੈ:\n\n%1$s\n\nਕੀ ਤੁਸੀਂ URL ਅੱਪਡੇਟ ਕਰਨਾ ਚਾਹੁੰਦੇ ਹੋ? ਤੁਸੀਂ ਇਸਨੂੰ ਬਾਅਦ ਵਿੱਚ ਐਪ ਸੈਟਿੰਗਾਂ ਵਿੱਚ ਕਦੇ ਵੀ ਬਦਲ ਸਕਦੇ ਹੋ।</string>
+    <string name="scope_extensions_title">ਇੱਕੋ ਐਪ ਦੇ ਡੋਮੇਨ ਸ਼ਾਮਲ ਕਰੀਏ?</string>
+    <string name="scope_extensions_message">%1$s ਦੱਸਦਾ ਹੈ ਕਿ ਇਹ ਡੋਮੇਨ ਇੱਕੋ ਐਪ ਦਾ ਹਿੱਸਾ ਹਨ। ਇਹਨਾਂ ਨੂੰ ਸ਼ਾਮਲ ਕਰਨ ਨਾਲ ਇਹਨਾਂ ਦੇ ਲਿੰਕ ਬ੍ਰਾਊਜ਼ਰ ਵਿੱਚ ਖੁੱਲ੍ਹਣ ਦੀ ਬਜਾਏ ਐਪ ਦੇ ਅੰਦਰ ਹੀ ਖੁੱਲ੍ਹਣਗੇ</string>
+    <string name="scope_extensions_header">ਡੋਮੇਨ:</string>
     <string name="fetch_step_loading">ਕਨੈਕਟ ਹੋ ਰਿਹਾ ਹੈ…</string>
     <string name="fetch_step_loading_host">ਮੈਟਾਡੇਟਾ ਲਿਆਂਦਾ ਜਾ ਰਿਹਾ ਹੈ…</string>
     <string name="fetch_step_downloading_icons">ਆਈਕਨ ਡਾਊਨਲੋਡ ਹੋ ਰਹੇ ਹਨ…</string>

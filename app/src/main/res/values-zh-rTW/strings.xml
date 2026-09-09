@@ -19,6 +19,9 @@
     <string name="manifest_start_url_update">更新</string>
     <string name="manifest_start_url_keep">保持目前</string>
     <string name="redirect_url_message">此網站重新導向到其他地址：\n\n%1$s\n\n是否更新網址？您隨時可以在應用程式設定中變更。</string>
+    <string name="scope_extensions_title">新增同一應用程式的網域？</string>
+    <string name="scope_extensions_message">%1$s 表示這些網域屬於同一應用程式。新增後，它們的連結將在應用程式內開啟，而不是在瀏覽器中開啟</string>
+    <string name="scope_extensions_header">網域：</string>
     <string name="fetch_step_loading">連線中…</string>
     <string name="fetch_step_loading_host">取得中繼資料…</string>
     <string name="fetch_step_downloading_icons">下載圖示…</string>

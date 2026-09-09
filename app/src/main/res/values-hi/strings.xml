@@ -19,6 +19,9 @@
     <string name="manifest_start_url_update">अपडेट करें</string>
     <string name="manifest_start_url_keep">मौजूदा रखें</string>
     <string name="redirect_url_message">यह वेबसाइट एक अलग पते पर रीडायरेक्ट करती है:\n\n%1$s\n\nक्या आप URL अपडेट करना चाहते हैं? आप इसे बाद में ऐप सेटिंग्स में कभी भी बदल सकते हैं।</string>
+    <string name="scope_extensions_title">एक ही ऐप के डोमेन जोड़ें?</string>
+    <string name="scope_extensions_message">%1$s के अनुसार ये डोमेन एक ही ऐप का हिस्सा हैं। इन्हें जोड़ने से इनके लिंक ब्राउज़र में खुलने के बजाय ऐप के भीतर ही खुलेंगे</string>
+    <string name="scope_extensions_header">डोमेन:</string>
     <string name="fetch_step_loading">कनेक्ट हो रहा है…</string>
     <string name="fetch_step_loading_host">मेटाडेटा प्राप्त हो रहा है…</string>
     <string name="fetch_step_downloading_icons">आइकन डाउनलोड हो रहे हैं…</string>

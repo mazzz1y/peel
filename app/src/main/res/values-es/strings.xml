@@ -165,6 +165,9 @@
     <string name="manifest_start_url_update">Actualizar</string>
     <string name="manifest_start_url_keep">Mantener actual</string>
     <string name="redirect_url_message">Este sitio redirige a una dirección diferente:\n\n%1$s\n\n¿Desea actualizar la URL? Puede cambiarla en cualquier momento en los ajustes de la aplicación.</string>
+    <string name="scope_extensions_title">¿Agregar dominios de la misma app?</string>
+    <string name="scope_extensions_message">%1$s indica que estos dominios forman parte de la misma app. Agregarlos mantiene sus enlaces dentro de la app en lugar de abrir el navegador</string>
+    <string name="scope_extensions_header">Dominios:</string>
     <string name="connection_error">Error de conexión: %1$s</string>
     <string name="content">Contenido</string>
     <string name="exit">Salir</string>

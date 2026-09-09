@@ -166,6 +166,9 @@
     <string name="manifest_start_url_update">Aggiorna</string>
     <string name="manifest_start_url_keep">Mantieni attuale</string>
     <string name="redirect_url_message">Questo sito reindirizza a un indirizzo diverso:\n\n%1$s\n\nVuoi aggiornare l\'URL? Puoi sempre modificarlo nelle impostazioni dell\'app.</string>
+    <string name="scope_extensions_title">Aggiungere domini della stessa app?</string>
+    <string name="scope_extensions_message">%1$s indica che questi domini fanno parte della stessa app. Aggiungerli mantiene i loro link all\'interno dell\'app invece di aprire il browser</string>
+    <string name="scope_extensions_header">Domini:</string>
     <string name="connection_error">Errore di connessione: %1$s</string>
     <string name="content">Contenuto</string>
     <string name="exit">Esci</string>

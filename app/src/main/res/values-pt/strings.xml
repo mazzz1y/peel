@@ -19,6 +19,9 @@
     <string name="manifest_start_url_update">Atualizar</string>
     <string name="manifest_start_url_keep">Manter atual</string>
     <string name="redirect_url_message">Este site redireciona para um endereço diferente:\n\n%1$s\n\nDeseja atualizar o URL? Você pode alterá-lo a qualquer momento nas configurações do aplicativo.</string>
+    <string name="scope_extensions_title">Adicionar domínios do mesmo app?</string>
+    <string name="scope_extensions_message">%1$s informa que esses domínios fazem parte do mesmo app. Adicioná-los mantém os links dentro do app em vez de abrir o navegador</string>
+    <string name="scope_extensions_header">Domínios:</string>
     <string name="fetch_step_loading">Conectando…</string>
     <string name="fetch_step_loading_host">Obtendo metadados…</string>
     <string name="fetch_step_downloading_icons">Baixando ícones…</string>
