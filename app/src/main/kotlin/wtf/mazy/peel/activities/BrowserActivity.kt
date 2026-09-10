@@ -721,9 +721,12 @@ class BrowserActivity : BaseSessionHost() {
     private fun setupMediaPlayback(settings: WebAppSettings) {
         mediaPlaybackManager?.release()
         mediaPlaybackManager = null
-        if (settings.isAllowMediaPlaybackInBackground != true) return
         val session = geckoSession ?: return
-        val manager = MediaPlaybackManager(this)
+        val manager = MediaPlaybackManager(
+            context = this,
+            backgroundPlayback = settings.isAllowMediaPlaybackInBackground == true,
+            onOrientationRequest = ::applyWebOrientation,
+        )
         val contentIntent = BrowserLauncher.buildPendingIntent(webapp, this)
         manager.attach(session, webapp.title, webapp.resolveIcon(), webapp.uuid, contentIntent)
         mediaPlaybackManager = manager

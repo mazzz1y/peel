@@ -23,6 +23,7 @@ import org.mozilla.geckoview.WebExtension
 import org.mozilla.geckoview.WebExtensionController
 import wtf.mazy.peel.BuildConfig
 import wtf.mazy.peel.R
+import wtf.mazy.peel.browser.PeelOrientationDelegate
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.SandboxManager
 import wtf.mazy.peel.model.WebAppSettings
@@ -357,6 +358,7 @@ object GeckoRuntimeProvider {
         context.webContentDensityOverride(zoom)?.let { builder.displayDensityOverride(it) }
         writeGeckoConfig(context, defaults)?.let { builder.configFilePath(it) }
         val rt = GeckoRuntime.create(context, builder.build())
+        rt.orientationController.delegate = PeelOrientationDelegate
         rt.settings.setFingerprintingProtection(defaults.isFingerprintingProtection == true)
         rt.settings.preferredColorScheme = colorScheme
         rt.warmUp()

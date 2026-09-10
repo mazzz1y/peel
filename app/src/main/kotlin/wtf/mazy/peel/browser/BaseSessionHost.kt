@@ -2,6 +2,7 @@ package wtf.mazy.peel.browser
 
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.content.res.Resources
 import android.net.Uri
 import android.text.InputType
@@ -76,6 +77,7 @@ import wtf.mazy.peel.util.applyBottomScreenInsets
 import wtf.mazy.peel.util.applyToolbarScreenInsets
 import wtf.mazy.peel.util.copyToClipboard
 import wtf.mazy.peel.util.deleteFilesOlderThan
+import wtf.mazy.peel.util.isSingleWindowHost
 import wtf.mazy.peel.util.isTelevisionHost
 import wtf.mazy.peel.util.shareText
 import java.io.File
@@ -115,11 +117,17 @@ abstract class BaseSessionHost : PeelActivity(), SessionHost, TranslationHost {
     private var lastBottomBarColor: Int? = null
     private var connectionErrorDialog: AlertDialog? = null
 
-    override var hostOrientation: Int
-        get() = requestedOrientation
-        set(value) {
-            requestedOrientation = value
-        }
+    override fun applyWebOrientation(orientation: Int): Boolean {
+        if (isSingleWindowHost()) return false
+        requestedOrientation = orientation
+        return true
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        GeckoRuntimeProvider.getRuntime(this).orientationChanged(newConfig.orientation)
+    }
+
     override val hostWindow: Window get() = window
     override val hostResources: Resources get() = resources
 

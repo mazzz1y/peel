@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.ActivityInfo
 import android.graphics.Bitmap
 import android.os.Handler
 import android.os.Looper
@@ -27,7 +28,11 @@ fun Bitmap.toPngBytes(): ByteArray {
  * setActive(false) — leaving an otherwise-stale notification with broken play action.
  * onPause never schedules teardown; the element stays resumable.
  */
-class MediaPlaybackManager(context: Context) : GeckoMediaSession.Delegate {
+class MediaPlaybackManager(
+    context: Context,
+    private val backgroundPlayback: Boolean,
+    private val onOrientationRequest: ((Int) -> Unit)? = null,
+) : GeckoMediaSession.Delegate {
 
     private val context: Context = context.applicationContext
     private var session: GeckoSession? = null
@@ -99,12 +104,35 @@ class MediaPlaybackManager(context: Context) : GeckoMediaSession.Delegate {
         this.webappUuid = webappUuid
         this.contentIntent = contentIntent
         geckoSession.mediaSessionDelegate = this
-        if (!receiverRegistered) registerReceiver()
+        if (backgroundPlayback && !receiverRegistered) registerReceiver()
     }
 
     override fun onActivated(session: GeckoSession, mediaSession: GeckoMediaSession) {
         this.mediaSession = mediaSession
         cancelPendingDeactivation()
+    }
+
+    /**
+     * Sites that never call `screen.orientation.lock()` only surface fullscreen video through
+     * this callback, so the video's own shape is the sole orientation signal available.
+     */
+    override fun onFullscreen(
+        session: GeckoSession,
+        mediaSession: GeckoMediaSession,
+        enabled: Boolean,
+        meta: GeckoMediaSession.ElementMetadata?,
+    ) {
+        val host = onOrientationRequest ?: return
+        if (!enabled) {
+            host(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED)
+            return
+        }
+        // Exit also arrives with a non-null meta carrying zeroed dimensions.
+        if (meta == null || meta.width <= 0L || meta.height <= 0L) return
+        host(
+            if (meta.height > meta.width) ActivityInfo.SCREEN_ORIENTATION_USER_PORTRAIT
+            else ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+        )
     }
 
     override fun onDeactivated(session: GeckoSession, mediaSession: GeckoMediaSession) {
@@ -118,6 +146,7 @@ class MediaPlaybackManager(context: Context) : GeckoMediaSession.Delegate {
     override fun onPlay(session: GeckoSession, mediaSession: GeckoMediaSession) {
         this.mediaSession = mediaSession
         cancelPendingDeactivation()
+        if (!backgroundPlayback) return
         if (serviceStarted) {
             sendAction(MediaPlaybackService.ACTION_RESUME)
             return

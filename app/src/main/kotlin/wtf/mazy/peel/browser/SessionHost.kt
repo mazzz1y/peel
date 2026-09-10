@@ -39,7 +39,6 @@ interface SessionHost {
 
     var currentlyReloading: Boolean
     val hostProgressBar: ProgressBar?
-    var hostOrientation: Int
     val hostWindow: Window
 
     var filePathCallback: ((Array<Uri>?) -> Unit)?
@@ -114,6 +113,9 @@ interface SessionHost {
     fun launchFilePicker(intent: Intent?): Boolean
     fun onWebFullscreenEnter()
     fun onWebFullscreenExit()
+
+    /** Returns false when the host refuses to rotate, so callers can report that to content. */
+    fun applyWebOrientation(orientation: Int): Boolean
     fun requestOsPermissions(permissions: Array<String>, onResult: (granted: Boolean) -> Unit)
     fun hasPermissions(vararg permissions: String): Boolean
 

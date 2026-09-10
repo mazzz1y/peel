@@ -16,7 +16,6 @@ class PeelContentDelegate(
     private val onTitleChange: ((String?) -> Unit)? = null,
 ) : GeckoSession.ContentDelegate {
 
-    private var originalOrientation = 0
     private var isFullscreen = false
 
     fun exitFullscreen() {
@@ -65,7 +64,6 @@ class PeelContentDelegate(
     override fun onFullScreen(session: GeckoSession, fullScreen: Boolean) {
         if (fullScreen) {
             isFullscreen = true
-            originalOrientation = host.hostOrientation
             host.onWebFullscreenEnter()
         } else {
             restoreFromFullscreen()
@@ -74,7 +72,6 @@ class PeelContentDelegate(
 
     private fun restoreFromFullscreen() {
         isFullscreen = false
-        host.hostOrientation = originalOrientation
         host.onWebFullscreenExit()
     }
 
