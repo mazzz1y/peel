@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<HorizontalScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/floating_controls_button_size"
+    android:fillViewport="true"
+    android:paddingStart="@dimen/floating_controls_panel_padding"
+    android:paddingEnd="@dimen/floating_controls_panel_padding"
+    android:scrollbars="none">
+
+    <LinearLayout
+        android:id="@+id/floatingPanelActions"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/floating_controls_button_size"
+        android:orientation="horizontal" />
+
+</HorizontalScrollView>

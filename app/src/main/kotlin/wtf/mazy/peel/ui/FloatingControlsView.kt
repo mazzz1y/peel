@@ -33,6 +33,8 @@ class FloatingControlsView(
     private val onExpandedChange: ((expanded: Boolean, durationMs: Long) -> Unit)? = null,
 ) : BrowserControls {
 
+    private enum class Axis { VERTICAL, HORIZONTAL }
+
     private data class SavedOffset(val xFraction: Float, val yFraction: Float)
 
     private class Prefs(context: Context, webappUuid: String) {
@@ -74,24 +76,35 @@ class FloatingControlsView(
 
     private val dividerCount = actions.count { it.dividerAfter }
 
-    private val contentHeightPx: Int =
+    private val contentSizePx: Int =
         buttonSizePx * actions.size +
                 (dividerHeightPx + gapPx) * dividerCount +
                 gapPx * (actions.size - 1).coerceAtLeast(0) +
                 panelPaddingPx * 2
 
+    /** The parent's extent along one axis, with the bar insets at each end and the trigger's position. */
+    private class AxisFrame(val near: Int, val far: Int, val extent: Int, val triggerPos: Float)
+
+    private fun frame(axis: Axis): AxisFrame {
+        val bars = barsWithinParent()
+        return when (axis) {
+            Axis.VERTICAL -> AxisFrame(bars.top, bars.bottom, parent.height, trigger.y)
+            Axis.HORIZONTAL -> AxisFrame(bars.left, bars.right, parent.width, trigger.x)
+        }
+    }
+
     /**
      * The panel scrolls, so it may be shorter than its content; on short screens the actions
      * would otherwise run off the edge or sit under the trigger.
      */
-    private val panelHeightPx: Int
-        get() {
-            val bars = barsWithinParent()
-            val available = parent.height - bars.top - bars.bottom -
-                    buttonSizePx - panelTriggerGapPx * 2
-            if (available <= 0) return contentHeightPx
-            return contentHeightPx.coerceAtMost(available)
-        }
+    private fun panelSizePx(frame: AxisFrame): Int {
+        val available = frame.extent - frame.near - frame.far - buttonSizePx - panelTriggerGapPx * 2
+        if (available <= 0) return contentSizePx
+        return contentSizePx.coerceAtMost(available)
+    }
+
+    private fun resolveAxis(): Axis =
+        if (parent.width > parent.height) Axis.HORIZONTAL else Axis.VERTICAL
 
     private val inflater = LayoutInflater.from(context)
     private val trigger: MaterialCardView =
@@ -102,13 +115,15 @@ class FloatingControlsView(
     private val defaultTriggerForeground = triggerIconMenu.imageTintList
     private val panel: MaterialCardView =
         inflater.inflate(R.layout.view_floating_panel, parent, false) as MaterialCardView
-    private val panelContainer: LinearLayout = panel.findViewById(R.id.floatingPanelActions)
+    private lateinit var panelContainer: LinearLayout
     private val scrim: View = createScrim()
 
     private val gestureHandler = GestureHandler()
 
     private var expanded = false
-    private var expandDown = false
+    private var expandForward = false
+    private var currentAxis = Axis.VERTICAL
+    private var builtAxis: Axis? = null
     private var destroyed = false
     private var translateActiveDot: View? = null
     private var translateActive: Boolean = false
@@ -118,9 +133,9 @@ class FloatingControlsView(
             if (r - l != oldR - oldL || b - t != oldB - oldT) {
                 applyPosition()
                 if (expanded) {
-                    expandDown = shouldExpandDown()
-                    panel.pivotY = if (expandDown) 0f else panelHeightPx.toFloat()
-                    positionPanel(expandDown)
+                    expandForward = shouldExpandForward(currentAxis)
+                    applyPanelPivot(currentAxis, expandForward)
+                    positionPanel(expandForward, currentAxis)
                 }
             }
         }
@@ -181,13 +196,30 @@ class FloatingControlsView(
 
     private fun setupLayout() {
         trigger.layoutParams = FrameLayout.LayoutParams(buttonSizePx, buttonSizePx)
-        panel.layoutParams = FrameLayout.LayoutParams(buttonSizePx, contentHeightPx)
-        populatePanel()
+        ensurePanelContent(currentAxis)
         panel.alpha = 0f
         panel.visibility = View.INVISIBLE
         parent.addView(scrim)
         parent.addView(panel)
         parent.addView(trigger)
+    }
+
+    private fun ensurePanelContent(axis: Axis) {
+        if (axis == builtAxis) return
+        panel.removeAllViews()
+        val scrollLayoutRes = when (axis) {
+            Axis.VERTICAL -> R.layout.view_floating_panel_scroll_vertical
+            Axis.HORIZONTAL -> R.layout.view_floating_panel_scroll_horizontal
+        }
+        val scrollContent = inflater.inflate(scrollLayoutRes, panel, false)
+        panel.addView(scrollContent)
+        panelContainer = scrollContent.findViewById(R.id.floatingPanelActions)
+        panel.layoutParams = when (axis) {
+            Axis.VERTICAL -> FrameLayout.LayoutParams(buttonSizePx, contentSizePx)
+            Axis.HORIZONTAL -> FrameLayout.LayoutParams(contentSizePx, buttonSizePx)
+        }
+        populatePanel(axis)
+        builtAxis = axis
     }
 
     private fun attachListeners() {
@@ -207,32 +239,53 @@ class FloatingControlsView(
         setOnClickListener { collapse() }
     }
 
-    private fun populatePanel() {
+    private fun populatePanel(axis: Axis) {
+        panelContainer.orientation = when (axis) {
+            Axis.VERTICAL -> LinearLayout.VERTICAL
+            Axis.HORIZONTAL -> LinearLayout.HORIZONTAL
+        }
         panelContainer.removeAllViews()
         translateActiveDot = null
         actions.forEachIndexed { index, action ->
             val lp = LinearLayout.LayoutParams(buttonSizePx, buttonSizePx).apply {
-                if (index > 0) topMargin = gapPx
+                if (index > 0) {
+                    when (axis) {
+                        Axis.VERTICAL -> topMargin = gapPx
+                        Axis.HORIZONTAL -> marginStart = gapPx
+                    }
+                }
             }
             panelContainer.addView(createActionView(action), lp)
-            if (action.dividerAfter) addPanelDivider()
+            if (action.dividerAfter) addPanelDivider(axis)
         }
     }
 
-    private fun addPanelDivider() {
-        val divider =
-            inflater.inflate(R.layout.view_controls_divider_horizontal, panelContainer, false)
-        panelContainer.addView(
-            divider,
-            LinearLayout.LayoutParams(
+    private fun addPanelDivider(axis: Axis) {
+        val dividerRes = when (axis) {
+            Axis.VERTICAL -> R.layout.view_controls_divider_horizontal
+            Axis.HORIZONTAL -> R.layout.view_controls_divider_vertical
+        }
+        val divider = inflater.inflate(dividerRes, panelContainer, false)
+        val lp = when (axis) {
+            Axis.VERTICAL -> LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
                 divider.layoutParams.height,
             ).apply {
                 topMargin = gapPx
                 marginStart = dividerInsetPx
                 marginEnd = dividerInsetPx
-            },
-        )
+            }
+
+            Axis.HORIZONTAL -> LinearLayout.LayoutParams(
+                divider.layoutParams.width,
+                LinearLayout.LayoutParams.MATCH_PARENT,
+            ).apply {
+                marginStart = gapPx
+                topMargin = dividerInsetPx
+                bottomMargin = dividerInsetPx
+            }
+        }
+        panelContainer.addView(divider, lp)
     }
 
     override fun setTranslateActive(active: Boolean) {
@@ -353,21 +406,34 @@ class FloatingControlsView(
         trigger.y = y.coerceIn(minY, maxY)
     }
 
-    private fun positionPanel(expandDown: Boolean) {
-        val bars = barsWithinParent()
-        val height = panelHeightPx
-        if (panel.layoutParams.height != height) {
-            panel.layoutParams = panel.layoutParams.apply { this.height = height }
-        }
-        panel.x = trigger.x
-        val preferredY = if (expandDown) {
-            trigger.y + buttonSizePx + panelTriggerGapPx
+    private fun positionPanel(expandForward: Boolean, axis: Axis) {
+        val frame = frame(axis)
+        val size = panelSizePx(frame)
+        val preferred = if (expandForward) {
+            frame.triggerPos + buttonSizePx + panelTriggerGapPx
         } else {
-            trigger.y - panelTriggerGapPx - height
+            frame.triggerPos - panelTriggerGapPx - size
         }
-        val minY = bars.top.toFloat()
-        val maxY = (parent.height - bars.bottom - height).toFloat().coerceAtLeast(minY)
-        panel.y = preferredY.coerceIn(minY, maxY)
+        val min = frame.near.toFloat()
+        val max = (frame.extent - frame.far - size).toFloat().coerceAtLeast(min)
+        val main = preferred.coerceIn(min, max)
+        when (axis) {
+            Axis.VERTICAL -> {
+                if (panel.layoutParams.height != size) {
+                    panel.layoutParams = panel.layoutParams.apply { height = size }
+                }
+                panel.x = trigger.x
+                panel.y = main
+            }
+
+            Axis.HORIZONTAL -> {
+                if (panel.layoutParams.width != size) {
+                    panel.layoutParams = panel.layoutParams.apply { width = size }
+                }
+                panel.y = trigger.y
+                panel.x = main
+            }
+        }
     }
 
     private fun toggle() {
@@ -375,20 +441,37 @@ class FloatingControlsView(
         if (expanded) collapse() else expand()
     }
 
-    private fun shouldExpandDown(): Boolean {
-        val bars = barsWithinParent()
-        val below = parent.height - bars.bottom - (trigger.y + buttonSizePx + panelTriggerGapPx)
-        val above = trigger.y - panelTriggerGapPx - bars.top
-        return below >= panelHeightPx || below >= above
+    private fun shouldExpandForward(axis: Axis): Boolean {
+        val frame = frame(axis)
+        val forward = frame.extent - frame.far - (frame.triggerPos + buttonSizePx + panelTriggerGapPx)
+        val backward = frame.triggerPos - panelTriggerGapPx - frame.near
+        return forward >= panelSizePx(frame) || forward >= backward
+    }
+
+    private fun applyPanelPivot(axis: Axis, expandForward: Boolean) {
+        val cross = buttonSizePx / 2f
+        val main = if (expandForward) 0f else panelSizePx(frame(axis)).toFloat()
+        when (axis) {
+            Axis.VERTICAL -> {
+                panel.pivotX = cross
+                panel.pivotY = main
+            }
+
+            Axis.HORIZONTAL -> {
+                panel.pivotX = main
+                panel.pivotY = cross
+            }
+        }
     }
 
     private fun expand() {
         if (destroyed || expanded) return
         expanded = true
-        expandDown = shouldExpandDown()
-        positionPanel(expandDown)
-        panel.pivotX = buttonSizePx / 2f
-        panel.pivotY = if (expandDown) 0f else panelHeightPx.toFloat()
+        currentAxis = resolveAxis()
+        ensurePanelContent(currentAxis)
+        expandForward = shouldExpandForward(currentAxis)
+        positionPanel(expandForward, currentAxis)
+        applyPanelPivot(currentAxis, expandForward)
         showPanel()
         animateTriggerIcons(toClose = true)
         fadeScrim(visible = true)
