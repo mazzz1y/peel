@@ -93,7 +93,7 @@ class BrowserActivity : BaseSessionHost() {
         set(value) {
             if (historyPurged && value) return
             field = value
-            backCallback.isEnabled = value || launchedFromMenu
+            updateBackCallbackEnabled()
         }
 
     @Volatile
@@ -411,7 +411,7 @@ class BrowserActivity : BaseSessionHost() {
         sanitizeExternalIntent(intent)
         setIntent(intent)
         launchedFromMenu = intent.getBooleanExtra(Const.INTENT_LAUNCHED_FROM_MENU, false)
-        backCallback.isEnabled = canGoBack || launchedFromMenu
+        updateBackCallbackEnabled()
 
         val newUuid = intent.webAppUuid() ?: return
 
@@ -590,12 +590,14 @@ class BrowserActivity : BaseSessionHost() {
         closeFindInPage()
         setBrowserControlsFullscreen(true)
         pullToRefreshController.setSuspended(true)
+        updateBackCallbackEnabled()
     }
 
     override fun onWebFullscreenExit() {
         systemBarController.show(effectiveSettings.isShowFullscreen == true)
         setBrowserControlsFullscreen(false)
         pullToRefreshController.setSuspended(false)
+        updateBackCallbackEnabled()
     }
 
     private fun setupGeckoView() {
@@ -809,6 +811,7 @@ class BrowserActivity : BaseSessionHost() {
 
     private val backCallback = object : OnBackPressedCallback(false) {
         override fun handleOnBackPressed() {
+            if (exitFullscreenIfActive()) return
             if (canGoBack) {
                 geckoSession?.goBack()
                 return
@@ -823,8 +826,12 @@ class BrowserActivity : BaseSessionHost() {
     }
 
     private fun setupBackNavigation() {
-        backCallback.isEnabled = canGoBack || launchedFromMenu
+        updateBackCallbackEnabled()
         onBackPressedDispatcher.addCallback(this, backCallback)
+    }
+
+    private fun updateBackCallbackEnabled() {
+        backCallback.isEnabled = canGoBack || launchedFromMenu || isWebFullscreen
     }
 
     private fun sharedUrlFromIntent(): String? =

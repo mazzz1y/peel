@@ -21,6 +21,7 @@ class VirtualCursorController(
     private val onBackPressedDispatcher: OnBackPressedDispatcher,
     private val dispatchTouch: (MotionEvent) -> Unit,
     private val onScroll: (dx: Int, dy: Int) -> Unit,
+    private val exitFullscreenIfActive: () -> Boolean,
 ) {
     private val size = content.resources.getDimensionPixelSize(R.dimen.virtual_cursor_size)
     private val density = content.resources.displayMetrics.density
@@ -59,8 +60,13 @@ class VirtualCursorController(
     // Back arrives through the dispatcher, not dispatchKeyEvent, once predictive back is enabled.
     // Registered on show rather than here: the dispatcher runs the most recently added callback
     // first, so this has to outrank the host's own back handling rather than merely predate it.
+    // A fullscreen exit always wins over dismissing the cursor, so a single Back always escapes
+    // fullscreen video regardless of whether the cursor happens to be showing.
     private val backCallback = object : OnBackPressedCallback(true) {
-        override fun handleOnBackPressed() = hide()
+        override fun handleOnBackPressed() {
+            if (exitFullscreenIfActive()) return
+            hide()
+        }
     }
 
     init {

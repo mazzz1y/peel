@@ -16,11 +16,13 @@ class PeelContentDelegate(
     private val onTitleChange: ((String?) -> Unit)? = null,
 ) : GeckoSession.ContentDelegate {
 
-    private var isFullscreen = false
+    var isWebFullscreen = false
+        private set
+    private var fullscreenSession: GeckoSession? = null
 
     fun exitFullscreen() {
-        if (!isFullscreen) return
-        restoreFromFullscreen()
+        if (!isWebFullscreen) return
+        fullscreenSession?.exitFullScreen()
     }
 
     fun setupThemeColorExtension(ext: WebExtension, session: GeckoSession) {
@@ -63,16 +65,14 @@ class PeelContentDelegate(
 
     override fun onFullScreen(session: GeckoSession, fullScreen: Boolean) {
         if (fullScreen) {
-            isFullscreen = true
+            isWebFullscreen = true
+            fullscreenSession = session
             host.onWebFullscreenEnter()
         } else {
-            restoreFromFullscreen()
+            isWebFullscreen = false
+            fullscreenSession = null
+            host.onWebFullscreenExit()
         }
-    }
-
-    private fun restoreFromFullscreen() {
-        isFullscreen = false
-        host.onWebFullscreenExit()
     }
 
     override fun onExternalResponse(session: GeckoSession, response: WebResponse) {

@@ -36,6 +36,7 @@ abstract class SessionPageActivity : BaseSessionHost() {
 
     private val backCallback = object : OnBackPressedCallback(false) {
         override fun handleOnBackPressed() {
+            if (exitFullscreenIfActive()) return
             geckoSession?.goBack()
         }
     }
@@ -44,8 +45,12 @@ abstract class SessionPageActivity : BaseSessionHost() {
         get() = super.canGoBack
         set(value) {
             super.canGoBack = value
-            backCallback.isEnabled = value
+            updateBackCallbackEnabled()
         }
+
+    private fun updateBackCallbackEnabled() {
+        backCallback.isEnabled = canGoBack || isWebFullscreen
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.AppTheme_Browser)
@@ -132,10 +137,12 @@ abstract class SessionPageActivity : BaseSessionHost() {
     override fun onWebFullscreenEnter() {
         setBrowserControlsFullscreen(true)
         pullToRefreshController.setSuspended(true)
+        updateBackCallbackEnabled()
     }
 
     override fun onWebFullscreenExit() {
         setBrowserControlsFullscreen(false)
         pullToRefreshController.setSuspended(false)
+        updateBackCallbackEnabled()
     }
 }

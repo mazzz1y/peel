@@ -596,6 +596,15 @@ abstract class BaseSessionHost : PeelActivity(), SessionHost, TranslationHost {
         geckoSession = null
     }
 
+    protected val isWebFullscreen: Boolean
+        get() = (geckoSession?.contentDelegate as? PeelContentDelegate)?.isWebFullscreen == true
+
+    protected fun exitFullscreenIfActive(): Boolean {
+        if (!isWebFullscreen) return false
+        (geckoSession?.contentDelegate as? PeelContentDelegate)?.exitFullscreen()
+        return true
+    }
+
     protected fun tryStartActivity(intent: Intent): Boolean = try {
         startActivity(intent)
         true
@@ -698,6 +707,7 @@ abstract class BaseSessionHost : PeelActivity(), SessionHost, TranslationHost {
                     PanZoomController.SCROLL_BEHAVIOR_AUTO,
                 )
             },
+            exitFullscreenIfActive = ::exitFullscreenIfActive,
         )
     }
 
