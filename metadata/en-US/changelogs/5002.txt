@@ -1,0 +1,6 @@
+- Add same-app domains declared by a web app's manifest
+- Add screen rotation for fullscreen video
+- Lay out floating controls horizontally on wide screens
+- Fix Back closing the web app instead of exiting fullscreen video
+- Fix crash on Android 9 and 10 with Biometric lock
+- Biometric lock now also accepts weak biometric sensors
