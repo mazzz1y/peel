@@ -10,18 +10,18 @@ import androidx.lifecycle.LifecycleOwner
 // window. Dismissing from a lifecycle observer instead of an OnDismissListener keeps
 // the single dismiss-listener slot free for callers.
 fun <D : Dialog> D.dismissOnDestroyOf(activity: Activity): D {
-    val owner = activity as? LifecycleOwner ?: return this
+    val lifecycleOwner = activity as? LifecycleOwner ?: return this
     val observer = object : DefaultLifecycleObserver {
-        override fun onDestroy(o: LifecycleOwner) {
+        override fun onDestroy(owner: LifecycleOwner) {
             if (isShowing) dismiss()
         }
     }
-    owner.lifecycle.addObserver(observer)
+    lifecycleOwner.lifecycle.addObserver(observer)
     window?.decorView?.addOnAttachStateChangeListener(
         object : View.OnAttachStateChangeListener {
             override fun onViewAttachedToWindow(v: View) = Unit
             override fun onViewDetachedFromWindow(v: View) {
-                owner.lifecycle.removeObserver(observer)
+                lifecycleOwner.lifecycle.removeObserver(observer)
             }
         },
     )
