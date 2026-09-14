@@ -221,10 +221,11 @@ class BrowserActivity : BaseSessionHost() {
         biometricController.registerReceiver()
 
         val needsBiometric = effectiveSettings.isBiometricProtection == true
-        biometricController.showPromptIfNeeded(needsBiometric) {
+        val promptOutcome = biometricController.showPromptIfNeeded(needsBiometric) {
             systemBarController.resetToTheme()
             browserContent?.visibility = View.INVISIBLE
         }
+        if (promptOutcome == BiometricUnlockController.PromptOutcome.UNAVAILABLE) return
         if (!needsBiometric) {
             launchSessionExtensionsAndLoad(
                 effectiveSettings,
@@ -286,12 +287,13 @@ class BrowserActivity : BaseSessionHost() {
 
         showBrowserControls()
 
-        biometricController.showPromptIfNeeded(
+        val promptOutcome = biometricController.showPromptIfNeeded(
             effectiveSettings.isBiometricProtection == true,
         ) {
             systemBarController.resetToTheme()
             browserContent?.visibility = View.INVISIBLE
         }
+        if (promptOutcome == BiometricUnlockController.PromptOutcome.UNAVAILABLE) return
 
         if (!biometricController.isPromptActive) {
             browserContent?.visibility = View.VISIBLE

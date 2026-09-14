@@ -12,13 +12,16 @@ import wtf.mazy.peel.util.NotificationUtils
 
 internal class BiometricPromptHelper(private val activity: FragmentActivity) {
     companion object {
+        // BIOMETRIC_STRONG or DEVICE_CREDENTIAL is rejected outright on API 28-29,
+        // where BiometricManager reports BIOMETRIC_ERROR_UNSUPPORTED and PromptInfo.build() throws.
+        private const val ALLOWED_AUTHENTICATORS =
+            BiometricManager.Authenticators.BIOMETRIC_WEAK or
+                    BiometricManager.Authenticators.DEVICE_CREDENTIAL
+
         fun getBiometricError(context: Context): String? {
             val biometricManager = BiometricManager.from(context)
 
-            return when (biometricManager.canAuthenticate(
-                BiometricManager.Authenticators.BIOMETRIC_STRONG or
-                        BiometricManager.Authenticators.DEVICE_CREDENTIAL
-            )) {
+            return when (biometricManager.canAuthenticate(ALLOWED_AUTHENTICATORS)) {
                 BiometricManager.BIOMETRIC_SUCCESS -> null
                 BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED ->
                     context.getString(R.string.no_biometric_keys_enrolled)
@@ -28,11 +31,12 @@ internal class BiometricPromptHelper(private val activity: FragmentActivity) {
         }
     }
 
+    /** Returns false when no prompt could be displayed; neither callback fires in that case. */
     fun showPrompt(
         funSuccess: BiometricPromptCallback,
         funFail: BiometricPromptCallback,
         promptTitle: String,
-    ) {
+    ): Boolean {
         val executor = ContextCompat.getMainExecutor(activity)
         val biometricPrompt =
             BiometricPrompt(
@@ -61,15 +65,17 @@ internal class BiometricPromptHelper(private val activity: FragmentActivity) {
                     }
                 },
             )
-        val promptInfo =
-            PromptInfo.Builder()
-                .setTitle(promptTitle)
-                .setAllowedAuthenticators(
-                    BiometricManager.Authenticators.BIOMETRIC_STRONG or
-                            BiometricManager.Authenticators.DEVICE_CREDENTIAL
-                )
-                .build()
-        biometricPrompt.authenticate(promptInfo)
+        return try {
+            val promptInfo =
+                PromptInfo.Builder()
+                    .setTitle(promptTitle)
+                    .setAllowedAuthenticators(ALLOWED_AUTHENTICATORS)
+                    .build()
+            biometricPrompt.authenticate(promptInfo)
+            true
+        } catch (_: Exception) {
+            false
+        }
     }
 
     internal fun interface BiometricPromptCallback {
