@@ -2,6 +2,7 @@ package wtf.mazy.peel.activities
 
 import android.content.ActivityNotFoundException
 import android.net.Uri
+import android.provider.DocumentsContract
 import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -9,6 +10,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.materialswitch.MaterialSwitch
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
 import wtf.mazy.peel.R
 import wtf.mazy.peel.browser.SessionContextRegistry
@@ -19,19 +22,22 @@ import wtf.mazy.peel.model.SandboxManager
 import wtf.mazy.peel.model.WebAppSettings
 import wtf.mazy.peel.ui.common.LoadingDialogController
 import wtf.mazy.peel.ui.common.runWithLoader
+import wtf.mazy.peel.ui.dialog.BackupPasswordDialog
 import wtf.mazy.peel.ui.dialog.ImportDialogHelper
+import wtf.mazy.peel.ui.dialog.dismissOnDestroyOf
 import wtf.mazy.peel.util.NotificationUtils
 
 class SettingsHubActions(private val activity: AppCompatActivity) {
 
     private val exportLoader = LoadingDialogController(activity)
     private val importDialogHelper = ImportDialogHelper(activity)
+    private var pendingExportUri: Uri? = null
 
     private val exportLauncher =
         activity.registerForActivityResult(
             ActivityResultContracts.CreateDocument(BackupManager.MIME_TYPE)
         ) { uri ->
-            uri?.let { performFullBackupExport(it) }
+            uri?.let { askForPasswordThenExport(it) }
         }
 
     private val importLauncher =
@@ -63,6 +69,57 @@ class SettingsHubActions(private val activity: AppCompatActivity) {
                 Toast.LENGTH_LONG
             )
         }
+    }
+
+    // Asked for after the picker returns: a password held across that boundary is lost
+    // to an activity restart, which would silently write the backup unprotected.
+    private fun askForPasswordThenExport(uri: Uri) {
+        pendingExportUri = uri
+        MaterialAlertDialogBuilder(activity)
+            .setTitle(R.string.backup_protect_title)
+            .setMessage(R.string.backup_protect_message)
+            .setPositiveButton(R.string.backup_protect_set) { _, _ ->
+                BackupPasswordDialog.requestNew(
+                    activity,
+                    onResult = { password ->
+                        pendingExportUri = null
+                        performFullBackupExport(uri, password)
+                    },
+                    onCancel = { abandonExport() },
+                )
+            }
+            .setNegativeButton(R.string.backup_protect_skip) { _, _ ->
+                pendingExportUri = null
+                performFullBackupExport(uri, null)
+            }
+            .setOnCancelListener { abandonExport() }
+            .show()
+            .dismissOnDestroyOf(activity)
+    }
+
+    private fun abandonExport(notify: Boolean = true) {
+        val uri = pendingExportUri ?: return
+        pendingExportUri = null
+        discardExportDocument(uri)
+        if (notify) notifyExportFailed()
+    }
+
+    private fun discardExportDocument(uri: Uri) {
+        val resolver = activity.applicationContext.contentResolver
+        activity.lifecycleScope.launch(Dispatchers.IO + NonCancellable) {
+            try {
+                DocumentsContract.deleteDocument(resolver, uri)
+            } catch (_: Exception) {
+            }
+        }
+    }
+
+    private fun notifyExportFailed() {
+        NotificationUtils.showToast(
+            activity,
+            activity.getString(R.string.backup_save_failed),
+            Toast.LENGTH_SHORT,
+        )
     }
 
     fun clearData() {
@@ -109,17 +166,29 @@ class SettingsHubActions(private val activity: AppCompatActivity) {
     }
 
     fun onDestroy() {
+        abandonExport(notify = false)
         exportLoader.dismiss()
         importDialogHelper.onHostDestroy()
     }
 
-    private fun performFullBackupExport(uri: Uri) {
+    private fun performFullBackupExport(uri: Uri, password: CharArray?) {
+        val encrypting = password != null
         runWithLoader(
             activity = activity,
             loader = exportLoader,
-            showLoader = DataManager.instance.getWebsites().size >= BackupManager.LOADER_THRESHOLD,
-            loadingRes = R.string.preparing_export,
-            ioTask = { BackupManager.exportFullBackup(uri) },
+            showLoader = encrypting ||
+                    DataManager.instance.getWebsites().size >= BackupManager.LOADER_THRESHOLD,
+            loadingRes = if (encrypting) R.string.backup_encrypting else R.string.preparing_export,
+            ioTask = {
+                var success = false
+                try {
+                    success = BackupManager.exportFullBackup(uri, password)
+                    success
+                } finally {
+                    password?.fill('\u0000')
+                    if (!success) discardExportDocument(uri)
+                }
+            },
         ) { success ->
             NotificationUtils.showToast(
                 activity,

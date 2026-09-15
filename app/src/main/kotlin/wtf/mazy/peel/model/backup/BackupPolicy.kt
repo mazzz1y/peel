@@ -7,8 +7,12 @@ object BackupPolicy {
     const val MIME_TYPE = "application/zip"
     const val LOADER_THRESHOLD = 10
     const val BACKUP_VERSION = "1"
+    const val ENCRYPTED_BACKUP_VERSION = "2"
     const val DATA_ENTRY = "data.json"
     const val MARKER_ENTRY = ".peel"
+    const val CRYPTO_ENTRY = "crypto.json"
+    const val PAYLOAD_ENTRY = "payload.enc"
+    const val CRYPTO_PARAMS_VERSION = 1
     const val ICONS_PREFIX = "icons/"
     const val SHARE_DIR = "shared_backups"
 

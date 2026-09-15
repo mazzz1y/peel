@@ -9,15 +9,18 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import kotlinx.coroutines.CancellationException
 import wtf.mazy.peel.R
 import wtf.mazy.peel.activities.ImportActivity
 import wtf.mazy.peel.model.BackupManager
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.ImportMode
 import wtf.mazy.peel.model.ParsedBackup
+import wtf.mazy.peel.model.backup.BackupSource
 import wtf.mazy.peel.ui.common.LoadingDialogController
 import wtf.mazy.peel.ui.common.runWithLoader
 import wtf.mazy.peel.util.NotificationUtils
+import javax.crypto.BadPaddingException
 
 class ImportDialogHelper(
     private val activity: AppCompatActivity,
@@ -49,18 +52,76 @@ class ImportDialogHelper(
             loader = loader,
             showLoader = true,
             loadingRes = R.string.importing,
-            ioTask = { BackupManager.readBackup(uri) },
-        ) { parsed ->
-            if (parsed == null) {
-                showError()
-                return@runWithLoader
-            }
-            when (parsed.backupData.payloadType) {
-                BackupManager.PAYLOAD_FULL -> showFullBackupDialog(parsed)
-                BackupManager.PAYLOAD_GROUP_SHARE -> launchImportActivity(parsed, groupShare = true)
-                else -> launchImportActivity(parsed, groupShare = false)
+            ioTask = { BackupManager.readBackupSource(uri) },
+        ) { source ->
+            when (source) {
+                is BackupSource.Plain -> dispatchParsed(source.parsed)
+                is BackupSource.Protected -> promptForPassword(source)
+                BackupSource.Damaged, BackupSource.NotABackup -> showError()
             }
         }
+    }
+
+    private fun dispatchParsed(parsed: ParsedBackup) {
+        when (parsed.backupData.payloadType) {
+            BackupManager.PAYLOAD_FULL -> showFullBackupDialog(parsed)
+            BackupManager.PAYLOAD_GROUP_SHARE -> launchImportActivity(parsed, groupShare = true)
+            else -> launchImportActivity(parsed, groupShare = false)
+        }
+    }
+
+    private fun promptForPassword(source: BackupSource.Protected) {
+        BackupPasswordDialog.requestExisting(
+            activity,
+            onResult = { password -> decryptAndDispatch(source, password) },
+            onCancel = {},
+        )
+    }
+
+    private fun decryptAndDispatch(source: BackupSource.Protected, password: CharArray) {
+        runWithLoader(
+            activity = activity,
+            loader = loader,
+            showLoader = true,
+            loadingRes = R.string.backup_decrypting,
+            ioTask = {
+                try {
+                    BackupManager.decryptBackup(source, password)
+                        ?.let(DecryptOutcome::Ok)
+                        ?: DecryptOutcome.Damaged
+                } catch (_: BadPaddingException) {
+                    DecryptOutcome.WrongPassword
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (_: Exception) {
+                    DecryptOutcome.Damaged
+                } catch (_: OutOfMemoryError) {
+                    DecryptOutcome.Damaged
+                } finally {
+                    password.fill('\u0000')
+                }
+            },
+        ) { outcome ->
+            when (outcome) {
+                is DecryptOutcome.Ok -> dispatchParsed(outcome.parsed)
+                DecryptOutcome.WrongPassword -> {
+                    NotificationUtils.showToast(
+                        activity,
+                        activity.getString(R.string.backup_password_wrong),
+                        Toast.LENGTH_LONG,
+                    )
+                    promptForPassword(source)
+                }
+
+                DecryptOutcome.Damaged -> showError()
+            }
+        }
+    }
+
+    private sealed interface DecryptOutcome {
+        data class Ok(val parsed: ParsedBackup) : DecryptOutcome
+        data object WrongPassword : DecryptOutcome
+        data object Damaged : DecryptOutcome
     }
 
     fun onHostDestroy() {

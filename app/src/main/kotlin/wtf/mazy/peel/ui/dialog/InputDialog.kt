@@ -24,6 +24,7 @@ data class InputDialogConfig(
     val allowEmpty: Boolean = false,
     val message: CharSequence? = null,
     val extraContent: ((LinearLayout) -> Unit)? = null,
+    val onInputReady: ((TextInputEditText) -> Unit)? = null,
     val onCancel: (() -> Unit)? = null,
 )
 
@@ -64,6 +65,7 @@ fun Activity.showInputDialogRaw(
     }
     inputLayout.addView(input)
     content.add(inputLayout)
+    config.onInputReady?.invoke(input)
     config.extraContent?.invoke(container)
 
     val builder = MaterialAlertDialogBuilder(this)

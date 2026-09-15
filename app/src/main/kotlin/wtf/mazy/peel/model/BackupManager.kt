@@ -7,6 +7,7 @@ import wtf.mazy.peel.model.backup.BackupImportService
 import wtf.mazy.peel.model.backup.BackupPolicy
 import wtf.mazy.peel.model.backup.BackupResult
 import wtf.mazy.peel.model.backup.BackupShareLauncher
+import wtf.mazy.peel.model.backup.BackupSource
 import wtf.mazy.peel.model.db.toSurrogate
 import java.io.File
 
@@ -29,11 +30,15 @@ object BackupManager {
     const val MIME_TYPE = BackupPolicy.MIME_TYPE
     const val LOADER_THRESHOLD = BackupPolicy.LOADER_THRESHOLD
 
-    fun readBackup(uri: Uri): ParsedBackup? {
-        return BackupArchiveCodec.readBackup(uri)
+    fun readBackupSource(uri: Uri): BackupSource {
+        return BackupArchiveCodec.readBackupSource(uri)
     }
 
-    suspend fun exportFullBackup(uri: Uri): Boolean {
+    fun decryptBackup(source: BackupSource.Protected, password: CharArray): ParsedBackup? {
+        return BackupArchiveCodec.decryptBackup(source, password)
+    }
+
+    suspend fun exportFullBackup(uri: Uri, password: CharArray? = null): Boolean {
         val dataManager = DataManager.instance
         dataManager.persistDefaultSettings()
         val websites = dataManager.getWebsites()
@@ -41,6 +46,7 @@ object BackupManager {
             buildFullBackupData(dataManager, websites),
             websites + dataManager.getGroups(),
             uri,
+            password,
         )
     }
 
