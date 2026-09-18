@@ -4,10 +4,10 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
-import wtf.mazy.peel.R
+import wtf.mazy.peel.browser.ExternalLinkResult
 import wtf.mazy.peel.model.DataManager
-import wtf.mazy.peel.ui.common.showOpenInPeelPicker
-import wtf.mazy.peel.util.NotificationUtils
+import wtf.mazy.peel.ui.dialog.ExternalLinkMenu
+import wtf.mazy.peel.util.BrowserLauncher
 
 class ShareReceiverActivity : PeelActivity() {
 
@@ -24,16 +24,35 @@ class ShareReceiverActivity : PeelActivity() {
             DataManager.instance.loadAppData()
             val apps = DataManager.instance.activeWebsites
             if (apps.isEmpty()) {
-                NotificationUtils.showToast(
-                    this@ShareReceiverActivity,
-                    getString(R.string.no_web_apps_available)
-                )
-                finish()
+                openIncognito(sharedUrl)
                 return@launch
             }
-
-            showOpenInPeelPicker(apps, sharedUrl, onDismiss = ::finish)
+            // the share sheet this came from already offers share and copy
+            ExternalLinkMenu.show(
+                activity = this@ShareReceiverActivity,
+                url = sharedUrl,
+                excludeUuid = null,
+                peelApps = apps,
+                includeLoadHere = false,
+                includeOpenInSystem = false,
+                includeShareAndCopy = false,
+            ) { result ->
+                when (result) {
+                    is ExternalLinkResult.OpenInPeelApp -> result.launcher(::finish)
+                    ExternalLinkResult.OpenIncognito -> openIncognito(sharedUrl)
+                    ExternalLinkResult.LoadHere,
+                    ExternalLinkResult.OpenInSystem,
+                    ExternalLinkResult.Share,
+                    ExternalLinkResult.CopyLink,
+                    ExternalLinkResult.Dismissed -> finish()
+                }
+            }
         }
+    }
+
+    private fun openIncognito(url: String) {
+        BrowserLauncher.launchIncognito(this, url)
+        finish()
     }
 
     private fun extractUrl(): String? {

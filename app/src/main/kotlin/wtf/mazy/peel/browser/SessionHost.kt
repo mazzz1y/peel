@@ -26,7 +26,9 @@ sealed interface ExternalLinkResult {
     data object Share : ExternalLinkResult
     data object CopyLink : ExternalLinkResult
     data object Dismissed : ExternalLinkResult
-    data class OpenInPeelApp(val launcher: () -> Unit) : ExternalLinkResult
+    // the launcher reports back when it is finished, which for the picker means dismissed:
+    // a standalone host activity must outlive the dialog it opens
+    data class OpenInPeelApp(val launcher: (onDone: () -> Unit) -> Unit) : ExternalLinkResult
 }
 
 interface SessionHost {

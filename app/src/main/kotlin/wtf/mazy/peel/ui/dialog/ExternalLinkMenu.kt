@@ -30,6 +30,8 @@ object ExternalLinkMenu {
         excludeUuid: String?,
         peelApps: List<WebApp>,
         includeLoadHere: Boolean,
+        includeOpenInSystem: Boolean = true,
+        includeShareAndCopy: Boolean = true,
         onResult: (ExternalLinkResult) -> Unit,
     ) {
         var dialog: AlertDialog? = null
@@ -46,12 +48,9 @@ object ExternalLinkMenu {
             val icon = match?.resolveIcon()
             val iconClick = if (icon != null) {
                 {
-                    dismiss(ExternalLinkResult.OpenInPeelApp {
-                        BrowserLauncher.launch(
-                            match,
-                            activity,
-                            url
-                        )
+                    dismiss(ExternalLinkResult.OpenInPeelApp { onLaunched ->
+                        BrowserLauncher.launch(match, activity, url)
+                        onLaunched()
                     })
                 }
             } else null
@@ -63,8 +62,8 @@ object ExternalLinkMenu {
                     icon,
                     iconClick,
                 ) {
-                    dismiss(ExternalLinkResult.OpenInPeelApp {
-                        openInPeelPicker(activity, url, excludeUuid)
+                    dismiss(ExternalLinkResult.OpenInPeelApp { onPickerDismiss ->
+                        openInPeelPicker(activity, url, excludeUuid, onPickerDismiss)
                     })
                 }
             )
@@ -78,7 +77,7 @@ object ExternalLinkMenu {
                     }
                 )
             }
-            if (activity.shouldOfferOpenInSystem(url)) {
+            if (includeOpenInSystem && activity.shouldOfferOpenInSystem(url)) {
                 addView(
                     MenuDialogHelper.buildActionRow(
                         activity,
@@ -96,22 +95,24 @@ object ExternalLinkMenu {
                     dismiss(ExternalLinkResult.OpenIncognito)
                 }
             )
-            addView(
-                MenuDialogHelper.buildActionRow(
-                    activity,
-                    activity.getString(R.string.context_menu_share_link),
-                ) {
-                    dismiss(ExternalLinkResult.Share)
-                }
-            )
-            addView(
-                MenuDialogHelper.buildActionRow(
-                    activity,
-                    activity.getString(R.string.context_menu_copy_link),
-                ) {
-                    dismiss(ExternalLinkResult.CopyLink)
-                }
-            )
+            if (includeShareAndCopy) {
+                addView(
+                    MenuDialogHelper.buildActionRow(
+                        activity,
+                        activity.getString(R.string.context_menu_share_link),
+                    ) {
+                        dismiss(ExternalLinkResult.Share)
+                    }
+                )
+                addView(
+                    MenuDialogHelper.buildActionRow(
+                        activity,
+                        activity.getString(R.string.context_menu_copy_link),
+                    ) {
+                        dismiss(ExternalLinkResult.CopyLink)
+                    }
+                )
+            }
         }
 
         dialog = MaterialAlertDialogBuilder(activity)
@@ -160,6 +161,7 @@ object ExternalLinkMenu {
         activity: AppCompatActivity,
         url: String,
         excludeUuid: String?,
+        onDismiss: () -> Unit = {},
     ) {
         activity.lifecycleScope.launch {
             val apps = DataManager.instance.queryAllWebApps()
@@ -170,6 +172,7 @@ object ExternalLinkMenu {
                     activity,
                     activity.getString(R.string.no_web_apps_available),
                 )
+                onDismiss()
                 return@launch
             }
 
@@ -184,6 +187,7 @@ object ExternalLinkMenu {
                 title = activity.getString(R.string.open_in_peel),
                 items = apps,
                 onPick = { webapp -> BrowserLauncher.launch(webapp, activity, url) },
+                configure = { setOnDismissListener { onDismiss() } },
             ) { webapp, icon, name, label, _ ->
                 name.text = webapp.title
                 icon.setImageBitmap(webapp.resolveIcon())

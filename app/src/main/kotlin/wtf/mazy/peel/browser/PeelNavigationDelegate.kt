@@ -242,7 +242,7 @@ class PeelNavigationDelegate(
             ExternalLinkResult.Share -> shareUrl(prompt.url, prompt.redirectFallback)
             ExternalLinkResult.CopyLink -> copyLink(prompt.url, prompt.redirectFallback)
             ExternalLinkResult.Dismissed -> dismissRedirect(prompt.redirectFallback)
-            is ExternalLinkResult.OpenInPeelApp -> result.launcher()
+            is ExternalLinkResult.OpenInPeelApp -> result.launcher {}
             ExternalLinkResult.LoadHere -> Unit
         }
         if (abandonsWindow(result) && strandedWithoutContent()) {
