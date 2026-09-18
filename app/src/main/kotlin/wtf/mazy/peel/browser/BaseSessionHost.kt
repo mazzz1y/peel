@@ -10,6 +10,7 @@ import android.util.TypedValue
 import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.View
+import android.view.ViewGroup
 import android.view.Window
 import android.view.WindowManager
 import android.webkit.MimeTypeMap
@@ -726,10 +727,16 @@ abstract class BaseSessionHost : PeelActivity(), SessionHost, TranslationHost {
                 it.layoutParams.height = sys.bottom
                 it.requestLayout()
             }
-            val leftPad = sys.left
-            val rightPad = sys.right
-            val topPad = sys.top
-            val systemBottom = maxOf(sys.bottom, ime.bottom)
+            // the cutout inset survives a system-bar hide, so it has to be dropped explicitly
+            val content = if (isFullscreen) {
+                insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            } else {
+                sys
+            }
+            val leftPad = content.left
+            val rightPad = content.right
+            val topPad = content.top
+            val systemBottom = maxOf(content.bottom, ime.bottom)
             panelControls?.let {
                 val lp = it.layoutParams as FrameLayout.LayoutParams
                 if (lp.leftMargin != leftPad || lp.rightMargin != rightPad ||
@@ -915,9 +922,21 @@ abstract class BaseSessionHost : PeelActivity(), SessionHost, TranslationHost {
         browserControlsFullscreen = false
     }
 
+    // collapsing the height, not the visibility: the scrolling-view behaviour offsets content by
+    // the app bar's measured height, which a GONE app bar keeps
+    protected fun setToolbarFullscreen(fullscreen: Boolean) {
+        val bar = appBar ?: return
+        val lp = bar.layoutParams
+        val target = if (fullscreen) 0 else ViewGroup.LayoutParams.WRAP_CONTENT
+        if (lp.height == target) return
+        lp.height = target
+        bar.layoutParams = lp
+    }
+
     protected fun setBrowserControlsFullscreen(fullscreen: Boolean) {
         browserControlsFullscreen = fullscreen
         updateBrowserControlsVisibility()
+        requestInsetsUpdate()
     }
 
     private fun replaceBrowserControls(mode: Int) {

@@ -135,12 +135,16 @@ abstract class SessionPageActivity : BaseSessionHost() {
     override fun onFirstContentfulPaint() = Unit
 
     override fun onWebFullscreenEnter() {
+        systemBarController.hide()
+        setToolbarFullscreen(true)
         setBrowserControlsFullscreen(true)
         pullToRefreshController.setSuspended(true)
         updateBackCallbackEnabled()
     }
 
     override fun onWebFullscreenExit() {
+        systemBarController.show(effectiveSettings.isShowFullscreen == true)
+        setToolbarFullscreen(false)
         setBrowserControlsFullscreen(false)
         pullToRefreshController.setSuspended(false)
         updateBackCallbackEnabled()
