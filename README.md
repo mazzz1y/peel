@@ -40,12 +40,15 @@ alt="Get it on my F-Droid repo" align="center" height="80" /></a>
 - Privacy controls: GPC signal, fingerprinting protection, local network blocking, WebRTC IP leak
   prevention
 - Firefox extensions support
-- Enhanced Tracking Protection, HTTPS-only mode, custom headers
+- Enhanced Tracking Protection, HTTPS-only mode, per-app blocked domains
+- Import custom certificate authorities
 - Lock sensitive web apps behind biometric authentication, block screenshots
 - Dynamic status bar color matching web content
 - Background media playback with full MediaSession support (notification controls, seek, metadata)
+- Web push notifications via UnifiedPush
 - Set settings globally or override them per app
-- Share individual apps and groups, or export and import full backups
+- Share individual apps and groups
+- Export and import password-encrypted backups
 - Written in Kotlin with Material 3 interface
 
 ## Screenshots
