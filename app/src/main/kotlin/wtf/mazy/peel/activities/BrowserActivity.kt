@@ -461,6 +461,15 @@ class BrowserActivity : BaseSessionHost() {
     override val webAppName: String
         get() = webapp.title
 
+    override val persistableWebAppUuid: String?
+        get() = webappUuid?.takeUnless { DataManager.instance.isTransientWebApp(it) }
+
+    override fun reloadEffectiveSettings() {
+        val uuid = webappUuid ?: return
+        if (DataManager.instance.getWebApp(uuid) == null) return
+        cachedSettings = DataManager.instance.resolveEffectiveSettings(webapp)
+    }
+
     override val effectiveSettings: WebAppSettings
         get() = cachedSettings ?: DataManager.instance.resolveEffectiveSettings(webapp)
 

@@ -24,6 +24,8 @@ import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.isVisible
+import androidx.core.view.updateLayoutParams
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.appbar.MaterialToolbar
@@ -195,8 +197,9 @@ abstract class BaseSessionHost : PeelActivity(), SessionHost, TranslationHost {
     override fun showPermissionDialog(
         message: CharSequence,
         allowRemember: Boolean,
+        allowRememberAlways: Boolean,
         onShown: (() -> Unit)?,
-        onResult: (result: PermissionResult, remember: Boolean) -> Unit,
+        onResult: (result: PermissionResult, remember: Boolean, always: Boolean) -> Unit,
     ) {
         val content = DialogContent.of(this).message(message)
         val remember = if (allowRemember) {
@@ -205,16 +208,37 @@ abstract class BaseSessionHost : PeelActivity(), SessionHost, TranslationHost {
             }.also { content.add(it) }
         } else null
 
+        val always = if (remember != null && allowRememberAlways) {
+            MaterialCheckBox(this).apply {
+                setText(R.string.permission_prompt_remember_always)
+                isVisible = false
+            }.also {
+                content.add(it)
+                it.updateLayoutParams<ViewGroup.MarginLayoutParams> { topMargin = 0 }
+            }
+        } else null
+
+        if (always != null) {
+            remember?.setOnCheckedChangeListener { _, isChecked ->
+                always.isVisible = isChecked
+                if (!isChecked) always.isChecked = false
+            }
+        }
+
+        val answer = { result: PermissionResult ->
+            onResult(result, remember?.isChecked == true, always?.isChecked == true)
+        }
+
         MaterialAlertDialogBuilder(this)
             .setView(content.view)
             .setCancelable(false)
             .setPositiveButton(R.string.permission_prompt_allow) { dialog, _ ->
                 dialog.dismiss()
-                onResult(PermissionResult.ALLOW, remember?.isChecked == true)
+                answer(PermissionResult.ALLOW)
             }
             .setNegativeButton(R.string.permission_prompt_deny) { dialog, _ ->
                 dialog.dismiss()
-                onResult(PermissionResult.DENY, remember?.isChecked == true)
+                answer(PermissionResult.DENY)
             }
             .create()
             .apply { setOnShowListener { onShown?.invoke() } }

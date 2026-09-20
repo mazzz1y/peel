@@ -36,6 +36,13 @@ interface SessionHost {
     val baseUrl: String
     val policyOrigin: String
     val webAppName: String
+
+    /** The stored web app this host may write settings to, or null when it has none to write. */
+    val persistableWebAppUuid: String? get() = null
+
+    /** Re-reads settings the host had cached, after they were changed underneath it. */
+    fun reloadEffectiveSettings() = Unit
+
     var canGoBack: Boolean
     var lastLoadedUrl: String
 
@@ -99,8 +106,9 @@ interface SessionHost {
     fun showPermissionDialog(
         message: CharSequence,
         allowRemember: Boolean = false,
+        allowRememberAlways: Boolean = false,
         onShown: (() -> Unit)? = null,
-        onResult: (result: PermissionResult, remember: Boolean) -> Unit,
+        onResult: (result: PermissionResult, remember: Boolean, always: Boolean) -> Unit,
     )
 
     fun showDateTimePicker(

@@ -18,6 +18,12 @@ class SessionPermissionMemory {
         if (forSession) session[id] = granted else page[id] = granted
     }
 
+    fun forget(origin: String, key: Int) {
+        val id = keyFor(origin, key) ?: return
+        session.remove(id)
+        page.remove(id)
+    }
+
     // Websites that repeatedly re-request the same permission (e.g. calling
     // getCurrentPosition in a loop) would otherwise stack a native dialog per call.
     fun joinAsk(origin: String, key: Int, onResult: (Boolean) -> Unit): Boolean {

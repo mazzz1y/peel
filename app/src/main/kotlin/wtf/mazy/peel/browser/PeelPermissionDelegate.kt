@@ -3,13 +3,16 @@ package wtf.mazy.peel.browser
 import android.Manifest
 import android.os.Build
 import androidx.annotation.OptIn
+import kotlinx.coroutines.launch
 import org.mozilla.geckoview.ExperimentalGeckoViewApi
 import org.mozilla.geckoview.GeckoResult
 import org.mozilla.geckoview.GeckoSession
 import wtf.mazy.peel.R
 import wtf.mazy.peel.gecko.ContentPermissionStore
+import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.WebAppSettings
 import wtf.mazy.peel.util.AppPrefs
+import wtf.mazy.peel.util.belongsToApp
 import wtf.mazy.peel.util.prettyHostLabel
 import wtf.mazy.peel.util.withBoldSpan
 
@@ -180,6 +183,31 @@ class PeelPermissionDelegate(private val host: SessionHost) : GeckoSession.Permi
         }
     }
 
+    private fun durableTargetFor(key: Int, origin: String): String? {
+        if (key !in DURABLE_PERM_FIELDS) return null
+        val uuid = host.persistableWebAppUuid ?: return null
+        if (!belongsToApp(host.policyOrigin, origin, host.effectiveSettings)) return null
+        return uuid
+    }
+
+    private fun recordDurable(uuid: String, key: Int, origin: String, granted: Boolean) {
+        val field = DURABLE_PERM_FIELDS.getValue(key)
+        memory.remember(origin, key, granted, forSession = true)
+        DataManager.instance.appScope.launch {
+            DataManager.instance.getWebApp(uuid)?.let { webapp ->
+                field.set(
+                    webapp.settings,
+                    if (granted) WebAppSettings.PERMISSION_ON else WebAppSettings.PERMISSION_OFF,
+                )
+                DataManager.instance.replaceWebApp(webapp)
+            }
+            host.runOnUi {
+                host.reloadEffectiveSettings()
+                memory.forget(origin, key)
+            }
+        }
+    }
+
     private fun handleTriState(
         state: Int?,
         androidPermissions: List<String>,
@@ -207,14 +235,21 @@ class PeelPermissionDelegate(private val host: SessionHost) : GeckoSession.Permi
                         if (!memory.resolveAsk(origin, key, false)) onResult(false)
                         return@ensureOsPermission
                     }
+                    val durableTarget =
+                        if (allowRemember) durableTargetFor(key, origin) else null
                     host.showPermissionDialog(
                         host.hostResources.getString(promptResId, trimmedName)
                             .withBoldSpan(trimmedName),
                         allowRemember,
+                        durableTarget != null,
                         onShown,
-                    ) { result, remember ->
+                    ) { result, remember, always ->
                         val granted = result == PermissionResult.ALLOW
-                        memory.remember(origin, key, granted, forSession = remember)
+                        if (always && durableTarget != null) {
+                            recordDurable(durableTarget, key, origin, granted)
+                        } else {
+                            memory.remember(origin, key, granted, forSession = remember)
+                        }
                         if (!memory.resolveAsk(origin, key, granted)) onResult(granted)
                     }
                 }
@@ -249,5 +284,11 @@ class PeelPermissionDelegate(private val host: SessionHost) : GeckoSession.Permi
         private const val PERM_KEY_CAMERA = 2
         private const val PERM_KEY_MICROPHONE = 3
         private const val PERM_KEY_NOTIFICATION = 4
+
+        private val DURABLE_PERM_FIELDS = mapOf(
+            PERM_KEY_LOCATION to WebAppSettings::isAllowLocationAccess,
+            PERM_KEY_CAMERA to WebAppSettings::isCameraPermission,
+            PERM_KEY_MICROPHONE to WebAppSettings::isMicrophonePermission,
+        )
     }
 }
