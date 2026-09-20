@@ -125,6 +125,7 @@
     <string name="permission_prompt_allow">允許</string>
     <string name="permission_prompt_deny">拒絕</string>
     <string name="permission_prompt_remember">在本次工作階段中記住</string>
+    <string name="permission_prompt_remember_always">為此應用程式記住</string>
     <string name="permission_prompt_camera">允許 %1$s 存取相機？</string>
     <string name="permission_prompt_microphone">允許 %1$s 存取麥克風？</string>
     <string name="permission_prompt_location">允許 %1$s 存取位置？</string>

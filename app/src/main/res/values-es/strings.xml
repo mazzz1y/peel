@@ -234,6 +234,7 @@
     <string name="permission_prompt_allow">Permitir</string>
     <string name="permission_prompt_deny">Denegar</string>
     <string name="permission_prompt_remember">Recordar durante esta sesión</string>
+    <string name="permission_prompt_remember_always">Recordar para esta app</string>
     <string name="restart">Reiniciar</string>
     <string name="setting_block_local_network">Bloquear acceso a red local</string>
     <string name="setting_block_webrtc_ip_leak">Bloquear filtración IP por WebRTC</string>

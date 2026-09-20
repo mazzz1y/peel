@@ -125,6 +125,7 @@
     <string name="permission_prompt_allow">হ্যাঁ</string>
     <string name="permission_prompt_deny">না</string>
     <string name="permission_prompt_remember">এই সেশনের জন্য মনে রাখুন</string>
+    <string name="permission_prompt_remember_always">এই অ্যাপের জন্য মনে রাখুন</string>
     <string name="permission_prompt_camera">%1$s-কে ক্যামেরা অ্যাক্সেসের অনুমতি দেবেন?</string>
     <string name="permission_prompt_microphone">%1$s-কে মাইক্রোফোন অ্যাক্সেসের অনুমতি দেবেন?</string>
     <string name="permission_prompt_location">%1$s-কে অবস্থান অ্যাক্সেসের অনুমতি দেবেন?</string>

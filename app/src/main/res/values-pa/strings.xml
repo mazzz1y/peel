@@ -125,6 +125,7 @@
     <string name="permission_prompt_allow">ਹਾਂ</string>
     <string name="permission_prompt_deny">ਨਹੀਂ</string>
     <string name="permission_prompt_remember">ਇਸ ਸੈਸ਼ਨ ਲਈ ਯਾਦ ਰੱਖੋ</string>
+    <string name="permission_prompt_remember_always">ਇਸ ਐਪ ਲਈ ਯਾਦ ਰੱਖੋ</string>
     <string name="permission_prompt_camera">%1$s ਨੂੰ ਕੈਮਰਾ ਐਕਸੈਸ ਦੀ ਇਜਾਜ਼ਤ ਦਿਓ?</string>
     <string name="permission_prompt_microphone">%1$s ਨੂੰ ਮਾਈਕ੍ਰੋਫ਼ੋਨ ਐਕਸੈਸ ਦੀ ਇਜਾਜ਼ਤ ਦਿਓ?</string>
     <string name="permission_prompt_location">%1$s ਨੂੰ ਟਿਕਾਣਾ ਐਕਸੈਸ ਦੀ ਇਜਾਜ਼ਤ ਦਿਓ?</string>

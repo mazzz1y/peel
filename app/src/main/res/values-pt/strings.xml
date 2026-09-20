@@ -125,6 +125,7 @@
     <string name="permission_prompt_allow">Permitir</string>
     <string name="permission_prompt_deny">Negar</string>
     <string name="permission_prompt_remember">Lembrar nesta sessão</string>
+    <string name="permission_prompt_remember_always">Lembrar neste app</string>
     <string name="permission_prompt_camera">Permitir %1$s acessar a câmera?</string>
     <string name="permission_prompt_microphone">Permitir %1$s acessar o microfone?</string>
     <string name="permission_prompt_location">Permitir %1$s acessar a localização?</string>

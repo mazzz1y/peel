@@ -235,6 +235,7 @@
     <string name="permission_prompt_allow">Consenti</string>
     <string name="permission_prompt_deny">Nega</string>
     <string name="permission_prompt_remember">Ricorda per questa sessione</string>
+    <string name="permission_prompt_remember_always">Ricorda per questa app</string>
     <string name="restart">Riavvia</string>
     <string name="setting_block_local_network">Blocca accesso alla rete locale</string>
     <string name="setting_block_webrtc_ip_leak">Blocca fuga IP tramite WebRTC</string>

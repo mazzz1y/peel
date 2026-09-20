@@ -125,6 +125,7 @@
     <string name="permission_prompt_allow">允许</string>
     <string name="permission_prompt_deny">拒绝</string>
     <string name="permission_prompt_remember">在本次会话中记住</string>
+    <string name="permission_prompt_remember_always">为此应用记住</string>
     <string name="permission_prompt_camera">允许 %1$s 访问相机？</string>
     <string name="permission_prompt_microphone">允许 %1$s 访问麦克风？</string>
     <string name="permission_prompt_location">允许 %1$s 访问位置？</string>

@@ -125,6 +125,7 @@
     <string name="permission_prompt_allow">Да</string>
     <string name="permission_prompt_deny">Нет</string>
     <string name="permission_prompt_remember">Запомнить для этого сеанса</string>
+    <string name="permission_prompt_remember_always">Запомнить для этого приложения</string>
     <string name="permission_prompt_camera">Разрешить %1$s доступ к камере?</string>
     <string name="permission_prompt_microphone">Разрешить %1$s доступ к микрофону?</string>
     <string name="permission_prompt_location">Разрешить %1$s доступ к местоположению?</string>

@@ -235,6 +235,7 @@
     <string name="permission_prompt_allow">Erlauben</string>
     <string name="permission_prompt_deny">Verweigern</string>
     <string name="permission_prompt_remember">Für diese Sitzung merken</string>
+    <string name="permission_prompt_remember_always">Für diese App merken</string>
     <string name="restart">Neustart</string>
     <string name="setting_block_local_network">Lokalen Netzwerkzugriff blockieren</string>
     <string name="setting_block_webrtc_ip_leak">WebRTC-IP-Leak blockieren</string>

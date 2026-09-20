@@ -125,6 +125,7 @@
     <string name="permission_prompt_allow">Cho phép</string>
     <string name="permission_prompt_deny">Từ chối</string>
     <string name="permission_prompt_remember">Ghi nhớ cho phiên này</string>
+    <string name="permission_prompt_remember_always">Ghi nhớ cho ứng dụng này</string>
     <string name="permission_prompt_camera">Cho phép %1$s truy cập camera?</string>
     <string name="permission_prompt_microphone">Cho phép %1$s truy cập micro?</string>
     <string name="permission_prompt_location">Cho phép %1$s truy cập vị trí?</string>

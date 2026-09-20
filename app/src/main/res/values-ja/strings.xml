@@ -125,6 +125,7 @@
     <string name="permission_prompt_allow">許可</string>
     <string name="permission_prompt_deny">拒否</string>
     <string name="permission_prompt_remember">このセッションの間は記憶する</string>
+    <string name="permission_prompt_remember_always">このアプリでは記憶する</string>
     <string name="permission_prompt_camera">%1$sにカメラへのアクセスを許可しますか？</string>
     <string name="permission_prompt_microphone">%1$sにマイクへのアクセスを許可しますか？</string>
     <string name="permission_prompt_location">%1$sに位置情報へのアクセスを許可しますか？</string>
