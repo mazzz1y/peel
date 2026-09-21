@@ -28,11 +28,10 @@ object AppPrefs {
         prefs(context).edit { putBoolean(KEY_PUSH_ENABLED, enabled) }
     }
 
-    fun isPushPermissionResetPending(context: Context): Boolean =
-        prefs(context).getBoolean(KEY_PUSH_PERMISSION_RESET_PENDING, false)
-
-    fun setPushPermissionResetPending(context: Context, pending: Boolean) {
-        prefs(context).edit { putBoolean(KEY_PUSH_PERMISSION_RESET_PENDING, pending) }
+    fun dropPushPermissionResetPending(context: Context) {
+        val prefs = prefs(context)
+        if (!prefs.contains(KEY_PUSH_PERMISSION_RESET_PENDING)) return
+        prefs.edit { remove(KEY_PUSH_PERMISSION_RESET_PENDING) }
     }
 
     fun getPendingSandboxClears(context: Context): Set<String> =

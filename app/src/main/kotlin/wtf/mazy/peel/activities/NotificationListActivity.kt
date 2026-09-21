@@ -10,7 +10,9 @@ import androidx.core.net.toUri
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.materialswitch.MaterialSwitch
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.mozilla.geckoview.GeckoSession.PermissionDelegate.ContentPermission
 import org.unifiedpush.android.connector.UnifiedPush
 import wtf.mazy.peel.R
@@ -112,7 +114,16 @@ class NotificationListActivity : EntityListActivity<PushSubscriptionItem>() {
     }
 
     private fun chooseDelivery() {
-        val options = listOf(LOCAL_DELIVERY) + UnifiedPush.getDistributors(this)
+        lifecycleScope.launch {
+            val options = withContext(Dispatchers.IO) {
+                listOf(LOCAL_DELIVERY) + UnifiedPush.getDistributors(this@NotificationListActivity)
+            }
+            if (isFinishing || isDestroyed) return@launch
+            showDeliveryPicker(options)
+        }
+    }
+
+    private fun showDeliveryPicker(options: List<String>) {
         PickerDialog.show(
             activity = this,
             title = getString(R.string.push_distributor),

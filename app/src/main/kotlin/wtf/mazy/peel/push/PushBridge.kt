@@ -37,12 +37,6 @@ object PushBridge {
 
     fun attach(runtime: GeckoRuntime, context: Context) {
         val appContext = context.applicationContext
-        if (AppPrefs.isPushPermissionResetPending(appContext)) {
-            scope.launch {
-                resetMatchingPermissions(appContext) { true }
-                AppPrefs.setPushPermissionResetPending(appContext, false)
-            }
-        }
         runtime.webPushController.setDelegate(object : WebPushDelegate {
             override fun onSubscribe(
                 scopeUrl: String,
@@ -171,15 +165,10 @@ object PushBridge {
     private suspend fun clearContext(
         context: Context,
         contextId: String?,
-        requireRuntime: Boolean = true,
         matches: (ContentPermission) -> Boolean,
     ) {
         DataManager.instance.awaitReady()
         subscriptionsForContext(contextId).forEach { removeRegistration(context, it) }
-        if (!requireRuntime && GeckoRuntimeProvider.runtimeOrNull() == null) {
-            AppPrefs.setPushPermissionResetPending(context, true)
-            return
-        }
         resetMatchingPermissions(context, matches)
     }
 
@@ -210,28 +199,19 @@ object PushBridge {
     }
 
     suspend fun reconcile(context: Context) {
+        AppPrefs.dropPushPermissionResetPending(context)
         DataManager.instance.awaitReady()
         val subscriptions = DataManager.instance.getPushSubscriptions()
-        val savedMissing = withContext(Dispatchers.IO) {
-            val saved = UnifiedPush.getSavedDistributor(context)
-            saved != null && saved !in UnifiedPush.getDistributors(context)
-        }
-        if (subscriptions.isEmpty()) {
-            if (savedMissing) {
-                withContext(Dispatchers.IO) { UnifiedPush.removeDistributor(context) }
-            }
+        if (subscriptions.isEmpty()) return
+        // Null already means "uninstalled": getSavedDistributor resolves against the installed
+        // distributors and drops the saved one when its package is gone.
+        val saved = withContext(Dispatchers.IO) { UnifiedPush.getSavedDistributor(context) }
+        if (saved != null) {
+            subscriptions.forEach { reRegister(context, it) }
             return
         }
-
-        val linkedInstalled = withContext(Dispatchers.IO) {
-            val linked = UnifiedPush.getAckDistributor(context)
-            linked != null && linked in UnifiedPush.getDistributors(context)
-        }
-        if (AppPrefs.isPushEnabled(context) && linkedInstalled) {
-            subscriptions.forEach { reRegister(context, it) }
-        } else {
-            reset(context, requireRuntime = false)
-        }
+        withContext(Dispatchers.IO) { UnifiedPush.removeDistributor(context) }
+        subscriptions.forEach { removeRegistration(context, it) }
     }
 
     suspend fun switchDistributor(context: Context, distributor: String) {
@@ -239,9 +219,9 @@ object PushBridge {
         DataManager.instance.getPushSubscriptions().forEach { reRegister(context, it) }
     }
 
-    suspend fun reset(context: Context, requireRuntime: Boolean = true) {
+    suspend fun reset(context: Context) {
         withContext(Dispatchers.IO) { UnifiedPush.removeDistributor(context) }
-        clearContext(context, null, requireRuntime) { true }
+        clearContext(context, null) { true }
     }
 
     fun matchesScope(permission: ContentPermission, scopeUrl: String): Boolean =
