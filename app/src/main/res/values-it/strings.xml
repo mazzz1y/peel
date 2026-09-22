@@ -65,7 +65,7 @@
     <string name="download_channel_name">Download</string>
     <string name="download_channel_description">Progresso e completamento dei download</string>
     <string name="permission_prompt_download">Scaricare questo file?\n\n%1$s</string>
-    <string name="show_progress_bar_during_page_load">Mostra barra di avanzamento durante il caricamento della pagina</string>
+    <string name="show_progress_bar_during_page_load">Indicatore di caricamento</string>
     <string name="webapp_autoreload">Ricarica automaticamente la pagina</string>
     <string name="name">Nome</string>
     <string name="setting_color_scheme">Combinazione colori</string>
@@ -136,6 +136,11 @@
     <string name="remove_override">Rimuovi sovrascrittura</string>
     <string name="overridden_settings">Sovrascritture impostazioni</string>
     <string name="add">Aggiungi</string>
+    <string name="add_domain">Aggiungi dominio</string>
+    <string name="add_certificate">Aggiungi certificato</string>
+    <string name="add_preference">Aggiungi preferenza</string>
+    <string name="add_language_pair">Aggiungi coppia di lingue</string>
+    <string name="setting_interval_seconds">Intervallo, secondi</string>
     <string name="remove">Rimuovi</string>
     <string name="clone">Clona</string>
     <string name="setting_long_click_share">Menu contestuale</string>

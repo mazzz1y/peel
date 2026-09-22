@@ -175,6 +175,11 @@
     <string name="remove_override">ओवरराइड हटाएं</string>
     <string name="overridden_settings">ओवरराइड की गई सेटिंग्स</string>
     <string name="add">जोड़ें</string>
+    <string name="add_domain">डोमेन जोड़ें</string>
+    <string name="add_certificate">प्रमाणपत्र जोड़ें</string>
+    <string name="add_preference">प्राथमिकता जोड़ें</string>
+    <string name="add_language_pair">भाषा जोड़ी जोड़ें</string>
+    <string name="setting_interval_seconds">अंतराल, सेकंड</string>
     <string name="remove">हटाएं</string>
     <string name="setting_long_click_share">लंबा दबाकर संदर्भ मेनू</string>
     <string name="setting_pull_to_refresh">खींचकर रीफ़्रेश करें</string>

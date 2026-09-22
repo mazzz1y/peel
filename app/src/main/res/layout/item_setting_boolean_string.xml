@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    style="@style/SettingsItemContainer">
+    style="@style/SettingsSurfaceRow">
 
-    <LinearLayout style="@style/SettingsRow.Inline">
+    <LinearLayout style="@style/SettingsSurfaceRow.Line">
 
         <include
             layout="@layout/include_setting_label"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/settings_label_control_gap"
+            android:layout_marginEnd="@dimen/settings_row_label_gap"
             android:layout_weight="1" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnUndo"
-            style="@style/SettingsIconButton"
+            style="@style/SettingsIconButton.Slot"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:contentDescription="@string/undo"
@@ -24,9 +24,7 @@
         <com.google.android.material.materialswitch.MaterialSwitch
             android:id="@+id/switchSetting"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_marginStart="4dp" />
+            android:layout_height="wrap_content" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnRemoveOverride"
@@ -34,10 +32,35 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:contentDescription="@string/remove_override"
+            android:visibility="gone"
             app:icon="@drawable/ic_symbols_close_24" />
 
     </LinearLayout>
+    <View
+        android:id="@+id/hairlineEntries"
+        style="@style/SettingsSurfaceRow.Hairline"
+        android:visibility="gone" />
 
-    <include layout="@layout/item_setting_value_block" />
+    <LinearLayout
+        android:id="@+id/rowValue"
+        style="@style/SettingsSurfaceRow.Line"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/textValue"
+            style="@style/SettingsEntryText" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnEditValue"
+            style="@style/SettingsIconButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/setting_configure"
+            app:icon="@drawable/ic_symbols_edit_24" />
+
+    </LinearLayout>
 
 </LinearLayout>

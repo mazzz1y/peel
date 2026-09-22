@@ -9,7 +9,7 @@
             android:id="@+id/scrollView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginTop="@dimen/margin_activity"
+            android:layout_marginTop="@dimen/settings_section_gap"
             android:clipToPadding="false"
             android:paddingBottom="@dimen/margin_activity"
             android:fadeScrollbars="true"
@@ -22,13 +22,21 @@
                 android:id="@+id/contentContainer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="@dimen/margin_activity"
-                android:layout_marginEnd="@dimen/margin_activity"
+                android:layout_marginStart="@dimen/settings_hub_card_margin_horizontal"
+                android:layout_marginEnd="@dimen/settings_hub_card_margin_horizontal"
                 android:orientation="vertical">
 
                 <include layout="@layout/include_settings_icon_title" />
 
-                <include layout="@layout/include_settings_sandbox_rows" />
+                <LinearLayout
+                    android:id="@+id/settingsRowsGroup"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <include layout="@layout/include_settings_sandbox_rows" />
+
+                </LinearLayout>
 
                 <include layout="@layout/include_settings_override_section" />
 

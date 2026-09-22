@@ -5,6 +5,5 @@ import wtf.mazy.peel.model.SettingDefinition
 
 sealed interface SettingsListItem {
     data class Header(val category: SettingCategory) : SettingsListItem
-    data class Setting(val definition: SettingDefinition) : SettingsListItem
-    data object Divider : SettingsListItem
+    data class Setting(val definition: SettingDefinition, val position: GroupPosition) : SettingsListItem
 }

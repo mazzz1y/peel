@@ -175,6 +175,11 @@
     <string name="remove_override">ওভাররাইড সরান</string>
     <string name="overridden_settings">ওভাররাইড করা সেটিংস</string>
     <string name="add">যোগ করুন</string>
+    <string name="add_domain">ডোমেইন যোগ করুন</string>
+    <string name="add_certificate">সার্টিফিকেট যোগ করুন</string>
+    <string name="add_preference">পছন্দ যোগ করুন</string>
+    <string name="add_language_pair">ভাষা জোড়া যোগ করুন</string>
+    <string name="setting_interval_seconds">বিরতি, সেকেন্ড</string>
     <string name="remove">সরান</string>
     <string name="setting_long_click_share">দীর্ঘ চাপে প্রসঙ্গ মেনু</string>
     <string name="setting_pull_to_refresh">টেনে রিফ্রেশ</string>

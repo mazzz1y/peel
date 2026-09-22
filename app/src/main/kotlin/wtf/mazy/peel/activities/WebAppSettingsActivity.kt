@@ -40,7 +40,9 @@ import wtf.mazy.peel.ui.dialog.InputDialogConfig
 import wtf.mazy.peel.ui.dialog.OverridePickerDialog
 import wtf.mazy.peel.ui.dialog.ScopeExtensionsPrompt
 import wtf.mazy.peel.ui.dialog.showInputDialogRaw
+import wtf.mazy.peel.ui.settings.GroupPosition
 import wtf.mazy.peel.ui.settings.OverridePickerController
+import wtf.mazy.peel.ui.settings.SettingsSurface
 import wtf.mazy.peel.ui.settings.SandboxSwitchController
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.NotificationUtils.showToast
@@ -122,6 +124,8 @@ class WebAppSettingsActivity :
             setupSandboxSwitch(editableWebapp)
             setupGroupPicker(editableWebapp)
         }
+        SettingsSurface.apply(binding.root.findViewById(R.id.identityBlock), GroupPosition.ONLY)
+        SettingsSurface.bindGroup(binding.settingsRowsGroup)
 
         iconEditor.refreshIcon()
 
@@ -164,7 +168,6 @@ class WebAppSettingsActivity :
     private fun prepareGlobalWebAppScreen() {
         binding.sectionMainSettings.visibility = View.GONE
         binding.groupRow.visibility = View.GONE
-        binding.groupDivider.visibility = View.GONE
         sectionOverrideHeader.visibility = View.GONE
         linearLayoutOverrides.visibility = View.GONE
         setToolbarTitle(getString(R.string.global_web_app_settings))
@@ -209,12 +212,10 @@ class WebAppSettingsActivity :
         val groups = DataManager.instance.sortedGroups
         if (groups.isEmpty()) {
             binding.groupRow.visibility = View.GONE
-            binding.groupDivider.visibility = View.GONE
             return
         }
 
         binding.groupRow.visibility = View.VISIBLE
-        binding.groupDivider.visibility = View.VISIBLE
 
         val labels = groups.map { it.title } + getString(R.string.ungrouped)
         val ungroupedIndex = groups.size

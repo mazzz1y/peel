@@ -22,6 +22,7 @@ import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.model.WebAppSettings
 import wtf.mazy.peel.ui.settings.SettingViewFactory
 import wtf.mazy.peel.ui.settings.SettingsAdapter
+import wtf.mazy.peel.ui.settings.GroupPosition
 import wtf.mazy.peel.ui.settings.SettingsListItem
 import wtf.mazy.peel.util.CertificatePem
 import wtf.mazy.peel.util.NotificationUtils
@@ -122,9 +123,15 @@ class SettingsActivity : ToolbarBaseActivity<GlobalSettingsBinding>() {
 
         val items = buildList {
             settingsGrouped.forEach { (category, definitions) ->
-                if (isNotEmpty()) add(SettingsListItem.Divider)
                 add(SettingsListItem.Header(category))
-                definitions.forEach { add(SettingsListItem.Setting(it)) }
+                definitions.forEachIndexed { index, definition ->
+                    add(
+                        SettingsListItem.Setting(
+                            definition,
+                            GroupPosition.of(index, definitions.size),
+                        )
+                    )
+                }
             }
         }
 

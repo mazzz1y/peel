@@ -56,6 +56,7 @@ class SettingViewFactory(
         container: LinearLayout,
         setting: SettingDefinition,
         settings: WebAppSettings,
+        position: GroupPosition,
     ): View {
         val layoutRes = when (setting) {
             is SettingDefinition.BooleanSetting -> R.layout.item_setting_boolean
@@ -68,11 +69,17 @@ class SettingViewFactory(
             is SettingDefinition.LanguagePairMapSetting -> R.layout.item_setting_language_pair_map
         }
         val view = inflater.inflate(layoutRes, container, false)
-        bindView(view, setting, settings)
+        bindView(view, setting, settings, position)
         return view
     }
 
-    fun bindView(view: View, setting: SettingDefinition, settings: WebAppSettings) {
+    fun bindView(
+        view: View,
+        setting: SettingDefinition,
+        settings: WebAppSettings,
+        position: GroupPosition,
+    ) {
+        SettingsSurface.apply(view, position)
         when (setting) {
             is SettingDefinition.BooleanSetting -> setupBoolean(view, setting, settings)
             is SettingDefinition.ChoiceSetting -> setupDropdown(view, setting, settings)
@@ -173,7 +180,8 @@ class SettingViewFactory(
         val switch = view.findViewById<MaterialSwitch>(R.id.switchSetting)
         val btnRemove = view.findViewById<MaterialButton>(R.id.btnRemoveOverride)
         val btnUndo = view.findViewById<MaterialButton>(R.id.btnUndo)
-        val layout = view.findViewById<View>(R.id.layoutNumberInput)
+        val layout = view.findViewById<View>(R.id.rowNumberInput)
+        val hairline = view.findViewById<View>(R.id.hairlineEntries)
         val editText = view.findViewById<TextInputEditText>(R.id.editTextNumber)
 
         val intKey = setting.intField.key
@@ -191,7 +199,8 @@ class SettingViewFactory(
             switch.isChecked = boolVal
             ensureIntDefault()
             editText.setText((settings.getValue(intKey) as? Int)?.toString() ?: "")
-            layout.visibility = if (boolVal) View.VISIBLE else View.GONE
+            layout.isVisible = boolVal
+            hairline.isVisible = boolVal
             updateUndoVisibility(btnUndo, setting, settings)
         }
 
@@ -209,7 +218,8 @@ class SettingViewFactory(
                 listenersActive = false
                 ensureIntDefault()
                 editText.setText((settings.getValue(intKey) as? Int)?.toString() ?: "")
-                layout.visibility = if (isChecked) View.VISIBLE else View.GONE
+                layout.isVisible = isChecked
+                hairline.isVisible = isChecked
                 if (isChecked) editText.post { editText.requestFocus() }
                 listenersActive = true
                 updateUndoVisibility(btnUndo, setting, settings)
@@ -251,6 +261,9 @@ class SettingViewFactory(
         val switch = view.findViewById<MaterialSwitch>(R.id.switchSetting)
         val btnRemove = view.findViewById<MaterialButton>(R.id.btnRemoveOverride)
         val btnUndo = view.findViewById<MaterialButton>(R.id.btnUndo)
+        val rowValue = view.findViewById<View>(R.id.rowValue)
+        val hairline = view.findViewById<View>(R.id.hairlineEntries)
+        val textValue = view.findViewById<TextView>(R.id.textValue)
         val btnEditValue = view.findViewById<MaterialButton>(R.id.btnEditValue)
 
         val usernameKey = setting.usernameField.key
@@ -263,7 +276,9 @@ class SettingViewFactory(
 
         fun renderValue() {
             val enabled = settings.getValue(setting.key) as? Boolean ?: false
-            btnEditValue.visibility = if (enabled) View.VISIBLE else View.GONE
+            rowValue.isVisible = enabled
+            hairline.isVisible = enabled
+            textValue.text = username()
             updateUndoVisibility(btnUndo, setting, settings)
         }
 
@@ -310,6 +325,7 @@ class SettingViewFactory(
         switch.isChecked = settings.getValue(setting.key) as? Boolean ?: false
         renderValue()
         switch.setOnCheckedChangeListener(switchListener)
+        rowValue.setOnClickListener { openDialog() }
         btnEditValue.setOnClickListener { openDialog() }
 
         configureButtons(view, btnRemove, btnUndo, setting, settings) {
@@ -329,8 +345,10 @@ class SettingViewFactory(
         val switch = view.findViewById<MaterialSwitch>(R.id.switchSetting)
         val btnRemove = view.findViewById<MaterialButton>(R.id.btnRemoveOverride)
         val btnUndo = view.findViewById<MaterialButton>(R.id.btnUndo)
-        val cardValue = view.findViewById<View>(R.id.cardValue)
-        val btnValue = view.findViewById<MaterialButton>(R.id.btnEntryValue)
+        val rowValue = view.findViewById<View>(R.id.rowValue)
+        val hairline = view.findViewById<View>(R.id.hairlineEntries)
+        val textValue = view.findViewById<TextView>(R.id.textValue)
+        val btnEditValue = view.findViewById<MaterialButton>(R.id.btnEditValue)
 
         val stringKey = setting.stringField.key
         resetWidgetListeners(view)
@@ -340,8 +358,9 @@ class SettingViewFactory(
 
         fun renderValue() {
             val enabled = settings.getValue(setting.key) as? Boolean ?: false
-            cardValue.visibility = if (enabled) View.VISIBLE else View.GONE
-            btnValue.text = value()
+            rowValue.isVisible = enabled
+            hairline.isVisible = enabled
+            textValue.text = value()
             updateUndoVisibility(btnUndo, setting, settings)
         }
 
@@ -388,7 +407,8 @@ class SettingViewFactory(
         switch.isChecked = settings.getValue(setting.key) as? Boolean ?: false
         renderValue()
         switch.setOnCheckedChangeListener(switchListener)
-        btnValue.setOnClickListener { openDialog() }
+        rowValue.setOnClickListener { openDialog() }
+        btnEditValue.setOnClickListener { openDialog() }
 
         configureButtons(view, btnRemove, btnUndo, setting, settings) {
             switch.setOnCheckedChangeListener(null)
@@ -403,25 +423,16 @@ class SettingViewFactory(
         setting: SettingDefinition.LanguagePairMapSetting,
         settings: WebAppSettings,
     ) {
-        val btnAdd = view.findViewById<MaterialButton>(R.id.btnAddEntry)
         val switchTranslator = view.findViewById<MaterialSwitch>(R.id.switchTranslator)
         val btnRemove = view.findViewById<MaterialButton>(R.id.btnRemoveOverride)
+        val btnUndo = view.findViewById<MaterialButton>(R.id.btnUndo)
         val container = view.findViewById<LinearLayout>(R.id.containerEntries)
+        val hairline = view.findViewById<View>(R.id.hairlineEntries)
+        val rowAdd = view.findViewById<View>(R.id.rowAddEntry)
         val mapKey = setting.mapField.key
 
         bindLabel(view, setting)
-
-        when (val strategy = buttonStrategy) {
-            is ButtonStrategy.GlobalDefaults -> btnRemove.visibility = View.GONE
-            is ButtonStrategy.Override -> {
-                btnRemove.visibility = View.VISIBLE
-                btnRemove.setOnClickListener {
-                    settings.setValue(setting.key, null)
-                    setMap(settings, mapKey, null)
-                    strategy.onRemove(setting, view)
-                }
-            }
-        }
+        bindAddRow(view, R.string.add_language_pair)
 
         fun isEnabled(): Boolean = settings.getValue(setting.key) as? Boolean ?: false
 
@@ -435,12 +446,14 @@ class SettingViewFactory(
         fun applyAddButtonVisibility() {
             val support = TranslationLanguages.cachedSupport
             val canAdd = isEnabled() && support != null && hasFreshFromAvailable(support)
-            btnAdd.visibility = if (canAdd) View.VISIBLE else View.GONE
+            rowAdd.isVisible = canAdd
+            hairline.isVisible = isEnabled()
+            updateUndoVisibility(btnUndo, setting, settings)
         }
 
         fun applyEnabledState() {
             val enabled = isEnabled()
-            container.visibility = if (enabled) View.VISIBLE else View.GONE
+            container.isVisible = enabled
             applyAddButtonVisibility()
         }
 
@@ -465,9 +478,7 @@ class SettingViewFactory(
             }
         }
 
-        switchTranslator.isChecked = isEnabled()
-        applyEnabledState()
-        switchTranslator.setOnCheckedChangeListener { _, checked ->
+        val switchListener = { _: CompoundButton?, checked: Boolean ->
             settings.setValue(setting.key, checked)
             if (!checked) {
                 setMap(settings, mapKey, null)
@@ -476,15 +487,43 @@ class SettingViewFactory(
             applyEnabledState()
         }
 
-        val cached = TranslationLanguages.cachedSupport
-        if (cached != null) {
-            rebuild(cached)
-            applyAddButtonVisibility()
-        } else {
-            loadAndRebuild()
+        fun syncUi() {
+            switchTranslator.setOnCheckedChangeListener(null)
+            switchTranslator.isChecked = isEnabled()
+            switchTranslator.setOnCheckedChangeListener(switchListener)
+            applyEnabledState()
+            val cached = TranslationLanguages.cachedSupport
+            if (cached != null) {
+                rebuild(cached)
+                applyAddButtonVisibility()
+            } else {
+                loadAndRebuild()
+            }
         }
 
-        btnAdd.setOnClickListener {
+        syncUi()
+
+        when (val strategy = buttonStrategy) {
+            is ButtonStrategy.GlobalDefaults -> {
+                btnRemove.visibility = View.GONE
+                btnUndo.setOnClickListener {
+                    resetSettingToDefault(setting, settings)
+                    syncUi()
+                }
+            }
+
+            is ButtonStrategy.Override -> {
+                btnUndo.visibility = View.GONE
+                btnRemove.visibility = View.VISIBLE
+                btnRemove.setOnClickListener {
+                    settings.setValue(setting.key, null)
+                    setMap(settings, mapKey, null)
+                    strategy.onRemove(setting, view)
+                }
+            }
+        }
+
+        rowAdd.setOnClickListener {
             if (!isEnabled()) return@setOnClickListener
             val support = TranslationLanguages.cachedSupport
             if (support != null) {
@@ -658,15 +697,42 @@ class SettingViewFactory(
         setting: SettingDefinition.StringListSetting,
         settings: WebAppSettings,
     ) {
-        val btnAdd = view.findViewById<MaterialButton>(R.id.btnAddEntry)
         val btnRemove = view.findViewById<MaterialButton>(R.id.btnRemoveOverride)
+        val btnUndo = view.findViewById<MaterialButton>(R.id.btnUndo)
         val container = view.findViewById<LinearLayout>(R.id.containerEntries)
+        val rowAdd = view.findViewById<View>(R.id.rowAddEntry)
 
         bindLabel(view, setting)
+        bindAddRow(
+            view,
+            when (setting.entryKind) {
+                SettingDefinition.StringListSetting.EntryKind.DOMAIN -> R.string.add_domain
+                SettingDefinition.StringListSetting.EntryKind.CERTIFICATE -> R.string.add_certificate
+            },
+        )
+
+        fun renderEntries() {
+            container.removeAllViews()
+            val entries = getList(settings, setting.key).orEmpty()
+            entries.forEach { entry ->
+                addStringListEntryView(view.context, container, settings, setting, entry) {
+                    renderEntries()
+                }
+            }
+            updateUndoVisibility(btnUndo, setting, settings)
+        }
 
         when (val strategy = buttonStrategy) {
-            is ButtonStrategy.GlobalDefaults -> btnRemove.visibility = View.GONE
+            is ButtonStrategy.GlobalDefaults -> {
+                btnRemove.visibility = View.GONE
+                btnUndo.setOnClickListener {
+                    resetSettingToDefault(setting, settings)
+                    renderEntries()
+                }
+            }
+
             is ButtonStrategy.Override -> {
+                btnUndo.visibility = View.GONE
                 btnRemove.visibility = View.VISIBLE
                 btnRemove.setOnClickListener {
                     setList(settings, setting.key, null)
@@ -674,17 +740,6 @@ class SettingViewFactory(
                 }
                 if (getList(settings, setting.key) == null) {
                     setList(settings, setting.key, emptyList())
-                }
-            }
-        }
-
-        fun renderEntries() {
-            container.removeAllViews()
-            val entries = getList(settings, setting.key).orEmpty()
-            container.visibility = if (entries.isEmpty()) View.GONE else View.VISIBLE
-            entries.forEach { entry ->
-                addStringListEntryView(view.context, container, settings, setting, entry) {
-                    renderEntries()
                 }
             }
         }
@@ -699,7 +754,7 @@ class SettingViewFactory(
             }
         }
 
-        btnAdd.setOnClickListener {
+        rowAdd.setOnClickListener {
             when (setting.entryKind) {
                 SettingDefinition.StringListSetting.EntryKind.DOMAIN ->
                     showDomainEntryDialog(view.context, setting, "", ::addEntry)
@@ -719,12 +774,12 @@ class SettingViewFactory(
         onChanged: () -> Unit,
     ) {
         val entryView = inflater.inflate(R.layout.item_string_collection_entry, container, false)
-        val btnValue = entryView.findViewById<MaterialButton>(R.id.btnEntryValue)
+        val textValue = entryView.findViewById<TextView>(R.id.textEntryValue)
         val btnRemoveEntry = entryView.findViewById<MaterialButton>(R.id.btnRemoveEntry)
 
-        btnValue.text = entryLabel(context, setting, value)
+        textValue.text = entryLabel(context, setting, value)
         when (setting.entryKind) {
-            SettingDefinition.StringListSetting.EntryKind.DOMAIN -> btnValue.setOnClickListener {
+            SettingDefinition.StringListSetting.EntryKind.DOMAIN -> textValue.setOnClickListener {
                 showDomainEntryDialog(context, setting, value) { entry ->
                     val values = getList(settings, setting.key).orEmpty()
                     if (entry == value || entry in values) return@showDomainEntryDialog
@@ -733,8 +788,10 @@ class SettingViewFactory(
                 }
             }
 
-            SettingDefinition.StringListSetting.EntryKind.CERTIFICATE ->
-                btnValue.isClickable = false
+            SettingDefinition.StringListSetting.EntryKind.CERTIFICATE -> {
+                textValue.isClickable = false
+                textValue.background = null
+            }
         }
         btnRemoveEntry.setOnClickListener {
             setList(settings, setting.key, getList(settings, setting.key).orEmpty() - value)
@@ -784,15 +841,34 @@ class SettingViewFactory(
         setting: SettingDefinition.StringMapSetting,
         settings: WebAppSettings,
     ) {
-        val btnAdd = view.findViewById<MaterialButton>(R.id.btnAddEntry)
         val btnRemove = view.findViewById<MaterialButton>(R.id.btnRemoveOverride)
+        val btnUndo = view.findViewById<MaterialButton>(R.id.btnUndo)
         val container = view.findViewById<LinearLayout>(R.id.containerEntries)
+        val rowAdd = view.findViewById<View>(R.id.rowAddEntry)
 
         bindLabel(view, setting)
+        bindAddRow(view, R.string.add_preference)
+
+        fun renderEntries() {
+            container.removeAllViews()
+            val entries = getMap(settings, setting.key).orEmpty()
+            entries.forEach { (k, v) ->
+                addStringMapEntryView(container, settings, setting, k, v) { renderEntries() }
+            }
+            updateUndoVisibility(btnUndo, setting, settings)
+        }
 
         when (val strategy = buttonStrategy) {
-            is ButtonStrategy.GlobalDefaults -> btnRemove.visibility = View.GONE
+            is ButtonStrategy.GlobalDefaults -> {
+                btnRemove.visibility = View.GONE
+                btnUndo.setOnClickListener {
+                    resetSettingToDefault(setting, settings)
+                    renderEntries()
+                }
+            }
+
             is ButtonStrategy.Override -> {
+                btnUndo.visibility = View.GONE
                 btnRemove.visibility = View.VISIBLE
                 btnRemove.setOnClickListener {
                     setMap(settings, setting.key, null)
@@ -804,18 +880,9 @@ class SettingViewFactory(
             }
         }
 
-        fun renderEntries() {
-            container.removeAllViews()
-            val entries = getMap(settings, setting.key).orEmpty()
-            container.visibility = if (entries.isEmpty()) View.GONE else View.VISIBLE
-            entries.forEach { (k, v) ->
-                addStringMapEntryView(container, settings, setting, k, v) { renderEntries() }
-            }
-        }
-
         renderEntries()
 
-        btnAdd.setOnClickListener {
+        rowAdd.setOnClickListener {
             showStringMapDialog(view.context, setting, "", "") { key, value ->
                 val map = getMap(settings, setting.key).orEmpty().toMutableMap()
                 map[key] = value
@@ -852,10 +919,10 @@ class SettingViewFactory(
         onChanged: () -> Unit,
     ) {
         val entryView = inflater.inflate(R.layout.item_string_collection_entry, container, false)
-        val btnValue = entryView.findViewById<MaterialButton>(R.id.btnEntryValue)
+        val textValue = entryView.findViewById<TextView>(R.id.textEntryValue)
         val btnRemoveEntry = entryView.findViewById<MaterialButton>(R.id.btnRemoveEntry)
 
-        btnValue.text = entryView.context.getString(R.string.setting_key_value_entry, key, value)
+        textValue.text = entryView.context.getString(R.string.setting_key_value_entry, key, value)
 
         fun edit() {
             showStringMapDialog(entryView.context, setting, key, value) { newKey, newValue ->
@@ -867,7 +934,7 @@ class SettingViewFactory(
             }
         }
 
-        btnValue.setOnClickListener { edit() }
+        textValue.setOnClickListener { edit() }
         btnRemoveEntry.setOnClickListener {
             val map = getMap(settings, setting.key).orEmpty().toMutableMap()
             map.remove(key)
@@ -876,6 +943,11 @@ class SettingViewFactory(
         }
 
         container.addView(entryView)
+    }
+
+    private fun bindAddRow(view: View, labelRes: Int) {
+        view.findViewById<TextView>(R.id.textAddEntry).setText(labelRes)
+        view.findViewById<View>(R.id.hairlineEntries).isVisible = true
     }
 
     private fun bindLabel(view: View, setting: SettingDefinition) {
@@ -898,6 +970,7 @@ class SettingViewFactory(
         when (val strategy = buttonStrategy) {
             is ButtonStrategy.Override -> {
                 btnUndo.visibility = View.GONE
+                btnRemove.visibility = View.VISIBLE
                 btnRemove.setOnClickListener { strategy.onRemove(setting, view) }
             }
 
@@ -919,13 +992,20 @@ class SettingViewFactory(
         settings: WebAppSettings,
     ) {
         if (buttonStrategy !is ButtonStrategy.GlobalDefaults) return
-        btnUndo.visibility = if (isSettingNonDefault(setting, settings)) View.VISIBLE else View.GONE
+        btnUndo.visibility =
+            if (isSettingNonDefault(setting, settings)) View.VISIBLE else View.INVISIBLE
     }
 
     private fun isSettingNonDefault(setting: SettingDefinition, settings: WebAppSettings): Boolean {
         return setting.allFields.any { field ->
-            settings.getValue(field.key) != WebAppSettings.DEFAULTS[field.key]
+            normalize(settings.getValue(field.key)) != normalize(WebAppSettings.DEFAULTS[field.key])
         }
+    }
+
+    private fun normalize(value: Any?): Any? = when (value) {
+        is Collection<*> -> value.takeIf { it.isNotEmpty() }
+        is Map<*, *> -> value.takeIf { it.isNotEmpty() }
+        else -> value
     }
 
     private fun resetSettingToDefault(setting: SettingDefinition, settings: WebAppSettings) {

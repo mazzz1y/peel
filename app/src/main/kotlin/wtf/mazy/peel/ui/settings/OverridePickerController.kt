@@ -29,7 +29,7 @@ class OverridePickerController(
         setting.allFields.forEach { field ->
             settings.setValue(field.key, globalSettings.getValue(field.key))
         }
-        container.addView(viewFactory.createView(container, setting, settings))
+        refreshList()
     }
 
     fun refresh() {
@@ -43,7 +43,7 @@ class OverridePickerController(
                 removeOverride(setting.key)
                 val rippleDuration =
                     activity.resources.getInteger(android.R.integer.config_shortAnimTime).toLong()
-                row.postDelayed({ container.removeView(row) }, rippleDuration)
+                row.postDelayed({ refreshList() }, rippleDuration)
             },
             activity.lifecycleScope,
         )
@@ -56,10 +56,12 @@ class OverridePickerController(
             }
         val overriddenKeys = allOverriddenKeys.filter { it !in compoundKeys }
 
+        val overridden = overriddenKeys.mapNotNull { SettingRegistry.getSettingByKey(it) }
+
         container.removeAllViews()
-        overriddenKeys.forEach { key ->
-            val setting = SettingRegistry.getSettingByKey(key) ?: return@forEach
-            container.addView(viewFactory.createView(container, setting, settings))
+        overridden.forEachIndexed { index, setting ->
+            val position = GroupPosition.of(index, overridden.size)
+            container.addView(viewFactory.createView(container, setting, settings, position))
         }
     }
 

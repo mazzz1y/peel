@@ -16,7 +16,6 @@ class SettingsAdapter(
 
     override fun getItemViewType(position: Int): Int = when (val item = items[position]) {
         is SettingsListItem.Header -> TYPE_HEADER
-        is SettingsListItem.Divider -> TYPE_DIVIDER
         is SettingsListItem.Setting -> when (item.definition) {
             is SettingDefinition.BooleanSetting -> TYPE_BOOLEAN
             is SettingDefinition.ChoiceSetting -> TYPE_DROPDOWN
@@ -33,7 +32,6 @@ class SettingsAdapter(
         val inflater = LayoutInflater.from(parent.context)
         val layoutRes = when (viewType) {
             TYPE_HEADER -> R.layout.item_setting_category_header
-            TYPE_DIVIDER -> R.layout.item_settings_divider
             TYPE_BOOLEAN -> R.layout.item_setting_boolean
             TYPE_DROPDOWN -> R.layout.item_setting_dropdown
             TYPE_BOOLEAN_INT -> R.layout.item_setting_boolean_int
@@ -53,12 +51,11 @@ class SettingsAdapter(
             is SettingsListItem.Header ->
                 (holder.itemView as TextView).setText(item.category.displayNameResId)
 
-            is SettingsListItem.Divider -> Unit
-
             is SettingsListItem.Setting -> factory.bindView(
                 holder.itemView,
                 item.definition,
-                settings
+                settings,
+                item.position,
             )
         }
     }
@@ -67,14 +64,13 @@ class SettingsAdapter(
 
     companion object {
         private const val TYPE_HEADER = 0
-        private const val TYPE_DIVIDER = 1
-        private const val TYPE_BOOLEAN = 2
-        private const val TYPE_DROPDOWN = 3
-        private const val TYPE_BOOLEAN_INT = 4
-        private const val TYPE_BOOLEAN_CREDENTIALS = 5
-        private const val TYPE_BOOLEAN_STRING = 6
-        private const val TYPE_STRING_MAP = 7
-        private const val TYPE_LANGUAGE_PAIR_MAP = 8
-        private const val TYPE_STRING_LIST = 9
+        private const val TYPE_BOOLEAN = 1
+        private const val TYPE_DROPDOWN = 2
+        private const val TYPE_BOOLEAN_INT = 3
+        private const val TYPE_BOOLEAN_CREDENTIALS = 4
+        private const val TYPE_BOOLEAN_STRING = 5
+        private const val TYPE_STRING_MAP = 6
+        private const val TYPE_LANGUAGE_PAIR_MAP = 7
+        private const val TYPE_STRING_LIST = 8
     }
 }

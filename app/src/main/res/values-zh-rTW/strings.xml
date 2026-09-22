@@ -175,6 +175,11 @@
     <string name="remove_override">刪除覆寫</string>
     <string name="overridden_settings">已覆寫的設定</string>
     <string name="add">新增</string>
+    <string name="add_domain">新增網域</string>
+    <string name="add_certificate">新增憑證</string>
+    <string name="add_preference">新增偏好設定</string>
+    <string name="add_language_pair">新增語言組合</string>
+    <string name="setting_interval_seconds">間隔（秒）</string>
     <string name="remove">刪除</string>
     <string name="setting_long_click_share">長按快捷選單</string>
     <string name="setting_pull_to_refresh">下拉重新整理</string>

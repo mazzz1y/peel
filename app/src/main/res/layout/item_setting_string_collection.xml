@@ -1,24 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    style="@style/SettingsItemContainer">
+    style="@style/SettingsSurfaceRow">
 
-    <LinearLayout style="@style/SettingsRow.Inline">
+    <LinearLayout style="@style/SettingsSurfaceRow.Line">
 
         <include
             layout="@layout/include_setting_label"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/settings_label_control_gap"
+            android:layout_marginEnd="@dimen/settings_row_label_gap"
             android:layout_weight="1" />
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnAddEntry"
-            style="@style/SettingsIconButton"
+            android:id="@+id/btnUndo"
+            style="@style/SettingsIconButton.Slot"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:contentDescription="@string/add"
-            app:icon="@drawable/ic_symbols_add_24" />
+            android:contentDescription="@string/undo"
+            android:visibility="gone"
+            app:icon="@drawable/ic_symbols_undo_24" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnRemoveOverride"
@@ -30,12 +31,17 @@
             app:icon="@drawable/ic_symbols_close_24" />
 
     </LinearLayout>
+    <View
+        android:id="@+id/hairlineEntries"
+        style="@style/SettingsSurfaceRow.Hairline"
+        android:visibility="gone" />
 
     <LinearLayout
         android:id="@+id/containerEntries"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:visibility="gone" />
+        android:orientation="vertical" />
+
+    <include layout="@layout/include_setting_add_row" />
 
 </LinearLayout>

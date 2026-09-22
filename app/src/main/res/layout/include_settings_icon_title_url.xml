@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    style="@style/SettingsItemContainer"
-    android:layout_marginBottom="16dp">
+    android:id="@+id/identityBlock"
+    style="@style/SettingsSurfaceRow">
 
     <ImageView
         android:id="@+id/btnFetch"
@@ -10,13 +10,13 @@
         android:layout_gravity="end|top"
         android:background="?attr/selectableItemBackgroundBorderless"
         android:contentDescription="@string/fetch_icon_title"
-        android:padding="16dp"
+        android:padding="12dp"
         android:src="@drawable/ic_symbols_refresh_24" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="20dp"
         android:gravity="center_horizontal"
         android:orientation="vertical">
 
@@ -52,7 +52,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:layout_marginBottom="16dp"
+                android:layout_marginBottom="8dp"
                 android:ellipsize="end"
                 android:gravity="center"
                 android:maxLines="1"

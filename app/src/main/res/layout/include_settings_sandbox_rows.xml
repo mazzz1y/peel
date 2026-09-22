@@ -1,13 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical">
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <LinearLayout
         android:id="@+id/sandboxRow"
-        style="@style/SettingsRow.Inline">
+        style="@style/SettingsSurfaceRow.Inline">
 
         <TextView
             android:id="@+id/sandboxLabel"
@@ -34,7 +31,7 @@
 
     <LinearLayout
         android:id="@+id/ephemeralSandboxRow"
-        style="@style/SettingsRow.Inline"
+        style="@style/SettingsSurfaceRow.Inline"
         android:visibility="gone">
 
         <TextView
@@ -53,7 +50,7 @@
 
     <LinearLayout
         android:id="@+id/proxyRow"
-        style="@style/SettingsRow.Inline"
+        style="@style/SettingsSurfaceRow.Inline"
         android:visibility="gone">
 
         <TextView
@@ -65,10 +62,10 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnProxyPicker"
-            style="?attr/materialButtonOutlinedStyle"
+            style="@style/SettingsTextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
     </LinearLayout>
 
-</LinearLayout>
+</merge>

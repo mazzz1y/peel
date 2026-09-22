@@ -25,7 +25,9 @@ import wtf.mazy.peel.ui.IconEditorController
 import wtf.mazy.peel.ui.dialog.InputDialogConfig
 import wtf.mazy.peel.ui.dialog.OverridePickerDialog
 import wtf.mazy.peel.ui.dialog.showInputDialog
+import wtf.mazy.peel.ui.settings.GroupPosition
 import wtf.mazy.peel.ui.settings.OverridePickerController
+import wtf.mazy.peel.ui.settings.SettingsSurface
 import wtf.mazy.peel.ui.settings.SandboxSwitchController
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.NotificationUtils.showToast
@@ -78,6 +80,8 @@ class GroupSettingsActivity :
         iconEditor.refreshIcon()
 
         setupSandboxSwitch()
+        SettingsSurface.apply(binding.root.findViewById(R.id.identityBlock), GroupPosition.ONLY)
+        SettingsSurface.bindGroup(binding.settingsRowsGroup)
         setupOverridePicker()
         setupScrollInsets(binding.scrollView)
     }

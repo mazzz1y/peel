@@ -234,6 +234,11 @@
     <string name="remove_override">Remove Override</string>
     <string name="overridden_settings">Settings Override</string>
     <string name="add">Add</string>
+    <string name="add_domain">Add domain</string>
+    <string name="add_certificate">Add certificate</string>
+    <string name="add_preference">Add preference</string>
+    <string name="add_language_pair">Add language pair</string>
+    <string name="setting_interval_seconds">Interval, seconds</string>
     <string name="remove">Remove</string>
     <string name="setting_long_click_share">Long-press context menu</string>
     <string name="context_menu_copy_link">Copy link address</string>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/rowAddEntry"
+    style="@style/SettingsSurfaceRow.Line"
+    android:background="?attr/selectableItemBackground"
+    android:clickable="true"
+    android:focusable="true">
+
+    <ImageView
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_marginEnd="@dimen/settings_label_control_gap"
+        android:importantForAccessibility="no"
+        android:src="@drawable/ic_symbols_add_24"
+        app:tint="?attr/colorPrimary" />
+
+    <TextView
+        android:id="@+id/textAddEntry"
+        style="@style/SettingsEntryText"
+        android:textColor="?attr/colorPrimary" />
+
+</LinearLayout>

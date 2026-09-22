@@ -175,6 +175,11 @@
     <string name="remove_override">Remover substituição</string>
     <string name="overridden_settings">Configurações substituídas</string>
     <string name="add">Adicionar</string>
+    <string name="add_domain">Adicionar domínio</string>
+    <string name="add_certificate">Adicionar certificado</string>
+    <string name="add_preference">Adicionar preferência</string>
+    <string name="add_language_pair">Adicionar par de idiomas</string>
+    <string name="setting_interval_seconds">Intervalo, segundos</string>
     <string name="remove">Remover</string>
     <string name="setting_long_click_share">Menu de contexto</string>
     <string name="setting_pull_to_refresh">Puxar para atualizar</string>

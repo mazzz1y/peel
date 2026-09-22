@@ -175,6 +175,11 @@
     <string name="remove_override">オーバーライドを削除</string>
     <string name="overridden_settings">オーバーライド設定</string>
     <string name="add">追加</string>
+    <string name="add_domain">ドメインを追加</string>
+    <string name="add_certificate">証明書を追加</string>
+    <string name="add_preference">設定を追加</string>
+    <string name="add_language_pair">言語ペアを追加</string>
+    <string name="setting_interval_seconds">間隔（秒）</string>
     <string name="remove">削除</string>
     <string name="setting_long_click_share">長押しコンテキストメニュー</string>
     <string name="setting_pull_to_refresh">引いて更新</string>

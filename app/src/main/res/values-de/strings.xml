@@ -136,6 +136,11 @@
     <string name="remove_override">Überschreibung entfernen</string>
     <string name="overridden_settings">Einstellungsüberschreibungen</string>
     <string name="add">Hinzufügen</string>
+    <string name="add_domain">Domain hinzufügen</string>
+    <string name="add_certificate">Zertifikat hinzufügen</string>
+    <string name="add_preference">Einstellung hinzufügen</string>
+    <string name="add_language_pair">Sprachpaar hinzufügen</string>
+    <string name="setting_interval_seconds">Intervall, Sekunden</string>
     <string name="remove">Entfernen</string>
     <string name="clone">Klonen</string>
     <string name="setting_long_click_share">Kontextmenü bei langem Drücken</string>

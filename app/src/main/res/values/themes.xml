@@ -66,18 +66,53 @@
         <item name="cornerSize">50%</item>
     </style>
 
-    <style name="SettingsItemContainer">
+    <style name="SettingsRow.Inline" parent="">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:orientation">vertical</item>
-        <item name="android:paddingTop">0dp</item>
-        <item name="android:paddingBottom">0dp</item>
-    </style>
-
-    <style name="SettingsRow.Inline" parent="SettingsItemContainer">
         <item name="android:orientation">horizontal</item>
         <item name="android:gravity">center_vertical</item>
         <item name="android:minHeight">56dp</item>
+    </style>
+
+    <style name="SettingsSurfaceRow">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:minHeight">@dimen/settings_row_min_height</item>
+        <item name="android:paddingHorizontal">@dimen/settings_row_padding_horizontal</item>
+        <item name="android:paddingVertical">@dimen/settings_row_padding_vertical</item>
+    </style>
+
+    <style name="SettingsSurfaceRow.Inline">
+        <item name="android:orientation">horizontal</item>
+        <item name="android:gravity">center_vertical</item>
+    </style>
+
+    <style name="SettingsSurfaceRow.Line">
+        <item name="android:orientation">horizontal</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:minHeight">@dimen/settings_entry_min_height</item>
+        <item name="android:paddingHorizontal">0dp</item>
+        <item name="android:paddingVertical">0dp</item>
+    </style>
+
+    <style name="SettingsSurfaceRow.Hairline">
+        <item name="android:layout_height">@dimen/divider_height</item>
+        <item name="android:layout_marginTop">4dp</item>
+        <item name="android:minHeight">0dp</item>
+        <item name="android:paddingHorizontal">0dp</item>
+        <item name="android:paddingVertical">0dp</item>
+        <item name="android:background">?attr/colorOutlineVariant</item>
+    </style>
+
+    <style name="SettingsEntryText">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:textAppearance">?attr/textAppearanceBodyLarge</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
     </style>
 
     <style name="Widget.App.IconButton" parent="Widget.Material3.Button.IconButton">
@@ -87,9 +122,19 @@
 
     <style name="SettingsIconButton" parent="Widget.App.IconButton" />
 
-    <style name="SettingsValueButton" parent="Widget.Material3.Button.OutlinedButton">
-        <item name="strokeColor">?attr/colorOutlineVariant</item>
+    <style name="SettingsIconButton.Slot">
+        <item name="android:minWidth">@dimen/settings_icon_slot_width</item>
+        <item name="android:paddingStart">8dp</item>
+        <item name="android:paddingEnd">8dp</item>
+    </style>
+
+    <style name="SettingsTextButton" parent="Widget.Material3.Button.TextButton">
         <item name="android:textColor">?attr/colorOnSurface</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="iconTint">?attr/colorOnSurfaceVariant</item>
+        <item name="iconGravity">end</item>
+        <item name="iconPadding">4dp</item>
+        <item name="icon">@drawable/ic_symbols_keyboard_arrow_down_24</item>
     </style>
 
     <style name="Widget.App.FloatingIconButton" parent="Widget.AppCompat.ImageButton">

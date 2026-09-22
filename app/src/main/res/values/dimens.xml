@@ -16,8 +16,6 @@
     <dimen name="settings_item_gap">16dp</dimen>
     <dimen name="settings_label_control_gap">16dp</dimen>
     <dimen name="settings_section_gap">24dp</dimen>
-    <dimen name="settings_divider_gap_top">12dp</dimen>
-    <dimen name="settings_override_divider_gap_bottom">12dp</dimen>
     <dimen name="divider_height">1dp</dimen>
     <dimen name="webapp_list_item_total_height">86dp</dimen>
     <dimen name="dialog_list_top_padding">16dp</dimen>
@@ -26,6 +24,17 @@
     <dimen name="dialog_content_gap">16dp</dimen>
 
     <dimen name="popup_menu_corner_radius">16dp</dimen>
+
+    <!-- Segmented settings groups: rows on colorSurfaceContainer joined by seams -->
+    <dimen name="settings_group_corner_outer">16dp</dimen>
+    <dimen name="settings_group_corner_inner">4dp</dimen>
+    <dimen name="settings_group_seam">2dp</dimen>
+    <dimen name="settings_row_min_height">72dp</dimen>
+    <dimen name="settings_row_padding_horizontal">16dp</dimen>
+    <dimen name="settings_row_padding_vertical">12dp</dimen>
+    <dimen name="settings_entry_min_height">48dp</dimen>
+    <dimen name="settings_row_label_gap">4dp</dimen>
+    <dimen name="settings_icon_slot_width">40dp</dimen>
 
     <dimen name="settings_hub_card_margin_horizontal">12dp</dimen>
     <dimen name="settings_hub_card_margin_vertical">6dp</dimen>

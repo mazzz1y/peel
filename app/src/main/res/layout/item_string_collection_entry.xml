@@ -1,21 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:gravity="center_vertical"
-    android:orientation="horizontal">
+    style="@style/SettingsSurfaceRow.Line">
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnEntryValue"
-        style="@style/SettingsValueButton"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:ellipsize="end"
-        android:gravity="start|center_vertical"
-        android:maxLines="1"
-        android:textAllCaps="false" />
+    <TextView
+        android:id="@+id/textEntryValue"
+        style="@style/SettingsEntryText"
+        android:background="?attr/selectableItemBackground"
+        android:minHeight="@dimen/settings_entry_min_height"
+        android:gravity="center_vertical" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnRemoveEntry"

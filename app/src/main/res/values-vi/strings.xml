@@ -175,6 +175,11 @@
     <string name="remove_override">Xóa ghi đè</string>
     <string name="overridden_settings">Cài đặt đã ghi đè</string>
     <string name="add">Thêm</string>
+    <string name="add_domain">Thêm tên miền</string>
+    <string name="add_certificate">Thêm chứng chỉ</string>
+    <string name="add_preference">Thêm tùy chọn</string>
+    <string name="add_language_pair">Thêm cặp ngôn ngữ</string>
+    <string name="setting_interval_seconds">Chu kỳ, giây</string>
     <string name="remove">Xóa</string>
     <string name="setting_long_click_share">Menu ngữ cảnh nhấn giữ</string>
     <string name="setting_pull_to_refresh">Kéo xuống để làm mới</string>

@@ -1,17 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginBottom="16dp"
-    android:gravity="center_horizontal"
-    android:orientation="vertical">
+    android:id="@+id/identityBlock"
+    style="@style/SettingsSurfaceRow"
+    android:gravity="center_horizontal">
 
     <ImageView
         android:id="@+id/imgGroupIcon"
         android:layout_width="96dp"
         android:layout_height="96dp"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="20dp"
         android:layout_marginBottom="16dp"
         android:clickable="true"
         android:contentDescription="@string/app_icon"
@@ -31,7 +29,7 @@
             android:id="@+id/txtGroupName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
+            android:layout_marginBottom="8dp"
             android:gravity="center"
             android:textAppearance="?attr/textAppearanceTitleLarge" />
 
