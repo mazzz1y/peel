@@ -3,12 +3,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     style="@style/SettingsRow.Inline">
 
-    <TextView
-        android:id="@+id/textSettingName"
+    <include
+        layout="@layout/include_setting_label"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:textAppearance="?attr/textAppearanceBodyLarge" />
+        android:layout_marginEnd="@dimen/settings_label_control_gap"
+        android:layout_weight="1" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnUndo"

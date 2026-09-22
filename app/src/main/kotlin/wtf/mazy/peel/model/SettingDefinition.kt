@@ -18,6 +18,7 @@ data class SettingField(
 sealed class SettingDefinition(
     val primaryField: SettingField,
     @param:StringRes val displayNameResId: Int,
+    @param:StringRes val descriptionResId: Int,
     val category: SettingCategory,
     val globalOnly: Boolean = false,
 ) {
@@ -30,19 +31,21 @@ sealed class SettingDefinition(
     class BooleanSetting(
         toggle: SettingField,
         @StringRes displayNameResId: Int,
+        @StringRes descriptionResId: Int,
         category: SettingCategory,
         globalOnly: Boolean = false,
-    ) : SettingDefinition(toggle, displayNameResId, category, globalOnly)
+    ) : SettingDefinition(toggle, displayNameResId, descriptionResId, category, globalOnly)
 
     class ChoiceSetting(
         toggle: SettingField,
         @StringRes displayNameResId: Int,
+        @StringRes descriptionResId: Int,
         category: SettingCategory,
         globalOnly: Boolean = false,
         val values: IntArray,
         @param:StringRes val labels: IntArray,
         @param:StringRes val shortLabels: IntArray = labels,
-    ) : SettingDefinition(toggle, displayNameResId, category, globalOnly) {
+    ) : SettingDefinition(toggle, displayNameResId, descriptionResId, category, globalOnly) {
         init {
             require(values.size == labels.size) { "values and labels count must match" }
             require(shortLabels.size == labels.size) { "short labels count must match" }
@@ -53,10 +56,11 @@ sealed class SettingDefinition(
             fun permissionChoice(
                 toggle: SettingField,
                 @StringRes displayNameResId: Int,
+                @StringRes descriptionResId: Int,
                 category: SettingCategory,
                 globalOnly: Boolean = false,
             ) = ChoiceSetting(
-                toggle, displayNameResId, category, globalOnly,
+                toggle, displayNameResId, descriptionResId, category, globalOnly,
                 values = intArrayOf(
                     WebAppSettings.PERMISSION_OFF,
                     WebAppSettings.PERMISSION_ASK,
@@ -74,9 +78,10 @@ sealed class SettingDefinition(
     class BooleanWithIntSetting(
         toggle: SettingField,
         @StringRes displayNameResId: Int,
+        @StringRes descriptionResId: Int,
         category: SettingCategory,
         val intField: SettingField,
-    ) : SettingDefinition(toggle, displayNameResId, category) {
+    ) : SettingDefinition(toggle, displayNameResId, descriptionResId, category) {
         override val allFields
             get() = listOf(primaryField, intField)
     }
@@ -84,10 +89,11 @@ sealed class SettingDefinition(
     class BooleanWithCredentialsSetting(
         toggle: SettingField,
         @StringRes displayNameResId: Int,
+        @StringRes descriptionResId: Int,
         category: SettingCategory,
         val usernameField: SettingField,
         val passwordField: SettingField,
-    ) : SettingDefinition(toggle, displayNameResId, category) {
+    ) : SettingDefinition(toggle, displayNameResId, descriptionResId, category) {
         override val allFields
             get() = listOf(primaryField, usernameField, passwordField)
     }
@@ -95,11 +101,12 @@ sealed class SettingDefinition(
     class BooleanWithStringSetting(
         toggle: SettingField,
         @StringRes displayNameResId: Int,
+        @StringRes descriptionResId: Int,
         category: SettingCategory,
         val stringField: SettingField,
         @param:StringRes val hintResId: Int,
         globalOnly: Boolean = false,
-    ) : SettingDefinition(toggle, displayNameResId, category, globalOnly) {
+    ) : SettingDefinition(toggle, displayNameResId, descriptionResId, category, globalOnly) {
         override val allFields
             get() = listOf(primaryField, stringField)
     }
@@ -107,19 +114,21 @@ sealed class SettingDefinition(
     class StringMapSetting(
         toggle: SettingField,
         @StringRes displayNameResId: Int,
+        @StringRes descriptionResId: Int,
         category: SettingCategory,
         @param:StringRes val keyHintResId: Int,
         @param:StringRes val valueHintResId: Int,
         globalOnly: Boolean = false,
-    ) : SettingDefinition(toggle, displayNameResId, category, globalOnly)
+    ) : SettingDefinition(toggle, displayNameResId, descriptionResId, category, globalOnly)
 
     class StringListSetting(
         toggle: SettingField,
         @StringRes displayNameResId: Int,
+        @StringRes descriptionResId: Int,
         category: SettingCategory,
         globalOnly: Boolean = false,
         val entryKind: EntryKind = EntryKind.DOMAIN,
-    ) : SettingDefinition(toggle, displayNameResId, category, globalOnly) {
+    ) : SettingDefinition(toggle, displayNameResId, descriptionResId, category, globalOnly) {
 
         enum class EntryKind { DOMAIN, CERTIFICATE }
     }
@@ -127,10 +136,11 @@ sealed class SettingDefinition(
     class LanguagePairMapSetting(
         toggle: SettingField,
         @StringRes displayNameResId: Int,
+        @StringRes descriptionResId: Int,
         category: SettingCategory,
         val mapField: SettingField,
         globalOnly: Boolean = false,
-    ) : SettingDefinition(toggle, displayNameResId, category, globalOnly) {
+    ) : SettingDefinition(toggle, displayNameResId, descriptionResId, category, globalOnly) {
         override val allFields
             get() = listOf(primaryField, mapField)
     }
@@ -144,6 +154,7 @@ enum class SettingSection(@param:StringRes val displayNameResId: Int) {
 enum class SettingCategory(@param:StringRes val displayNameResId: Int) {
     APPEARANCE(R.string.appearance),
     BEHAVIOR(R.string.behavior),
+    NAVIGATION(R.string.navigation),
     PERMISSIONS(R.string.permissions),
     CONTENT(R.string.content),
     NETWORK_PRIVACY(R.string.network_privacy),
@@ -234,6 +245,7 @@ object SettingRegistry {
             SettingDefinition.ChoiceSetting(
                 SettingField(WebAppSettings::colorScheme, WebAppSettings.COLOR_SCHEME_AUTO),
                 R.string.setting_color_scheme,
+                R.string.setting_color_scheme_desc,
                 SettingCategory.APPEARANCE,
                 globalOnly = true,
                 values = intArrayOf(
@@ -250,6 +262,7 @@ object SettingRegistry {
             SettingDefinition.ChoiceSetting(
                 SettingField(WebAppSettings::webContentZoom, WebAppSettings.WEB_CONTENT_ZOOM_DEFAULT),
                 R.string.setting_web_content_scale,
+                R.string.setting_web_content_scale_desc,
                 SettingCategory.APPEARANCE,
                 globalOnly = true,
                 values = WebAppSettings.WEB_CONTENT_ZOOM_VALUES,
@@ -266,21 +279,25 @@ object SettingRegistry {
             SettingDefinition.BooleanSetting(
                 SettingField(WebAppSettings::isDynamicStatusBar, true),
                 R.string.setting_dynamic_status_bar,
+                R.string.setting_dynamic_status_bar_desc,
                 SettingCategory.APPEARANCE,
             ),
             SettingDefinition.BooleanSetting(
                 SettingField(WebAppSettings::isShowProgressbar, true),
                 R.string.show_progress_bar_during_page_load,
+                R.string.show_progress_bar_during_page_load_desc,
                 SettingCategory.APPEARANCE,
             ),
             SettingDefinition.BooleanSetting(
                 SettingField(WebAppSettings::isShowFullscreen, false),
                 R.string.show_fullscreen,
+                R.string.show_fullscreen_desc,
                 SettingCategory.APPEARANCE,
             ),
             SettingDefinition.BooleanSetting(
                 SettingField(WebAppSettings::isPullToRefresh, true),
                 R.string.setting_pull_to_refresh,
+                R.string.setting_pull_to_refresh_desc,
                 SettingCategory.APPEARANCE,
             ),
             SettingDefinition.ChoiceSetting(
@@ -289,6 +306,7 @@ object SettingRegistry {
                     WebAppSettings.BROWSER_CONTROLS_BUTTON,
                 ),
                 R.string.setting_browser_controls,
+                R.string.setting_browser_controls_desc,
                 SettingCategory.APPEARANCE,
                 values = intArrayOf(
                     WebAppSettings.BROWSER_CONTROLS_OFF,
@@ -312,33 +330,39 @@ object SettingRegistry {
             SettingDefinition.BooleanSetting(
                 SettingField(WebAppSettings::isLongClickShare, true),
                 R.string.setting_long_click_share,
+                R.string.setting_long_click_share_desc,
                 SettingCategory.APPEARANCE,
             ),
             // Behavior
             SettingDefinition.BooleanSetting(
                 SettingField(WebAppSettings::isRequestDesktop, false),
                 R.string.request_website_in_desktop_version,
+                R.string.request_website_in_desktop_version_desc,
                 SettingCategory.BEHAVIOR,
             ),
             SettingDefinition.BooleanSetting(
                 SettingField(WebAppSettings::isOpenUrlExternal, true),
                 R.string.setting_external_link_prompt,
+                R.string.setting_external_link_prompt_desc,
                 SettingCategory.BEHAVIOR,
             ),
             SettingDefinition.BooleanSetting(
                 SettingField(WebAppSettings::isKeepAwake, false),
                 R.string.keep_screen_awake,
+                R.string.keep_screen_awake_desc,
                 SettingCategory.BEHAVIOR,
             ),
             SettingDefinition.BooleanWithIntSetting(
                 SettingField(WebAppSettings::isAutoReload, false),
                 R.string.webapp_autoreload,
+                R.string.webapp_autoreload_desc,
                 SettingCategory.BEHAVIOR,
                 intField = SettingField(WebAppSettings::timeAutoReload, 60),
             ),
             SettingDefinition.LanguagePairMapSetting(
                 SettingField(WebAppSettings::isTranslatorEnabled, false),
                 R.string.setting_translator,
+                R.string.setting_translator_desc,
                 SettingCategory.BEHAVIOR,
                 mapField = SettingField(WebAppSettings::autoTranslatePairs, null),
             ),
@@ -346,32 +370,38 @@ object SettingRegistry {
             SettingDefinition.ChoiceSetting.permissionChoice(
                 SettingField(WebAppSettings::isCameraPermission, WebAppSettings.PERMISSION_ASK),
                 R.string.allow_camera_access,
+                R.string.allow_camera_access_desc,
                 SettingCategory.PERMISSIONS,
             ),
             SettingDefinition.ChoiceSetting.permissionChoice(
                 SettingField(WebAppSettings::isMicrophonePermission, WebAppSettings.PERMISSION_ASK),
                 R.string.allow_microphone_access,
+                R.string.allow_microphone_access_desc,
                 SettingCategory.PERMISSIONS,
             ),
             SettingDefinition.ChoiceSetting.permissionChoice(
                 SettingField(WebAppSettings::isAllowLocationAccess, WebAppSettings.PERMISSION_ASK),
                 R.string.allow_location_access,
+                R.string.allow_location_access_desc,
                 SettingCategory.PERMISSIONS,
             ),
             SettingDefinition.ChoiceSetting.permissionChoice(
                 SettingField(WebAppSettings::isAppLinksPermission, WebAppSettings.PERMISSION_ASK),
                 R.string.open_app_links,
+                R.string.open_app_links_desc,
                 SettingCategory.PERMISSIONS,
             ),
             // Content
             SettingDefinition.BooleanSetting(
                 SettingField(WebAppSettings::isDrmAllowed, false),
                 R.string.allow_drm_content,
+                R.string.allow_drm_content_desc,
                 SettingCategory.CONTENT,
             ),
             SettingDefinition.BooleanSetting(
                 SettingField(WebAppSettings::isAllowMediaPlaybackInBackground, false),
                 R.string.allow_media_playback_in_background,
+                R.string.allow_media_playback_in_background_desc,
                 SettingCategory.CONTENT,
             ),
             // Network & Privacy
@@ -381,6 +411,7 @@ object SettingRegistry {
                     WebAppSettings.TRACKER_PROTECTION_DEFAULT
                 ),
                 R.string.setting_tracker_protection,
+                R.string.setting_tracker_protection_desc,
                 SettingCategory.NETWORK_PRIVACY,
                 globalOnly = true,
                 values = intArrayOf(
@@ -397,57 +428,67 @@ object SettingRegistry {
             SettingDefinition.BooleanSetting(
                 SettingField(WebAppSettings::isGlobalPrivacyControl, true),
                 R.string.setting_global_privacy_control,
+                R.string.setting_global_privacy_control_desc,
                 SettingCategory.NETWORK_PRIVACY,
                 globalOnly = true,
             ),
             SettingDefinition.BooleanSetting(
                 SettingField(WebAppSettings::isFingerprintingProtection, true),
                 R.string.setting_fingerprinting_protection,
+                R.string.setting_fingerprinting_protection_desc,
                 SettingCategory.NETWORK_PRIVACY,
                 globalOnly = true,
             ),
             SettingDefinition.BooleanSetting(
                 SettingField(WebAppSettings::isBlockLocalNetwork, true),
                 R.string.setting_block_local_network,
+                R.string.setting_block_local_network_desc,
                 SettingCategory.NETWORK_PRIVACY,
                 globalOnly = true,
             ),
             SettingDefinition.BooleanSetting(
                 SettingField(WebAppSettings::isBlockWebRtcIpLeak, true),
                 R.string.setting_block_webrtc_ip_leak,
+                R.string.setting_block_webrtc_ip_leak_desc,
                 SettingCategory.NETWORK_PRIVACY,
                 globalOnly = true,
             ),
             SettingDefinition.BooleanSetting(
                 SettingField(WebAppSettings::isAlwaysHttps, true),
                 R.string.setting_always_https,
+                R.string.setting_always_https_desc,
                 SettingCategory.NETWORK_PRIVACY,
             ),
             // Protection
             SettingDefinition.BooleanSetting(
                 SettingField(WebAppSettings::isBiometricProtection, false),
                 R.string.enable_access_restriction,
+                R.string.enable_access_restriction_desc,
                 SettingCategory.PROTECTION,
             ),
             SettingDefinition.BooleanSetting(
                 SettingField(WebAppSettings::isDisableScreenshots, false),
                 R.string.setting_disable_screenshots,
+                R.string.setting_disable_screenshots_desc,
                 SettingCategory.PROTECTION,
             ),
             // Advanced
             SettingDefinition.BooleanSetting(
                 SettingField(WebAppSettings::isAllowJs, true),
                 R.string.allow_javascript,
+                R.string.allow_javascript_desc,
                 SettingCategory.ADVANCED,
             ),
             SettingDefinition.BooleanSetting(
                 SettingField(WebAppSettings::isAllowCertBypass, false),
                 R.string.setting_allow_cert_bypass,
+                R.string.setting_allow_cert_bypass_desc,
                 SettingCategory.ADVANCED,
             ),
             SettingDefinition.BooleanWithCredentialsSetting(
                 SettingField(WebAppSettings::isUseBasicAuth, false),
                 R.string.setting_basic_auth,
+                R.string.setting_basic_auth_desc,
                 SettingCategory.ADVANCED,
                 usernameField = SettingField(WebAppSettings::basicAuthUsername, ""),
                 passwordField = SettingField(WebAppSettings::basicAuthPassword, ""),
@@ -455,6 +496,7 @@ object SettingRegistry {
             SettingDefinition.BooleanWithStringSetting(
                 SettingField(WebAppSettings::isUseCustomUserAgent, false),
                 R.string.custom_user_agent,
+                R.string.custom_user_agent_desc,
                 SettingCategory.ADVANCED,
                 stringField = SettingField(WebAppSettings::customUserAgent, ""),
                 hintResId = R.string.user_agent_hint,
@@ -462,6 +504,7 @@ object SettingRegistry {
             SettingDefinition.BooleanWithStringSetting(
                 SettingField(WebAppSettings::isUseCustomLocale, false),
                 R.string.custom_locale,
+                R.string.custom_locale_desc,
                 SettingCategory.ADVANCED,
                 stringField = SettingField(WebAppSettings::customLocale, ""),
                 hintResId = R.string.custom_locale_hint,
@@ -470,30 +513,35 @@ object SettingRegistry {
             SettingDefinition.BooleanSetting(
                 SettingField(WebAppSettings::isDisableQuic, false),
                 R.string.setting_disable_quic,
+                R.string.setting_disable_quic_desc,
                 SettingCategory.ADVANCED,
                 globalOnly = true,
             ),
             SettingDefinition.BooleanSetting(
                 SettingField(WebAppSettings::isDisableEch, false),
                 R.string.setting_disable_ech,
+                R.string.setting_disable_ech_desc,
                 SettingCategory.ADVANCED,
                 globalOnly = true,
             ),
             SettingDefinition.BooleanSetting(
                 SettingField(WebAppSettings::isClearCache, false),
                 R.string.clear_cache_after_usage,
+                R.string.clear_cache_after_usage_desc,
                 SettingCategory.ADVANCED,
                 globalOnly = true,
             ),
             SettingDefinition.BooleanSetting(
                 SettingField(WebAppSettings::isUseSystemCerts, false),
                 R.string.setting_use_system_certs,
+                R.string.setting_use_system_certs_desc,
                 SettingCategory.ADVANCED,
                 globalOnly = true,
             ),
             SettingDefinition.StringListSetting(
                 SettingField(WebAppSettings::trustedCertificates, null),
                 R.string.setting_trusted_certificates,
+                R.string.setting_trusted_certificates_desc,
                 SettingCategory.ADVANCED,
                 globalOnly = true,
                 entryKind = SettingDefinition.StringListSetting.EntryKind.CERTIFICATE,
@@ -501,6 +549,7 @@ object SettingRegistry {
             SettingDefinition.StringMapSetting(
                 SettingField(WebAppSettings::customGeckoPrefs, null),
                 R.string.setting_custom_gecko_prefs,
+                R.string.setting_custom_gecko_prefs_desc,
                 SettingCategory.ADVANCED,
                 keyHintResId = R.string.setting_custom_gecko_prefs_key_hint,
                 valueHintResId = R.string.setting_custom_gecko_prefs_value_hint,
@@ -509,17 +558,20 @@ object SettingRegistry {
             SettingDefinition.StringListSetting(
                 SettingField(WebAppSettings::sameAppDomains, null),
                 R.string.setting_same_app_domains,
-                SettingCategory.BEHAVIOR,
+                R.string.setting_same_app_domains_desc,
+                SettingCategory.NAVIGATION,
             ),
             SettingDefinition.StringListSetting(
                 SettingField(WebAppSettings::blockedDomains, null),
                 R.string.setting_blocked_domains,
-                SettingCategory.BEHAVIOR,
+                R.string.setting_blocked_domains_desc,
+                SettingCategory.NAVIGATION,
             ),
             SettingDefinition.StringListSetting(
                 SettingField(WebAppSettings::skipHistoryDomains, null),
                 R.string.setting_skip_history_domains,
-                SettingCategory.BEHAVIOR,
+                R.string.setting_skip_history_domains_desc,
+                SettingCategory.NAVIGATION,
             ),
         )
 

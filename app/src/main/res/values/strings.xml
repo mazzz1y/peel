@@ -148,6 +148,7 @@
     <string name="webapp_already_deleted">This Web App is no longer available. You can delete this shortcut</string>
     <string name="global_web_app_settings">Global Web App Settings</string>
     <string name="behavior">Behavior</string>
+    <string name="navigation">Navigation</string>
     <string name="import_data">Import</string>
     <string name="export_data">Export</string>
     <string name="enable_sandbox">Enable Sandbox</string>
@@ -182,7 +183,7 @@
     <string name="permission_prompt_microphone">Allow %1$s to access your microphone?</string>
     <string name="permission_prompt_location">Allow %1$s to access your location?</string>
     <string name="permission_prompt_notifications">Allow %1$s to send you notifications?</string>
-    <string name="open_app_links">External app links</string>
+    <string name="open_app_links">Open external apps</string>
     <string name="domain_blocked_toast">Link blocked by this app\'s settings</string>
     <string name="permission_prompt_open_app">Open this link in an external app?\n\n%1$s</string>
     <string name="permission_prompt_open_app_intent">Open in %1$s?</string>
@@ -342,7 +343,7 @@
     <string name="setting_custom_gecko_prefs_value_hint">Value</string>
     <string name="setting_same_app_domains">Same-app domains</string>
     <string name="setting_blocked_domains">Blocked domains</string>
-    <string name="setting_skip_history_domains">Skipped in history</string>
+    <string name="setting_skip_history_domains">Back-skipped domains</string>
     <string name="setting_domain_entry_hint" translatable="false">domain suffix or /regex/</string>
     <string name="setting_domain_entry_invalid">Invalid regular expression</string>
     <string name="setting_allow_cert_bypass">Allow bypassing HTTPS errors</string>
@@ -399,4 +400,46 @@
 
     <string name="setting_configure">Configure</string>
     <string name="setting_key_value_entry" translatable="false">%1$s = %2$s</string>
+    <!-- Setting descriptions, shown under each label in global settings -->
+    <string name="setting_color_scheme_desc">Sets prefers-color-scheme</string>
+    <string name="setting_web_content_scale_desc">Overrides page display density</string>
+    <string name="setting_dynamic_status_bar_desc">System bars follow theme-color</string>
+    <string name="show_progress_bar_during_page_load_desc">Progress bar at the bottom edge</string>
+    <string name="show_fullscreen_desc">Immersive mode, swipe shows bars</string>
+    <string name="setting_pull_to_refresh_desc">Swipe-down gesture reloads the page</string>
+    <string name="setting_browser_controls_desc">Button, bar or panel for actions</string>
+    <string name="setting_long_click_share_desc">Context menu for links and images</string>
+    <string name="request_website_in_desktop_version_desc">Desktop User-Agent and viewport</string>
+    <string name="setting_external_link_prompt_desc">Confirm before leaving the app origin</string>
+    <string name="keep_screen_awake_desc">Blocks screen timeout while open</string>
+    <string name="webapp_autoreload_desc">Interval in seconds, foreground only</string>
+    <string name="setting_translator_desc">Gecko on-device translation</string>
+    <string name="allow_camera_access_desc">Access to the phone camera</string>
+    <string name="allow_microphone_access_desc">Access to the microphone</string>
+    <string name="allow_location_access_desc">Access to device location</string>
+    <string name="open_app_links_desc">Handle app links</string>
+    <string name="allow_drm_content_desc">Enables Widevine DRM playback</string>
+    <string name="allow_media_playback_in_background_desc">Keeps the session active on exit</string>
+    <string name="setting_tracker_protection_desc">Gecko anti-tracking level</string>
+    <string name="setting_global_privacy_control_desc">Sends the Sec-GPC header</string>
+    <string name="setting_fingerprinting_protection_desc">Gecko fingerprinting protection</string>
+    <string name="setting_block_local_network_desc">Blocks LAN and localhost requests</string>
+    <string name="setting_block_webrtc_ip_leak_desc">Hides local IPs from WebRTC ICE</string>
+    <string name="setting_always_https_desc">Upgrades http:// to https://</string>
+    <string name="enable_access_restriction_desc">Biometric or PIN on open and return</string>
+    <string name="setting_disable_screenshots_desc">Blocks capture, hides from Recents</string>
+    <string name="allow_javascript_desc">Toggles the JavaScript engine</string>
+    <string name="setting_allow_cert_bypass_desc">Lets you accept invalid TLS certs</string>
+    <string name="setting_basic_auth_desc">Answers HTTP Basic auth prompts</string>
+    <string name="custom_user_agent_desc">Replaces the User-Agent header</string>
+    <string name="custom_locale_desc">Accept-Language sent to sites</string>
+    <string name="setting_disable_quic_desc">Disables HTTP/3, falls back to HTTP/2</string>
+    <string name="setting_disable_ech_desc">Disables Encrypted Client Hello</string>
+    <string name="clear_cache_after_usage_desc">Clears caches, keeps cookies</string>
+    <string name="setting_use_system_certs_desc">Trusts the Android CA store</string>
+    <string name="setting_trusted_certificates_desc">Extra root CAs for all apps</string>
+    <string name="setting_custom_gecko_prefs_desc">Raw about:config preferences</string>
+    <string name="setting_same_app_domains_desc">Treated as part of this app</string>
+    <string name="setting_blocked_domains_desc">Blocks navigation, not page content</string>
+    <string name="setting_skip_history_domains_desc">Skipped when Back is pressed</string>
 </resources>

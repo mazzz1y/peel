@@ -9,6 +9,7 @@ import android.widget.CompoundButton
 import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.materialswitch.MaterialSwitch
@@ -108,13 +109,12 @@ class SettingViewFactory(
         setting: SettingDefinition.BooleanSetting,
         settings: WebAppSettings,
     ) {
-        val textName = view.findViewById<TextView>(R.id.textSettingName)
         val switch = view.findViewById<MaterialSwitch>(R.id.switchSetting)
         val btnRemove = view.findViewById<MaterialButton>(R.id.btnRemoveOverride)
         val btnUndo = view.findViewById<MaterialButton>(R.id.btnUndo)
 
         resetWidgetListeners(view)
-        textName.text = view.context.getString(setting.displayNameResId)
+        bindLabel(view, setting)
         switch.isChecked = settings.getValue(setting.key) as? Boolean ?: false
 
         val switchListener = { _: CompoundButton?, isChecked: Boolean ->
@@ -137,12 +137,11 @@ class SettingViewFactory(
         settings: WebAppSettings,
     ) {
         val context = view.context
-        val textName = view.findViewById<TextView>(R.id.textSettingName)
         val txtValue = view.findViewById<MaterialButton>(R.id.txtDropdownValue)
         val btnRemove = view.findViewById<MaterialButton>(R.id.btnRemoveOverride)
         val btnUndo = view.findViewById<MaterialButton>(R.id.btnUndo)
 
-        textName.text = context.getString(setting.displayNameResId)
+        bindLabel(view, setting)
         val labels = setting.labels.map { context.getString(it) }
         val shortLabels = setting.shortLabels.map { context.getString(it) }
 
@@ -171,7 +170,6 @@ class SettingViewFactory(
         setting: SettingDefinition.BooleanWithIntSetting,
         settings: WebAppSettings,
     ) {
-        val textName = view.findViewById<TextView>(R.id.textSettingName)
         val switch = view.findViewById<MaterialSwitch>(R.id.switchSetting)
         val btnRemove = view.findViewById<MaterialButton>(R.id.btnRemoveOverride)
         val btnUndo = view.findViewById<MaterialButton>(R.id.btnUndo)
@@ -181,7 +179,7 @@ class SettingViewFactory(
         val intKey = setting.intField.key
         val intDefault = setting.intField.defaultValue as? Int ?: 0
         resetWidgetListeners(view)
-        textName.text = view.context.getString(setting.displayNameResId)
+        bindLabel(view, setting)
 
         fun ensureIntDefault() {
             val current = settings.getValue(intKey) as? Int ?: 0
@@ -250,7 +248,6 @@ class SettingViewFactory(
         settings: WebAppSettings,
     ) {
         val context = view.context
-        val textName = view.findViewById<TextView>(R.id.textSettingName)
         val switch = view.findViewById<MaterialSwitch>(R.id.switchSetting)
         val btnRemove = view.findViewById<MaterialButton>(R.id.btnRemoveOverride)
         val btnUndo = view.findViewById<MaterialButton>(R.id.btnUndo)
@@ -259,7 +256,7 @@ class SettingViewFactory(
         val usernameKey = setting.usernameField.key
         val passwordKey = setting.passwordField.key
         resetWidgetListeners(view)
-        textName.text = context.getString(setting.displayNameResId)
+        bindLabel(view, setting)
 
         fun username(): String = settings.getValue(usernameKey) as? String ?: ""
         fun password(): String = settings.getValue(passwordKey) as? String ?: ""
@@ -329,7 +326,6 @@ class SettingViewFactory(
         settings: WebAppSettings,
     ) {
         val context = view.context
-        val textName = view.findViewById<TextView>(R.id.textSettingName)
         val switch = view.findViewById<MaterialSwitch>(R.id.switchSetting)
         val btnRemove = view.findViewById<MaterialButton>(R.id.btnRemoveOverride)
         val btnUndo = view.findViewById<MaterialButton>(R.id.btnUndo)
@@ -338,7 +334,7 @@ class SettingViewFactory(
 
         val stringKey = setting.stringField.key
         resetWidgetListeners(view)
-        textName.text = context.getString(setting.displayNameResId)
+        bindLabel(view, setting)
 
         fun value(): String = settings.getValue(stringKey) as? String ?: ""
 
@@ -407,14 +403,13 @@ class SettingViewFactory(
         setting: SettingDefinition.LanguagePairMapSetting,
         settings: WebAppSettings,
     ) {
-        val textName = view.findViewById<TextView>(R.id.textSettingName)
         val btnAdd = view.findViewById<MaterialButton>(R.id.btnAddEntry)
         val switchTranslator = view.findViewById<MaterialSwitch>(R.id.switchTranslator)
         val btnRemove = view.findViewById<MaterialButton>(R.id.btnRemoveOverride)
         val container = view.findViewById<LinearLayout>(R.id.containerEntries)
         val mapKey = setting.mapField.key
 
-        textName.text = view.context.getString(setting.displayNameResId)
+        bindLabel(view, setting)
 
         when (val strategy = buttonStrategy) {
             is ButtonStrategy.GlobalDefaults -> btnRemove.visibility = View.GONE
@@ -663,12 +658,11 @@ class SettingViewFactory(
         setting: SettingDefinition.StringListSetting,
         settings: WebAppSettings,
     ) {
-        val textName = view.findViewById<TextView>(R.id.textSettingName)
         val btnAdd = view.findViewById<MaterialButton>(R.id.btnAddEntry)
         val btnRemove = view.findViewById<MaterialButton>(R.id.btnRemoveOverride)
         val container = view.findViewById<LinearLayout>(R.id.containerEntries)
 
-        textName.text = view.context.getString(setting.displayNameResId)
+        bindLabel(view, setting)
 
         when (val strategy = buttonStrategy) {
             is ButtonStrategy.GlobalDefaults -> btnRemove.visibility = View.GONE
@@ -790,12 +784,11 @@ class SettingViewFactory(
         setting: SettingDefinition.StringMapSetting,
         settings: WebAppSettings,
     ) {
-        val textName = view.findViewById<TextView>(R.id.textSettingName)
         val btnAdd = view.findViewById<MaterialButton>(R.id.btnAddEntry)
         val btnRemove = view.findViewById<MaterialButton>(R.id.btnRemoveOverride)
         val container = view.findViewById<LinearLayout>(R.id.containerEntries)
 
-        textName.text = view.context.getString(setting.displayNameResId)
+        bindLabel(view, setting)
 
         when (val strategy = buttonStrategy) {
             is ButtonStrategy.GlobalDefaults -> btnRemove.visibility = View.GONE
@@ -883,6 +876,15 @@ class SettingViewFactory(
         }
 
         container.addView(entryView)
+    }
+
+    private fun bindLabel(view: View, setting: SettingDefinition) {
+        view.findViewById<TextView>(R.id.textSettingName)
+            .setText(setting.displayNameResId)
+
+        val description = view.findViewById<TextView>(R.id.textSettingDescription)
+        description.setText(setting.descriptionResId)
+        description.isVisible = buttonStrategy is ButtonStrategy.GlobalDefaults
     }
 
     private fun configureButtons(
