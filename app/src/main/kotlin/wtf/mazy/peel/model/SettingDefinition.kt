@@ -516,6 +516,11 @@ object SettingRegistry {
                 R.string.setting_blocked_domains,
                 SettingCategory.BEHAVIOR,
             ),
+            SettingDefinition.StringListSetting(
+                SettingField(WebAppSettings::skipHistoryDomains, null),
+                R.string.setting_skip_history_domains,
+                SettingCategory.BEHAVIOR,
+            ),
         )
 
     fun getAllSettings(): List<SettingDefinition> = ALL_SETTINGS

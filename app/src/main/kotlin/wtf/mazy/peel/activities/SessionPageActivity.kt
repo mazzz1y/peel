@@ -37,7 +37,7 @@ abstract class SessionPageActivity : BaseSessionHost() {
     private val backCallback = object : OnBackPressedCallback(false) {
         override fun handleOnBackPressed() {
             if (exitFullscreenIfActive()) return
-            geckoSession?.goBack()
+            goBackOrFinish()
         }
     }
 

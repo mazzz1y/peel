@@ -89,6 +89,7 @@ abstract class BaseSessionHost : PeelActivity(), SessionHost, TranslationHost {
 
     protected var geckoSession: GeckoSession? = null
     protected var lastSessionState: GeckoSession.SessionState? = null
+    private var pendingBack: (() -> Unit)? = null
     protected var geckoView: GeckoView? = null
     protected var progressBar: ProgressBar? = null
     protected var swipeRefreshLayout: VerticalSwipeRefreshLayout? = null
@@ -414,10 +415,35 @@ abstract class BaseSessionHost : PeelActivity(), SessionHost, TranslationHost {
 
     override fun onSessionStateUpdated(state: GeckoSession.SessionState) {
         lastSessionState = state
+        val onNoTarget = pendingBack ?: return
+        pendingBack = null
+        resolveBack(state, onNoTarget)
+    }
+
+    override fun goBackOrElse(onNoTarget: () -> Unit) {
+        val session = geckoSession ?: return onNoTarget()
+        if (!canGoBack) return onNoTarget()
+        if (effectiveSettings.skipHistoryDomains.isNullOrEmpty()) return session.goBack()
+        if (pendingBack != null) return
+        // Session state reaches us on a 10 s timer (browser.sessionstore.interval), so whatever
+        // is cached is stale at the moment Back is pressed; the flush forces a fresh snapshot.
+        pendingBack = onNoTarget
+        session.flushSessionState()
+    }
+
+    private fun resolveBack(state: GeckoSession.SessionState, onNoTarget: () -> Unit) {
+        val session = geckoSession ?: return onNoTarget()
+        val history = HistorySnapshot.from(state) ?: return session.goBack()
+        val skip = effectiveSettings.skipHistoryDomains.orEmpty()
+        when (val step = HistorySkip.step(history, HistorySkip.BACKWARD, skip)) {
+            is HistoryStep.GoTo -> session.gotoHistoryIndex(step.index)
+            HistoryStep.Exhausted -> onNoTarget()
+            HistoryStep.Unchanged -> session.goBack()
+        }
     }
 
     override fun goBackOrFinish() {
-        if (canGoBack) geckoSession?.goBack() else finish()
+        goBackOrElse { finish() }
     }
 
     override fun onWindowCloseRequest() {
@@ -507,7 +533,7 @@ abstract class BaseSessionHost : PeelActivity(), SessionHost, TranslationHost {
                 }.setCancelable(false)
 
             canGoBack -> builder.setNegativeButton(R.string.back) { _, _ ->
-                geckoSession?.goBack()
+                goBackOrFinish()
             }.setCancelable(false)
 
             else -> builder.setNegativeButton(R.string.exit) { _, _ ->
@@ -615,6 +641,7 @@ abstract class BaseSessionHost : PeelActivity(), SessionHost, TranslationHost {
     }
 
     protected fun closeGeckoSession() {
+        pendingBack = null
         (geckoSession?.progressDelegate as? PeelProgressDelegate)?.release()
         geckoView?.releaseSession()
         geckoSession?.close()

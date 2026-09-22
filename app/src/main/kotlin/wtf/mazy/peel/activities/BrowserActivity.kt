@@ -823,17 +823,25 @@ class BrowserActivity : BaseSessionHost() {
     private val backCallback = object : OnBackPressedCallback(false) {
         override fun handleOnBackPressed() {
             if (exitFullscreenIfActive()) return
-            if (canGoBack) {
-                geckoSession?.goBack()
-                return
+            goBackOrElse {
+                if (launchedFromMenu) returnToAppList() else performDefaultBack()
             }
-            startActivity(
-                Intent(this@BrowserActivity, MainActivity::class.java).apply {
-                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
-                }
-            )
-            finishAndRemoveTask()
         }
+    }
+
+    private fun returnToAppList() {
+        startActivity(
+            Intent(this, MainActivity::class.java).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+            }
+        )
+        finishAndRemoveTask()
+    }
+
+    private fun performDefaultBack() {
+        backCallback.isEnabled = false
+        onBackPressedDispatcher.onBackPressed()
+        updateBackCallbackEnabled()
     }
 
     private fun setupBackNavigation() {

@@ -342,6 +342,7 @@
     <string name="setting_custom_gecko_prefs_value_hint">Value</string>
     <string name="setting_same_app_domains">Same-app domains</string>
     <string name="setting_blocked_domains">Blocked domains</string>
+    <string name="setting_skip_history_domains">Skipped in history</string>
     <string name="setting_domain_entry_hint" translatable="false">domain suffix or /regex/</string>
     <string name="setting_domain_entry_invalid">Invalid regular expression</string>
     <string name="setting_allow_cert_bypass">Allow bypassing HTTPS errors</string>

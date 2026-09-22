@@ -50,6 +50,7 @@ data class WebAppSettings(
     var autoTranslatePairs: Map<String, String>? = null,
     var sameAppDomains: List<String>? = null,
     var blockedDomains: List<String>? = null,
+    var skipHistoryDomains: List<String>? = null,
     var trustedCertificates: List<String>? = null,
 ) {
     companion object {
@@ -251,6 +252,7 @@ data class WebAppSettings(
         autoTranslatePairs = autoTranslatePairs?.toMap(),
         sameAppDomains = sameAppDomains?.toList(),
         blockedDomains = blockedDomains?.toList(),
+        skipHistoryDomains = skipHistoryDomains?.toList(),
         trustedCertificates = trustedCertificates?.toList(),
     )
 }

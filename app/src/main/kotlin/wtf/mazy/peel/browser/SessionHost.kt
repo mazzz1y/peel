@@ -79,6 +79,9 @@ interface SessionHost {
 
     fun loadURL(url: String)
     fun goBackOrFinish()
+
+    /** Skip-aware back; [onNoTarget] is the surface's own no-back-target behaviour. */
+    fun goBackOrElse(onNoTarget: () -> Unit)
     fun onWindowCloseRequest()
     fun onInitialNavigationDenied()
     fun markCurrentPageAsJumpHost()
