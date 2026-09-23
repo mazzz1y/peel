@@ -7,7 +7,7 @@ internal class OrderAllocator(private val state: DataState) {
 
     fun nextWebAppOrder(groupUuid: String?): Int {
         val next = webAppOrders.getOrPut(groupUuid) {
-            state.websites
+            state.webApps
                 .filter { it.groupUuid == groupUuid }
                 .maxOfOrNull { it.order }
                 ?.plus(1) ?: 0

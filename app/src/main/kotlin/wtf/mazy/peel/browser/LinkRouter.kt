@@ -1,6 +1,6 @@
 package wtf.mazy.peel.browser
 
-import wtf.mazy.peel.model.WebAppSettings
+import wtf.mazy.peel.model.EffectiveSettings
 import wtf.mazy.peel.util.SameAppDomainMatcher
 import wtf.mazy.peel.util.belongsToApp
 
@@ -35,7 +35,7 @@ object LinkRouter {
 
     fun route(
         url: String,
-        settings: WebAppSettings,
+        settings: EffectiveSettings,
         nav: NavigationFacts,
         context: LinkContext,
     ): LinkRoute = when {
@@ -49,13 +49,13 @@ object LinkRouter {
 
     private fun routeBrowserLoad(
         url: String,
-        settings: WebAppSettings,
+        settings: EffectiveSettings,
         nav: NavigationFacts,
         context: LinkContext,
     ): LinkRoute {
         if (!isHttpUrl(url)) return LinkRoute.Allow
         val target = settings.upgradeUrl(url)
-        if (settings.isOpenUrlExternal == true &&
+        if (settings.openUrlExternal &&
             shouldRouteExternally(target, settings, nav, context)
         ) {
             return LinkRoute.PromptExternal(
@@ -69,7 +69,7 @@ object LinkRouter {
 
     private fun shouldRouteExternally(
         url: String,
-        settings: WebAppSettings,
+        settings: EffectiveSettings,
         nav: NavigationFacts,
         context: LinkContext,
     ): Boolean {
@@ -80,8 +80,8 @@ object LinkRouter {
                 nav.opensNewWindow
     }
 
-    private fun isBlocked(url: String, settings: WebAppSettings): Boolean =
-        SameAppDomainMatcher.matches(url, settings.blockedDomains.orEmpty())
+    private fun isBlocked(url: String, settings: EffectiveSettings): Boolean =
+        SameAppDomainMatcher.matches(url, settings.blockedDomains)
 
     fun isBrowserScheme(url: String): Boolean =
         BROWSER_SCHEMES.any { url.startsWith(it) }

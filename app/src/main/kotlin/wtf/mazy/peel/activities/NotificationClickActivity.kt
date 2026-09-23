@@ -21,19 +21,19 @@ class NotificationClickActivity : PeelActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val tag = intent.getStringExtra(NotificationClickLaunch.EXTRA_TAG)
-        val webappUuid = intent.getStringExtra(NotificationClickLaunch.EXTRA_WEBAPP_UUID)
+        val webAppUuid = intent.getStringExtra(NotificationClickLaunch.EXTRA_WEBAPP_UUID)
         val origin = intent.getStringExtra(NotificationClickLaunch.EXTRA_ORIGIN)
         GeckoRuntimeProvider.initAsync(this, warmUp = false)
         val fallback = IntentCompat.getParcelableExtra(
             intent, NotificationClickLaunch.EXTRA_NOTIFICATION, WebNotification::class.java,
         )
         lifecycleScope.launch {
-            DataManager.instance.awaitReady()
-            val webapp = webappUuid?.let {
-                DataManager.instance.ensureWebAppLoaded(it)
-                DataManager.instance.getWebApp(it)
+            DataManager.awaitReady()
+            val webApp = webAppUuid?.let {
+                DataManager.ensureWebAppLoaded(it)
+                DataManager.webApp(it)
             }
-            val pending = NotificationClickCoordinator.record(webapp?.uuid)
+            val pending = NotificationClickCoordinator.record(webApp?.uuid)
             tag?.let {
                 WebNotificationBridge.onNotificationOpened(
                     this@NotificationClickActivity,
@@ -42,7 +42,7 @@ class NotificationClickActivity : PeelActivity() {
                 )
             }
             when {
-                webapp != null -> BrowserLauncher.launch(webapp, this@NotificationClickActivity)
+                webApp != null -> BrowserLauncher.launch(webApp, this@NotificationClickActivity)
                 origin != null && !NotificationClickCoordinator.serviceWorkerWillNavigate(pending) ->
                     startActivity(
                         Intent(this@NotificationClickActivity, ActivityRoutes.linkRouter)

@@ -7,7 +7,6 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
-import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.materialswitch.MaterialSwitch
@@ -22,21 +21,23 @@ import wtf.mazy.peel.model.SettingDefinition
 import wtf.mazy.peel.model.WebAppGroup
 import wtf.mazy.peel.model.WebAppSettings
 import wtf.mazy.peel.ui.IconEditorController
+import wtf.mazy.peel.ui.common.Draft
+import wtf.mazy.peel.ui.common.GroupPosition
+import wtf.mazy.peel.ui.common.SettingsSurface
 import wtf.mazy.peel.ui.dialog.InputDialogConfig
 import wtf.mazy.peel.ui.dialog.OverridePickerDialog
 import wtf.mazy.peel.ui.dialog.showInputDialog
-import wtf.mazy.peel.ui.common.GroupPosition
 import wtf.mazy.peel.ui.settings.OverridePickerController
-import wtf.mazy.peel.ui.common.SettingsSurface
+import wtf.mazy.peel.ui.settings.ProxyDropdownController
 import wtf.mazy.peel.ui.settings.SandboxSwitchController
 import wtf.mazy.peel.util.Const
-import wtf.mazy.peel.util.NotificationUtils.showToast
+import wtf.mazy.peel.util.toast
 
 class GroupSettingsActivity :
     ToolbarBaseActivity<GroupSettingsBinding>(), OverridePickerDialog.OnSettingSelectedListener {
 
-    private var originalGroup: WebAppGroup? = null
-    private var modifiedGroup: WebAppGroup? = null
+    private var originalTitle: String = ""
+    private var draft: Draft<WebAppGroup>? = null
     private lateinit var iconEditor: IconEditorController
     private lateinit var originalSettingsSnapshot: WebAppSettings
 
@@ -54,29 +55,30 @@ class GroupSettingsActivity :
     private val linearLayoutOverrides get() = binding.root.findViewById<LinearLayout>(R.id.linearLayoutOverrides)
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        iconEditor = IconEditorController(this, { imgGroupIcon }) { modifiedGroup }
+        iconEditor = IconEditorController(this, { imgGroupIcon }) { draft?.value }
         super.onCreate(savedInstanceState)
         setToolbarTitle(getString(R.string.group_settings))
 
-        val groupUuid = intent.getStringExtra(Const.INTENT_GROUP_UUID)
-        originalGroup = groupUuid?.let { DataManager.instance.getGroup(it) }
-
-        if (originalGroup == null) {
-            showToast(this, getString(R.string.group_not_found), Toast.LENGTH_SHORT)
+        val stored = intent.getStringExtra(Const.INTENT_GROUP_UUID)
+            ?.let { DataManager.group(it) }
+        if (stored == null) {
+            toast(R.string.group_not_found)
             finish()
             return
         }
 
-        modifiedGroup = WebAppGroup(originalGroup!!)
+        val draft = Draft(stored.copy(settings = stored.settings.deepCopy()))
+        this.draft = draft
+        originalTitle = stored.title
         originalSettingsSnapshot =
-            originalGroup!!.settings.deepCopy().apply { sanitize(asOverride = true) }
-        txtGroupName.text = modifiedGroup?.title
+            stored.settings.deepCopy().apply { sanitize(asOverride = true) }
+        txtGroupName.text = stored.title
         sandboxLabel.setText(R.string.group_sandbox)
-        switchSandbox.isChecked = modifiedGroup?.isUseContainer == true
-        switchEphemeralSandbox.isChecked = modifiedGroup?.isEphemeralSandbox == true
+        switchSandbox.isChecked = stored.isUseContainer
+        switchEphemeralSandbox.isChecked = stored.isEphemeralSandbox
 
         imgGroupIcon.setOnClickListener { iconEditor.onIconTap() }
-        titleBlock.setOnClickListener { modifiedGroup?.let { showEditDialog(it) } }
+        titleBlock.setOnClickListener { showEditDialog(draft) }
         iconEditor.refreshIcon()
 
         setupSandboxSwitch()
@@ -88,24 +90,22 @@ class GroupSettingsActivity :
 
     override fun onPause() {
         super.onPause()
-        modifiedGroup?.let {
-            if (it.title.isBlank()) {
-                it.title = originalGroup?.title ?: ""
-            }
-            it.settings.sanitize(asOverride = true)
-            lifecycleScope.launch {
-                withContext(NonCancellable) {
-                    DataManager.instance.replaceGroup(it)
-                }
+        val draft = draft ?: return
+        if (draft.value.title.isBlank()) draft.update { it.copy(title = originalTitle) }
+        val group = draft.value
+        group.settings.sanitize(asOverride = true)
+        lifecycleScope.launch {
+            withContext(NonCancellable) {
+                DataManager.replaceGroup(group)
             }
         }
     }
 
     override fun finish() {
-        modifiedGroup?.let {
+        draft?.value?.let {
             it.settings.sanitize(asOverride = true)
-            val changed = ApplyTimingRegistry.getChangedKeys(originalSettingsSnapshot, it.settings)
-            val timing = ApplyTimingRegistry.getHighestTiming(changed)
+            val changed = ApplyTimingRegistry.changedKeys(originalSettingsSnapshot, it.settings)
+            val timing = ApplyTimingRegistry.highestTiming(changed)
             setResult(
                 RESULT_OK,
                 Intent().putExtra(ApplyTimingRegistry.EXTRA_APPLY_TIMING, timing.name)
@@ -118,31 +118,31 @@ class GroupSettingsActivity :
         return GroupSettingsBinding.inflate(layoutInflater)
     }
 
-    private fun showEditDialog(group: WebAppGroup) {
+    private fun showEditDialog(draft: Draft<WebAppGroup>) {
         showInputDialog(
             InputDialogConfig(
                 hintRes = R.string.name,
-                prefill = group.title,
+                prefill = draft.value.title,
                 positiveRes = R.string.save,
             ),
         ) { name ->
-            group.title = name
+            draft.update { it.copy(title = name) }
             txtGroupName.text = name
             iconEditor.refreshIcon()
         }
     }
 
     private fun setupSandboxSwitch() {
-        val group = modifiedGroup ?: return
-        val proxyController = wtf.mazy.peel.ui.settings.ProxyDropdownController(
+        val draft = draft ?: return
+        val proxyController = ProxyDropdownController(
             activity = this,
-            owner = group,
+            draft = draft,
             proxyRow = proxyRow,
             proxyButton = btnProxyPicker,
         )
         SandboxSwitchController(
             this,
-            group,
+            draft,
             switchSandbox,
             switchEphemeralSandbox,
             ephemeralSandboxRow,
@@ -155,11 +155,11 @@ class GroupSettingsActivity :
     private lateinit var overrideController: OverridePickerController
 
     private fun setupOverridePicker() {
-        val group = modifiedGroup ?: return
+        val settings = draft?.value?.settings ?: return
         overrideController =
             OverridePickerController(
                 this,
-                group.settings,
+                settings,
                 linearLayoutOverrides,
                 btnAddOverride,
             )

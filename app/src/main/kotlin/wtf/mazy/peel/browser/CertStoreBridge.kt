@@ -50,9 +50,7 @@ object CertStoreBridge : ExtensionSyncBridge<List<String>>(
             .put("certs", JSONArray().apply { snapshot.forEach { put(it) } })
 
     override fun buildSnapshot(): List<String> =
-        DataManager.instance.defaultSettings.settings.trustedCertificates
-            ?.filter { it.isNotBlank() }
-            .orEmpty()
+        DataManager.globalEffectiveSettings.trustedCertificates.filter { it.isNotBlank() }
 }
 
 private const val TAG = "CertStoreBridge"

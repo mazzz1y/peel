@@ -15,7 +15,6 @@ import android.text.style.ReplacementSpan
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
@@ -40,7 +39,7 @@ import wtf.mazy.peel.ui.common.LoadingDialogController
 import wtf.mazy.peel.ui.common.PeelActivity
 import wtf.mazy.peel.ui.common.Theming
 import wtf.mazy.peel.ui.common.runWithLoader
-import wtf.mazy.peel.ui.dialog.ImportDialogHelper
+import wtf.mazy.peel.ui.dialog.ImportFlowController
 import wtf.mazy.peel.ui.dialog.showSandboxInputDialog
 import wtf.mazy.peel.ui.entitylist.EntityListAnimations
 import wtf.mazy.peel.ui.entitylist.EntitySelectionController
@@ -50,12 +49,12 @@ import wtf.mazy.peel.ui.webapplist.GroupPagerAdapter
 import wtf.mazy.peel.ui.webapplist.SearchModeController
 import wtf.mazy.peel.ui.webapplist.SearchableHost
 import wtf.mazy.peel.ui.webapplist.WebAppListFragment
-import wtf.mazy.peel.ui.webapplist.WebAppSelectionActions
+import wtf.mazy.peel.ui.webapplist.WebAppSelectionHandler
 import wtf.mazy.peel.ui.webapplist.WebAppShareHost
 import wtf.mazy.peel.util.Const
-import wtf.mazy.peel.util.NotificationUtils
 import wtf.mazy.peel.util.applyToolbarScreenInsets
 import wtf.mazy.peel.util.disableSystemBarContrastEnforcement
+import wtf.mazy.peel.util.toast
 
 class MainActivity :
     PeelActivity(),
@@ -86,7 +85,7 @@ class MainActivity :
     private val notificationPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { }
 
-    private val importDialogHelper = ImportDialogHelper(this, ImportActivity::class.java)
+    private val importFlow = ImportFlowController(this, ImportActivity::class.java)
 
     private val settingsLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -128,9 +127,9 @@ class MainActivity :
         )
         selectionController = EntitySelectionController(
             host = this,
-            actions = WebAppSelectionActions(this, this),
+            actions = WebAppSelectionHandler(this, this),
             resolveItems = { ids ->
-                DataManager.instance.getWebsites().filter { it.uuid in ids }
+                DataManager.webApps.filter { it.uuid in ids }
             },
             onChanged = {
                 refreshSelectionAdapters()
@@ -157,7 +156,7 @@ class MainActivity :
         setupViewPager()
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                DataManager.instance.state.collect {
+                DataManager.state.collect {
                     if (searchController.isActive) {
                         searchController.onDataChanged()
                     } else {
@@ -187,7 +186,7 @@ class MainActivity :
     }
 
     override fun onDestroy() {
-        importDialogHelper.onHostDestroy()
+        importFlow.onHostDestroy()
         exportLoader.dismiss()
         super.onDestroy()
     }
@@ -224,11 +223,11 @@ class MainActivity :
     override fun refreshWebAppList() = refreshCurrentPages()
 
     fun refreshCurrentPages() {
-        val groups = DataManager.instance.sortedGroups
+        val groups = DataManager.sortedGroups
         val newGroupKeys = groups.map { it.uuid to it.title }
         val newShowUngrouped =
             if (groups.isEmpty()) true
-            else DataManager.instance.activeWebsitesForGroup(null).isNotEmpty()
+            else DataManager.webAppsInGroup(null).isNotEmpty()
 
         if (lastGroupKeys != newGroupKeys || lastShowUngrouped != newShowUngrouped) {
             setupViewPager()
@@ -249,7 +248,7 @@ class MainActivity :
     private fun setupViewPager() {
         tabMediator?.detach()
         tabMediator = null
-        val groups = DataManager.instance.sortedGroups
+        val groups = DataManager.sortedGroups
         val newAdapter: GroupPagerAdapter
         if (groups.isEmpty()) {
             tabLayout.visibility = View.GONE
@@ -259,7 +258,7 @@ class MainActivity :
             lastGroupKeys = emptyList()
             lastShowUngrouped = true
         } else {
-            val hasUngrouped = DataManager.instance.activeWebsitesForGroup(null).isNotEmpty()
+            val hasUngrouped = DataManager.webAppsInGroup(null).isNotEmpty()
             tabLayout.visibility = View.VISIBLE
             newAdapter = GroupPagerAdapter(this, groups, showUngrouped = hasUngrouped)
             viewPager.adapter = newAdapter
@@ -291,7 +290,7 @@ class MainActivity :
             }
             return
         }
-        val appsByGroup = DataManager.instance.activeWebsites
+        val appsByGroup = DataManager.sortedWebApps
             .filter { it.uuid in selected }
             .groupBy { it.groupUuid }
         for (i in 0 until tabLayout.tabCount) {
@@ -355,11 +354,7 @@ class MainActivity :
             ioTask = { BackupManager.buildShareFile(webApps, includeSecrets) },
         ) { file ->
             if (file == null || !BackupManager.launchShareChooser(this, file)) {
-                NotificationUtils.showToast(
-                    this,
-                    getString(R.string.export_share_failed),
-                    Toast.LENGTH_LONG
-                )
+                toast(R.string.export_share_failed, long = true)
             }
         }
     }
@@ -377,7 +372,7 @@ class MainActivity :
         intent?.action = null
         intent?.data = null
         intent?.removeExtra(Intent.EXTRA_STREAM)
-        importDialogHelper.showForUri(uri)
+        importFlow.showForUri(uri)
     }
 
     private fun extractBackupUri(intent: Intent?): Uri? {
@@ -402,19 +397,18 @@ class MainActivity :
             val urlWithProtocol =
                 if (url.startsWith("https://") || url.startsWith("http://")) url
                 else "https://$url"
-            val newSite = WebApp(urlWithProtocol)
-            newSite.isUseContainer = result.sandbox
-            newSite.isEphemeralSandbox = result.ephemeral
-            newSite.proxyUuid = result.proxyUuid
-
             val currentPage = viewPager.currentItem
-            val groups = DataManager.instance.sortedGroups
-            if (groups.isNotEmpty() && currentPage < groups.size) {
-                newSite.groupUuid = groups[currentPage].uuid
-            }
+            val groups = DataManager.sortedGroups
+            val newSite = WebApp(
+                baseUrl = urlWithProtocol,
+                isUseContainer = result.sandbox,
+                isEphemeralSandbox = result.ephemeral,
+                proxyUuid = result.proxyUuid,
+                groupUuid = groups.getOrNull(currentPage)?.uuid,
+            )
 
             lifecycleScope.launch {
-                DataManager.instance.addWebsite(newSite, appendOrder = true)
+                DataManager.addWebApp(newSite, appendOrder = true)
 
                 val settingsIntent = Intent(this@MainActivity, WebAppSettingsActivity::class.java)
                 settingsIntent.putExtra(Const.INTENT_WEBAPP_UUID, newSite.uuid)

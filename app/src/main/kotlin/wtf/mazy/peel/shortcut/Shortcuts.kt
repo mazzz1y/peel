@@ -12,7 +12,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import android.widget.Toast
 import androidx.core.content.pm.ShortcutInfoCompat
 import androidx.core.content.pm.ShortcutManagerCompat
 import androidx.core.graphics.createBitmap
@@ -31,11 +30,12 @@ import wtf.mazy.peel.ui.dialog.showInputDialogRaw
 import wtf.mazy.peel.util.ActivityRoutes
 import wtf.mazy.peel.util.App
 import wtf.mazy.peel.util.Const
-import wtf.mazy.peel.util.NotificationUtils
+import wtf.mazy.peel.util.LetterIconGenerator
 import wtf.mazy.peel.util.identifyWebApp
+import wtf.mazy.peel.util.toast
 import kotlin.math.min
 
-object ShortcutHelper {
+object Shortcuts {
     private const val ADAPTIVE_ICON_SIZE = 108
     private const val LOGO_SIZE = 48
     private const val ADAPTIVE_SAFE_ZONE = 72
@@ -212,11 +212,7 @@ object ShortcutHelper {
         val alreadyPinned = scManager.pinnedShortcuts.any { it.id == owner.uuid }
         if (alreadyPinned) {
             ShortcutManagerCompat.updateShortcuts(activity, listOf(info))
-            NotificationUtils.showToast(
-                activity,
-                activity.getString(R.string.shortcut_already_exists),
-                Toast.LENGTH_SHORT,
-            )
+            activity.toast(R.string.shortcut_already_exists)
         } else {
             ShortcutManagerCompat.requestPinShortcut(activity, info, null)
             ShortcutManagerCompat.updateShortcuts(activity, listOf(info))

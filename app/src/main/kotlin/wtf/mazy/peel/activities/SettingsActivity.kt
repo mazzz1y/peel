@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -20,12 +19,12 @@ import wtf.mazy.peel.model.SettingRegistry
 import wtf.mazy.peel.model.SettingSection
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.model.WebAppSettings
-import wtf.mazy.peel.ui.settings.SettingViewFactory
-import wtf.mazy.peel.ui.settings.SettingsAdapter
 import wtf.mazy.peel.ui.common.GroupPosition
+import wtf.mazy.peel.ui.settings.SettingRowFactory
+import wtf.mazy.peel.ui.settings.SettingsAdapter
 import wtf.mazy.peel.ui.settings.SettingsListItem
 import wtf.mazy.peel.util.CertificatePem
-import wtf.mazy.peel.util.NotificationUtils
+import wtf.mazy.peel.util.toast
 
 class SettingsActivity : ToolbarBaseActivity<GlobalSettingsBinding>() {
 
@@ -56,11 +55,7 @@ class SettingsActivity : ToolbarBaseActivity<GlobalSettingsBinding>() {
 
                     else -> R.string.setting_trusted_certificates_invalid
                 }
-                NotificationUtils.showToast(
-                    this@SettingsActivity,
-                    getString(reason),
-                    Toast.LENGTH_SHORT,
-                )
+                toast(reason)
                 return@launch
             }
             consumer(pem)
@@ -73,7 +68,8 @@ class SettingsActivity : ToolbarBaseActivity<GlobalSettingsBinding>() {
             ?.let { runCatching { SettingSection.valueOf(it) }.getOrNull() }
             ?: SettingSection.GLOBAL
         setToolbarTitle(getString(section.displayNameResId))
-        editableSettings = DataManager.instance.defaultSettings
+        editableSettings =
+            DataManager.globalSettings.let { it.copy(settings = it.settings.deepCopy()) }
         originalSnapshot = editableSettings.settings.deepCopy().apply { sanitize() }
         setupDefaultSettingsUI()
     }
@@ -83,7 +79,7 @@ class SettingsActivity : ToolbarBaseActivity<GlobalSettingsBinding>() {
         editableSettings.settings.sanitize()
         lifecycleScope.launch {
             withContext(NonCancellable) {
-                DataManager.instance.setDefaultSettings(editableSettings)
+                DataManager.setGlobalSettings(editableSettings)
             }
         }
     }
@@ -91,8 +87,8 @@ class SettingsActivity : ToolbarBaseActivity<GlobalSettingsBinding>() {
     override fun finish() {
         editableSettings.settings.sanitize()
         val changed =
-            ApplyTimingRegistry.getChangedKeys(originalSnapshot, editableSettings.settings)
-        val timing = ApplyTimingRegistry.getHighestTiming(changed)
+            ApplyTimingRegistry.changedKeys(originalSnapshot, editableSettings.settings)
+        val timing = ApplyTimingRegistry.highestTiming(changed)
         setResult(
             RESULT_OK,
             Intent().putExtra(ApplyTimingRegistry.EXTRA_APPLY_TIMING, timing.name)
@@ -106,9 +102,9 @@ class SettingsActivity : ToolbarBaseActivity<GlobalSettingsBinding>() {
 
     private fun setupDefaultSettingsUI() {
         val settings = editableSettings.settings
-        val factory = SettingViewFactory(
+        val factory = SettingRowFactory(
             layoutInflater,
-            SettingViewFactory.ButtonStrategy.GlobalDefaults,
+            SettingRowFactory.ButtonStrategy.GlobalDefaults,
             lifecycleScope,
             certificateImporter = { consumer ->
                 pendingCertificateConsumer = consumer
@@ -117,7 +113,7 @@ class SettingsActivity : ToolbarBaseActivity<GlobalSettingsBinding>() {
         )
 
         val settingsGrouped =
-            SettingRegistry.getSettingsForSection(section)
+            SettingRegistry.forSection(section)
                 .groupBy { it.category }
                 .toSortedMap(compareBy { it.ordinal })
 

@@ -14,6 +14,7 @@ fun showApplyTimingSnackbar(activity: Activity, data: Intent?, hasLiveWebApps: B
         ApplyTiming.IMMEDIATE -> return
         ApplyTiming.WEBAPP_RESTART ->
             if (hasLiveWebApps) R.string.setting_requires_webapp_restart else return
+
         ApplyTiming.PEEL_RESTART -> R.string.setting_requires_peel_restart
     }
     Snackbar.make(activity.findViewById(android.R.id.content), message, Snackbar.LENGTH_LONG)

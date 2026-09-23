@@ -5,8 +5,8 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.content.res.Resources
-import android.os.Bundle
 import android.net.Uri
+import android.os.Bundle
 import android.text.InputType
 import android.util.TypedValue
 import android.view.KeyEvent
@@ -54,6 +54,7 @@ import wtf.mazy.peel.gecko.GeckoRuntimeProvider
 import wtf.mazy.peel.gecko.GeckoRuntimeProvider.awaitVoid
 import wtf.mazy.peel.gecko.NestedGeckoView
 import wtf.mazy.peel.gecko.VerticalSwipeRefreshLayout
+import wtf.mazy.peel.model.EffectiveSettings
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.model.WebAppSettings
 import wtf.mazy.peel.ui.FindInPageView
@@ -66,7 +67,7 @@ import wtf.mazy.peel.ui.common.PeelActivity
 import wtf.mazy.peel.ui.controls.BarControlsView
 import wtf.mazy.peel.ui.controls.BrowserControls
 import wtf.mazy.peel.ui.controls.ControlAction
-import wtf.mazy.peel.ui.controls.ControlActions
+import wtf.mazy.peel.ui.controls.ControlCallbacks
 import wtf.mazy.peel.ui.controls.PanelControlsView
 import wtf.mazy.peel.ui.dialog.DateTimePickerRequest
 import wtf.mazy.peel.ui.dialog.DateTimePickerSession
@@ -78,10 +79,9 @@ import wtf.mazy.peel.ui.dialog.InputDialogConfig
 import wtf.mazy.peel.ui.dialog.TranslateDialog
 import wtf.mazy.peel.ui.dialog.showDateTimePickerDialog
 import wtf.mazy.peel.ui.dialog.showInputDialogRaw
+import wtf.mazy.peel.ui.extensions.ExtensionActionController
 import wtf.mazy.peel.ui.extensions.ExtensionPickerDialog
-import wtf.mazy.peel.ui.extensions.SessionExtensionActions
 import wtf.mazy.peel.util.BrowserLauncher
-import wtf.mazy.peel.util.NotificationUtils
 import wtf.mazy.peel.util.applyBottomScreenInsets
 import wtf.mazy.peel.util.applyToolbarScreenInsets
 import wtf.mazy.peel.util.copyToClipboard
@@ -91,6 +91,7 @@ import wtf.mazy.peel.util.isAutomotiveHost
 import wtf.mazy.peel.util.isSingleWindowHost
 import wtf.mazy.peel.util.isTelevisionHost
 import wtf.mazy.peel.util.shareText
+import wtf.mazy.peel.util.toast
 import java.io.File
 
 abstract class BaseSessionHost : PeelActivity(), SessionHost, TranslationHost {
@@ -151,11 +152,15 @@ abstract class BaseSessionHost : PeelActivity(), SessionHost, TranslationHost {
 
     override fun onStart() {
         super.onStart()
-        if (tracksExtensionState) GeckoRuntimeProvider.addExtensionStateListener(extensionStateListener)
+        if (tracksExtensionState) GeckoRuntimeProvider.addExtensionStateListener(
+            extensionStateListener
+        )
     }
 
     override fun onStop() {
-        if (tracksExtensionState) GeckoRuntimeProvider.removeExtensionStateListener(extensionStateListener)
+        if (tracksExtensionState) GeckoRuntimeProvider.removeExtensionStateListener(
+            extensionStateListener
+        )
         super.onStop()
     }
 
@@ -165,6 +170,7 @@ abstract class BaseSessionHost : PeelActivity(), SessionHost, TranslationHost {
     }
 
     override val hostContext: Context get() = this
+    override val hostScope: CoroutineScope get() = lifecycleScope
     override val hostResources: Resources get() = resources
 
     protected val themeBackgroundColor: Int
@@ -307,7 +313,7 @@ abstract class BaseSessionHost : PeelActivity(), SessionHost, TranslationHost {
     }
 
     override val translationScope: CoroutineScope get() = lifecycleScope
-    override val translationSettings: WebAppSettings get() = effectiveSettings
+    override val translationSettings: EffectiveSettings get() = effectiveSettings
     override val translationLoader: LoadingDialogController by lazy { LoadingDialogController(this) }
 
     override fun setTranslateButtonActive(active: Boolean) {
@@ -319,8 +325,8 @@ abstract class BaseSessionHost : PeelActivity(), SessionHost, TranslationHost {
 
     private val extensionStateListener = ExtensionStateListener { event ->
         val session = geckoSession ?: return@ExtensionStateListener
-        sessionExtensionActions.attach(session)
-        SessionExtensionActions.extensionsChanged = false
+        extensionActions.attach(session)
+        ExtensionActionController.extensionsChanged = false
         if (event.requiresReload) session.reload()
     }
 
@@ -334,7 +340,7 @@ abstract class BaseSessionHost : PeelActivity(), SessionHost, TranslationHost {
     }
 
     private val applyDynamicStatusBar: Boolean
-        get() = effectiveSettings.isDynamicStatusBar == true
+        get() = effectiveSettings.dynamicStatusBar
 
     protected val systemBarController by lazy {
         SystemBarController(
@@ -365,8 +371,8 @@ abstract class BaseSessionHost : PeelActivity(), SessionHost, TranslationHost {
     private val hasPanelControls: Boolean
         get() = appliedControlsMode == WebAppSettings.BROWSER_CONTROLS_PANEL
 
-    protected val sessionExtensionActions by lazy {
-        SessionExtensionActions(
+    protected val extensionActions by lazy {
+        ExtensionActionController(
             activity = this,
             onExtensionsReady = { _ -> if (browserControls != null) rebuildBrowserControls() },
         )
@@ -390,7 +396,7 @@ abstract class BaseSessionHost : PeelActivity(), SessionHost, TranslationHost {
         val activePair = state?.requestedTranslationPair
         val docLang = state?.detectedLanguages?.docLangTag
         val configuredTarget = if (activePair == null && !docLang.isNullOrBlank() &&
-            effectiveSettings.isTranslatorEnabled == true
+            effectiveSettings.translatorEnabled
         ) {
             TranslationLanguages.resolveConfiguredTarget(
                 effectiveSettings.autoTranslatePairs,
@@ -435,7 +441,7 @@ abstract class BaseSessionHost : PeelActivity(), SessionHost, TranslationHost {
                 } catch (_: Throwable) {
                 }
             }
-            NotificationUtils.showToast(this@BaseSessionHost, getString(R.string.cache_cleared))
+            toast(R.string.cache_cleared, long = true)
             // BYPASS_PROXY skips intermediate proxy caches, not proxy routing: it maps to
             // LOAD_BYPASS_CACHE | LOAD_FRESH_CONNECTION, and proxy.onRequest still applies.
             geckoSession?.reload(
@@ -445,7 +451,7 @@ abstract class BaseSessionHost : PeelActivity(), SessionHost, TranslationHost {
     }
 
     protected suspend fun setupThemeColorExtensionIfEnabled() {
-        if (effectiveSettings.isDynamicStatusBar != true) return
+        if (!effectiveSettings.dynamicStatusBar) return
         val session = geckoSession ?: return
         val delegate = session.contentDelegate as? PeelContentDelegate ?: return
         val ext = GeckoRuntimeProvider.ensureThemeColorExtension(applicationContext) ?: return
@@ -491,7 +497,7 @@ abstract class BaseSessionHost : PeelActivity(), SessionHost, TranslationHost {
     protected fun goBackOrElse(onNoTarget: () -> Unit) {
         val session = geckoSession ?: return onNoTarget()
         if (!canGoBack) return onNoTarget()
-        if (effectiveSettings.skipHistoryDomains.isNullOrEmpty()) return session.goBack()
+        if (effectiveSettings.skipHistoryDomains.isEmpty()) return session.goBack()
         if (pendingBack != null) return
         // Session state reaches us on a 10 s timer (browser.sessionstore.interval), so whatever
         // is cached is stale at the moment Back is pressed; the flush forces a fresh snapshot.
@@ -502,7 +508,7 @@ abstract class BaseSessionHost : PeelActivity(), SessionHost, TranslationHost {
     private fun resolveBack(state: GeckoSession.SessionState, onNoTarget: () -> Unit) {
         val session = geckoSession ?: return onNoTarget()
         val history = HistorySnapshot.from(state) ?: return session.goBack()
-        val skip = effectiveSettings.skipHistoryDomains.orEmpty()
+        val skip = effectiveSettings.skipHistoryDomains
         when (val step = HistorySkip.step(history, HistorySkip.BACKWARD, skip)) {
             is HistoryStep.GoTo -> session.gotoHistoryIndex(step.index)
             HistoryStep.Exhausted -> onNoTarget()
@@ -705,7 +711,7 @@ abstract class BaseSessionHost : PeelActivity(), SessionHost, TranslationHost {
         connectionErrorDialog?.dismiss()
         connectionErrorDialog = null
         if (::navigationDelegate.isInitialized) navigationDelegate.cancelPendingPrompts()
-        sessionExtensionActions.detach()
+        extensionActions.detach()
         systemBarController.release()
         SessionHostRegistry.unregister(this)
         super.onDestroy()
@@ -736,7 +742,7 @@ abstract class BaseSessionHost : PeelActivity(), SessionHost, TranslationHost {
     }
 
     protected fun showNoAppFound() {
-        NotificationUtils.showToast(this, getString(R.string.no_app_found))
+        toast(R.string.no_app_found, long = true)
     }
 
     private fun consumeCaptureUri(): Uri? {
@@ -837,7 +843,7 @@ abstract class BaseSessionHost : PeelActivity(), SessionHost, TranslationHost {
     private fun installEdgeToEdgeInsetsListener() {
         val root = browserRoot ?: return
         val insetTypes = WindowInsetsCompat.Type.systemBars() or
-            WindowInsetsCompat.Type.displayCutout()
+                WindowInsetsCompat.Type.displayCutout()
         ViewCompat.setOnApplyWindowInsetsListener(root) { _, insets ->
             val sys = insets.getInsets(insetTypes)
             val ime = insets.getInsets(WindowInsetsCompat.Type.ime())
@@ -907,17 +913,16 @@ abstract class BaseSessionHost : PeelActivity(), SessionHost, TranslationHost {
     protected open val sessionContextId: String? = null
     protected open val sessionPrivateMode: Boolean = false
 
-    protected fun createSession(settings: WebAppSettings): GeckoSession {
+    protected fun createSession(settings: EffectiveSettings): GeckoSession {
         val sessionSettings = GeckoSessionSettings.Builder()
-            .allowJavascript(settings.isAllowJs == true)
+            .allowJavascript(settings.allowJs)
             .apply {
-                if (settings.isRequestDesktop == true) {
+                if (settings.requestDesktop) {
                     userAgentMode(GeckoSessionSettings.USER_AGENT_MODE_DESKTOP)
                     viewportMode(GeckoSessionSettings.VIEWPORT_MODE_DESKTOP)
                 }
-                val customUa = settings.customUserAgent
-                if (settings.isUseCustomUserAgent == true && !customUa.isNullOrBlank()) {
-                    userAgentOverride(customUa)
+                if (settings.useCustomUserAgent && settings.customUserAgent.isNotBlank()) {
+                    userAgentOverride(settings.customUserAgent)
                 }
                 sessionContextId?.let { contextId(it) }
                 usePrivateMode(sessionPrivateMode)
@@ -926,17 +931,17 @@ abstract class BaseSessionHost : PeelActivity(), SessionHost, TranslationHost {
 
         val session = GeckoSession(sessionSettings)
         session.settings.useTrackingProtection =
-            settings.isSafeBrowsing != null && settings.isSafeBrowsing != WebAppSettings.TRACKER_PROTECTION_NONE
+            settings.trackerProtection != WebAppSettings.TRACKER_PROTECTION_NONE
         return session
     }
 
-    protected fun applyWindowFlags(settings: WebAppSettings) {
-        if (settings.isKeepAwake == true) {
+    protected fun applyWindowFlags(settings: EffectiveSettings) {
+        if (settings.keepAwake) {
             window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         } else {
             window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         }
-        if (settings.isDisableScreenshots == true) {
+        if (settings.disableScreenshots) {
             window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
         } else {
             window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
@@ -1005,8 +1010,8 @@ abstract class BaseSessionHost : PeelActivity(), SessionHost, TranslationHost {
     protected open fun createBrowserControls(mode: Int): BrowserControls? {
         val floatingKey = floatingControlsKey ?: return null
         val translateEnabled =
-            translationsSupported && effectiveSettings.isTranslatorEnabled == true
-        val actions = ControlActions(
+            translationsSupported && effectiveSettings.translatorEnabled
+        val actions = ControlCallbacks(
             onBack = if (isAutomotiveHost()) ({ onBackPressedDispatcher.onBackPressed() }) else null,
             onHome = if (ownerWebAppUuid != null) ({ homeAction() }) else null,
             onReload = ::reloadCurrentPage,
@@ -1016,8 +1021,8 @@ abstract class BaseSessionHost : PeelActivity(), SessionHost, TranslationHost {
             onFind = ::openFindInPage,
             onTranslate = if (translateEnabled) ({ openTranslateDialog() }) else null,
             onTranslateLongPress = if (translateEnabled) ({ onTranslateLongPress() }) else null,
-            onExtensions = if (SessionExtensionActions.hasExtensions)
-                ({ ExtensionPickerDialog.show(this, sessionExtensionActions) }) else null,
+            onExtensions = if (ExtensionActionController.hasExtensions)
+                ({ ExtensionPickerDialog.show(this, extensionActions) }) else null,
             onOpenAppList = onOpenAppList(),
         ).toList()
         return buildBrowserControls(mode, floatingKey, actions)
@@ -1039,7 +1044,7 @@ abstract class BaseSessionHost : PeelActivity(), SessionHost, TranslationHost {
 
             else -> FloatingControlsView(
                 parent = parent,
-                webappUuid = floatingKey,
+                webAppUuid = floatingKey,
                 actions = actions,
                 onExpandedChange = { expanded, durationMs ->
                     systemBarController.setDim(expanded, durationMs)
@@ -1055,7 +1060,6 @@ abstract class BaseSessionHost : PeelActivity(), SessionHost, TranslationHost {
 
     protected val controlsMode: Int
         get() = effectiveSettings.browserControlsMode
-            ?: WebAppSettings.BROWSER_CONTROLS_BUTTON
 
     protected fun showBrowserControls() {
         val mode = controlsMode
@@ -1141,7 +1145,7 @@ abstract class BaseSessionHost : PeelActivity(), SessionHost, TranslationHost {
     }
 
     override fun onWebFullscreenExit() {
-        systemBarController.show(effectiveSettings.isShowFullscreen == true)
+        systemBarController.show(effectiveSettings.showFullscreen)
         setToolbarFullscreen(false)
         setBrowserControlsFullscreen(false)
         pullToRefreshController.setSuspended(false)

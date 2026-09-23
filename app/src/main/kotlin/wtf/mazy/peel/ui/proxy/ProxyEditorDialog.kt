@@ -113,17 +113,17 @@ object ProxyEditorDialog {
                     portLayout.error = activity.getString(R.string.proxy_port_invalid)
                     return@setOnClickListener
                 }
-                val proxy = (existing?.copy() ?: Proxy()).apply {
-                    this.name = name
-                    this.type = selectedType
-                    this.host = host
-                    this.port = port
-                    this.username = usernameInput.text?.toString()?.takeIf { it.isNotEmpty() }
-                    this.password = passwordInput.text?.toString()?.takeIf { it.isNotEmpty() }
-                    this.remoteDns = remoteDnsSwitch.isChecked &&
-                            (selectedType == Proxy.TYPE_SOCKS4 || selectedType == Proxy.TYPE_SOCKS5)
-                    this.bypassList = bypassList
-                }
+                val proxy = (existing ?: Proxy()).copy(
+                    name = name,
+                    type = selectedType,
+                    host = host,
+                    port = port,
+                    username = usernameInput.text?.toString()?.takeIf { it.isNotEmpty() },
+                    password = passwordInput.text?.toString()?.takeIf { it.isNotEmpty() },
+                    remoteDns = remoteDnsSwitch.isChecked &&
+                            (selectedType == Proxy.TYPE_SOCKS4 || selectedType == Proxy.TYPE_SOCKS5),
+                    bypassList = bypassList,
+                )
 
                 onSave(proxy)
                 dialog.dismiss()

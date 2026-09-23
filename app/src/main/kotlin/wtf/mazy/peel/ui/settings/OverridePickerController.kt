@@ -26,7 +26,7 @@ class OverridePickerController(
     }
 
     override fun onSettingSelected(setting: SettingDefinition) {
-        val globalSettings = DataManager.instance.defaultSettings.settings
+        val globalSettings = DataManager.globalSettings.settings
         setting.allFields.forEach { field ->
             settings.setValue(field.key, globalSettings.getValue(field.key))
         }
@@ -37,10 +37,10 @@ class OverridePickerController(
         refreshList()
     }
 
-    private fun createViewFactory(): SettingViewFactory =
-        SettingViewFactory(
+    private fun createViewFactory(): SettingRowFactory =
+        SettingRowFactory(
             activity.layoutInflater,
-            SettingViewFactory.ButtonStrategy.Override { setting, row ->
+            SettingRowFactory.ButtonStrategy.Override { setting, row ->
                 removeOverride(setting.key)
                 val rippleDuration =
                     activity.resources.getInteger(android.R.integer.config_shortAnimTime).toLong()
@@ -50,14 +50,14 @@ class OverridePickerController(
         )
 
     private fun refreshList() {
-        val allOverriddenKeys = settings.getOverriddenKeys()
+        val allOverriddenKeys = settings.overriddenKeys
         val compoundKeys =
-            SettingRegistry.getAllSettings().flatMapTo(mutableSetOf()) { setting ->
+            SettingRegistry.all.flatMapTo(mutableSetOf()) { setting ->
                 setting.allFields.drop(1).map { it.key }
             }
         val overriddenKeys = allOverriddenKeys.filter { it !in compoundKeys }
 
-        val overridden = overriddenKeys.mapNotNull { SettingRegistry.getSettingByKey(it) }
+        val overridden = overriddenKeys.mapNotNull { SettingRegistry.byKey(it) }
 
         container.removeAllViews()
         overridden.forEachIndexed { index, setting ->
@@ -67,7 +67,7 @@ class OverridePickerController(
     }
 
     private fun removeOverride(key: String) {
-        val setting = SettingRegistry.getSettingByKey(key) ?: return
+        val setting = SettingRegistry.byKey(key) ?: return
         setting.allFields.forEach { settings.setValue(it.key, null) }
     }
 

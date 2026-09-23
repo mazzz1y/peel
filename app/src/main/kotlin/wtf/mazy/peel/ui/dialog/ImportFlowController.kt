@@ -3,7 +3,6 @@ package wtf.mazy.peel.ui.dialog
 import android.app.Activity
 import android.net.Uri
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.CancellationException
@@ -16,10 +15,10 @@ import wtf.mazy.peel.model.backup.BackupSource
 import wtf.mazy.peel.ui.common.LoadingDialogController
 import wtf.mazy.peel.ui.common.runWithLoader
 import wtf.mazy.peel.ui.importmapping.ImportMappingContract
-import wtf.mazy.peel.util.NotificationUtils
+import wtf.mazy.peel.util.toast
 import javax.crypto.BadPaddingException
 
-class ImportDialogHelper(
+class ImportFlowController(
     private val activity: AppCompatActivity,
     mappingActivity: Class<out Activity>,
 ) {
@@ -30,9 +29,19 @@ class ImportDialogHelper(
         activity.registerForActivityResult(ImportMappingContract(mappingActivity)) { selection ->
             when (selection) {
                 is ImportMappingContract.Selection.Groups ->
-                    performGroupSharedImport(selection.parsed, selection.appUuids, selection.groupUuids)
+                    performGroupSharedImport(
+                        selection.parsed,
+                        selection.appUuids,
+                        selection.groupUuids
+                    )
+
                 is ImportMappingContract.Selection.Apps ->
-                    performSharedImport(selection.parsed, selection.appUuids, selection.destinationGroupUuid)
+                    performSharedImport(
+                        selection.parsed,
+                        selection.appUuids,
+                        selection.destinationGroupUuid
+                    )
+
                 null -> Unit
             }
         }
@@ -96,11 +105,7 @@ class ImportDialogHelper(
             when (outcome) {
                 is DecryptOutcome.Ok -> dispatchParsed(outcome.parsed)
                 DecryptOutcome.WrongPassword -> {
-                    NotificationUtils.showToast(
-                        activity,
-                        activity.getString(R.string.backup_password_wrong),
-                        Toast.LENGTH_LONG,
-                    )
+                    activity.toast(R.string.backup_password_wrong, long = true)
                     promptForPassword(source)
                 }
 
@@ -174,11 +179,7 @@ class ImportDialogHelper(
             loadingRes = R.string.importing,
             ioTask = { BackupManager.importShared(parsed, selectedUuids, destinationGroupUuid) },
         ) { imported ->
-            NotificationUtils.showToast(
-                activity,
-                activity.getString(R.string.import_count_message, imported),
-                Toast.LENGTH_SHORT,
-            )
+            activity.toast(R.string.import_count_message, imported)
         }
     }
 
@@ -197,20 +198,12 @@ class ImportDialogHelper(
             loadingRes = R.string.importing,
             ioTask = { BackupManager.importGroupShared(parsed, selectedUuids, selectedGroupUuids) },
         ) { imported ->
-            NotificationUtils.showToast(
-                activity,
-                activity.getString(R.string.import_count_message, imported),
-                Toast.LENGTH_SHORT,
-            )
+            activity.toast(R.string.import_count_message, imported)
         }
     }
 
     private fun showError() {
-        NotificationUtils.showToast(
-            activity,
-            activity.getString(R.string.import_failed),
-            Toast.LENGTH_LONG,
-        )
+        activity.toast(R.string.import_failed, long = true)
     }
 
     private fun showSuccessDialog() {
@@ -218,7 +211,7 @@ class ImportDialogHelper(
             .setMessage(
                 activity.getString(
                     R.string.import_success,
-                    DataManager.instance.activeWebsitesCount,
+                    DataManager.webAppCount,
                 )
             )
             .setPositiveButton(R.string.ok, null)

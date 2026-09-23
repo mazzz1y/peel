@@ -38,9 +38,9 @@ object ExtensionUiBridge : ExtensionUiHooks {
         ExtensionIconCache.delete(context, extension.id)
 
     override fun onUserExtensionsListed(extensions: List<WebExtension>) =
-        SessionExtensionActions.ensureExtensionDelegatesRegistered(extensions)
+        ExtensionActionController.ensureExtensionDelegatesRegistered(extensions)
 
     override fun onExtensionStateChanged(event: ExtensionStateEvent) {
-        SessionExtensionActions.extensionsChanged = true
+        ExtensionActionController.extensionsChanged = true
     }
 }

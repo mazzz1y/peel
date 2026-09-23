@@ -48,7 +48,7 @@ class MediaPlaybackService : MediaSessionService() {
     private var appTitle = ""
     private var appIcon: Bitmap? = null
     private var appIconBytes: ByteArray? = null
-    private var webappUuid: String? = null
+    private var webAppUuid: String? = null
 
     private var trackTitle: String? = null
     private var trackArtist: String? = null
@@ -164,7 +164,7 @@ class MediaPlaybackService : MediaSessionService() {
     private fun handleStart(intent: Intent) {
         appTitle = intent.getStringExtra(EXTRA_TITLE) ?: ""
         generation = intent.getIntExtra(EXTRA_GENERATION, 0)
-        webappUuid = intent.getStringExtra(EXTRA_WEBAPP_UUID)
+        webAppUuid = intent.getStringExtra(EXTRA_WEBAPP_UUID)
         appIcon = intent.takeStashedBitmap()
         appIconBytes = appIcon?.toPngBytes()
         IntentCompat.getParcelableExtra(intent, EXTRA_CONTENT_INTENT, PendingIntent::class.java)
@@ -291,7 +291,7 @@ class MediaPlaybackService : MediaSessionService() {
             Intent(action).apply {
                 setPackage(packageName)
                 putExtra(EXTRA_GENERATION, generation)
-                putExtra(EXTRA_WEBAPP_UUID, webappUuid)
+                putExtra(EXTRA_WEBAPP_UUID, webAppUuid)
                 extras?.extras?.let { putExtras(it) }
             })
     }
@@ -466,14 +466,14 @@ class MediaPlaybackService : MediaSessionService() {
             context: Context,
             title: String,
             icon: Bitmap?,
-            webappUuid: String,
+            webAppUuid: String,
             generation: Int,
             contentIntent: PendingIntent?,
         ): Intent {
             return Intent(context, MediaPlaybackService::class.java).apply {
                 action = ACTION_START
                 putExtra(EXTRA_TITLE, title)
-                putExtra(EXTRA_WEBAPP_UUID, webappUuid)
+                putExtra(EXTRA_WEBAPP_UUID, webAppUuid)
                 putExtra(EXTRA_GENERATION, generation)
                 putExtra(EXTRA_CONTENT_INTENT, contentIntent)
                 icon?.let { putExtra(EXTRA_BITMAP_ID, stashBitmap(it)) }

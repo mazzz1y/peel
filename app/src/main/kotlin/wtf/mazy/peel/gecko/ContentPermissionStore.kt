@@ -1,9 +1,7 @@
 package wtf.mazy.peel.gecko
 
 import android.content.Context
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -12,7 +10,10 @@ import org.mozilla.geckoview.GeckoResult
 import org.mozilla.geckoview.GeckoSession.PermissionDelegate
 import org.mozilla.geckoview.GeckoSession.PermissionDelegate.ContentPermission
 import org.mozilla.geckoview.StorageController
+import wtf.mazy.peel.gecko.ContentPermissionStore.requestSweep
+import wtf.mazy.peel.gecko.ContentPermissionStore.valueFor
 import wtf.mazy.peel.gecko.GeckoRuntimeProvider.awaitNullable
+import wtf.mazy.peel.util.App
 import java.util.concurrent.atomic.AtomicBoolean
 
 /**
@@ -38,7 +39,6 @@ import java.util.concurrent.atomic.AtomicBoolean
  */
 object ContentPermissionStore {
 
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
 
     private val peelOwned = setOf(PermissionDelegate.PERMISSION_DESKTOP_NOTIFICATION)
 
@@ -75,7 +75,7 @@ object ContentPermissionStore {
         if (GeckoRuntimeProvider.runtimeOrNull() == null) return
         if (!pending.compareAndSet(true, false)) return
         val appContext = context.applicationContext
-        scope.launch { sweep(appContext) }
+        App.appScope.launch(Dispatchers.Main.immediate) { sweep(appContext) }
     }
 
     suspend fun neutralize(context: Context, permissions: List<ContentPermission>) {

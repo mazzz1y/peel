@@ -2,21 +2,20 @@ package wtf.mazy.peel.browser
 
 import android.content.Context
 import android.util.Log
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
-import kotlin.time.Duration.Companion.milliseconds
 import org.json.JSONObject
 import org.mozilla.geckoview.WebExtension
 import wtf.mazy.peel.model.DataManager
+import wtf.mazy.peel.util.App
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicLong
 import java.util.concurrent.atomic.AtomicReference
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * Keeps a privileged extension in sync with a snapshot derived from [DataManager] state.
@@ -34,8 +33,6 @@ abstract class ExtensionSyncBridge<Snapshot : Any>(
     private val port = AtomicReference<WebExtension.Port?>(null)
     private val attached = AtomicBoolean(false)
     private val subscriptionStarted = AtomicBoolean(false)
-
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
     @Volatile
     private var lastSnapshot: Snapshot? = null
@@ -124,8 +121,8 @@ abstract class ExtensionSyncBridge<Snapshot : Any>(
 
     private fun startSubscription() {
         if (!subscriptionStarted.compareAndSet(false, true)) return
-        scope.launch {
-            DataManager.instance.state.collect {
+        App.appScope.launch {
+            DataManager.state.collect {
                 withContext(Dispatchers.Main) { push(force = false) }
             }
         }

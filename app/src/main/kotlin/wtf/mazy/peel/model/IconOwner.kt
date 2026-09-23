@@ -4,8 +4,8 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import androidx.core.graphics.createBitmap
 import androidx.core.graphics.scale
-import wtf.mazy.peel.shortcut.LetterIconGenerator
 import wtf.mazy.peel.util.App
+import wtf.mazy.peel.util.LetterIconGenerator
 import java.io.File
 import java.io.FileOutputStream
 import java.io.RandomAccessFile

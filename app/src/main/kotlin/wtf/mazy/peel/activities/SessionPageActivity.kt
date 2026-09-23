@@ -21,7 +21,7 @@ abstract class SessionPageActivity : BaseSessionHost() {
 
     override val externalLinkExcludeUuid: String? = null
     override val externalLinkPeelApps: List<WebApp>
-        get() = DataManager.instance.activeWebsites
+        get() = DataManager.sortedWebApps
     override val externalLinkIncludeLoadHere: Boolean = false
 
     override val showToolbar: Boolean = true
@@ -70,7 +70,7 @@ abstract class SessionPageActivity : BaseSessionHost() {
             activity = this,
             getRuntime = { GeckoRuntimeProvider.getRuntime(this) },
             scope = lifecycleScope,
-            webappName = webAppName,
+            webAppName = webAppName,
         )
         bindDelegates(
             session,

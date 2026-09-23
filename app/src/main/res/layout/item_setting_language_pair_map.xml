@@ -36,6 +36,7 @@
             app:icon="@drawable/ic_symbols_close_24" />
 
     </LinearLayout>
+
     <View
         android:id="@+id/hairlineEntries"
         style="@style/SettingsSurfaceRow.Hairline"

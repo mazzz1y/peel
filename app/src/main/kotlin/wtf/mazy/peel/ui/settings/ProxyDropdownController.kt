@@ -12,41 +12,45 @@ import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.Proxy
 import wtf.mazy.peel.model.SandboxOwner
 import wtf.mazy.peel.ui.bindDropdown
+import wtf.mazy.peel.ui.common.Draft
 
-class ProxyDropdownController(
+class ProxyDropdownController<T : SandboxOwner<T>>(
     private val activity: AppCompatActivity,
-    private val owner: SandboxOwner,
+    private val draft: Draft<T>,
     private val proxyRow: View,
     private val proxyButton: MaterialButton,
 ) {
 
     private var proxies: List<Proxy> = emptyList()
 
+    private val owner: T
+        get() = draft.value
+
+    private fun setProxy(uuid: String?) = draft.update { it.withSandbox(proxyUuid = uuid) }
+
     fun setup() {
         refresh()
         activity.lifecycleScope.launch {
             activity.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                DataManager.instance.state.collect { refresh() }
+                DataManager.state.collect { refresh() }
             }
         }
     }
 
     fun refresh() {
-        proxies = DataManager.instance.getProxies().sortedBy { it.displayName().lowercase() }
+        proxies = DataManager.proxies.sortedBy { it.displayName().lowercase() }
 
         val visible = owner.isUseContainer && proxies.isNotEmpty()
         proxyRow.visibility = if (visible) View.VISIBLE else View.GONE
         if (!visible) {
-            if (proxies.isEmpty() && owner.proxyUuid != null) owner.proxyUuid = null
+            if (proxies.isEmpty() && owner.proxyUuid != null) setProxy(null)
             return
         }
 
         val directLabel = activity.getString(R.string.proxy_direct)
         val labels = listOf(directLabel) + proxies.map { it.displayName() }
 
-        if (owner.proxyUuid != null && proxies.none { it.uuid == owner.proxyUuid }) {
-            owner.proxyUuid = null
-        }
+        if (owner.proxyUuid != null && proxies.none { it.uuid == owner.proxyUuid }) setProxy(null)
 
         proxyButton.bindDropdown(
             items = labels,
@@ -58,7 +62,7 @@ class ProxyDropdownController(
                 }
             },
             onSelected = { i ->
-                owner.proxyUuid = if (i == 0) null else proxies[i - 1].uuid
+                setProxy(if (i == 0) null else proxies[i - 1].uuid)
             },
         )
     }

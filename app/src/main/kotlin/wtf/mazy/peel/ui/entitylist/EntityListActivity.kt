@@ -61,7 +61,7 @@ abstract class EntityListActivity<T : Any> : PeelActivity(), EntityListHost {
     protected open fun subscribeDataChanges(onChange: () -> Unit) {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                DataManager.instance.state.collect { onChange() }
+                DataManager.state.collect { onChange() }
             }
         }
     }

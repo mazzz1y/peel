@@ -7,7 +7,9 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.TextView
 import androidx.core.net.toUri
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.materialswitch.MaterialSwitch
 import kotlinx.coroutines.Dispatchers
@@ -20,16 +22,16 @@ import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.IconOwner
 import wtf.mazy.peel.model.db.PushSubscriptionEntity
 import wtf.mazy.peel.push.PushBridge
-import wtf.mazy.peel.shortcut.LetterIconGenerator
 import wtf.mazy.peel.ui.PickerDialog
 import wtf.mazy.peel.ui.dialog.dismissOnDestroyOf
 import wtf.mazy.peel.ui.entitylist.EntityListActivity
 import wtf.mazy.peel.ui.entitylist.EntityListAdapter
-import wtf.mazy.peel.ui.entitylist.EntityRowActions
+import wtf.mazy.peel.ui.entitylist.EntityRowListener
 import wtf.mazy.peel.ui.push.PushSubscriptionItem
 import wtf.mazy.peel.ui.push.PushSubscriptionListAdapter
 import wtf.mazy.peel.util.AppPrefs
-import wtf.mazy.peel.util.NotificationUtils
+import wtf.mazy.peel.util.LetterIconGenerator
+import wtf.mazy.peel.util.toast
 
 class NotificationListActivity : EntityListActivity<PushSubscriptionItem>() {
 
@@ -57,6 +59,11 @@ class NotificationListActivity : EntityListActivity<PushSubscriptionItem>() {
 
     override fun subscribeDataChanges(onChange: () -> Unit) {
         super.subscribeDataChanges(::refreshPermissions)
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                DataManager.pushSubscriptionsChanged.collect { refreshPermissions() }
+            }
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -165,7 +172,7 @@ class NotificationListActivity : EntityListActivity<PushSubscriptionItem>() {
     }
 
     override fun createAdapter(): EntityListAdapter<PushSubscriptionItem, *> =
-        PushSubscriptionListAdapter(SubscriptionActions())
+        PushSubscriptionListAdapter(SubscriptionRowListener())
 
     override fun loadEntities(): List<PushSubscriptionItem> {
         val unmatched = subscriptions.toMutableList()
@@ -211,7 +218,7 @@ class NotificationListActivity : EntityListActivity<PushSubscriptionItem>() {
         allowed: Boolean,
     ): PushSubscriptionItem {
         val owner = contextId?.takeIf(String::isNotEmpty)
-            ?.let(DataManager.instance::getSandboxOwner) as? IconOwner
+            ?.let(DataManager::sandboxOwner) as? IconOwner
         return PushSubscriptionItem(
             key = key,
             permission = permission,
@@ -227,7 +234,7 @@ class NotificationListActivity : EntityListActivity<PushSubscriptionItem>() {
         lifecycleScope.launch {
             val loadedPermissions =
                 PushBridge.getNotificationPermissions(this@NotificationListActivity)
-            val loadedSubscriptions = DataManager.instance.getPushSubscriptions()
+            val loadedSubscriptions = DataManager.pushSubscriptions()
             if (isFinishing || isDestroyed) return@launch
             permissions = loadedPermissions
             subscriptions = loadedSubscriptions
@@ -268,10 +275,7 @@ class NotificationListActivity : EntityListActivity<PushSubscriptionItem>() {
                     )
                     if (isFinishing || isDestroyed) return@launch
                     refreshPermissions()
-                    NotificationUtils.showToast(
-                        this@NotificationListActivity,
-                        getString(R.string.push_subscription_deleted),
-                    )
+                    toast(R.string.push_subscription_deleted, long = true)
                 }
             }
             .setNegativeButton(R.string.cancel, null)
@@ -279,7 +283,7 @@ class NotificationListActivity : EntityListActivity<PushSubscriptionItem>() {
             .dismissOnDestroyOf(this)
     }
 
-    private inner class SubscriptionActions : EntityRowActions<PushSubscriptionItem> {
+    private inner class SubscriptionRowListener : EntityRowListener<PushSubscriptionItem> {
         override fun onItemClick(item: PushSubscriptionItem) = Unit
         override fun onItemIconClick(item: PushSubscriptionItem) = Unit
         override fun onItemMenu(view: View, item: PushSubscriptionItem) {

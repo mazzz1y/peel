@@ -6,22 +6,25 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.PopupMenu
+import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.EntityCloner
 import wtf.mazy.peel.model.WebApp
-import wtf.mazy.peel.shortcut.ShortcutHelper
+import wtf.mazy.peel.shortcut.Shortcuts
 import wtf.mazy.peel.ui.common.ShareSecretsDialog
 import wtf.mazy.peel.ui.common.Theming
 import wtf.mazy.peel.ui.entitylist.EntityListAdapter
 import wtf.mazy.peel.ui.entitylist.EntityListViewHolder
 import wtf.mazy.peel.ui.entitylist.EntityRow
-import wtf.mazy.peel.ui.entitylist.EntityRowActions
+import wtf.mazy.peel.ui.entitylist.EntityRowListener
 import wtf.mazy.peel.ui.entitylist.EntitySelectionController
+import wtf.mazy.peel.ui.entitylist.PendingDeletes
 import wtf.mazy.peel.ui.entitylist.binders.WebAppBinder
 import wtf.mazy.peel.ui.entitylist.scheduleEntityDelete
 import wtf.mazy.peel.util.ActivityRoutes
+import wtf.mazy.peel.util.App
 import wtf.mazy.peel.util.BrowserLauncher.launch
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.prettyBaseUrl
@@ -31,7 +34,7 @@ class WebAppListAdapter(
     private val selection: EntitySelectionController<WebApp>? = null,
 ) : EntityListAdapter<WebApp, WebAppListAdapter.ViewHolder>(
     binder = WebAppBinder,
-    actions = WebAppItemActions(activity, selection),
+    actions = WebAppRowListener(activity, selection),
     checkIconColor = Theming.colorPrimary(activity),
 ) {
 
@@ -69,19 +72,19 @@ class WebAppListAdapter(
 
     private fun buildRows(): List<EntityRow<WebApp>> {
         val all = when (groupFilter) {
-            null -> DataManager.instance.activeWebsites
+            null -> DataManager.sortedWebApps
             WebAppListFragment.UNGROUPED_FILTER ->
-                DataManager.instance.activeWebsitesForGroup(null)
+                DataManager.webAppsInGroup(null)
 
-            else -> DataManager.instance.activeWebsitesForGroup(groupFilter)
+            else -> DataManager.webAppsInGroup(groupFilter)
         }
-        val pending = DataManager.instance.pendingDeleteWebAppUuids
+        val pending = PendingDeletes.webApps
         val afterPending = if (pending.isEmpty()) all else all.filterNot { it.uuid in pending }
         val filtered = if (searchQuery.isBlank()) {
             afterPending
         } else {
             val query = searchQuery.lowercase()
-            val groupNames = DataManager.instance.sortedGroups.associate { it.uuid to it.title }
+            val groupNames = DataManager.sortedGroups.associate { it.uuid to it.title }
             afterPending.filter { app ->
                 app.title.lowercase().contains(query) ||
                         app.baseUrl.lowercase().contains(query) ||
@@ -95,7 +98,7 @@ class WebAppListAdapter(
                 selected = selection?.isSelected(app.uuid) == true,
                 inSelectionMode = inSelectionMode,
                 tertiaryText = if (showGroupLabels)
-                    app.groupUuid?.let { DataManager.instance.getGroup(it)?.title }
+                    app.groupUuid?.let { DataManager.group(it)?.title }
                 else null,
             )
         }
@@ -107,10 +110,10 @@ class WebAppListAdapter(
         return rows.isEmpty()
     }
 
-    private class WebAppItemActions(
+    private class WebAppRowListener(
         private val activity: AppCompatActivity,
         private val selection: EntitySelectionController<WebApp>?,
-    ) : EntityRowActions<WebApp> {
+    ) : EntityRowListener<WebApp> {
 
         override fun onItemClick(item: WebApp) {
             launch(item, activity, fromMenu = true)
@@ -124,11 +127,11 @@ class WebAppListAdapter(
             showPopupMenu(view, item)
         }
 
-        private fun showPopupMenu(view: View, webapp: WebApp) {
+        private fun showPopupMenu(view: View, webApp: WebApp) {
             val popup = PopupMenu(activity, view)
             popup.menuInflater.inflate(R.menu.webapp_item_menu, popup.menu)
 
-            val groups = DataManager.instance.sortedGroups
+            val groups = DataManager.sortedGroups
             if (groups.isNotEmpty()) {
                 val subMenu = popup.menu.addSubMenu(
                     0, 0, 20, activity.getString(R.string.move_to_group),
@@ -147,23 +150,23 @@ class WebAppListAdapter(
             popup.setOnMenuItemClickListener { menuItem ->
                 when (menuItem.itemId) {
                     R.id.action_settings -> {
-                        openSettings(webapp); true
+                        openSettings(webApp); true
                     }
 
                     R.id.action_add_to_home -> {
-                        ShortcutHelper.createShortcut(webapp, activity); true
+                        Shortcuts.createShortcut(webApp, activity); true
                     }
 
                     R.id.action_share -> {
-                        shareWebApp(webapp); true
+                        shareWebApp(webApp); true
                     }
 
                     R.id.action_clone -> {
-                        cloneWebApp(webapp); true
+                        cloneWebApp(webApp); true
                     }
 
                     R.id.action_delete -> {
-                        deleteWebApp(webapp); true
+                        deleteWebApp(webApp); true
                     }
 
                     else -> {
@@ -171,9 +174,9 @@ class WebAppListAdapter(
                         if (groupIndex in 0..groups.size) {
                             val targetGroupUuid =
                                 if (groupIndex < groups.size) groups[groupIndex].uuid else null
-                            DataManager.instance.appScope.launch {
-                                DataManager.instance.moveWebAppsToGroup(
-                                    listOf(webapp.uuid),
+                            activity.lifecycleScope.launch {
+                                DataManager.moveWebAppsToGroup(
+                                    listOf(webApp.uuid),
                                     targetGroupUuid,
                                 )
                             }
@@ -187,37 +190,37 @@ class WebAppListAdapter(
             popup.show()
         }
 
-        private fun openSettings(webapp: WebApp) {
+        private fun openSettings(webApp: WebApp) {
             val intent = Intent(activity, ActivityRoutes.webAppSettings)
-            intent.putExtra(Const.INTENT_WEBAPP_UUID, webapp.uuid)
+            intent.putExtra(Const.INTENT_WEBAPP_UUID, webApp.uuid)
             (activity as? WebAppListHost)?.launchSettings(intent)
                 ?: activity.startActivity(intent)
         }
 
-        private fun cloneWebApp(webapp: WebApp) {
-            DataManager.instance.appScope.launch {
-                EntityCloner.cloneWebApp(webapp)
+        private fun cloneWebApp(webApp: WebApp) {
+            App.appScope.launch {
+                EntityCloner.cloneWebApp(webApp)
             }
         }
 
-        private fun shareWebApp(webapp: WebApp) {
+        private fun shareWebApp(webApp: WebApp) {
             val shareHost = requireNotNull(activity as? WebAppShareHost) {
                 "shareWebApp requires the host activity to implement WebAppShareHost"
             }
-            ShareSecretsDialog.confirmForWebApps(activity, listOf(webapp)) { includeSecrets ->
-                shareHost.shareApps(listOf(webapp), includeSecrets)
+            ShareSecretsDialog.confirmForWebApps(activity, listOf(webApp)) { includeSecrets ->
+                shareHost.shareApps(listOf(webApp), includeSecrets)
             }
         }
 
-        private fun deleteWebApp(webapp: WebApp) {
+        private fun deleteWebApp(webApp: WebApp) {
             val refreshHost = activity as? WebAppShareHost
             scheduleEntityDelete(
                 activity = activity,
-                uuids = listOf(webapp.uuid),
-                message = activity.getString(R.string.x_was_removed, webapp.title),
-                pendingDeleteSet = DataManager.instance.pendingDeleteWebAppUuids,
+                uuids = listOf(webApp.uuid),
+                message = activity.getString(R.string.x_was_removed, webApp.title),
+                pendingDeleteSet = PendingDeletes.webApps,
                 onPendingChanged = { refreshHost?.refreshWebAppList() },
-                commitDelete = { uuids -> DataManager.instance.deleteWebApps(uuids, activity) },
+                commitDelete = { uuids -> DataManager.deleteWebApps(uuids) },
             )
         }
 

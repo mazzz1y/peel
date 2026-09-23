@@ -1,8 +1,8 @@
 package wtf.mazy.peel.model
 
 data class DataState(
-    val websites: List<WebApp>,
+    val webApps: List<WebApp>,
     val groups: List<WebAppGroup>,
-    val defaultSettings: WebApp,
+    val globalSettings: WebApp,
     val proxies: List<Proxy> = emptyList(),
 )

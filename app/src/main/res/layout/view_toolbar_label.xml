@@ -9,8 +9,8 @@
     android:ellipsize="end"
     android:focusable="true"
     android:gravity="center_vertical"
-    android:maxLines="1"
     android:maxWidth="@dimen/toolbar_label_max_width"
+    android:maxLines="1"
     android:paddingHorizontal="8dp"
     android:textAppearance="?attr/textAppearanceLabelMedium"
     android:textColor="?attr/colorOnSurfaceVariant" />

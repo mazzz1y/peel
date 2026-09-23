@@ -12,7 +12,7 @@ fun Context.isAutomotiveHost(): Boolean =
     packageManager.hasSystemFeature(PackageManager.FEATURE_AUTOMOTIVE)
 
 /**
- * Hosts where the launcher offers no task switching and webapp shortcuts open full-screen
+ * Hosts where the launcher offers no task switching and webApp shortcuts open full-screen
  * with no route back to Peel itself: the browser must offer an explicit way home.
  */
 fun Context.isSingleWindowHost(): Boolean = isTelevisionHost() || isAutomotiveHost()

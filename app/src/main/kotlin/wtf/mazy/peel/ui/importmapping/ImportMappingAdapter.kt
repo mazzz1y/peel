@@ -13,9 +13,9 @@ import com.google.android.material.checkbox.MaterialCheckBox
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.StableIdRegistry
 import wtf.mazy.peel.model.WebAppSurrogate
-import wtf.mazy.peel.shortcut.LetterIconGenerator
 import wtf.mazy.peel.ui.common.GroupPosition
 import wtf.mazy.peel.ui.common.SettingsSurface
+import wtf.mazy.peel.util.LetterIconGenerator
 
 class ImportMappingAdapter(
     private val items: List<WebAppSurrogate>,

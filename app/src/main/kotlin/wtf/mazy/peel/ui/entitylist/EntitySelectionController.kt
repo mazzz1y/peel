@@ -7,10 +7,10 @@ import androidx.annotation.IdRes
 import androidx.annotation.MenuRes
 import androidx.annotation.StringRes
 import androidx.appcompat.widget.PopupMenu
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.launch
 import wtf.mazy.peel.R
-import wtf.mazy.peel.model.DataManager
 
 data class SelectionConfig(
     @get:StringRes val titleResForCount: Int,
@@ -25,7 +25,7 @@ data class SelectionConfig(
 
 class EntitySelectionController<T : Any>(
     private val host: EntityListHost,
-    private val actions: EntitySelectionActions<T>,
+    private val actions: EntitySelectionHandler<T>,
     private val resolveItems: (Set<String>) -> List<T>,
     private val onChanged: () -> Unit,
     private val isSearchActive: () -> Boolean = { false },
@@ -145,7 +145,7 @@ class EntitySelectionController<T : Any>(
                 val target = targets[idx]
                 val uuids = selectedUuids.toList()
                 exit()
-                DataManager.instance.appScope.launch {
+                host.hostActivity.lifecycleScope.launch {
                     actions.commitMove(uuids, target.groupUuid)
                 }
                 true

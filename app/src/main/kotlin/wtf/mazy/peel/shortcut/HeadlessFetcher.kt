@@ -12,13 +12,11 @@ import android.widget.FrameLayout
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.TimeoutCancellationException
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.withTimeoutOrNull
-import kotlin.time.Duration.Companion.milliseconds
 import org.json.JSONArray
 import org.json.JSONObject
 import org.mozilla.geckoview.AllowOrDeny
@@ -30,8 +28,9 @@ import org.mozilla.geckoview.WebExtension
 import org.mozilla.geckoview.WebRequestError
 import wtf.mazy.peel.R
 import wtf.mazy.peel.gecko.GeckoRuntimeProvider
-import wtf.mazy.peel.model.WebAppSettings
+import wtf.mazy.peel.model.EffectiveSettings
 import java.net.URL
+import kotlin.time.Duration.Companion.milliseconds
 
 data class FetchCandidate(
     val title: String?,
@@ -66,8 +65,9 @@ private data class PendingMessage(
 
 class HeadlessFetcher(
     private val activity: Activity,
+    private val scope: CoroutineScope,
     private val url: String,
-    private val settings: WebAppSettings,
+    private val settings: EffectiveSettings,
     private val contextId: String?,
     private val usePrivateMode: Boolean,
     private val onProgress: ((String) -> Unit)? = null,
@@ -75,10 +75,10 @@ class HeadlessFetcher(
 ) {
     private val appContext = activity.applicationContext
     private val handler = Handler(Looper.getMainLooper())
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     private var desktopMode = false
     private var customUserAgent: String? = null
     private var finished = false
+    private var job: Job? = null
     private var geckoView: GeckoView? = null
     private var geckoSession: GeckoSession? = null
     private var port: WebExtension.Port? = null
@@ -91,13 +91,12 @@ class HeadlessFetcher(
     private var loadErrored: Boolean = false
 
     fun start() {
-        desktopMode = settings.isRequestDesktop == true
-        customUserAgent =
-            if (settings.isUseCustomUserAgent == true) settings.customUserAgent else null
+        desktopMode = settings.requestDesktop
+        customUserAgent = settings.customUserAgent.takeIf { settings.useCustomUserAgent }
 
         val loadUrl = settings.upgradeUrl(url)
 
-        scope.launch {
+        job = scope.launch(Dispatchers.Main) {
             val result = try {
                 withTimeout(TIMEOUT_MS.milliseconds) { doFetch(loadUrl) }
             } catch (_: TimeoutCancellationException) {
@@ -505,7 +504,7 @@ class HeadlessFetcher(
         if (finished) return
         finished = true
         handler.removeCallbacksAndMessages(null)
-        scope.cancel()
+        job?.cancel()
         onResult(result)
     }
 

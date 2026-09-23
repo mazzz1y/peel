@@ -6,13 +6,13 @@ import wtf.mazy.peel.R
 import wtf.mazy.peel.browser.SessionHandoff
 import wtf.mazy.peel.gecko.GeckoRuntimeProvider
 import wtf.mazy.peel.model.DataManager
-import wtf.mazy.peel.model.WebAppSettings
+import wtf.mazy.peel.model.EffectiveSettings
 import wtf.mazy.peel.ui.extensions.ExtensionPageLaunch
 
 class ExtensionPageActivity : SessionPageActivity() {
 
-    override val effectiveSettings: WebAppSettings
-        get() = DataManager.instance.defaultSettings.settings
+    override val effectiveSettings: EffectiveSettings
+        get() = DataManager.globalEffectiveSettings
 
     override val tracksExtensionState: Boolean = false
 
@@ -37,7 +37,8 @@ class ExtensionPageActivity : SessionPageActivity() {
     }
 
     private fun openOptionsPage() {
-        val extensionId = intent.getStringExtra(ExtensionPageLaunch.EXTRA_EXTENSION_ID) ?: run { finish(); return }
+        val extensionId = intent.getStringExtra(ExtensionPageLaunch.EXTRA_EXTENSION_ID)
+            ?: run { finish(); return }
         lifecycleScope.launch {
             val extensions = GeckoRuntimeProvider.listUserExtensions(this@ExtensionPageActivity)
             val ext = extensions.find { it.id == extensionId } ?: run { finish(); return@launch }

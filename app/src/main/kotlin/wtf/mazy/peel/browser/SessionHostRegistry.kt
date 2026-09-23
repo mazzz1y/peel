@@ -49,7 +49,8 @@ object SessionHostRegistry {
 
     fun finishBrowsers() = finish { it.isBrowser }
 
-    fun finishPopupsOwnedBy(ownerUuid: String) = finish { !it.isBrowser && it.ownerUuid == ownerUuid }
+    fun finishPopupsOwnedBy(ownerUuid: String) =
+        finish { !it.isBrowser && it.ownerUuid == ownerUuid }
 
     private fun finish(predicate: (Entry) -> Boolean) {
         val targets = synchronized(lock) { hosts.filterValues(predicate).keys.toList() }

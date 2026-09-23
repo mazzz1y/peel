@@ -26,7 +26,7 @@ class PeelContentDelegate(
     }
 
     fun setupThemeColorExtension(ext: WebExtension, session: GeckoSession) {
-        if (host.effectiveSettings.isDynamicStatusBar != true) return
+        if (!host.effectiveSettings.dynamicStatusBar) return
         session.webExtensionController.setMessageDelegate(
             ext,
             object : WebExtension.MessageDelegate {

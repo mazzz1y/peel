@@ -39,12 +39,11 @@ object BackupManager {
     }
 
     suspend fun exportFullBackup(uri: Uri, password: CharArray? = null): Boolean {
-        val dataManager = DataManager.instance
-        dataManager.persistDefaultSettings()
-        val websites = dataManager.getWebsites()
+        DataManager.persistGlobalSettings()
+        val state = DataManager.state.value
         return BackupArchiveCodec.writeBackupToUri(
-            buildFullBackupData(dataManager, websites),
-            websites + dataManager.getGroups(),
+            buildFullBackupData(state),
+            state.webApps + state.groups,
             uri,
             password,
         )
@@ -58,7 +57,9 @@ object BackupManager {
         val backupData = BackupData(
             version = BackupPolicy.BACKUP_VERSION,
             payloadType = PAYLOAD_APP_SHARE,
-            websites = webApps.map { it.toSurrogate().copy(groupUuid = null).forShare(includeSecrets) },
+            websites = webApps.map {
+                it.toSurrogate().copy(groupUuid = null).forShare(includeSecrets)
+            },
         )
         return BackupArchiveCodec.buildBackupFile(backupData, webApps, "app")
     }
@@ -104,16 +105,13 @@ object BackupManager {
         return BackupImportService.importGroupShared(parsed, selectedUuids, selectedGroupUuids)
     }
 
-    private fun buildFullBackupData(
-        dataManager: DataManager,
-        websites: List<WebApp>,
-    ) = BackupData(
+    private fun buildFullBackupData(state: DataState) = BackupData(
         version = BackupPolicy.BACKUP_VERSION,
         payloadType = PAYLOAD_FULL,
-        websites = websites.map { it.toSurrogate() },
-        globalSettings = dataManager.defaultSettings.settings,
-        groups = dataManager.getGroups().map { it.toSurrogate() },
-        proxies = dataManager.getProxies(),
+        websites = state.webApps.map { it.toSurrogate() },
+        globalSettings = state.globalSettings.settings,
+        groups = state.groups.map { it.toSurrogate() },
+        proxies = state.proxies,
     )
 
     private fun WebAppSurrogate.forShare(includeSecrets: Boolean): WebAppSurrogate =

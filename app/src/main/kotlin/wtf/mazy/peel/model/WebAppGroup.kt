@@ -5,23 +5,22 @@ import java.util.UUID
 
 data class WebAppGroup(
     override val uuid: String = UUID.randomUUID().toString(),
-    override var title: String = "",
-    var order: Int = 0,
-    override var isUseContainer: Boolean = false,
-    override var isEphemeralSandbox: Boolean = false,
-    override var proxyUuid: String? = null,
-    var settings: WebAppSettings = WebAppSettings(),
-) : IconOwner, SandboxOwner {
-    constructor(
-        other: WebAppGroup
-    ) : this(
-        uuid = other.uuid,
-        title = other.title,
-        order = other.order,
-        isUseContainer = other.isUseContainer,
-        isEphemeralSandbox = other.isEphemeralSandbox,
-        proxyUuid = other.proxyUuid,
-        settings = other.settings.deepCopy(),
+    override val title: String = "",
+    val order: Int = 0,
+    override val isUseContainer: Boolean = false,
+    override val isEphemeralSandbox: Boolean = false,
+    override val proxyUuid: String? = null,
+    val settings: WebAppSettings = WebAppSettings(),
+) : IconOwner, SandboxOwner<WebAppGroup> {
+
+    override fun withSandbox(
+        isUseContainer: Boolean,
+        isEphemeralSandbox: Boolean,
+        proxyUuid: String?,
+    ): WebAppGroup = copy(
+        isUseContainer = isUseContainer,
+        isEphemeralSandbox = isEphemeralSandbox,
+        proxyUuid = proxyUuid,
     )
 
     val contentFingerprint: Int

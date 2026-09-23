@@ -69,7 +69,7 @@ class SearchModeController(
 
         host.onSearchModeExited()
 
-        val showTabs = DataManager.instance.sortedGroups.isNotEmpty()
+        val showTabs = DataManager.sortedGroups.isNotEmpty()
         fadeOutThenIn(searchResultsList, {
             searchResultsList.visibility = View.GONE
             searchEmptyState.visibility = View.GONE

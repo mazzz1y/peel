@@ -4,11 +4,11 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
-import wtf.mazy.peel.ui.dialog.ExternalLinkResult
 import wtf.mazy.peel.gecko.GeckoRuntimeProvider
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.ui.common.PeelActivity
 import wtf.mazy.peel.ui.dialog.ExternalLinkMenu
+import wtf.mazy.peel.ui.dialog.ExternalLinkResult
 import wtf.mazy.peel.util.BrowserLauncher
 import wtf.mazy.peel.util.copyToClipboard
 import wtf.mazy.peel.util.shareText
@@ -33,8 +33,8 @@ class IncomingLinkActivity : PeelActivity() {
         val shared = intent.action == Intent.ACTION_SEND
 
         lifecycleScope.launch {
-            DataManager.instance.loadAppData()
-            val apps = DataManager.instance.activeWebsites
+            DataManager.reloadAll()
+            val apps = DataManager.sortedWebApps
             if (apps.isEmpty()) {
                 openIncognito(url)
                 return@launch
@@ -64,7 +64,9 @@ class IncomingLinkActivity : PeelActivity() {
 
     private fun extractUrl(): String? = when (intent?.action) {
         Intent.ACTION_VIEW -> intent.data?.toString()
-        Intent.ACTION_SEND -> intent.getStringExtra(Intent.EXTRA_TEXT)?.let { URL_PATTERN.find(it)?.value }
+        Intent.ACTION_SEND -> intent.getStringExtra(Intent.EXTRA_TEXT)
+            ?.let { URL_PATTERN.find(it)?.value }
+
         else -> null
     }
 

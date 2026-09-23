@@ -138,7 +138,7 @@ abstract class AppDatabase : RoomDatabase() {
         // Pre-26 clients could end up with duplicate `order` values within the same group:
         // drag-reorder wrote a dense 0..n-1 range per group, and moving an app between groups
         // never renumbered it, so it kept carrying its old value into the destination. This
-        // renumbers every table into a single dense, gap-free sequence per scope (webapps within
+        // renumbers every table into a single dense, gap-free sequence per scope (webApps within
         // their groupUuid, groups amongst themselves) so `order` is unique within its scope again.
         private fun renumberOrderColumn(
             db: SupportSQLiteDatabase,
@@ -195,10 +195,10 @@ abstract class AppDatabase : RoomDatabase() {
 
         private fun recreateTables(
             db: SupportSQLiteDatabase,
-            webappColumns: List<Pair<String, String>>,
+            webAppColumns: List<Pair<String, String>>,
             groupColumns: List<Pair<String, String>>,
         ) {
-            recreateTable(db, "webapps", webappColumns + SETTINGS_COLUMNS)
+            recreateTable(db, "webapps", webAppColumns + SETTINGS_COLUMNS)
             recreateTable(db, "webapp_groups", groupColumns + SETTINGS_COLUMNS)
         }
 
@@ -217,9 +217,9 @@ abstract class AppDatabase : RoomDatabase() {
 
         private fun recreateTablesV9(db: SupportSQLiteDatabase) {
             ensureSettingsColumns(db)
-            val webappColumns = WEBAPP_BASE_COLUMNS.toMutableList()
+            val webAppColumns = WEBAPP_BASE_COLUMNS.toMutableList()
                 .apply { add(3, "isActiveEntry" to "INTEGER NOT NULL") }
-            recreateTables(db, webappColumns, GROUP_BASE_COLUMNS)
+            recreateTables(db, webAppColumns, GROUP_BASE_COLUMNS)
         }
 
         private fun recreateTablesCanonical(db: SupportSQLiteDatabase) {
@@ -229,10 +229,18 @@ abstract class AppDatabase : RoomDatabase() {
         }
 
         private fun recreateTablesWithProxy(db: SupportSQLiteDatabase) {
-            recreateTables(db, WEBAPP_BASE_COLUMNS + PROXY_COLUMN, GROUP_BASE_COLUMNS + PROXY_COLUMN)
+            recreateTables(
+                db,
+                WEBAPP_BASE_COLUMNS + PROXY_COLUMN,
+                GROUP_BASE_COLUMNS + PROXY_COLUMN
+            )
         }
 
-        private fun migration(from: Int, to: Int, body: (SupportSQLiteDatabase) -> Unit): Migration =
+        private fun migration(
+            from: Int,
+            to: Int,
+            body: (SupportSQLiteDatabase) -> Unit
+        ): Migration =
             object : Migration(from, to) {
                 override fun migrate(db: SupportSQLiteDatabase) = body(db)
             }

@@ -15,14 +15,14 @@ object NotificationClickLaunch {
     fun intent(
         context: Context,
         tag: String,
-        webappUuid: String?,
+        webAppUuid: String?,
         origin: String,
         notification: WebNotification,
     ): Intent =
         Intent(context, ActivityRoutes.notificationClick)
             .setData("peel-notification://click/$tag".toUri())
             .putExtra(EXTRA_TAG, tag)
-            .putExtra(EXTRA_WEBAPP_UUID, webappUuid)
+            .putExtra(EXTRA_WEBAPP_UUID, webAppUuid)
             .putExtra(EXTRA_ORIGIN, origin)
             .putExtra(EXTRA_NOTIFICATION, notification)
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)

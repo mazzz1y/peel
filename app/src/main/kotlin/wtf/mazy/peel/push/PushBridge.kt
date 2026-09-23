@@ -4,9 +4,7 @@ import android.content.Context
 import android.util.Base64
 import androidx.core.net.toUri
 import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
@@ -24,6 +22,7 @@ import wtf.mazy.peel.gecko.GeckoRuntimeProvider
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.IconOwner
 import wtf.mazy.peel.model.db.PushSubscriptionEntity
+import wtf.mazy.peel.util.App
 import wtf.mazy.peel.util.AppPrefs
 import java.math.BigInteger
 import java.util.UUID
@@ -31,7 +30,6 @@ import java.util.concurrent.ConcurrentHashMap
 
 object PushBridge {
 
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     private val pendingRegistrations =
         ConcurrentHashMap<String, CompletableDeferred<PushEndpoint?>>()
 
@@ -49,7 +47,7 @@ object PushBridge {
 
             override fun onUnsubscribe(scopeUrl: String): GeckoResult<Void>? {
                 val result = GeckoResult<Void>()
-                scope.launch {
+                App.appScope.launch(Dispatchers.Main.immediate) {
                     unsubscribe(appContext, scopeUrl)
                     result.complete(null)
                 }
@@ -62,7 +60,7 @@ object PushBridge {
         block: suspend () -> WebPushSubscription?,
     ): GeckoResult<WebPushSubscription> {
         val result = GeckoResult<WebPushSubscription>()
-        scope.launch {
+        App.appScope.launch(Dispatchers.Main.immediate) {
             result.complete(runCatching { block() }.getOrNull())
         }
         return result
@@ -73,7 +71,7 @@ object PushBridge {
         scopeUrl: String,
         appServerKey: ByteArray?,
     ): WebPushSubscription? {
-        DataManager.instance.awaitReady()
+        DataManager.awaitReady()
         if (!AppPrefs.isPushEnabled(context)) return null
         if (isPrivateScope(scopeUrl) || isEphemeralScope(scopeUrl)) return null
         getSubscription(context, scopeUrl)?.let { return it }
@@ -106,21 +104,21 @@ object PushBridge {
             endpoint = endpoint.url,
             appServerKey = vapid,
         )
-        DataManager.instance.upsertPushSubscription(entity)
+        DataManager.upsertPushSubscription(entity)
         return entity.toWebPushSubscription(context)
     }
 
     private suspend fun getSubscription(context: Context, scopeUrl: String): WebPushSubscription? {
-        DataManager.instance.awaitReady()
-        val entity = DataManager.instance.getPushSubscriptionByScope(scopeUrl) ?: return null
+        DataManager.awaitReady()
+        val entity = DataManager.pushSubscriptionByScope(scopeUrl) ?: return null
         val subscription = entity.toWebPushSubscription(context)
         if (subscription == null) removeRegistration(context, entity)
         return subscription
     }
 
     private suspend fun unsubscribe(context: Context, scopeUrl: String) {
-        DataManager.instance.awaitReady()
-        val entity = DataManager.instance.getPushSubscriptionByScope(scopeUrl) ?: return
+        DataManager.awaitReady()
+        val entity = DataManager.pushSubscriptionByScope(scopeUrl) ?: return
         removeRegistration(context, entity)
     }
 
@@ -147,7 +145,7 @@ object PushBridge {
 
     fun onContextCleared(context: Context, contextId: String) {
         val appContext = context.applicationContext
-        scope.launch {
+        App.appScope.launch(Dispatchers.Main.immediate) {
             clearContext(appContext, contextId) { it.contextId == contextId }
             WebNotificationBridge.removeChannel(appContext, contextId)
         }
@@ -155,7 +153,7 @@ object PushBridge {
 
     fun onAllContextsCleared(context: Context) {
         val appContext = context.applicationContext
-        scope.launch { reset(appContext) }
+        App.appScope.launch(Dispatchers.Main.immediate) { reset(appContext) }
     }
 
     suspend fun getNotificationPermissions(context: Context): List<ContentPermission> =
@@ -167,19 +165,19 @@ object PushBridge {
         contextId: String?,
         matches: (ContentPermission) -> Boolean,
     ) {
-        DataManager.instance.awaitReady()
+        DataManager.awaitReady()
         subscriptionsForContext(contextId).forEach { removeRegistration(context, it) }
         resetMatchingPermissions(context, matches)
     }
 
     private suspend fun subscriptionsForContext(contextId: String?): List<PushSubscriptionEntity> =
         contextId
-            ?.let { DataManager.instance.getPushSubscriptionsForContext(it) }
-            ?: DataManager.instance.getPushSubscriptions()
+            ?.let { DataManager.pushSubscriptionsForContext(it) }
+            ?: DataManager.pushSubscriptions()
 
     private suspend fun removeRegistration(context: Context, entity: PushSubscriptionEntity) {
         withContext(Dispatchers.IO) { UnifiedPush.unregister(context, entity.instance) }
-        DataManager.instance.removePushSubscription(entity.instance)
+        DataManager.removePushSubscription(entity.instance)
     }
 
     private suspend fun resetMatchingPermissions(
@@ -199,8 +197,8 @@ object PushBridge {
     }
 
     suspend fun reconcile(context: Context) {
-        DataManager.instance.awaitReady()
-        val subscriptions = DataManager.instance.getPushSubscriptions()
+        DataManager.awaitReady()
+        val subscriptions = DataManager.pushSubscriptions()
         if (subscriptions.isEmpty()) return
         // Null already means "uninstalled": getSavedDistributor resolves against the installed
         // distributors and drops the saved one when its package is gone.
@@ -215,7 +213,7 @@ object PushBridge {
 
     suspend fun switchDistributor(context: Context, distributor: String) {
         withContext(Dispatchers.IO) { UnifiedPush.saveDistributor(context, distributor) }
-        DataManager.instance.getPushSubscriptions().forEach { reRegister(context, it) }
+        DataManager.pushSubscriptions().forEach { reRegister(context, it) }
     }
 
     suspend fun reset(context: Context) {
@@ -241,16 +239,16 @@ object PushBridge {
             it.complete(endpoint)
             return
         }
-        scope.launch {
-            DataManager.instance.awaitReady()
-            val existing = DataManager.instance.getPushSubscription(instance)
+        App.appScope.launch(Dispatchers.Main.immediate) {
+            DataManager.awaitReady()
+            val existing = DataManager.pushSubscription(instance)
             if (existing == null) {
                 UnifiedPush.unregister(context, instance)
                 return@launch
             }
             if (endpoint.pubKeySet == null) return@launch
             if (existing.endpoint == endpoint.url) return@launch
-            DataManager.instance.upsertPushSubscription(existing.copy(endpoint = endpoint.url))
+            DataManager.upsertPushSubscription(existing.copy(endpoint = endpoint.url))
             GeckoRuntimeProvider.getRuntime(context)
                 .webPushController
                 .onSubscriptionChanged(existing.scope)
@@ -258,9 +256,9 @@ object PushBridge {
     }
 
     fun onMessage(context: Context, content: ByteArray, instance: String) {
-        scope.launch {
-            DataManager.instance.awaitReady()
-            val entity = DataManager.instance.getPushSubscription(instance) ?: return@launch
+        App.appScope.launch(Dispatchers.Main.immediate) {
+            DataManager.awaitReady()
+            val entity = DataManager.pushSubscription(instance) ?: return@launch
             GeckoRuntimeProvider.getRuntime(context)
                 .webPushController
                 .onPushEvent(entity.scope, content)
@@ -269,10 +267,10 @@ object PushBridge {
 
     fun onUnregistered(context: Context, instance: String) {
         pendingRegistrations[instance]?.complete(null)
-        scope.launch {
-            DataManager.instance.awaitReady()
-            val entity = DataManager.instance.getPushSubscription(instance)
-            DataManager.instance.removePushSubscription(instance)
+        App.appScope.launch(Dispatchers.Main.immediate) {
+            DataManager.awaitReady()
+            val entity = DataManager.pushSubscription(instance)
+            DataManager.removePushSubscription(instance)
             entity?.let {
                 GeckoRuntimeProvider.getRuntime(context)
                     .webPushController
@@ -300,7 +298,7 @@ object PushBridge {
         runCatching { scopeUrlWithoutAttrs(scopeUrl).toUri().host }.getOrNull()
 
     private fun distributorLabel(scopeUrl: String): String? {
-        val owner = scopeContextId(scopeUrl)?.let(DataManager.instance::getSandboxOwner)
+        val owner = scopeContextId(scopeUrl)?.let(DataManager::sandboxOwner)
         return (owner as? IconOwner)?.title ?: scopeHost(scopeUrl)
     }
 
@@ -321,7 +319,7 @@ object PushBridge {
 
     private fun isEphemeralScope(scopeUrl: String): Boolean {
         val contextId = scopeContextId(scopeUrl) ?: return false
-        return DataManager.instance.getSandboxOwner(contextId)?.resolveEphemeral() == true
+        return DataManager.sandboxOwner(contextId)?.resolveEphemeral() == true
     }
 
     private fun decodeGeckoContextId(encoded: String): String? {

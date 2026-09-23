@@ -8,9 +8,7 @@ import android.content.Intent
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.net.toUri
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.mozilla.geckoview.GeckoRuntime
@@ -20,11 +18,11 @@ import wtf.mazy.peel.R
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.ui.dialog.ExternalLinkMenu
+import wtf.mazy.peel.util.App
 import wtf.mazy.peel.util.AppPrefs
 
 object WebNotificationBridge {
 
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
     private val activeNotifications =
         object : LinkedHashMap<String, WebNotification>(16, 0.75f, true) {
             override fun removeEldestEntry(
@@ -36,8 +34,8 @@ object WebNotificationBridge {
         val appContext = context.applicationContext
         runtime.setWebNotificationDelegate(object : WebNotificationDelegate {
             override fun onShowNotification(notification: WebNotification) {
-                scope.launch {
-                    DataManager.instance.awaitReady()
+                App.appScope.launch(Dispatchers.Main.immediate) {
+                    DataManager.awaitReady()
                     show(appContext, notification)
                 }
             }
@@ -104,7 +102,7 @@ object WebNotificationBridge {
     }
 
     private fun resolveTarget(contextId: String?, originUrl: String): WebApp? {
-        val candidates = DataManager.instance.getWebsites().filter { app ->
+        val candidates = DataManager.webApps.filter { app ->
             !app.resolvePrivateMode() && app.resolveContextId() == contextId
         }
         return ExternalLinkMenu.bestPeelMatch(candidates, originUrl, excludeUuid = null)
@@ -113,22 +111,22 @@ object WebNotificationBridge {
     private fun sandboxTitle(contextId: String?, target: WebApp?): String? {
         if (contextId == null) return null
         if (target?.uuid == contextId) return target.title
-        return DataManager.instance.getGroup(contextId)?.title
-            ?: DataManager.instance.getWebApp(contextId)?.title
+        return DataManager.group(contextId)?.title
+            ?: DataManager.webApp(contextId)?.title
             ?: target?.title
     }
 
     private fun clickIntent(
         context: Context,
         tag: String,
-        webappUuid: String?,
+        webAppUuid: String?,
         origin: String,
         notification: WebNotification,
     ): PendingIntent {
         return PendingIntent.getActivity(
             context,
             tag.hashCode(),
-            NotificationClickLaunch.intent(context, tag, webappUuid, origin, notification),
+            NotificationClickLaunch.intent(context, tag, webAppUuid, origin, notification),
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
     }

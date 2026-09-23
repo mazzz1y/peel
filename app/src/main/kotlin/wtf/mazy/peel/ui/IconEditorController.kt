@@ -3,13 +3,12 @@ package wtf.mazy.peel.ui
 import android.graphics.ImageDecoder
 import android.net.Uri
 import android.widget.ImageView
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.result.contract.ActivityResultContracts
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.IconOwner
-import wtf.mazy.peel.util.NotificationUtils.showToast
+import wtf.mazy.peel.util.toast
 import java.io.IOException
 
 class IconEditorController(
@@ -54,7 +53,7 @@ class IconEditorController(
         try {
             launcher.launch("image/*")
         } catch (_: Exception) {
-            showToast(activity, activity.getString(R.string.icon_not_found), Toast.LENGTH_SHORT)
+            activity.toast(R.string.icon_not_found)
         }
     }
 
@@ -72,7 +71,7 @@ class IconEditorController(
                 refreshIcon()
             }
         } catch (_: IOException) {
-            showToast(activity, activity.getString(R.string.icon_not_found), Toast.LENGTH_SHORT)
+            activity.toast(R.string.icon_not_found)
         }
     }
 }

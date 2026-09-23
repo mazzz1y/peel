@@ -7,8 +7,8 @@
         android:id="@+id/textEntryValue"
         style="@style/SettingsEntryText"
         android:background="?attr/selectableItemBackground"
-        android:minHeight="@dimen/settings_entry_min_height"
-        android:gravity="center_vertical" />
+        android:gravity="center_vertical"
+        android:minHeight="@dimen/settings_entry_min_height" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnRemoveEntry"

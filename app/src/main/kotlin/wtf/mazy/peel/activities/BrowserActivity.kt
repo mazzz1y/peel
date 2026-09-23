@@ -41,32 +41,30 @@ import wtf.mazy.peel.browser.SessionHostRegistry
 import wtf.mazy.peel.browser.StartupAuthReturnTracker
 import wtf.mazy.peel.gecko.ContentPermissionStore
 import wtf.mazy.peel.gecko.GeckoRuntimeProvider
+import wtf.mazy.peel.gecko.SandboxManager
 import wtf.mazy.peel.media.MediaPlaybackManager
 import wtf.mazy.peel.model.DataManager
-import wtf.mazy.peel.model.SandboxManager
+import wtf.mazy.peel.model.EffectiveSettings
 import wtf.mazy.peel.model.WebApp
-import wtf.mazy.peel.model.WebAppSettings
 import wtf.mazy.peel.ui.browser.AutoReloadController
 import wtf.mazy.peel.ui.browser.BiometricUnlockController
 import wtf.mazy.peel.ui.dialog.ExternalLinkMenu
-import wtf.mazy.peel.ui.extensions.SessionExtensionActions
+import wtf.mazy.peel.ui.extensions.ExtensionActionController
+import wtf.mazy.peel.util.App
 import wtf.mazy.peel.util.BrowserLauncher
 import wtf.mazy.peel.util.Const
-import wtf.mazy.peel.util.NotificationUtils
 import wtf.mazy.peel.util.isAutomotiveHost
 import wtf.mazy.peel.util.isSameHost
 import wtf.mazy.peel.util.isSingleWindowHost
 import wtf.mazy.peel.util.shareText
+import wtf.mazy.peel.util.toast
 import wtf.mazy.peel.util.webAppUuid
 
 class BrowserActivity : BaseSessionHost() {
-    var webappUuid: String? = null
-
-    override val webAppUuid: String?
-        get() = webappUuid
+    override var webAppUuid: String? = null
 
     override val ownerWebAppUuid: String?
-        get() = webappUuid
+        get() = webAppUuid
 
     override val activeTranslateTarget: String?
         get() = translationDelegate?.lastTranslationState
@@ -105,8 +103,8 @@ class BrowserActivity : BaseSessionHost() {
         }
     }
 
-    private val webapp: WebApp
-        get() = DataManager.instance.getWebApp(webappUuid!!)!!
+    private val webApp: WebApp
+        get() = DataManager.webApp(webAppUuid!!)!!
 
     private lateinit var permissionDelegate: PeelPermissionDelegate
     private lateinit var promptDelegate: PeelPromptDelegate
@@ -130,7 +128,7 @@ class BrowserActivity : BaseSessionHost() {
     private lateinit var startupAuthReturnTracker: StartupAuthReturnTracker
     private var isStartupAuthTrackingActive = true
 
-    private var cachedSettings: WebAppSettings? = null
+    private var cachedSettings: EffectiveSettings? = null
     private var isStartupComplete = false
     private var lastTranslatorPairs: Map<String, String>? = null
     private var lastTranslatorEnabled: Boolean? = null
@@ -141,7 +139,7 @@ class BrowserActivity : BaseSessionHost() {
     private val biometricController by lazy {
         BiometricUnlockController(
             activity = this,
-            getWebappUuid = { webappUuid },
+            getWebAppUuid = { webAppUuid },
             onSuccess = {
                 browserContent?.visibility = View.VISIBLE
                 if (pendingSessionRecovery) {
@@ -149,7 +147,7 @@ class BrowserActivity : BaseSessionHost() {
                 } else if (!pageLoadHandled) {
                     launchSessionExtensionsAndLoad(
                         effectiveSettings,
-                        sharedUrlFromIntent() ?: webapp.baseUrl
+                        sharedUrlFromIntent() ?: webApp.baseUrl
                     )
                 } else {
                     restoreSystemBarColors()
@@ -174,27 +172,27 @@ class BrowserActivity : BaseSessionHost() {
         super.onCreate(savedInstanceState)
         sanitizeExternalIntent(intent)
         launchedFromMenu = intent.getBooleanExtra(Const.INTENT_LAUNCHED_FROM_MENU, false)
-        webappUuid = intent.webAppUuid()
-        ensureDataReady(webappUuid, forceReload = false) {
+        webAppUuid = intent.webAppUuid()
+        ensureDataReady(webAppUuid, forceReload = false) {
             continueStartupAfterDataReady()
         }
     }
 
     private fun continueStartupAfterDataReady() {
         if (isFinishing || isDestroyed) return
-        if (webappUuid == null || DataManager.instance.getWebApp(webappUuid!!) == null) {
-            NotificationUtils.showToast(this, getString(R.string.webapp_not_found))
+        if (webAppUuid == null || DataManager.webApp(webAppUuid!!) == null) {
+            toast(R.string.webapp_not_found, long = true)
             finishAndRemoveTask()
             return
         }
 
         loadTranslationSupport()
-        cachedSettings = DataManager.instance.resolveEffectiveSettings(webapp)
+        cachedSettings = DataManager.effectiveSettings(webApp)
         applyTaskSnapshotProtection()
         setupGeckoView()
         biometricController.registerReceiver()
 
-        val needsBiometric = effectiveSettings.isBiometricProtection == true
+        val needsBiometric = effectiveSettings.biometricProtection
         val promptOutcome = biometricController.showPromptIfNeeded(needsBiometric) {
             systemBarController.resetToTheme()
             browserContent?.visibility = View.INVISIBLE
@@ -203,7 +201,7 @@ class BrowserActivity : BaseSessionHost() {
         if (!needsBiometric) {
             launchSessionExtensionsAndLoad(
                 effectiveSettings,
-                sharedUrlFromIntent() ?: webapp.baseUrl
+                sharedUrlFromIntent() ?: webApp.baseUrl
             )
         }
 
@@ -216,7 +214,7 @@ class BrowserActivity : BaseSessionHost() {
         if (!isStartupComplete) return
         stopBackgroundKeepActive()
         reattachSessionToView()
-        if (effectiveSettings.isAllowMediaPlaybackInBackground == true) return
+        if (effectiveSettings.backgroundMediaPlayback) return
         geckoSession?.let { session ->
             session.setActive(true)
             GeckoRuntimeProvider.getRuntime(this)
@@ -231,11 +229,11 @@ class BrowserActivity : BaseSessionHost() {
             IntentFilter(DownloadService.ACTION_DOWNLOAD_COMPLETE),
             ContextCompat.RECEIVER_NOT_EXPORTED,
         )
-        val uuid = webappUuid ?: return
-        SessionExtensionActions.setActive(sessionExtensionActions)
-        if (SessionExtensionActions.extensionsChanged) {
-            SessionExtensionActions.extensionsChanged = false
-            geckoSession?.let { sessionExtensionActions.attach(it) }
+        val uuid = webAppUuid ?: return
+        ExtensionActionController.setActive(extensionActions)
+        if (ExtensionActionController.extensionsChanged) {
+            ExtensionActionController.extensionsChanged = false
+            geckoSession?.let { extensionActions.attach(it) }
         }
         ensureDataReady(uuid, forceReload = true) {
             applyResumedState()
@@ -245,10 +243,10 @@ class BrowserActivity : BaseSessionHost() {
     private fun applyResumedState() {
         if (!isStartupComplete) return
         if (!lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) return
-        val uuid = webappUuid ?: return
-        if (DataManager.instance.getWebApp(uuid) == null) return
-        cachedSettings = DataManager.instance.resolveEffectiveSettings(webapp)
-        val enabled = effectiveSettings.isTranslatorEnabled
+        val uuid = webAppUuid ?: return
+        if (DataManager.webApp(uuid) == null) return
+        cachedSettings = DataManager.effectiveSettings(webApp)
+        val enabled = effectiveSettings.translatorEnabled
         val pairs = effectiveSettings.autoTranslatePairs
         if (enabled != lastTranslatorEnabled || pairs != lastTranslatorPairs) {
             val enabledChanged = enabled != lastTranslatorEnabled
@@ -261,7 +259,7 @@ class BrowserActivity : BaseSessionHost() {
         showBrowserControls()
 
         val promptOutcome = biometricController.showPromptIfNeeded(
-            effectiveSettings.isBiometricProtection == true,
+            effectiveSettings.biometricProtection,
         ) {
             systemBarController.resetToTheme()
             browserContent?.visibility = View.INVISIBLE
@@ -291,7 +289,8 @@ class BrowserActivity : BaseSessionHost() {
     override fun onShareLongPress(): () -> Unit =
         { currentUrl.takeIf { it.isNotBlank() }?.let(::openInPeel) }
 
-    override fun onOpenAppList(): (() -> Unit)? = if (isSingleWindowHost()) ({ openAppList() }) else null
+    override fun onOpenAppList(): (() -> Unit)? =
+        if (isSingleWindowHost()) ({ openAppList() }) else null
 
     override fun onStop() {
         super.onStop()
@@ -301,7 +300,7 @@ class BrowserActivity : BaseSessionHost() {
         }
 
         val settings = effectiveSettings
-        if (settings.isAllowMediaPlaybackInBackground != true) {
+        if (!settings.backgroundMediaPlayback) {
             geckoSession?.setActive(false)
             geckoSession?.let { session ->
                 GeckoRuntimeProvider.getRuntime(this)
@@ -332,9 +331,9 @@ class BrowserActivity : BaseSessionHost() {
     override fun onDestroy() {
         SessionHostRegistry.unregister(this)
         stopBackgroundKeepActive()
-        val resolvedWebapp = webappUuid?.let { DataManager.instance.getWebApp(it) }
-        if (isFinishing && resolvedWebapp != null &&
-            DataManager.instance.resolveEffectiveSettings(resolvedWebapp).isClearCache == true &&
+        val resolvedWebApp = webAppUuid?.let { DataManager.webApp(it) }
+        if (isFinishing && resolvedWebApp != null &&
+            DataManager.effectiveSettings(resolvedWebApp).clearCache &&
             !SessionHostRegistry.hasLiveBrowsers
         ) {
             GeckoRuntimeProvider.runtimeOrNull()
@@ -351,11 +350,11 @@ class BrowserActivity : BaseSessionHost() {
         geckoView = null
         if (isFinishing) {
             ContentPermissionStore.requestSweep(applicationContext)
-            resolvedWebapp?.resolveEphemeralContextId()?.let {
-                SandboxManager.enqueueSandboxClear(applicationContext, it)
+            resolvedWebApp?.resolveEphemeralContextId()?.let {
+                SandboxManager.enqueueSandboxClear(applicationContext, it, App.appScope)
             }
         }
-        webappUuid?.let { DataManager.instance.removeTransientWebApp(it) }
+        webAppUuid?.let { DataManager.removeTransientWebApp(it) }
         super.onDestroy()
     }
 
@@ -368,7 +367,7 @@ class BrowserActivity : BaseSessionHost() {
 
         val newUuid = intent.webAppUuid() ?: return
 
-        if (newUuid == webappUuid) {
+        if (newUuid == webAppUuid) {
             sharedUrlFromIntent()?.let { loadURL(it) }
             return
         }
@@ -383,19 +382,19 @@ class BrowserActivity : BaseSessionHost() {
             action(); return
         }
         lifecycleScope.launch {
-            DataManager.instance.ensureWebAppLoaded(uuid, forceReload = forceReload)
+            DataManager.ensureWebAppLoaded(uuid, forceReload = forceReload)
             if (!isFinishing && !isDestroyed) action()
             if (!isFinishing && !isDestroyed) {
-                cachedPeelApps = DataManager.instance.queryAllWebApps()
+                cachedPeelApps = DataManager.queryAllWebApps()
             }
         }
     }
 
     private fun applyLoadedWebAppIntent(newUuid: String) {
         if (isFinishing || isDestroyed) return
-        if (DataManager.instance.getWebApp(newUuid) == null) return
-        webappUuid = newUuid
-        cachedSettings = DataManager.instance.resolveEffectiveSettings(webapp)
+        if (DataManager.webApp(newUuid) == null) return
+        webAppUuid = newUuid
+        cachedSettings = DataManager.effectiveSettings(webApp)
         biometricController.resetForSwap()
         systemBarController.resetForSwap()
         mediaPlaybackManager?.release()
@@ -406,41 +405,37 @@ class BrowserActivity : BaseSessionHost() {
         applyVisualSettings(settings)
         applyTaskSnapshotProtection()
 
-        launchSessionExtensionsAndLoad(settings, sharedUrlFromIntent() ?: webapp.baseUrl)
+        launchSessionExtensionsAndLoad(settings, sharedUrlFromIntent() ?: webApp.baseUrl)
     }
 
     override val webAppName: String
-        get() = webapp.title
+        get() = webApp.title
 
     override val persistableWebAppUuid: String?
-        get() = webappUuid?.takeUnless { DataManager.instance.isTransientWebApp(it) }
+        get() = webAppUuid?.takeUnless { DataManager.isTransientWebApp(it) }
 
     override fun reloadEffectiveSettings() {
-        val uuid = webappUuid ?: return
-        if (DataManager.instance.getWebApp(uuid) == null) return
-        cachedSettings = DataManager.instance.resolveEffectiveSettings(webapp)
+        val uuid = webAppUuid ?: return
+        if (DataManager.webApp(uuid) == null) return
+        cachedSettings = DataManager.effectiveSettings(webApp)
     }
 
-    override val effectiveSettings: WebAppSettings
-        get() = cachedSettings ?: DataManager.instance.resolveEffectiveSettings(webapp)
+    override val effectiveSettings: EffectiveSettings
+        get() = cachedSettings ?: DataManager.effectiveSettings(webApp)
 
     override val baseUrl: String
-        get() = webapp.baseUrl
+        get() = webApp.baseUrl
 
     override val sessionContextId: String?
-        get() = webapp.resolveContextId()
+        get() = webApp.resolveContextId()
     override val sessionPrivateMode: Boolean
-        get() = webapp.resolvePrivateMode()
+        get() = webApp.resolvePrivateMode()
 
     override val externalLinkExcludeUuid: String?
-        get() = webappUuid
+        get() = webAppUuid
     override val externalLinkPeelApps: List<WebApp>
         get() = cachedPeelApps
     override val externalLinkIncludeLoadHere: Boolean = true
-
-    private fun showToast(message: String) {
-        NotificationUtils.showToast(this, message)
-    }
 
     private fun showDownloadSnackbar(uri: Uri, mimeType: String?, notificationId: Int) {
         val root = findViewById<View>(android.R.id.content)
@@ -458,7 +453,7 @@ class BrowserActivity : BaseSessionHost() {
                     }
                     startActivity(intent)
                 } catch (_: ActivityNotFoundException) {
-                    showToast(getString(R.string.no_app_found))
+                    toast(R.string.no_app_found, long = true)
                 }
             }
             .show()
@@ -469,7 +464,7 @@ class BrowserActivity : BaseSessionHost() {
         super.updateSystemBarColors(top, bottom)
     }
 
-    override fun navigateHome() = loadURL(webapp.baseUrl)
+    override fun navigateHome() = loadURL(webApp.baseUrl)
 
     override fun onLocationChanged(url: String) {
         historyPurged = false
@@ -535,7 +530,7 @@ class BrowserActivity : BaseSessionHost() {
         }
         pendingSessionRecovery = false
         val restore = lastSessionState
-        val url = lastLoadedUrl.ifBlank { sharedUrlFromIntent() ?: webapp.baseUrl }
+        val url = lastLoadedUrl.ifBlank { sharedUrlFromIntent() ?: webApp.baseUrl }
         configureSession(effectiveSettings)
         launchSessionExtensionsAndLoad(effectiveSettings, url, restore)
     }
@@ -556,7 +551,7 @@ class BrowserActivity : BaseSessionHost() {
             activity = this,
             getRuntime = { GeckoRuntimeProvider.getRuntime(this) },
             scope = lifecycleScope,
-            webappName = webapp.title,
+            webAppName = webApp.title,
             getPageBridge = { pageBridge },
             requiresBridgeAuth = {
                 geckoSession?.settings?.let {
@@ -573,7 +568,7 @@ class BrowserActivity : BaseSessionHost() {
         applyVisualSettings(settings)
     }
 
-    private fun configureSession(settings: WebAppSettings) {
+    private fun configureSession(settings: EffectiveSettings) {
         sessionSetupJob?.cancel()
         translationDelegate?.cancelActive()
         closeFindInPage()
@@ -598,14 +593,14 @@ class BrowserActivity : BaseSessionHost() {
         promptDelegate.clearAutoAuth()
         autoReloadController.stop()
         pullToRefreshController.stopRefreshing()
-        startupAuthReturnTracker = StartupAuthReturnTracker(webapp.baseUrl)
+        startupAuthReturnTracker = StartupAuthReturnTracker(webApp.baseUrl)
         isStartupAuthTrackingActive = true
         historyPurged = false
 
         val session = createSession(settings)
         geckoSession = session
 
-        if (settings.isLongClickShare == true) setupContextMenu() else contextMenu = null
+        if (settings.longClickShare) setupContextMenu() else contextMenu = null
         val contextMenuCallback: ((GeckoSession, Int, Int, GeckoSession.ContentDelegate.ContextElement) -> Unit)? =
             if (contextMenu != null) {
                 { _, _, _, el -> contextMenu?.onContextMenu(el) }
@@ -630,17 +625,17 @@ class BrowserActivity : BaseSessionHost() {
         runtime.webExtensionController.setTabActive(session, true)
         geckoView?.setSession(session)
         geckoView?.coverUntilFirstPaint(themeBackgroundColor)
-        sessionExtensionActions.attach(session)
+        extensionActions.attach(session)
     }
 
     private fun launchSessionExtensionsAndLoad(
-        settings: WebAppSettings,
+        settings: EffectiveSettings,
         url: String,
         restore: GeckoSession.SessionState? = null,
     ) {
         sessionSetupJob = lifecycleScope.launch {
             wtf.mazy.peel.browser.ProxyRouterBridge.ensure(applicationContext)
-            if (DataManager.instance.isTransientWebApp(webappUuid!!))
+            if (DataManager.isTransientWebApp(webAppUuid!!))
                 wtf.mazy.peel.browser.ProxyRouterBridge.push(force = true)
             if (!wtf.mazy.peel.browser.ProxyRouterBridge.awaitRoutesReady(sessionContextId)) {
                 showConnectionError(getString(R.string.proxy_not_ready), url) {
@@ -665,17 +660,17 @@ class BrowserActivity : BaseSessionHost() {
         pageBridge = PageBridge(ext, session).also { it.attach() }
     }
 
-    private fun setupMediaPlayback(settings: WebAppSettings) {
+    private fun setupMediaPlayback(settings: EffectiveSettings) {
         mediaPlaybackManager?.release()
         mediaPlaybackManager = null
         val session = geckoSession ?: return
         val manager = MediaPlaybackManager(
             context = this,
-            backgroundPlayback = settings.isAllowMediaPlaybackInBackground == true,
+            backgroundPlayback = settings.backgroundMediaPlayback,
             onOrientationRequest = ::applyWebOrientation,
         )
-        val contentIntent = BrowserLauncher.buildPendingIntent(webapp, this)
-        manager.attach(session, webapp.title, webapp.resolveIcon(), webapp.uuid, contentIntent)
+        val contentIntent = BrowserLauncher.buildPendingIntent(webApp, this)
+        manager.attach(session, webApp.title, webApp.resolveIcon(), webApp.uuid, contentIntent)
         mediaPlaybackManager = manager
     }
 
@@ -692,10 +687,10 @@ class BrowserActivity : BaseSessionHost() {
         )
     }
 
-    private fun applyVisualSettings(settings: WebAppSettings) {
+    private fun applyVisualSettings(settings: EffectiveSettings) {
         applyWindowFlags(settings)
         pullToRefreshController.update(settings)
-        if (settings.isShowFullscreen == true) systemBarController.hide() else systemBarController.show(
+        if (settings.showFullscreen) systemBarController.hide() else systemBarController.show(
             false
         )
     }
@@ -723,27 +718,27 @@ class BrowserActivity : BaseSessionHost() {
 
     private fun closeStartupAuthTrackingIfInitialBaseLoaded() {
         if (!isStartupAuthTrackingActive) return
-        if (isSameHost(webapp.baseUrl, currentUrl)) {
+        if (isSameHost(webApp.baseUrl, currentUrl)) {
             isStartupAuthTrackingActive = false
         }
     }
 
     override fun findPeelAppMatches(url: String): List<WebApp> {
-        if (isSameHost(webapp.baseUrl, url)) return emptyList()
+        if (isSameHost(webApp.baseUrl, url)) return emptyList()
         return super.findPeelAppMatches(url)
     }
 
     private fun bestPeelMatchIcon(url: String): Bitmap? {
-        return ExternalLinkMenu.bestPeelMatch(cachedPeelApps, url, webappUuid)?.resolveIcon()
+        return ExternalLinkMenu.bestPeelMatch(cachedPeelApps, url, webAppUuid)?.resolveIcon()
     }
 
     private fun openInBestPeelMatch(url: String) {
-        val match = ExternalLinkMenu.bestPeelMatch(cachedPeelApps, url, webappUuid) ?: return
+        val match = ExternalLinkMenu.bestPeelMatch(cachedPeelApps, url, webAppUuid) ?: return
         BrowserLauncher.launch(match, this, url)
     }
 
     private fun openInPeel(url: String) {
-        ExternalLinkMenu.openInPeelPicker(this, url, webappUuid)
+        ExternalLinkMenu.openInPeelPicker(this, url, webAppUuid)
     }
 
     private fun openAppList() {
@@ -791,8 +786,8 @@ class BrowserActivity : BaseSessionHost() {
         intent.getStringExtra(Const.INTENT_TARGET_URL)
 
     // The shortcut alias (WebAppShortcutAlias) is exported, so any app can launch it. Trust only
-    // the target webapp UUID from such intents and drop extras that would otherwise redirect the
-    // webapp's session to an arbitrary URL or alter back-navigation.
+    // the target webApp UUID from such intents and drop extras that would otherwise redirect the
+    // webApp's session to an arbitrary URL or alter back-navigation.
     private fun sanitizeExternalIntent(intent: Intent) {
         val isAliasEntry = intent.component?.className == Const.WEBAPP_SHORTCUT_ALIAS
         if (!isAliasEntry) return
@@ -802,20 +797,20 @@ class BrowserActivity : BaseSessionHost() {
 
     private val isTaskSnapshotProtected: Boolean
         get() = isStartupComplete &&
-                (effectiveSettings.isBiometricProtection == true ||
-                        effectiveSettings.isDisableScreenshots == true)
+                (effectiveSettings.biometricProtection ||
+                        effectiveSettings.disableScreenshots)
 
     private fun applyTaskSnapshotProtection() {
-        val shouldProtect = effectiveSettings.isBiometricProtection == true
+        val shouldProtect = effectiveSettings.biometricProtection
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             setRecentsScreenshotEnabled(!shouldProtect)
         }
 
-        val protectsRecents = shouldProtect || effectiveSettings.isDisableScreenshots == true
+        val protectsRecents = shouldProtect || effectiveSettings.disableScreenshots
         if (protectsRecents && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             setTaskDescription(
                 ActivityManager.TaskDescription.Builder()
-                    .setLabel(webapp.title)
+                    .setLabel(webApp.title)
                     .setBackgroundColor(themeBackgroundColor)
                     .setStatusBarColor(themeBackgroundColor)
                     .setNavigationBarColor(themeBackgroundColor)
@@ -825,7 +820,7 @@ class BrowserActivity : BaseSessionHost() {
         }
 
         @Suppress("DEPRECATION")
-        setTaskDescription(ActivityManager.TaskDescription(webapp.title, webapp.resolveIcon()))
+        setTaskDescription(ActivityManager.TaskDescription(webApp.title, webApp.resolveIcon()))
     }
 
     companion object {

@@ -2,13 +2,13 @@ package wtf.mazy.peel.ui.entitylist
 
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.coroutines.launch
-import wtf.mazy.peel.model.DataManager
-import wtf.mazy.peel.util.NotificationUtils
+import wtf.mazy.peel.util.App
+import wtf.mazy.peel.util.showUndoSnackBar
 
 /**
  * Schedules a deletion with snackbar undo. Pending uuids are added to [pendingDeleteSet] so the
- * row disappears immediately; on commit the actual deletion runs in [DataManager.appScope] and
- * the uuid is then cleared from the pending set.
+ * row disappears immediately; on commit the actual deletion runs in [App.appScope] — the
+ * snackbar dismisses after the activity is gone — and the uuid is then cleared from the set.
  */
 fun scheduleEntityDelete(
     activity: AppCompatActivity,
@@ -22,17 +22,19 @@ fun scheduleEntityDelete(
     pendingDeleteSet.addAll(uuids)
     onPendingChanged()
 
-    NotificationUtils.showUndoSnackBar(
-        activity = activity,
+    activity.showUndoSnackBar(
         message = message,
         onUndo = {
             pendingDeleteSet.removeAll(uuids.toSet())
             onPendingChanged()
         },
         onCommit = {
-            DataManager.instance.appScope.launch {
-                commitDelete(uuids)
-                pendingDeleteSet.removeAll(uuids.toSet())
+            App.appScope.launch {
+                try {
+                    commitDelete(uuids)
+                } finally {
+                    pendingDeleteSet.removeAll(uuids.toSet())
+                }
             }
         },
     )

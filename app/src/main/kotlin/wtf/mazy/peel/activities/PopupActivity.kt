@@ -9,16 +9,16 @@ import wtf.mazy.peel.browser.PeelTranslationDelegate
 import wtf.mazy.peel.browser.PopupLaunch
 import wtf.mazy.peel.browser.SessionHandoff
 import wtf.mazy.peel.model.DataManager
-import wtf.mazy.peel.model.WebAppSettings
-import wtf.mazy.peel.ui.extensions.SessionExtensionActions
+import wtf.mazy.peel.model.EffectiveSettings
+import wtf.mazy.peel.ui.extensions.ExtensionActionController
 import wtf.mazy.peel.util.BrowserLauncher
-import wtf.mazy.peel.util.NotificationUtils
+import wtf.mazy.peel.util.toast
 
 class PopupActivity : SessionPageActivity() {
 
-    private lateinit var snapshotSettings: WebAppSettings
+    private lateinit var snapshotSettings: EffectiveSettings
 
-    override val effectiveSettings: WebAppSettings
+    override val effectiveSettings: EffectiveSettings
         get() = snapshotSettings
 
     override val showToolbar = false
@@ -44,8 +44,8 @@ class PopupActivity : SessionPageActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         snapshotSettings = intent.getStringExtra(PopupLaunch.EXTRA_SETTINGS)
-            ?.let { runCatching { Json.decodeFromString<WebAppSettings>(it) }.getOrNull() }
-            ?: DataManager.instance.defaultSettings.settings
+            ?.let { runCatching { Json.decodeFromString<EffectiveSettings>(it) }.getOrNull() }
+            ?: DataManager.globalEffectiveSettings
         super.onCreate(savedInstanceState)
     }
 
@@ -57,7 +57,7 @@ class PopupActivity : SessionPageActivity() {
             it.presetManualTarget(intent.getStringExtra(PopupLaunch.EXTRA_TRANSLATE_TARGET))
             popup.translationsSessionDelegate = it
         }
-        sessionExtensionActions.attach(popup)
+        extensionActions.attach(popup)
         displaySession(popup)
         attachSystemBars()
         lifecycleScope.launch { setupThemeColorExtensionIfEnabled() }
@@ -65,7 +65,8 @@ class PopupActivity : SessionPageActivity() {
     }
 
     override fun onDestroy() {
-        intent.getStringExtra(PopupLaunch.EXTRA_SESSION_KEY)?.let { SessionHandoff.take(it)?.session?.close() }
+        intent.getStringExtra(PopupLaunch.EXTRA_SESSION_KEY)
+            ?.let { SessionHandoff.take(it)?.session?.close() }
         super.onDestroy()
     }
 
@@ -84,16 +85,16 @@ class PopupActivity : SessionPageActivity() {
 
     private fun launchOwnerApp(url: String?) {
         val ownerUuid = ownerWebAppUuid ?: return
-        val webapp = DataManager.instance.getWebApp(ownerUuid) ?: run {
-            NotificationUtils.showToast(this, getString(R.string.browser_launch_failed))
+        val webApp = DataManager.webApp(ownerUuid) ?: run {
+            toast(R.string.browser_launch_failed, long = true)
             return
         }
-        BrowserLauncher.launch(webapp, this, url = url)
+        BrowserLauncher.launch(webApp, this, url = url)
         finish()
     }
 
     override fun onSessionStarted() {
-        SessionExtensionActions.setActive(sessionExtensionActions)
+        ExtensionActionController.setActive(extensionActions)
         showBrowserControls()
     }
 

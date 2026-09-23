@@ -1,42 +1,29 @@
 package wtf.mazy.peel.model
 
-import android.content.Context
 import wtf.mazy.peel.model.db.AppDatabase
-import wtf.mazy.peel.model.db.ProxyDao
-import wtf.mazy.peel.model.db.PushSubscriptionDao
 import wtf.mazy.peel.model.db.PushSubscriptionEntity
-import wtf.mazy.peel.model.db.WebAppDao
-import wtf.mazy.peel.model.db.WebAppGroupDao
 import wtf.mazy.peel.model.db.toDomain
 import wtf.mazy.peel.model.db.toEntity
 
-class DataRepository {
-    private lateinit var webAppDao: WebAppDao
-    private lateinit var groupDao: WebAppGroupDao
-    private lateinit var proxyDao: ProxyDao
-    private lateinit var pushSubscriptionDao: PushSubscriptionDao
+class DataRepository(db: AppDatabase) {
+    private val webAppDao = db.webAppDao()
+    private val groupDao = db.webAppGroupDao()
+    private val proxyDao = db.proxyDao()
+    private val pushSubscriptionDao = db.pushSubscriptionDao()
 
-    fun initialize(context: Context) {
-        val db = AppDatabase.getInstance(context)
-        webAppDao = db.webAppDao()
-        groupDao = db.webAppGroupDao()
-        proxyDao = db.proxyDao()
-        pushSubscriptionDao = db.pushSubscriptionDao()
+    fun loadGlobalSettings(): WebApp? = webAppDao.getGlobalSettings()?.toDomain()
+
+    fun persistGlobalSettings(globalSettings: WebApp) {
+        webAppDao.upsert(globalSettings.toEntity())
     }
 
-    fun getGlobalSettings(): WebApp? = webAppDao.getGlobalSettings()?.toDomain()
+    fun loadWebApp(uuid: String): WebApp? = webAppDao.getByUuid(uuid)?.toDomain()
 
-    fun persistGlobalSettings(defaultSettings: WebApp) {
-        webAppDao.upsert(defaultSettings.toEntity())
-    }
+    fun loadGroup(uuid: String): WebAppGroup? = groupDao.getByUuid(uuid)?.toDomain()
 
-    fun getWebApp(uuid: String): WebApp? = webAppDao.getByUuid(uuid)?.toDomain()
+    fun loadAllWebApps(): List<WebApp> = webAppDao.getAllWebApps().map { it.toDomain() }
 
-    fun getGroup(uuid: String): WebAppGroup? = groupDao.getByUuid(uuid)?.toDomain()
-
-    fun getAllWebApps(): List<WebApp> = webAppDao.getAllWebApps().map { it.toDomain() }
-
-    fun getAllGroups(): List<WebAppGroup> = groupDao.getAllGroups().map { it.toDomain() }
+    fun loadAllGroups(): List<WebAppGroup> = groupDao.getAllGroups().map { it.toDomain() }
 
     fun upsertWebApp(webApp: WebApp) {
         webAppDao.upsert(webApp.toEntity())
@@ -70,7 +57,7 @@ class DataRepository {
         groupDao.replaceAll(groups.map { it.toEntity() })
     }
 
-    fun getAllProxies(): List<Proxy> = proxyDao.getAll().map { it.toDomain() }
+    fun loadAllProxies(): List<Proxy> = proxyDao.getAll().map { it.toDomain() }
 
     fun upsertProxy(proxy: Proxy) {
         proxyDao.upsert(proxy.toEntity())
@@ -88,15 +75,15 @@ class DataRepository {
         proxyDao.replaceAll(proxies.map { it.toEntity() })
     }
 
-    fun getAllPushSubscriptions(): List<PushSubscriptionEntity> = pushSubscriptionDao.getAll()
+    fun loadAllPushSubscriptions(): List<PushSubscriptionEntity> = pushSubscriptionDao.getAll()
 
-    fun getPushSubscription(instance: String): PushSubscriptionEntity? =
+    fun loadPushSubscription(instance: String): PushSubscriptionEntity? =
         pushSubscriptionDao.getByInstance(instance)
 
-    fun getPushSubscriptionByScope(scope: String): PushSubscriptionEntity? =
+    fun loadPushSubscriptionByScope(scope: String): PushSubscriptionEntity? =
         pushSubscriptionDao.getByScope(scope)
 
-    fun getPushSubscriptionsForContext(contextId: String): List<PushSubscriptionEntity> =
+    fun loadPushSubscriptionsForContext(contextId: String): List<PushSubscriptionEntity> =
         pushSubscriptionDao.getByContextId(contextId)
 
     fun upsertPushSubscription(entity: PushSubscriptionEntity) {

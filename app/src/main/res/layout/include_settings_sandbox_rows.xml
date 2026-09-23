@@ -2,8 +2,7 @@
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <LinearLayout
-        style="@style/SettingsSurfaceRow.Inline">
+    <LinearLayout style="@style/SettingsSurfaceRow.Inline">
 
         <TextView
             android:id="@+id/sandboxLabel"

@@ -16,7 +16,7 @@ interface EntityRowView {
     val indicators: List<ImageView>
 }
 
-interface EntityRowActions<T : Any> {
+interface EntityRowListener<T : Any> {
     fun onItemClick(item: T)
     fun onItemIconClick(item: T)
     fun onItemMenu(view: View, item: T)

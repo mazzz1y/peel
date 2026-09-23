@@ -1,7 +1,6 @@
 package wtf.mazy.peel.activities
 
 import android.os.Bundle
-import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import wtf.mazy.peel.R
@@ -12,6 +11,7 @@ import wtf.mazy.peel.ui.PickerDialog
 import wtf.mazy.peel.ui.common.PeelActivity
 import wtf.mazy.peel.util.BrowserLauncher
 import wtf.mazy.peel.util.Const
+import wtf.mazy.peel.util.toast
 
 class TrampolineActivity : PeelActivity() {
 
@@ -20,12 +20,12 @@ class TrampolineActivity : PeelActivity() {
         GeckoRuntimeProvider.initAsync(this, warmUp = false)
 
         lifecycleScope.launch {
-            DataManager.instance.awaitReady()
+            DataManager.awaitReady()
 
-            val webappUuid = intent.getStringExtra(Const.INTENT_WEBAPP_UUID)
-            if (webappUuid != null) {
-                val webapp = DataManager.instance.getWebApp(webappUuid)
-                if (webapp != null) BrowserLauncher.launch(webapp, this@TrampolineActivity)
+            val webAppUuid = intent.getStringExtra(Const.INTENT_WEBAPP_UUID)
+            if (webAppUuid != null) {
+                val webApp = DataManager.webApp(webAppUuid)
+                if (webApp != null) BrowserLauncher.launch(webApp, this@TrampolineActivity)
                 finish()
                 return@launch
             }
@@ -41,11 +41,11 @@ class TrampolineActivity : PeelActivity() {
     }
 
     private fun launchGroup(groupUuid: String) {
-        val group = DataManager.instance.getGroup(groupUuid)
-        val apps = DataManager.instance.activeWebsitesForGroup(groupUuid)
+        val group = DataManager.group(groupUuid)
+        val apps = DataManager.webAppsInGroup(groupUuid)
 
         if (apps.isEmpty()) {
-            Toast.makeText(this, getString(R.string.group_empty), Toast.LENGTH_SHORT).show()
+            toast(R.string.group_empty)
             finish()
             return
         }
@@ -58,17 +58,17 @@ class TrampolineActivity : PeelActivity() {
             activity = this,
             title = title,
             items = apps,
-            onPick = { webapp ->
-                BrowserLauncher.launch(webapp, this)
+            onPick = { webApp ->
+                BrowserLauncher.launch(webApp, this)
                 finish()
             },
             configure = {
                 setOnCancelListener { finish() }
                 setOnDismissListener { finish() }
             },
-        ) { webapp, icon, name, _, _ ->
-            name.text = webapp.title
-            icon.setImageBitmap(webapp.resolveIcon())
+        ) { webApp, icon, name, _, _ ->
+            name.text = webApp.title
+            icon.setImageBitmap(webApp.resolveIcon())
         }
     }
 }

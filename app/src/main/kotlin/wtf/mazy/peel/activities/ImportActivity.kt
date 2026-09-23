@@ -63,7 +63,10 @@ class ImportActivity : PeelActivity() {
             val selectedUuids = adapter.selectedUuids.toSet()
             if (groupShareMode) {
                 setResult(RESULT_OK, Intent().apply {
-                    putExtra(ImportMappingContract.RESULT_SELECTED_UUIDS, selectedUuids.toTypedArray())
+                    putExtra(
+                        ImportMappingContract.RESULT_SELECTED_UUIDS,
+                        selectedUuids.toTypedArray()
+                    )
                     putExtra(
                         ImportMappingContract.RESULT_SELECTED_GROUP_UUIDS,
                         adapter.selectedGroupUuids.toTypedArray(),
@@ -71,7 +74,10 @@ class ImportActivity : PeelActivity() {
                 })
             } else {
                 setResult(RESULT_OK, Intent().apply {
-                    putExtra(ImportMappingContract.RESULT_SELECTED_UUIDS, selectedUuids.toTypedArray())
+                    putExtra(
+                        ImportMappingContract.RESULT_SELECTED_UUIDS,
+                        selectedUuids.toTypedArray()
+                    )
                     putExtra(ImportMappingContract.RESULT_GROUP_UUID, selectedGroupUuid)
                 })
             }
@@ -87,7 +93,7 @@ class ImportActivity : PeelActivity() {
         recycler.applyBottomScreenInsets()
         emptyView.applyBottomScreenInsets()
 
-        val groups = DataManager.instance.sortedGroups
+        val groups = DataManager.sortedGroups
         val hasGroups = groups.isNotEmpty()
         val groupValues = mutableListOf<String?>()
         val groupLabels = mutableListOf<String>()
@@ -135,12 +141,14 @@ class ImportActivity : PeelActivity() {
                     ) { result ->
                         val title = result.text.trim()
                         if (title.isEmpty()) return@showSandboxInputDialog
-                        val group = WebAppGroup(title = title)
-                        group.isUseContainer = result.sandbox
-                        group.isEphemeralSandbox = result.ephemeral
-                        group.proxyUuid = result.proxyUuid
+                        val group = WebAppGroup(
+                            title = title,
+                            isUseContainer = result.sandbox,
+                            isEphemeralSandbox = result.ephemeral,
+                            proxyUuid = result.proxyUuid,
+                        )
                         lifecycleScope.launch {
-                            DataManager.instance.addGroup(group, appendOrder = true)
+                            DataManager.addGroup(group, appendOrder = true)
                             selectedGroupUuid = group.uuid
 
                             groupValues.add(groupValues.size - 2, group.uuid)

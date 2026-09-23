@@ -5,16 +5,17 @@ import wtf.mazy.peel.R
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.ui.common.ShareSecretsDialog
-import wtf.mazy.peel.ui.entitylist.EntitySelectionActions
+import wtf.mazy.peel.ui.entitylist.EntitySelectionHandler
 import wtf.mazy.peel.ui.entitylist.MoveTarget
+import wtf.mazy.peel.ui.entitylist.PendingDeletes
 
-class WebAppSelectionActions(
+class WebAppSelectionHandler(
     private val activity: AppCompatActivity,
     private val shareHost: WebAppShareHost,
-) : EntitySelectionActions<WebApp> {
+) : EntitySelectionHandler<WebApp> {
 
     override val pendingDeleteSet: MutableSet<String>
-        get() = DataManager.instance.pendingDeleteWebAppUuids
+        get() = PendingDeletes.webApps
 
     override fun confirmShare(items: List<WebApp>, onConfirm: (Boolean) -> Unit) {
         ShareSecretsDialog.confirmForWebApps(activity, items, onConfirm)
@@ -32,12 +33,12 @@ class WebAppSelectionActions(
         activity.getString(R.string.n_apps_removed, count)
 
     override suspend fun commitDelete(uuids: List<String>) {
-        DataManager.instance.deleteWebApps(uuids, activity)
+        DataManager.deleteWebApps(uuids)
     }
 
     override val moveTargets: List<MoveTarget>
         get() {
-            val groups = DataManager.instance.sortedGroups
+            val groups = DataManager.sortedGroups
             if (groups.isEmpty()) return emptyList()
             return buildList {
                 groups.forEach { add(MoveTarget(it.title, it.uuid)) }
@@ -46,6 +47,6 @@ class WebAppSelectionActions(
         }
 
     override suspend fun commitMove(uuids: List<String>, targetGroupUuid: String?) {
-        DataManager.instance.moveWebAppsToGroup(uuids, targetGroupUuid)
+        DataManager.moveWebAppsToGroup(uuids, targetGroupUuid)
     }
 }

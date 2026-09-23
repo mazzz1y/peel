@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Fixed colours: a pointer over arbitrary web content can't follow the app theme. -->
+<?xml version="1.0" encoding="utf-8"?><!-- Fixed colours: a pointer over arbitrary web content can't follow the app theme. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="@dimen/virtual_cursor_size"
     android:height="@dimen/virtual_cursor_size"

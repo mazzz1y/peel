@@ -23,10 +23,10 @@ class DownloadNotification(private val context: Context) {
     }
 
     fun buildProgress(
-        fileName: String, webappName: String?,
+        fileName: String, webAppName: String?,
         current: Long, total: Long, cancelIntent: PendingIntent,
     ): Notification {
-        val builder = progressBuilder(fileName, webappName, cancelIntent)
+        val builder = progressBuilder(fileName, webAppName, cancelIntent)
         if (total > 0 && current > 0) {
             val percent = (current * 100 / total).toInt()
             builder.setProgress(100, percent, false).setContentText("$percent%")
@@ -38,13 +38,13 @@ class DownloadNotification(private val context: Context) {
     }
 
     fun updateProgress(
-        fileName: String, webappName: String?,
+        fileName: String, webAppName: String?,
         current: Long, total: Long, cancelIntent: PendingIntent,
     ) {
-        manager.notify(id, buildProgress(fileName, webappName, current, total, cancelIntent))
+        manager.notify(id, buildProgress(fileName, webAppName, current, total, cancelIntent))
     }
 
-    fun showSuccess(fileName: String, webappName: String?, contentUri: Uri, mimeType: String?) {
+    fun showSuccess(fileName: String, webAppName: String?, contentUri: Uri, mimeType: String?) {
         val mime = mimeType ?: "application/octet-stream"
         val openIntent = Intent(Intent.ACTION_VIEW).apply {
             setDataAndType(contentUri, mime)
@@ -55,7 +55,7 @@ class DownloadNotification(private val context: Context) {
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
         )
         manager.notify(
-            id, baseBuilder(fileName, webappName)
+            id, baseBuilder(fileName, webAppName)
                 .setContentText(context.getString(R.string.download_complete))
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true)
@@ -63,9 +63,9 @@ class DownloadNotification(private val context: Context) {
         )
     }
 
-    fun showError(fileName: String, webappName: String?) {
+    fun showError(fileName: String, webAppName: String?) {
         manager.notify(
-            id, baseBuilder(fileName, webappName)
+            id, baseBuilder(fileName, webAppName)
                 .setContentText(context.getString(R.string.download_failed))
                 .setAutoCancel(true)
                 .build()
@@ -76,16 +76,16 @@ class DownloadNotification(private val context: Context) {
         manager.cancel(id)
     }
 
-    private fun baseBuilder(fileName: String, webappName: String?): NotificationCompat.Builder =
+    private fun baseBuilder(fileName: String, webAppName: String?): NotificationCompat.Builder =
         NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_download_24dp)
             .setContentTitle(fileName)
-            .apply { webappName?.let { setSubText(it) } }
+            .apply { webAppName?.let { setSubText(it) } }
 
     private fun progressBuilder(
-        fileName: String, webappName: String?, cancelIntent: PendingIntent,
+        fileName: String, webAppName: String?, cancelIntent: PendingIntent,
     ): NotificationCompat.Builder =
-        baseBuilder(fileName, webappName)
+        baseBuilder(fileName, webAppName)
             .setOngoing(true)
             .setSilent(true)
             .setCategory(NotificationCompat.CATEGORY_PROGRESS)

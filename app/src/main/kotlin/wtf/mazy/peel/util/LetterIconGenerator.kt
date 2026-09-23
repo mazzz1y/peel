@@ -1,4 +1,4 @@
-package wtf.mazy.peel.shortcut
+package wtf.mazy.peel.util
 
 import android.graphics.Bitmap
 import android.graphics.Canvas
@@ -6,7 +6,6 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Typeface
 import androidx.core.graphics.createBitmap
-import wtf.mazy.peel.util.App
 import java.text.BreakIterator
 import kotlin.math.abs
 

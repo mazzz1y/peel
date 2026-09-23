@@ -7,7 +7,7 @@ import android.util.Log
 import android.widget.ImageView
 import org.mozilla.geckoview.WebExtension
 import wtf.mazy.peel.gecko.GeckoRuntimeProvider.awaitNullable
-import wtf.mazy.peel.shortcut.LetterIconGenerator
+import wtf.mazy.peel.util.LetterIconGenerator
 import java.io.File
 import java.net.HttpURLConnection
 import java.net.URL

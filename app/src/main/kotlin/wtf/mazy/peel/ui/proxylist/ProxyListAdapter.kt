@@ -8,11 +8,11 @@ import wtf.mazy.peel.model.Proxy
 import wtf.mazy.peel.ui.entitylist.EntityListAdapter
 import wtf.mazy.peel.ui.entitylist.EntityListViewHolder
 import wtf.mazy.peel.ui.entitylist.EntityRow
-import wtf.mazy.peel.ui.entitylist.EntityRowActions
+import wtf.mazy.peel.ui.entitylist.EntityRowListener
 import wtf.mazy.peel.ui.entitylist.binders.ProxyBinder
 
 class ProxyListAdapter(
-    actions: EntityRowActions<Proxy>,
+    actions: EntityRowListener<Proxy>,
 ) : EntityListAdapter<Proxy, ProxyListAdapter.ViewHolder>(
     binder = ProxyBinder,
     actions = actions,

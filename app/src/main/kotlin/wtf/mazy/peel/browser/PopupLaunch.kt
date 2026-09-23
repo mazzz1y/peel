@@ -3,7 +3,7 @@ package wtf.mazy.peel.browser
 import android.content.Context
 import android.content.Intent
 import kotlinx.serialization.json.Json
-import wtf.mazy.peel.model.WebAppSettings
+import wtf.mazy.peel.model.EffectiveSettings
 import wtf.mazy.peel.util.ActivityRoutes
 
 object PopupLaunch {
@@ -20,7 +20,7 @@ object PopupLaunch {
         context: Context,
         key: String,
         title: String,
-        settings: WebAppSettings,
+        settings: EffectiveSettings,
         contextId: String?,
         privateMode: Boolean,
         ownerWebAppUuid: String?,

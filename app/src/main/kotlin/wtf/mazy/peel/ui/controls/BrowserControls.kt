@@ -18,7 +18,7 @@ data class ControlAction(
     }
 }
 
-class ControlActions(
+class ControlCallbacks(
     private val onBack: (() -> Unit)? = null,
     private val onHome: (() -> Unit)? = null,
     private val onReload: () -> Unit,

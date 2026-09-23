@@ -6,13 +6,14 @@ import android.content.res.Resources
 import android.net.Uri
 import android.widget.ProgressBar
 import androidx.appcompat.app.AlertDialog
+import kotlinx.coroutines.CoroutineScope
 import org.mozilla.geckoview.GeckoResult
 import org.mozilla.geckoview.GeckoSession
+import wtf.mazy.peel.model.EffectiveSettings
 import wtf.mazy.peel.model.WebApp
-import wtf.mazy.peel.model.WebAppSettings
-import wtf.mazy.peel.ui.dialog.ExternalLinkResult
 import wtf.mazy.peel.ui.dialog.DateTimePickerRequest
 import wtf.mazy.peel.ui.dialog.DateTimePickerSession
+import wtf.mazy.peel.ui.dialog.ExternalLinkResult
 import java.io.File
 
 enum class PermissionResult {
@@ -21,7 +22,7 @@ enum class PermissionResult {
 }
 
 interface SessionHost {
-    val effectiveSettings: WebAppSettings
+    val effectiveSettings: EffectiveSettings
     val baseUrl: String
     val policyOrigin: String
     val webAppName: String
@@ -41,6 +42,7 @@ interface SessionHost {
     var currentlyReloading: Boolean
     val hostProgressBar: ProgressBar?
     val hostContext: Context
+    val hostScope: CoroutineScope
 
     var filePathCallback: ((Array<Uri>?) -> Unit)?
     var pendingCaptureFile: File?

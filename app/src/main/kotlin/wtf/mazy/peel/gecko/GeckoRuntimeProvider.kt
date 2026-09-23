@@ -4,9 +4,7 @@ import android.content.Context
 import android.os.LocaleList
 import android.util.Log
 import androidx.annotation.StringRes
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.sync.Mutex
@@ -24,11 +22,12 @@ import wtf.mazy.peel.BuildConfig
 import wtf.mazy.peel.R
 import wtf.mazy.peel.browser.PeelOrientationDelegate
 import wtf.mazy.peel.model.DataManager
-import wtf.mazy.peel.model.SandboxManager
+import wtf.mazy.peel.model.EffectiveSettings
 import wtf.mazy.peel.model.WebAppSettings
 import wtf.mazy.peel.push.PushBridge
 import wtf.mazy.peel.push.ServiceWorkerBridge
 import wtf.mazy.peel.push.WebNotificationBridge
+import wtf.mazy.peel.util.App
 import wtf.mazy.peel.util.webContentDensityOverride
 import java.io.File
 import java.util.Locale
@@ -43,8 +42,6 @@ object GeckoRuntimeProvider {
     const val PAGE_BRIDGE_APP = "pageBridge"
 
     private val installMutex = Mutex()
-
-    private val promptScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
 
     /** UI-side hooks installed by the application class; the runtime layer never imports `ui/`. */
     @Volatile
@@ -102,7 +99,9 @@ object GeckoRuntimeProvider {
         rt.webExtensionController.setAddonManagerDelegate(
             object : WebExtensionController.AddonManagerDelegate {
                 override fun onInstalled(extension: WebExtension) {
-                    promptScope.launch { extensionUi?.onExtensionInstalled(context, extension) }
+                    App.appScope.launch(Dispatchers.Main.immediate) {
+                        extensionUi?.onExtensionInstalled(context, extension)
+                    }
                     notifyExtensionStateChanged(ExtensionStateEvent.ADDED)
                 }
 
@@ -125,8 +124,8 @@ object GeckoRuntimeProvider {
     fun initAsync(context: Context, warmUp: Boolean = true) {
         if (!initStarted.compareAndSet(false, true)) return
         val appContext = context.applicationContext
-        DataManager.instance.appScope.launch {
-            DataManager.instance.awaitReady()
+        App.appScope.launch {
+            DataManager.awaitReady()
             try {
                 withContext(Dispatchers.Main) {
                     val rt = getRuntime(appContext)
@@ -213,7 +212,7 @@ object GeckoRuntimeProvider {
                 dataCollectionPermissions: Array<String>,
             ): GeckoResult<WebExtension.PermissionPromptResponse> {
                 val result = GeckoResult<WebExtension.PermissionPromptResponse>()
-                promptScope.launch {
+                App.appScope.launch(Dispatchers.Main.immediate) {
                     val allowed = runCatching {
                         showPrompt(
                             extension, permissions, origins,
@@ -235,7 +234,7 @@ object GeckoRuntimeProvider {
                 newDataCollectionPermissions: Array<String>,
             ): GeckoResult<AllowOrDeny> {
                 val result = GeckoResult<AllowOrDeny>()
-                promptScope.launch {
+                App.appScope.launch(Dispatchers.Main.immediate) {
                     val allowed = runCatching {
                         showPrompt(
                             extension, newPermissions, newOrigins,
@@ -307,9 +306,9 @@ object GeckoRuntimeProvider {
     }
 
     private fun createRuntime(context: Context): GeckoRuntime {
-        val defaults = DataManager.instance.defaultSettings.settings
-        val lna = defaults.isBlockLocalNetwork == true
-        val antiTracking = when (defaults.isSafeBrowsing) {
+        val defaults = DataManager.globalEffectiveSettings
+        val lna = defaults.blockLocalNetwork
+        val antiTracking = when (defaults.trackerProtection) {
             WebAppSettings.TRACKER_PROTECTION_STRICT -> ContentBlocking.AntiTracking.STRICT
             WebAppSettings.TRACKER_PROTECTION_DEFAULT -> ContentBlocking.AntiTracking.DEFAULT
             else -> ContentBlocking.AntiTracking.NONE
@@ -324,8 +323,8 @@ object GeckoRuntimeProvider {
             .consoleOutput(BuildConfig.DEBUG)
             .aboutConfigEnabled(BuildConfig.DEBUG)
             .extensionsWebAPIEnabled(true)
-            .globalPrivacyControlEnabled(defaults.isGlobalPrivacyControl == true)
-            .enterpriseRootsEnabled(defaults.isUseSystemCerts == true)
+            .globalPrivacyControlEnabled(defaults.globalPrivacyControl)
+            .enterpriseRootsEnabled(defaults.useSystemCerts)
             .setLnaEnabled(lna)
             .setLnaBlocking(lna)
             .contentBlocking(
@@ -335,18 +334,18 @@ object GeckoRuntimeProvider {
                     .cookieBehavior(ContentBlocking.CookieBehavior.ACCEPT_FIRST_PARTY_AND_ISOLATE_OTHERS)
                     .build()
             )
-        val resolvedLocales = if (defaults.isUseCustomLocale == true) {
+        val resolvedLocales = if (defaults.useCustomLocale) {
             parseLocales(defaults.customLocale) ?: systemLocalesAsArray()
         } else {
             systemLocalesAsArray()
         }
         builder.locales(resolvedLocales)
-        val zoom = defaults.webContentZoom ?: WebAppSettings.WEB_CONTENT_ZOOM_DEFAULT
-        context.webContentDensityOverride(zoom)?.let { builder.displayDensityOverride(it) }
+        context.webContentDensityOverride(defaults.webContentZoom)
+            ?.let { builder.displayDensityOverride(it) }
         writeGeckoConfig(context, defaults)?.let { builder.configFilePath(it) }
         val rt = GeckoRuntime.create(context, builder.build())
         rt.orientationController.delegate = PeelOrientationDelegate
-        rt.settings.setFingerprintingProtection(defaults.isFingerprintingProtection == true)
+        rt.settings.setFingerprintingProtection(defaults.fingerprintingProtection)
         rt.settings.preferredColorScheme = colorScheme
         rt.warmUp()
         return rt
@@ -354,8 +353,8 @@ object GeckoRuntimeProvider {
 
     private fun pref(key: String, value: Any) = "  $key: $value"
 
-    private fun parseLocales(raw: String?): Array<String>? {
-        val list = raw?.split(',')?.mapNotNull { it.trim().takeIf(String::isNotEmpty) }.orEmpty()
+    private fun parseLocales(raw: String): Array<String>? {
+        val list = raw.split(',').mapNotNull { it.trim().takeIf(String::isNotEmpty) }
         return list.takeIf { it.isNotEmpty() }?.toTypedArray()
     }
 
@@ -367,21 +366,21 @@ object GeckoRuntimeProvider {
 
     private fun writeGeckoConfig(
         context: Context,
-        defaults: WebAppSettings,
+        defaults: EffectiveSettings,
     ): String? {
         val prefs = buildList {
-            if (defaults.isBlockWebRtcIpLeak == true) {
+            if (defaults.blockWebRtcIpLeak) {
                 add(pref("media.peerconnection.ice.default_address_only", true))
                 add(pref("media.peerconnection.ice.no_host", true))
             }
-            if (defaults.isDisableQuic == true) {
+            if (defaults.disableQuic) {
                 add(pref("network.http.http3.enable", false))
             }
-            if (defaults.isDisableEch == true) {
+            if (defaults.disableEch) {
                 add(pref("network.dns.echconfig.enabled", false))
                 add(pref("network.dns.http3_echconfig.enabled", false))
             }
-            defaults.customGeckoPrefs?.forEach { (rawKey, rawValue) ->
+            defaults.customGeckoPrefs.forEach { (rawKey, rawValue) ->
                 val key = rawKey.trim()
                 val value = rawValue.trim()
                 if (key.isEmpty() || value.isEmpty()) return@forEach

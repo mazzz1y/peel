@@ -17,8 +17,8 @@ import wtf.mazy.peel.R
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.ui.dialog.DateTimePickerRequest
 import wtf.mazy.peel.ui.dialog.DateTimePickerType
-import wtf.mazy.peel.util.NotificationUtils
 import wtf.mazy.peel.util.deleteFilesOlderThan
+import wtf.mazy.peel.util.toast
 import java.io.File
 
 class PeelPromptDelegate(private val host: SessionHost) : GeckoSession.PromptDelegate {
@@ -144,13 +144,13 @@ class PeelPromptDelegate(private val host: SessionHost) : GeckoSession.PromptDel
             val challengeKey = "proxy:${proxy?.uuid ?: "?"}"
             if (isPreviousFailed) {
                 val ctx = host.hostContext
-                NotificationUtils.showToastSafe(ctx, ctx.getString(R.string.proxy_auth_failed))
+                ctx.toast(R.string.proxy_auth_failed)
             } else if (username.isNotEmpty() && proxyAuthAttempted.add(challengeKey)) {
                 return GeckoResult.fromValue(prompt.confirm(username, password))
             }
-        } else if (settings.isUseBasicAuth == true) {
-            val username = settings.basicAuthUsername.orEmpty()
-            val password = settings.basicAuthPassword.orEmpty()
+        } else if (settings.useBasicAuth) {
+            val username = settings.basicAuthUsername
+            val password = settings.basicAuthPassword
             val challengeKey = authUri
             if (username.isNotEmpty() && autoAuthAttempted.add(challengeKey)) {
                 return GeckoResult.fromValue(prompt.confirm(username, password))
@@ -170,11 +170,10 @@ class PeelPromptDelegate(private val host: SessionHost) : GeckoSession.PromptDel
     }
 
     private fun resolveActiveProxy(): wtf.mazy.peel.model.Proxy? {
-        val dm = DataManager.instance
         val uuid = host.webAppUuid ?: return null
-        val webapp = dm.getWebApp(uuid) ?: return null
-        val proxyUuid = webapp.resolveProxyUuid() ?: return null
-        return dm.getProxy(proxyUuid)
+        val webApp = DataManager.webApp(uuid) ?: return null
+        val proxyUuid = webApp.resolveProxyUuid() ?: return null
+        return DataManager.proxy(proxyUuid)
     }
 
     override fun onChoicePrompt(

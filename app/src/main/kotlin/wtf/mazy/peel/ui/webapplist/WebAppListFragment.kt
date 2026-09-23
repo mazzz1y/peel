@@ -98,7 +98,7 @@ class WebAppListFragment : Fragment(R.layout.fragment_web_app_list) {
             onMove = { from, to -> adapter.moveItem(from, to) },
             onDrop = {
                 viewLifecycleOwner.lifecycleScope.launch {
-                    DataManager.instance.reorderWebApps(adapter.currentList.map { it.entity.uuid })
+                    DataManager.reorderWebApps(adapter.currentList.map { it.entity.uuid })
                 }
             },
             onPickUp = ::animatePickedUp,

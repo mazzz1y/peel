@@ -3,20 +3,17 @@ package wtf.mazy.peel.push
 import android.content.Context
 import android.content.Intent
 import androidx.core.net.toUri
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import org.mozilla.geckoview.GeckoResult
 import org.mozilla.geckoview.GeckoRuntime
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.ui.dialog.ExternalLinkMenu
 import wtf.mazy.peel.util.ActivityRoutes
+import wtf.mazy.peel.util.App
 import wtf.mazy.peel.util.BrowserLauncher
 
 object ServiceWorkerBridge {
-
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
 
     fun attach(runtime: GeckoRuntime, context: Context) {
         val appContext = context.applicationContext
@@ -27,16 +24,16 @@ object ServiceWorkerBridge {
     }
 
     private fun openWindow(context: Context, url: String) {
-        scope.launch {
-            DataManager.instance.awaitReady()
+        App.appScope.launch(Dispatchers.Main.immediate) {
+            DataManager.awaitReady()
             val claim = NotificationClickCoordinator.claim()
-            val clicked = claim?.webappUuid?.let { DataManager.instance.getWebApp(it) }
+            val clicked = claim?.webAppUuid?.let { DataManager.webApp(it) }
             if (clicked != null) {
                 BrowserLauncher.launch(clicked, context, url)
                 return@launch
             }
             if (claim?.alreadyRouted == true) return@launch
-            val apps = DataManager.instance.getWebsites().filter { !it.resolvePrivateMode() }
+            val apps = DataManager.webApps.filter { !it.resolvePrivateMode() }
             val target = ExternalLinkMenu.bestPeelMatch(apps, url, excludeUuid = null)
             if (target != null) {
                 BrowserLauncher.launch(target, context, url)

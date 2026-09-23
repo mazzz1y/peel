@@ -4,7 +4,7 @@ import android.os.Build
 import android.view.HapticFeedbackConstants
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.android.material.color.MaterialColors
-import wtf.mazy.peel.model.WebAppSettings
+import wtf.mazy.peel.model.EffectiveSettings
 
 class PullToRefreshController(
     private val layout: SwipeRefreshLayout?,
@@ -42,8 +42,8 @@ class PullToRefreshController(
         }
     }
 
-    fun update(settings: WebAppSettings) {
-        enabledBySettings = settings.isPullToRefresh == true
+    fun update(settings: EffectiveSettings) {
+        enabledBySettings = settings.pullToRefresh
         syncEnabled()
     }
 

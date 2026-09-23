@@ -13,7 +13,7 @@ import wtf.mazy.peel.R
 import wtf.mazy.peel.ui.entitylist.EntityListAdapter
 import wtf.mazy.peel.ui.entitylist.EntityListViewHolder
 import wtf.mazy.peel.ui.entitylist.EntityRow
-import wtf.mazy.peel.ui.entitylist.EntityRowActions
+import wtf.mazy.peel.ui.entitylist.EntityRowListener
 import wtf.mazy.peel.ui.entitylist.binders.WebExtensionBinder
 
 class ExtensionAdapter(
@@ -25,7 +25,7 @@ class ExtensionAdapter(
     private val onToggle: (WebExtension, Boolean) -> Unit,
 ) : EntityListAdapter<WebExtension, ExtensionAdapter.ViewHolder>(
     binder = WebExtensionBinder(context),
-    actions = ExtensionItemActions(onUpdate, onSettings, onUninstall),
+    actions = ExtensionRowListener(onUpdate, onSettings, onUninstall),
     checkIconColor = checkIconColor,
 ) {
 
@@ -50,11 +50,11 @@ class ExtensionAdapter(
         holder.toggle.setOnCheckedChangeListener { _, isChecked -> onToggle(ext, isChecked) }
     }
 
-    private class ExtensionItemActions(
+    private class ExtensionRowListener(
         private val onUpdate: (WebExtension) -> Unit,
         private val onSettings: (WebExtension) -> Unit,
         private val onUninstall: (WebExtension) -> Unit,
-    ) : EntityRowActions<WebExtension> {
+    ) : EntityRowListener<WebExtension> {
         override fun onItemClick(item: WebExtension) {}
         override fun onItemIconClick(item: WebExtension) {}
         override fun onItemMenu(view: View, item: WebExtension) {

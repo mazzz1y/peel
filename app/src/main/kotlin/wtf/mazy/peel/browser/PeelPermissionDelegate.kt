@@ -45,7 +45,7 @@ class PeelPermissionDelegate(private val host: SessionHost) : GeckoSession.Permi
 
         when (type) {
             GeckoSession.PermissionDelegate.PERMISSION_GEOLOCATION -> handleTriState(
-                host.effectiveSettings.isAllowLocationAccess,
+                host.effectiveSettings.locationPermission,
                 listOf(
                     Manifest.permission.ACCESS_COARSE_LOCATION,
                     Manifest.permission.ACCESS_FINE_LOCATION
@@ -59,7 +59,7 @@ class PeelPermissionDelegate(private val host: SessionHost) : GeckoSession.Permi
             )
 
             GeckoSession.PermissionDelegate.PERMISSION_MEDIA_KEY_SYSTEM_ACCESS ->
-                reply(host.effectiveSettings.isDrmAllowed == true)
+                reply(host.effectiveSettings.drmAllowed)
 
             GeckoSession.PermissionDelegate.PERMISSION_DESKTOP_NOTIFICATION -> {
                 if (AppPrefs.isPushEnabled(host.hostContext)) {
@@ -95,7 +95,7 @@ class PeelPermissionDelegate(private val host: SessionHost) : GeckoSession.Permi
         if (!video.isNullOrEmpty()) {
             pending.add(
                 PendingMediaPermission(
-                    host.effectiveSettings.isCameraPermission,
+                    host.effectiveSettings.cameraPermission,
                     listOf(Manifest.permission.CAMERA),
                     PERM_KEY_CAMERA,
                     R.string.permission_prompt_camera,
@@ -107,7 +107,7 @@ class PeelPermissionDelegate(private val host: SessionHost) : GeckoSession.Permi
         if (!audio.isNullOrEmpty()) {
             pending.add(
                 PendingMediaPermission(
-                    host.effectiveSettings.isMicrophonePermission,
+                    host.effectiveSettings.microphonePermission,
                     listOf(
                         Manifest.permission.RECORD_AUDIO,
                         Manifest.permission.MODIFY_AUDIO_SETTINGS
@@ -143,7 +143,7 @@ class PeelPermissionDelegate(private val host: SessionHost) : GeckoSession.Permi
     }
 
     private data class PendingMediaPermission(
-        val state: Int?,
+        val state: Int,
         val androidPermissions: List<String>,
         val key: Int,
         val promptResId: Int,
@@ -193,13 +193,14 @@ class PeelPermissionDelegate(private val host: SessionHost) : GeckoSession.Permi
     private fun recordDurable(uuid: String, key: Int, origin: String, granted: Boolean) {
         val field = DURABLE_PERM_FIELDS.getValue(key)
         memory.remember(origin, key, granted, forSession = true)
-        DataManager.instance.appScope.launch {
-            DataManager.instance.getWebApp(uuid)?.let { webapp ->
+        host.hostScope.launch {
+            DataManager.webApp(uuid)?.let { webApp ->
+                val settings = webApp.settings.deepCopy()
                 field.set(
-                    webapp.settings,
+                    settings,
                     if (granted) WebAppSettings.PERMISSION_ON else WebAppSettings.PERMISSION_OFF,
                 )
-                DataManager.instance.replaceWebApp(webapp)
+                DataManager.replaceWebApp(webApp.copy(settings = settings))
             }
             host.runOnUi {
                 host.reloadEffectiveSettings()
@@ -209,7 +210,7 @@ class PeelPermissionDelegate(private val host: SessionHost) : GeckoSession.Permi
     }
 
     private fun handleTriState(
-        state: Int?,
+        state: Int,
         androidPermissions: List<String>,
         key: Int,
         promptResId: Int,

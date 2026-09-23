@@ -16,7 +16,7 @@ import wtf.mazy.peel.browser.label
 import wtf.mazy.peel.browser.langBase
 import wtf.mazy.peel.browser.langKey
 import wtf.mazy.peel.ui.bindDropdown
-import wtf.mazy.peel.util.NotificationUtils
+import wtf.mazy.peel.util.toast
 
 object TranslateDialog {
 
@@ -34,18 +34,12 @@ object TranslateDialog {
     ) {
         activity.lifecycleScope.launch {
             if (!TranslationLanguages.isEngineSupported()) {
-                NotificationUtils.showToast(
-                    activity,
-                    activity.getString(R.string.translate_error_engine_unavailable),
-                )
+                activity.toast(R.string.translate_error_engine_unavailable, long = true)
                 return@launch
             }
             val support = TranslationLanguages.listSupportedLanguages()
             if (support == null) {
-                NotificationUtils.showToast(
-                    activity,
-                    activity.getString(R.string.translate_error_languages_unavailable),
-                )
+                activity.toast(R.string.translate_error_languages_unavailable, long = true)
                 return@launch
             }
             val downloaded = TranslationLanguages.downloadedLanguageCodes()
@@ -67,10 +61,7 @@ object TranslateDialog {
         val toLanguages = (support.toLanguages ?: emptyList())
             .sortedWith(downloadedFirst(downloaded))
         if (fromLanguages.isEmpty() || toLanguages.isEmpty()) {
-            NotificationUtils.showToast(
-                activity,
-                activity.getString(R.string.translate_error_languages_unavailable),
-            )
+            activity.toast(R.string.translate_error_languages_unavailable, long = true)
             return
         }
 
@@ -137,10 +128,7 @@ object TranslateDialog {
                 val from = fromLanguages.getOrNull(fromIndex)?.code ?: return@setPositiveButton
                 val to = toLanguages.getOrNull(toIndex)?.code ?: return@setPositiveButton
                 if (from == to) {
-                    NotificationUtils.showToast(
-                        activity,
-                        activity.getString(R.string.translate_error_same_language),
-                    )
+                    activity.toast(R.string.translate_error_same_language, long = true)
                     return@setPositiveButton
                 }
                 delegate?.translateToTarget(session, from, to)

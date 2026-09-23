@@ -6,8 +6,7 @@ import androidx.core.content.pm.ShortcutManagerCompat
 import wtf.mazy.peel.R
 import wtf.mazy.peel.util.Const
 
-object ShortcutIconUtils {
-    @JvmStatic
+object ShortcutIcons {
     fun deleteShortcuts(removableUuids: List<String>, context: Context) {
         val manager = context.getSystemService(ShortcutManager::class.java)
         for (info in manager.pinnedShortcuts) {

@@ -10,7 +10,7 @@ import wtf.mazy.peel.model.WebAppSettings
 class SettingsAdapter(
     private val items: List<SettingsListItem>,
     private val settings: WebAppSettings,
-    private val factory: SettingViewFactory,
+    private val factory: SettingRowFactory,
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     override fun getItemViewType(position: Int): Int = when (val item = items[position]) {

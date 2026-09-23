@@ -4,16 +4,16 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import wtf.mazy.peel.R
-import wtf.mazy.peel.ui.BiometricPromptHelper
-import wtf.mazy.peel.util.NotificationUtils
+import wtf.mazy.peel.ui.BiometricPrompter
+import wtf.mazy.peel.util.biometricUnavailableReason
+import wtf.mazy.peel.util.toast
 
 class BiometricUnlockController(
     private val activity: AppCompatActivity,
-    private val getWebappUuid: () -> String?,
+    private val getWebAppUuid: () -> String?,
     private val onSuccess: () -> Unit,
     private val onFailure: () -> Unit,
 ) {
@@ -48,7 +48,7 @@ class BiometricUnlockController(
     }
 
     fun isUnlocked(): Boolean {
-        val uuid = getWebappUuid() ?: return false
+        val uuid = getWebAppUuid() ?: return false
         return unlocked.contains(uuid)
     }
 
@@ -58,7 +58,7 @@ class BiometricUnlockController(
     ): PromptOutcome {
         if (!isBiometricEnabled || isUnlocked()) return PromptOutcome.NOT_NEEDED
 
-        val unavailableReason = BiometricPromptHelper.getBiometricError(activity)
+        val unavailableReason = activity.biometricUnavailableReason()
         if (unavailableReason != null) {
             reportUnavailable(unavailableReason)
             return PromptOutcome.UNAVAILABLE
@@ -72,7 +72,7 @@ class BiometricUnlockController(
         isPromptActive = true
         onPromptShown()
 
-        val shown = BiometricPromptHelper(activity)
+        val shown = BiometricPrompter(activity)
             .showPrompt(
                 {
                     setUnlocked()
@@ -95,12 +95,12 @@ class BiometricUnlockController(
     }
 
     private fun reportUnavailable(reason: String) {
-        NotificationUtils.showToast(activity, reason, Toast.LENGTH_LONG)
+        activity.toast(reason, long = true)
         onFailure()
     }
 
     fun onStop() {
-        val uuid = getWebappUuid() ?: return
+        val uuid = getWebAppUuid() ?: return
         unlocked.remove(uuid)
     }
 
@@ -109,7 +109,7 @@ class BiometricUnlockController(
     }
 
     private fun setUnlocked() {
-        val uuid = getWebappUuid() ?: return
+        val uuid = getWebAppUuid() ?: return
         unlocked.add(uuid)
     }
 

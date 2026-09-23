@@ -28,7 +28,7 @@ import wtf.mazy.peel.ui.controls.ControlAction
 
 class FloatingControlsView(
     private val parent: FrameLayout,
-    webappUuid: String,
+    webAppUuid: String,
     private val actions: List<ControlAction>,
     private val onExpandedChange: ((expanded: Boolean, durationMs: Long) -> Unit)? = null,
 ) : BrowserControls {
@@ -37,9 +37,9 @@ class FloatingControlsView(
 
     private data class SavedOffset(val xFraction: Float, val yFraction: Float)
 
-    private class Prefs(context: Context, webappUuid: String) {
+    private class Prefs(context: Context, webAppUuid: String) {
         private val prefs: SharedPreferences =
-            context.getSharedPreferences("${webappUuid}_floating_controls", 0)
+            context.getSharedPreferences("${webAppUuid}_floating_controls", 0)
 
         fun load(): SavedOffset? {
             if (!prefs.contains(KEY_X)) return null
@@ -72,7 +72,7 @@ class FloatingControlsView(
     private val touchSlop = ViewConfiguration.get(context).scaledTouchSlop.toFloat()
     private val scrimColor = ContextCompat.getColor(context, R.color.floating_controls_scrim)
 
-    private val buttonPrefs = Prefs(context, webappUuid)
+    private val buttonPrefs = Prefs(context, webAppUuid)
 
     private val dividerCount = actions.count { it.dividerAfter }
 
@@ -443,7 +443,8 @@ class FloatingControlsView(
 
     private fun shouldExpandForward(axis: Axis): Boolean {
         val frame = frame(axis)
-        val forward = frame.extent - frame.far - (frame.triggerPos + buttonSizePx + panelTriggerGapPx)
+        val forward =
+            frame.extent - frame.far - (frame.triggerPos + buttonSizePx + panelTriggerGapPx)
         val backward = frame.triggerPos - panelTriggerGapPx - frame.near
         return forward >= panelSizePx(frame) || forward >= backward
     }

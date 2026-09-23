@@ -73,10 +73,10 @@ class OverridePickerDialog : DialogFragment() {
         val recyclerView = view.findViewById<RecyclerView>(R.id.recycler_settings)
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
-        val overriddenKeys = currentSettings?.getOverriddenKeys()?.toSet() ?: emptySet()
+        val overriddenKeys = currentSettings?.overriddenKeys?.toSet() ?: emptySet()
 
         val settingsGrouped =
-            SettingRegistry.getPerAppSettings()
+            SettingRegistry.perApp
                 .filter { it.key !in overriddenKeys }
                 .groupBy { it.category }
                 .toSortedMap(compareBy { it.ordinal })

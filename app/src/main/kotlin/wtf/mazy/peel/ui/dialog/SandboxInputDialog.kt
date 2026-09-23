@@ -29,7 +29,7 @@ fun Activity.showSandboxInputDialog(
     var switchSandbox: MaterialSwitch? = null
     var switchEphemeral: MaterialSwitch? = null
     var selectedProxyUuid: String? = null
-    val proxies = DataManager.instance.getProxies().sortedBy { it.displayName().lowercase() }
+    val proxies = DataManager.proxies.sortedBy { it.displayName().lowercase() }
 
     showInputDialogRaw(
         InputDialogConfig(

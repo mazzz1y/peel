@@ -9,7 +9,7 @@ import kotlinx.coroutines.withTimeoutOrNull
 import org.mozilla.geckoview.GeckoSession
 import org.mozilla.geckoview.TranslationsController.SessionTranslation
 import wtf.mazy.peel.R
-import wtf.mazy.peel.model.WebAppSettings
+import wtf.mazy.peel.model.EffectiveSettings
 import wtf.mazy.peel.ui.common.LoadingDialogController
 import java.lang.ref.WeakReference
 
@@ -22,7 +22,7 @@ data class PairKey(val from: String, val to: String) {
 
 interface TranslationHost {
     val translationScope: CoroutineScope
-    val translationSettings: WebAppSettings
+    val translationSettings: EffectiveSettings
     val translationLoader: LoadingDialogController
     fun setTranslateButtonActive(active: Boolean)
 }
@@ -247,7 +247,7 @@ class PeelTranslationDelegate(host: TranslationHost) :
         sessionManualTarget?.let { sticky ->
             if (!langBaseEqual(docLang, sticky)) return sticky
         }
-        if (activity.translationSettings.isTranslatorEnabled != true) return null
+        if (!activity.translationSettings.translatorEnabled) return null
         val pairs = activity.translationSettings.autoTranslatePairs
         return TranslationLanguages.resolveConfiguredTarget(pairs, docLang)
     }

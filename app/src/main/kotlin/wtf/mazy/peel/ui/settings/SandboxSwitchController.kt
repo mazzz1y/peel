@@ -1,26 +1,29 @@
 package wtf.mazy.peel.ui.settings
 
 import android.view.View
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.materialswitch.MaterialSwitch
 import kotlinx.coroutines.launch
 import wtf.mazy.peel.R
-import wtf.mazy.peel.model.SandboxManager
+import wtf.mazy.peel.gecko.SandboxManager
 import wtf.mazy.peel.model.SandboxOwner
-import wtf.mazy.peel.util.NotificationUtils.showToast
+import wtf.mazy.peel.ui.common.Draft
+import wtf.mazy.peel.util.toast
 
-class SandboxSwitchController(
+class SandboxSwitchController<T : SandboxOwner<T>>(
     private val activity: AppCompatActivity,
-    private val owner: SandboxOwner,
+    private val draft: Draft<T>,
     private val switchSandbox: MaterialSwitch,
     private val switchEphemeral: MaterialSwitch,
     private val ephemeralRow: View,
     private val btnClear: View,
     private val onSandboxChanged: (() -> Unit)? = null,
 ) {
+    private val owner: T
+        get() = draft.value
+
     fun setup() {
         updateEphemeralVisibility()
         updateClearButtonVisibility()
@@ -50,7 +53,7 @@ class SandboxSwitchController(
                 MaterialAlertDialogBuilder(activity)
                     .setMessage(R.string.clear_sandbox_data_confirm)
                     .setPositiveButton(R.string.ok) { _, _ ->
-                        owner.isEphemeralSandbox = true
+                        draft.update { it.withSandbox(isEphemeralSandbox = true) }
                         clearSandboxData()
                     }
                     .setNegativeButton(R.string.cancel) { _, _ ->
@@ -58,7 +61,7 @@ class SandboxSwitchController(
                     }
                     .show()
             } else {
-                owner.isEphemeralSandbox = false
+                draft.update { it.withSandbox(isEphemeralSandbox = false) }
                 updateClearButtonVisibility()
             }
         }
@@ -84,17 +87,16 @@ class SandboxSwitchController(
     }
 
     private fun setSandboxEnabled() {
-        owner.isUseContainer = true
+        draft.update { it.withSandbox(isUseContainer = true) }
         updateEphemeralVisibility()
         updateClearButtonVisibility()
         onSandboxChanged?.invoke()
-        return
     }
 
     private fun disableSandbox() {
-        owner.isUseContainer = false
-        owner.isEphemeralSandbox = false
-        owner.proxyUuid = null
+        draft.update {
+            it.withSandbox(isUseContainer = false, isEphemeralSandbox = false, proxyUuid = null)
+        }
         switchEphemeral.isChecked = false
         updateEphemeralVisibility()
         updateClearButtonVisibility()
@@ -104,11 +106,7 @@ class SandboxSwitchController(
     private fun clearSandboxData() {
         activity.lifecycleScope.launch {
             if (SandboxManager.clearSandboxData(activity, owner.uuid)) {
-                showToast(
-                    activity,
-                    activity.getString(R.string.clear_sandbox_data),
-                    Toast.LENGTH_SHORT,
-                )
+                activity.toast(R.string.clear_sandbox_data)
             }
             updateClearButtonVisibility()
         }

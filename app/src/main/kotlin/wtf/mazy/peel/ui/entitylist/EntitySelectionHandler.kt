@@ -2,7 +2,7 @@ package wtf.mazy.peel.ui.entitylist
 
 data class MoveTarget(val title: String, val groupUuid: String?)
 
-interface EntitySelectionActions<T : Any> {
+interface EntitySelectionHandler<T : Any> {
     val pendingDeleteSet: MutableSet<String>
 
     fun confirmShare(items: List<T>, onConfirm: (Boolean) -> Unit)

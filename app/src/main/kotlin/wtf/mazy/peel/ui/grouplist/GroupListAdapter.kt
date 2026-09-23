@@ -9,11 +9,11 @@ import wtf.mazy.peel.model.WebAppGroup
 import wtf.mazy.peel.ui.entitylist.EntityListAdapter
 import wtf.mazy.peel.ui.entitylist.EntityListViewHolder
 import wtf.mazy.peel.ui.entitylist.EntityRow
-import wtf.mazy.peel.ui.entitylist.EntityRowActions
+import wtf.mazy.peel.ui.entitylist.EntityRowListener
 import wtf.mazy.peel.ui.entitylist.binders.WebAppGroupBinder
 
 class GroupListAdapter(
-    actions: EntityRowActions<WebAppGroup>,
+    actions: EntityRowListener<WebAppGroup>,
     @ColorInt checkIconColor: Int,
 ) : EntityListAdapter<WebAppGroup, GroupListAdapter.ViewHolder>(
     binder = WebAppGroupBinder,

@@ -1,7 +1,7 @@
 package wtf.mazy.peel.ui.browser
 
 import android.os.Handler
-import wtf.mazy.peel.model.WebAppSettings
+import wtf.mazy.peel.model.EffectiveSettings
 
 class AutoReloadController(
     private val mainHandler: Handler,
@@ -9,10 +9,10 @@ class AutoReloadController(
 ) {
     private var pendingRunnable: Runnable? = null
 
-    fun start(settings: WebAppSettings) {
+    fun start(settings: EffectiveSettings) {
         stop()
-        if (settings.isAutoReload != true) return
-        val interval = settings.timeAutoReload?.coerceAtLeast(1) ?: return
+        if (!settings.autoReload) return
+        val interval = settings.autoReloadInterval.coerceAtLeast(1)
         val runnable = Runnable {
             onReload()
             start(settings)

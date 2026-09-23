@@ -11,14 +11,15 @@ import wtf.mazy.peel.R
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.ui.PickerDialog
+import wtf.mazy.peel.ui.entitylist.PendingDeletes
 import wtf.mazy.peel.util.BrowserLauncher
 import wtf.mazy.peel.util.HostIdentity
-import wtf.mazy.peel.util.NotificationUtils
 import wtf.mazy.peel.util.linkAffinity
 import wtf.mazy.peel.util.normalizedHost
 import wtf.mazy.peel.util.shortLabel
 import wtf.mazy.peel.util.shouldOfferOpenInSystem
 import wtf.mazy.peel.util.sortedByAffinity
+import wtf.mazy.peel.util.toast
 
 sealed interface ExternalLinkResult {
     data object LoadHere : ExternalLinkResult
@@ -27,6 +28,7 @@ sealed interface ExternalLinkResult {
     data object Share : ExternalLinkResult
     data object CopyLink : ExternalLinkResult
     data object Dismissed : ExternalLinkResult
+
     // the launcher reports back when it is finished, which for the picker means dismissed:
     // a standalone host activity must outlive the dialog it opens
     data class OpenInPeelApp(val launcher: (onDone: () -> Unit) -> Unit) : ExternalLinkResult
@@ -144,7 +146,7 @@ object ExternalLinkMenu {
         excludeUuid: String?,
     ): List<WebApp> {
         val targetHost = url.normalizedHost() ?: return emptyList()
-        val pending = DataManager.instance.pendingDeleteWebAppUuids
+        val pending = PendingDeletes.webApps
         return peelApps.filter { app ->
             app.uuid != excludeUuid &&
                     app.uuid !in pending &&
@@ -174,14 +176,11 @@ object ExternalLinkMenu {
         onDismiss: () -> Unit = {},
     ) {
         activity.lifecycleScope.launch {
-            val apps = DataManager.instance.queryAllWebApps()
+            val apps = DataManager.queryAllWebApps()
                 .filter { it.uuid != excludeUuid }
                 .sortedByAffinity(url)
             if (apps.isEmpty()) {
-                NotificationUtils.showToast(
-                    activity,
-                    activity.getString(R.string.no_web_apps_available),
-                )
+                activity.toast(R.string.no_web_apps_available, long = true)
                 onDismiss()
                 return@launch
             }
@@ -189,20 +188,20 @@ object ExternalLinkMenu {
             val hasGroups = apps.any { it.groupUuid != null }
             val groupTitles = if (hasGroups) {
                 apps.mapNotNull { it.groupUuid }.distinct()
-                    .associateWith { DataManager.instance.queryGroup(it)?.title }
+                    .associateWith { DataManager.queryGroup(it)?.title }
             } else emptyMap()
 
             PickerDialog.show(
                 activity = activity,
                 title = activity.getString(R.string.open_in_peel),
                 items = apps,
-                onPick = { webapp -> BrowserLauncher.launch(webapp, activity, url) },
+                onPick = { webApp -> BrowserLauncher.launch(webApp, activity, url) },
                 configure = { setOnDismissListener { onDismiss() } },
-            ) { webapp, icon, name, label, _ ->
-                name.text = webapp.title
-                icon.setImageBitmap(webapp.resolveIcon())
+            ) { webApp, icon, name, label, _ ->
+                name.text = webApp.title
+                icon.setImageBitmap(webApp.resolveIcon())
                 if (hasGroups) {
-                    label.text = webapp.groupUuid?.let { groupTitles[it] }
+                    label.text = webApp.groupUuid?.let { groupTitles[it] }
                         ?.let { shortLabel(it) }
                         ?: activity.getString(R.string.ungrouped)
                     label.visibility = View.VISIBLE

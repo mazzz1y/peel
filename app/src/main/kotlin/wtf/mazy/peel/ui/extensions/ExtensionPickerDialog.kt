@@ -12,7 +12,7 @@ import wtf.mazy.peel.ui.PickerDialog
 import wtf.mazy.peel.ui.common.Theming
 
 object ExtensionPickerDialog {
-    fun show(activity: AppCompatActivity, sessionActions: SessionExtensionActions) {
+    fun show(activity: AppCompatActivity, sessionActions: ExtensionActionController) {
         val entries = sessionActions.snapshot()
         if (entries.isEmpty()) {
             MaterialAlertDialogBuilder(activity)

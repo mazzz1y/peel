@@ -39,7 +39,7 @@ class MediaPlaybackManager(
     private var mediaSession: GeckoMediaSession? = null
     private var title: String = ""
     private var icon: Bitmap? = null
-    private var webappUuid: String = ""
+    private var webAppUuid: String = ""
     private var contentIntent: PendingIntent? = null
     private var serviceStarted = false
     private var receiverRegistered = false
@@ -60,7 +60,7 @@ class MediaPlaybackManager(
         object : BroadcastReceiver() {
             override fun onReceive(ctx: Context?, intent: Intent) {
                 val uuid = intent.getStringExtra(MediaPlaybackService.EXTRA_WEBAPP_UUID)
-                if (uuid != null && uuid != webappUuid) return
+                if (uuid != null && uuid != webAppUuid) return
                 val gen = intent.getIntExtra(MediaPlaybackService.EXTRA_GENERATION, -1)
                 if (gen != -1 && gen != generation) return
                 when (intent.action) {
@@ -95,13 +95,13 @@ class MediaPlaybackManager(
         geckoSession: GeckoSession,
         title: String,
         icon: Bitmap?,
-        webappUuid: String,
+        webAppUuid: String,
         contentIntent: PendingIntent?,
     ) {
         this.session = geckoSession
         this.title = title
         this.icon = icon
-        this.webappUuid = webappUuid
+        this.webAppUuid = webAppUuid
         this.contentIntent = contentIntent
         geckoSession.mediaSessionDelegate = this
         if (backgroundPlayback && !receiverRegistered) registerReceiver()
@@ -153,7 +153,7 @@ class MediaPlaybackManager(
         }
         generation++
         val startIntent = MediaPlaybackService.createStartIntent(
-            context, title, icon, webappUuid, generation, contentIntent,
+            context, title, icon, webAppUuid, generation, contentIntent,
         )
         try {
             ContextCompat.startForegroundService(context, startIntent)

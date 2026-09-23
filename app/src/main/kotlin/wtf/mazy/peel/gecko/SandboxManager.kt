@@ -1,13 +1,13 @@
-package wtf.mazy.peel.model
+package wtf.mazy.peel.gecko
 
 import android.content.Context
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.mozilla.geckoview.GeckoRuntime
 import org.mozilla.geckoview.StorageController
 import wtf.mazy.peel.browser.SessionHostRegistry
-import wtf.mazy.peel.gecko.GeckoRuntimeProvider
 import wtf.mazy.peel.push.PushBridge
 import wtf.mazy.peel.util.App
 import wtf.mazy.peel.util.AppPrefs
@@ -21,10 +21,10 @@ object SandboxManager {
         return clearContext(contextId)
     }
 
-    fun enqueueSandboxClear(context: Context, contextId: String) {
+    fun enqueueSandboxClear(context: Context, contextId: String, scope: CoroutineScope) {
         PushBridge.onContextCleared(context, contextId)
         AppPrefs.addPendingSandboxClear(context, contextId)
-        DataManager.instance.appScope.launch {
+        scope.launch {
             SessionHostRegistry.closeSessionsFor(contextId)
             clearContext(contextId)
         }

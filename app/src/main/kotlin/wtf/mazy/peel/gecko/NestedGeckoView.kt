@@ -10,9 +10,9 @@ import androidx.core.view.ViewCompat
 import org.mozilla.geckoview.GeckoView
 import org.mozilla.geckoview.PanZoomController
 
-class NestedGeckoView @JvmOverloads constructor(
+class NestedGeckoView(
     context: Context,
-    attrs: AttributeSet? = null,
+    attrs: AttributeSet?,
 ) : GeckoView(context, attrs), NestedScrollingChild {
 
     private var lastY = 0

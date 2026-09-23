@@ -5,6 +5,7 @@ import android.view.View
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.PopupMenu
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.materialswitch.MaterialSwitch
 import kotlinx.coroutines.launch
@@ -13,20 +14,22 @@ import wtf.mazy.peel.browser.SessionHostRegistry
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.EntityCloner
 import wtf.mazy.peel.model.WebAppGroup
-import wtf.mazy.peel.shortcut.ShortcutHelper
+import wtf.mazy.peel.shortcut.Shortcuts
 import wtf.mazy.peel.ui.common.LoadingDialogController
 import wtf.mazy.peel.ui.dialog.dismissOnDestroyOf
 import wtf.mazy.peel.ui.dialog.showSandboxInputDialog
 import wtf.mazy.peel.ui.entitylist.EntityListActivity
 import wtf.mazy.peel.ui.entitylist.EntityListAdapter
 import wtf.mazy.peel.ui.entitylist.EntityRow
-import wtf.mazy.peel.ui.entitylist.EntityRowActions
+import wtf.mazy.peel.ui.entitylist.EntityRowListener
 import wtf.mazy.peel.ui.entitylist.EntitySelectionController
+import wtf.mazy.peel.ui.entitylist.PendingDeletes
 import wtf.mazy.peel.ui.entitylist.SelectionConfig
 import wtf.mazy.peel.ui.entitylist.scheduleEntityDelete
 import wtf.mazy.peel.ui.grouplist.GroupListAdapter
-import wtf.mazy.peel.ui.grouplist.GroupSelectionActions
+import wtf.mazy.peel.ui.grouplist.GroupSelectionHandler
 import wtf.mazy.peel.ui.settings.showApplyTimingSnackbar
+import wtf.mazy.peel.util.App
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.withBoldSpan
 
@@ -37,8 +40,8 @@ class GroupListActivity : EntityListActivity<WebAppGroup>() {
     override val supportsDrag: Boolean = true
 
     private val transferLoader: LoadingDialogController by lazy { LoadingDialogController(this) }
-    private val selectionActions: GroupSelectionActions by lazy {
-        GroupSelectionActions(this, transferLoader)
+    private val selectionHandler: GroupSelectionHandler by lazy {
+        GroupSelectionHandler(this, transferLoader)
     }
     private lateinit var selectionController: EntitySelectionController<WebAppGroup>
 
@@ -50,9 +53,9 @@ class GroupListActivity : EntityListActivity<WebAppGroup>() {
     override fun createAdapter(): EntityListAdapter<WebAppGroup, *> {
         selectionController = EntitySelectionController(
             host = this,
-            actions = selectionActions,
+            actions = selectionHandler,
             resolveItems = { ids ->
-                DataManager.instance.getGroups().filter { it.uuid in ids }
+                DataManager.groups.filter { it.uuid in ids }
             },
             onChanged = {
                 refreshList()
@@ -65,12 +68,12 @@ class GroupListActivity : EntityListActivity<WebAppGroup>() {
                 idleFabDescription = R.string.add_group,
             ),
         )
-        return GroupListAdapter(GroupItemActions(), checkIconColor)
+        return GroupListAdapter(GroupRowListener(), checkIconColor)
     }
 
     override fun loadEntities(): List<WebAppGroup> {
-        val pending = DataManager.instance.pendingDeleteGroupUuids
-        return DataManager.instance.sortedGroups.filterNot { it.uuid in pending }
+        val pending = PendingDeletes.groups
+        return DataManager.sortedGroups.filterNot { it.uuid in pending }
     }
 
     override fun buildRow(entity: WebAppGroup): EntityRow<WebAppGroup> = EntityRow(
@@ -92,12 +95,14 @@ class GroupListActivity : EntityListActivity<WebAppGroup>() {
             titleRes = R.string.add_group,
             hintRes = R.string.group_name_hint,
         ) { result ->
-            val group = WebAppGroup(title = result.text)
-            group.isUseContainer = result.sandbox
-            group.isEphemeralSandbox = result.ephemeral
-            group.proxyUuid = result.proxyUuid
-            DataManager.instance.appScope.launch {
-                DataManager.instance.addGroup(group, appendOrder = true)
+            val group = WebAppGroup(
+                title = result.text,
+                isUseContainer = result.sandbox,
+                isEphemeralSandbox = result.ephemeral,
+                proxyUuid = result.proxyUuid,
+            )
+            lifecycleScope.launch {
+                DataManager.addGroup(group, appendOrder = true)
             }
         }
     }
@@ -107,7 +112,7 @@ class GroupListActivity : EntityListActivity<WebAppGroup>() {
     }
 
     override suspend fun reorder(uuids: List<String>) {
-        DataManager.instance.reorderGroups(uuids)
+        DataManager.reorderGroups(uuids)
     }
 
     override fun onDestroy() {
@@ -116,7 +121,7 @@ class GroupListActivity : EntityListActivity<WebAppGroup>() {
     }
 
     private fun showDeleteGroupDialog(group: WebAppGroup) {
-        val appsInGroup = DataManager.instance.activeWebsitesForGroup(group.uuid)
+        val appsInGroup = DataManager.webAppsInGroup(group.uuid)
         if (appsInGroup.isEmpty()) {
             scheduleGroupDelete(group, ungroupApps = false)
             return
@@ -145,18 +150,18 @@ class GroupListActivity : EntityListActivity<WebAppGroup>() {
             activity = this,
             uuids = listOf(group.uuid),
             message = getString(R.string.x_was_removed, group.title),
-            pendingDeleteSet = DataManager.instance.pendingDeleteGroupUuids,
+            pendingDeleteSet = PendingDeletes.groups,
             onPendingChanged = ::refreshList,
             commitDelete = { uuids ->
                 uuids.forEach { uuid ->
-                    val target = DataManager.instance.getGroup(uuid) ?: return@forEach
-                    DataManager.instance.removeGroup(target, ungroupApps = ungroupApps)
+                    val target = DataManager.group(uuid) ?: return@forEach
+                    DataManager.removeGroup(target, ungroupApps = ungroupApps)
                 }
             },
         )
     }
 
-    private inner class GroupItemActions : EntityRowActions<WebAppGroup> {
+    private inner class GroupRowListener : EntityRowListener<WebAppGroup> {
         override fun onItemClick(item: WebAppGroup) {
             val intent = Intent(this@GroupListActivity, GroupSettingsActivity::class.java)
             intent.putExtra(Const.INTENT_GROUP_UUID, item.uuid)
@@ -173,18 +178,18 @@ class GroupListActivity : EntityListActivity<WebAppGroup>() {
             popup.setOnMenuItemClickListener { menuItem ->
                 when (menuItem.itemId) {
                     R.id.action_share_group -> {
-                        selectionActions.confirmShare(listOf(item)) { includeSecrets ->
-                            selectionActions.share(listOf(item), includeSecrets)
+                        selectionHandler.confirmShare(listOf(item)) { includeSecrets ->
+                            selectionHandler.share(listOf(item), includeSecrets)
                         }
                         true
                     }
 
                     R.id.action_create_shortcut -> {
-                        ShortcutHelper.createShortcut(item, this@GroupListActivity); true
+                        Shortcuts.createShortcut(item, this@GroupListActivity); true
                     }
 
                     R.id.action_clone -> {
-                        DataManager.instance.appScope.launch {
+                        App.appScope.launch {
                             EntityCloner.deepCloneGroup(item)
                         }
                         true

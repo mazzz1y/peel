@@ -14,7 +14,7 @@ import wtf.mazy.peel.browser.SessionHost
 import wtf.mazy.peel.gecko.GeckoRuntimeProvider
 import wtf.mazy.peel.util.ForegroundActivityTracker
 
-class SessionExtensionActions(
+class ExtensionActionController(
     private val activity: FragmentActivity,
     private val onExtensionsReady: ((hasExtensions: Boolean) -> Unit)? = null,
 ) {
@@ -168,7 +168,7 @@ class SessionExtensionActions(
 
     companion object {
         @Volatile
-        private var active: SessionExtensionActions? = null
+        private var active: ExtensionActionController? = null
 
         @Volatile
         var hasExtensions: Boolean = false
@@ -260,13 +260,13 @@ class SessionExtensionActions(
         }
 
         private fun buildSheetSessionSettings(
-            owner: SessionExtensionActions?,
+            owner: ExtensionActionController?,
         ): GeckoSessionSettings = GeckoSessionSettings.Builder()
             .apply { owner?.currentContextId?.let { contextId(it) } }
             .usePrivateMode(owner?.currentPrivateMode == true)
             .build()
 
-        fun setActive(instance: SessionExtensionActions) {
+        fun setActive(instance: ExtensionActionController) {
             active = instance
         }
 

@@ -54,8 +54,16 @@ fun showDateTimePickerDialog(
     onCancel: () -> Unit,
 ): DateTimePickerSession {
     val session = DateTimePickerSession(activity)
-    val finish: (String) -> Unit = { if (!session.settled) { session.settle(); onResult(it) } }
-    val cancel: () -> Unit = { if (!session.settled) { session.settle(); onCancel() } }
+    val finish: (String) -> Unit = {
+        if (!session.settled) {
+            session.settle(); onResult(it)
+        }
+    }
+    val cancel: () -> Unit = {
+        if (!session.settled) {
+            session.settle(); onCancel()
+        }
+    }
 
     when (request.type) {
         DateTimePickerType.TIME -> session.showTimePicker(

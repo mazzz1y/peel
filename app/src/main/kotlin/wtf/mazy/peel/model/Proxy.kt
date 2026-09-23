@@ -6,14 +6,14 @@ import java.util.UUID
 @Serializable
 data class Proxy(
     val uuid: String = UUID.randomUUID().toString(),
-    var name: String = "",
-    var type: Int = TYPE_HTTP,
-    var host: String = "",
-    var port: Int = 0,
-    var username: String? = null,
-    var password: String? = null,
-    var remoteDns: Boolean = false,
-    var bypassList: List<String> = emptyList(),
+    val name: String = "",
+    val type: Int = TYPE_HTTP,
+    val host: String = "",
+    val port: Int = 0,
+    val username: String? = null,
+    val password: String? = null,
+    val remoteDns: Boolean = false,
+    val bypassList: List<String> = emptyList(),
 ) {
     fun summary(): String {
         val label = when (type) {

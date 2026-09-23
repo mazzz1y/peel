@@ -28,7 +28,7 @@ import wtf.mazy.peel.ui.common.SettingsSurface
 import wtf.mazy.peel.util.CertificatePem
 import wtf.mazy.peel.util.SameAppDomainMatcher
 
-class SettingViewFactory(
+class SettingRowFactory(
     private val inflater: LayoutInflater,
     private val buttonStrategy: ButtonStrategy,
     private val coroutineScope: CoroutineScope,

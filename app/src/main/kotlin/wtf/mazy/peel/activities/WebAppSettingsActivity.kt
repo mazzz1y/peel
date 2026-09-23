@@ -7,7 +7,6 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
-import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -18,7 +17,7 @@ import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import wtf.mazy.peel.R
-import wtf.mazy.peel.databinding.WebappSettingsBinding
+import wtf.mazy.peel.databinding.WebAppSettingsBinding
 import wtf.mazy.peel.model.ApplyTimingRegistry
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.IconCache
@@ -28,33 +27,33 @@ import wtf.mazy.peel.model.WebAppSettings
 import wtf.mazy.peel.shortcut.FetchCandidate
 import wtf.mazy.peel.shortcut.FetchResult
 import wtf.mazy.peel.shortcut.HeadlessFetcher
-import wtf.mazy.peel.shortcut.LetterIconGenerator
-import wtf.mazy.peel.shortcut.ShortcutHelper
+import wtf.mazy.peel.shortcut.Shortcuts
 import wtf.mazy.peel.ui.IconEditorController
 import wtf.mazy.peel.ui.PickerDialog
 import wtf.mazy.peel.ui.bindDropdown
+import wtf.mazy.peel.ui.common.Draft
+import wtf.mazy.peel.ui.common.GroupPosition
+import wtf.mazy.peel.ui.common.LoadingDialogController
+import wtf.mazy.peel.ui.common.SettingsSurface
 import wtf.mazy.peel.ui.dialog.InputDialogConfig
 import wtf.mazy.peel.ui.dialog.OverridePickerDialog
 import wtf.mazy.peel.ui.dialog.ScopeExtensionsPrompt
 import wtf.mazy.peel.ui.dialog.showInputDialogRaw
-import wtf.mazy.peel.ui.common.GroupPosition
-import wtf.mazy.peel.ui.common.LoadingDialogController
 import wtf.mazy.peel.ui.settings.OverridePickerController
-import wtf.mazy.peel.ui.common.SettingsSurface
+import wtf.mazy.peel.ui.settings.ProxyDropdownController
 import wtf.mazy.peel.ui.settings.SandboxSwitchController
 import wtf.mazy.peel.util.Const
-import wtf.mazy.peel.util.NotificationUtils.showToast
+import wtf.mazy.peel.util.LetterIconGenerator
 import wtf.mazy.peel.util.SameAppDomainMatcher
 import wtf.mazy.peel.util.isSameHost
 import wtf.mazy.peel.util.prettyBaseUrl
+import wtf.mazy.peel.util.toast
 import wtf.mazy.peel.util.withBoldSpan
 import wtf.mazy.peel.util.withMonoSpan
 
 class WebAppSettingsActivity :
-    ToolbarBaseActivity<WebappSettingsBinding>(), OverridePickerDialog.OnSettingSelectedListener {
-    var webappUuid: String? = null
-    var originalWebapp: WebApp? = null
-    private var modifiedWebapp: WebApp? = null
+    ToolbarBaseActivity<WebAppSettingsBinding>(), OverridePickerDialog.OnSettingSelectedListener {
+    private var draft: Draft<WebApp>? = null
     private lateinit var iconEditor: IconEditorController
     private val fetchDialog = LoadingDialogController(this)
     private var activeFetcher: HeadlessFetcher? = null
@@ -77,41 +76,34 @@ class WebAppSettingsActivity :
     private val linearLayoutOverrides get() = binding.root.findViewById<LinearLayout>(R.id.linearLayoutOverrides)
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        iconEditor = IconEditorController(this, { imgWebAppIcon }) { modifiedWebapp }
+        iconEditor = IconEditorController(this, { imgWebAppIcon }) { draft?.value }
         super.onCreate(savedInstanceState)
 
         setToolbarTitle(getString(R.string.web_app_settings))
 
-        webappUuid = intent.getStringExtra(Const.INTENT_WEBAPP_UUID)
-        originalWebapp = webappUuid?.let { DataManager.instance.getWebApp(it) }
-
-        if (originalWebapp == null) {
-            showToast(this, getString(R.string.webapp_not_found), Toast.LENGTH_SHORT)
+        val stored = intent.getStringExtra(Const.INTENT_WEBAPP_UUID)
+            ?.let { DataManager.webApp(it) }
+        if (stored == null) {
+            toast(R.string.webapp_not_found)
             finish()
             return
         }
-        val baseWebapp = originalWebapp ?: return
-        modifiedWebapp = WebApp(baseWebapp)
+        val draft = Draft(stored.copy(settings = stored.settings.deepCopy()))
+        this.draft = draft
         originalSettingsSnapshot =
-            baseWebapp.settings.deepCopy().apply { sanitize(asOverride = true) }
-        val editableWebapp =
-            modifiedWebapp
-                ?: run {
-                    finish()
-                    return
-                }
-        txtWebAppName.text = editableWebapp.title
-        textBaseUrl.text = prettyBaseUrl(editableWebapp.baseUrl)
+            stored.settings.deepCopy().apply { sanitize(asOverride = true) }
+        txtWebAppName.text = stored.title
+        textBaseUrl.text = prettyBaseUrl(stored.baseUrl)
         sandboxLabel.setText(R.string.enable_sandbox)
-        switchSandbox.isChecked = editableWebapp.isUseContainer
-        switchEphemeralSandbox.isChecked = editableWebapp.isEphemeralSandbox
+        switchSandbox.isChecked = stored.isUseContainer
+        switchEphemeralSandbox.isChecked = stored.isEphemeralSandbox
 
         imgWebAppIcon.setOnClickListener { iconEditor.onIconTap() }
-        titleUrlBlock.setOnClickListener { showEditDialog(editableWebapp) }
-        setupFetchButton(editableWebapp)
-        setupOverridePicker(editableWebapp)
-        setupSandboxSwitch(editableWebapp)
-        setupGroupPicker(editableWebapp)
+        titleUrlBlock.setOnClickListener { showEditDialog(draft) }
+        setupFetchButton(draft)
+        setupOverridePicker(draft.value.settings)
+        setupSandboxSwitch(draft)
+        setupGroupPicker(draft)
         SettingsSurface.apply(binding.root.findViewById(R.id.identityBlock), GroupPosition.ONLY)
         SettingsSurface.bindGroup(binding.settingsRowsGroup)
 
@@ -119,7 +111,7 @@ class WebAppSettingsActivity :
 
         if (intent.getBooleanExtra(Const.INTENT_AUTO_FETCH, false)) {
             binding.root.post {
-                if (!isDestroyed && !isFinishing) fetchIconAndName(editableWebapp)
+                if (!isDestroyed && !isFinishing) fetchIconAndName(draft)
             }
         }
 
@@ -128,13 +120,12 @@ class WebAppSettingsActivity :
 
     override fun onPause() {
         super.onPause()
-        modifiedWebapp?.let { webapp ->
-            webapp.settings.sanitize(asOverride = true)
-            lifecycleScope.launch {
-                withContext(NonCancellable) {
-                    DataManager.instance.replaceWebApp(webapp)
-                    ShortcutHelper.updatePinnedShortcut(webapp, this@WebAppSettingsActivity)
-                }
+        val webApp = draft?.value ?: return
+        webApp.settings.sanitize(asOverride = true)
+        lifecycleScope.launch {
+            withContext(NonCancellable) {
+                DataManager.replaceWebApp(webApp)
+                Shortcuts.updatePinnedShortcut(webApp, this@WebAppSettingsActivity)
             }
         }
     }
@@ -145,16 +136,17 @@ class WebAppSettingsActivity :
         super.onDestroy()
     }
 
-    override fun inflateBinding(layoutInflater: LayoutInflater): WebappSettingsBinding {
-        return WebappSettingsBinding.inflate(layoutInflater)
+    override fun inflateBinding(layoutInflater: LayoutInflater): WebAppSettingsBinding {
+        return WebAppSettingsBinding.inflate(layoutInflater)
     }
 
-    private fun showEditDialog(webapp: WebApp) {
+    private fun showEditDialog(draft: Draft<WebApp>) {
+        val webApp = draft.value
         var urlInput: TextInputEditText? = null
         showInputDialogRaw(
             InputDialogConfig(
                 hintRes = R.string.name,
-                prefill = webapp.title,
+                prefill = webApp.title,
                 positiveRes = R.string.save,
                 extraContent = { container ->
                     val urlLayout = TextInputLayout(container.context).apply {
@@ -167,7 +159,7 @@ class WebAppSettingsActivity :
                         }
                     }
                     urlInput = TextInputEditText(urlLayout.context).apply {
-                        setText(webapp.baseUrl)
+                        setText(webApp.baseUrl)
                         inputType = android.text.InputType.TYPE_TEXT_VARIATION_URI
                         isSingleLine = true
                     }
@@ -176,16 +168,17 @@ class WebAppSettingsActivity :
                 },
             ),
         ) { nameInput, _ ->
-            webapp.title = nameInput.text.toString().trim()
-            webapp.baseUrl = urlInput?.text.toString().trim()
-            txtWebAppName.text = webapp.title
-            textBaseUrl.text = prettyBaseUrl(webapp.baseUrl)
+            val title = nameInput.text.toString().trim()
+            val baseUrl = urlInput?.text.toString().trim()
+            draft.update { it.copy(title = title, baseUrl = baseUrl) }
+            txtWebAppName.text = title
+            textBaseUrl.text = prettyBaseUrl(baseUrl)
             iconEditor.refreshIcon()
         }
     }
 
-    private fun setupGroupPicker(webapp: WebApp) {
-        val groups = DataManager.instance.sortedGroups
+    private fun setupGroupPicker(draft: Draft<WebApp>) {
+        val groups = DataManager.sortedGroups
         if (groups.isEmpty()) {
             binding.groupRow.visibility = View.GONE
             return
@@ -199,27 +192,28 @@ class WebAppSettingsActivity :
         binding.btnGroupPicker.bindDropdown(
             items = labels,
             currentIndex = {
-                val uuid = webapp.groupUuid
+                val uuid = draft.value.groupUuid
                 if (uuid == null) ungroupedIndex
                 else groups.indexOfFirst { it.uuid == uuid }
                     .takeIf { it >= 0 } ?: ungroupedIndex
             },
             onSelected = { i ->
-                webapp.groupUuid = if (i < groups.size) groups[i].uuid else null
+                val groupUuid = if (i < groups.size) groups[i].uuid else null
+                draft.update { it.copy(groupUuid = groupUuid) }
             },
         )
     }
 
-    private fun setupSandboxSwitch(modifiedWebapp: WebApp) {
-        val proxyController = wtf.mazy.peel.ui.settings.ProxyDropdownController(
+    private fun setupSandboxSwitch(draft: Draft<WebApp>) {
+        val proxyController = ProxyDropdownController(
             activity = this,
-            owner = modifiedWebapp,
+            draft = draft,
             proxyRow = proxyRow,
             proxyButton = btnProxyPicker,
         )
         SandboxSwitchController(
             this,
-            modifiedWebapp,
+            draft,
             switchSandbox,
             switchEphemeralSandbox,
             ephemeralSandboxRow,
@@ -229,9 +223,9 @@ class WebAppSettingsActivity :
         proxyController.setup()
     }
 
-    private fun setupFetchButton(modifiedWebapp: WebApp) {
+    private fun setupFetchButton(draft: Draft<WebApp>) {
         btnFetch.setOnClickListener {
-            if (!fetchDialog.isShowing) fetchIconAndName(modifiedWebapp)
+            if (!fetchDialog.isShowing) fetchIconAndName(draft)
         }
     }
 
@@ -241,10 +235,11 @@ class WebAppSettingsActivity :
         activeFetcher = null
     }
 
-    private fun fetchIconAndName(webapp: WebApp) {
-        val url = webapp.baseUrl.trim()
+    private fun fetchIconAndName(draft: Draft<WebApp>) {
+        val webApp = draft.value
+        val url = webApp.baseUrl.trim()
         if (url.isEmpty()) {
-            showToast(this, getString(R.string.enter_valid_url), Toast.LENGTH_SHORT)
+            toast(R.string.enter_valid_url)
             return
         }
 
@@ -252,13 +247,14 @@ class WebAppSettingsActivity :
         fetchGeneration += 1
         val generation = fetchGeneration
 
-        val contextId = webapp.resolveContextId()
-        val usePrivateMode = webapp.resolvePrivateMode()
+        val contextId = webApp.resolveContextId()
+        val usePrivateMode = webApp.resolvePrivateMode()
 
         val fetcher = HeadlessFetcher(
             activity = this,
+            scope = lifecycleScope,
             url = url,
-            settings = DataManager.instance.resolveEffectiveSettings(webapp),
+            settings = DataManager.effectiveSettings(webApp),
             contextId = contextId,
             usePrivateMode = usePrivateMode,
             onProgress = { text ->
@@ -267,13 +263,7 @@ class WebAppSettingsActivity :
                 }
             },
             onResult = { result ->
-                runOnUiThread {
-                    handleFetchResult(
-                        webapp,
-                        result,
-                        generation
-                    )
-                }
+                runOnUiThread { handleFetchResult(draft, result, generation) }
             },
         )
         activeFetcher = fetcher
@@ -281,34 +271,35 @@ class WebAppSettingsActivity :
     }
 
     private fun handleFetchResult(
-        webapp: WebApp,
+        draft: Draft<WebApp>,
         result: FetchResult,
         generation: Int,
     ) {
         if (generation != fetchGeneration) return
         if (isFinishing || isDestroyed) return
         activeFetcher = null
+        val webApp = draft.value
         val candidates = result.candidates
         if (candidates.isEmpty()) {
             fetchDialog.dismiss()
-            showToast(this, getString(R.string.fetch_failed), Toast.LENGTH_SHORT)
+            toast(R.string.fetch_failed)
             return
         }
         val urlSuggestion =
-            resolveUrlSuggestion(webapp.baseUrl, result.startUrl, result.redirectedUrl)
+            resolveUrlSuggestion(webApp.baseUrl, result.startUrl, result.redirectedUrl)
         val scopeDomains = result.scopeExtensionDomains
         val withIcon = candidates.filter { it.icon != null }
-        if (!webapp.hasCustomIcon && webapp.title.isEmpty() && withIcon.size == 1) {
+        if (!webApp.hasCustomIcon && webApp.title.isEmpty() && withIcon.size == 1) {
             val candidate = withIcon.first()
             val titled = if (result.title != null) FetchCandidate(
                 result.title,
                 candidate.icon,
                 candidate.source
             ) else candidate
-            applyFetchResult(webapp, titled, urlSuggestion, scopeDomains)
+            applyFetchResult(draft, titled, urlSuggestion, scopeDomains)
             return
         }
-        showFetchPickerDialog(webapp, candidates, urlSuggestion, scopeDomains)
+        showFetchPickerDialog(draft, candidates, urlSuggestion, scopeDomains)
     }
 
     private fun resolveUrlSuggestion(
@@ -323,26 +314,26 @@ class WebAppSettingsActivity :
     }
 
     private fun showFetchPickerDialog(
-        webapp: WebApp,
+        draft: Draft<WebApp>,
         candidates: List<FetchCandidate>,
         urlSuggestion: Pair<String, Int>?,
         scopeDomains: List<String>,
     ) {
         fetchDialog.dismiss()
         val defaultIconSizePx = (resources.displayMetrics.density * 48).toInt()
-        val colorSeed = webapp.letterIconSeed
+        val colorSeed = draft.value.letterIconSeed
 
         PickerDialog.show(
             activity = this,
             title = getString(R.string.choose_icon),
             items = candidates,
             onPick = { candidate ->
-                applyFetchResult(webapp, candidate, urlSuggestion, scopeDomains)
+                applyFetchResult(draft, candidate, urlSuggestion, scopeDomains)
             },
             configure = {
                 setOnCancelListener {
-                    promptUrlUpdate(webapp, urlSuggestion) {
-                        promptScopeExtensions(webapp, scopeDomains)
+                    promptUrlUpdate(draft, urlSuggestion) {
+                        promptScopeExtensions(draft, scopeDomains)
                     }
                 }
             },
@@ -368,7 +359,7 @@ class WebAppSettingsActivity :
     }
 
     private fun applyFetchResult(
-        webapp: WebApp,
+        draft: Draft<WebApp>,
         candidate: FetchCandidate,
         urlSuggestion: Pair<String, Int>?,
         scopeDomains: List<String>,
@@ -376,24 +367,24 @@ class WebAppSettingsActivity :
         fetchDialog.dismiss()
         if (!candidate.title.isNullOrEmpty()) {
             txtWebAppName.text = candidate.title
-            webapp.title = candidate.title
+            draft.update { it.copy(title = candidate.title) }
         }
         if (candidate.icon != null) {
-            webapp.saveIcon(candidate.icon)
+            draft.value.saveIcon(candidate.icon)
         } else {
-            IconCache.evict(webapp)
+            IconCache.evict(draft.value)
         }
         iconEditor.refreshIcon()
-        promptUrlUpdate(webapp, urlSuggestion) { promptScopeExtensions(webapp, scopeDomains) }
+        promptUrlUpdate(draft, urlSuggestion) { promptScopeExtensions(draft, scopeDomains) }
     }
 
     private fun promptUrlUpdate(
-        webapp: WebApp,
+        draft: Draft<WebApp>,
         urlSuggestion: Pair<String, Int>?,
         onDone: () -> Unit,
     ) {
         val (suggestedUrl, messageResId) = urlSuggestion ?: return onDone()
-        if (suggestedUrl.trimEnd('/') == webapp.baseUrl.trimEnd('/')) return onDone()
+        if (suggestedUrl.trimEnd('/') == draft.value.baseUrl.trimEnd('/')) return onDone()
         val message = getString(messageResId, suggestedUrl)
             .withMonoSpan(suggestedUrl)
             .withBoldSpan(suggestedUrl)
@@ -401,7 +392,7 @@ class WebAppSettingsActivity :
             .setTitle(R.string.manifest_start_url_title)
             .setMessage(message)
             .setPositiveButton(R.string.manifest_start_url_update) { _, _ ->
-                webapp.baseUrl = suggestedUrl
+                draft.update { it.copy(baseUrl = suggestedUrl) }
                 textBaseUrl.text = prettyBaseUrl(suggestedUrl)
                 onDone()
             }
@@ -410,34 +401,34 @@ class WebAppSettingsActivity :
             .show()
     }
 
-    private fun promptScopeExtensions(webapp: WebApp, domains: List<String>) {
+    private fun promptScopeExtensions(draft: Draft<WebApp>, domains: List<String>) {
         if (domains.isEmpty()) return
-        val effective =
-            DataManager.instance.resolveEffectiveSettings(webapp).sameAppDomains.orEmpty()
+        val webApp = draft.value
+        val effective = DataManager.effectiveSettings(webApp).sameAppDomains
         val proposed = domains.filterNot { host ->
             val probe = "https://$host"
-            isSameHost(webapp.baseUrl, probe) || SameAppDomainMatcher.matches(probe, effective)
+            isSameHost(webApp.baseUrl, probe) || SameAppDomainMatcher.matches(probe, effective)
         }
         if (proposed.isEmpty()) return
         lifecycleScope.launch {
             val accepted = ScopeExtensionsPrompt.confirm(
                 activity = this@WebAppSettingsActivity,
-                appName = webapp.title.ifEmpty { prettyBaseUrl(webapp.baseUrl) },
+                appName = webApp.title.ifEmpty { prettyBaseUrl(webApp.baseUrl) },
                 domains = proposed,
             )
             if (!accepted) return@launch
-            webapp.settings.sameAppDomains = effective + proposed
+            webApp.settings.sameAppDomains = effective + proposed
             overrideController.refresh()
         }
     }
 
     private lateinit var overrideController: OverridePickerController
 
-    private fun setupOverridePicker(modifiedWebapp: WebApp) {
+    private fun setupOverridePicker(settings: WebAppSettings) {
         overrideController =
             OverridePickerController(
                 this,
-                modifiedWebapp.settings,
+                settings,
                 linearLayoutOverrides,
                 btnAddOverride,
             )
@@ -445,10 +436,10 @@ class WebAppSettingsActivity :
     }
 
     override fun finish() {
-        modifiedWebapp?.let {
+        draft?.value?.let {
             it.settings.sanitize(asOverride = true)
-            val changed = ApplyTimingRegistry.getChangedKeys(originalSettingsSnapshot, it.settings)
-            val timing = ApplyTimingRegistry.getHighestTiming(changed)
+            val changed = ApplyTimingRegistry.changedKeys(originalSettingsSnapshot, it.settings)
+            val timing = ApplyTimingRegistry.highestTiming(changed)
             setResult(
                 RESULT_OK,
                 Intent().putExtra(ApplyTimingRegistry.EXTRA_APPLY_TIMING, timing.name)

@@ -1,7 +1,6 @@
 package wtf.mazy.peel.model
 
 import android.content.Context
-import wtf.mazy.peel.shortcut.ShortcutIconUtils
 import wtf.mazy.peel.util.prettyHostLabel
 import java.io.File
 import java.util.Objects
@@ -12,58 +11,31 @@ internal fun deleteAppPrefs(context: Context, uuid: String) {
     prefsDir.listFiles { f -> f.name.startsWith(uuid) }?.forEach { it.delete() }
 }
 
-class WebApp(var baseUrl: String, override val uuid: String = UUID.randomUUID().toString()) :
-    IconOwner, SandboxOwner {
-    override var title: String
+data class WebApp(
+    val baseUrl: String,
+    override val uuid: String = UUID.randomUUID().toString(),
+    override val title: String = defaultTitle(baseUrl),
+    override val isUseContainer: Boolean = false,
+    override val isEphemeralSandbox: Boolean = false,
+    override val proxyUuid: String? = null,
+    val isPrivateSession: Boolean = false,
+    val order: Int = 0,
+    val groupUuid: String? = null,
+    val settings: WebAppSettings = WebAppSettings(),
+) : IconOwner, SandboxOwner<WebApp> {
+
     override val letterIconSeed: String
         get() = baseUrl
 
-    override var isUseContainer = false
-    override var isEphemeralSandbox = false
-    override var proxyUuid: String? = null
-    var isPrivateSession = false
-    var order = 0
-    var groupUuid: String? = null
-
-    var settings = WebAppSettings()
-
-    init {
-        title = baseUrl.takeIf { it.isNotEmpty() }?.let { prettyHostLabel(it) } ?: baseUrl
-    }
-
-    constructor(other: WebApp) : this(other.baseUrl, other.uuid) {
-        title = other.title
-        isUseContainer = other.isUseContainer
-        isEphemeralSandbox = other.isEphemeralSandbox
-        isPrivateSession = other.isPrivateSession
-        proxyUuid = other.proxyUuid
-        order = other.order
-        groupUuid = other.groupUuid
-        settings = other.settings.deepCopy()
-    }
-
-    fun cloneWith(groupUuid: String?, order: Int): WebApp {
-        val clone = WebApp(baseUrl)
-        clone.title = title
-        clone.isUseContainer = isUseContainer
-        clone.isEphemeralSandbox = isEphemeralSandbox
-        clone.isPrivateSession = isPrivateSession
-        clone.proxyUuid = proxyUuid
-        clone.groupUuid = groupUuid
-        clone.order = order
-        clone.settings = settings.deepCopy()
-        return clone
-    }
-
-    fun deleteShortcuts(context: Context) {
-        ShortcutIconUtils.deleteShortcuts(listOf(uuid), context)
-    }
-
-    suspend fun cleanupWebAppData(context: Context) {
-        if (isUseContainer) SandboxManager.clearSandboxData(context, uuid)
-        deleteIcon()
-        deleteAppPrefs(context, uuid)
-    }
+    override fun withSandbox(
+        isUseContainer: Boolean,
+        isEphemeralSandbox: Boolean,
+        proxyUuid: String?,
+    ): WebApp = copy(
+        isUseContainer = isUseContainer,
+        isEphemeralSandbox = isEphemeralSandbox,
+        proxyUuid = proxyUuid,
+    )
 
     val contentFingerprint: Int
         get() = Objects.hash(
@@ -78,7 +50,7 @@ class WebApp(var baseUrl: String, override val uuid: String = UUID.randomUUID().
 
     fun resolveContextId(): String? {
         if (isPrivateSession) return null
-        val group = groupUuid?.let { DataManager.instance.getGroup(it) }
+        val group = groupUuid?.let { DataManager.group(it) }
         return when {
             isUseContainer -> uuid
             group?.isUseContainer == true -> group.uuid
@@ -90,19 +62,24 @@ class WebApp(var baseUrl: String, override val uuid: String = UUID.randomUUID().
 
     override fun resolveEphemeral(): Boolean =
         isEphemeralSandbox ||
-                (groupUuid?.let { DataManager.instance.getGroup(it) }?.isEphemeralSandbox == true)
+                (groupUuid?.let { DataManager.group(it) }?.isEphemeralSandbox == true)
 
     fun resolveEphemeralContextId(): String? =
         uuid.takeIf { !isPrivateSession && isUseContainer && resolveEphemeral() }
 
     fun resolveProxyUuid(): String? {
         if (!isUseContainer) {
-            val group = groupUuid?.let { DataManager.instance.getGroup(it) }
+            val group = groupUuid?.let { DataManager.group(it) }
             if (group?.isUseContainer == true) return group.proxyUuid
             return null
         }
         if (proxyUuid != null) return proxyUuid
-        val group = groupUuid?.let { DataManager.instance.getGroup(it) }
+        val group = groupUuid?.let { DataManager.group(it) }
         return group?.proxyUuid
+    }
+
+    companion object {
+        fun defaultTitle(baseUrl: String): String =
+            baseUrl.takeIf { it.isNotEmpty() }?.let { prettyHostLabel(it) } ?: baseUrl
     }
 }

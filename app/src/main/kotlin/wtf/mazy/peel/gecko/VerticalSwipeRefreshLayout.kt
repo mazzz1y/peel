@@ -7,9 +7,9 @@ import android.view.View
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import kotlin.math.abs
 
-class VerticalSwipeRefreshLayout @JvmOverloads constructor(
+class VerticalSwipeRefreshLayout(
     context: Context,
-    attrs: AttributeSet? = null,
+    attrs: AttributeSet?,
 ) : SwipeRefreshLayout(context, attrs) {
 
     private var initialX = 0f

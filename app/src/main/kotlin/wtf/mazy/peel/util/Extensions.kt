@@ -14,7 +14,6 @@ import androidx.core.net.toUri
 import wtf.mazy.peel.R
 import java.net.URLDecoder
 import java.text.BreakIterator
-import java.util.regex.Pattern
 import kotlin.system.exitProcess
 
 @Suppress("DEPRECATION")
@@ -96,7 +95,7 @@ fun Context.shareText(text: String, title: String? = null) {
 fun Context.copyToClipboard(text: String, toastResId: Int = R.string.link_copied) {
     val clipboard = getSystemService<ClipboardManager>() ?: return
     clipboard.setPrimaryClip(ClipData.newPlainText(getString(R.string.app_name), text))
-    NotificationUtils.showToastSafe(this, getString(toastResId))
+    toast(toastResId)
 }
 
 fun restartApp(activity: Activity) {
@@ -106,55 +105,32 @@ fun restartApp(activity: Activity) {
     exitProcess(0)
 }
 
-object Utility {
+private val unsafeFileNameChars = Regex("""[/\\:*?"<>|\x00-\x1F]""")
+private val encodedFileNameParam = Regex("""filename\*=UTF-8''([^;\s]+)""", RegexOption.IGNORE_CASE)
+private val plainFileNameParam = Regex("""filename="?([^";\r\n]+)"?""", RegexOption.IGNORE_CASE)
+private const val MAX_FILE_NAME_LENGTH = 64
 
-    private val unsafeFileNameChars = Regex("""[/\\:*?"<>|\x00-\x1F]""")
-
-    @JvmStatic
-    fun getFileNameFromDownload(
-        url: String?,
-        contentDisposition: String?,
-        mimeType: String?,
-    ): String? {
-        var fileName: String? = null
-        if (contentDisposition != null && contentDisposition != "") {
-            var pattern = Pattern.compile("filename\\*=UTF-8''([^;\\s]+)", Pattern.CASE_INSENSITIVE)
-            var m = pattern.matcher(contentDisposition)
-            if (m.find()) {
-                fileName =
-                    try {
-                        URLDecoder.decode(m.group(1), "UTF-8")
-                    } catch (_: Exception) {
-                        m.group(1)
-                    }
-            } else {
-                pattern = Pattern.compile("filename=\"?([^\";\r\n]+)\"?", Pattern.CASE_INSENSITIVE)
-                m = pattern.matcher(contentDisposition)
-                if (m.find()) {
-                    fileName = m.group(1)?.trim { it <= ' ' }
-                }
-            }
-        }
-        if (fileName == null && url != null) {
-            fileName = URLUtil.guessFileName(url, contentDisposition, mimeType)
-        }
-
-        return fileName?.let { sanitizeFileName(it) }
+fun downloadFileName(url: String?, contentDisposition: String?, mimeType: String?): String? {
+    val fromDisposition = contentDisposition?.takeIf { it.isNotEmpty() }?.let { header ->
+        encodedFileNameParam.find(header)?.groupValues?.get(1)?.let { encoded ->
+            runCatching { URLDecoder.decode(encoded, "UTF-8") }.getOrDefault(encoded)
+        } ?: plainFileNameParam.find(header)?.groupValues?.get(1)?.trim()
     }
+    val fileName = fromDisposition
+        ?: url?.let { URLUtil.guessFileName(it, contentDisposition, mimeType) }
+    return fileName?.let(::sanitizeFileName)
+}
 
-    private fun sanitizeFileName(name: String): String {
-        val withoutPath = name.substringAfterLast('/').substringAfterLast('\\')
-        val scrubbed = withoutPath.replace(unsafeFileNameChars, "_").trim().trim('.')
-        return truncateFileName(scrubbed.ifBlank { "download" })
-    }
+private fun sanitizeFileName(name: String): String {
+    val withoutPath = name.substringAfterLast('/').substringAfterLast('\\')
+    val scrubbed = withoutPath.replace(unsafeFileNameChars, "_").trim().trim('.')
+    return truncateFileName(scrubbed.ifBlank { "download" })
+}
 
-    private fun truncateFileName(name: String): String {
-        if (name.length <= MAX_FILE_NAME_LENGTH) return name
-        val dot = name.lastIndexOf('.')
-        val ext = if (dot in 1 until name.length) name.substring(dot) else ""
-        val baseLimit = (MAX_FILE_NAME_LENGTH - ext.length).coerceAtLeast(1)
-        return name.take(baseLimit) + ext
-    }
-
-    private const val MAX_FILE_NAME_LENGTH = 64
+private fun truncateFileName(name: String): String {
+    if (name.length <= MAX_FILE_NAME_LENGTH) return name
+    val dot = name.lastIndexOf('.')
+    val ext = if (dot in 1 until name.length) name.substring(dot) else ""
+    val baseLimit = (MAX_FILE_NAME_LENGTH - ext.length).coerceAtLeast(1)
+    return name.take(baseLimit) + ext
 }

@@ -36,10 +36,30 @@ fun WebApp.toSurrogate(): WebAppSurrogate =
     )
 
 fun WebAppEntity.toDomain(): WebApp =
-    webApp(uuid, baseUrl, title, isUseContainer, isEphemeralSandbox, proxyUuid, order, groupUuid, settings)
+    webApp(
+        uuid,
+        baseUrl,
+        title,
+        isUseContainer,
+        isEphemeralSandbox,
+        proxyUuid,
+        order,
+        groupUuid,
+        settings
+    )
 
 fun WebAppSurrogate.toDomain(overrideUuid: String = uuid): WebApp =
-    webApp(overrideUuid, baseUrl, title, isUseContainer, isEphemeralSandbox, proxyUuid, order, groupUuid, settings)
+    webApp(
+        overrideUuid,
+        baseUrl,
+        title,
+        isUseContainer,
+        isEphemeralSandbox,
+        proxyUuid,
+        order,
+        groupUuid,
+        settings
+    )
 
 private fun webApp(
     uuid: String,
@@ -51,16 +71,17 @@ private fun webApp(
     order: Int,
     groupUuid: String?,
     settings: WebAppSettings,
-): WebApp =
-    WebApp(baseUrl, uuid).also {
-        it.title = title
-        it.isUseContainer = isUseContainer
-        it.isEphemeralSandbox = isEphemeralSandbox
-        it.proxyUuid = proxyUuid
-        it.order = order
-        it.groupUuid = groupUuid
-        it.settings = settings
-    }
+): WebApp = WebApp(
+    baseUrl = baseUrl,
+    uuid = uuid,
+    title = title,
+    isUseContainer = isUseContainer,
+    isEphemeralSandbox = isEphemeralSandbox,
+    proxyUuid = proxyUuid,
+    order = order,
+    groupUuid = groupUuid,
+    settings = settings,
+)
 
 fun WebAppGroup.toEntity(): WebAppGroupEntity =
     WebAppGroupEntity(

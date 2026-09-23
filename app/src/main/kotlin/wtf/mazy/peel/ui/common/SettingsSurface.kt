@@ -27,7 +27,10 @@ object SettingsSurface {
             .build()
         view.background = MaterialShapeDrawable(shape).apply {
             fillColor = ColorStateList.valueOf(
-                MaterialColors.getColor(view, com.google.android.material.R.attr.colorSurfaceContainer)
+                MaterialColors.getColor(
+                    view,
+                    com.google.android.material.R.attr.colorSurfaceContainer
+                )
             )
         }
         view.updateLayoutParams<ViewGroup.MarginLayoutParams> {
@@ -44,7 +47,12 @@ object SettingsSurface {
             val visible = group.children.filter { it.isVisible }.toList()
             if (visible == applied) return
             applied = visible
-            visible.forEachIndexed { index, row -> apply(row, GroupPosition.of(index, visible.size)) }
+            visible.forEachIndexed { index, row ->
+                apply(
+                    row,
+                    GroupPosition.of(index, visible.size)
+                )
+            }
         }
         refresh()
         group.viewTreeObserver.addOnPreDrawListener {

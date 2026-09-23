@@ -46,24 +46,26 @@ object ProxyRouterBridge : ExtensionSyncBridge<Map<String, Map<String, Any?>>>(
     }
 
     override fun buildSnapshot(): Map<String, Map<String, Any?>> {
-        val dm = DataManager.instance
-        val proxies = dm.getProxies().associateBy { it.uuid }
+        val state = DataManager.state.value
+        val proxies = state.proxies.associateBy { it.uuid }
         val out = LinkedHashMap<String, Map<String, Any?>>()
 
-        for (group in dm.getGroups()) {
+        for (group in state.groups) {
             if (!group.isUseContainer) continue
             val storeId = CONTAINER_PREFIX + group.uuid
             val proxy = group.proxyUuid?.let { proxies[it] }
             out[storeId] = proxy?.let(::proxyToMap) ?: DIRECT
         }
-        for (app in dm.getWebsites() + dm.getTransientWebApps()) {
+        for (app in state.webApps + DataManager.transientWebAppList) {
             if (!app.isUseContainer) continue
             val contextId = app.resolveContextId() ?: continue
             val storeId = CONTAINER_PREFIX + contextId
             if (out.containsKey(storeId)) continue
             val pUuid = app.proxyUuid
                 ?: app.groupUuid
-                    ?.let { gid -> dm.getGroup(gid)?.takeIf { it.isUseContainer }?.proxyUuid }
+                    ?.let { gid -> state.groups.find { it.uuid == gid } }
+                    ?.takeIf { it.isUseContainer }
+                    ?.proxyUuid
             val proxy = pUuid?.let { proxies[it] }
             out[storeId] = proxy?.let(::proxyToMap) ?: DIRECT
         }

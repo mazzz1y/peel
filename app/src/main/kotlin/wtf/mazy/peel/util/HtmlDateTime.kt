@@ -54,7 +54,8 @@ object HtmlDateTime {
     fun formatDateTime(date: LocalDate, time: LocalTime): String =
         "${formatDate(date)}T${formatTime(time)}"
 
-    fun toUtcMillis(date: LocalDate): Long = date.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli()
+    fun toUtcMillis(date: LocalDate): Long =
+        date.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli()
 
     fun toLocalDate(utcMillis: Long): LocalDate =
         Instant.ofEpochMilli(utcMillis).atZone(ZoneOffset.UTC).toLocalDate()

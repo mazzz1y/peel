@@ -77,7 +77,7 @@ data class WebAppSettings(
         @Suppress("UNCHECKED_CAST")
         private val PROPERTY_MAP: Map<String, KMutableProperty1<WebAppSettings, Any?>> by lazy {
             val map = mutableMapOf<String, KMutableProperty1<WebAppSettings, Any?>>()
-            for (setting in SettingRegistry.getAllSettings()) {
+            for (setting in SettingRegistry.all) {
                 for (field in setting.allFields) {
                     map[field.key] = field.property as KMutableProperty1<WebAppSettings, Any?>
                 }
@@ -87,7 +87,7 @@ data class WebAppSettings(
 
         val DEFAULTS: Map<String, Any?> by lazy {
             val map = mutableMapOf<String, Any?>()
-            for (setting in SettingRegistry.getAllSettings()) {
+            for (setting in SettingRegistry.all) {
                 for (field in setting.allFields) {
                     map[field.key] = field.defaultValue
                 }
@@ -138,113 +138,11 @@ data class WebAppSettings(
         return effective
     }
 
-    fun getOverriddenKeys(): List<String> {
-        return ALL_KEYS.filter { getValue(it) != null }
-    }
+    val overriddenKeys: List<String>
+        get() = ALL_KEYS.filter { getValue(it) != null }
 
     fun sanitize(asOverride: Boolean = false) {
-        for (setting in SettingRegistry.getAllSettings()) {
-            when (setting) {
-                is SettingDefinition.BooleanWithIntSetting -> {
-                    val enabled = getValue(setting.key) as? Boolean ?: false
-                    if (!enabled) continue
-                    val intKey = setting.intField.key
-                    val value = getValue(intKey) as? Int
-                    if (value == null || value <= 0) {
-                        if (asOverride) {
-                            setValue(setting.key, null)
-                            setValue(intKey, null)
-                        } else {
-                            setValue(setting.key, false)
-                            setValue(intKey, setting.intField.defaultValue)
-                        }
-                    }
-                }
-
-                is SettingDefinition.BooleanWithCredentialsSetting -> {
-                    val enabled = getValue(setting.key) as? Boolean ?: false
-                    if (!enabled) continue
-                    val username = (getValue(setting.usernameField.key) as? String).orEmpty()
-                    val password = (getValue(setting.passwordField.key) as? String).orEmpty()
-                    if (username.isEmpty() && password.isEmpty()) {
-                        if (asOverride) {
-                            setValue(setting.key, null)
-                            setValue(setting.usernameField.key, null)
-                            setValue(setting.passwordField.key, null)
-                        } else {
-                            setValue(setting.key, false)
-                        }
-                    }
-                }
-
-                is SettingDefinition.BooleanWithStringSetting -> {
-                    val enabled = getValue(setting.key) as? Boolean ?: false
-                    if (!enabled) continue
-                    val value = (getValue(setting.stringField.key) as? String).orEmpty()
-                    if (value.isEmpty()) {
-                        if (asOverride) {
-                            setValue(setting.key, null)
-                            setValue(setting.stringField.key, null)
-                        } else {
-                            setValue(setting.key, false)
-                        }
-                    }
-                }
-
-                is SettingDefinition.StringMapSetting -> {
-                    @Suppress("UNCHECKED_CAST")
-                    val map = getValue(setting.key) as? Map<String, String>
-                    val cleaned = map
-                        ?.mapKeys { it.key.trim() }
-                        ?.mapValues { it.value.trim() }
-                        ?.filter { it.key.isNotEmpty() && it.value.isNotEmpty() }
-                    setValue(
-                        setting.key,
-                        when {
-                            cleaned.isNullOrEmpty() -> if (asOverride) null else emptyMap()
-                            else -> cleaned
-                        },
-                    )
-                }
-
-                is SettingDefinition.StringListSetting -> {
-                    @Suppress("UNCHECKED_CAST")
-                    val list = getValue(setting.key) as? List<String>
-                    val cleaned = list
-                        ?.map { it.trim() }
-                        ?.filter { it.isNotEmpty() }
-                        ?.distinct()
-                    setValue(
-                        setting.key,
-                        when {
-                            cleaned.isNullOrEmpty() -> if (asOverride) null else emptyList()
-                            else -> cleaned
-                        },
-                    )
-                }
-
-                is SettingDefinition.LanguagePairMapSetting -> {
-                    val enabled = getValue(setting.key) as? Boolean ?: false
-                    val mapKey = setting.mapField.key
-                    if (!enabled) {
-                        if (asOverride) {
-                            setValue(setting.key, null)
-                            setValue(mapKey, null)
-                        } else {
-                            setValue(mapKey, null)
-                        }
-                    } else {
-                        @Suppress("UNCHECKED_CAST")
-                        val map = getValue(mapKey) as? Map<String, String>
-                        val cleaned = map
-                            ?.filter { it.key.isNotBlank() && it.value.isNotBlank() && it.key != it.value }
-                        setValue(mapKey, cleaned?.takeIf { it.isNotEmpty() })
-                    }
-                }
-
-                else -> Unit
-            }
-        }
+        SettingRegistry.all.forEach { it.sanitize(this, asOverride) }
     }
 
     fun deepCopy() = copy(

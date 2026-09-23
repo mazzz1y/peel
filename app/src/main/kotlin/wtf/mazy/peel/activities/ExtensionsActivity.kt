@@ -4,7 +4,6 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.lifecycleScope
@@ -30,7 +29,7 @@ import wtf.mazy.peel.ui.extensions.ExtensionIconCache
 import wtf.mazy.peel.ui.extensions.ExtensionPageLaunch
 import wtf.mazy.peel.util.AppPrefs
 import wtf.mazy.peel.util.Const
-import wtf.mazy.peel.util.NotificationUtils
+import wtf.mazy.peel.util.toast
 import wtf.mazy.peel.util.withBoldSpan
 import wtf.mazy.peel.work.ExtensionUpdateScheduler
 import java.io.File
@@ -62,11 +61,7 @@ class ExtensionsActivity : EntityListActivity<WebExtension>() {
             }
             if (tempFile == null) {
                 Log.w(TAG, "filePicker: could not open $uri")
-                NotificationUtils.showToast(
-                    this@ExtensionsActivity,
-                    getString(R.string.install_extension_error),
-                    Toast.LENGTH_SHORT,
-                )
+                toast(R.string.install_extension_error)
                 return@launch
             }
             installExtension("file://${tempFile.absolutePath}")
@@ -167,26 +162,14 @@ class ExtensionsActivity : EntityListActivity<WebExtension>() {
                 if (updated != null) {
                     ExtensionIconCache.refreshFromExtension(this@ExtensionsActivity, updated)
                     val version = updated.metaData.version
-                    NotificationUtils.showToast(
-                        this@ExtensionsActivity,
-                        getString(R.string.extension_updated_to, version),
-                        Toast.LENGTH_SHORT,
-                    )
+                    toast(R.string.extension_updated_to, version)
                     loadInstalledExtensions()
                 } else {
-                    NotificationUtils.showToast(
-                        this@ExtensionsActivity,
-                        getString(R.string.extension_already_up_to_date),
-                        Toast.LENGTH_SHORT,
-                    )
+                    toast(R.string.extension_already_up_to_date)
                 }
             } catch (e: Exception) {
                 Log.w(TAG, "updateExtension failed for ${ext.id}", e)
-                NotificationUtils.showToast(
-                    this@ExtensionsActivity,
-                    getString(R.string.install_extension_error),
-                    Toast.LENGTH_SHORT,
-                )
+                toast(R.string.install_extension_error)
             }
         }
     }
@@ -220,11 +203,7 @@ class ExtensionsActivity : EntityListActivity<WebExtension>() {
             } else {
                 getString(R.string.extensions_update_summary, updated, upToDate)
             }
-            NotificationUtils.showToast(
-                this@ExtensionsActivity,
-                message,
-                Toast.LENGTH_SHORT,
-            )
+            toast(message)
             loadInstalledExtensions()
         }
     }
@@ -262,11 +241,7 @@ class ExtensionsActivity : EntityListActivity<WebExtension>() {
             val available = AmoExtensionsRepository.fetchRecommended(this@ExtensionsActivity)
             loader.dismiss()
             if (available == null) {
-                NotificationUtils.showToast(
-                    this@ExtensionsActivity,
-                    getString(R.string.recommended_extensions_error),
-                    Toast.LENGTH_SHORT,
-                )
+                toast(R.string.recommended_extensions_error)
                 return@launch
             }
             cachedRecommended = available
@@ -308,7 +283,7 @@ class ExtensionsActivity : EntityListActivity<WebExtension>() {
     }
 
     private fun openAmo() {
-        val uuid = DataManager.instance.registerTransientWebApp(
+        val uuid = DataManager.registerTransientWebApp(
             baseUrl = AMO_URL, title = getString(R.string.extensions),
         )
         startActivity(
@@ -330,11 +305,7 @@ class ExtensionsActivity : EntityListActivity<WebExtension>() {
                 val canceled = (e as? WebExtension.InstallException)?.code ==
                         WebExtension.InstallException.ErrorCodes.ERROR_USER_CANCELED
                 if (!canceled) {
-                    NotificationUtils.showToast(
-                        this@ExtensionsActivity,
-                        getString(R.string.install_extension_error),
-                        Toast.LENGTH_SHORT,
-                    )
+                    toast(R.string.install_extension_error)
                 }
             } finally {
                 loader.dismiss()

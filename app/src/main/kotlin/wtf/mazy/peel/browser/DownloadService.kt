@@ -39,7 +39,7 @@ class DownloadService : Service() {
     private class ActiveDownload(
         val notification: DownloadNotification,
         val fileName: String,
-        val webappName: String?,
+        val webAppName: String?,
         val cancelPending: PendingIntent,
         val contentLength: Long,
     ) {
@@ -74,13 +74,13 @@ class DownloadService : Service() {
         val fileName = intent.getStringExtra(EXTRA_FILE_NAME) ?: "download"
         val mimeType = resolveMime(fileName, intent.getStringExtra(EXTRA_MIME_TYPE))
         val contentLength = intent.getLongExtra(EXTRA_CONTENT_LENGTH, -1L)
-        val webappName = intent.getStringExtra(EXTRA_WEBAPP_NAME)
+        val webAppName = intent.getStringExtra(EXTRA_WEBAPP_NAME)
 
         val notification = DownloadNotification(this)
         val cancelPending = buildCancelPendingIntent(notification.id)
         startForegroundWith(
             notification.id,
-            notification.buildProgress(fileName, webappName, 0, contentLength, cancelPending),
+            notification.buildProgress(fileName, webAppName, 0, contentLength, cancelPending),
         )
 
         val body = pendingStreams.remove(requestId)
@@ -92,7 +92,7 @@ class DownloadService : Service() {
         }
 
         val download =
-            ActiveDownload(notification, fileName, webappName, cancelPending, contentLength)
+            ActiveDownload(notification, fileName, webAppName, cancelPending, contentLength)
         downloads[notification.id] = download
 
         var lastNotifyTime = 0L
@@ -103,7 +103,7 @@ class DownloadService : Service() {
                 lastNotifyTime = now
                 notification.updateProgress(
                     fileName,
-                    webappName,
+                    webAppName,
                     bytesCopied,
                     contentLength,
                     cancelPending
@@ -118,12 +118,12 @@ class DownloadService : Service() {
                 }
                 withContext(NonCancellable) {
                     if (uri != null) {
-                        notification.showSuccess(fileName, webappName, uri, mimeType)
+                        notification.showSuccess(fileName, webAppName, uri, mimeType)
                         broadcastComplete(
                             fileName, uri.toString(), mimeType, notification.id
                         )
                     } else {
-                        notification.showError(fileName, webappName)
+                        notification.showError(fileName, webAppName)
                     }
                     downloads.remove(notification.id)
                     releaseForeground(notification.id)
@@ -166,7 +166,7 @@ class DownloadService : Service() {
             startForegroundWith(
                 next.key,
                 d.notification.buildProgress(
-                    d.fileName, d.webappName,
+                    d.fileName, d.webAppName,
                     d.bytesCopied, d.contentLength, d.cancelPending,
                 ),
             )
@@ -318,7 +318,7 @@ class DownloadService : Service() {
 
         fun start(
             context: Context, fileName: String, mimeType: String?,
-            contentLength: Long, webappName: String, body: InputStream,
+            contentLength: Long, webAppName: String, body: InputStream,
         ) {
             val requestId = nextRequestId.getAndIncrement()
             pendingStreams[requestId] = body
@@ -328,7 +328,7 @@ class DownloadService : Service() {
                 putExtra(EXTRA_FILE_NAME, fileName)
                 putExtra(EXTRA_MIME_TYPE, mimeType)
                 putExtra(EXTRA_CONTENT_LENGTH, contentLength)
-                putExtra(EXTRA_WEBAPP_NAME, webappName)
+                putExtra(EXTRA_WEBAPP_NAME, webAppName)
             }
             context.startForegroundService(intent)
         }

@@ -1,6 +1,5 @@
 package wtf.mazy.peel.ui.grouplist
 
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.BackupManager
@@ -9,24 +8,25 @@ import wtf.mazy.peel.model.WebAppGroup
 import wtf.mazy.peel.ui.common.LoadingDialogController
 import wtf.mazy.peel.ui.common.ShareSecretsDialog
 import wtf.mazy.peel.ui.common.runWithLoader
-import wtf.mazy.peel.ui.entitylist.EntitySelectionActions
-import wtf.mazy.peel.util.NotificationUtils
+import wtf.mazy.peel.ui.entitylist.EntitySelectionHandler
+import wtf.mazy.peel.ui.entitylist.PendingDeletes
+import wtf.mazy.peel.util.toast
 
-class GroupSelectionActions(
+class GroupSelectionHandler(
     private val activity: AppCompatActivity,
     private val transferLoader: LoadingDialogController,
-) : EntitySelectionActions<WebAppGroup> {
+) : EntitySelectionHandler<WebAppGroup> {
 
     override val pendingDeleteSet: MutableSet<String>
-        get() = DataManager.instance.pendingDeleteGroupUuids
+        get() = PendingDeletes.groups
 
     override fun confirmShare(items: List<WebAppGroup>, onConfirm: (Boolean) -> Unit) {
-        val webApps = items.flatMap { DataManager.instance.activeWebsitesForGroup(it.uuid) }
+        val webApps = items.flatMap { DataManager.webAppsInGroup(it.uuid) }
         ShareSecretsDialog.confirmForGroupsAndApps(activity, items, webApps, onConfirm)
     }
 
     override fun share(items: List<WebAppGroup>, includeSecrets: Boolean) {
-        val webApps = items.flatMap { DataManager.instance.activeWebsitesForGroup(it.uuid) }
+        val webApps = items.flatMap { DataManager.webAppsInGroup(it.uuid) }
         runWithLoader(
             activity = activity,
             loader = transferLoader,
@@ -35,11 +35,7 @@ class GroupSelectionActions(
             ioTask = { BackupManager.buildGroupShareFile(items, webApps, includeSecrets) },
         ) { file ->
             if (file == null || !BackupManager.launchShareChooser(activity, file)) {
-                NotificationUtils.showToast(
-                    activity,
-                    activity.getString(R.string.export_share_failed),
-                    Toast.LENGTH_LONG,
-                )
+                activity.toast(R.string.export_share_failed, long = true)
             }
         }
     }
@@ -52,7 +48,7 @@ class GroupSelectionActions(
         activity.getString(R.string.n_groups_removed, count)
 
     override suspend fun commitDelete(uuids: List<String>) {
-        val groups = DataManager.instance.getGroups().filter { it.uuid in uuids }
-        groups.forEach { DataManager.instance.removeGroup(it, ungroupApps = false) }
+        val groups = DataManager.groups.filter { it.uuid in uuids }
+        groups.forEach { DataManager.removeGroup(it, ungroupApps = false) }
     }
 }

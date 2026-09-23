@@ -19,23 +19,23 @@ import wtf.mazy.peel.activities.WebAppSettingsActivity
 import wtf.mazy.peel.browser.CertStoreBridge
 import wtf.mazy.peel.browser.ProxyRouterBridge
 import wtf.mazy.peel.gecko.GeckoRuntimeProvider
+import wtf.mazy.peel.gecko.SandboxManager
 import wtf.mazy.peel.model.DataManager
-import wtf.mazy.peel.model.SandboxManager
 import wtf.mazy.peel.push.PushBridge
+import wtf.mazy.peel.shortcut.ShortcutSideEffects
 import wtf.mazy.peel.ui.extensions.ExtensionUiBridge
 import wtf.mazy.peel.work.ExtensionUpdateScheduler
 
 class App : Application() {
 
-    private val appScope = CoroutineScope(
-        SupervisorJob() + Dispatchers.Default + CoroutineExceptionHandler { _, throwable ->
-            Log.e("App", "DataManager initialization failed", throwable)
-        }
-    )
-
     override fun onCreate() {
         super.onCreate()
         appContext = applicationContext
+        appScope = CoroutineScope(
+            SupervisorJob() + Dispatchers.Default + CoroutineExceptionHandler { _, throwable ->
+                Log.e("App", "Background work failed", throwable)
+            }
+        )
         ActivityRoutes.install(
             browser = BrowserActivity::class.java,
             popup = PopupActivity::class.java,
@@ -50,13 +50,14 @@ class App : Application() {
         }
         registerActivityLifecycleCallbacks(ForegroundActivityTracker)
         GeckoRuntimeProvider.extensionUi = ExtensionUiBridge
+        DataManager.sideEffects = ShortcutSideEffects(applicationContext, appScope)
         ForegroundActivityTracker.onBackground = {
             GeckoRuntimeProvider.runtimeOrNull()?.let {
                 SandboxManager.flushPendingClears(applicationContext, it)
             }
         }
         appScope.launch {
-            DataManager.instance.initialize(applicationContext)
+            DataManager.initialize(applicationContext)
             ProxyRouterBridge.ensure(applicationContext)
             CertStoreBridge.ensure(applicationContext)
             ExtensionUpdateScheduler.apply(applicationContext)
@@ -69,6 +70,9 @@ class App : Application() {
     companion object {
         @SuppressLint("StaticFieldLeak")
         lateinit var appContext: Context
+            private set
+
+        lateinit var appScope: CoroutineScope
             private set
     }
 }

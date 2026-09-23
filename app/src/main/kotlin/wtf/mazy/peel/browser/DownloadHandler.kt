@@ -17,8 +17,8 @@ import org.mozilla.geckoview.GeckoWebExecutor
 import org.mozilla.geckoview.WebRequest
 import org.mozilla.geckoview.WebResponse
 import wtf.mazy.peel.R
-import wtf.mazy.peel.util.NotificationUtils.showToast
-import wtf.mazy.peel.util.Utility.getFileNameFromDownload
+import wtf.mazy.peel.util.downloadFileName
+import wtf.mazy.peel.util.toast
 import wtf.mazy.peel.util.withBoldSpan
 import wtf.mazy.peel.util.withMonoSpan
 import java.io.ByteArrayInputStream
@@ -29,7 +29,7 @@ class DownloadHandler(
     private val activity: AppCompatActivity,
     private val getRuntime: () -> GeckoRuntime,
     private val scope: CoroutineScope,
-    private val webappName: String,
+    private val webAppName: String,
     private val getPageBridge: () -> PageBridge? = { null },
     private val requiresBridgeAuth: () -> Boolean = { false },
     private val getPageUrl: () -> String? = { null },
@@ -164,7 +164,7 @@ class DownloadHandler(
                 body.close()
                 return@showDownloadPrompt
             }
-            DownloadService.start(activity, fileName, mimeType, contentLength, webappName, body)
+            DownloadService.start(activity, fileName, mimeType, contentLength, webAppName, body)
         }
     }
 
@@ -214,16 +214,16 @@ class DownloadHandler(
     }
 
     private fun showError() {
-        showToast(activity, activity.getString(R.string.download_failed))
+        activity.toast(R.string.download_failed, long = true)
     }
 
     private fun resolveFileName(
         url: String, contentDisposition: String?, mimeType: String?,
     ): String {
-        val name = getFileNameFromDownload(null, contentDisposition, mimeType)
+        val name = downloadFileName(null, contentDisposition, mimeType)
             ?: when {
                 url.startsWith("blob:") || url.startsWith("data:") -> "download"
-                else -> getFileNameFromDownload(url, null, mimeType) ?: "download"
+                else -> downloadFileName(url, null, mimeType) ?: "download"
             }
         if ('.' in name || mimeType == null) return name
         val ext = MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType)

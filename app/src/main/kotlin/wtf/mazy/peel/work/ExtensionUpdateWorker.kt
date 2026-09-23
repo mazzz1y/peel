@@ -12,7 +12,7 @@ class ExtensionUpdateWorker(
 ) : CoroutineWorker(context, params) {
 
     override suspend fun doWork(): Result {
-        DataManager.instance.awaitReady()
+        DataManager.awaitReady()
         return runCatching {
             GeckoRuntimeProvider.updateAllExtensions(applicationContext)
         }.fold(

@@ -9,10 +9,11 @@ import org.mozilla.geckoview.GeckoSession.NavigationDelegate.LoadRequest
 import org.mozilla.geckoview.GeckoSession.NavigationDelegate.TARGET_WINDOW_NEW
 import org.mozilla.geckoview.WebRequestError
 import wtf.mazy.peel.R
-import wtf.mazy.peel.ui.dialog.ExternalLinkResult
+import wtf.mazy.peel.model.EffectiveSettings
 import wtf.mazy.peel.model.WebAppSettings
-import wtf.mazy.peel.util.NotificationUtils
+import wtf.mazy.peel.ui.dialog.ExternalLinkResult
 import wtf.mazy.peel.util.belongsToApp
+import wtf.mazy.peel.util.toast
 import wtf.mazy.peel.util.withBoldSpan
 import wtf.mazy.peel.util.withMonoSpan
 
@@ -117,7 +118,7 @@ class PeelNavigationDelegate(
 
     private fun routeFor(
         url: String,
-        settings: WebAppSettings,
+        settings: EffectiveSettings,
         request: LoadRequest,
     ): LinkRoute = LinkRouter.route(
         url = url,
@@ -141,10 +142,7 @@ class PeelNavigationDelegate(
     private fun showBlockedToast() {
         host.runOnUi {
             val context = host.hostContext
-            NotificationUtils.showToastSafe(
-                context,
-                context.getString(R.string.domain_blocked_toast),
-            )
+            context.toast(R.string.domain_blocked_toast)
         }
     }
 
@@ -166,7 +164,7 @@ class PeelNavigationDelegate(
     ): GeckoResult<String>? {
         if (uri == null || !LinkRouter.isBrowserScheme(uri)) return null
         if (isSpuriousError(error)) return null
-        if (isCertError(error) && host.effectiveSettings.isAllowCertBypass == true) {
+        if (isCertError(error) && host.effectiveSettings.allowCertBypass) {
             return GeckoResult.fromValue(CertErrorPage.urlFor(uri))
         }
 
@@ -298,14 +296,14 @@ class PeelNavigationDelegate(
         redirectFallback?.let { host.dismissRedirectToFallback(it) }
     }
 
-    private fun handleAppLink(url: String, settings: WebAppSettings, request: LoadRequest) {
+    private fun handleAppLink(url: String, settings: EffectiveSettings, request: LoadRequest) {
         val intent = parseIntentUri(url)
         val targetPackage = intent?.`package`
         val browserFallback = intent?.getStringExtra("browser_fallback_url")
             ?.takeIf { it.startsWith("http://") || it.startsWith("https://") }
         val redirectFallback = redirectFallbackFor(request)
 
-        when (settings.isAppLinksPermission) {
+        when (settings.appLinksPermission) {
             WebAppSettings.PERMISSION_OFF -> host.runOnUi {
                 applyAppLinkDeny(browserFallback, redirectFallback)
             }

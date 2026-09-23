@@ -7,8 +7,6 @@ import wtf.mazy.peel.model.ParsedBackup
 import wtf.mazy.peel.model.WebAppSettings
 import wtf.mazy.peel.model.WebAppSurrogate
 import wtf.mazy.peel.model.db.toDomain
-import wtf.mazy.peel.shortcut.ShortcutHelper
-import wtf.mazy.peel.util.App
 import java.util.UUID
 
 object BackupImportService {
@@ -39,7 +37,6 @@ object BackupImportService {
         if (parsed.backupData.payloadType != BackupPolicy.PAYLOAD_GROUP_SHARE) return 0
         if (selectedGroupUuids.isEmpty()) return 0
 
-        val dataManager = DataManager.instance
         val groupUuidMap = mutableMapOf<String, String>()
 
         parsed.backupData.groups.forEach { groupSurrogate ->
@@ -48,7 +45,7 @@ object BackupImportService {
             val importedGroup = groupSurrogate.toDomain().copy(
                 uuid = UUID.randomUUID().toString(),
             )
-            dataManager.addGroup(importedGroup, appendOrder = true)
+            DataManager.addGroup(importedGroup, appendOrder = true)
             groupUuidMap[originalGroupUuid] = importedGroup.uuid
             parsed.icons[originalGroupUuid]?.let { IconCache.save(importedGroup.uuid, it) }
         }
@@ -66,8 +63,7 @@ object BackupImportService {
         selectedUuids: Set<String>,
         resolveGroup: (WebAppSurrogate) -> String?,
     ): Int {
-        val dataManager = DataManager.instance
-        val existingUuids = dataManager.getWebsites().mapTo(mutableSetOf()) { it.uuid }
+        val existingUuids = DataManager.webApps.mapTo(mutableSetOf()) { it.uuid }
         var importedCount = 0
 
         parsed.backupData.websites.forEach { surrogate ->
@@ -78,12 +74,11 @@ object BackupImportService {
                 else surrogate.uuid
             existingUuids.add(targetUuid)
 
-            val webApp = surrogate.toDomain(targetUuid)
-            webApp.groupUuid = resolveGroup(surrogate)
+            val webApp = surrogate.toDomain(targetUuid).copy(groupUuid = resolveGroup(surrogate))
 
-            dataManager.addWebsite(webApp, appendOrder = true)
+            DataManager.addWebApp(webApp, appendOrder = true)
             parsed.icons[surrogate.uuid]?.let { IconCache.save(webApp.uuid, it) }
-            ShortcutHelper.updatePinnedShortcut(webApp, App.appContext)
+            DataManager.sideEffects.onShortcutOwnerChanged(webApp)
             importedCount++
         }
 
@@ -95,15 +90,19 @@ object BackupImportService {
         globalSettings: WebAppSettings,
         mode: ImportMode,
     ) {
-        val dataManager = DataManager.instance
         val importedWebApps = parsed.backupData.websites.map { it.toDomain() }
         val importedGroups = parsed.backupData.groups.map { it.toDomain() }
         val importedProxies = parsed.backupData.proxies
 
         parsed.icons.forEach { (uuid, bitmap) -> IconCache.save(uuid, bitmap) }
 
-        dataManager.importData(mode, importedWebApps, globalSettings, importedGroups, importedProxies)
-        val context = App.appContext
-        dataManager.getWebsites().forEach { ShortcutHelper.updatePinnedShortcut(it, context) }
+        DataManager.importData(
+            mode,
+            importedWebApps,
+            globalSettings,
+            importedGroups,
+            importedProxies
+        )
+        DataManager.webApps.forEach(DataManager.sideEffects::onShortcutOwnerChanged)
     }
 }

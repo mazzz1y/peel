@@ -5,7 +5,6 @@ import android.content.ActivityNotFoundException
 import android.net.Uri
 import android.provider.DocumentsContract
 import android.view.View
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -17,16 +16,17 @@ import kotlinx.coroutines.launch
 import wtf.mazy.peel.R
 import wtf.mazy.peel.browser.SessionHostRegistry
 import wtf.mazy.peel.browser.TranslationLanguages
+import wtf.mazy.peel.gecko.SandboxManager
 import wtf.mazy.peel.model.BackupManager
 import wtf.mazy.peel.model.DataManager
-import wtf.mazy.peel.model.SandboxManager
 import wtf.mazy.peel.model.WebAppSettings
 import wtf.mazy.peel.ui.common.LoadingDialogController
 import wtf.mazy.peel.ui.common.runWithLoader
 import wtf.mazy.peel.ui.dialog.BackupPasswordDialog
-import wtf.mazy.peel.ui.dialog.ImportDialogHelper
+import wtf.mazy.peel.ui.dialog.ImportFlowController
 import wtf.mazy.peel.ui.dialog.dismissOnDestroyOf
-import wtf.mazy.peel.util.NotificationUtils
+import wtf.mazy.peel.util.App
+import wtf.mazy.peel.util.toast
 
 class SettingsHubController(
     private val activity: AppCompatActivity,
@@ -34,7 +34,7 @@ class SettingsHubController(
 ) {
 
     private val exportLoader = LoadingDialogController(activity)
-    private val importDialogHelper = ImportDialogHelper(activity, importActivity)
+    private val importFlow = ImportFlowController(activity, importActivity)
     private var pendingExportUri: Uri? = null
 
     private val exportLauncher =
@@ -48,18 +48,14 @@ class SettingsHubController(
         activity.registerForActivityResult(
             ActivityResultContracts.GetContent()
         ) { uri ->
-            uri?.let { importDialogHelper.showForUri(it) }
+            uri?.let { importFlow.showForUri(it) }
         }
 
     fun importBackup() {
         try {
             importLauncher.launch("*/*")
         } catch (_: ActivityNotFoundException) {
-            NotificationUtils.showToast(
-                activity,
-                activity.getString(R.string.no_filemanager),
-                Toast.LENGTH_LONG
-            )
+            activity.toast(R.string.no_filemanager, long = true)
         }
     }
 
@@ -67,11 +63,7 @@ class SettingsHubController(
         try {
             exportLauncher.launch(BackupManager.buildExportFilename())
         } catch (_: ActivityNotFoundException) {
-            NotificationUtils.showToast(
-                activity,
-                activity.getString(R.string.no_filemanager),
-                Toast.LENGTH_LONG
-            )
+            activity.toast(R.string.no_filemanager, long = true)
         }
     }
 
@@ -119,11 +111,7 @@ class SettingsHubController(
     }
 
     private fun notifyExportFailed() {
-        NotificationUtils.showToast(
-            activity,
-            activity.getString(R.string.backup_save_failed),
-            Toast.LENGTH_SHORT,
-        )
+        activity.toast(R.string.backup_save_failed)
     }
 
     fun clearData() {
@@ -172,7 +160,7 @@ class SettingsHubController(
     fun onDestroy() {
         abandonExport(notify = false)
         exportLoader.dismiss()
-        importDialogHelper.onHostDestroy()
+        importFlow.onHostDestroy()
     }
 
     private fun performFullBackupExport(uri: Uri, password: CharArray?) {
@@ -181,7 +169,7 @@ class SettingsHubController(
             activity = activity,
             loader = exportLoader,
             showLoader = encrypting ||
-                    DataManager.instance.getWebsites().size >= BackupManager.LOADER_THRESHOLD,
+                    DataManager.webApps.size >= BackupManager.LOADER_THRESHOLD,
             loadingRes = if (encrypting) R.string.backup_encrypting else R.string.preparing_export,
             ioTask = {
                 var success = false
@@ -194,11 +182,7 @@ class SettingsHubController(
                 }
             },
         ) { success ->
-            NotificationUtils.showToast(
-                activity,
-                activity.getString(if (success) R.string.backup_saved else R.string.backup_save_failed),
-                Toast.LENGTH_SHORT,
-            )
+            activity.toast(if (success) R.string.backup_saved else R.string.backup_save_failed)
         }
     }
 
@@ -210,7 +194,7 @@ class SettingsHubController(
 
     private fun clearBrowsingData(includeSandbox: Boolean) {
         SessionHostRegistry.finishBrowsers()
-        DataManager.instance.appScope.launch { wipeStorage(includeSandbox) }
+        App.appScope.launch { wipeStorage(includeSandbox) }
     }
 
     private fun clearTranslationModels() {
@@ -222,20 +206,16 @@ class SettingsHubController(
     private fun performFactoryReset() {
         SessionHostRegistry.finishBrowsers()
 
-        DataManager.instance.appScope.launch {
+        App.appScope.launch {
             wipeStorage(includeSandbox = true)
             TranslationLanguages.deleteAllModels()
-            DataManager.instance.getWebsites().forEach { webapp ->
-                DataManager.instance.cleanupAndRemoveWebApp(webapp.uuid, activity)
-            }
-            DataManager.instance.getGroups().forEach { group ->
-                DataManager.instance.removeGroup(group, ungroupApps = false)
+            DataManager.deleteWebApps(DataManager.webApps.map { it.uuid })
+            DataManager.groups.forEach { group ->
+                DataManager.removeGroup(group, ungroupApps = false)
             }
 
-            DataManager.instance.setDefaultSettings(
-                DataManager.instance.defaultSettings.also {
-                    it.settings = WebAppSettings.createWithDefaults()
-                }
+            DataManager.setGlobalSettings(
+                DataManager.globalSettings.copy(settings = WebAppSettings.createWithDefaults())
             )
         }
     }

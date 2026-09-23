@@ -12,7 +12,7 @@ import wtf.mazy.peel.ui.entitylist.EntityBinder
 import wtf.mazy.peel.ui.entitylist.EntityListAdapter
 import wtf.mazy.peel.ui.entitylist.EntityListViewHolder
 import wtf.mazy.peel.ui.entitylist.EntityRow
-import wtf.mazy.peel.ui.entitylist.EntityRowActions
+import wtf.mazy.peel.ui.entitylist.EntityRowListener
 import wtf.mazy.peel.ui.entitylist.EntityRowView
 
 data class PushSubscriptionItem(
@@ -45,7 +45,7 @@ object PushSubscriptionBinder : EntityBinder<PushSubscriptionItem> {
 }
 
 class PushSubscriptionListAdapter(
-    actions: EntityRowActions<PushSubscriptionItem>,
+    actions: EntityRowListener<PushSubscriptionItem>,
 ) : EntityListAdapter<PushSubscriptionItem, PushSubscriptionListAdapter.ViewHolder>(
     binder = PushSubscriptionBinder,
     actions = actions,

@@ -13,7 +13,7 @@ import wtf.mazy.peel.gecko.GeckoRuntimeProvider
  *
  * Isolation: each PageBridge instance binds to exactly one GeckoSession.
  * Cookies and HTTP cache used by fetch are partitioned by the session's
- * contextId, so a bridge in webapp A cannot fetch with webapp B's
+ * contextId, so a bridge in webApp A cannot fetch with webApp B's
  * credentials. The shared WebExtension handle is read-only; routing of
  * port messages is per-session.
  *

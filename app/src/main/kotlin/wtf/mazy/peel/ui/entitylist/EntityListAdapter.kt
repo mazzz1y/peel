@@ -12,7 +12,7 @@ import wtf.mazy.peel.model.SyncExecutor
 
 abstract class EntityListAdapter<T : Any, VH : EntityListViewHolder>(
     private val binder: EntityBinder<T>,
-    private val actions: EntityRowActions<T>,
+    private val actions: EntityRowListener<T>,
     @get:ColorInt private val checkIconColor: Int,
 ) : ListAdapter<EntityRow<T>, VH>(buildDiffer(binder)) {
 
