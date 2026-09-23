@@ -16,17 +16,12 @@ class DataRepository {
     private lateinit var proxyDao: ProxyDao
     private lateinit var pushSubscriptionDao: PushSubscriptionDao
 
-    @Volatile
-    var isInitialized: Boolean = false
-        private set
-
     fun initialize(context: Context) {
         val db = AppDatabase.getInstance(context)
         webAppDao = db.webAppDao()
         groupDao = db.webAppGroupDao()
         proxyDao = db.proxyDao()
         pushSubscriptionDao = db.pushSubscriptionDao()
-        isInitialized = true
     }
 
     fun getGlobalSettings(): WebApp? = webAppDao.getGlobalSettings()?.toDomain()

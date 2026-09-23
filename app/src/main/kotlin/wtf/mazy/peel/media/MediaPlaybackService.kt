@@ -33,7 +33,7 @@ import com.google.common.util.concurrent.ListenableFuture
 import wtf.mazy.peel.R
 
 @OptIn(UnstableApi::class)
-open class MediaPlaybackService : MediaSessionService() {
+class MediaPlaybackService : MediaSessionService() {
 
     private var session: MediaSession? = null
     private var peelPlayer: PeelPlayer? = null
@@ -470,7 +470,7 @@ open class MediaPlaybackService : MediaSessionService() {
             generation: Int,
             contentIntent: PendingIntent?,
         ): Intent {
-            return Intent(context, resolveServiceClass()).apply {
+            return Intent(context, MediaPlaybackService::class.java).apply {
                 action = ACTION_START
                 putExtra(EXTRA_TITLE, title)
                 putExtra(EXTRA_WEBAPP_UUID, webappUuid)
@@ -479,8 +479,5 @@ open class MediaPlaybackService : MediaSessionService() {
                 icon?.let { putExtra(EXTRA_BITMAP_ID, stashBitmap(it)) }
             }
         }
-
-        fun resolveServiceClass(): Class<out MediaPlaybackService> =
-            MediaPlaybackService::class.java
     }
 }

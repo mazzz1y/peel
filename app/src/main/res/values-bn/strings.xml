@@ -78,7 +78,6 @@
     <string name="import_btn">আমদানি</string>
     <string name="allow_location_access">অবস্থান</string>
     <string name="allow_drm_content">DRM বিষয়বস্তু</string>
-    <string name="file_download">ফাইল ডাউনলোড হচ্ছে…</string>
     <string name="download_in_progress">ডাউনলোড হচ্ছে…</string>
     <string name="download_complete">ডাউনলোড সম্পূর্ণ — খুলতে ট্যাপ করুন</string>
     <string name="download_channel_name">ডাউনলোড</string>
@@ -95,7 +94,6 @@
     <string name="color_scheme_dark">গাঢ়</string>
     <string name="setting_web_content_scale">স্কেল</string>
     <string name="webapp_already_deleted">এই ওয়েব অ্যাপটি মুছে ফেলা হয়েছে। আপনি এই শর্টকাটটি মুছতে পারেন।</string>
-    <string name="global_web_app_settings">গ্লোবাল ওয়েব অ্যাপ সেটিংস</string>
     <string name="behavior">আচরণ</string>
     <string name="navigation">নেভিগেশন</string>
     <string name="import_data">আমদানি</string>
@@ -258,8 +256,6 @@
     <string name="recommended_extensions">প্রস্তাবিত এক্সটেনশন</string>
     <string name="recommended_extensions_error">প্রস্তাবিত এক্সটেনশন লোড করা যায়নি</string>
     <string name="browse_all_extensions">সব ব্রাউজ করুন</string>
-    <string name="install_extension_confirm">%1$s ইনস্টল করবেন?</string>
-    <string name="extension_permissions">এই এক্সটেনশনের প্রয়োজন:</string>
     <string name="uninstall_extension">আনইনস্টল</string>
     <string name="uninstall_extension_confirm">%1$s আনইনস্টল করবেন?</string>
     <string name="extension_settings">সেটিংস</string>
@@ -311,7 +307,6 @@
     <string name="find_in_page_prev">পূর্ববর্তী মিল</string>
     <string name="find_in_page_next">পরবর্তী মিল</string>
     <string name="find_in_page_close">বন্ধ করুন</string>
-    <string name="edit">সম্পাদনা</string>
     <string name="cache_cleared">ক্যাশ পরিষ্কার করা হয়েছে</string>
     <string name="proxy">প্রক্সি</string>
     <string name="proxy_direct">কোনো প্রক্সি নেই</string>

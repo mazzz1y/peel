@@ -182,10 +182,6 @@ class MainActivity :
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
-        if (intent.getBooleanExtra(Const.INTENT_BACKUP_RESTORED, false)) {
-            setupViewPager()
-            intent.putExtra(Const.INTENT_BACKUP_RESTORED, false)
-        }
         handleIncomingBackupIntent(intent)
     }
 

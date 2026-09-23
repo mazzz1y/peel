@@ -183,24 +183,28 @@
             android:theme="@style/AppTheme.Transparent" />
 
         <activity
-            android:name=".activities.ShareReceiverActivity"
+            android:name=".activities.IncomingLinkActivity"
             android:excludeFromRecents="true"
+            android:exported="false"
+            android:noHistory="true"
+            android:taskAffinity=""
+            android:theme="@style/AppTheme.Transparent" />
+
+        <activity-alias
+            android:name=".activities.ShareReceiverActivity"
             android:exported="true"
-            android:theme="@style/AppTheme.Transparent">
+            android:targetActivity=".activities.IncomingLinkActivity">
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <data android:mimeType="text/plain" />
             </intent-filter>
-        </activity>
+        </activity-alias>
 
-        <activity
+        <activity-alias
             android:name=".activities.LinkRouterActivity"
-            android:excludeFromRecents="true"
             android:exported="true"
-            android:noHistory="true"
-            android:taskAffinity=""
-            android:theme="@style/AppTheme.Transparent">
+            android:targetActivity=".activities.IncomingLinkActivity">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
@@ -214,7 +218,7 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.APP_BROWSER" />
             </intent-filter>
-        </activity>
+        </activity-alias>
 
         <activity
             android:name=".activities.SettingsHubActivity"

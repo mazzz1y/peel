@@ -23,7 +23,6 @@ class OverridePickerDialog : DialogFragment() {
 
     private var listener: OnSettingSelectedListener? = null
     private var currentSettings: WebAppSettings? = null
-    private var globalSettings: WebAppSettings? = null
 
     interface OnSettingSelectedListener {
         fun onSettingSelected(setting: SettingDefinition)
@@ -33,11 +32,9 @@ class OverridePickerDialog : DialogFragment() {
         private const val VIEW_TYPE_HEADER = 0
         private const val VIEW_TYPE_SETTING = 1
         private const val ARG_CURRENT_SETTINGS = "current_settings"
-        private const val ARG_GLOBAL_SETTINGS = "global_settings"
 
         fun newInstance(
             currentSettings: WebAppSettings,
-            globalSettings: WebAppSettings,
             listener: OnSettingSelectedListener,
         ): OverridePickerDialog {
             return OverridePickerDialog().apply {
@@ -45,7 +42,6 @@ class OverridePickerDialog : DialogFragment() {
                 arguments =
                     Bundle().apply {
                         putString(ARG_CURRENT_SETTINGS, Json.encodeToString(currentSettings))
-                        putString(ARG_GLOBAL_SETTINGS, Json.encodeToString(globalSettings))
                     }
             }
         }
@@ -62,9 +58,6 @@ class OverridePickerDialog : DialogFragment() {
         super.onCreate(savedInstanceState)
         arguments?.getString(ARG_CURRENT_SETTINGS)?.let {
             currentSettings = Json.decodeFromString(it)
-        }
-        arguments?.getString(ARG_GLOBAL_SETTINGS)?.let {
-            globalSettings = Json.decodeFromString(it)
         }
     }
 

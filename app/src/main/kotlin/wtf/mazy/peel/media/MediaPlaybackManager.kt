@@ -199,7 +199,7 @@ class MediaPlaybackManager(
         this.mediaSession = mediaSession
         if (!serviceStarted) return
         startService(
-            Intent(context, MediaPlaybackService.resolveServiceClass()).apply {
+            Intent(context, MediaPlaybackService::class.java).apply {
                 action = MediaPlaybackService.ACTION_UPDATE_METADATA
                 putExtra(MediaPlaybackService.EXTRA_TRACK_TITLE, meta.title ?: "")
                 putExtra(MediaPlaybackService.EXTRA_TRACK_ARTIST, meta.artist ?: "")
@@ -208,7 +208,7 @@ class MediaPlaybackManager(
         meta.artwork?.getBitmap(ARTWORK_SIZE)?.accept { bitmap ->
             if (bitmap != null && serviceStarted) {
                 startService(
-                    Intent(context, MediaPlaybackService.resolveServiceClass()).apply {
+                    Intent(context, MediaPlaybackService::class.java).apply {
                         action = MediaPlaybackService.ACTION_UPDATE_ARTWORK
                         putExtra(
                             MediaPlaybackService.EXTRA_BITMAP_ID,
@@ -238,7 +238,7 @@ class MediaPlaybackManager(
         this.mediaSession = mediaSession
         if (!serviceStarted) return
         startService(
-            Intent(context, MediaPlaybackService.resolveServiceClass()).apply {
+            Intent(context, MediaPlaybackService::class.java).apply {
                 action = MediaPlaybackService.ACTION_UPDATE_POSITION
                 putExtra(MediaPlaybackService.EXTRA_DURATION_MS, (state.duration * 1000).toLong())
                 putExtra(MediaPlaybackService.EXTRA_POSITION_MS, (state.position * 1000).toLong())
@@ -262,7 +262,7 @@ class MediaPlaybackManager(
     private fun updateActions(hasPrevious: Boolean, hasNext: Boolean) {
         if (!serviceStarted) return
         startService(
-            Intent(context, MediaPlaybackService.resolveServiceClass()).apply {
+            Intent(context, MediaPlaybackService::class.java).apply {
                 action = MediaPlaybackService.ACTION_UPDATE_ACTIONS
                 putExtra(MediaPlaybackService.EXTRA_HAS_PREVIOUS, hasPrevious)
                 putExtra(MediaPlaybackService.EXTRA_HAS_NEXT, hasNext)
@@ -271,7 +271,7 @@ class MediaPlaybackManager(
 
     private fun sendAction(action: String) {
         startService(
-            Intent(context, MediaPlaybackService.resolveServiceClass()).apply {
+            Intent(context, MediaPlaybackService::class.java).apply {
                 this.action = action
             })
     }

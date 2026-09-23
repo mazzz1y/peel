@@ -60,17 +60,7 @@ class SettingViewFactory(
         settings: WebAppSettings,
         position: GroupPosition,
     ): View {
-        val layoutRes = when (setting) {
-            is SettingDefinition.BooleanSetting -> R.layout.item_setting_boolean
-            is SettingDefinition.ChoiceSetting -> R.layout.item_setting_dropdown
-            is SettingDefinition.BooleanWithIntSetting -> R.layout.item_setting_boolean_int
-            is SettingDefinition.BooleanWithCredentialsSetting -> R.layout.item_setting_boolean_credentials
-            is SettingDefinition.BooleanWithStringSetting -> R.layout.item_setting_boolean_string
-            is SettingDefinition.StringMapSetting -> R.layout.item_setting_string_collection
-            is SettingDefinition.StringListSetting -> R.layout.item_setting_string_collection
-            is SettingDefinition.LanguagePairMapSetting -> R.layout.item_setting_language_pair_map
-        }
-        val view = inflater.inflate(layoutRes, container, false)
+        val view = inflater.inflate(setting.layoutRes, container, false)
         bindView(view, setting, settings, position)
         return view
     }
@@ -260,42 +250,19 @@ class SettingViewFactory(
         setting: SettingDefinition.BooleanWithCredentialsSetting,
         settings: WebAppSettings,
     ) {
-        val context = view.context
-        val switch = view.findViewById<MaterialSwitch>(R.id.switchSetting)
-        val btnRemove = view.findViewById<MaterialButton>(R.id.btnRemoveOverride)
-        val btnUndo = view.findViewById<MaterialButton>(R.id.btnUndo)
-        val rowValue = view.findViewById<View>(R.id.rowValue)
-        val hairline = view.findViewById<View>(R.id.hairlineEntries)
-        val textValue = view.findViewById<TextView>(R.id.textValue)
-        val btnEditValue = view.findViewById<MaterialButton>(R.id.btnEditValue)
-
         val usernameKey = setting.usernameField.key
         val passwordKey = setting.passwordField.key
-        resetWidgetListeners(view)
-        bindLabel(view, setting)
-
         fun username(): String = settings.getValue(usernameKey) as? String ?: ""
         fun password(): String = settings.getValue(passwordKey) as? String ?: ""
-
-        fun renderValue() {
-            val enabled = settings.getValue(setting.key) as? Boolean ?: false
-            rowValue.isVisible = enabled
-            hairline.isVisible = enabled
-            textValue.text = username()
-            updateUndoVisibility(btnUndo, setting, settings)
-        }
-
-        lateinit var switchListener: (CompoundButton?, Boolean) -> Unit
-
-        fun setChecked(checked: Boolean) {
-            switch.setOnCheckedChangeListener(null)
-            switch.isChecked = checked
-            switch.setOnCheckedChangeListener(switchListener)
-        }
-
-        fun openDialog(onCancel: () -> Unit = {}) {
+        setupBooleanWithValue(
+            view,
+            setting,
+            settings,
+            value = ::username,
+            isEmpty = { username().isEmpty() && password().isEmpty() },
+        ) { onCancel, onSaved ->
             SettingDialogs.showCredentials(
-                context,
+                view.context,
                 setting.displayNameResId,
                 username(),
                 password(),
@@ -303,39 +270,8 @@ class SettingViewFactory(
             ) { credentials ->
                 settings.setValue(usernameKey, credentials.username)
                 settings.setValue(passwordKey, credentials.password)
-                if (credentials.username.isEmpty() && credentials.password.isEmpty()) {
-                    settings.setValue(setting.key, false)
-                    setChecked(false)
-                }
-                renderValue()
+                onSaved()
             }
-        }
-
-        switchListener = { _: CompoundButton?, isChecked: Boolean ->
-            settings.setValue(setting.key, isChecked)
-            renderValue()
-            if (isChecked && username().isEmpty() && password().isEmpty()) {
-                openDialog {
-                    if (username().isEmpty() && password().isEmpty()) {
-                        settings.setValue(setting.key, false)
-                        setChecked(false)
-                        renderValue()
-                    }
-                }
-            }
-        }
-
-        switch.isChecked = settings.getValue(setting.key) as? Boolean ?: false
-        renderValue()
-        switch.setOnCheckedChangeListener(switchListener)
-        rowValue.setOnClickListener { openDialog() }
-        btnEditValue.setOnClickListener { openDialog() }
-
-        configureButtons(view, btnRemove, btnUndo, setting, settings) {
-            switch.setOnCheckedChangeListener(null)
-            switch.isChecked = settings.getValue(setting.key) as? Boolean ?: false
-            renderValue()
-            switch.setOnCheckedChangeListener(switchListener)
         }
     }
 
@@ -344,7 +280,39 @@ class SettingViewFactory(
         setting: SettingDefinition.BooleanWithStringSetting,
         settings: WebAppSettings,
     ) {
-        val context = view.context
+        val stringKey = setting.stringField.key
+        fun value(): String = settings.getValue(stringKey) as? String ?: ""
+        setupBooleanWithValue(
+            view,
+            setting,
+            settings,
+            value = ::value,
+            isEmpty = { value().isEmpty() },
+        ) { onCancel, onSaved ->
+            SettingDialogs.showString(
+                view.context,
+                setting.displayNameResId,
+                setting.hintResId,
+                value(),
+                maxLines = 3,
+                onCancel = onCancel,
+            ) { text ->
+                settings.setValue(stringKey, text)
+                onSaved()
+            }
+        }
+    }
+
+    // A switch whose "on" state needs a value: enabling with no value opens the editor, and
+    // cancelling or saving an empty value turns the switch back off.
+    private fun setupBooleanWithValue(
+        view: View,
+        setting: SettingDefinition,
+        settings: WebAppSettings,
+        value: () -> String,
+        isEmpty: () -> Boolean,
+        showDialog: (onCancel: () -> Unit, onSaved: () -> Unit) -> Unit,
+    ) {
         val switch = view.findViewById<MaterialSwitch>(R.id.switchSetting)
         val btnRemove = view.findViewById<MaterialButton>(R.id.btnRemoveOverride)
         val btnUndo = view.findViewById<MaterialButton>(R.id.btnUndo)
@@ -353,11 +321,8 @@ class SettingViewFactory(
         val textValue = view.findViewById<TextView>(R.id.textValue)
         val btnEditValue = view.findViewById<MaterialButton>(R.id.btnEditValue)
 
-        val stringKey = setting.stringField.key
         resetWidgetListeners(view)
         bindLabel(view, setting)
-
-        fun value(): String = settings.getValue(stringKey) as? String ?: ""
 
         fun renderValue() {
             val enabled = settings.getValue(setting.key) as? Boolean ?: false
@@ -375,36 +340,22 @@ class SettingViewFactory(
             switch.setOnCheckedChangeListener(switchListener)
         }
 
+        fun turnOff() {
+            settings.setValue(setting.key, false)
+            setChecked(false)
+            renderValue()
+        }
+
         fun openDialog(onCancel: () -> Unit = {}) {
-            SettingDialogs.showString(
-                context,
-                setting.displayNameResId,
-                setting.hintResId,
-                value(),
-                maxLines = 3,
-                onCancel = onCancel,
-            ) { text ->
-                settings.setValue(stringKey, text)
-                if (text.isEmpty()) {
-                    settings.setValue(setting.key, false)
-                    setChecked(false)
-                }
-                renderValue()
+            showDialog(onCancel) {
+                if (isEmpty()) turnOff() else renderValue()
             }
         }
 
         switchListener = { _: CompoundButton?, isChecked: Boolean ->
             settings.setValue(setting.key, isChecked)
             renderValue()
-            if (isChecked && value().isEmpty()) {
-                openDialog {
-                    if (value().isEmpty()) {
-                        settings.setValue(setting.key, false)
-                        setChecked(false)
-                        renderValue()
-                    }
-                }
-            }
+            if (isChecked && isEmpty()) openDialog { if (isEmpty()) turnOff() }
         }
 
         switch.isChecked = settings.getValue(setting.key) as? Boolean ?: false
@@ -414,10 +365,8 @@ class SettingViewFactory(
         btnEditValue.setOnClickListener { openDialog() }
 
         configureButtons(view, btnRemove, btnUndo, setting, settings) {
-            switch.setOnCheckedChangeListener(null)
-            switch.isChecked = settings.getValue(setting.key) as? Boolean ?: false
+            setChecked(settings.getValue(setting.key) as? Boolean ?: false)
             renderValue()
-            switch.setOnCheckedChangeListener(switchListener)
         }
     }
 
@@ -506,25 +455,14 @@ class SettingViewFactory(
 
         syncUi()
 
-        when (val strategy = buttonStrategy) {
-            is ButtonStrategy.GlobalDefaults -> {
-                btnRemove.visibility = View.GONE
-                btnUndo.setOnClickListener {
-                    resetSettingToDefault(setting, settings)
-                    syncUi()
-                }
-            }
-
-            is ButtonStrategy.Override -> {
-                btnUndo.visibility = View.GONE
-                btnRemove.visibility = View.VISIBLE
-                btnRemove.setOnClickListener {
-                    settings.setValue(setting.key, null)
-                    setMap(settings, mapKey, null)
-                    strategy.onRemove(setting, view)
-                }
-            }
-        }
+        configureButtons(
+            view, btnRemove, btnUndo, setting, settings,
+            onBeforeRemove = {
+                settings.setValue(setting.key, null)
+                setMap(settings, mapKey, null)
+            },
+            onUndoRefreshUi = ::syncUi,
+        )
 
         rowAdd.setOnClickListener {
             if (!isEnabled()) return@setOnClickListener
@@ -725,27 +663,14 @@ class SettingViewFactory(
             updateUndoVisibility(btnUndo, setting, settings)
         }
 
-        when (val strategy = buttonStrategy) {
-            is ButtonStrategy.GlobalDefaults -> {
-                btnRemove.visibility = View.GONE
-                btnUndo.setOnClickListener {
-                    resetSettingToDefault(setting, settings)
-                    renderEntries()
-                }
-            }
-
-            is ButtonStrategy.Override -> {
-                btnUndo.visibility = View.GONE
-                btnRemove.visibility = View.VISIBLE
-                btnRemove.setOnClickListener {
-                    setList(settings, setting.key, null)
-                    strategy.onRemove(setting, view)
-                }
-                if (getList(settings, setting.key) == null) {
-                    setList(settings, setting.key, emptyList())
-                }
-            }
+        if (buttonStrategy is ButtonStrategy.Override && getList(settings, setting.key) == null) {
+            setList(settings, setting.key, emptyList())
         }
+        configureButtons(
+            view, btnRemove, btnUndo, setting, settings,
+            onBeforeRemove = { setList(settings, setting.key, null) },
+            onUndoRefreshUi = ::renderEntries,
+        )
 
         renderEntries()
 
@@ -861,27 +786,14 @@ class SettingViewFactory(
             updateUndoVisibility(btnUndo, setting, settings)
         }
 
-        when (val strategy = buttonStrategy) {
-            is ButtonStrategy.GlobalDefaults -> {
-                btnRemove.visibility = View.GONE
-                btnUndo.setOnClickListener {
-                    resetSettingToDefault(setting, settings)
-                    renderEntries()
-                }
-            }
-
-            is ButtonStrategy.Override -> {
-                btnUndo.visibility = View.GONE
-                btnRemove.visibility = View.VISIBLE
-                btnRemove.setOnClickListener {
-                    setMap(settings, setting.key, null)
-                    strategy.onRemove(setting, view)
-                }
-                if (getMap(settings, setting.key) == null) {
-                    setMap(settings, setting.key, emptyMap())
-                }
-            }
+        if (buttonStrategy is ButtonStrategy.Override && getMap(settings, setting.key) == null) {
+            setMap(settings, setting.key, emptyMap())
         }
+        configureButtons(
+            view, btnRemove, btnUndo, setting, settings,
+            onBeforeRemove = { setMap(settings, setting.key, null) },
+            onUndoRefreshUi = ::renderEntries,
+        )
 
         renderEntries()
 
@@ -968,13 +880,17 @@ class SettingViewFactory(
         btnUndo: MaterialButton,
         setting: SettingDefinition,
         settings: WebAppSettings,
+        onBeforeRemove: () -> Unit = {},
         onUndoRefreshUi: () -> Unit,
     ) {
         when (val strategy = buttonStrategy) {
             is ButtonStrategy.Override -> {
                 btnUndo.visibility = View.GONE
                 btnRemove.visibility = View.VISIBLE
-                btnRemove.setOnClickListener { strategy.onRemove(setting, view) }
+                btnRemove.setOnClickListener {
+                    onBeforeRemove()
+                    strategy.onRemove(setting, view)
+                }
             }
 
             is ButtonStrategy.GlobalDefaults -> {

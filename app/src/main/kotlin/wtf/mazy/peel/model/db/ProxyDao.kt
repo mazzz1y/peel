@@ -13,9 +13,6 @@ interface ProxyDao {
     @Query("SELECT * FROM proxies")
     fun getAll(): List<ProxyEntity>
 
-    @Query("SELECT * FROM proxies WHERE uuid = :uuid LIMIT 1")
-    fun getByUuid(uuid: String): ProxyEntity?
-
     @Upsert
     fun upsert(entity: ProxyEntity)
 

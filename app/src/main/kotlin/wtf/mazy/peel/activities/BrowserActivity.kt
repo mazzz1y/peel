@@ -710,7 +710,7 @@ class BrowserActivity : BaseSessionHost() {
         sessionSetupJob = lifecycleScope.launch {
             wtf.mazy.peel.browser.ProxyRouterBridge.ensure(applicationContext)
             if (DataManager.instance.isTransientWebApp(webappUuid!!))
-                wtf.mazy.peel.browser.ProxyRouterBridge.pushRoutes(force = true)
+                wtf.mazy.peel.browser.ProxyRouterBridge.push(force = true)
             if (!wtf.mazy.peel.browser.ProxyRouterBridge.awaitRoutesReady(sessionContextId)) {
                 showConnectionError(getString(R.string.proxy_not_ready), url) {
                     launchSessionExtensionsAndLoad(settings, url, restore)

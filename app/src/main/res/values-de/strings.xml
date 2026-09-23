@@ -59,7 +59,6 @@
     <string name="no_filemanager">Bitte installieren Sie einen Datei-Manager</string>
     <string name="allow_location_access">Standort</string>
     <string name="allow_drm_content">DRM-Inhalte erlauben</string>
-    <string name="file_download">Datei wird heruntergeladen…</string>
     <string name="download_in_progress">Wird heruntergeladen…</string>
     <string name="download_complete">Download abgeschlossen — tippen zum Öffnen</string>
     <string name="download_channel_name">Downloads</string>
@@ -74,7 +73,6 @@
     <string name="color_scheme_dark">Dunkel</string>
     <string name="setting_web_content_scale">Skalierung</string>
     <string name="webapp_already_deleted">Diese Web-App wurde gelöscht. Sie können diese Verknüpfung löschen</string>
-    <string name="global_web_app_settings">Globale Web-App-Einstellungen</string>
     <string name="behavior">Verhalten</string>
     <string name="navigation">Navigation</string>
     <string name="enable_sandbox">Sandbox aktivieren</string>
@@ -258,8 +256,6 @@
     <string name="recommended_extensions">Empfohlene Erweiterungen</string>
     <string name="recommended_extensions_error">Empfohlene Erweiterungen konnten nicht geladen werden</string>
     <string name="browse_all_extensions">Alle durchsuchen</string>
-    <string name="install_extension_confirm">%1$s installieren?</string>
-    <string name="extension_permissions">Diese Erweiterung benötigt:</string>
     <string name="uninstall_extension">Deinstallieren</string>
     <string name="uninstall_extension_confirm">%1$s deinstallieren?</string>
     <string name="extension_settings">Einstellungen</string>
@@ -311,7 +307,6 @@
     <string name="find_in_page_prev">Vorheriger Treffer</string>
     <string name="find_in_page_next">Nächster Treffer</string>
     <string name="find_in_page_close">Schließen</string>
-    <string name="edit">Bearbeiten</string>
     <string name="cache_cleared">Cache geleert</string>
     <string name="proxy">Proxy</string>
     <string name="proxy_direct">Kein Proxy</string>

@@ -61,11 +61,6 @@
 
     <style name="AppTheme.Browser" parent="AppTheme" />
 
-    <style name="ShapeAppearance.App.CircleImageView" parent="">
-        <item name="cornerFamily">rounded</item>
-        <item name="cornerSize">50%</item>
-    </style>
-
     <style name="SettingsRow.Inline" parent="">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>

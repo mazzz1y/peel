@@ -20,7 +20,7 @@ interface IconOwner {
         get() = title
 
     val iconFile: File
-        get() = File(App.appContext.filesDir, "icons/${uuid}.png")
+        get() = IconCache.sourceFile(uuid)
 
     val hasCustomIcon: Boolean
         get() = iconFile.exists()
@@ -32,15 +32,7 @@ interface IconOwner {
 
     fun resolveIcon(sizePx: Int = defaultIconSizePx()): Bitmap = IconCache.resolve(this, sizePx)
 
-    fun saveIcon(bitmap: Bitmap) {
-        try {
-            val file = iconFile
-            file.parentFile?.mkdirs()
-            FileOutputStream(file).use { bitmap.compress(Bitmap.CompressFormat.PNG, 100, it) }
-        } catch (_: Exception) {
-        }
-        IconCache.evict(this)
-    }
+    fun saveIcon(bitmap: Bitmap) = IconCache.save(uuid, bitmap)
 
     fun deleteIcon() {
         try {
@@ -68,6 +60,18 @@ interface IconOwner {
 
 object IconCache {
     private val cacheDir by lazy { File(App.appContext.cacheDir, "icons").also { it.mkdirs() } }
+
+    fun sourceFile(uuid: String): File = File(App.appContext.filesDir, "icons/$uuid.png")
+
+    fun save(uuid: String, bitmap: Bitmap) {
+        try {
+            val file = sourceFile(uuid)
+            file.parentFile?.mkdirs()
+            FileOutputStream(file).use { bitmap.compress(Bitmap.CompressFormat.PNG, 100, it) }
+        } catch (_: Exception) {
+        }
+        evict(uuid)
+    }
 
     fun resolve(owner: IconOwner, sizePx: Int): Bitmap {
         val dir = File(cacheDir, owner.uuid)

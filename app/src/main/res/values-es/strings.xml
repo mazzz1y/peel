@@ -58,7 +58,6 @@
     <string name="no_filemanager">Por favor, instala un gestor de archivos</string>
     <string name="allow_location_access">Permitir el acceso a la ubicación</string>
     <string name="allow_drm_content">Permitir contenidos DRM</string>
-    <string name="file_download">El archivo se está descargando…</string>
     <string name="download_in_progress">Descargando…</string>
     <string name="download_complete">Descarga completa — toca para abrir</string>
     <string name="download_channel_name">Descargas</string>
@@ -73,7 +72,6 @@
     <string name="color_scheme_dark">Oscuro</string>
     <string name="setting_web_content_scale">Escala</string>
     <string name="webapp_already_deleted">Esta aplicación web ya no está disponible. Puede eliminar este acceso directo</string>
-    <string name="global_web_app_settings">Configuración general de la aplicación web</string>
     <string name="behavior">Comportamiento</string>
     <string name="navigation">Navegación</string>
     <string name="enable_sandbox">Habilitar Sandbox</string>
@@ -257,8 +255,6 @@
     <string name="recommended_extensions">Extensiones recomendadas</string>
     <string name="recommended_extensions_error">No se pudieron cargar las extensiones recomendadas</string>
     <string name="browse_all_extensions">Ver todas</string>
-    <string name="install_extension_confirm">¿Instalar %1$s?</string>
-    <string name="extension_permissions">Esta extensión requiere:</string>
     <string name="uninstall_extension">Desinstalar</string>
     <string name="uninstall_extension_confirm">¿Desinstalar %1$s?</string>
     <string name="extension_settings">Configuración</string>
@@ -310,7 +306,6 @@
     <string name="find_in_page_prev">Coincidencia anterior</string>
     <string name="find_in_page_next">Siguiente coincidencia</string>
     <string name="find_in_page_close">Cerrar</string>
-    <string name="edit">Editar</string>
     <string name="cache_cleared">Caché borrado</string>
     <string name="proxy">Proxy</string>
     <string name="proxy_direct">Sin proxy</string>

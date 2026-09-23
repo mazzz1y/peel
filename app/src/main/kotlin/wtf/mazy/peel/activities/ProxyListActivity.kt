@@ -52,8 +52,7 @@ class ProxyListActivity : EntityListActivity<Proxy>() {
     }
 
     private fun confirmDelete(proxy: Proxy) {
-        val (apps, groups) = DataManager.instance.proxyDependents(proxy.uuid)
-        val dependents = apps.size + groups.size
+        val dependents = DataManager.instance.proxyDependents(proxy.uuid).let { (apps, groups) -> apps.size + groups.size }
         val message = if (dependents == 0) {
             getString(R.string.proxy_delete_confirm)
         } else {
@@ -63,23 +62,7 @@ class ProxyListActivity : EntityListActivity<Proxy>() {
             .setTitle(R.string.proxy_delete_title)
             .setMessage(message)
             .setPositiveButton(R.string.delete) { _, _ ->
-                DataManager.instance.appScope.launch {
-                    apps.forEach { app ->
-                        if (app.proxyUuid == proxy.uuid) {
-                            val mutable = DataManager.instance.getWebApp(app.uuid) ?: return@forEach
-                            mutable.proxyUuid = null
-                            DataManager.instance.replaceWebApp(mutable)
-                        }
-                    }
-                    groups.forEach { g ->
-                        if (g.proxyUuid == proxy.uuid) {
-                            val mutable = DataManager.instance.getGroup(g.uuid) ?: return@forEach
-                            mutable.proxyUuid = null
-                            DataManager.instance.replaceGroup(mutable)
-                        }
-                    }
-                    DataManager.instance.removeProxy(proxy.uuid)
-                }
+                DataManager.instance.appScope.launch { DataManager.instance.removeProxy(proxy.uuid) }
             }
             .setNegativeButton(R.string.cancel, null)
             .show()

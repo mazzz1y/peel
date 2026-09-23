@@ -78,7 +78,6 @@
     <string name="import_btn">インポート</string>
     <string name="allow_location_access">位置情報</string>
     <string name="allow_drm_content">DRMコンテンツ</string>
-    <string name="file_download">ファイルをダウンロード中…</string>
     <string name="download_in_progress">ダウンロード中…</string>
     <string name="download_complete">ダウンロード完了 — タップして開く</string>
     <string name="download_channel_name">ダウンロード</string>
@@ -95,7 +94,6 @@
     <string name="color_scheme_dark">ダーク</string>
     <string name="setting_web_content_scale">拡大率</string>
     <string name="webapp_already_deleted">このウェブアプリは削除されました。このショートカットを削除できます</string>
-    <string name="global_web_app_settings">グローバルウェブアプリ設定</string>
     <string name="behavior">動作</string>
     <string name="navigation">ナビゲーション</string>
     <string name="import_data">インポート</string>
@@ -257,8 +255,6 @@
     <string name="recommended_extensions">おすすめの拡張機能</string>
     <string name="recommended_extensions_error">おすすめの拡張機能を読み込めませんでした</string>
     <string name="browse_all_extensions">すべて見る</string>
-    <string name="install_extension_confirm">%1$s をインストールしますか？</string>
-    <string name="extension_permissions">この拡張機能は以下を要求します：</string>
     <string name="uninstall_extension">アンインストール</string>
     <string name="uninstall_extension_confirm">%1$s をアンインストールしますか？</string>
     <string name="extension_settings">設定</string>
@@ -308,7 +304,6 @@
     <string name="find_in_page_prev">前の一致</string>
     <string name="find_in_page_next">次の一致</string>
     <string name="find_in_page_close">閉じる</string>
-    <string name="edit">編集</string>
     <string name="cache_cleared">キャッシュを消去しました</string>
     <string name="proxy">プロキシ</string>
     <string name="proxy_direct">プロキシなし</string>

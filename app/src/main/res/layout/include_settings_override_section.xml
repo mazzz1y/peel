@@ -6,7 +6,6 @@
     android:orientation="vertical">
 
     <LinearLayout
-        android:id="@+id/sectionOverrideHeader"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/settings_header_pull_up_rest"
@@ -17,7 +16,6 @@
         android:paddingHorizontal="@dimen/settings_row_padding_horizontal">
 
         <TextView
-            android:id="@+id/textViewOverriddenSettings"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"

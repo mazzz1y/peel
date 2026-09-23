@@ -2,19 +2,16 @@ package wtf.mazy.peel.activities
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.materialswitch.MaterialSwitch
-import com.google.android.material.progressindicator.CircularProgressIndicator
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.NonCancellable
@@ -41,6 +38,7 @@ import wtf.mazy.peel.ui.dialog.OverridePickerDialog
 import wtf.mazy.peel.ui.dialog.ScopeExtensionsPrompt
 import wtf.mazy.peel.ui.dialog.showInputDialogRaw
 import wtf.mazy.peel.ui.common.GroupPosition
+import wtf.mazy.peel.ui.common.LoadingDialogController
 import wtf.mazy.peel.ui.settings.OverridePickerController
 import wtf.mazy.peel.ui.common.SettingsSurface
 import wtf.mazy.peel.ui.settings.SandboxSwitchController
@@ -57,10 +55,8 @@ class WebAppSettingsActivity :
     var webappUuid: String? = null
     var originalWebapp: WebApp? = null
     private var modifiedWebapp: WebApp? = null
-    private var isEditingDefaults: Boolean = false
     private lateinit var iconEditor: IconEditorController
-    private var fetchDialog: AlertDialog? = null
-    private var fetchDialogText: TextView? = null
+    private val fetchDialog = LoadingDialogController(this)
     private var activeFetcher: HeadlessFetcher? = null
     private var fetchGeneration: Int = 0
     private lateinit var originalSettingsSnapshot: WebAppSettings
@@ -79,7 +75,6 @@ class WebAppSettingsActivity :
     private val btnClearSandbox get() = binding.root.findViewById<MaterialButton>(R.id.btnClearSandbox)
     private val btnAddOverride get() = binding.root.findViewById<MaterialButton>(R.id.btnAddOverride)
     private val linearLayoutOverrides get() = binding.root.findViewById<LinearLayout>(R.id.linearLayoutOverrides)
-    private val sectionOverrideHeader get() = binding.root.findViewById<View>(R.id.sectionOverrideHeader)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         iconEditor = IconEditorController(this, { imgWebAppIcon }) { modifiedWebapp }
@@ -88,12 +83,7 @@ class WebAppSettingsActivity :
         setToolbarTitle(getString(R.string.web_app_settings))
 
         webappUuid = intent.getStringExtra(Const.INTENT_WEBAPP_UUID)
-        isEditingDefaults = webappUuid == DataManager.instance.defaultSettings.uuid
-
-        if (isEditingDefaults) {
-            originalWebapp = DataManager.instance.defaultSettings
-            prepareGlobalWebAppScreen()
-        } else originalWebapp = webappUuid?.let { DataManager.instance.getWebApp(it) }
+        originalWebapp = webappUuid?.let { DataManager.instance.getWebApp(it) }
 
         if (originalWebapp == null) {
             showToast(this, getString(R.string.webapp_not_found), Toast.LENGTH_SHORT)
@@ -103,7 +93,7 @@ class WebAppSettingsActivity :
         val baseWebapp = originalWebapp ?: return
         modifiedWebapp = WebApp(baseWebapp)
         originalSettingsSnapshot =
-            baseWebapp.settings.deepCopy().apply { sanitize(asOverride = !isEditingDefaults) }
+            baseWebapp.settings.deepCopy().apply { sanitize(asOverride = true) }
         val editableWebapp =
             modifiedWebapp
                 ?: run {
@@ -120,10 +110,8 @@ class WebAppSettingsActivity :
         titleUrlBlock.setOnClickListener { showEditDialog(editableWebapp) }
         setupFetchButton(editableWebapp)
         setupOverridePicker(editableWebapp)
-        if (!isEditingDefaults) {
-            setupSandboxSwitch(editableWebapp)
-            setupGroupPicker(editableWebapp)
-        }
+        setupSandboxSwitch(editableWebapp)
+        setupGroupPicker(editableWebapp)
         SettingsSurface.apply(binding.root.findViewById(R.id.identityBlock), GroupPosition.ONLY)
         SettingsSurface.bindGroup(binding.settingsRowsGroup)
 
@@ -141,15 +129,11 @@ class WebAppSettingsActivity :
     override fun onPause() {
         super.onPause()
         modifiedWebapp?.let { webapp ->
-            webapp.settings.sanitize(asOverride = !isEditingDefaults)
+            webapp.settings.sanitize(asOverride = true)
             lifecycleScope.launch {
                 withContext(NonCancellable) {
-                    if (isEditingDefaults) {
-                        DataManager.instance.setDefaultSettings(webapp)
-                    } else {
-                        DataManager.instance.replaceWebApp(webapp)
-                        ShortcutHelper.updatePinnedShortcut(webapp, this@WebAppSettingsActivity)
-                    }
+                    DataManager.instance.replaceWebApp(webapp)
+                    ShortcutHelper.updatePinnedShortcut(webapp, this@WebAppSettingsActivity)
                 }
             }
         }
@@ -157,20 +141,12 @@ class WebAppSettingsActivity :
 
     override fun onDestroy() {
         cancelActiveFetch()
-        dismissFetchProgress()
+        fetchDialog.dismiss()
         super.onDestroy()
     }
 
     override fun inflateBinding(layoutInflater: LayoutInflater): WebappSettingsBinding {
         return WebappSettingsBinding.inflate(layoutInflater)
-    }
-
-    private fun prepareGlobalWebAppScreen() {
-        binding.sectionMainSettings.visibility = View.GONE
-        binding.groupRow.visibility = View.GONE
-        sectionOverrideHeader.visibility = View.GONE
-        linearLayoutOverrides.visibility = View.GONE
-        setToolbarTitle(getString(R.string.global_web_app_settings))
     }
 
     private fun showEditDialog(webapp: WebApp) {
@@ -255,62 +231,14 @@ class WebAppSettingsActivity :
 
     private fun setupFetchButton(modifiedWebapp: WebApp) {
         btnFetch.setOnClickListener {
-            if (fetchDialog == null) fetchIconAndName(modifiedWebapp)
+            if (!fetchDialog.isShowing) fetchIconAndName(modifiedWebapp)
         }
-    }
-
-    private fun showFetchProgress() {
-        val dp = resources.displayMetrics.density
-        val text =
-            TextView(this).apply {
-                setText(R.string.fetch_step_loading)
-                setTextAppearance(
-                    com.google.android.material.R.style.TextAppearance_Material3_BodyMedium
-                )
-            }
-        val layout =
-            LinearLayout(this).apply {
-                orientation = LinearLayout.HORIZONTAL
-                gravity = Gravity.CENTER_VERTICAL
-                setPadding(
-                    (dp * 24).toInt(), (dp * 24).toInt(), (dp * 24).toInt(), (dp * 16).toInt()
-                )
-                addView(
-                    CircularProgressIndicator(context).apply {
-                        isIndeterminate = true
-                        indicatorSize = (dp * 40).toInt()
-                    })
-                addView(
-                    text,
-                    LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.WRAP_CONTENT,
-                        LinearLayout.LayoutParams.WRAP_CONTENT,
-                    )
-                        .apply { marginStart = (dp * 16).toInt() },
-                )
-            }
-        fetchDialogText = text
-        fetchDialog =
-            MaterialAlertDialogBuilder(this)
-                .setView(layout)
-                .setCancelable(true)
-                .setOnCancelListener {
-                    cancelActiveFetch()
-                    dismissFetchProgress()
-                }
-                .show()
     }
 
     private fun cancelActiveFetch() {
         fetchGeneration += 1
         activeFetcher?.cancel()
         activeFetcher = null
-    }
-
-    private fun dismissFetchProgress() {
-        fetchDialog?.dismiss()
-        fetchDialog = null
-        fetchDialogText = null
     }
 
     private fun fetchIconAndName(webapp: WebApp) {
@@ -320,7 +248,7 @@ class WebAppSettingsActivity :
             return
         }
 
-        showFetchProgress()
+        fetchDialog.show(R.string.fetch_step_loading, onCancel = ::cancelActiveFetch)
         fetchGeneration += 1
         val generation = fetchGeneration
 
@@ -335,7 +263,7 @@ class WebAppSettingsActivity :
             usePrivateMode = usePrivateMode,
             onProgress = { text ->
                 runOnUiThread {
-                    if (generation == fetchGeneration) fetchDialogText?.text = text
+                    if (generation == fetchGeneration) fetchDialog.setMessage(text)
                 }
             },
             onResult = { result ->
@@ -362,7 +290,7 @@ class WebAppSettingsActivity :
         activeFetcher = null
         val candidates = result.candidates
         if (candidates.isEmpty()) {
-            dismissFetchProgress()
+            fetchDialog.dismiss()
             showToast(this, getString(R.string.fetch_failed), Toast.LENGTH_SHORT)
             return
         }
@@ -400,7 +328,7 @@ class WebAppSettingsActivity :
         urlSuggestion: Pair<String, Int>?,
         scopeDomains: List<String>,
     ) {
-        dismissFetchProgress()
+        fetchDialog.dismiss()
         val defaultIconSizePx = (resources.displayMetrics.density * 48).toInt()
         val colorSeed = webapp.letterIconSeed
 
@@ -445,7 +373,7 @@ class WebAppSettingsActivity :
         urlSuggestion: Pair<String, Int>?,
         scopeDomains: List<String>,
     ) {
-        dismissFetchProgress()
+        fetchDialog.dismiss()
         if (!candidate.title.isNullOrEmpty()) {
             txtWebAppName.text = candidate.title
             webapp.title = candidate.title
@@ -518,7 +446,7 @@ class WebAppSettingsActivity :
 
     override fun finish() {
         modifiedWebapp?.let {
-            it.settings.sanitize(asOverride = !isEditingDefaults)
+            it.settings.sanitize(asOverride = true)
             val changed = ApplyTimingRegistry.getChangedKeys(originalSettingsSnapshot, it.settings)
             val timing = ApplyTimingRegistry.getHighestTiming(changed)
             setResult(

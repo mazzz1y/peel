@@ -1,5 +1,6 @@
 package wtf.mazy.peel.model
 
+import androidx.annotation.LayoutRes
 import androidx.annotation.StringRes
 import wtf.mazy.peel.R
 import kotlin.reflect.KMutableProperty1
@@ -22,6 +23,9 @@ sealed class SettingDefinition(
     val key: String
         get() = primaryField.key
 
+    @get:LayoutRes
+    abstract val layoutRes: Int
+
     open val allFields: List<SettingField>
         get() = listOf(primaryField)
 
@@ -31,7 +35,9 @@ sealed class SettingDefinition(
         @StringRes descriptionResId: Int,
         category: SettingCategory,
         globalOnly: Boolean = false,
-    ) : SettingDefinition(toggle, displayNameResId, descriptionResId, category, globalOnly)
+    ) : SettingDefinition(toggle, displayNameResId, descriptionResId, category, globalOnly) {
+        override val layoutRes get() = R.layout.item_setting_boolean
+    }
 
     class ChoiceSetting(
         toggle: SettingField,
@@ -43,6 +49,8 @@ sealed class SettingDefinition(
         @param:StringRes val labels: IntArray,
         @param:StringRes val shortLabels: IntArray = labels,
     ) : SettingDefinition(toggle, displayNameResId, descriptionResId, category, globalOnly) {
+        override val layoutRes get() = R.layout.item_setting_dropdown
+
         init {
             require(values.size == labels.size) { "values and labels count must match" }
             require(shortLabels.size == labels.size) { "short labels count must match" }
@@ -80,6 +88,8 @@ sealed class SettingDefinition(
         val intField: SettingField,
         @param:StringRes val intLabelResId: Int,
     ) : SettingDefinition(toggle, displayNameResId, descriptionResId, category) {
+        override val layoutRes get() = R.layout.item_setting_boolean_int
+
         override val allFields
             get() = listOf(primaryField, intField)
     }
@@ -92,6 +102,8 @@ sealed class SettingDefinition(
         val usernameField: SettingField,
         val passwordField: SettingField,
     ) : SettingDefinition(toggle, displayNameResId, descriptionResId, category) {
+        override val layoutRes get() = R.layout.item_setting_boolean_value
+
         override val allFields
             get() = listOf(primaryField, usernameField, passwordField)
     }
@@ -105,6 +117,8 @@ sealed class SettingDefinition(
         @param:StringRes val hintResId: Int,
         globalOnly: Boolean = false,
     ) : SettingDefinition(toggle, displayNameResId, descriptionResId, category, globalOnly) {
+        override val layoutRes get() = R.layout.item_setting_boolean_value
+
         override val allFields
             get() = listOf(primaryField, stringField)
     }
@@ -117,7 +131,9 @@ sealed class SettingDefinition(
         @param:StringRes val keyHintResId: Int,
         @param:StringRes val valueHintResId: Int,
         globalOnly: Boolean = false,
-    ) : SettingDefinition(toggle, displayNameResId, descriptionResId, category, globalOnly)
+    ) : SettingDefinition(toggle, displayNameResId, descriptionResId, category, globalOnly) {
+        override val layoutRes get() = R.layout.item_setting_string_collection
+    }
 
     class StringListSetting(
         toggle: SettingField,
@@ -127,6 +143,7 @@ sealed class SettingDefinition(
         globalOnly: Boolean = false,
         val entryKind: EntryKind = EntryKind.DOMAIN,
     ) : SettingDefinition(toggle, displayNameResId, descriptionResId, category, globalOnly) {
+        override val layoutRes get() = R.layout.item_setting_string_collection
 
         enum class EntryKind { DOMAIN, CERTIFICATE }
     }
@@ -139,6 +156,8 @@ sealed class SettingDefinition(
         val mapField: SettingField,
         globalOnly: Boolean = false,
     ) : SettingDefinition(toggle, displayNameResId, descriptionResId, category, globalOnly) {
+        override val layoutRes get() = R.layout.item_setting_language_pair_map
+
         override val allFields
             get() = listOf(primaryField, mapField)
     }

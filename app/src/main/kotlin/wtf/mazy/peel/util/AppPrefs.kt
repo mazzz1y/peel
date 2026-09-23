@@ -7,7 +7,6 @@ object AppPrefs {
     private const val PREFS = "peel_prefs"
     private const val KEY_EXTENSION_AUTO_UPDATE = "extension_auto_update"
     private const val KEY_PUSH_ENABLED = "push_enabled"
-    private const val KEY_PUSH_PERMISSION_RESET_PENDING = "push_permission_reset_pending"
     private const val KEY_PENDING_SANDBOX_CLEARS = "pending_sandbox_clears"
     private const val KEY_SANDBOX_CLEAR_ALL_PENDING = "sandbox_clear_all_pending"
 
@@ -26,12 +25,6 @@ object AppPrefs {
 
     fun setPushEnabled(context: Context, enabled: Boolean) {
         prefs(context).edit { putBoolean(KEY_PUSH_ENABLED, enabled) }
-    }
-
-    fun dropPushPermissionResetPending(context: Context) {
-        val prefs = prefs(context)
-        if (!prefs.contains(KEY_PUSH_PERMISSION_RESET_PENDING)) return
-        prefs.edit { remove(KEY_PUSH_PERMISSION_RESET_PENDING) }
     }
 
     fun getPendingSandboxClears(context: Context): Set<String> =

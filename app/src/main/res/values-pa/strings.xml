@@ -78,7 +78,6 @@
     <string name="import_btn">ਆਯਾਤ</string>
     <string name="allow_location_access">ਟਿਕਾਣਾ</string>
     <string name="allow_drm_content">DRM ਸਮੱਗਰੀ</string>
-    <string name="file_download">ਫ਼ਾਈਲ ਡਾਊਨਲੋਡ ਹੋ ਰਹੀ ਹੈ…</string>
     <string name="download_in_progress">ਡਾਊਨਲੋਡ ਹੋ ਰਿਹਾ ਹੈ…</string>
     <string name="download_complete">ਡਾਊਨਲੋਡ ਪੂਰਾ — ਖੋਲ੍ਹਣ ਲਈ ਟੈਪ ਕਰੋ</string>
     <string name="download_channel_name">ਡਾਊਨਲੋਡ</string>
@@ -95,7 +94,6 @@
     <string name="color_scheme_dark">ਗੂੜ੍ਹਾ</string>
     <string name="setting_web_content_scale">ਸਕੇਲ</string>
     <string name="webapp_already_deleted">ਇਹ ਵੈੱਬ ਐਪ ਮਿਟਾ ਦਿੱਤੀ ਗਈ ਹੈ। ਤੁਸੀਂ ਇਹ ਸ਼ਾਰਟਕੱਟ ਮਿਟਾ ਸਕਦੇ ਹੋ।</string>
-    <string name="global_web_app_settings">ਗਲੋਬਲ ਵੈੱਬ ਐਪ ਸੈਟਿੰਗਾਂ</string>
     <string name="behavior">ਵਿਹਾਰ</string>
     <string name="navigation">ਨੈਵੀਗੇਸ਼ਨ</string>
     <string name="import_data">ਆਯਾਤ</string>
@@ -257,8 +255,6 @@
     <string name="recommended_extensions">ਸਿਫ਼ਾਰਸ਼ੀ ਐਕਸਟੈਂਸ਼ਨ</string>
     <string name="recommended_extensions_error">ਸਿਫ਼ਾਰਸ਼ੀ ਐਕਸਟੈਂਸ਼ਨ ਲੋਡ ਨਹੀਂ ਹੋ ਸਕੇ</string>
     <string name="browse_all_extensions">ਸਾਰੇ ਬ੍ਰਾਊਜ਼ ਕਰੋ</string>
-    <string name="install_extension_confirm">%1$s ਇੰਸਟਾਲ ਕਰੋ?</string>
-    <string name="extension_permissions">ਇਸ ਐਕਸਟੈਂਸ਼ਨ ਨੂੰ ਚਾਹੀਦਾ:</string>
     <string name="uninstall_extension">ਅਣਇੰਸਟਾਲ</string>
     <string name="uninstall_extension_confirm">%1$s ਅਣਇੰਸਟਾਲ ਕਰੋ?</string>
     <string name="extension_settings">ਸੈਟਿੰਗਜ਼</string>
@@ -310,7 +306,6 @@
     <string name="find_in_page_prev">ਪਿਛਲਾ ਮੇਲ</string>
     <string name="find_in_page_next">ਅਗਲਾ ਮੇਲ</string>
     <string name="find_in_page_close">ਬੰਦ ਕਰੋ</string>
-    <string name="edit">ਸੰਪਾਦਨ</string>
     <string name="cache_cleared">ਕੈਸ਼ ਸਾਫ਼ ਹੋ ਗਿਆ</string>
     <string name="proxy">ਪ੍ਰੌਕਸੀ</string>
     <string name="proxy_direct">ਕੋਈ ਪ੍ਰੌਕਸੀ ਨਹੀਂ</string>

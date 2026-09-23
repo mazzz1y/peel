@@ -11,5 +11,5 @@ data class BackupData(
     @Serializable(with = LegacyWebAppSettingsSerializer::class)
     val globalSettings: WebAppSettings? = null,
     val groups: List<WebAppGroupSurrogate> = emptyList(),
-    val proxies: List<ProxySurrogate> = emptyList(),
+    val proxies: List<Proxy> = emptyList(),
 )

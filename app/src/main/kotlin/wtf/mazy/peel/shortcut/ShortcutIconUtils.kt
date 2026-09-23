@@ -25,16 +25,4 @@ object ShortcutIconUtils {
             }
         }
     }
-
-    @JvmStatic
-    fun getWidthFromIcon(sizeString: String): Int {
-        var xIndex = sizeString.indexOf("x")
-        if (xIndex == -1) xIndex = sizeString.indexOf("×")
-        if (xIndex == -1) xIndex = sizeString.indexOf("*")
-
-        if (xIndex == -1) return 1
-        val width = sizeString.take(xIndex)
-
-        return width.toIntOrNull() ?: 1
-    }
 }

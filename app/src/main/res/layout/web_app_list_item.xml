@@ -12,7 +12,6 @@
     app:cardBackgroundColor="?attr/colorSurfaceContainerHigh">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/cardContent"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingHorizontal="16dp"

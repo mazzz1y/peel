@@ -72,12 +72,7 @@ class OverridePickerController(
     }
 
     private fun showPickerDialog() {
-        val dialog =
-            OverridePickerDialog.newInstance(
-                settings,
-                DataManager.instance.defaultSettings.settings,
-                this,
-            )
+        val dialog = OverridePickerDialog.newInstance(settings, this)
         dialog.show(activity.supportFragmentManager, "OverridePickerDialog")
     }
 }

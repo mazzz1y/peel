@@ -2,22 +2,13 @@
     <dimen name="fab_margin">16dp</dimen>
     <!-- fab_margin, a 56dp action button and a gap again, so it never rests on the last row. -->
     <dimen name="list_fab_clearance">88dp</dimen>
-    <dimen name="line_height">60dp</dimen>
-    <dimen name="margin_dialog">15dp</dimen>
     <dimen name="margin_activity">25dp</dimen>
-    <dimen name="settings_bottom">20dp</dimen>
-    <dimen name="settings_bottom_innersection">10dp</dimen>
-    <dimen name="remove_divider">-10dp</dimen>
-    <dimen name="margin_swipe_icon">20dp</dimen>
-    <dimen name="material_button_gap_space">10dp</dimen>
 
     <!-- Unified settings spacing -->
-    <dimen name="settings_item_padding_vertical">8dp</dimen>
     <dimen name="settings_item_gap">16dp</dimen>
     <dimen name="settings_label_control_gap">16dp</dimen>
     <dimen name="settings_section_gap">24dp</dimen>
     <dimen name="divider_height">1dp</dimen>
-    <dimen name="webapp_list_item_total_height">86dp</dimen>
     <dimen name="dialog_list_top_padding">16dp</dimen>
     <dimen name="dialog_content_horizontal_padding">24dp</dimen>
     <dimen name="dialog_content_top_padding">16dp</dimen>

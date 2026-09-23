@@ -73,14 +73,7 @@ class DataManager private constructor() {
 
         data class ImportData(
             override val done: CompletableDeferred<Unit>,
-            val importedWebApps: List<WebApp>,
-            val globalSettings: WebAppSettings,
-            val importedGroups: List<WebAppGroup>,
-            val importedProxies: List<Proxy>,
-        ) : Action
-
-        data class MergeData(
-            override val done: CompletableDeferred<Unit>,
+            val mode: ImportMode,
             val importedWebApps: List<WebApp>,
             val globalSettings: WebAppSettings,
             val importedGroups: List<WebAppGroup>,
@@ -233,6 +226,7 @@ class DataManager private constructor() {
     }
 
     suspend fun importData(
+        mode: ImportMode,
         importedWebApps: List<WebApp>,
         globalSettings: WebAppSettings,
         importedGroups: List<WebAppGroup> = emptyList(),
@@ -242,24 +236,7 @@ class DataManager private constructor() {
         enqueueAndAwait(
             Action.ImportData(
                 done = CompletableDeferred(),
-                importedWebApps = importedWebApps.map { WebApp(it) },
-                globalSettings = globalSettings.deepCopy(),
-                importedGroups = importedGroups.map { WebAppGroup(it) },
-                importedProxies = importedProxies.map { it.copy() },
-            )
-        )
-    }
-
-    suspend fun mergeData(
-        importedWebApps: List<WebApp>,
-        globalSettings: WebAppSettings,
-        importedGroups: List<WebAppGroup> = emptyList(),
-        importedProxies: List<Proxy> = emptyList(),
-    ) {
-        awaitReady()
-        enqueueAndAwait(
-            Action.MergeData(
-                done = CompletableDeferred(),
+                mode = mode,
                 importedWebApps = importedWebApps.map { WebApp(it) },
                 globalSettings = globalSettings.deepCopy(),
                 importedGroups = importedGroups.map { WebAppGroup(it) },
@@ -429,7 +406,6 @@ class DataManager private constructor() {
             }
 
             is Action.EnsureWebAppLoaded -> {
-                if (!repository.isInitialized) return
                 if (!action.forceReload && currentState.websites.any { it.uuid == action.uuid }) return
                 val loadedWebApp = repository.getWebApp(action.uuid) ?: return
                 val loadedGroup = loadedWebApp.groupUuid?.let(repository::getGroup)
@@ -454,7 +430,6 @@ class DataManager private constructor() {
                         groups = nextGroups,
                         defaultSettings = loadedDefault,
                         proxies = currentState.proxies,
-                        emit = true,
                     )
                 )
             }
@@ -462,18 +437,16 @@ class DataManager private constructor() {
             is Action.ReloadAll -> reloadAll()
 
             is Action.PersistDefaultSettings -> {
-                if (!repository.isInitialized) return
                 repository.persistGlobalSettings(currentState.defaultSettings)
             }
 
             is Action.SetDefaultSettings -> {
                 val nextDefault = WebApp(action.value)
-                if (repository.isInitialized) repository.persistGlobalSettings(nextDefault)
-                updateState(DataReducer.withDefaultSettings(nextDefault, emit = true))
+                repository.persistGlobalSettings(nextDefault)
+                updateState(DataReducer.withDefaultSettings(nextDefault))
             }
 
             is Action.AddWebsite -> {
-                if (!repository.isInitialized) return
                 val site = WebApp(action.site)
                 if (action.appendOrder) {
                     site.order = OrderAllocator(currentState).nextWebAppOrder(site.groupUuid)
@@ -481,39 +454,33 @@ class DataManager private constructor() {
                 repository.upsertWebApp(site)
                 updateState(
                     DataReducer.withWebsites(
-                        currentState.websites + WebApp(site),
-                        emit = true
+                        currentState.websites + WebApp(site)
                     )
                 )
             }
 
             is Action.RemoveWebsite -> {
-                if (!repository.isInitialized) return
                 if (currentState.websites.none { it.uuid == action.uuid }) return
                 repository.deleteWebApp(action.uuid)
                 updateState(
                     DataReducer.withWebsites(
-                        currentState.websites.filterNot { it.uuid == action.uuid },
-                        emit = true
+                        currentState.websites.filterNot { it.uuid == action.uuid }
                     )
                 )
             }
 
             is Action.ReplaceWebsite -> {
-                if (!repository.isInitialized) return
                 if (currentState.websites.none { it.uuid == action.site.uuid }) return
                 repository.upsertWebApp(action.site)
-                updateState(DataReducer.replacingWebsite(currentState, action.site, emit = true))
+                updateState(DataReducer.replacingWebsite(currentState, action.site))
             }
 
             is Action.MoveWebAppsToGroup -> {
-                if (!repository.isInitialized) return
                 val uuids = action.uuids.toSet()
                 val mutation = DataReducer.movingWebsitesToGroup(
                     currentState,
                     uuids,
-                    action.groupUuid,
-                    emit = true
+                    action.groupUuid
                 )
                 val nextWebsites = mutation.websites ?: return
                 repository.upsertWebApps(nextWebsites.filter { it.uuid in uuids })
@@ -521,97 +488,37 @@ class DataManager private constructor() {
             }
 
             is Action.ReorderWebApps -> {
-                if (!repository.isInitialized) return
                 val mutation =
-                    DataReducer.reorderingWebsites(currentState, action.orderedUuids, emit = true)
+                    DataReducer.reorderingWebsites(currentState, action.orderedUuids)
                 val nextWebsites = mutation.websites ?: return
                 repository.upsertWebApps(nextWebsites)
                 updateState(mutation)
             }
 
-            is Action.ImportData -> {
-                if (!repository.isInitialized) return
-                val oldGroups = currentState.groups
-                val oldWebsites = currentState.websites
-                val importedGroupUuids = action.importedGroups.mapTo(mutableSetOf()) { it.uuid }
-                oldGroups.filter { it.uuid !in importedGroupUuids }
-                    .forEach { SandboxManager.enqueueSandboxClear(App.appContext, it.uuid) }
-
-                val importedAppUuids = action.importedWebApps.mapTo(mutableSetOf()) { it.uuid }
-                val removedApps = oldWebsites.filter { it.uuid !in importedAppUuids }
-                removedApps.forEach {
-                    if (it.isUseContainer) {
-                        SandboxManager.enqueueSandboxClear(App.appContext, it.uuid)
-                    }
-                    it.deleteIcon()
-                    deleteAppPrefs(App.appContext, it.uuid)
-                }
-                if (removedApps.isNotEmpty()) {
-                    ShortcutIconUtils.deleteShortcuts(removedApps.map { it.uuid }, App.appContext)
-                }
-
-                val nextDefault = WebApp(currentState.defaultSettings).apply {
-                    settings = action.globalSettings.deepCopy()
-                }
-                val nextWebsites = action.importedWebApps.map { WebApp(it) }
-                val nextGroups = action.importedGroups.map { WebAppGroup(it) }
-
-                repository.replaceAllWebApps(nextWebsites)
-                repository.replaceAllGroups(nextGroups)
-                repository.replaceAllProxies(action.importedProxies)
-                repository.persistGlobalSettings(nextDefault)
-                reloadAll()
-            }
-
-            is Action.MergeData -> {
-                if (!repository.isInitialized) return
-                val nextDefault = WebApp(currentState.defaultSettings).apply {
-                    settings = action.globalSettings.deepCopy()
-                }
-                val localApps = currentState.websites.associateBy { it.uuid }
-                val localGroups = currentState.groups.associateBy { it.uuid }
-                val allocator = OrderAllocator(currentState)
-                val mergedWebApps = action.importedWebApps.map { site ->
-                    val localOrder = localApps[site.uuid]
-                        ?.takeIf { it.groupUuid == site.groupUuid }
-                        ?.order
-                    WebApp(site).apply {
-                        order = localOrder ?: allocator.nextWebAppOrder(site.groupUuid)
-                    }
-                }
-                val mergedGroups = action.importedGroups.map { group ->
-                    group.copy(order = localGroups[group.uuid]?.order ?: allocator.nextGroupOrder())
-                }
-                repository.persistGlobalSettings(nextDefault)
-                repository.upsertWebApps(mergedWebApps)
-                repository.upsertGroups(mergedGroups)
-                repository.upsertProxies(action.importedProxies)
-                reloadAll()
+            is Action.ImportData -> when (action.mode) {
+                ImportMode.REPLACE -> replaceAllData(action)
+                ImportMode.MERGE -> mergeData(action)
             }
 
             is Action.AddGroup -> {
-                if (!repository.isInitialized) return
                 val group = WebAppGroup(action.group)
                 if (action.appendOrder) group.order = OrderAllocator(currentState).nextGroupOrder()
                 repository.upsertGroup(group)
                 updateState(
                     DataReducer.withGroups(
-                        currentState.groups + WebAppGroup(group),
-                        emit = true
+                        currentState.groups + WebAppGroup(group)
                     )
                 )
             }
 
             is Action.ReplaceGroup -> {
-                if (!repository.isInitialized) return
                 if (currentState.groups.none { it.uuid == action.group.uuid }) return
                 repository.upsertGroup(action.group)
-                updateState(DataReducer.replacingGroup(currentState, action.group, emit = true))
+                updateState(DataReducer.replacingGroup(currentState, action.group))
                 ShortcutHelper.updatePinnedShortcut(action.group, App.appContext)
             }
 
             is Action.RemoveGroup -> {
-                if (!repository.isInitialized) return
                 val groupUuid = action.group.uuid
                 val appsInGroup = currentState.websites.filter { it.groupUuid == groupUuid }
                 val nextWebsites = if (action.ungroupApps) {
@@ -644,7 +551,6 @@ class DataManager private constructor() {
                         groups = nextGroups,
                         defaultSettings = currentState.defaultSettings,
                         proxies = currentState.proxies,
-                        emit = true,
                     )
                 )
                 val staleUuids = buildList {
@@ -655,37 +561,32 @@ class DataManager private constructor() {
             }
 
             is Action.ReorderGroups -> {
-                if (!repository.isInitialized) return
                 val mutation =
-                    DataReducer.reorderingGroups(currentState, action.orderedUuids, emit = true)
+                    DataReducer.reorderingGroups(currentState, action.orderedUuids)
                 val nextGroups = mutation.groups ?: return
                 repository.replaceAllGroups(nextGroups)
                 updateState(mutation)
             }
 
             is Action.AddProxy -> {
-                if (!repository.isInitialized) return
                 repository.upsertProxy(action.proxy)
                 updateState(
                     DataReducer.withProxies(
                         currentState.proxies + action.proxy.copy(),
-                        emit = true,
                     )
                 )
             }
 
             is Action.ReplaceProxy -> {
-                if (!repository.isInitialized) return
                 if (currentState.proxies.none { it.uuid == action.proxy.uuid }) return
                 repository.upsertProxy(action.proxy)
                 val nextProxies = currentState.proxies.map { current ->
                     if (current.uuid == action.proxy.uuid) action.proxy.copy() else current.copy()
                 }
-                updateState(DataReducer.withProxies(nextProxies, emit = true))
+                updateState(DataReducer.withProxies(nextProxies))
             }
 
             is Action.RemoveProxy -> {
-                if (!repository.isInitialized) return
                 if (currentState.proxies.none { it.uuid == action.uuid }) return
                 repository.deleteProxy(action.uuid)
 
@@ -716,27 +617,81 @@ class DataManager private constructor() {
                         groups = nextGroups,
                         defaultSettings = currentState.defaultSettings,
                         proxies = nextProxies,
-                        emit = true,
                     )
                 )
             }
 
             is Action.UpsertPushSubscription -> {
-                if (!repository.isInitialized) return
                 repository.upsertPushSubscription(action.entity)
                 _state.tryEmit(currentState)
             }
 
             is Action.RemovePushSubscription -> {
-                if (!repository.isInitialized) return
                 repository.deletePushSubscription(action.instance)
                 _state.tryEmit(currentState)
             }
         }
     }
 
+    private fun replaceAllData(action: Action.ImportData) {
+        val oldGroups = currentState.groups
+        val oldWebsites = currentState.websites
+        val importedGroupUuids = action.importedGroups.mapTo(mutableSetOf()) { it.uuid }
+        oldGroups.filter { it.uuid !in importedGroupUuids }
+            .forEach { SandboxManager.enqueueSandboxClear(App.appContext, it.uuid) }
+
+        val importedAppUuids = action.importedWebApps.mapTo(mutableSetOf()) { it.uuid }
+        val removedApps = oldWebsites.filter { it.uuid !in importedAppUuids }
+        removedApps.forEach {
+            if (it.isUseContainer) {
+                SandboxManager.enqueueSandboxClear(App.appContext, it.uuid)
+            }
+            it.deleteIcon()
+            deleteAppPrefs(App.appContext, it.uuid)
+        }
+        if (removedApps.isNotEmpty()) {
+            ShortcutIconUtils.deleteShortcuts(removedApps.map { it.uuid }, App.appContext)
+        }
+
+        val nextDefault = WebApp(currentState.defaultSettings).apply {
+            settings = action.globalSettings.deepCopy()
+        }
+        val nextWebsites = action.importedWebApps.map { WebApp(it) }
+        val nextGroups = action.importedGroups.map { WebAppGroup(it) }
+
+        repository.replaceAllWebApps(nextWebsites)
+        repository.replaceAllGroups(nextGroups)
+        repository.replaceAllProxies(action.importedProxies)
+        repository.persistGlobalSettings(nextDefault)
+        reloadAll()
+    }
+
+    private fun mergeData(action: Action.ImportData) {
+        val nextDefault = WebApp(currentState.defaultSettings).apply {
+            settings = action.globalSettings.deepCopy()
+        }
+        val localApps = currentState.websites.associateBy { it.uuid }
+        val localGroups = currentState.groups.associateBy { it.uuid }
+        val allocator = OrderAllocator(currentState)
+        val mergedWebApps = action.importedWebApps.map { site ->
+            val localOrder = localApps[site.uuid]
+                ?.takeIf { it.groupUuid == site.groupUuid }
+                ?.order
+            WebApp(site).apply {
+                order = localOrder ?: allocator.nextWebAppOrder(site.groupUuid)
+            }
+        }
+        val mergedGroups = action.importedGroups.map { group ->
+            group.copy(order = localGroups[group.uuid]?.order ?: allocator.nextGroupOrder())
+        }
+        repository.persistGlobalSettings(nextDefault)
+        repository.upsertWebApps(mergedWebApps)
+        repository.upsertGroups(mergedGroups)
+        repository.upsertProxies(action.importedProxies)
+        reloadAll()
+    }
+
     private fun reloadAll() {
-        if (!repository.isInitialized) return
         val oldWebsites = currentState.websites.map { WebApp(it) }
         val loadedWebsites = repository.getAllWebApps()
         removeStaleShortcuts(oldWebsites, loadedWebsites)
@@ -750,7 +705,6 @@ class DataManager private constructor() {
                 groups = loadedGroups,
                 defaultSettings = loadedDefault,
                 proxies = loadedProxies,
-                emit = true,
             )
         )
     }
@@ -758,7 +712,7 @@ class DataManager private constructor() {
     private fun updateState(mutation: DataReducer.StateMutation) {
         val next = DataReducer.apply(currentState, mutation)
         currentState = next
-        if (mutation.emit) _state.tryEmit(next)
+        _state.tryEmit(next)
     }
 
     private fun ensureDefaultSettingsConcrete(source: WebApp): WebApp {
@@ -766,7 +720,7 @@ class DataManager private constructor() {
         val hadNulls =
             WebAppSettings.DEFAULTS.keys.any { settingsOwner.settings.getValue(it) == null }
         settingsOwner.settings.ensureAllConcrete()
-        if (hadNulls && repository.isInitialized) {
+        if (hadNulls) {
             repository.persistGlobalSettings(settingsOwner)
         }
         return settingsOwner

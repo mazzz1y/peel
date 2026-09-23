@@ -122,7 +122,6 @@
     <string name="import_btn">Import</string>
     <string name="allow_location_access">Location</string>
     <string name="allow_drm_content">DRM content</string>
-    <string name="file_download">File is being downloaded…</string>
     <string name="download_in_progress">Downloading…</string>
     <string name="download_complete">Download complete — tap to open</string>
     <string name="download_channel_name">Downloads</string>
@@ -146,7 +145,6 @@
     <string name="web_content_scale_175" translatable="false">175%</string>
     <string name="web_content_scale_200" translatable="false">200%</string>
     <string name="webapp_already_deleted">This Web App is no longer available. You can delete this shortcut</string>
-    <string name="global_web_app_settings">Global Web App Settings</string>
     <string name="behavior">Behavior</string>
     <string name="navigation">Navigation</string>
     <string name="import_data">Import</string>
@@ -311,8 +309,6 @@
     <string name="recommended_extensions">Recommended extensions</string>
     <string name="recommended_extensions_error">Failed to load recommended extensions</string>
     <string name="browse_all_extensions">Browse all</string>
-    <string name="install_extension_confirm">Install %1$s?</string>
-    <string name="extension_permissions">This extension requires:</string>
     <string name="uninstall_extension">Uninstall</string>
     <string name="uninstall_extension_confirm">Uninstall %1$s?</string>
     <string name="extension_settings">Settings</string>
@@ -358,7 +354,6 @@
     <string name="find_in_page_next">Next match</string>
     <string name="find_in_page_close">Close</string>
 
-    <string name="edit">Edit</string>
     <string name="proxy">Proxy</string>
     <string name="proxy_direct">No proxy</string>
     <string name="proxy_add">Add new proxy</string>

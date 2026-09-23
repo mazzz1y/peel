@@ -78,7 +78,6 @@
     <string name="import_btn">Nhập</string>
     <string name="allow_location_access">Vị trí</string>
     <string name="allow_drm_content">Nội dung DRM</string>
-    <string name="file_download">Đang tải tệp…</string>
     <string name="download_in_progress">Đang tải…</string>
     <string name="download_complete">Tải xong — chạm để mở</string>
     <string name="download_channel_name">Tải xuống</string>
@@ -95,7 +94,6 @@
     <string name="color_scheme_dark">Tối</string>
     <string name="setting_web_content_scale">Tỷ lệ</string>
     <string name="webapp_already_deleted">Ứng dụng web này đã bị xóa. Bạn có thể xóa lối tắt này</string>
-    <string name="global_web_app_settings">Cài đặt toàn cục ứng dụng web</string>
     <string name="behavior">Hành vi</string>
     <string name="navigation">Điều hướng</string>
     <string name="import_data">Nhập</string>
@@ -257,8 +255,6 @@
     <string name="recommended_extensions">Tiện ích mở rộng được đề xuất</string>
     <string name="recommended_extensions_error">Không thể tải tiện ích mở rộng được đề xuất</string>
     <string name="browse_all_extensions">Xem tất cả</string>
-    <string name="install_extension_confirm">Cài đặt %1$s?</string>
-    <string name="extension_permissions">Tiện ích này yêu cầu:</string>
     <string name="uninstall_extension">Gỡ cài đặt</string>
     <string name="uninstall_extension_confirm">Gỡ cài đặt %1$s?</string>
     <string name="extension_settings">Cài đặt</string>
@@ -308,7 +304,6 @@
     <string name="find_in_page_prev">Kết quả trước</string>
     <string name="find_in_page_next">Kết quả tiếp theo</string>
     <string name="find_in_page_close">Đóng</string>
-    <string name="edit">Chỉnh sửa</string>
     <string name="cache_cleared">Đã xoá bộ nhớ đệm</string>
     <string name="proxy">Proxy</string>
     <string name="proxy_direct">Không proxy</string>

@@ -65,114 +65,6 @@ abstract class AppDatabase : RoomDatabase() {
         @Volatile
         private var instance: AppDatabase? = null
 
-        val MIGRATION_1_2 =
-            object : Migration(1, 2) {
-                override fun migrate(db: SupportSQLiteDatabase) {
-                    db.execSQL("ALTER TABLE webapps ADD COLUMN groupUuid TEXT DEFAULT NULL")
-
-                    db.execSQL(
-                        """CREATE TABLE IF NOT EXISTS webapp_groups (
-                        uuid TEXT NOT NULL PRIMARY KEY,
-                        title TEXT NOT NULL,
-                        `order` INTEGER NOT NULL DEFAULT 0,
-                        isUseContainer INTEGER NOT NULL DEFAULT 0,
-                        isEphemeralSandbox INTEGER NOT NULL DEFAULT 0,
-                        isOpenUrlExternal INTEGER DEFAULT NULL,
-                        isAllowCookies INTEGER DEFAULT NULL,
-                        isAllowThirdPartyCookies INTEGER DEFAULT NULL,
-                        isAllowJs INTEGER DEFAULT NULL,
-                        isRequestDesktop INTEGER DEFAULT NULL,
-                        isClearCache INTEGER DEFAULT NULL,
-                        isBlockImages INTEGER DEFAULT NULL,
-                        isAlwaysHttps INTEGER DEFAULT NULL,
-                        isAllowLocationAccess INTEGER DEFAULT NULL,
-                        customHeaders TEXT DEFAULT NULL,
-                        isAutoReload INTEGER DEFAULT NULL,
-                        timeAutoReload INTEGER DEFAULT NULL,
-                        isForceDarkMode INTEGER DEFAULT NULL,
-                        isUseTimespanDarkMode INTEGER DEFAULT NULL,
-                        timespanDarkModeBegin TEXT DEFAULT NULL,
-                        timespanDarkModeEnd TEXT DEFAULT NULL,
-                        isIgnoreSslErrors INTEGER DEFAULT NULL,
-                        isBlockThirdPartyRequests INTEGER DEFAULT NULL,
-                        isDrmAllowed INTEGER DEFAULT NULL,
-                        isShowFullscreen INTEGER DEFAULT NULL,
-                        isKeepAwake INTEGER DEFAULT NULL,
-                        isCameraPermission INTEGER DEFAULT NULL,
-                        isMicrophonePermission INTEGER DEFAULT NULL,
-                        isEnableZooming INTEGER DEFAULT NULL,
-                        isBiometricProtection INTEGER DEFAULT NULL,
-                        isAllowMediaPlaybackInBackground INTEGER DEFAULT NULL,
-                        isLongClickShare INTEGER DEFAULT NULL,
-                        isShowProgressbar INTEGER DEFAULT NULL,
-                        isDisableScreenshots INTEGER DEFAULT NULL,
-                        isPullToRefresh INTEGER DEFAULT NULL,
-                        isSafeBrowsing INTEGER DEFAULT NULL
-                    )"""
-                    )
-                }
-            }
-
-        val MIGRATION_2_3 =
-            object : Migration(2, 3) {
-                override fun migrate(db: SupportSQLiteDatabase) {
-                    db.execSQL(
-                        "ALTER TABLE webapps ADD COLUMN isDynamicStatusBar INTEGER DEFAULT NULL"
-                    )
-                    db.execSQL(
-                        "ALTER TABLE webapp_groups ADD COLUMN isDynamicStatusBar INTEGER DEFAULT NULL"
-                    )
-                }
-            }
-
-        val MIGRATION_3_4 =
-            object : Migration(3, 4) {
-                override fun migrate(db: SupportSQLiteDatabase) {
-                    val tables = listOf("webapps", "webapp_groups")
-                    val columns =
-                        listOf(
-                            "isAllowLocationAccess", "isCameraPermission", "isMicrophonePermission"
-                        )
-                    for (table in tables) {
-                        for (col in columns) {
-                            db.execSQL("UPDATE $table SET $col = 2 WHERE $col = 1")
-                        }
-                    }
-                }
-            }
-
-        val MIGRATION_4_5 =
-            object : Migration(4, 5) {
-                override fun migrate(db: SupportSQLiteDatabase) {
-                    db.execSQL(
-                        "ALTER TABLE webapps ADD COLUMN isShowNotification INTEGER DEFAULT NULL"
-                    )
-                    db.execSQL(
-                        "ALTER TABLE webapp_groups ADD COLUMN isShowNotification INTEGER DEFAULT NULL"
-                    )
-                }
-            }
-
-        val MIGRATION_5_6 =
-            object : Migration(5, 6) {
-                override fun migrate(db: SupportSQLiteDatabase) {
-                    for (table in listOf("webapps", "webapp_groups")) {
-                        db.execSQL("ALTER TABLE $table ADD COLUMN isUseBasicAuth INTEGER DEFAULT NULL")
-                        db.execSQL("ALTER TABLE $table ADD COLUMN basicAuthUsername TEXT DEFAULT NULL")
-                        db.execSQL("ALTER TABLE $table ADD COLUMN basicAuthPassword TEXT DEFAULT NULL")
-                    }
-                }
-            }
-
-        val MIGRATION_6_7 =
-            object : Migration(6, 7) {
-                override fun migrate(db: SupportSQLiteDatabase) {
-                    for (table in listOf("webapps", "webapp_groups")) {
-                        db.execSQL("ALTER TABLE $table ADD COLUMN isAppLinksPermission INTEGER DEFAULT NULL")
-                    }
-                }
-            }
-
         private val SETTINGS_COLUMNS = listOf(
             "isOpenUrlExternal" to "INTEGER",
             "isAllowJs" to "INTEGER",
@@ -223,12 +115,6 @@ abstract class AppDatabase : RoomDatabase() {
             "trustedCertificates" to "TEXT",
         )
 
-        private val SETTINGS_COLS =
-            SETTINGS_COLUMNS.joinToString(",\n") { "${it.first} ${it.second}" }
-
-        private val SETTINGS_COL_NAMES =
-            SETTINGS_COLUMNS.joinToString(", ") { it.first }
-
         private fun tableColumns(db: SupportSQLiteDatabase, table: String): Set<String> {
             val cursor = db.query("PRAGMA table_info($table)")
             val existing = mutableSetOf<String>()
@@ -248,330 +134,6 @@ abstract class AppDatabase : RoomDatabase() {
                 }
             }
         }
-
-        private fun recreateTablesV9(db: SupportSQLiteDatabase) {
-            ensureSettingsColumns(db)
-            db.execSQL(
-                """
-                CREATE TABLE IF NOT EXISTS webapps_new (
-                    uuid TEXT NOT NULL PRIMARY KEY,
-                    baseUrl TEXT NOT NULL,
-                    title TEXT NOT NULL,
-                    isActiveEntry INTEGER NOT NULL,
-                    isUseContainer INTEGER NOT NULL,
-                    isEphemeralSandbox INTEGER NOT NULL,
-                    `order` INTEGER NOT NULL,
-                    groupUuid TEXT,
-                    $SETTINGS_COLS
-                )
-                """
-            )
-            db.execSQL(
-                """
-                INSERT INTO webapps_new (
-                    uuid, baseUrl, title, isActiveEntry, isUseContainer,
-                    isEphemeralSandbox, `order`, groupUuid, $SETTINGS_COL_NAMES
-                )
-                SELECT uuid, baseUrl, title, isActiveEntry, isUseContainer,
-                    isEphemeralSandbox, `order`, groupUuid, $SETTINGS_COL_NAMES
-                FROM webapps
-                """
-            )
-            db.execSQL("DROP TABLE webapps")
-            db.execSQL("ALTER TABLE webapps_new RENAME TO webapps")
-
-            db.execSQL(
-                """
-                CREATE TABLE IF NOT EXISTS webapp_groups_new (
-                    uuid TEXT NOT NULL PRIMARY KEY,
-                    title TEXT NOT NULL,
-                    `order` INTEGER NOT NULL,
-                    isUseContainer INTEGER NOT NULL,
-                    isEphemeralSandbox INTEGER NOT NULL,
-                    $SETTINGS_COLS
-                )
-                """
-            )
-            db.execSQL(
-                """
-                INSERT INTO webapp_groups_new (
-                    uuid, title, `order`, isUseContainer, isEphemeralSandbox,
-                    $SETTINGS_COL_NAMES
-                )
-                SELECT uuid, title, `order`, isUseContainer, isEphemeralSandbox,
-                    $SETTINGS_COL_NAMES
-                FROM webapp_groups
-                """
-            )
-            db.execSQL("DROP TABLE webapp_groups")
-            db.execSQL("ALTER TABLE webapp_groups_new RENAME TO webapp_groups")
-        }
-
-        val MIGRATION_7_9 =
-            object : Migration(7, 9) {
-                override fun migrate(db: SupportSQLiteDatabase) {
-                    for (table in listOf("webapps", "webapp_groups")) {
-                        db.execSQL("ALTER TABLE $table ADD COLUMN colorScheme INTEGER DEFAULT NULL")
-                        db.execSQL("ALTER TABLE $table ADD COLUMN isAlgorithmicDarkening INTEGER DEFAULT NULL")
-                        db.execSQL("UPDATE $table SET colorScheme = 2, isAlgorithmicDarkening = 1 WHERE isForceDarkMode = 1")
-                    }
-                    recreateTablesV9(db)
-                }
-            }
-
-        val MIGRATION_8_9 =
-            object : Migration(8, 9) {
-                override fun migrate(db: SupportSQLiteDatabase) {
-                    recreateTablesV9(db)
-                }
-            }
-
-        private fun recreateTablesCanonical(db: SupportSQLiteDatabase) {
-            db.execSQL("DROP TABLE IF EXISTS sandbox_slots")
-            ensureSettingsColumns(db)
-
-            db.execSQL(
-                """
-                CREATE TABLE IF NOT EXISTS webapps_new (
-                    uuid TEXT NOT NULL PRIMARY KEY,
-                    baseUrl TEXT NOT NULL,
-                    title TEXT NOT NULL,
-                    isUseContainer INTEGER NOT NULL,
-                    isEphemeralSandbox INTEGER NOT NULL,
-                    `order` INTEGER NOT NULL,
-                    groupUuid TEXT,
-                    $SETTINGS_COLS
-                )
-                """
-            )
-            db.execSQL(
-                """
-                INSERT INTO webapps_new (
-                    uuid, baseUrl, title, isUseContainer,
-                    isEphemeralSandbox, `order`, groupUuid, $SETTINGS_COL_NAMES
-                )
-                SELECT uuid, baseUrl, title, isUseContainer,
-                    isEphemeralSandbox, `order`, groupUuid, $SETTINGS_COL_NAMES
-                FROM webapps
-                """
-            )
-            db.execSQL("DROP TABLE webapps")
-            db.execSQL("ALTER TABLE webapps_new RENAME TO webapps")
-
-            db.execSQL(
-                """
-                CREATE TABLE IF NOT EXISTS webapp_groups_new (
-                    uuid TEXT NOT NULL PRIMARY KEY,
-                    title TEXT NOT NULL,
-                    `order` INTEGER NOT NULL,
-                    isUseContainer INTEGER NOT NULL,
-                    isEphemeralSandbox INTEGER NOT NULL,
-                    $SETTINGS_COLS
-                )
-                """
-            )
-            db.execSQL(
-                """
-                INSERT INTO webapp_groups_new (
-                    uuid, title, `order`, isUseContainer, isEphemeralSandbox,
-                    $SETTINGS_COL_NAMES
-                )
-                SELECT uuid, title, `order`, isUseContainer, isEphemeralSandbox,
-                    $SETTINGS_COL_NAMES
-                FROM webapp_groups
-                """
-            )
-            db.execSQL("DROP TABLE webapp_groups")
-            db.execSQL("ALTER TABLE webapp_groups_new RENAME TO webapp_groups")
-        }
-
-        val MIGRATION_9_10 =
-            object : Migration(9, 10) {
-                override fun migrate(db: SupportSQLiteDatabase) {
-                    recreateTablesCanonical(db)
-                }
-            }
-
-        val MIGRATION_10_11 =
-            object : Migration(10, 11) {
-                override fun migrate(db: SupportSQLiteDatabase) {
-                    recreateTablesCanonical(db)
-                }
-            }
-
-        val MIGRATION_11_12 =
-            object : Migration(11, 12) {
-                override fun migrate(db: SupportSQLiteDatabase) {
-                    recreateTablesCanonical(db)
-                }
-            }
-
-        val MIGRATION_12_13 =
-            object : Migration(12, 13) {
-                override fun migrate(db: SupportSQLiteDatabase) {
-                    ensureSettingsColumns(db)
-                }
-            }
-
-        val MIGRATION_13_14 =
-            object : Migration(13, 14) {
-                override fun migrate(db: SupportSQLiteDatabase) {
-                    ensureSettingsColumns(db)
-                }
-            }
-
-        val MIGRATION_14_15 =
-            object : Migration(14, 15) {
-                override fun migrate(db: SupportSQLiteDatabase) {
-                    ensureSettingsColumns(db)
-                }
-            }
-
-        val MIGRATION_15_16 =
-            object : Migration(15, 16) {
-                override fun migrate(db: SupportSQLiteDatabase) {
-                    ensureSettingsColumns(db)
-                }
-            }
-
-        val MIGRATION_17_18 =
-            object : Migration(17, 18) {
-                override fun migrate(db: SupportSQLiteDatabase) {
-                    ensureSettingsColumns(db)
-                }
-            }
-
-        val MIGRATION_18_19 =
-            object : Migration(18, 19) {
-                override fun migrate(db: SupportSQLiteDatabase) {
-                    ensureSettingsColumns(db)
-                }
-            }
-
-        val MIGRATION_19_20 =
-            object : Migration(19, 20) {
-                override fun migrate(db: SupportSQLiteDatabase) {
-                    ensureSettingsColumns(db)
-                }
-            }
-
-        val MIGRATION_20_21 =
-            object : Migration(20, 21) {
-                override fun migrate(db: SupportSQLiteDatabase) {
-                    ensureSettingsColumns(db)
-                    db.execSQL(
-                        """
-                        CREATE TABLE IF NOT EXISTS push_subscriptions (
-                            instance TEXT NOT NULL PRIMARY KEY,
-                            contextId TEXT,
-                            scope TEXT NOT NULL,
-                            endpoint TEXT NOT NULL,
-                            appServerKey TEXT
-                        )
-                        """
-                    )
-                }
-            }
-
-        val MIGRATION_21_22 =
-            object : Migration(21, 22) {
-                override fun migrate(db: SupportSQLiteDatabase) {
-                    ensureSettingsColumns(db)
-                }
-            }
-
-        private fun recreateTablesWithProxy(db: SupportSQLiteDatabase) {
-            db.execSQL(
-                """
-                CREATE TABLE IF NOT EXISTS webapps_new (
-                    uuid TEXT NOT NULL PRIMARY KEY,
-                    baseUrl TEXT NOT NULL,
-                    title TEXT NOT NULL,
-                    isUseContainer INTEGER NOT NULL,
-                    isEphemeralSandbox INTEGER NOT NULL,
-                    `order` INTEGER NOT NULL,
-                    groupUuid TEXT,
-                    proxyUuid TEXT,
-                    $SETTINGS_COLS
-                )
-                """
-            )
-            db.execSQL(
-                """
-                INSERT INTO webapps_new (
-                    uuid, baseUrl, title, isUseContainer, isEphemeralSandbox,
-                    `order`, groupUuid, proxyUuid, $SETTINGS_COL_NAMES
-                )
-                SELECT uuid, baseUrl, title, isUseContainer, isEphemeralSandbox,
-                    `order`, groupUuid, proxyUuid, $SETTINGS_COL_NAMES
-                FROM webapps
-                """
-            )
-            db.execSQL("DROP TABLE webapps")
-            db.execSQL("ALTER TABLE webapps_new RENAME TO webapps")
-
-            db.execSQL(
-                """
-                CREATE TABLE IF NOT EXISTS webapp_groups_new (
-                    uuid TEXT NOT NULL PRIMARY KEY,
-                    title TEXT NOT NULL,
-                    `order` INTEGER NOT NULL,
-                    isUseContainer INTEGER NOT NULL,
-                    isEphemeralSandbox INTEGER NOT NULL,
-                    proxyUuid TEXT,
-                    $SETTINGS_COLS
-                )
-                """
-            )
-            db.execSQL(
-                """
-                INSERT INTO webapp_groups_new (
-                    uuid, title, `order`, isUseContainer, isEphemeralSandbox,
-                    proxyUuid, $SETTINGS_COL_NAMES
-                )
-                SELECT uuid, title, `order`, isUseContainer, isEphemeralSandbox,
-                    proxyUuid, $SETTINGS_COL_NAMES
-                FROM webapp_groups
-                """
-            )
-            db.execSQL("DROP TABLE webapp_groups")
-            db.execSQL("ALTER TABLE webapp_groups_new RENAME TO webapp_groups")
-        }
-
-        val MIGRATION_22_23 =
-            object : Migration(22, 23) {
-                override fun migrate(db: SupportSQLiteDatabase) {
-                    ensureSettingsColumns(db)
-                    for (table in listOf("webapps", "webapp_groups")) {
-                        if ("isShowNotification" !in tableColumns(db, table)) continue
-                        db.execSQL(
-                            """
-                            UPDATE $table SET browserControlsMode =
-                                CASE isShowNotification
-                                    WHEN 1 THEN ${WebAppSettings.BROWSER_CONTROLS_BUTTON}
-                                    WHEN 0 THEN ${WebAppSettings.BROWSER_CONTROLS_OFF}
-                                END
-                            WHERE isShowNotification IS NOT NULL
-                            """
-                        )
-                    }
-                    recreateTablesWithProxy(db)
-                }
-            }
-
-        val MIGRATION_23_24 =
-            object : Migration(23, 24) {
-                override fun migrate(db: SupportSQLiteDatabase) {
-                    ensureSettingsColumns(db)
-                }
-            }
-
-        val MIGRATION_24_25 =
-            object : Migration(24, 25) {
-                override fun migrate(db: SupportSQLiteDatabase) {
-                    ensureSettingsColumns(db)
-                }
-            }
 
         // Pre-26 clients could end up with duplicate `order` values within the same group:
         // drag-reorder wrote a dense 0..n-1 range per group, and moving an app between groups
@@ -611,64 +173,246 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
-        val MIGRATION_25_26 =
-            object : Migration(25, 26) {
-                override fun migrate(db: SupportSQLiteDatabase) {
-                    renumberOrderColumn(
-                        db,
-                        table = "webapps",
-                        excludeUuid = Const.GLOBAL_WEBAPP_UUID,
-                        scopeColumn = "groupUuid",
+        private val WEBAPP_BASE_COLUMNS = listOf(
+            "uuid" to "TEXT NOT NULL PRIMARY KEY",
+            "baseUrl" to "TEXT NOT NULL",
+            "title" to "TEXT NOT NULL",
+            "isUseContainer" to "INTEGER NOT NULL",
+            "isEphemeralSandbox" to "INTEGER NOT NULL",
+            "`order`" to "INTEGER NOT NULL",
+            "groupUuid" to "TEXT",
+        )
+
+        private val GROUP_BASE_COLUMNS = listOf(
+            "uuid" to "TEXT NOT NULL PRIMARY KEY",
+            "title" to "TEXT NOT NULL",
+            "`order`" to "INTEGER NOT NULL",
+            "isUseContainer" to "INTEGER NOT NULL",
+            "isEphemeralSandbox" to "INTEGER NOT NULL",
+        )
+
+        private val PROXY_COLUMN = "proxyUuid" to "TEXT"
+
+        private fun recreateTables(
+            db: SupportSQLiteDatabase,
+            webappColumns: List<Pair<String, String>>,
+            groupColumns: List<Pair<String, String>>,
+        ) {
+            recreateTable(db, "webapps", webappColumns + SETTINGS_COLUMNS)
+            recreateTable(db, "webapp_groups", groupColumns + SETTINGS_COLUMNS)
+        }
+
+        private fun recreateTable(
+            db: SupportSQLiteDatabase,
+            table: String,
+            columns: List<Pair<String, String>>,
+        ) {
+            val definitions = columns.joinToString(",\n") { "${it.first} ${it.second}" }
+            val names = columns.joinToString(", ") { it.first }
+            db.execSQL("CREATE TABLE IF NOT EXISTS ${table}_new (\n$definitions\n)")
+            db.execSQL("INSERT INTO ${table}_new ($names) SELECT $names FROM $table")
+            db.execSQL("DROP TABLE $table")
+            db.execSQL("ALTER TABLE ${table}_new RENAME TO $table")
+        }
+
+        private fun recreateTablesV9(db: SupportSQLiteDatabase) {
+            ensureSettingsColumns(db)
+            val webappColumns = WEBAPP_BASE_COLUMNS.toMutableList()
+                .apply { add(3, "isActiveEntry" to "INTEGER NOT NULL") }
+            recreateTables(db, webappColumns, GROUP_BASE_COLUMNS)
+        }
+
+        private fun recreateTablesCanonical(db: SupportSQLiteDatabase) {
+            db.execSQL("DROP TABLE IF EXISTS sandbox_slots")
+            ensureSettingsColumns(db)
+            recreateTables(db, WEBAPP_BASE_COLUMNS, GROUP_BASE_COLUMNS)
+        }
+
+        private fun recreateTablesWithProxy(db: SupportSQLiteDatabase) {
+            recreateTables(db, WEBAPP_BASE_COLUMNS + PROXY_COLUMN, GROUP_BASE_COLUMNS + PROXY_COLUMN)
+        }
+
+        private fun migration(from: Int, to: Int, body: (SupportSQLiteDatabase) -> Unit): Migration =
+            object : Migration(from, to) {
+                override fun migrate(db: SupportSQLiteDatabase) = body(db)
+            }
+
+        private fun settingsColumnsMigration(from: Int, to: Int): Migration =
+            migration(from, to, ::ensureSettingsColumns)
+
+        private val MIGRATIONS = arrayOf(
+            migration(1, 2) { db ->
+                db.execSQL("ALTER TABLE webapps ADD COLUMN groupUuid TEXT DEFAULT NULL")
+
+                db.execSQL(
+                    """CREATE TABLE IF NOT EXISTS webapp_groups (
+                    uuid TEXT NOT NULL PRIMARY KEY,
+                    title TEXT NOT NULL,
+                    `order` INTEGER NOT NULL DEFAULT 0,
+                    isUseContainer INTEGER NOT NULL DEFAULT 0,
+                    isEphemeralSandbox INTEGER NOT NULL DEFAULT 0,
+                    isOpenUrlExternal INTEGER DEFAULT NULL,
+                    isAllowCookies INTEGER DEFAULT NULL,
+                    isAllowThirdPartyCookies INTEGER DEFAULT NULL,
+                    isAllowJs INTEGER DEFAULT NULL,
+                    isRequestDesktop INTEGER DEFAULT NULL,
+                    isClearCache INTEGER DEFAULT NULL,
+                    isBlockImages INTEGER DEFAULT NULL,
+                    isAlwaysHttps INTEGER DEFAULT NULL,
+                    isAllowLocationAccess INTEGER DEFAULT NULL,
+                    customHeaders TEXT DEFAULT NULL,
+                    isAutoReload INTEGER DEFAULT NULL,
+                    timeAutoReload INTEGER DEFAULT NULL,
+                    isForceDarkMode INTEGER DEFAULT NULL,
+                    isUseTimespanDarkMode INTEGER DEFAULT NULL,
+                    timespanDarkModeBegin TEXT DEFAULT NULL,
+                    timespanDarkModeEnd TEXT DEFAULT NULL,
+                    isIgnoreSslErrors INTEGER DEFAULT NULL,
+                    isBlockThirdPartyRequests INTEGER DEFAULT NULL,
+                    isDrmAllowed INTEGER DEFAULT NULL,
+                    isShowFullscreen INTEGER DEFAULT NULL,
+                    isKeepAwake INTEGER DEFAULT NULL,
+                    isCameraPermission INTEGER DEFAULT NULL,
+                    isMicrophonePermission INTEGER DEFAULT NULL,
+                    isEnableZooming INTEGER DEFAULT NULL,
+                    isBiometricProtection INTEGER DEFAULT NULL,
+                    isAllowMediaPlaybackInBackground INTEGER DEFAULT NULL,
+                    isLongClickShare INTEGER DEFAULT NULL,
+                    isShowProgressbar INTEGER DEFAULT NULL,
+                    isDisableScreenshots INTEGER DEFAULT NULL,
+                    isPullToRefresh INTEGER DEFAULT NULL,
+                    isSafeBrowsing INTEGER DEFAULT NULL
+                )"""
+                )
+            },
+            migration(2, 3) { db ->
+                db.execSQL(
+                    "ALTER TABLE webapps ADD COLUMN isDynamicStatusBar INTEGER DEFAULT NULL"
+                )
+                db.execSQL(
+                    "ALTER TABLE webapp_groups ADD COLUMN isDynamicStatusBar INTEGER DEFAULT NULL"
+                )
+            },
+            migration(3, 4) { db ->
+                val tables = listOf("webapps", "webapp_groups")
+                val columns =
+                    listOf(
+                        "isAllowLocationAccess", "isCameraPermission", "isMicrophonePermission"
                     )
-                    renumberOrderColumn(db, table = "webapp_groups")
-                }
-            }
-
-        val MIGRATION_26_27 =
-            object : Migration(26, 27) {
-                override fun migrate(db: SupportSQLiteDatabase) {
-                    ensureSettingsColumns(db)
-                }
-            }
-
-        val MIGRATION_27_28 =
-            object : Migration(27, 28) {
-                override fun migrate(db: SupportSQLiteDatabase) {
-                    ensureSettingsColumns(db)
-                }
-            }
-
-        val MIGRATION_16_17 =
-            object : Migration(16, 17) {
-                override fun migrate(db: SupportSQLiteDatabase) {
-                    ensureSettingsColumns(db)
-                    db.execSQL(
-                        """
-                        CREATE TABLE IF NOT EXISTS proxies (
-                            uuid TEXT NOT NULL PRIMARY KEY,
-                            name TEXT NOT NULL,
-                            type INTEGER NOT NULL,
-                            host TEXT NOT NULL,
-                            port INTEGER NOT NULL,
-                            username TEXT,
-                            password TEXT,
-                            remoteDns INTEGER NOT NULL,
-                            bypassList TEXT NOT NULL
-                        )
-                        """
-                    )
-                    for (table in listOf("webapps", "webapp_groups")) {
-                        val cursor = db.query("PRAGMA table_info($table)")
-                        val existing = mutableSetOf<String>()
-                        val nameIdx = cursor.getColumnIndex("name")
-                        while (cursor.moveToNext()) existing.add(cursor.getString(nameIdx))
-                        cursor.close()
-                        if ("proxyUuid" !in existing) {
-                            db.execSQL("ALTER TABLE $table ADD COLUMN proxyUuid TEXT DEFAULT NULL")
-                        }
+                for (table in tables) {
+                    for (col in columns) {
+                        db.execSQL("UPDATE $table SET $col = 2 WHERE $col = 1")
                     }
                 }
-            }
+            },
+            migration(4, 5) { db ->
+                db.execSQL(
+                    "ALTER TABLE webapps ADD COLUMN isShowNotification INTEGER DEFAULT NULL"
+                )
+                db.execSQL(
+                    "ALTER TABLE webapp_groups ADD COLUMN isShowNotification INTEGER DEFAULT NULL"
+                )
+            },
+            migration(5, 6) { db ->
+                for (table in listOf("webapps", "webapp_groups")) {
+                    db.execSQL("ALTER TABLE $table ADD COLUMN isUseBasicAuth INTEGER DEFAULT NULL")
+                    db.execSQL("ALTER TABLE $table ADD COLUMN basicAuthUsername TEXT DEFAULT NULL")
+                    db.execSQL("ALTER TABLE $table ADD COLUMN basicAuthPassword TEXT DEFAULT NULL")
+                }
+            },
+            migration(6, 7) { db ->
+                for (table in listOf("webapps", "webapp_groups")) {
+                    db.execSQL("ALTER TABLE $table ADD COLUMN isAppLinksPermission INTEGER DEFAULT NULL")
+                }
+            },
+            migration(7, 9) { db ->
+                for (table in listOf("webapps", "webapp_groups")) {
+                    db.execSQL("ALTER TABLE $table ADD COLUMN colorScheme INTEGER DEFAULT NULL")
+                    db.execSQL("ALTER TABLE $table ADD COLUMN isAlgorithmicDarkening INTEGER DEFAULT NULL")
+                    db.execSQL("UPDATE $table SET colorScheme = 2, isAlgorithmicDarkening = 1 WHERE isForceDarkMode = 1")
+                }
+                recreateTablesV9(db)
+            },
+            migration(8, 9, ::recreateTablesV9),
+            migration(9, 10, ::recreateTablesCanonical),
+            migration(10, 11, ::recreateTablesCanonical),
+            migration(11, 12, ::recreateTablesCanonical),
+            settingsColumnsMigration(12, 13),
+            settingsColumnsMigration(13, 14),
+            settingsColumnsMigration(14, 15),
+            settingsColumnsMigration(15, 16),
+            migration(16, 17) { db ->
+                ensureSettingsColumns(db)
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS proxies (
+                        uuid TEXT NOT NULL PRIMARY KEY,
+                        name TEXT NOT NULL,
+                        type INTEGER NOT NULL,
+                        host TEXT NOT NULL,
+                        port INTEGER NOT NULL,
+                        username TEXT,
+                        password TEXT,
+                        remoteDns INTEGER NOT NULL,
+                        bypassList TEXT NOT NULL
+                    )
+                    """
+                )
+                for (table in listOf("webapps", "webapp_groups")) {
+                    if ("proxyUuid" !in tableColumns(db, table)) {
+                        db.execSQL("ALTER TABLE $table ADD COLUMN proxyUuid TEXT DEFAULT NULL")
+                    }
+                }
+            },
+            settingsColumnsMigration(17, 18),
+            settingsColumnsMigration(18, 19),
+            settingsColumnsMigration(19, 20),
+            migration(20, 21) { db ->
+                ensureSettingsColumns(db)
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS push_subscriptions (
+                        instance TEXT NOT NULL PRIMARY KEY,
+                        contextId TEXT,
+                        scope TEXT NOT NULL,
+                        endpoint TEXT NOT NULL,
+                        appServerKey TEXT
+                    )
+                    """
+                )
+            },
+            settingsColumnsMigration(21, 22),
+            migration(22, 23) { db ->
+                ensureSettingsColumns(db)
+                for (table in listOf("webapps", "webapp_groups")) {
+                    if ("isShowNotification" !in tableColumns(db, table)) continue
+                    db.execSQL(
+                        """
+                        UPDATE $table SET browserControlsMode =
+                            CASE isShowNotification
+                                WHEN 1 THEN ${WebAppSettings.BROWSER_CONTROLS_BUTTON}
+                                WHEN 0 THEN ${WebAppSettings.BROWSER_CONTROLS_OFF}
+                            END
+                        WHERE isShowNotification IS NOT NULL
+                        """
+                    )
+                }
+                recreateTablesWithProxy(db)
+            },
+            settingsColumnsMigration(23, 24),
+            settingsColumnsMigration(24, 25),
+            migration(25, 26) { db ->
+                renumberOrderColumn(
+                    db,
+                    table = "webapps",
+                    excludeUuid = Const.GLOBAL_WEBAPP_UUID,
+                    scopeColumn = "groupUuid",
+                )
+                renumberOrderColumn(db, table = "webapp_groups")
+            },
+            settingsColumnsMigration(26, 27),
+            settingsColumnsMigration(27, 28),
+        )
 
         fun getInstance(context: Context): AppDatabase {
             return instance
@@ -681,35 +425,7 @@ abstract class AppDatabase : RoomDatabase() {
                 AppDatabase::class.java,
                 DATABASE_NAME,
             )
-                .addMigrations(
-                    MIGRATION_1_2,
-                    MIGRATION_2_3,
-                    MIGRATION_3_4,
-                    MIGRATION_4_5,
-                    MIGRATION_5_6,
-                    MIGRATION_6_7,
-                    MIGRATION_7_9,
-                    MIGRATION_8_9,
-                    MIGRATION_9_10,
-                    MIGRATION_10_11,
-                    MIGRATION_11_12,
-                    MIGRATION_12_13,
-                    MIGRATION_13_14,
-                    MIGRATION_14_15,
-                    MIGRATION_15_16,
-                    MIGRATION_16_17,
-                    MIGRATION_17_18,
-                    MIGRATION_18_19,
-                    MIGRATION_19_20,
-                    MIGRATION_20_21,
-                    MIGRATION_21_22,
-                    MIGRATION_22_23,
-                    MIGRATION_23_24,
-                    MIGRATION_24_25,
-                    MIGRATION_25_26,
-                    MIGRATION_26_27,
-                    MIGRATION_27_28,
-                )
+                .addMigrations(*MIGRATIONS)
                 .build()
         }
     }

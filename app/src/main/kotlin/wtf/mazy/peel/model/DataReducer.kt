@@ -7,7 +7,6 @@ object DataReducer {
         val groups: List<WebAppGroup>? = null,
         val defaultSettings: WebApp? = null,
         val proxies: List<Proxy>? = null,
-        val emit: Boolean = true,
     )
 
     fun apply(state: DataState, mutation: StateMutation): DataState {
@@ -24,51 +23,44 @@ object DataReducer {
         groups: List<WebAppGroup>,
         defaultSettings: WebApp,
         proxies: List<Proxy>,
-        emit: Boolean = true,
     ): StateMutation {
         return StateMutation(
             websites = websites.map { WebApp(it) },
             groups = groups.map { WebAppGroup(it) },
             defaultSettings = WebApp(defaultSettings),
             proxies = proxies.map { it.copy() },
-            emit = emit,
         )
     }
 
-    fun withProxies(proxies: List<Proxy>, emit: Boolean = true): StateMutation {
+    fun withProxies(proxies: List<Proxy>): StateMutation {
         return StateMutation(
             proxies = proxies.map { it.copy() },
-            emit = emit,
         )
     }
 
-    fun withWebsites(websites: List<WebApp>, emit: Boolean = true): StateMutation {
+    fun withWebsites(websites: List<WebApp>): StateMutation {
         return StateMutation(
             websites = websites.map { WebApp(it) },
-            emit = emit,
         )
     }
 
-    fun withGroups(groups: List<WebAppGroup>, emit: Boolean = true): StateMutation {
+    fun withGroups(groups: List<WebAppGroup>): StateMutation {
         return StateMutation(
             groups = groups.map { WebAppGroup(it) },
-            emit = emit,
         )
     }
 
-    fun withDefaultSettings(defaultSettings: WebApp, emit: Boolean = true): StateMutation {
+    fun withDefaultSettings(defaultSettings: WebApp): StateMutation {
         return StateMutation(
             defaultSettings = WebApp(defaultSettings),
-            emit = emit,
         )
     }
 
-    fun replacingWebsite(state: DataState, site: WebApp, emit: Boolean = true): StateMutation {
+    fun replacingWebsite(state: DataState, site: WebApp): StateMutation {
         return StateMutation(
             websites = state.websites.map { current ->
                 if (current.uuid == site.uuid) WebApp(site) else WebApp(current)
             },
-            emit = emit,
         )
     }
 
@@ -76,7 +68,6 @@ object DataReducer {
         state: DataState,
         uuids: Set<String>,
         groupUuid: String?,
-        emit: Boolean = true,
     ): StateMutation {
         // Order is scoped to a group, so a moved app has to be renumbered onto the end of the
         // destination; keeping its old value would collide with whatever already sits there.
@@ -95,14 +86,12 @@ object DataReducer {
                     movedOrders[site.uuid]?.let { order = it }
                 } else WebApp(site)
             },
-            emit = emit,
         )
     }
 
     fun reorderingWebsites(
         state: DataState,
         orderedUuids: List<String>,
-        emit: Boolean = true
     ): StateMutation {
         val orderMap = orderedUuids.withIndex().associate { it.value to it.index }
         return StateMutation(
@@ -112,23 +101,20 @@ object DataReducer {
                     order = targetOrder
                 } else WebApp(site)
             },
-            emit = emit,
         )
     }
 
-    fun replacingGroup(state: DataState, group: WebAppGroup, emit: Boolean = true): StateMutation {
+    fun replacingGroup(state: DataState, group: WebAppGroup): StateMutation {
         return StateMutation(
             groups = state.groups.map { current ->
                 if (current.uuid == group.uuid) WebAppGroup(group) else WebAppGroup(current)
             },
-            emit = emit,
         )
     }
 
     fun reorderingGroups(
         state: DataState,
         orderedUuids: List<String>,
-        emit: Boolean = true
     ): StateMutation {
         val orderMap = orderedUuids.withIndex().associate { it.value to it.index }
         return StateMutation(
@@ -138,7 +124,6 @@ object DataReducer {
                     order = targetOrder
                 } else WebAppGroup(group)
             },
-            emit = emit,
         )
     }
 }

@@ -58,10 +58,7 @@ object BackupManager {
         val backupData = BackupData(
             version = BackupPolicy.BACKUP_VERSION,
             payloadType = PAYLOAD_APP_SHARE,
-            websites = webApps.map { webApp ->
-                val surrogate = webApp.toSurrogate().copy(groupUuid = null)
-                if (includeSecrets) surrogate else surrogate.copy(settings = surrogate.settings.withoutSecrets())
-            },
+            websites = webApps.map { it.toSurrogate().copy(groupUuid = null).forShare(includeSecrets) },
         )
         return BackupArchiveCodec.buildBackupFile(backupData, webApps, "app")
     }
@@ -71,18 +68,11 @@ object BackupManager {
         webApps: List<WebApp>,
         includeSecrets: Boolean
     ): File? {
-        val safeGroups = groups.map { group ->
-            val surrogate = group.toSurrogate()
-            if (includeSecrets) surrogate else surrogate.copy(settings = surrogate.settings.withoutSecrets())
-        }
         val backupData = BackupData(
             version = BackupPolicy.BACKUP_VERSION,
             payloadType = PAYLOAD_GROUP_SHARE,
-            websites = webApps.map { webApp ->
-                val surrogate = webApp.toSurrogate()
-                if (includeSecrets) surrogate else surrogate.copy(settings = surrogate.settings.withoutSecrets())
-            },
-            groups = safeGroups,
+            websites = webApps.map { it.toSurrogate().forShare(includeSecrets) },
+            groups = groups.map { it.toSurrogate().forShare(includeSecrets) },
         )
         return BackupArchiveCodec.buildBackupFile(backupData, webApps + groups, "group")
     }
@@ -123,14 +113,19 @@ object BackupManager {
         websites = websites.map { it.toSurrogate() },
         globalSettings = dataManager.defaultSettings.settings,
         groups = dataManager.getGroups().map { it.toSurrogate() },
-        proxies = dataManager.getProxies().map { it.toSurrogate() },
+        proxies = dataManager.getProxies(),
     )
 
-    private fun WebAppSettings.withoutSecrets(): WebAppSettings {
-        return deepCopy().apply {
+    private fun WebAppSurrogate.forShare(includeSecrets: Boolean): WebAppSurrogate =
+        if (includeSecrets) this else copy(settings = settings.withoutSecrets())
+
+    private fun WebAppGroupSurrogate.forShare(includeSecrets: Boolean): WebAppGroupSurrogate =
+        if (includeSecrets) this else copy(settings = settings.withoutSecrets())
+
+    private fun WebAppSettings.withoutSecrets(): WebAppSettings =
+        deepCopy().apply {
             isUseBasicAuth = false
             basicAuthUsername = null
             basicAuthPassword = null
         }
-    }
 }

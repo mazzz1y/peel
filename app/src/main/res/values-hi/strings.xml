@@ -78,7 +78,6 @@
     <string name="import_btn">आयात</string>
     <string name="allow_location_access">स्थान</string>
     <string name="allow_drm_content">DRM सामग्री</string>
-    <string name="file_download">फ़ाइल डाउनलोड हो रही है…</string>
     <string name="download_in_progress">डाउनलोड हो रहा है…</string>
     <string name="download_complete">डाउनलोड पूर्ण — खोलने के लिए टैप करें</string>
     <string name="download_channel_name">डाउनलोड</string>
@@ -95,7 +94,6 @@
     <string name="color_scheme_dark">गहरा</string>
     <string name="setting_web_content_scale">स्केल</string>
     <string name="webapp_already_deleted">यह वेब ऐप हटा दिया गया है। आप यह शॉर्टकट हटा सकते हैं।</string>
-    <string name="global_web_app_settings">वैश्विक वेब ऐप सेटिंग्स</string>
     <string name="behavior">व्यवहार</string>
     <string name="navigation">नेविगेशन</string>
     <string name="import_data">आयात</string>
@@ -258,8 +256,6 @@
     <string name="recommended_extensions">अनुशंसित एक्सटेंशन</string>
     <string name="recommended_extensions_error">अनुशंसित एक्सटेंशन लोड नहीं हो सके</string>
     <string name="browse_all_extensions">सभी ब्राउज़ करें</string>
-    <string name="install_extension_confirm">%1$s इंस्टॉल करें?</string>
-    <string name="extension_permissions">इस एक्सटेंशन को चाहिए:</string>
     <string name="uninstall_extension">अनइंस्टॉल</string>
     <string name="uninstall_extension_confirm">%1$s अनइंस्टॉल करें?</string>
     <string name="extension_settings">सेटिंग्स</string>
@@ -311,7 +307,6 @@
     <string name="find_in_page_prev">पिछला मिलान</string>
     <string name="find_in_page_next">अगला मिलान</string>
     <string name="find_in_page_close">बंद करें</string>
-    <string name="edit">संपादित करें</string>
     <string name="cache_cleared">कैश साफ़ किया गया</string>
     <string name="proxy">प्रॉक्सी</string>
     <string name="proxy_direct">कोई प्रॉक्सी नहीं</string>

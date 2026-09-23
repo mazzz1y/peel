@@ -199,7 +199,6 @@ object PushBridge {
     }
 
     suspend fun reconcile(context: Context) {
-        AppPrefs.dropPushPermissionResetPending(context)
         DataManager.instance.awaitReady()
         val subscriptions = DataManager.instance.getPushSubscriptions()
         if (subscriptions.isEmpty()) return

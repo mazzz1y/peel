@@ -5,7 +5,6 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import wtf.mazy.peel.R
-import wtf.mazy.peel.model.SettingDefinition
 import wtf.mazy.peel.model.WebAppSettings
 
 class SettingsAdapter(
@@ -15,34 +14,12 @@ class SettingsAdapter(
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     override fun getItemViewType(position: Int): Int = when (val item = items[position]) {
-        is SettingsListItem.Header -> TYPE_HEADER
-        is SettingsListItem.Setting -> when (item.definition) {
-            is SettingDefinition.BooleanSetting -> TYPE_BOOLEAN
-            is SettingDefinition.ChoiceSetting -> TYPE_DROPDOWN
-            is SettingDefinition.BooleanWithIntSetting -> TYPE_BOOLEAN_INT
-            is SettingDefinition.BooleanWithCredentialsSetting -> TYPE_BOOLEAN_CREDENTIALS
-            is SettingDefinition.BooleanWithStringSetting -> TYPE_BOOLEAN_STRING
-            is SettingDefinition.StringMapSetting -> TYPE_STRING_MAP
-            is SettingDefinition.StringListSetting -> TYPE_STRING_LIST
-            is SettingDefinition.LanguagePairMapSetting -> TYPE_LANGUAGE_PAIR_MAP
-        }
+        is SettingsListItem.Header -> R.layout.item_setting_category_header
+        is SettingsListItem.Setting -> item.definition.layoutRes
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        val inflater = LayoutInflater.from(parent.context)
-        val layoutRes = when (viewType) {
-            TYPE_HEADER -> R.layout.item_setting_category_header
-            TYPE_BOOLEAN -> R.layout.item_setting_boolean
-            TYPE_DROPDOWN -> R.layout.item_setting_dropdown
-            TYPE_BOOLEAN_INT -> R.layout.item_setting_boolean_int
-            TYPE_BOOLEAN_CREDENTIALS -> R.layout.item_setting_boolean_credentials
-            TYPE_BOOLEAN_STRING -> R.layout.item_setting_boolean_string
-            TYPE_STRING_MAP -> R.layout.item_setting_string_collection
-            TYPE_STRING_LIST -> R.layout.item_setting_string_collection
-            TYPE_LANGUAGE_PAIR_MAP -> R.layout.item_setting_language_pair_map
-            else -> error("Unknown view type $viewType")
-        }
-        val view = inflater.inflate(layoutRes, parent, false)
+        val view = LayoutInflater.from(parent.context).inflate(viewType, parent, false)
         return object : RecyclerView.ViewHolder(view) {}
     }
 
@@ -62,15 +39,4 @@ class SettingsAdapter(
 
     override fun getItemCount() = items.size
 
-    companion object {
-        private const val TYPE_HEADER = 0
-        private const val TYPE_BOOLEAN = 1
-        private const val TYPE_DROPDOWN = 2
-        private const val TYPE_BOOLEAN_INT = 3
-        private const val TYPE_BOOLEAN_CREDENTIALS = 4
-        private const val TYPE_BOOLEAN_STRING = 5
-        private const val TYPE_STRING_MAP = 6
-        private const val TYPE_LANGUAGE_PAIR_MAP = 7
-        private const val TYPE_STRING_LIST = 8
-    }
 }

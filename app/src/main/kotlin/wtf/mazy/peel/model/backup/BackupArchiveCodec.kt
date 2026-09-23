@@ -5,7 +5,6 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import kotlinx.serialization.json.Json
 import wtf.mazy.peel.model.BackupData
-import wtf.mazy.peel.model.IconCache
 import wtf.mazy.peel.model.IconOwner
 import wtf.mazy.peel.model.ParsedBackup
 import wtf.mazy.peel.util.App
@@ -144,18 +143,6 @@ object BackupArchiveCodec {
             compressedSize = bytes.size.toLong()
             crc = CRC32().apply { update(bytes) }.value
         }
-
-    fun saveIcon(uuid: String, bitmap: Bitmap) {
-        try {
-            val iconFile = File(App.appContext.filesDir, "icons/${uuid}.png")
-            iconFile.parentFile?.mkdirs()
-            FileOutputStream(iconFile).use { output ->
-                bitmap.compress(Bitmap.CompressFormat.PNG, 100, output)
-            }
-            IconCache.evict(uuid)
-        } catch (_: Exception) {
-        }
-    }
 
     private fun writeMarker(zip: ZipOutputStream, version: String) {
         zip.putNextEntry(ZipEntry(BackupPolicy.MARKER_ENTRY))

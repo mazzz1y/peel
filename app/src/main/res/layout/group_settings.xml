@@ -19,7 +19,6 @@
             android:scrollbarStyle="outsideOverlay">
 
             <LinearLayout
-                android:id="@+id/contentContainer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/settings_hub_card_margin_horizontal"

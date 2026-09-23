@@ -4,7 +4,6 @@ object Const {
     const val INTENT_WEBAPP_UUID: String = "webappUUID"
     const val INTENT_TARGET_URL: String = "target_url"
     const val INTENT_GROUP_UUID: String = "groupUUID"
-    const val INTENT_BACKUP_RESTORED: String = "backup_restored"
     const val INTENT_AUTO_FETCH: String = "auto_fetch"
     const val INTENT_LAUNCHED_FROM_MENU: String = "launched_from_menu"
 

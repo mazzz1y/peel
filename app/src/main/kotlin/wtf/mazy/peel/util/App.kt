@@ -11,7 +11,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import wtf.mazy.peel.activities.BrowserActivity
 import wtf.mazy.peel.activities.ExtensionPageActivity
-import wtf.mazy.peel.activities.LinkRouterActivity
+import wtf.mazy.peel.activities.IncomingLinkActivity
 import wtf.mazy.peel.activities.PopupActivity
 import wtf.mazy.peel.activities.TrampolineActivity
 import wtf.mazy.peel.activities.WebAppSettingsActivity
@@ -38,7 +38,7 @@ class App : Application() {
             browser = BrowserActivity::class.java,
             popup = PopupActivity::class.java,
             extensionPage = ExtensionPageActivity::class.java,
-            linkRouter = LinkRouterActivity::class.java,
+            linkRouter = IncomingLinkActivity::class.java,
             trampoline = TrampolineActivity::class.java,
             webAppSettings = WebAppSettingsActivity::class.java,
         )

@@ -13,18 +13,24 @@ import wtf.mazy.peel.util.BrowserLauncher
 import wtf.mazy.peel.util.copyToClipboard
 import wtf.mazy.peel.util.shareText
 
-class LinkRouterActivity : PeelActivity() {
+/**
+ * Receives links from outside Peel, both as the default browser (`ACTION_VIEW`) and as a
+ * share target (`ACTION_SEND`), and offers the user's web apps as destinations.
+ * The manifest exposes it under the historical `LinkRouterActivity` and
+ * `ShareReceiverActivity` component names.
+ */
+class IncomingLinkActivity : PeelActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         GeckoRuntimeProvider.initAsync(this, warmUp = false)
 
-        val url =
-            intent?.takeIf { it.action == Intent.ACTION_VIEW }?.data?.toString()
-                ?: run {
-                    finish()
-                    return
-                }
+        val url = extractUrl() ?: run {
+            finish()
+            return
+        }
+        // the share sheet this came from already offers share and copy
+        val shared = intent.action == Intent.ACTION_SEND
 
         lifecycleScope.launch {
             DataManager.instance.loadAppData()
@@ -34,12 +40,13 @@ class LinkRouterActivity : PeelActivity() {
                 return@launch
             }
             ExternalLinkMenu.show(
-                activity = this@LinkRouterActivity,
+                activity = this@IncomingLinkActivity,
                 url = url,
                 excludeUuid = null,
                 peelApps = apps,
                 includeLoadHere = false,
                 includeOpenInSystem = false,
+                includeShareAndCopy = !shared,
             ) { result ->
                 when (result) {
                     // the launcher may open a picker parented here, so it says when to finish
@@ -55,8 +62,18 @@ class LinkRouterActivity : PeelActivity() {
         }
     }
 
+    private fun extractUrl(): String? = when (intent?.action) {
+        Intent.ACTION_VIEW -> intent.data?.toString()
+        Intent.ACTION_SEND -> intent.getStringExtra(Intent.EXTRA_TEXT)?.let { URL_PATTERN.find(it)?.value }
+        else -> null
+    }
+
     private fun openIncognito(url: String) {
         BrowserLauncher.launchIncognito(this, url)
         finish()
+    }
+
+    private companion object {
+        val URL_PATTERN = Regex("https?://[^\\s)>\\]\"]+")
     }
 }

@@ -2,71 +2,31 @@ package wtf.mazy.peel.browser
 
 import android.content.Context
 import androidx.annotation.CheckResult
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import kotlinx.coroutines.withTimeoutOrNull
-import kotlin.time.Duration.Companion.milliseconds
 import org.json.JSONArray
 import org.json.JSONObject
 import org.mozilla.geckoview.WebExtension
 import wtf.mazy.peel.gecko.GeckoRuntimeProvider
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.Proxy
-import java.util.concurrent.atomic.AtomicBoolean
-import java.util.concurrent.atomic.AtomicLong
-import java.util.concurrent.atomic.AtomicReference
 
-object ProxyRouterBridge {
+object ProxyRouterBridge : ExtensionSyncBridge<Map<String, Map<String, Any?>>>(
+    tag = "ProxyRouterBridge",
+    nativeApp = "proxyRouter",
+    ackType = "routes-ack",
+) {
 
-    const val NATIVE_APP = "proxyRouter"
     private const val CONTAINER_PREFIX = "firefox-container-"
     private val DIRECT = mapOf<String, Any?>("type" to "direct")
 
-    private val ext = AtomicReference<WebExtension?>(null)
-    private val port = AtomicReference<WebExtension.Port?>(null)
-    private val attached = AtomicBoolean(false)
-    private val subscriptionStarted = AtomicBoolean(false)
+    override suspend fun installExtension(context: Context): WebExtension? =
+        GeckoRuntimeProvider.ensureProxyRouterExtension(context)
 
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
-
-    @Volatile
-    private var lastSnapshot: Map<String, Map<String, Any?>>? = null
-
-    private val seqCounter = AtomicLong(0)
-    private val lastPushedSeq = AtomicLong(0)
-    private val lastAckedSeq = AtomicLong(-1)
-
-    private val routesReady = MutableStateFlow(false)
-
-    suspend fun ensure(context: Context): WebExtension? {
-        ext.get()?.let { return it }
-        val installed = withContext(Dispatchers.Main) {
-            GeckoRuntimeProvider.ensureProxyRouterExtension(context)
-        }
-        if (installed == null) {
-            routesReady.value = true
-            return null
-        }
-        ext.set(installed)
-        if (attached.compareAndSet(false, true)) {
-            withContext(Dispatchers.Main) { attachMessageDelegate(installed) }
-        }
-        startSubscription()
-        if (buildSnapshot().isEmpty()) {
-            routesReady.value = true
-        }
-        return installed
-    }
+    override fun hasWork(snapshot: Map<String, Map<String, Any?>>): Boolean = snapshot.isNotEmpty()
 
     @CheckResult
     suspend fun awaitRoutesReady(contextId: String?): Boolean {
         if (contextId == null || !hasProxiedRoute(contextId)) return true
-        return withTimeoutOrNull(READY_TIMEOUT_MS.milliseconds) { routesReady.first { it } } != null
+        return awaitReady()
     }
 
     private fun hasProxiedRoute(contextId: String): Boolean {
@@ -74,99 +34,18 @@ object ProxyRouterBridge {
         return cfg !== DIRECT
     }
 
-    private fun attachMessageDelegate(extension: WebExtension) {
-        extension.setMessageDelegate(
-            object : WebExtension.MessageDelegate {
-                override fun onConnect(newPort: WebExtension.Port) {
-                    val previous = port.getAndSet(newPort)
-                    if (previous != null && previous !== newPort) {
-                        runCatching { previous.disconnect() }
-                    }
-                    routesReady.value = false
-                    lastSnapshot = null
-                    lastAckedSeq.set(-1)
-                    newPort.setDelegate(object : WebExtension.PortDelegate {
-                        override fun onPortMessage(
-                            message: Any,
-                            port: WebExtension.Port,
-                        ) {
-                            if (message !is JSONObject) return
-                            if (message.optString("type") == "routes-ack") {
-                                handleAck(message.optLong("seq", -1))
-                            }
-                        }
-
-                        override fun onDisconnect(port: WebExtension.Port) {
-                            if (this@ProxyRouterBridge.port.compareAndSet(port, null)) {
-                                routesReady.value = false
-                                lastSnapshot = null
-                                lastAckedSeq.set(-1)
-                            }
-                        }
-                    })
-                    pushRoutes(force = true)
-                }
-            },
-            NATIVE_APP,
-        )
-    }
-
-    private fun handleAck(seq: Long) {
-        if (seq < 0) return
-        while (true) {
-            val current = lastAckedSeq.get()
-            if (seq <= current) return
-            if (lastAckedSeq.compareAndSet(current, seq)) break
-        }
-        if (seq >= lastPushedSeq.get()) {
-            routesReady.value = true
-        }
-    }
-
-    private fun startSubscription() {
-        if (!subscriptionStarted.compareAndSet(false, true)) return
-        scope.launch {
-            DataManager.instance.state.collect { _ ->
-                withContext(Dispatchers.Main) { pushRoutes(force = false) }
-            }
-        }
-    }
-
-    fun pushRoutes(force: Boolean) {
-        val activePort = port.get() ?: return
-        val snapshot = buildSnapshot()
-        if (snapshot.isEmpty()) {
-            lastSnapshot = snapshot
-            routesReady.value = true
-            return
-        }
-        if (!force && snapshot == lastSnapshot) {
-            if (lastAckedSeq.get() >= lastPushedSeq.get()) {
-                routesReady.value = true
-            }
-            return
-        }
-        val seq = seqCounter.incrementAndGet()
-        val payload = JSONObject()
-        payload.put("cmd", "set-routes")
-        payload.put("seq", seq)
+    override fun payload(seq: Long, snapshot: Map<String, Map<String, Any?>>): JSONObject {
         val routesJson = JSONObject()
         for ((storeId, cfg) in snapshot) {
             routesJson.put(storeId, configToJson(cfg))
         }
-        payload.put("routes", routesJson)
-        try {
-            routesReady.value = false
-            lastPushedSeq.set(seq)
-            activePort.postMessage(payload)
-            lastSnapshot = snapshot
-        } catch (_: Exception) {
-            lastPushedSeq.set(lastAckedSeq.get())
-            routesReady.value = true
-        }
+        return JSONObject()
+            .put("cmd", "set-routes")
+            .put("seq", seq)
+            .put("routes", routesJson)
     }
 
-    private fun buildSnapshot(): Map<String, Map<String, Any?>> {
+    override fun buildSnapshot(): Map<String, Map<String, Any?>> {
         val dm = DataManager.instance
         val proxies = dm.getProxies().associateBy { it.uuid }
         val out = LinkedHashMap<String, Map<String, Any?>>()
@@ -227,6 +106,4 @@ object ProxyRouterBridge {
         Proxy.TYPE_SOCKS5 -> "socks5"
         else -> "http"
     }
-
-    private const val READY_TIMEOUT_MS = 5000L
 }

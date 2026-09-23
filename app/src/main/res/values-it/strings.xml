@@ -59,7 +59,6 @@
     <string name="no_filemanager">Installate un gestore di file</string>
     <string name="allow_location_access">Consenti l\'accesso alla posizione</string>
     <string name="allow_drm_content">Consenti i contenuti DRM</string>
-    <string name="file_download">Scaricamento file in corso…</string>
     <string name="download_in_progress">Scaricamento in corso…</string>
     <string name="download_complete">Download completato — tocca per aprire</string>
     <string name="download_channel_name">Download</string>
@@ -74,7 +73,6 @@
     <string name="color_scheme_dark">Scuro</string>
     <string name="setting_web_content_scale">Scala</string>
     <string name="webapp_already_deleted">Questa Web App non è più disponibile. È possibile eliminare questo collegamento</string>
-    <string name="global_web_app_settings">Impostazioni Globali Web App</string>
     <string name="behavior">Comportamento</string>
     <string name="navigation">Navigazione</string>
     <string name="enable_sandbox">Abilita Sandbox</string>
@@ -258,8 +256,6 @@
     <string name="recommended_extensions">Estensioni consigliate</string>
     <string name="recommended_extensions_error">Impossibile caricare le estensioni consigliate</string>
     <string name="browse_all_extensions">Sfoglia tutte</string>
-    <string name="install_extension_confirm">Installare %1$s?</string>
-    <string name="extension_permissions">Questa estensione richiede:</string>
     <string name="uninstall_extension">Disinstalla</string>
     <string name="uninstall_extension_confirm">Disinstallare %1$s?</string>
     <string name="extension_settings">Impostazioni</string>
@@ -311,7 +307,6 @@
     <string name="find_in_page_prev">Risultato precedente</string>
     <string name="find_in_page_next">Risultato successivo</string>
     <string name="find_in_page_close">Chiudi</string>
-    <string name="edit">Modifica</string>
     <string name="cache_cleared">Cache svuotata</string>
     <string name="proxy">Proxy</string>
     <string name="proxy_direct">Nessun proxy</string>

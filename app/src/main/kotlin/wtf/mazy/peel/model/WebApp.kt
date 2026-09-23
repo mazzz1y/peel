@@ -31,10 +31,6 @@ class WebApp(var baseUrl: String, override val uuid: String = UUID.randomUUID().
         title = baseUrl.takeIf { it.isNotEmpty() }?.let { prettyHostLabel(it) } ?: baseUrl
     }
 
-    constructor(baseUrl: String, uuid: String, order: Int) : this(baseUrl, uuid) {
-        this.order = order
-    }
-
     constructor(other: WebApp) : this(other.baseUrl, other.uuid) {
         title = other.title
         isUseContainer = other.isUseContainer

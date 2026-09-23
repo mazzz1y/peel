@@ -52,7 +52,6 @@
             android:textColor="?attr/colorOnSurfaceVariant" />
 
         <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/layoutNumberInput"
             style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense"
             android:layout_width="72dp"
             android:layout_height="wrap_content"

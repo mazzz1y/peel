@@ -14,20 +14,16 @@ class LoadingDialogController(
 ) {
 
     private var dialog: AlertDialog? = null
+    private var text: TextView? = null
 
-    fun show(@StringRes messageRes: Int) {
-        showInternal { setText(messageRes) }
-    }
+    val isShowing: Boolean
+        get() = dialog?.isShowing == true
 
-    fun showWithMessage(message: CharSequence) {
-        showInternal { text = message }
-    }
-
-    private fun showInternal(applyText: TextView.() -> Unit) {
-        if (activity.isFinishing || activity.isDestroyed || dialog?.isShowing == true) return
+    fun show(@StringRes messageRes: Int, onCancel: (() -> Unit)? = null) {
+        if (activity.isFinishing || activity.isDestroyed || isShowing) return
         val dp = activity.resources.displayMetrics.density
         val text = TextView(activity).apply {
-            applyText()
+            setText(messageRes)
             setTextAppearance(com.google.android.material.R.style.TextAppearance_Material3_BodyMedium)
         }
         val layout = LinearLayout(activity).apply {
@@ -53,14 +49,25 @@ class LoadingDialogController(
                 ).apply { marginStart = (dp * 16).toInt() },
             )
         }
+        this.text = text
         dialog = MaterialAlertDialogBuilder(activity)
             .setView(layout)
-            .setCancelable(false)
+            .setCancelable(onCancel != null)
+            .apply { onCancel?.let { callback -> setOnCancelListener { clear(); callback() } } }
             .show()
+    }
+
+    fun setMessage(message: CharSequence) {
+        text?.text = message
     }
 
     fun dismiss() {
         kotlin.runCatching { dialog?.dismiss() }
+        clear()
+    }
+
+    private fun clear() {
         dialog = null
+        text = null
     }
 }

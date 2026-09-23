@@ -4,16 +4,13 @@ import android.content.Context
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
-import org.mozilla.geckoview.GeckoResult
 import org.mozilla.geckoview.TranslationsController
 import org.mozilla.geckoview.TranslationsController.RuntimeTranslation
 import wtf.mazy.peel.gecko.GeckoRuntimeProvider
+import wtf.mazy.peel.gecko.GeckoRuntimeProvider.awaitNullable
 import wtf.mazy.peel.util.App
 import java.util.Locale
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
 
 object TranslationLanguages {
 
@@ -66,7 +63,7 @@ object TranslationLanguages {
             ensureRuntime()
             val supported = withContext(Dispatchers.Main) {
                 RuntimeTranslation.isTranslationsEngineSupported()
-            }.awaitResult() == true
+            }.awaitNullable() == true
             if (supported) cachedEngineSupported = true
             supported
         } catch (_: Throwable) {
@@ -81,7 +78,7 @@ object TranslationLanguages {
                 ensureRuntime()
                 withContext(Dispatchers.Main) {
                     RuntimeTranslation.listSupportedLanguages()
-                }.awaitResult()
+                }.awaitNullable()
             } catch (e: CancellationException) {
                 throw e
             } catch (_: Throwable) {
@@ -103,7 +100,7 @@ object TranslationLanguages {
             ensureRuntime()
             val states = withContext(Dispatchers.Main) {
                 RuntimeTranslation.listModelDownloadStates()
-            }.awaitResult() ?: return emptySet()
+            }.awaitNullable() ?: return emptySet()
             states.filter { it.isDownloaded }
                 .mapNotNull { it.language?.code }
                 .toSet()
@@ -121,7 +118,7 @@ object TranslationLanguages {
                 .build()
             withContext(Dispatchers.Main) {
                 RuntimeTranslation.manageLanguageModel(options)
-            }.awaitResult()
+            }.awaitNullable()
             true
         } catch (_: Throwable) {
             false
@@ -131,13 +128,6 @@ object TranslationLanguages {
     private const val LANGUAGE_LOAD_ATTEMPTS = 3
     private const val LANGUAGE_LOAD_RETRY_MS = 400L
 
-    private suspend fun <T> GeckoResult<T>.awaitResult(): T? =
-        suspendCancellableCoroutine { cont ->
-            then(
-                { value -> cont.resume(value); GeckoResult() },
-                { throwable -> cont.resumeWithException(throwable); GeckoResult<Void>() },
-            )
-        }
 }
 
 fun TranslationsController.Language.label(): String =
