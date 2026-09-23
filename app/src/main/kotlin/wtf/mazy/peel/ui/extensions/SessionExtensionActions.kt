@@ -6,11 +6,10 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import org.mozilla.geckoview.AllowOrDeny
 import org.mozilla.geckoview.GeckoResult
-import org.mozilla.geckoview.GeckoRuntime
 import org.mozilla.geckoview.GeckoSession
 import org.mozilla.geckoview.GeckoSessionSettings
 import org.mozilla.geckoview.WebExtension
-import wtf.mazy.peel.browser.PopupSessionHolder
+import wtf.mazy.peel.browser.SessionHandoff
 import wtf.mazy.peel.browser.SessionHost
 import wtf.mazy.peel.gecko.GeckoRuntimeProvider
 import wtf.mazy.peel.util.ForegroundActivityTracker
@@ -104,10 +103,9 @@ class SessionExtensionActions(
     private fun mainSession(): GeckoSession? = attachedSessions.firstOrNull()?.second
 
     private fun createPopupSession(extension: WebExtension): GeckoResult<GeckoSession> {
-        val runtime = GeckoRuntimeProvider.getRuntime(activity)
         val session = GeckoSession(buildAuxiliarySettings())
-        session.open(runtime)
-        val shown = showPage(activity, session, extension.metaData.name ?: extension.id, runtime)
+        session.open(GeckoRuntimeProvider.getRuntime(activity))
+        val shown = showPage(session, extension.metaData.name ?: extension.id)
         if (!shown) {
             session.close()
             return GeckoResult.fromValue(null)
@@ -121,27 +119,8 @@ class SessionExtensionActions(
             .usePrivateMode(currentPrivateMode)
             .build()
 
-    private fun showPage(
-        host: FragmentActivity,
-        session: GeckoSession,
-        title: String,
-        runtime: GeckoRuntime,
-    ): Boolean {
-        mainSession()?.let { main ->
-            ExtensionPageLaunch.setOnCloseCallback(session) {
-                runtime.webExtensionController.setTabActive(main, true)
-            }
-        }
-        val key = PopupSessionHolder.put(session)
-        val launched = runCatching {
-            host.startActivity(ExtensionPageLaunch.intentForSession(host, key, title))
-        }.isSuccess
-        if (!launched) {
-            PopupSessionHolder.take(key)
-            ExtensionPageLaunch.clearOnCloseCallback(session)
-        }
-        return launched
-    }
+    private fun showPage(session: GeckoSession, title: String): Boolean =
+        launchSessionPage(activity, session, mainSession(), title)
 
     private inner class SessionActionDelegate : WebExtension.ActionDelegate {
         override fun onBrowserAction(
@@ -239,21 +218,9 @@ class SessionExtensionActions(
                     ?: ForegroundActivityTracker.current as? FragmentActivity
                     ?: return null
                 val owner = active
-                val runtime = GeckoRuntimeProvider.getRuntime(host)
                 val session = GeckoSession(buildSheetSessionSettings(owner))
-                owner?.mainSession()?.let { main ->
-                    ExtensionPageLaunch.setOnCloseCallback(session) {
-                        runtime.webExtensionController.setTabActive(main, true)
-                    }
-                }
                 val title = source.metaData.name ?: source.id
-                val key = PopupSessionHolder.put(session)
-                val launched = runCatching {
-                    host.startActivity(ExtensionPageLaunch.intentForSession(host, key, title))
-                }.isSuccess
-                if (!launched) {
-                    PopupSessionHolder.take(key)
-                    ExtensionPageLaunch.clearOnCloseCallback(session)
+                if (!launchSessionPage(host, session, owner?.mainSession(), title)) {
                     session.close()
                     return null
                 }
@@ -270,6 +237,26 @@ class SessionExtensionActions(
                     )
                 }
             }
+        }
+
+        // The page host re-activates the main tab when it closes so extension state (badges,
+        // popups) resumes targeting the web app's session.
+        private fun launchSessionPage(
+            host: FragmentActivity,
+            session: GeckoSession,
+            mainSession: GeckoSession?,
+            title: String,
+        ): Boolean {
+            val onClose = mainSession?.let { main ->
+                val controller = GeckoRuntimeProvider.getRuntime(host).webExtensionController
+                ({ controller.setTabActive(main, true) })
+            }
+            val key = SessionHandoff.put(session, onClose)
+            val launched = runCatching {
+                host.startActivity(ExtensionPageLaunch.intentForSession(host, key, title))
+            }.isSuccess
+            if (!launched) SessionHandoff.take(key)
+            return launched
         }
 
         private fun buildSheetSessionSettings(

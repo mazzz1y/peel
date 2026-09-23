@@ -1,6 +1,5 @@
 package wtf.mazy.peel.browser
 
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import kotlinx.serialization.json.Json
@@ -16,8 +15,6 @@ object PopupLaunch {
     const val EXTRA_OWNER_UUID = "popup_owner_uuid"
     const val EXTRA_TRANSLATE_TARGET = "popup_translate_target"
     const val EXTRA_POLICY_ORIGIN = "popup_policy_origin"
-
-    private val live = mutableMapOf<Activity, String?>()
 
     fun intent(
         context: Context,
@@ -39,16 +36,4 @@ object PopupLaunch {
             .putExtra(EXTRA_OWNER_UUID, ownerWebAppUuid)
             .putExtra(EXTRA_TRANSLATE_TARGET, translateTarget)
             .putExtra(EXTRA_POLICY_ORIGIN, policyOrigin)
-
-    fun track(activity: Activity, ownerWebAppUuid: String?) {
-        live[activity] = ownerWebAppUuid
-    }
-
-    fun untrack(activity: Activity) {
-        live.remove(activity)
-    }
-
-    fun finishByOwner(ownerUuid: String) {
-        live.filterValues { it == ownerUuid }.keys.toList().forEach { it.finish() }
-    }
 }

@@ -9,6 +9,7 @@ import org.mozilla.geckoview.GeckoSession.NavigationDelegate.LoadRequest
 import org.mozilla.geckoview.GeckoSession.NavigationDelegate.TARGET_WINDOW_NEW
 import org.mozilla.geckoview.WebRequestError
 import wtf.mazy.peel.R
+import wtf.mazy.peel.ui.dialog.ExternalLinkResult
 import wtf.mazy.peel.model.WebAppSettings
 import wtf.mazy.peel.util.NotificationUtils
 import wtf.mazy.peel.util.belongsToApp
@@ -139,7 +140,7 @@ class PeelNavigationDelegate(
 
     private fun showBlockedToast() {
         host.runOnUi {
-            val context = host.hostWindow.context
+            val context = host.hostContext
             NotificationUtils.showToastSafe(
                 context,
                 context.getString(R.string.domain_blocked_toast),

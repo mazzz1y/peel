@@ -1,5 +1,6 @@
-package wtf.mazy.peel.activities
+package wtf.mazy.peel.ui.settings
 
+import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.net.Uri
 import android.provider.DocumentsContract
@@ -14,7 +15,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
 import wtf.mazy.peel.R
-import wtf.mazy.peel.browser.SessionContextRegistry
+import wtf.mazy.peel.browser.SessionHostRegistry
 import wtf.mazy.peel.browser.TranslationLanguages
 import wtf.mazy.peel.model.BackupManager
 import wtf.mazy.peel.model.DataManager
@@ -27,10 +28,13 @@ import wtf.mazy.peel.ui.dialog.ImportDialogHelper
 import wtf.mazy.peel.ui.dialog.dismissOnDestroyOf
 import wtf.mazy.peel.util.NotificationUtils
 
-class SettingsHubActions(private val activity: AppCompatActivity) {
+class SettingsHubController(
+    private val activity: AppCompatActivity,
+    importActivity: Class<out Activity>,
+) {
 
     private val exportLoader = LoadingDialogController(activity)
-    private val importDialogHelper = ImportDialogHelper(activity, ImportActivity::class.java)
+    private val importDialogHelper = ImportDialogHelper(activity, importActivity)
     private var pendingExportUri: Uri? = null
 
     private val exportLauncher =
@@ -199,13 +203,13 @@ class SettingsHubActions(private val activity: AppCompatActivity) {
     }
 
     private suspend fun wipeStorage(includeSandbox: Boolean) {
-        SessionContextRegistry.closeAllSessions()
+        SessionHostRegistry.closeAllSessions()
         SandboxManager.clearNonSandboxData()
         if (includeSandbox) SandboxManager.clearAllSandboxData(activity)
     }
 
     private fun clearBrowsingData(includeSandbox: Boolean) {
-        BrowserActivity.finishAll()
+        SessionHostRegistry.finishBrowsers()
         DataManager.instance.appScope.launch { wipeStorage(includeSandbox) }
     }
 
@@ -216,7 +220,7 @@ class SettingsHubActions(private val activity: AppCompatActivity) {
     }
 
     private fun performFactoryReset() {
-        BrowserActivity.finishAll()
+        SessionHostRegistry.finishBrowsers()
 
         DataManager.instance.appScope.launch {
             wipeStorage(includeSandbox = true)

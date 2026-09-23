@@ -9,6 +9,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.materialswitch.MaterialSwitch
 import kotlinx.coroutines.launch
 import wtf.mazy.peel.R
+import wtf.mazy.peel.browser.SessionHostRegistry
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.EntityCloner
 import wtf.mazy.peel.model.WebAppGroup
@@ -43,7 +44,7 @@ class GroupListActivity : EntityListActivity<WebAppGroup>() {
 
     private val settingsLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            showApplyTimingSnackbar(this, result.data, BrowserActivity.hasLiveInstances())
+            showApplyTimingSnackbar(this, result.data, SessionHostRegistry.hasLiveBrowsers)
         }
 
     override fun createAdapter(): EntityListAdapter<WebAppGroup, *> {

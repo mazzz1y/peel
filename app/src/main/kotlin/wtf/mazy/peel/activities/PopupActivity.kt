@@ -7,32 +7,14 @@ import kotlinx.serialization.json.Json
 import wtf.mazy.peel.R
 import wtf.mazy.peel.browser.PeelTranslationDelegate
 import wtf.mazy.peel.browser.PopupLaunch
-import wtf.mazy.peel.browser.PopupSessionHolder
-import wtf.mazy.peel.browser.TranslationLanguages
-import wtf.mazy.peel.gecko.ExtensionStateEvent
-import wtf.mazy.peel.gecko.ExtensionStateListener
-import wtf.mazy.peel.gecko.GeckoRuntimeProvider
+import wtf.mazy.peel.browser.SessionHandoff
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.WebAppSettings
-import wtf.mazy.peel.ui.controls.BrowserControls
-import wtf.mazy.peel.ui.controls.ControlActions
-import wtf.mazy.peel.ui.extensions.ExtensionPickerDialog
 import wtf.mazy.peel.ui.extensions.SessionExtensionActions
 import wtf.mazy.peel.util.BrowserLauncher
 import wtf.mazy.peel.util.NotificationUtils
-import wtf.mazy.peel.util.isAutomotiveHost
-import wtf.mazy.peel.util.shareText
 
 class PopupActivity : SessionPageActivity() {
-
-    private val extensionStateListener = ExtensionStateListener { event ->
-        val session = geckoSession ?: return@ExtensionStateListener
-        sessionExtensionActions.attach(session)
-        SessionExtensionActions.extensionsChanged = false
-        if (event == ExtensionStateEvent.ADDED || event == ExtensionStateEvent.REMOVED) {
-            session.reload()
-        }
-    }
 
     private lateinit var snapshotSettings: WebAppSettings
 
@@ -65,12 +47,11 @@ class PopupActivity : SessionPageActivity() {
             ?.let { runCatching { Json.decodeFromString<WebAppSettings>(it) }.getOrNull() }
             ?: DataManager.instance.defaultSettings.settings
         super.onCreate(savedInstanceState)
-        PopupLaunch.track(this, ownerWebAppUuid)
     }
 
     override fun onSessionHostReady() {
         val key = intent.getStringExtra(PopupLaunch.EXTRA_SESSION_KEY) ?: run { finish(); return }
-        val popup = PopupSessionHolder.take(key) ?: run { finish(); return }
+        val popup = SessionHandoff.take(key)?.session ?: run { finish(); return }
         connectSession(popup)
         translationDelegate = PeelTranslationDelegate(this).also {
             it.presetManualTarget(intent.getStringExtra(PopupLaunch.EXTRA_TRANSLATE_TARGET))
@@ -79,28 +60,12 @@ class PopupActivity : SessionPageActivity() {
         sessionExtensionActions.attach(popup)
         displaySession(popup)
         attachSystemBars()
-        lifecycleScope.launch {
-            setupThemeColorExtensionIfEnabled()
-            translationsSupported = TranslationLanguages.isEngineSupported()
-            if (translationsSupported) rebuildBrowserControls()
-        }
-    }
-
-    override fun onStart() {
-        super.onStart()
-        GeckoRuntimeProvider.addExtensionStateListener(extensionStateListener)
-    }
-
-    override fun onStop() {
-        GeckoRuntimeProvider.removeExtensionStateListener(extensionStateListener)
-        super.onStop()
+        lifecycleScope.launch { setupThemeColorExtensionIfEnabled() }
+        loadTranslationSupport()
     }
 
     override fun onDestroy() {
-        intent.getStringExtra(PopupLaunch.EXTRA_SESSION_KEY)?.let { PopupSessionHolder.take(it)?.close() }
-        sessionExtensionActions.detach()
-        systemBarController.release()
-        PopupLaunch.untrack(this)
+        intent.getStringExtra(PopupLaunch.EXTRA_SESSION_KEY)?.let { SessionHandoff.take(it)?.session?.close() }
         super.onDestroy()
     }
 
@@ -136,27 +101,8 @@ class PopupActivity : SessionPageActivity() {
         hideBrowserControls()
     }
 
-    override fun createBrowserControls(mode: Int): BrowserControls {
-        val translateEnabled =
-            translationsSupported && effectiveSettings.isTranslatorEnabled == true
-        val actions = ControlActions(
-            onBack = if (isAutomotiveHost()) ({ onBackPressedDispatcher.onBackPressed() }) else null,
-            onHome = if (ownerWebAppUuid != null) ({ homeAction() }) else null,
-            onReload = ::reloadCurrentPage,
-            onReloadLongPress = ::clearSiteCacheAndReload,
-            onShare = { shareText(lastLoadedUrl) },
-            onFind = ::openFindInPage,
-            onTranslate = if (translateEnabled) ({ openTranslateDialog() }) else null,
-            onTranslateLongPress = if (translateEnabled) ({ onTranslateLongPress() }) else null,
-            onExtensions = if (SessionExtensionActions.hasExtensions)
-                ({ ExtensionPickerDialog.show(this, sessionExtensionActions) }) else null,
-        ).toList()
-        return buildBrowserControls(
-            mode,
-            floatingKey = ownerWebAppUuid ?: FLOATING_CONTROLS_KEY,
-            actions = actions,
-        )
-    }
+    override val floatingControlsKey: String
+        get() = ownerWebAppUuid ?: FLOATING_CONTROLS_KEY
 
     companion object {
         private const val FLOATING_CONTROLS_KEY = "popup"

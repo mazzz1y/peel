@@ -2,9 +2,8 @@ package wtf.mazy.peel.activities
 
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
-import org.mozilla.geckoview.GeckoSession
 import wtf.mazy.peel.R
-import wtf.mazy.peel.browser.PopupSessionHolder
+import wtf.mazy.peel.browser.SessionHandoff
 import wtf.mazy.peel.gecko.GeckoRuntimeProvider
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.WebAppSettings
@@ -15,10 +14,12 @@ class ExtensionPageActivity : SessionPageActivity() {
     override val effectiveSettings: WebAppSettings
         get() = DataManager.instance.defaultSettings.settings
 
+    override val tracksExtensionState: Boolean = false
+
     private val adoptedSessionKey: String?
         get() = intent.getStringExtra(ExtensionPageLaunch.EXTRA_SESSION_KEY)
 
-    private var adoptedSession: GeckoSession? = null
+    private var adopted: SessionHandoff.HandedSession? = null
 
     override fun onSessionHostReady() {
         val key = adoptedSessionKey
@@ -26,8 +27,9 @@ class ExtensionPageActivity : SessionPageActivity() {
     }
 
     private fun adoptSession(key: String) {
-        val session = PopupSessionHolder.take(key) ?: run { finish(); return }
-        adoptedSession = session
+        val handed = SessionHandoff.take(key) ?: run { finish(); return }
+        adopted = handed
+        val session = handed.session
         supportActionBar?.title =
             intent.getStringExtra(ExtensionPageLaunch.EXTRA_TITLE) ?: getString(R.string.extensions)
         connectSession(session)
@@ -56,8 +58,7 @@ class ExtensionPageActivity : SessionPageActivity() {
     }
 
     override fun onDestroy() {
-        val session = adoptedSession
-        if (session != null) ExtensionPageLaunch.takeOnCloseCallback(session)?.invoke()
+        adopted?.onClose?.invoke()
         super.onDestroy()
     }
 

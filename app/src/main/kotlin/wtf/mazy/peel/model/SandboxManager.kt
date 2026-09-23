@@ -6,7 +6,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.mozilla.geckoview.GeckoRuntime
 import org.mozilla.geckoview.StorageController
-import wtf.mazy.peel.browser.SessionContextRegistry
+import wtf.mazy.peel.browser.SessionHostRegistry
 import wtf.mazy.peel.gecko.GeckoRuntimeProvider
 import wtf.mazy.peel.push.PushBridge
 import wtf.mazy.peel.util.App
@@ -17,7 +17,7 @@ object SandboxManager {
     suspend fun clearSandboxData(context: Context, contextId: String): Boolean {
         PushBridge.onContextCleared(context, contextId)
         AppPrefs.addPendingSandboxClear(context, contextId)
-        SessionContextRegistry.closeSessionsFor(contextId)
+        SessionHostRegistry.closeSessionsFor(contextId)
         return clearContext(contextId)
     }
 
@@ -25,7 +25,7 @@ object SandboxManager {
         PushBridge.onContextCleared(context, contextId)
         AppPrefs.addPendingSandboxClear(context, contextId)
         DataManager.instance.appScope.launch {
-            SessionContextRegistry.closeSessionsFor(contextId)
+            SessionHostRegistry.closeSessionsFor(contextId)
             clearContext(contextId)
         }
     }

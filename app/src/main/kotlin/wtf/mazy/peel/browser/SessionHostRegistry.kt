@@ -6,31 +6,54 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 
-object SessionContextRegistry {
+/**
+ * Tracks every live session host so callers can finish hosts by owner web app, by sandbox
+ * context, or all browsers at once, and wait until the finished hosts have actually gone.
+ */
+object SessionHostRegistry {
 
     private const val CLOSE_TIMEOUT_MS = 2_000L
 
-    private val lock = Any()
-    private val contextIds = mutableMapOf<Activity, String?>()
-    private val closeWaiters = mutableListOf<CloseWaiter>()
+    private class Entry(val ownerUuid: String?, val isBrowser: Boolean) {
+        var contextId: String? = null
+    }
 
     private class CloseWaiter(val contextId: String?, val done: CompletableDeferred<Unit>)
 
-    fun register(activity: Activity, contextId: String?) {
+    private val lock = Any()
+    private val hosts = mutableMapOf<Activity, Entry>()
+    private val closeWaiters = mutableListOf<CloseWaiter>()
+
+    fun register(host: Activity, ownerUuid: String?, isBrowser: Boolean) {
+        synchronized(lock) { hosts[host] = Entry(ownerUuid, isBrowser) }
+    }
+
+    fun bindContext(host: Activity, contextId: String?) {
         val settled = synchronized(lock) {
-            contextIds[activity] = contextId
+            hosts[host]?.contextId = contextId
             takeSettledWaiters()
         }
         settled.forEach { it.done.complete(Unit) }
     }
 
-    fun unregister(activity: Activity) {
+    fun unregister(host: Activity) {
         val settled = synchronized(lock) {
-            if (!contextIds.containsKey(activity)) return
-            contextIds.remove(activity)
+            if (hosts.remove(host) == null) return
             takeSettledWaiters()
         }
         settled.forEach { it.done.complete(Unit) }
+    }
+
+    val hasLiveBrowsers: Boolean
+        get() = synchronized(lock) { hosts.values.any { it.isBrowser } }
+
+    fun finishBrowsers() = finish { it.isBrowser }
+
+    fun finishPopupsOwnedBy(ownerUuid: String) = finish { !it.isBrowser && it.ownerUuid == ownerUuid }
+
+    private fun finish(predicate: (Entry) -> Boolean) {
+        val targets = synchronized(lock) { hosts.filterValues(predicate).keys.toList() }
+        targets.forEach { it.finish() }
     }
 
     suspend fun closeAllSessions() = close(null)
@@ -40,8 +63,8 @@ object SessionContextRegistry {
     private suspend fun close(contextId: String?) {
         val waiter = CloseWaiter(contextId, CompletableDeferred())
         val targets = synchronized(lock) {
-            val matching = contextIds
-                .filterValues { contextId == null || it == contextId }
+            val matching = hosts
+                .filterValues { contextId == null || it.contextId == contextId }
                 .keys
                 .toList()
             if (matching.isNotEmpty()) closeWaiters.add(waiter)
@@ -59,7 +82,7 @@ object SessionContextRegistry {
 
     private fun takeSettledWaiters(): List<CloseWaiter> {
         val settled = closeWaiters.filter { waiter ->
-            contextIds.none { waiter.contextId == null || it.value == waiter.contextId }
+            hosts.none { waiter.contextId == null || it.value.contextId == waiter.contextId }
         }
         closeWaiters.removeAll(settled)
         return settled

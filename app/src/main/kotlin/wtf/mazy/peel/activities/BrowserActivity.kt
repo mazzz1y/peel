@@ -16,9 +16,7 @@ import android.os.Looper
 import android.util.Log
 import android.view.View
 import androidx.activity.OnBackPressedCallback
-import androidx.activity.enableEdgeToEdge
 import androidx.core.content.ContextCompat
-import androidx.core.graphics.drawable.toDrawable
 import androidx.core.net.toUri
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -37,15 +35,11 @@ import wtf.mazy.peel.browser.PageBridge
 import wtf.mazy.peel.browser.PeelContentDelegate
 import wtf.mazy.peel.browser.PeelNavigationDelegate
 import wtf.mazy.peel.browser.PeelPermissionDelegate
-import wtf.mazy.peel.browser.PeelProgressDelegate
 import wtf.mazy.peel.browser.PeelPromptDelegate
 import wtf.mazy.peel.browser.PeelTranslationDelegate
-import wtf.mazy.peel.browser.SessionContextRegistry
+import wtf.mazy.peel.browser.SessionHostRegistry
 import wtf.mazy.peel.browser.StartupAuthReturnTracker
-import wtf.mazy.peel.browser.TranslationLanguages
 import wtf.mazy.peel.gecko.ContentPermissionStore
-import wtf.mazy.peel.gecko.ExtensionStateEvent
-import wtf.mazy.peel.gecko.ExtensionStateListener
 import wtf.mazy.peel.gecko.GeckoRuntimeProvider
 import wtf.mazy.peel.media.MediaPlaybackManager
 import wtf.mazy.peel.model.DataManager
@@ -54,15 +48,11 @@ import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.model.WebAppSettings
 import wtf.mazy.peel.ui.browser.AutoReloadController
 import wtf.mazy.peel.ui.browser.BiometricUnlockController
-import wtf.mazy.peel.ui.controls.BrowserControls
-import wtf.mazy.peel.ui.controls.ControlActions
 import wtf.mazy.peel.ui.dialog.ExternalLinkMenu
-import wtf.mazy.peel.ui.extensions.ExtensionPickerDialog
 import wtf.mazy.peel.ui.extensions.SessionExtensionActions
 import wtf.mazy.peel.util.BrowserLauncher
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.NotificationUtils
-import wtf.mazy.peel.util.disableSystemBarContrastEnforcement
 import wtf.mazy.peel.util.isAutomotiveHost
 import wtf.mazy.peel.util.isSameHost
 import wtf.mazy.peel.util.isSingleWindowHost
@@ -81,15 +71,6 @@ class BrowserActivity : BaseSessionHost() {
     override val activeTranslateTarget: String?
         get() = translationDelegate?.lastTranslationState
             ?.requestedTranslationPair?.toLanguage
-
-    private val extensionStateListener = ExtensionStateListener { event ->
-        val session = geckoSession ?: return@ExtensionStateListener
-        sessionExtensionActions.attach(session)
-        SessionExtensionActions.extensionsChanged = false
-        if (event == ExtensionStateEvent.ADDED || event == ExtensionStateEvent.REMOVED) {
-            session.reload()
-        }
-    }
 
     private var historyPurged = false
     override var canGoBack: Boolean = false
@@ -186,16 +167,13 @@ class BrowserActivity : BaseSessionHost() {
         },
     )
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        enableEdgeToEdge()
-        disableSystemBarContrastEnforcement()
-        super.onCreate(savedInstanceState)
-        liveInstances.add(this)
+    override val showToolbar: Boolean = false
+    override val isBrowserHost: Boolean = true
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
         sanitizeExternalIntent(intent)
         launchedFromMenu = intent.getBooleanExtra(Const.INTENT_LAUNCHED_FROM_MENU, false)
-        window.setBackgroundDrawable(themeBackgroundColor.toDrawable())
-        setupSessionHostLayout(showToolbar = false)
         webappUuid = intent.webAppUuid()
         ensureDataReady(webappUuid, forceReload = false) {
             continueStartupAfterDataReady()
@@ -210,14 +188,7 @@ class BrowserActivity : BaseSessionHost() {
             return
         }
 
-        lifecycleScope.launch {
-            val supported = TranslationLanguages.isEngineSupported()
-            if (supported != translationsSupported) {
-                translationsSupported = supported
-                if (browserControls != null) rebuildBrowserControls()
-            }
-        }
-
+        loadTranslationSupport()
         cachedSettings = DataManager.instance.resolveEffectiveSettings(webapp)
         applyTaskSnapshotProtection()
         setupGeckoView()
@@ -242,7 +213,6 @@ class BrowserActivity : BaseSessionHost() {
 
     override fun onStart() {
         super.onStart()
-        GeckoRuntimeProvider.addExtensionStateListener(extensionStateListener)
         if (!isStartupComplete) return
         stopBackgroundKeepActive()
         reattachSessionToView()
@@ -316,34 +286,15 @@ class BrowserActivity : BaseSessionHost() {
         autoReloadController.stop()
     }
 
-    override fun createBrowserControls(mode: Int): BrowserControls? {
-        val uuid = webappUuid ?: return null
-        val translateEnabled =
-            translationsSupported && effectiveSettings.isTranslatorEnabled == true
-        val actions = ControlActions(
-            onBack = if (isAutomotiveHost()) ({ onBackPressedDispatcher.onBackPressed() }) else null,
-            onHome = { homeAction() },
-            onReload = ::reloadCurrentPage,
-            onReloadLongPress = ::clearSiteCacheAndReload,
-            onShare = { shareCurrentUrl() },
-            onShareLongPress = { currentUrl.takeIf { it.isNotBlank() }?.let(::openInPeel) },
-            onFind = ::openFindInPage,
-            onTranslate = if (translateEnabled) ({ openTranslateDialog() }) else null,
-            onTranslateLongPress = if (translateEnabled) ({ onTranslateLongPress() }) else null,
-            onExtensions = if (SessionExtensionActions.hasExtensions)
-                ({ ExtensionPickerDialog.show(this, sessionExtensionActions) }) else null,
-            onOpenAppList = if (isSingleWindowHost()) ({ openAppList() }) else null,
-        ).toList()
-        return buildBrowserControls(mode, floatingKey = uuid, actions = actions)
-    }
+    override fun shareCurrentPage() = shareText(currentUrl)
 
-    private fun shareCurrentUrl() {
-        shareText(currentUrl)
-    }
+    override fun onShareLongPress(): () -> Unit =
+        { currentUrl.takeIf { it.isNotBlank() }?.let(::openInPeel) }
+
+    override fun onOpenAppList(): (() -> Unit)? = if (isSingleWindowHost()) ({ openAppList() }) else null
 
     override fun onStop() {
         super.onStop()
-        GeckoRuntimeProvider.removeExtensionStateListener(extensionStateListener)
         if (isTaskSnapshotProtected) systemBarController.resetToTheme()
         if (!isStartupComplete) {
             biometricController.onStop(); return
@@ -379,12 +330,12 @@ class BrowserActivity : BaseSessionHost() {
     }
 
     override fun onDestroy() {
-        liveInstances.remove(this)
+        SessionHostRegistry.unregister(this)
         stopBackgroundKeepActive()
         val resolvedWebapp = webappUuid?.let { DataManager.instance.getWebApp(it) }
         if (isFinishing && resolvedWebapp != null &&
             DataManager.instance.resolveEffectiveSettings(resolvedWebapp).isClearCache == true &&
-            liveInstances.isEmpty()
+            !SessionHostRegistry.hasLiveBrowsers
         ) {
             GeckoRuntimeProvider.runtimeOrNull()
                 ?.storageController
@@ -392,15 +343,12 @@ class BrowserActivity : BaseSessionHost() {
         }
         closeFindInPage()
         biometricController.unregisterReceiver()
-        systemBarController.release()
         mediaPlaybackManager?.release()
         mediaPlaybackManager = null
-        sessionExtensionActions.detach()
         pageBridge?.detach(closingSession = true)
         pageBridge = null
         closeGeckoSession()
         geckoView = null
-        SessionContextRegistry.unregister(this)
         if (isFinishing) {
             ContentPermissionStore.requestSweep(applicationContext)
             resolvedWebapp?.resolveEphemeralContextId()?.let {
@@ -599,21 +547,6 @@ class BrowserActivity : BaseSessionHost() {
         if (isFullscreen) systemBarController.hide()
     }
 
-    override fun onWebFullscreenEnter() {
-        systemBarController.hide()
-        closeFindInPage()
-        setBrowserControlsFullscreen(true)
-        pullToRefreshController.setSuspended(true)
-        updateBackCallbackEnabled()
-    }
-
-    override fun onWebFullscreenExit() {
-        systemBarController.show(effectiveSettings.isShowFullscreen == true)
-        setBrowserControlsFullscreen(false)
-        pullToRefreshController.setSuspended(false)
-        updateBackCallbackEnabled()
-    }
-
     private fun setupGeckoView() {
         val settings = effectiveSettings
         bindViews()
@@ -671,27 +604,25 @@ class BrowserActivity : BaseSessionHost() {
 
         val session = createSession(settings)
         geckoSession = session
-        SessionContextRegistry.register(this, sessionContextId)
 
-        session.navigationDelegate = navigationDelegate
         if (settings.isLongClickShare == true) setupContextMenu() else contextMenu = null
         val contextMenuCallback: ((GeckoSession, Int, Int, GeckoSession.ContentDelegate.ContextElement) -> Unit)? =
             if (contextMenu != null) {
                 { _, _, _, el -> contextMenu?.onContextMenu(el) }
             } else null
-        session.contentDelegate = PeelContentDelegate(
-            host = this,
-            onDownload = { response -> downloadHandler.onExternalResponse(response) },
-            onContextMenu = contextMenuCallback,
+        bindDelegates(
+            session,
+            PeelContentDelegate(
+                host = this,
+                onDownload = { response -> downloadHandler.onExternalResponse(response) },
+                onContextMenu = contextMenuCallback,
+            ),
+            permissionDelegate = permissionDelegate,
+            promptDelegate = promptDelegate,
         )
-        session.progressDelegate = PeelProgressDelegate(this)
-        session.permissionDelegate = permissionDelegate
-        session.promptDelegate = promptDelegate
         translationDelegate = PeelTranslationDelegate(this).also {
             session.translationsSessionDelegate = it
         }
-
-        attachScrollDelegate(session)
 
         val runtime = GeckoRuntimeProvider.getRuntime(this)
         session.open(runtime)
@@ -852,7 +783,7 @@ class BrowserActivity : BaseSessionHost() {
         onBackPressedDispatcher.addCallback(this, backCallback)
     }
 
-    private fun updateBackCallbackEnabled() {
+    override fun updateBackCallbackEnabled() {
         backCallback.isEnabled = canGoBack || launchedFromMenu || isWebFullscreen
     }
 
@@ -901,13 +832,5 @@ class BrowserActivity : BaseSessionHost() {
         private const val TAG = "BrowserActivity"
         private const val CRASH_LOOP_MAX = 3
         private const val KEEP_ACTIVE_INTERVAL_MS = 1_000L
-
-        private val liveInstances = mutableSetOf<BrowserActivity>()
-
-        fun hasLiveInstances(): Boolean = liveInstances.isNotEmpty()
-
-        fun finishAll() {
-            liveInstances.toList().forEach { it.finish() }
-        }
     }
 }

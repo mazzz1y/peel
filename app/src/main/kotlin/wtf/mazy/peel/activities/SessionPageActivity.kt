@@ -2,8 +2,6 @@ package wtf.mazy.peel.activities
 
 import android.os.Bundle
 import androidx.activity.OnBackPressedCallback
-import androidx.activity.enableEdgeToEdge
-import androidx.core.graphics.drawable.toDrawable
 import androidx.lifecycle.lifecycleScope
 import org.mozilla.geckoview.GeckoSession
 import wtf.mazy.peel.R
@@ -11,14 +9,9 @@ import wtf.mazy.peel.browser.BaseSessionHost
 import wtf.mazy.peel.browser.DownloadHandler
 import wtf.mazy.peel.browser.PeelContentDelegate
 import wtf.mazy.peel.browser.PeelNavigationDelegate
-import wtf.mazy.peel.browser.PeelPermissionDelegate
-import wtf.mazy.peel.browser.PeelProgressDelegate
-import wtf.mazy.peel.browser.PeelPromptDelegate
-import wtf.mazy.peel.browser.SessionContextRegistry
 import wtf.mazy.peel.gecko.GeckoRuntimeProvider
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.WebApp
-import wtf.mazy.peel.util.disableSystemBarContrastEnforcement
 
 abstract class SessionPageActivity : BaseSessionHost() {
 
@@ -31,7 +24,8 @@ abstract class SessionPageActivity : BaseSessionHost() {
         get() = DataManager.instance.activeWebsites
     override val externalLinkIncludeLoadHere: Boolean = false
 
-    protected open val showToolbar: Boolean = true
+    override val showToolbar: Boolean = true
+    override val isBrowserHost: Boolean = false
     protected open val isContentInitiatedWindow: Boolean = false
 
     private val backCallback = object : OnBackPressedCallback(false) {
@@ -48,17 +42,13 @@ abstract class SessionPageActivity : BaseSessionHost() {
             updateBackCallbackEnabled()
         }
 
-    private fun updateBackCallbackEnabled() {
+    override fun updateBackCallbackEnabled() {
         backCallback.isEnabled = canGoBack || isWebFullscreen
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.AppTheme_Browser)
-        enableEdgeToEdge()
-        disableSystemBarContrastEnforcement()
         super.onCreate(savedInstanceState)
-        window.setBackgroundDrawable(themeBackgroundColor.toDrawable())
-        setupSessionHostLayout(showToolbar = showToolbar)
         applyWindowFlags(effectiveSettings)
 
         toolbar?.let {
@@ -68,7 +58,6 @@ abstract class SessionPageActivity : BaseSessionHost() {
         }
 
         geckoView?.coverUntilFirstPaint(themeBackgroundColor)
-        SessionContextRegistry.register(this, sessionContextId)
         onBackPressedDispatcher.addCallback(this, backCallback)
         onSessionHostReady()
     }
@@ -83,22 +72,14 @@ abstract class SessionPageActivity : BaseSessionHost() {
             scope = lifecycleScope,
             webappName = webAppName,
         )
-        session.navigationDelegate = navigationDelegate
-        session.contentDelegate = PeelContentDelegate(
-            host = this,
-            onDownload = { response -> downloadHandler.onExternalResponse(response) },
-            onTitleChange = { title -> onPageTitleChanged(title) },
+        bindDelegates(
+            session,
+            PeelContentDelegate(
+                host = this,
+                onDownload = { response -> downloadHandler.onExternalResponse(response) },
+                onTitleChange = { title -> onPageTitleChanged(title) },
+            ),
         )
-        session.progressDelegate = PeelProgressDelegate(this)
-        session.promptDelegate = PeelPromptDelegate(this)
-        session.permissionDelegate = PeelPermissionDelegate(this)
-        attachScrollDelegate(session)
-    }
-
-    protected fun displaySession(session: GeckoSession) {
-        geckoSession = session
-        geckoView?.setSession(session)
-        geckoView?.coverUntilFirstPaint(themeBackgroundColor)
     }
 
     override fun onStart() {
@@ -122,7 +103,6 @@ abstract class SessionPageActivity : BaseSessionHost() {
         closeGeckoSession()
         geckoView = null
         super.onDestroy()
-        SessionContextRegistry.unregister(this)
     }
 
     override fun onLocationChanged(url: String) {
@@ -133,20 +113,4 @@ abstract class SessionPageActivity : BaseSessionHost() {
 
     override fun onPageStarted() = Unit
     override fun onFirstContentfulPaint() = Unit
-
-    override fun onWebFullscreenEnter() {
-        systemBarController.hide()
-        setToolbarFullscreen(true)
-        setBrowserControlsFullscreen(true)
-        pullToRefreshController.setSuspended(true)
-        updateBackCallbackEnabled()
-    }
-
-    override fun onWebFullscreenExit() {
-        systemBarController.show(effectiveSettings.isShowFullscreen == true)
-        setToolbarFullscreen(false)
-        setBrowserControlsFullscreen(false)
-        pullToRefreshController.setSuspended(false)
-        updateBackCallbackEnabled()
-    }
 }

@@ -15,6 +15,8 @@ object ActivityRoutes {
         private set
     lateinit var webAppSettings: Class<out Activity>
         private set
+    lateinit var notificationClick: Class<out Activity>
+        private set
 
     fun install(
         browser: Class<out Activity>,
@@ -23,6 +25,7 @@ object ActivityRoutes {
         linkRouter: Class<out Activity>,
         trampoline: Class<out Activity>,
         webAppSettings: Class<out Activity>,
+        notificationClick: Class<out Activity>,
     ) {
         this.browser = browser
         this.popup = popup
@@ -30,5 +33,6 @@ object ActivityRoutes {
         this.linkRouter = linkRouter
         this.trampoline = trampoline
         this.webAppSettings = webAppSettings
+        this.notificationClick = notificationClick
     }
 }

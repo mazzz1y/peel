@@ -62,7 +62,7 @@ class PeelPermissionDelegate(private val host: SessionHost) : GeckoSession.Permi
                 reply(host.effectiveSettings.isDrmAllowed == true)
 
             GeckoSession.PermissionDelegate.PERMISSION_DESKTOP_NOTIFICATION -> {
-                if (AppPrefs.isPushEnabled(host.hostWindow.context)) {
+                if (AppPrefs.isPushEnabled(host.hostContext)) {
                     handleTriState(
                         WebAppSettings.PERMISSION_ASK,
                         notificationOsPermissions(),

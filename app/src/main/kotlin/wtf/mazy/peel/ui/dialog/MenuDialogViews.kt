@@ -1,4 +1,4 @@
-package wtf.mazy.peel.browser
+package wtf.mazy.peel.ui.dialog
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -12,7 +12,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.widget.TextViewCompat
 
-object MenuDialogHelper {
+object MenuDialogViews {
 
     private const val TITLE_EXPANDED_MAX_LINES = 15
 

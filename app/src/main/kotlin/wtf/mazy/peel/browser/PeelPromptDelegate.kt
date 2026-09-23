@@ -49,7 +49,7 @@ class PeelPromptDelegate(private val host: SessionHost) : GeckoSession.PromptDel
     ): GeckoResult<GeckoSession.PromptDelegate.PromptResponse> {
         val result = GeckoResult<GeckoSession.PromptDelegate.PromptResponse>()
         host.runOnUi {
-            val dialog = MaterialAlertDialogBuilder(host.hostWindow.context)
+            val dialog = MaterialAlertDialogBuilder(host.hostContext)
                 .setTitle(prompt.title)
                 .setMessage(prompt.message)
                 .setPositiveButton(android.R.string.ok) { _, _ ->
@@ -68,7 +68,7 @@ class PeelPromptDelegate(private val host: SessionHost) : GeckoSession.PromptDel
     ): GeckoResult<GeckoSession.PromptDelegate.PromptResponse> {
         val result = GeckoResult<GeckoSession.PromptDelegate.PromptResponse>()
         host.runOnUi {
-            val dialog = MaterialAlertDialogBuilder(host.hostWindow.context)
+            val dialog = MaterialAlertDialogBuilder(host.hostContext)
                 .setMessage(R.string.beforeunload_message)
                 .setPositiveButton(R.string.beforeunload_leave) { _, _ ->
                     result.complete(prompt.confirm(AllowOrDeny.ALLOW))
@@ -89,7 +89,7 @@ class PeelPromptDelegate(private val host: SessionHost) : GeckoSession.PromptDel
     ): GeckoResult<GeckoSession.PromptDelegate.PromptResponse> {
         val result = GeckoResult<GeckoSession.PromptDelegate.PromptResponse>()
         host.runOnUi {
-            val dialog = MaterialAlertDialogBuilder(host.hostWindow.context)
+            val dialog = MaterialAlertDialogBuilder(host.hostContext)
                 .setTitle(prompt.title)
                 .setMessage(prompt.message)
                 .setPositiveButton(android.R.string.ok) { _, _ ->
@@ -143,7 +143,7 @@ class PeelPromptDelegate(private val host: SessionHost) : GeckoSession.PromptDel
             val password = proxy?.password.orEmpty()
             val challengeKey = "proxy:${proxy?.uuid ?: "?"}"
             if (isPreviousFailed) {
-                val ctx = host.hostWindow.context
+                val ctx = host.hostContext
                 NotificationUtils.showToastSafe(ctx, ctx.getString(R.string.proxy_auth_failed))
             } else if (username.isNotEmpty() && proxyAuthAttempted.add(challengeKey)) {
                 return GeckoResult.fromValue(prompt.confirm(username, password))
@@ -222,7 +222,7 @@ class PeelPromptDelegate(private val host: SessionHost) : GeckoSession.PromptDel
         host.runOnUi {
             var settled = false
             val labelArray: Array<CharSequence> = labels.toTypedArray()
-            val builder = MaterialAlertDialogBuilder(host.hostWindow.context)
+            val builder = MaterialAlertDialogBuilder(host.hostContext)
                 .setTitle(prompt.title)
                 .setNegativeButton(android.R.string.cancel, null)
                 .setOnDismissListener { if (!settled) result.complete(prompt.dismiss()) }
@@ -311,7 +311,7 @@ class PeelPromptDelegate(private val host: SessionHost) : GeckoSession.PromptDel
         prompt: GeckoSession.PromptDelegate.FilePrompt,
     ): GeckoResult<GeckoSession.PromptDelegate.PromptResponse> {
         val result = GeckoResult<GeckoSession.PromptDelegate.PromptResponse>()
-        val context = host.hostWindow.context
+        val context = host.hostContext
         val mimeTypes = prompt.mimeTypes ?: emptyArray()
         val isMultiple = prompt.type == GeckoSession.PromptDelegate.FilePrompt.Type.MULTIPLE
 
@@ -414,7 +414,7 @@ class PeelPromptDelegate(private val host: SessionHost) : GeckoSession.PromptDel
     }
 
     private fun buildImageCaptureIntent(): Intent? {
-        val context = host.hostWindow.context
+        val context = host.hostContext
         val capturesDir = File(context.cacheDir, "captures").apply { mkdirs() }
         capturesDir.deleteFilesOlderThan()
         val photoFile = try {

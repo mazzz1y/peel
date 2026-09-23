@@ -8,8 +8,6 @@ import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.launch
 import wtf.mazy.peel.R
-import wtf.mazy.peel.browser.ExternalLinkResult
-import wtf.mazy.peel.browser.MenuDialogHelper
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.ui.PickerDialog
@@ -21,6 +19,18 @@ import wtf.mazy.peel.util.normalizedHost
 import wtf.mazy.peel.util.shortLabel
 import wtf.mazy.peel.util.shouldOfferOpenInSystem
 import wtf.mazy.peel.util.sortedByAffinity
+
+sealed interface ExternalLinkResult {
+    data object LoadHere : ExternalLinkResult
+    data object OpenInSystem : ExternalLinkResult
+    data object OpenIncognito : ExternalLinkResult
+    data object Share : ExternalLinkResult
+    data object CopyLink : ExternalLinkResult
+    data object Dismissed : ExternalLinkResult
+    // the launcher reports back when it is finished, which for the picker means dismissed:
+    // a standalone host activity must outlive the dialog it opens
+    data class OpenInPeelApp(val launcher: (onDone: () -> Unit) -> Unit) : ExternalLinkResult
+}
 
 object ExternalLinkMenu {
 
@@ -42,7 +52,7 @@ object ExternalLinkMenu {
 
         val content = LinearLayout(activity).apply {
             orientation = LinearLayout.VERTICAL
-            addView(MenuDialogHelper.buildDivider(activity))
+            addView(MenuDialogViews.buildDivider(activity))
 
             val match = bestPeelMatch(peelApps, url, excludeUuid)
             val icon = match?.resolveIcon()
@@ -56,7 +66,7 @@ object ExternalLinkMenu {
             } else null
 
             addView(
-                MenuDialogHelper.buildActionRow(
+                MenuDialogViews.buildActionRow(
                     activity,
                     activity.getString(R.string.open_in_peel),
                     icon,
@@ -69,7 +79,7 @@ object ExternalLinkMenu {
             )
             if (includeLoadHere) {
                 addView(
-                    MenuDialogHelper.buildActionRow(
+                    MenuDialogViews.buildActionRow(
                         activity,
                         activity.getString(R.string.open_in_current_session),
                     ) {
@@ -79,7 +89,7 @@ object ExternalLinkMenu {
             }
             if (includeOpenInSystem && activity.shouldOfferOpenInSystem(url)) {
                 addView(
-                    MenuDialogHelper.buildActionRow(
+                    MenuDialogViews.buildActionRow(
                         activity,
                         activity.getString(R.string.open_in_system),
                     ) {
@@ -88,7 +98,7 @@ object ExternalLinkMenu {
                 )
             }
             addView(
-                MenuDialogHelper.buildActionRow(
+                MenuDialogViews.buildActionRow(
                     activity,
                     activity.getString(R.string.open_incognito_action),
                 ) {
@@ -97,7 +107,7 @@ object ExternalLinkMenu {
             )
             if (includeShareAndCopy) {
                 addView(
-                    MenuDialogHelper.buildActionRow(
+                    MenuDialogViews.buildActionRow(
                         activity,
                         activity.getString(R.string.context_menu_share_link),
                     ) {
@@ -105,7 +115,7 @@ object ExternalLinkMenu {
                     }
                 )
                 addView(
-                    MenuDialogHelper.buildActionRow(
+                    MenuDialogViews.buildActionRow(
                         activity,
                         activity.getString(R.string.context_menu_copy_link),
                     ) {
@@ -117,10 +127,10 @@ object ExternalLinkMenu {
 
         dialog = MaterialAlertDialogBuilder(activity)
             .setCustomTitle(
-                MenuDialogHelper.buildHeader(
+                MenuDialogViews.buildHeader(
                     activity,
                     null,
-                    MenuDialogHelper.prettyDataUrl(url)
+                    MenuDialogViews.prettyDataUrl(url)
                 )
             )
             .setView(content)

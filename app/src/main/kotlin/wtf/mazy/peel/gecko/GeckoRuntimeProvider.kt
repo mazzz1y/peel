@@ -4,7 +4,6 @@ import android.content.Context
 import android.os.LocaleList
 import android.util.Log
 import androidx.annotation.StringRes
-import androidx.appcompat.app.AppCompatActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -30,10 +29,6 @@ import wtf.mazy.peel.model.WebAppSettings
 import wtf.mazy.peel.push.PushBridge
 import wtf.mazy.peel.push.ServiceWorkerBridge
 import wtf.mazy.peel.push.WebNotificationBridge
-import wtf.mazy.peel.ui.extensions.ExtensionIconCache
-import wtf.mazy.peel.ui.extensions.ExtensionPermissionPrompt
-import wtf.mazy.peel.ui.extensions.SessionExtensionActions
-import wtf.mazy.peel.util.ForegroundActivityTracker
 import wtf.mazy.peel.util.webContentDensityOverride
 import java.io.File
 import java.util.Locale
@@ -50,6 +45,10 @@ object GeckoRuntimeProvider {
     private val installMutex = Mutex()
 
     private val promptScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
+
+    /** UI-side hooks installed by the application class; the runtime layer never imports `ui/`. */
+    @Volatile
+    var extensionUi: ExtensionUiHooks? = null
 
     @Volatile
     private var runtime: GeckoRuntime? = null
@@ -94,30 +93,8 @@ object GeckoRuntimeProvider {
         }
     }
 
-    private suspend fun showPrompt(
-        ext: WebExtension,
-        permissions: Array<String>,
-        origins: Array<String>,
-        @StringRes titleRes: Int,
-        @StringRes summaryRes: Int,
-        @StringRes positiveRes: Int,
-        showEvenIfEmpty: Boolean,
-    ): Boolean {
-        val activity = ForegroundActivityTracker.current as? AppCompatActivity ?: return false
-        return ExtensionPermissionPrompt.confirm(
-            activity = activity,
-            title = activity.getString(titleRes),
-            summaryRes = summaryRes,
-            ext = ext,
-            permissions = permissions,
-            origins = origins,
-            showEvenIfEmpty = showEvenIfEmpty,
-            positiveRes = positiveRes,
-        )
-    }
-
     private fun notifyExtensionStateChanged(event: ExtensionStateEvent) {
-        SessionExtensionActions.extensionsChanged = true
+        extensionUi?.onExtensionStateChanged(event)
         extensionStateListeners.forEach { it.onExtensionStateChanged(event) }
     }
 
@@ -125,14 +102,12 @@ object GeckoRuntimeProvider {
         rt.webExtensionController.setAddonManagerDelegate(
             object : WebExtensionController.AddonManagerDelegate {
                 override fun onInstalled(extension: WebExtension) {
-                    promptScope.launch {
-                        ExtensionIconCache.refreshFromExtension(context, extension)
-                    }
+                    promptScope.launch { extensionUi?.onExtensionInstalled(context, extension) }
                     notifyExtensionStateChanged(ExtensionStateEvent.ADDED)
                 }
 
                 override fun onUninstalled(extension: WebExtension) {
-                    ExtensionIconCache.delete(context, extension.id)
+                    extensionUi?.onExtensionUninstalled(context, extension)
                     notifyExtensionStateChanged(ExtensionStateEvent.REMOVED)
                 }
 
@@ -202,14 +177,14 @@ object GeckoRuntimeProvider {
         for (ext in listUserExtensions(context)) {
             val result = runCatching { updateExtension(context, ext) }
                 .getOrNull()
-            if (result != null) ExtensionIconCache.refreshFromExtension(context, result)
+            if (result != null) extensionUi?.onExtensionInstalled(context, result)
         }
     }
 
     suspend fun listUserExtensions(context: Context): List<WebExtension> {
         val extensions = getRuntime(context).webExtensionController.list().await()
             .filter { it.id !in BUILT_IN_IDS }
-        SessionExtensionActions.ensureExtensionDelegatesRegistered(extensions)
+        extensionUi?.onUserExtensionsListed(extensions)
         return extensions
     }
 
@@ -219,6 +194,18 @@ object GeckoRuntimeProvider {
 
     private fun setupPromptDelegate(rt: GeckoRuntime) {
         rt.webExtensionController.promptDelegate = object : WebExtensionController.PromptDelegate {
+            suspend fun showPrompt(
+                ext: WebExtension,
+                permissions: Array<String>,
+                origins: Array<String>,
+                @StringRes titleRes: Int,
+                @StringRes summaryRes: Int,
+                @StringRes positiveRes: Int,
+                showEvenIfEmpty: Boolean,
+            ): Boolean = extensionUi?.confirmPermissions(
+                ext, permissions, origins, titleRes, summaryRes, positiveRes, showEvenIfEmpty,
+            ) == true
+
             override fun onInstallPromptRequest(
                 extension: WebExtension,
                 permissions: Array<String>,

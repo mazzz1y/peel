@@ -16,6 +16,7 @@ import wtf.mazy.peel.model.ApplyTiming
 import wtf.mazy.peel.model.ApplyTimingRegistry
 import wtf.mazy.peel.model.SettingSection
 import wtf.mazy.peel.ui.dialog.AboutDialog
+import wtf.mazy.peel.ui.settings.SettingsHubController
 
 class SettingsHubActivity : ToolbarBaseActivity<SettingsHubBinding>() {
 
@@ -24,7 +25,7 @@ class SettingsHubActivity : ToolbarBaseActivity<SettingsHubBinding>() {
             if (result.resultCode == RESULT_OK) forwardApplyTiming(result.data)
         }
 
-    private val actions = SettingsHubActions(this)
+    private val actions = SettingsHubController(this, ImportActivity::class.java)
 
     private var pendingTiming: ApplyTiming? = null
 

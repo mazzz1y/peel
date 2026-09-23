@@ -125,17 +125,10 @@ object WebNotificationBridge {
         origin: String,
         notification: WebNotification,
     ): PendingIntent {
-        val intent = Intent(context, NotificationClickActivity::class.java)
-            .setData("peel-notification://click/$tag".toUri())
-            .putExtra(NotificationClickActivity.EXTRA_TAG, tag)
-            .putExtra(NotificationClickActivity.EXTRA_WEBAPP_UUID, webappUuid)
-            .putExtra(NotificationClickActivity.EXTRA_ORIGIN, origin)
-            .putExtra(NotificationClickActivity.EXTRA_NOTIFICATION, notification)
-            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         return PendingIntent.getActivity(
             context,
             tag.hashCode(),
-            intent,
+            NotificationClickLaunch.intent(context, tag, webappUuid, origin, notification),
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
     }

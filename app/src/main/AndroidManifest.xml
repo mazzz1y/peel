@@ -175,7 +175,7 @@
             android:exported="false" />
 
         <activity
-            android:name=".push.NotificationClickActivity"
+            android:name=".activities.NotificationClickActivity"
             android:excludeFromRecents="true"
             android:exported="false"
             android:noHistory="true"

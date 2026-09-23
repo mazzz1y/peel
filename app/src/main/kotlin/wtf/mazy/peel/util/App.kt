@@ -12,6 +12,7 @@ import kotlinx.coroutines.launch
 import wtf.mazy.peel.activities.BrowserActivity
 import wtf.mazy.peel.activities.ExtensionPageActivity
 import wtf.mazy.peel.activities.IncomingLinkActivity
+import wtf.mazy.peel.activities.NotificationClickActivity
 import wtf.mazy.peel.activities.PopupActivity
 import wtf.mazy.peel.activities.TrampolineActivity
 import wtf.mazy.peel.activities.WebAppSettingsActivity
@@ -21,6 +22,7 @@ import wtf.mazy.peel.gecko.GeckoRuntimeProvider
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.SandboxManager
 import wtf.mazy.peel.push.PushBridge
+import wtf.mazy.peel.ui.extensions.ExtensionUiBridge
 import wtf.mazy.peel.work.ExtensionUpdateScheduler
 
 class App : Application() {
@@ -41,11 +43,13 @@ class App : Application() {
             linkRouter = IncomingLinkActivity::class.java,
             trampoline = TrampolineActivity::class.java,
             webAppSettings = WebAppSettingsActivity::class.java,
+            notificationClick = NotificationClickActivity::class.java,
         )
         if (getProcessName() != packageName) {
             return
         }
         registerActivityLifecycleCallbacks(ForegroundActivityTracker)
+        GeckoRuntimeProvider.extensionUi = ExtensionUiBridge
         ForegroundActivityTracker.onBackground = {
             GeckoRuntimeProvider.runtimeOrNull()?.let {
                 SandboxManager.flushPendingClears(applicationContext, it)

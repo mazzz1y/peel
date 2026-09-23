@@ -8,6 +8,7 @@ import androidx.core.net.toUri
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import org.mozilla.geckoview.GeckoSession
 import wtf.mazy.peel.R
+import wtf.mazy.peel.ui.dialog.MenuDialogViews
 import wtf.mazy.peel.util.BrowserLauncher
 import wtf.mazy.peel.util.copyToClipboard
 import wtf.mazy.peel.util.shareText
@@ -120,13 +121,13 @@ class BrowserContextMenu(
 
         val content = LinearLayout(activity).apply {
             orientation = LinearLayout.VERTICAL
-            addView(MenuDialogHelper.buildDivider(activity))
+            addView(MenuDialogViews.buildDivider(activity))
             val sections = listOf(info.linkActions, info.imageActions).filter { it.isNotEmpty() }
             sections.forEachIndexed { i, actions ->
-                if (i > 0) addView(MenuDialogHelper.buildDivider(activity))
+                if (i > 0) addView(MenuDialogViews.buildDivider(activity))
                 actions.forEach { action ->
                     addView(
-                        MenuDialogHelper.buildActionRow(
+                        MenuDialogViews.buildActionRow(
                             activity,
                             action.label,
                             action.icon,
@@ -140,10 +141,10 @@ class BrowserContextMenu(
 
         dialog = MaterialAlertDialogBuilder(activity)
             .setCustomTitle(
-                MenuDialogHelper.buildHeader(
+                MenuDialogViews.buildHeader(
                     activity,
                     info.title,
-                    MenuDialogHelper.prettyDataUrl(info.url),
+                    MenuDialogViews.prettyDataUrl(info.url),
                 )
             )
             .setView(content)

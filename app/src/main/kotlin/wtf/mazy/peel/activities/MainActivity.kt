@@ -31,6 +31,7 @@ import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.coroutines.launch
 import wtf.mazy.peel.R
+import wtf.mazy.peel.browser.SessionHostRegistry
 import wtf.mazy.peel.gecko.GeckoRuntimeProvider
 import wtf.mazy.peel.model.BackupManager
 import wtf.mazy.peel.model.DataManager
@@ -196,7 +197,7 @@ class MainActivity :
     }
 
     private fun handleSettingsResult(data: Intent?) {
-        showApplyTimingSnackbar(this, data, BrowserActivity.hasLiveInstances())
+        showApplyTimingSnackbar(this, data, SessionHostRegistry.hasLiveBrowsers)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
