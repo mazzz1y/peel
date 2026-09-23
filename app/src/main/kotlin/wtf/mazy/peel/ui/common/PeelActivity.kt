@@ -1,4 +1,4 @@
-package wtf.mazy.peel.activities
+package wtf.mazy.peel.ui.common
 
 import android.content.Context
 import androidx.appcompat.app.AppCompatActivity

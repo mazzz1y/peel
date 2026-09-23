@@ -35,6 +35,12 @@
     <dimen name="settings_entry_min_height">48dp</dimen>
     <dimen name="settings_row_label_gap">4dp</dimen>
     <dimen name="settings_icon_slot_width">40dp</dimen>
+    <dimen name="settings_header_gap_bottom">16dp</dimen>
+    <dimen name="settings_touch_target">48dp</dimen>
+    <!-- 48dp touch-target line minus 14dp puts one-line labelLarge text at the section gap; 2dp rest completes the 16dp gap below -->
+    <dimen name="settings_header_pull_up">-14dp</dimen>
+    <dimen name="settings_header_pull_up_rest">2dp</dimen>
+    <dimen name="settings_nested_row_inset">40dp</dimen>
 
     <dimen name="settings_hub_card_margin_horizontal">12dp</dimen>
     <dimen name="settings_hub_card_margin_vertical">6dp</dimen>

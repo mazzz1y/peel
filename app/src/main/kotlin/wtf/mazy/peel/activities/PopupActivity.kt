@@ -1,13 +1,12 @@
 package wtf.mazy.peel.activities
 
-import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import wtf.mazy.peel.R
 import wtf.mazy.peel.browser.PeelTranslationDelegate
+import wtf.mazy.peel.browser.PopupLaunch
 import wtf.mazy.peel.browser.PopupSessionHolder
 import wtf.mazy.peel.browser.TranslationLanguages
 import wtf.mazy.peel.gecko.ExtensionStateEvent
@@ -45,36 +44,36 @@ class PopupActivity : SessionPageActivity() {
     override val isContentInitiatedWindow = true
 
     override val webAppName: String
-        get() = intent.getStringExtra(EXTRA_TITLE).orEmpty().ifEmpty { lastLoadedUrl }
+        get() = intent.getStringExtra(PopupLaunch.EXTRA_TITLE).orEmpty().ifEmpty { lastLoadedUrl }
 
     override val policyOrigin: String
-        get() = intent.getStringExtra(EXTRA_POLICY_ORIGIN).orEmpty()
+        get() = intent.getStringExtra(PopupLaunch.EXTRA_POLICY_ORIGIN).orEmpty()
 
     override val externalLinkExcludeUuid: String?
         get() = ownerWebAppUuid
 
     override val sessionContextId: String?
-        get() = intent.getStringExtra(EXTRA_CONTEXT_ID)
+        get() = intent.getStringExtra(PopupLaunch.EXTRA_CONTEXT_ID)
     override val sessionPrivateMode: Boolean
-        get() = intent.getBooleanExtra(EXTRA_PRIVATE_MODE, false)
+        get() = intent.getBooleanExtra(PopupLaunch.EXTRA_PRIVATE_MODE, false)
 
     override val ownerWebAppUuid: String?
-        get() = intent.getStringExtra(EXTRA_OWNER_UUID)
+        get() = intent.getStringExtra(PopupLaunch.EXTRA_OWNER_UUID)
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        snapshotSettings = intent.getStringExtra(EXTRA_SETTINGS)
+        snapshotSettings = intent.getStringExtra(PopupLaunch.EXTRA_SETTINGS)
             ?.let { runCatching { Json.decodeFromString<WebAppSettings>(it) }.getOrNull() }
             ?: DataManager.instance.defaultSettings.settings
         super.onCreate(savedInstanceState)
-        liveInstances.add(this)
+        PopupLaunch.track(this, ownerWebAppUuid)
     }
 
     override fun onSessionHostReady() {
-        val key = intent.getStringExtra(EXTRA_SESSION_KEY) ?: run { finish(); return }
+        val key = intent.getStringExtra(PopupLaunch.EXTRA_SESSION_KEY) ?: run { finish(); return }
         val popup = PopupSessionHolder.take(key) ?: run { finish(); return }
         connectSession(popup)
         translationDelegate = PeelTranslationDelegate(this).also {
-            it.presetManualTarget(intent.getStringExtra(EXTRA_TRANSLATE_TARGET))
+            it.presetManualTarget(intent.getStringExtra(PopupLaunch.EXTRA_TRANSLATE_TARGET))
             popup.translationsSessionDelegate = it
         }
         sessionExtensionActions.attach(popup)
@@ -98,10 +97,10 @@ class PopupActivity : SessionPageActivity() {
     }
 
     override fun onDestroy() {
-        intent.getStringExtra(EXTRA_SESSION_KEY)?.let { PopupSessionHolder.take(it)?.close() }
+        intent.getStringExtra(PopupLaunch.EXTRA_SESSION_KEY)?.let { PopupSessionHolder.take(it)?.close() }
         sessionExtensionActions.detach()
         systemBarController.release()
-        liveInstances.remove(this)
+        PopupLaunch.untrack(this)
         super.onDestroy()
     }
 
@@ -160,43 +159,6 @@ class PopupActivity : SessionPageActivity() {
     }
 
     companion object {
-        const val EXTRA_SESSION_KEY = "popup_session_key"
-        const val EXTRA_TITLE = "popup_title"
-        const val EXTRA_SETTINGS = "popup_settings"
-        const val EXTRA_CONTEXT_ID = "popup_context_id"
-        const val EXTRA_PRIVATE_MODE = "popup_private_mode"
-        const val EXTRA_OWNER_UUID = "popup_owner_uuid"
-        const val EXTRA_TRANSLATE_TARGET = "popup_translate_target"
-        const val EXTRA_POLICY_ORIGIN = "popup_policy_origin"
-
         private const val FLOATING_CONTROLS_KEY = "popup"
-
-        private val liveInstances = mutableSetOf<PopupActivity>()
-
-        fun finishByOwner(ownerUuid: String) {
-            liveInstances.filter { it.ownerWebAppUuid == ownerUuid }.forEach { it.finish() }
-        }
-
-        fun intentFor(
-            context: Context,
-            key: String,
-            title: String,
-            settings: WebAppSettings,
-            contextId: String?,
-            privateMode: Boolean,
-            ownerWebAppUuid: String?,
-            translateTarget: String?,
-            policyOrigin: String,
-        ): Intent {
-            return Intent(context, PopupActivity::class.java)
-                .putExtra(EXTRA_SESSION_KEY, key)
-                .putExtra(EXTRA_TITLE, title)
-                .putExtra(EXTRA_SETTINGS, Json.encodeToString(settings))
-                .putExtra(EXTRA_CONTEXT_ID, contextId)
-                .putExtra(EXTRA_PRIVATE_MODE, privateMode)
-                .putExtra(EXTRA_OWNER_UUID, ownerWebAppUuid)
-                .putExtra(EXTRA_TRANSLATE_TARGET, translateTarget)
-                .putExtra(EXTRA_POLICY_ORIGIN, policyOrigin)
-        }
     }
 }

@@ -1,4 +1,4 @@
-package wtf.mazy.peel.ui.settings
+package wtf.mazy.peel.ui.common
 
 enum class GroupPosition {
     ONLY, FIRST, MIDDLE, LAST;

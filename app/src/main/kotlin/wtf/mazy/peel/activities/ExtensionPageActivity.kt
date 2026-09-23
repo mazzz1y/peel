@@ -1,7 +1,5 @@
 package wtf.mazy.peel.activities
 
-import android.content.Context
-import android.content.Intent
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import org.mozilla.geckoview.GeckoSession
@@ -10,6 +8,7 @@ import wtf.mazy.peel.browser.PopupSessionHolder
 import wtf.mazy.peel.gecko.GeckoRuntimeProvider
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.WebAppSettings
+import wtf.mazy.peel.ui.extensions.ExtensionPageLaunch
 
 class ExtensionPageActivity : SessionPageActivity() {
 
@@ -17,7 +16,7 @@ class ExtensionPageActivity : SessionPageActivity() {
         get() = DataManager.instance.defaultSettings.settings
 
     private val adoptedSessionKey: String?
-        get() = intent.getStringExtra(EXTRA_SESSION_KEY)
+        get() = intent.getStringExtra(ExtensionPageLaunch.EXTRA_SESSION_KEY)
 
     private var adoptedSession: GeckoSession? = null
 
@@ -30,13 +29,13 @@ class ExtensionPageActivity : SessionPageActivity() {
         val session = PopupSessionHolder.take(key) ?: run { finish(); return }
         adoptedSession = session
         supportActionBar?.title =
-            intent.getStringExtra(EXTRA_TITLE) ?: getString(R.string.extensions)
+            intent.getStringExtra(ExtensionPageLaunch.EXTRA_TITLE) ?: getString(R.string.extensions)
         connectSession(session)
         displaySession(session)
     }
 
     private fun openOptionsPage() {
-        val extensionId = intent.getStringExtra(EXTRA_EXTENSION_ID) ?: run { finish(); return }
+        val extensionId = intent.getStringExtra(ExtensionPageLaunch.EXTRA_EXTENSION_ID) ?: run { finish(); return }
         lifecycleScope.launch {
             val extensions = GeckoRuntimeProvider.listUserExtensions(this@ExtensionPageActivity)
             val ext = extensions.find { it.id == extensionId } ?: run { finish(); return@launch }
@@ -58,10 +57,7 @@ class ExtensionPageActivity : SessionPageActivity() {
 
     override fun onDestroy() {
         val session = adoptedSession
-        if (session != null) {
-            val callback = synchronized(onCloseCallbacks) { onCloseCallbacks.remove(session) }
-            callback?.invoke()
-        }
+        if (session != null) ExtensionPageLaunch.takeOnCloseCallback(session)?.invoke()
         super.onDestroy()
     }
 
@@ -77,32 +73,5 @@ class ExtensionPageActivity : SessionPageActivity() {
         if (isFinishing || isDestroyed) return
         closeGeckoSession()
         openSession(baseUrl)
-    }
-
-    companion object {
-        const val EXTRA_EXTENSION_ID = "extension_id"
-        private const val EXTRA_SESSION_KEY = "session_key"
-        private const val EXTRA_TITLE = "title"
-
-        private val onCloseCallbacks = mutableMapOf<GeckoSession, () -> Unit>()
-
-        fun intentForExtension(context: Context, extensionId: String): Intent {
-            return Intent(context, ExtensionPageActivity::class.java)
-                .putExtra(EXTRA_EXTENSION_ID, extensionId)
-        }
-
-        fun intentForSession(context: Context, key: String, title: String): Intent {
-            return Intent(context, ExtensionPageActivity::class.java)
-                .putExtra(EXTRA_SESSION_KEY, key)
-                .putExtra(EXTRA_TITLE, title)
-        }
-
-        fun setOnCloseCallback(session: GeckoSession, callback: () -> Unit) {
-            synchronized(onCloseCallbacks) { onCloseCallbacks[session] = callback }
-        }
-
-        fun clearOnCloseCallback(session: GeckoSession) {
-            synchronized(onCloseCallbacks) { onCloseCallbacks.remove(session) }
-        }
     }
 }

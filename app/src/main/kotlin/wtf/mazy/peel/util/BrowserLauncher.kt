@@ -6,7 +6,6 @@ import android.content.Intent
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import wtf.mazy.peel.R
-import wtf.mazy.peel.activities.BrowserActivity
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.ui.BiometricPromptHelper
@@ -39,7 +38,7 @@ object BrowserLauncher {
             privateSession = true,
         )
         c.startActivity(
-            Intent(c, BrowserActivity::class.java)
+            Intent(c, ActivityRoutes.browser)
                 .identifyWebApp(uuid)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
         )
@@ -58,7 +57,7 @@ object BrowserLauncher {
 
     internal fun createIntent(webapp: WebApp, c: Context?): Intent? {
         if (c == null) return null
-        return Intent(c, BrowserActivity::class.java).identifyWebApp(webapp.uuid)
+        return Intent(c, ActivityRoutes.browser).identifyWebApp(webapp.uuid)
     }
 
     private fun showBiometricError(c: Context, error: String) {

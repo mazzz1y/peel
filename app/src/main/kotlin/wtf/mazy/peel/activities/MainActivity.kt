@@ -32,12 +32,11 @@ import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.coroutines.launch
 import wtf.mazy.peel.R
 import wtf.mazy.peel.gecko.GeckoRuntimeProvider
-import wtf.mazy.peel.model.ApplyTiming
-import wtf.mazy.peel.model.ApplyTimingRegistry
 import wtf.mazy.peel.model.BackupManager
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.ui.common.LoadingDialogController
+import wtf.mazy.peel.ui.common.PeelActivity
 import wtf.mazy.peel.ui.common.Theming
 import wtf.mazy.peel.ui.common.runWithLoader
 import wtf.mazy.peel.ui.dialog.ImportDialogHelper
@@ -45,6 +44,7 @@ import wtf.mazy.peel.ui.dialog.showSandboxInputDialog
 import wtf.mazy.peel.ui.entitylist.EntityListAnimations
 import wtf.mazy.peel.ui.entitylist.EntitySelectionController
 import wtf.mazy.peel.ui.entitylist.SelectionConfig
+import wtf.mazy.peel.ui.settings.showApplyTimingSnackbar
 import wtf.mazy.peel.ui.webapplist.GroupPagerAdapter
 import wtf.mazy.peel.ui.webapplist.SearchModeController
 import wtf.mazy.peel.ui.webapplist.SearchableHost
@@ -55,7 +55,6 @@ import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.NotificationUtils
 import wtf.mazy.peel.util.applyToolbarScreenInsets
 import wtf.mazy.peel.util.disableSystemBarContrastEnforcement
-import wtf.mazy.peel.util.restartApp
 
 class MainActivity :
     PeelActivity(),
@@ -86,7 +85,7 @@ class MainActivity :
     private val notificationPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { }
 
-    private val importDialogHelper = ImportDialogHelper(this)
+    private val importDialogHelper = ImportDialogHelper(this, ImportActivity::class.java)
 
     private val settingsLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -196,17 +195,12 @@ class MainActivity :
         super.onDestroy()
     }
 
-    fun launchSettings(intent: Intent) {
+    override fun launchSettings(intent: Intent) {
         settingsLauncher.launch(intent)
     }
 
     private fun handleSettingsResult(data: Intent?) {
-        val timingName = data?.getStringExtra(ApplyTimingRegistry.EXTRA_APPLY_TIMING) ?: return
-        val timing = ApplyTiming.valueOf(timingName)
-        ApplyTimingRegistry.showSnackbarForTiming(
-            timing,
-            findViewById(android.R.id.content),
-        ) { restartApp(this) }
+        showApplyTimingSnackbar(this, data, BrowserActivity.hasLiveInstances())
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -247,11 +241,11 @@ class MainActivity :
         fragmentRegistry.values.forEach { it.updateWebAppList() }
     }
 
-    fun registerFragment(groupFilter: String?, fragment: WebAppListFragment) {
+    override fun registerFragment(groupFilter: String?, fragment: WebAppListFragment) {
         fragmentRegistry[groupFilter] = fragment
     }
 
-    fun unregisterFragment(groupFilter: String?) {
+    override fun unregisterFragment(groupFilter: String?) {
         fragmentRegistry.remove(groupFilter)
     }
 

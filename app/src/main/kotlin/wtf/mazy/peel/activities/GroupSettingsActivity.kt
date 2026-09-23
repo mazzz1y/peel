@@ -25,9 +25,9 @@ import wtf.mazy.peel.ui.IconEditorController
 import wtf.mazy.peel.ui.dialog.InputDialogConfig
 import wtf.mazy.peel.ui.dialog.OverridePickerDialog
 import wtf.mazy.peel.ui.dialog.showInputDialog
-import wtf.mazy.peel.ui.settings.GroupPosition
+import wtf.mazy.peel.ui.common.GroupPosition
 import wtf.mazy.peel.ui.settings.OverridePickerController
-import wtf.mazy.peel.ui.settings.SettingsSurface
+import wtf.mazy.peel.ui.common.SettingsSurface
 import wtf.mazy.peel.ui.settings.SandboxSwitchController
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.NotificationUtils.showToast

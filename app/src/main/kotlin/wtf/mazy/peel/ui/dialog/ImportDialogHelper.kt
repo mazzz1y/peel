@@ -1,17 +1,13 @@
 package wtf.mazy.peel.ui.dialog
 
 import android.app.Activity
-import android.content.Intent
 import android.net.Uri
 import android.widget.TextView
 import android.widget.Toast
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.CancellationException
 import wtf.mazy.peel.R
-import wtf.mazy.peel.activities.ImportActivity
 import wtf.mazy.peel.model.BackupManager
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.ImportMode
@@ -19,30 +15,25 @@ import wtf.mazy.peel.model.ParsedBackup
 import wtf.mazy.peel.model.backup.BackupSource
 import wtf.mazy.peel.ui.common.LoadingDialogController
 import wtf.mazy.peel.ui.common.runWithLoader
+import wtf.mazy.peel.ui.importmapping.ImportMappingContract
 import wtf.mazy.peel.util.NotificationUtils
 import javax.crypto.BadPaddingException
 
 class ImportDialogHelper(
     private val activity: AppCompatActivity,
+    mappingActivity: Class<out Activity>,
 ) {
 
     private val loader = LoadingDialogController(activity)
 
-    val importLauncher: ActivityResultLauncher<Intent> =
-        activity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            val parsed = ImportActivity.pendingBackup ?: return@registerForActivityResult
-            ImportActivity.pendingBackup = null
-            if (result.resultCode != Activity.RESULT_OK) return@registerForActivityResult
-            val data = result.data ?: return@registerForActivityResult
-            val selectedUuids = data.getStringArrayExtra(ImportActivity.RESULT_SELECTED_UUIDS)
-                ?.toSet() ?: return@registerForActivityResult
-            val selectedGroupUuids =
-                data.getStringArrayExtra(ImportActivity.RESULT_SELECTED_GROUP_UUIDS)?.toSet()
-            if (selectedGroupUuids != null) {
-                performGroupSharedImport(parsed, selectedUuids, selectedGroupUuids)
-            } else {
-                val groupUuid = data.getStringExtra(ImportActivity.RESULT_GROUP_UUID)
-                performSharedImport(parsed, selectedUuids, groupUuid)
+    private val mappingLauncher =
+        activity.registerForActivityResult(ImportMappingContract(mappingActivity)) { selection ->
+            when (selection) {
+                is ImportMappingContract.Selection.Groups ->
+                    performGroupSharedImport(selection.parsed, selection.appUuids, selection.groupUuids)
+                is ImportMappingContract.Selection.Apps ->
+                    performSharedImport(selection.parsed, selection.appUuids, selection.destinationGroupUuid)
+                null -> Unit
             }
         }
 
@@ -166,11 +157,7 @@ class ImportDialogHelper(
     }
 
     private fun launchImportActivity(parsed: ParsedBackup, groupShare: Boolean) {
-        ImportActivity.pendingBackup = parsed
-        importLauncher.launch(
-            Intent(activity, ImportActivity::class.java)
-                .putExtra(ImportActivity.EXTRA_GROUP_SHARE, groupShare)
-        )
+        mappingLauncher.launch(ImportMappingContract.Request(parsed, groupShare))
     }
 
     private fun performSharedImport(

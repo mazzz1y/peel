@@ -4,6 +4,6 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:paddingHorizontal="@dimen/settings_row_padding_horizontal"
-    android:paddingBottom="8dp"
+    android:paddingBottom="@dimen/settings_header_gap_bottom"
     android:textAppearance="?attr/textAppearanceLabelLarge"
     android:textColor="?attr/colorPrimary" />

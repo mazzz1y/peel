@@ -9,6 +9,7 @@ import wtf.mazy.peel.gecko.GeckoRuntimeProvider
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.ui.PickerDialog
+import wtf.mazy.peel.ui.common.PeelActivity
 import wtf.mazy.peel.util.BrowserLauncher
 import wtf.mazy.peel.util.Const
 

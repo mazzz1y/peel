@@ -14,6 +14,8 @@ import wtf.mazy.peel.R
 import wtf.mazy.peel.model.StableIdRegistry
 import wtf.mazy.peel.model.WebAppSurrogate
 import wtf.mazy.peel.shortcut.LetterIconGenerator
+import wtf.mazy.peel.ui.common.GroupPosition
+import wtf.mazy.peel.ui.common.SettingsSurface
 
 class ImportMappingAdapter(
     private val items: List<WebAppSurrogate>,
@@ -32,11 +34,13 @@ class ImportMappingAdapter(
 
     sealed interface Row {
         val rowKey: String
+        val position: GroupPosition
 
         data class GroupHeader(
             val section: GroupSection,
             val expanded: Boolean,
             val selected: Boolean,
+            override val position: GroupPosition,
         ) : Row {
             override val rowKey: String get() = "g:${section.uuid}"
         }
@@ -45,6 +49,7 @@ class ImportMappingAdapter(
             val sectionUuid: String?,
             val app: WebAppSurrogate,
             val selected: Boolean,
+            override val position: GroupPosition,
         ) : Row {
             override val rowKey: String get() = "a:${sectionUuid ?: ""}:${app.uuid}"
         }
@@ -89,7 +94,9 @@ class ImportMappingAdapter(
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        when (val row = getItem(position)) {
+        val row = getItem(position)
+        SettingsSurface.apply(holder.itemView, row.position)
+        when (row) {
             is Row.GroupHeader -> bindGroup(holder as GroupViewHolder, row)
             is Row.AppItem -> bindApp(holder as AppViewHolder, row)
         }
@@ -181,30 +188,35 @@ class ImportMappingAdapter(
 
     private fun buildRows(): List<Row> {
         if (groupSections.isEmpty()) {
-            return items.map {
+            return items.mapIndexed { index, app ->
                 Row.AppItem(
                     sectionUuid = null,
-                    app = it,
-                    selected = it.uuid in selectedUuids,
+                    app = app,
+                    selected = app.uuid in selectedUuids,
+                    position = GroupPosition.of(index, items.size),
                 )
             }
         }
         val out = mutableListOf<Row>()
         groupSections.forEach { section ->
+            val expanded = section.uuid in expandedGroups && section.apps.isNotEmpty()
+            val rowCount = if (expanded) section.apps.size + 1 else 1
             out.add(
                 Row.GroupHeader(
                     section = section,
-                    expanded = section.uuid in expandedGroups,
+                    expanded = expanded,
                     selected = section.uuid in selectedGroupUuids,
+                    position = GroupPosition.of(0, rowCount),
                 )
             )
-            if (section.uuid in expandedGroups) {
-                section.apps.forEach { app ->
+            if (expanded) {
+                section.apps.forEachIndexed { index, app ->
                     out.add(
                         Row.AppItem(
                             sectionUuid = section.uuid,
                             app = app,
                             selected = app.uuid in selectedUuids,
+                            position = GroupPosition.of(index + 1, rowCount),
                         )
                     )
                 }

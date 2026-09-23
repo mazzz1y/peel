@@ -1,4 +1,4 @@
-package wtf.mazy.peel.ui.settings
+package wtf.mazy.peel.ui.common
 
 import android.content.res.ColorStateList
 import android.view.View

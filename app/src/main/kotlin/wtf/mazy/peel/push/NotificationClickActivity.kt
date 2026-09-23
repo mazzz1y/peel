@@ -7,10 +7,10 @@ import androidx.core.net.toUri
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import org.mozilla.geckoview.WebNotification
-import wtf.mazy.peel.activities.LinkRouterActivity
-import wtf.mazy.peel.activities.PeelActivity
 import wtf.mazy.peel.gecko.GeckoRuntimeProvider
 import wtf.mazy.peel.model.DataManager
+import wtf.mazy.peel.ui.common.PeelActivity
+import wtf.mazy.peel.util.ActivityRoutes
 import wtf.mazy.peel.util.BrowserLauncher
 
 class NotificationClickActivity : PeelActivity() {
@@ -42,7 +42,7 @@ class NotificationClickActivity : PeelActivity() {
                 webapp != null -> BrowserLauncher.launch(webapp, this@NotificationClickActivity)
                 origin != null && !NotificationClickCoordinator.serviceWorkerWillNavigate(pending) ->
                     startActivity(
-                        Intent(this@NotificationClickActivity, LinkRouterActivity::class.java)
+                        Intent(this@NotificationClickActivity, ActivityRoutes.linkRouter)
                             .setAction(Intent.ACTION_VIEW)
                             .setData(origin.toUri())
                     )

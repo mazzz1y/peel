@@ -9,6 +9,9 @@
         android:id="@+id/sectionOverrideHeader"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/settings_header_pull_up_rest"
+        android:minHeight="@dimen/settings_touch_target"
+        android:baselineAligned="false"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:paddingHorizontal="@dimen/settings_row_padding_horizontal">
@@ -24,10 +27,12 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnAddOverride"
-            style="@style/SettingsIconButton"
+            style="@style/SettingsIconButton.Slot"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="@dimen/settings_touch_target"
             android:contentDescription="@string/add_override"
+            android:insetBottom="0dp"
+            android:insetTop="0dp"
             app:icon="@drawable/ic_symbols_add_24" />
 
     </LinearLayout>

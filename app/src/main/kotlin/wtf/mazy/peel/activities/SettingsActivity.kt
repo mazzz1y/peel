@@ -22,7 +22,7 @@ import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.model.WebAppSettings
 import wtf.mazy.peel.ui.settings.SettingViewFactory
 import wtf.mazy.peel.ui.settings.SettingsAdapter
-import wtf.mazy.peel.ui.settings.GroupPosition
+import wtf.mazy.peel.ui.common.GroupPosition
 import wtf.mazy.peel.ui.settings.SettingsListItem
 import wtf.mazy.peel.util.CertificatePem
 import wtf.mazy.peel.util.NotificationUtils

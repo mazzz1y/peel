@@ -23,6 +23,8 @@ import wtf.mazy.peel.browser.label
 import wtf.mazy.peel.model.SettingDefinition
 import wtf.mazy.peel.model.WebAppSettings
 import wtf.mazy.peel.ui.bindDropdown
+import wtf.mazy.peel.ui.common.GroupPosition
+import wtf.mazy.peel.ui.common.SettingsSurface
 import wtf.mazy.peel.util.CertificatePem
 import wtf.mazy.peel.util.SameAppDomainMatcher
 
@@ -188,6 +190,7 @@ class SettingViewFactory(
         val intDefault = setting.intField.defaultValue as? Int ?: 0
         resetWidgetListeners(view)
         bindLabel(view, setting)
+        view.findViewById<TextView>(R.id.textNumberLabel).setText(setting.intLabelResId)
 
         fun ensureIntDefault() {
             val current = settings.getValue(intKey) as? Int ?: 0

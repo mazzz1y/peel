@@ -9,6 +9,12 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import wtf.mazy.peel.activities.BrowserActivity
+import wtf.mazy.peel.activities.ExtensionPageActivity
+import wtf.mazy.peel.activities.LinkRouterActivity
+import wtf.mazy.peel.activities.PopupActivity
+import wtf.mazy.peel.activities.TrampolineActivity
+import wtf.mazy.peel.activities.WebAppSettingsActivity
 import wtf.mazy.peel.browser.CertStoreBridge
 import wtf.mazy.peel.browser.ProxyRouterBridge
 import wtf.mazy.peel.gecko.GeckoRuntimeProvider
@@ -28,6 +34,14 @@ class App : Application() {
     override fun onCreate() {
         super.onCreate()
         appContext = applicationContext
+        ActivityRoutes.install(
+            browser = BrowserActivity::class.java,
+            popup = PopupActivity::class.java,
+            extensionPage = ExtensionPageActivity::class.java,
+            linkRouter = LinkRouterActivity::class.java,
+            trampoline = TrampolineActivity::class.java,
+            webAppSettings = WebAppSettingsActivity::class.java,
+        )
         if (getProcessName() != packageName) {
             return
         }

@@ -46,8 +46,6 @@ import org.mozilla.geckoview.PanZoomController
 import org.mozilla.geckoview.ScreenLength
 import org.mozilla.geckoview.StorageController
 import wtf.mazy.peel.R
-import wtf.mazy.peel.activities.PeelActivity
-import wtf.mazy.peel.activities.PopupActivity
 import wtf.mazy.peel.gecko.GeckoRuntimeProvider
 import wtf.mazy.peel.gecko.GeckoRuntimeProvider.awaitVoid
 import wtf.mazy.peel.gecko.NestedGeckoView
@@ -60,18 +58,19 @@ import wtf.mazy.peel.ui.browser.PullToRefreshController
 import wtf.mazy.peel.ui.browser.SystemBarController
 import wtf.mazy.peel.ui.browser.VirtualCursorController
 import wtf.mazy.peel.ui.common.LoadingDialogController
+import wtf.mazy.peel.ui.common.PeelActivity
+import wtf.mazy.peel.ui.controls.BarControlsView
 import wtf.mazy.peel.ui.controls.BrowserControls
+import wtf.mazy.peel.ui.controls.ControlAction
+import wtf.mazy.peel.ui.controls.PanelControlsView
 import wtf.mazy.peel.ui.dialog.DateTimePickerRequest
 import wtf.mazy.peel.ui.dialog.DateTimePickerSession
 import wtf.mazy.peel.ui.dialog.DialogContent
-import wtf.mazy.peel.ui.dialog.showDateTimePickerDialog
-import wtf.mazy.peel.ui.controls.ControlAction
-import wtf.mazy.peel.ui.controls.PanelControlsView
-import wtf.mazy.peel.ui.controls.BarControlsView
 import wtf.mazy.peel.ui.dialog.ExternalLinkMenu
 import wtf.mazy.peel.ui.dialog.InitialSelection
 import wtf.mazy.peel.ui.dialog.InputDialogConfig
 import wtf.mazy.peel.ui.dialog.TranslateDialog
+import wtf.mazy.peel.ui.dialog.showDateTimePickerDialog
 import wtf.mazy.peel.ui.dialog.showInputDialogRaw
 import wtf.mazy.peel.ui.extensions.SessionExtensionActions
 import wtf.mazy.peel.util.BrowserLauncher
@@ -325,7 +324,7 @@ abstract class BaseSessionHost : PeelActivity(), SessionHost, TranslationHost {
     }
 
     protected fun homeAction() {
-        ownerWebAppUuid?.let { PopupActivity.finishByOwner(it) }
+        ownerWebAppUuid?.let { PopupLaunch.finishByOwner(it) }
         navigateHome()
     }
 
@@ -463,7 +462,7 @@ abstract class BaseSessionHost : PeelActivity(), SessionHost, TranslationHost {
         val key = PopupSessionHolder.put(popup)
         val launched = runCatching {
             startActivity(
-                PopupActivity.intentFor(
+                PopupLaunch.intent(
                     context = this,
                     key = key,
                     title = webAppName,

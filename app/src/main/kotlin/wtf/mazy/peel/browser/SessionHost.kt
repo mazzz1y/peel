@@ -37,6 +37,9 @@ interface SessionHost {
     val policyOrigin: String
     val webAppName: String
 
+    /** The web app this host is showing, transient or stored; null for hosts with none. */
+    val webAppUuid: String? get() = null
+
     /** The stored web app this host may write settings to, or null when it has none to write. */
     val persistableWebAppUuid: String? get() = null
 

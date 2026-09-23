@@ -8,6 +8,7 @@ import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.SettingDefinition
 import wtf.mazy.peel.model.SettingRegistry
 import wtf.mazy.peel.model.WebAppSettings
+import wtf.mazy.peel.ui.common.GroupPosition
 import wtf.mazy.peel.ui.dialog.OverridePickerDialog
 
 class OverridePickerController(

@@ -32,34 +32,38 @@
         android:orientation="vertical"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <TextView
-            android:id="@+id/import_mapping_description"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingHorizontal="16dp"
-            android:paddingTop="10dp"
-            android:paddingBottom="4dp"
-            android:textAppearance="?attr/textAppearanceBodyMedium" />
+        <LinearLayout
+            android:id="@+id/import_header_surface"
+            style="@style/SettingsSurfaceRow"
+            android:layout_marginHorizontal="@dimen/settings_hub_card_margin_horizontal"
+            android:layout_marginTop="@dimen/settings_section_gap">
 
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/destination_group_layout"
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="16dp"
-            android:layout_marginTop="12dp"
-            android:layout_marginBottom="6dp"
-            android:hint="@string/import_destination_group"
-            app:endIconMode="dropdown_menu">
-
-            <AutoCompleteTextView
-                android:id="@+id/destination_group_dropdown"
+            <TextView
+                android:id="@+id/import_mapping_description"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:inputType="none"
-                android:maxLines="1"
-                tools:ignore="LabelFor" />
-        </com.google.android.material.textfield.TextInputLayout>
+                android:layout_height="wrap_content"
+                android:textAppearance="?attr/textAppearanceBodyMedium"
+                android:textColor="?attr/colorOnSurfaceVariant" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/destination_group_layout"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/settings_row_padding_vertical"
+                android:hint="@string/import_destination_group"
+                app:endIconMode="dropdown_menu">
+
+                <AutoCompleteTextView
+                    android:id="@+id/destination_group_dropdown"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:inputType="none"
+                    android:maxLines="1"
+                    tools:ignore="LabelFor" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+        </LinearLayout>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/import_app_list"
@@ -70,7 +74,7 @@
             android:fadeScrollbars="false"
             android:nestedScrollingEnabled="true"
             android:overScrollMode="ifContentScrolls"
-            android:paddingTop="6dp"
+            android:paddingHorizontal="@dimen/settings_hub_card_margin_horizontal"
             android:paddingBottom="@dimen/list_fab_clearance"
             android:scrollbars="vertical" />
 
@@ -78,7 +82,7 @@
             android:id="@+id/import_mapping_empty"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingHorizontal="16dp"
+            android:paddingHorizontal="@dimen/settings_row_padding_horizontal"
             android:paddingTop="8dp"
             android:text="@string/import_mapping_empty"
             android:textAppearance="?attr/textAppearanceBodyMedium"

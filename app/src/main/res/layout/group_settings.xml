@@ -38,7 +38,11 @@
 
                 </LinearLayout>
 
-                <include layout="@layout/include_settings_override_section" />
+                <include
+                    layout="@layout/include_settings_override_section"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/settings_header_pull_up" />
 
             </LinearLayout>
         </androidx.core.widget.NestedScrollView>

@@ -10,7 +10,6 @@ import org.mozilla.geckoview.GeckoRuntime
 import org.mozilla.geckoview.GeckoSession
 import org.mozilla.geckoview.GeckoSessionSettings
 import org.mozilla.geckoview.WebExtension
-import wtf.mazy.peel.activities.ExtensionPageActivity
 import wtf.mazy.peel.browser.PopupSessionHolder
 import wtf.mazy.peel.browser.SessionHost
 import wtf.mazy.peel.gecko.GeckoRuntimeProvider
@@ -129,17 +128,17 @@ class SessionExtensionActions(
         runtime: GeckoRuntime,
     ): Boolean {
         mainSession()?.let { main ->
-            ExtensionPageActivity.setOnCloseCallback(session) {
+            ExtensionPageLaunch.setOnCloseCallback(session) {
                 runtime.webExtensionController.setTabActive(main, true)
             }
         }
         val key = PopupSessionHolder.put(session)
         val launched = runCatching {
-            host.startActivity(ExtensionPageActivity.intentForSession(host, key, title))
+            host.startActivity(ExtensionPageLaunch.intentForSession(host, key, title))
         }.isSuccess
         if (!launched) {
             PopupSessionHolder.take(key)
-            ExtensionPageActivity.clearOnCloseCallback(session)
+            ExtensionPageLaunch.clearOnCloseCallback(session)
         }
         return launched
     }
@@ -243,18 +242,18 @@ class SessionExtensionActions(
                 val runtime = GeckoRuntimeProvider.getRuntime(host)
                 val session = GeckoSession(buildSheetSessionSettings(owner))
                 owner?.mainSession()?.let { main ->
-                    ExtensionPageActivity.setOnCloseCallback(session) {
+                    ExtensionPageLaunch.setOnCloseCallback(session) {
                         runtime.webExtensionController.setTabActive(main, true)
                     }
                 }
                 val title = source.metaData.name ?: source.id
                 val key = PopupSessionHolder.put(session)
                 val launched = runCatching {
-                    host.startActivity(ExtensionPageActivity.intentForSession(host, key, title))
+                    host.startActivity(ExtensionPageLaunch.intentForSession(host, key, title))
                 }.isSuccess
                 if (!launched) {
                     PopupSessionHolder.take(key)
-                    ExtensionPageActivity.clearOnCloseCallback(session)
+                    ExtensionPageLaunch.clearOnCloseCallback(session)
                     session.close()
                     return null
                 }
@@ -267,7 +266,7 @@ class SessionExtensionActions(
                     ?: return
                 host.runOnUiThread {
                     host.startActivity(
-                        ExtensionPageActivity.intentForExtension(host, source.id)
+                        ExtensionPageLaunch.intentForExtension(host, source.id)
                     )
                 }
             }

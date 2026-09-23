@@ -20,13 +20,14 @@ import wtf.mazy.peel.gecko.GeckoRuntimeProvider
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.ui.PickerDialog
 import wtf.mazy.peel.ui.common.LoadingDialogController
+import wtf.mazy.peel.ui.dialog.dismissOnDestroyOf
 import wtf.mazy.peel.ui.entitylist.EntityListActivity
 import wtf.mazy.peel.ui.entitylist.EntityListAdapter
 import wtf.mazy.peel.ui.extensions.AmoExtensionsRepository
 import wtf.mazy.peel.ui.extensions.AmoExtensionsRepository.AmoExtension
-import wtf.mazy.peel.ui.dialog.dismissOnDestroyOf
 import wtf.mazy.peel.ui.extensions.ExtensionAdapter
 import wtf.mazy.peel.ui.extensions.ExtensionIconCache
+import wtf.mazy.peel.ui.extensions.ExtensionPageLaunch
 import wtf.mazy.peel.util.AppPrefs
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.NotificationUtils
@@ -87,7 +88,7 @@ class ExtensionsActivity : EntityListActivity<WebExtension>() {
         checkIconColor = checkIconColor,
         onUpdate = ::updateExtension,
         onSettings = {
-            startActivity(ExtensionPageActivity.intentForExtension(this, it.id))
+            startActivity(ExtensionPageLaunch.intentForExtension(this, it.id))
         },
         onUninstall = ::confirmUninstall,
         onToggle = ::toggleExtension,

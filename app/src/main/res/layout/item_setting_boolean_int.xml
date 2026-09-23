@@ -47,8 +47,8 @@
         android:visibility="gone">
 
         <TextView
+            android:id="@+id/textNumberLabel"
             style="@style/SettingsEntryText"
-            android:text="@string/setting_interval_seconds"
             android:textColor="?attr/colorOnSurfaceVariant" />
 
         <com.google.android.material.textfield.TextInputLayout

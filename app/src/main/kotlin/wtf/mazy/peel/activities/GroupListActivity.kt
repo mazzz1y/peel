@@ -9,8 +9,6 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.materialswitch.MaterialSwitch
 import kotlinx.coroutines.launch
 import wtf.mazy.peel.R
-import wtf.mazy.peel.model.ApplyTiming
-import wtf.mazy.peel.model.ApplyTimingRegistry
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.EntityCloner
 import wtf.mazy.peel.model.WebAppGroup
@@ -27,8 +25,8 @@ import wtf.mazy.peel.ui.entitylist.SelectionConfig
 import wtf.mazy.peel.ui.entitylist.scheduleEntityDelete
 import wtf.mazy.peel.ui.grouplist.GroupListAdapter
 import wtf.mazy.peel.ui.grouplist.GroupSelectionActions
+import wtf.mazy.peel.ui.settings.showApplyTimingSnackbar
 import wtf.mazy.peel.util.Const
-import wtf.mazy.peel.util.restartApp
 import wtf.mazy.peel.util.withBoldSpan
 
 class GroupListActivity : EntityListActivity<WebAppGroup>() {
@@ -45,13 +43,7 @@ class GroupListActivity : EntityListActivity<WebAppGroup>() {
 
     private val settingsLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            val timingName = result.data?.getStringExtra(ApplyTimingRegistry.EXTRA_APPLY_TIMING)
-                ?: return@registerForActivityResult
-            val timing = ApplyTiming.valueOf(timingName)
-            ApplyTimingRegistry.showSnackbarForTiming(
-                timing,
-                findViewById(android.R.id.content),
-            ) { restartApp(this) }
+            showApplyTimingSnackbar(this, result.data, BrowserActivity.hasLiveInstances())
         }
 
     override fun createAdapter(): EntityListAdapter<WebAppGroup, *> {

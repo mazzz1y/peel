@@ -16,10 +16,13 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.launch
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.DataManager
-import wtf.mazy.peel.model.ParsedBackup
 import wtf.mazy.peel.model.WebAppGroup
+import wtf.mazy.peel.ui.common.GroupPosition
+import wtf.mazy.peel.ui.common.PeelActivity
+import wtf.mazy.peel.ui.common.SettingsSurface
 import wtf.mazy.peel.ui.dialog.showSandboxInputDialog
 import wtf.mazy.peel.ui.importmapping.ImportMappingAdapter
+import wtf.mazy.peel.ui.importmapping.ImportMappingContract
 import wtf.mazy.peel.util.applyBottomScreenInsets
 import wtf.mazy.peel.util.applyToolbarScreenInsets
 import wtf.mazy.peel.util.disableSystemBarContrastEnforcement
@@ -38,9 +41,9 @@ class ImportActivity : PeelActivity() {
         setContentView(R.layout.activity_import)
         applyToolbarScreenInsets()
 
-        val parsed = pendingBackup ?: run { finish(); return }
+        val parsed = ImportMappingContract.pendingBackup ?: run { finish(); return }
 
-        val groupShareMode = intent.getBooleanExtra(EXTRA_GROUP_SHARE, false)
+        val groupShareMode = intent.getBooleanExtra(ImportMappingContract.EXTRA_GROUP_SHARE, false)
 
         val toolbar = findViewById<MaterialToolbar>(R.id.toolbar)
         setSupportActionBar(toolbar)
@@ -60,18 +63,22 @@ class ImportActivity : PeelActivity() {
             val selectedUuids = adapter.selectedUuids.toSet()
             if (groupShareMode) {
                 setResult(RESULT_OK, Intent().apply {
-                    putExtra(RESULT_SELECTED_UUIDS, selectedUuids.toTypedArray())
-                    putExtra(RESULT_SELECTED_GROUP_UUIDS, adapter.selectedGroupUuids.toTypedArray())
+                    putExtra(ImportMappingContract.RESULT_SELECTED_UUIDS, selectedUuids.toTypedArray())
+                    putExtra(
+                        ImportMappingContract.RESULT_SELECTED_GROUP_UUIDS,
+                        adapter.selectedGroupUuids.toTypedArray(),
+                    )
                 })
             } else {
                 setResult(RESULT_OK, Intent().apply {
-                    putExtra(RESULT_SELECTED_UUIDS, selectedUuids.toTypedArray())
-                    putExtra(RESULT_GROUP_UUID, selectedGroupUuid)
+                    putExtra(ImportMappingContract.RESULT_SELECTED_UUIDS, selectedUuids.toTypedArray())
+                    putExtra(ImportMappingContract.RESULT_GROUP_UUID, selectedGroupUuid)
                 })
             }
             finish()
         }
 
+        SettingsSurface.apply(findViewById(R.id.import_header_surface), GroupPosition.ONLY)
         val descriptionView = findViewById<TextView>(R.id.import_mapping_description)
         val groupLayout = findViewById<View>(R.id.destination_group_layout)
         val dropdown = findViewById<AutoCompleteTextView>(R.id.destination_group_dropdown)
@@ -227,17 +234,9 @@ class ImportActivity : PeelActivity() {
     }
 
     companion object {
-        const val EXTRA_GROUP_SHARE = "group_share"
-        const val RESULT_SELECTED_UUIDS = "selected_uuids"
-        const val RESULT_SELECTED_GROUP_UUIDS = "selected_group_uuids"
-        const val RESULT_GROUP_UUID = "group_uuid"
-
         private const val CREATE_GROUP_SENTINEL = "__create_group__"
         private const val STATE_SELECTED_UUIDS = "state_selected_uuids"
         private const val STATE_SELECTED_GROUP_UUIDS = "state_selected_group_uuids"
         private const val STATE_GROUP_UUID = "state_group_uuid"
-
-        @Volatile
-        var pendingBackup: ParsedBackup? = null
     }
 }

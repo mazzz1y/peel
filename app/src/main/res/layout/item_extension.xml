@@ -65,8 +65,6 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="4dp"
             android:contentDescription="@string/enable_extension"
-            android:scaleX="0.8"
-            android:scaleY="0.8"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/item_menu"
             app:layout_constraintTop_toTopOf="parent" />

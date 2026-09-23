@@ -8,8 +8,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.PopupMenu
 import kotlinx.coroutines.launch
 import wtf.mazy.peel.R
-import wtf.mazy.peel.activities.MainActivity
-import wtf.mazy.peel.activities.WebAppSettingsActivity
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.EntityCloner
 import wtf.mazy.peel.model.WebApp
@@ -23,6 +21,7 @@ import wtf.mazy.peel.ui.entitylist.EntityRowActions
 import wtf.mazy.peel.ui.entitylist.EntitySelectionController
 import wtf.mazy.peel.ui.entitylist.binders.WebAppBinder
 import wtf.mazy.peel.ui.entitylist.scheduleEntityDelete
+import wtf.mazy.peel.util.ActivityRoutes
 import wtf.mazy.peel.util.BrowserLauncher.launch
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.prettyBaseUrl
@@ -189,9 +188,9 @@ class WebAppListAdapter(
         }
 
         private fun openSettings(webapp: WebApp) {
-            val intent = Intent(activity, WebAppSettingsActivity::class.java)
+            val intent = Intent(activity, ActivityRoutes.webAppSettings)
             intent.putExtra(Const.INTENT_WEBAPP_UUID, webapp.uuid)
-            (activity as? MainActivity)?.launchSettings(intent)
+            (activity as? WebAppListHost)?.launchSettings(intent)
                 ?: activity.startActivity(intent)
         }
 

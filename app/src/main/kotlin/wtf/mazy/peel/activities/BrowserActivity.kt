@@ -72,6 +72,9 @@ import wtf.mazy.peel.util.webAppUuid
 class BrowserActivity : BaseSessionHost() {
     var webappUuid: String? = null
 
+    override val webAppUuid: String?
+        get() = webappUuid
+
     override val ownerWebAppUuid: String?
         get() = webappUuid
 

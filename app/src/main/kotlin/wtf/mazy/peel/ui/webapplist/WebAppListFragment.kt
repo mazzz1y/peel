@@ -13,7 +13,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.launch
 import wtf.mazy.peel.R
-import wtf.mazy.peel.activities.MainActivity
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.ui.dragReorderCallback
 import wtf.mazy.peel.util.applyBottomScreenInsets
@@ -35,7 +34,7 @@ class WebAppListFragment : Fragment(R.layout.fragment_web_app_list) {
 
         adapter = WebAppListAdapter(
             activity = requireAppCompatActivity(),
-            selection = (activity as? MainActivity)?.selectionController,
+            selection = (activity as? WebAppListHost)?.selectionController,
         )
         adapter.groupFilter = groupFilter
         val isEmpty = adapter.updateWebAppList()
@@ -51,11 +50,11 @@ class WebAppListFragment : Fragment(R.layout.fragment_web_app_list) {
         updateDragEnabled()
         updateEmptyState(isEmpty)
 
-        (activity as? MainActivity)?.registerFragment(groupFilter, this)
+        (activity as? WebAppListHost)?.registerFragment(groupFilter, this)
     }
 
     override fun onDestroyView() {
-        (activity as? MainActivity)?.unregisterFragment(groupFilter)
+        (activity as? WebAppListHost)?.unregisterFragment(groupFilter)
         super.onDestroyView()
     }
 
@@ -81,7 +80,7 @@ class WebAppListFragment : Fragment(R.layout.fragment_web_app_list) {
     }
 
     private fun updateDragEnabled() {
-        val selection = (activity as? MainActivity)?.selectionController
+        val selection = (activity as? WebAppListHost)?.selectionController
         if (selection?.isActive == true) {
             itemTouchHelper?.attachToRecyclerView(null)
         } else {

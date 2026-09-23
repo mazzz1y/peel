@@ -7,6 +7,7 @@ import kotlinx.coroutines.launch
 import wtf.mazy.peel.browser.ExternalLinkResult
 import wtf.mazy.peel.gecko.GeckoRuntimeProvider
 import wtf.mazy.peel.model.DataManager
+import wtf.mazy.peel.ui.common.PeelActivity
 import wtf.mazy.peel.ui.dialog.ExternalLinkMenu
 import wtf.mazy.peel.util.BrowserLauncher
 import wtf.mazy.peel.util.copyToClipboard

@@ -1,10 +1,7 @@
 package wtf.mazy.peel.model
 
-import android.view.View
 import androidx.annotation.StringRes
-import com.google.android.material.snackbar.Snackbar
 import wtf.mazy.peel.R
-import wtf.mazy.peel.activities.BrowserActivity
 import kotlin.reflect.KMutableProperty1
 
 data class SettingField(
@@ -81,6 +78,7 @@ sealed class SettingDefinition(
         @StringRes descriptionResId: Int,
         category: SettingCategory,
         val intField: SettingField,
+        @param:StringRes val intLabelResId: Int,
     ) : SettingDefinition(toggle, displayNameResId, descriptionResId, category) {
         override val allFields
             get() = listOf(primaryField, intField)
@@ -217,24 +215,6 @@ object ApplyTimingRegistry {
     }
 
     const val EXTRA_APPLY_TIMING = "apply_timing"
-
-    fun showSnackbarForTiming(
-        timing: ApplyTiming,
-        root: View,
-        restartAction: (() -> Unit)? = null,
-    ): Snackbar? {
-        if (timing == ApplyTiming.IMMEDIATE) return null
-        if (timing == ApplyTiming.WEBAPP_RESTART && !BrowserActivity.hasLiveInstances()) return null
-        val message = when (timing) {
-            ApplyTiming.PEEL_RESTART -> R.string.setting_requires_peel_restart
-            ApplyTiming.WEBAPP_RESTART -> R.string.setting_requires_webapp_restart
-            ApplyTiming.IMMEDIATE -> return null
-        }
-        return Snackbar.make(root, message, Snackbar.LENGTH_LONG).apply {
-            if (restartAction != null) setAction(R.string.restart) { restartAction() }
-            show()
-        }
-    }
 }
 
 object SettingRegistry {
@@ -358,6 +338,7 @@ object SettingRegistry {
                 R.string.webapp_autoreload_desc,
                 SettingCategory.BEHAVIOR,
                 intField = SettingField(WebAppSettings::timeAutoReload, 60),
+                intLabelResId = R.string.setting_interval_seconds,
             ),
             SettingDefinition.LanguagePairMapSetting(
                 SettingField(WebAppSettings::isTranslatorEnabled, false),

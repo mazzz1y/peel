@@ -171,7 +171,7 @@ class PeelPromptDelegate(private val host: SessionHost) : GeckoSession.PromptDel
 
     private fun resolveActiveProxy(): wtf.mazy.peel.model.Proxy? {
         val dm = DataManager.instance
-        val uuid = (host as? wtf.mazy.peel.activities.BrowserActivity)?.webappUuid ?: return null
+        val uuid = host.webAppUuid ?: return null
         val webapp = dm.getWebApp(uuid) ?: return null
         val proxyUuid = webapp.resolveProxyUuid() ?: return null
         return dm.getProxy(proxyUuid)

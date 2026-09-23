@@ -22,13 +22,13 @@ import androidx.core.net.toUri
 import com.google.android.material.materialswitch.MaterialSwitch
 import com.google.android.material.slider.Slider
 import wtf.mazy.peel.R
-import wtf.mazy.peel.activities.TrampolineActivity
 import wtf.mazy.peel.model.IconOwner
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.model.WebAppGroup
 import wtf.mazy.peel.ui.dialog.InitialSelection
 import wtf.mazy.peel.ui.dialog.InputDialogConfig
 import wtf.mazy.peel.ui.dialog.showInputDialogRaw
+import wtf.mazy.peel.util.ActivityRoutes
 import wtf.mazy.peel.util.App
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.NotificationUtils
@@ -317,7 +317,7 @@ object ShortcutHelper {
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
             }
 
-            else -> Intent(context, TrampolineActivity::class.java).apply {
+            else -> Intent(context, ActivityRoutes.trampoline).apply {
                 if (owner is WebAppGroup) putExtra(Const.INTENT_GROUP_UUID, owner.uuid)
                 data = "peel://${owner.uuid}".toUri()
                 action = Intent.ACTION_VIEW

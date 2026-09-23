@@ -9,9 +9,9 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import org.mozilla.geckoview.GeckoResult
 import org.mozilla.geckoview.GeckoRuntime
-import wtf.mazy.peel.activities.LinkRouterActivity
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.ui.dialog.ExternalLinkMenu
+import wtf.mazy.peel.util.ActivityRoutes
 import wtf.mazy.peel.util.BrowserLauncher
 
 object ServiceWorkerBridge {
@@ -42,7 +42,7 @@ object ServiceWorkerBridge {
                 BrowserLauncher.launch(target, context, url)
             } else {
                 context.startActivity(
-                    Intent(context, LinkRouterActivity::class.java)
+                    Intent(context, ActivityRoutes.linkRouter)
                         .setAction(Intent.ACTION_VIEW)
                         .setData(url.toUri())
                         .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)

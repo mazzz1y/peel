@@ -2,8 +2,12 @@ package wtf.mazy.peel.ui.settings
 
 import wtf.mazy.peel.model.SettingCategory
 import wtf.mazy.peel.model.SettingDefinition
+import wtf.mazy.peel.ui.common.GroupPosition
 
 sealed interface SettingsListItem {
     data class Header(val category: SettingCategory) : SettingsListItem
-    data class Setting(val definition: SettingDefinition, val position: GroupPosition) : SettingsListItem
+    data class Setting(
+        val definition: SettingDefinition,
+        val position: GroupPosition,
+    ) : SettingsListItem
 }

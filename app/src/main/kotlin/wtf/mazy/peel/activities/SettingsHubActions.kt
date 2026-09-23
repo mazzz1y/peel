@@ -30,7 +30,7 @@ import wtf.mazy.peel.util.NotificationUtils
 class SettingsHubActions(private val activity: AppCompatActivity) {
 
     private val exportLoader = LoadingDialogController(activity)
-    private val importDialogHelper = ImportDialogHelper(activity)
+    private val importDialogHelper = ImportDialogHelper(activity, ImportActivity::class.java)
     private var pendingExportUri: Uri? = null
 
     private val exportLauncher =
