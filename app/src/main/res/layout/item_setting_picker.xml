@@ -5,7 +5,7 @@
     android:background="?attr/selectableItemBackground"
     android:gravity="center_vertical"
     android:minHeight="48dp"
-    android:paddingHorizontal="16dp"
+    android:paddingHorizontal="@dimen/dialog_content_horizontal_padding"
     android:paddingVertical="8dp">
 
     <TextView

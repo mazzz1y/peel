@@ -12,6 +12,8 @@
     <dimen name="dialog_list_top_padding">16dp</dimen>
     <dimen name="dialog_content_horizontal_padding">24dp</dimen>
     <dimen name="dialog_content_top_padding">16dp</dimen>
+    <dimen name="dialog_subheader_gap_top">16dp</dimen>
+    <dimen name="dialog_subheader_gap_bottom">8dp</dimen>
     <dimen name="dialog_content_gap">16dp</dimen>
 
     <dimen name="popup_menu_corner_radius">16dp</dimen>

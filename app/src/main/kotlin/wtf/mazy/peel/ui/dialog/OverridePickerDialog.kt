@@ -7,7 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.core.view.updateLayoutParams
+import androidx.core.view.isVisible
 import androidx.fragment.app.DialogFragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -125,7 +125,7 @@ class OverridePickerDialog : DialogFragment() {
                 VIEW_TYPE_HEADER -> {
                     val view =
                         LayoutInflater.from(parent.context)
-                            .inflate(R.layout.item_setting_category_header, parent, false)
+                            .inflate(R.layout.item_dialog_subheader, parent, false)
                     HeaderViewHolder(view)
                 }
 
@@ -150,14 +150,12 @@ class OverridePickerDialog : DialogFragment() {
         override fun getItemCount() = items.size
 
         private class HeaderViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-            private val textView: TextView = view.findViewById(R.id.text_category)
+            private val divider: View = view.findViewById(R.id.divider_subheader)
+            private val textView: TextView = view.findViewById(R.id.text_subheader)
 
             fun bind(category: SettingCategory, isFirst: Boolean) {
+                divider.isVisible = !isFirst
                 textView.text = itemView.context.getString(category.displayNameResId)
-                itemView.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                    topMargin = if (isFirst) 0
-                    else itemView.resources.getDimensionPixelSize(R.dimen.settings_section_gap)
-                }
             }
         }
 
