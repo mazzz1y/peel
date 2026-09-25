@@ -29,7 +29,7 @@ object SettingsSurface {
             fillColor = ColorStateList.valueOf(
                 MaterialColors.getColor(
                     view,
-                    com.google.android.material.R.attr.colorSurfaceContainer
+                    com.google.android.material.R.attr.colorSurfaceBright
                 )
             )
         }

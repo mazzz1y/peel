@@ -8,7 +8,7 @@
     android:layout_marginVertical="@dimen/settings_hub_card_margin_vertical"
     android:clickable="true"
     android:focusable="true"
-    app:cardBackgroundColor="?attr/colorSurfaceContainerHigh">
+    app:cardBackgroundColor="?attr/colorSurfaceBright">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"

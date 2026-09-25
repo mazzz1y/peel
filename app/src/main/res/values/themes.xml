@@ -35,7 +35,7 @@
         <item name="colorSurfaceContainer">@color/brand_surfaceContainer</item>
         <item name="colorSurfaceContainerHigh">@color/brand_surfaceContainerHigh</item>
         <item name="colorSurfaceContainerHighest">@color/brand_surfaceContainerHighest</item>
-        <item name="android:windowBackground">?attr/colorSurfaceContainerLow</item>
+        <item name="android:windowBackground">?attr/colorSurfaceContainer</item>
         <item name="popupMenuBackground">@drawable/popup_menu_background_rounded</item>
     </style>
 
