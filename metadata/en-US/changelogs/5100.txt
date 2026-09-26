@@ -5,5 +5,6 @@
 - Fix app colour band beside fullscreen video
 - Remember a permission choice always for a web app
 - Skip listed domains such as sign-in providers when going back
+- Ask about external links a page redirects to by script, not only tapped ones
 - Update GeckoView to 156.0.20260921121718
 - Other fixes and improvements
