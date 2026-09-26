@@ -31,6 +31,7 @@ private class ExternalLinkPrompt(
     val url: String,
     val redirectFallback: String?,
     val reloadOnLoadHere: Boolean,
+    val isScriptNavigation: Boolean,
     private val decision: GeckoResult<AllowOrDeny>,
 ) {
     private var settled = false
@@ -112,6 +113,8 @@ class PeelNavigationDelegate(
                 route.target,
                 redirectFallbackFor(request),
                 reloadOnLoadHere = route.wasUpgraded || route.opensNewWindow,
+                isScriptNavigation = request.triggerUri != null && !request.isRedirect &&
+                        !request.hasUserGesture,
             )
         }
     }
@@ -128,6 +131,7 @@ class PeelNavigationDelegate(
             isRedirect = request.isRedirect,
             opensNewWindow = request.target == TARGET_WINDOW_NEW,
             isDirectNavigation = request.isDirectNavigation,
+            hasTriggerPage = request.triggerUri != null,
         ),
         context = linkContext(),
     )
@@ -196,12 +200,14 @@ class PeelNavigationDelegate(
         url: String,
         redirectFallback: String?,
         reloadOnLoadHere: Boolean,
+        isScriptNavigation: Boolean,
     ): GeckoResult<AllowOrDeny> {
         val decision = GeckoResult<AllowOrDeny>()
         val prompt = ExternalLinkPrompt(
             url = url,
             redirectFallback = redirectFallback,
             reloadOnLoadHere = reloadOnLoadHere,
+            isScriptNavigation = isScriptNavigation,
             decision = decision,
         )
         pendingPrompts.addLast(prompt)
@@ -244,7 +250,7 @@ class PeelNavigationDelegate(
             is ExternalLinkResult.OpenInPeelApp -> result.launcher {}
             ExternalLinkResult.LoadHere -> Unit
         }
-        if (abandonsWindow(result) && strandedWithoutContent()) {
+        if (abandonsWindow(result) && (strandedWithoutContent() || strandedOnRedirector(prompt))) {
             host.onInitialNavigationDenied()
         }
     }
@@ -269,6 +275,10 @@ class PeelNavigationDelegate(
 
     private fun strandedWithoutContent(): Boolean =
         isContentInitiatedWindow && !hasCommittedContent()
+
+    // The window's only page sent the user elsewhere by script; declining leaves nothing to show.
+    private fun strandedOnRedirector(prompt: ExternalLinkPrompt): Boolean =
+        isContentInitiatedWindow && prompt.isScriptNavigation && !host.canGoBack
 
     private fun openInSystem(url: String, redirectFallback: String?) {
         host.startExternalIntent(url.toUri())
@@ -344,6 +354,7 @@ class PeelNavigationDelegate(
                 isRedirect = true,
                 opensNewWindow = false,
                 isDirectNavigation = false,
+                hasTriggerPage = false,
             ),
             context = linkContext(),
         )
@@ -353,6 +364,7 @@ class PeelNavigationDelegate(
                 route.target,
                 redirectFallback,
                 reloadOnLoadHere = true,
+                isScriptNavigation = false,
             )
 
             is LinkRoute.Redirect -> host.loadURL(route.target)

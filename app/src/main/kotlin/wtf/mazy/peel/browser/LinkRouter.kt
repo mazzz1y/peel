@@ -22,6 +22,7 @@ data class NavigationFacts(
     val isRedirect: Boolean,
     val opensNewWindow: Boolean,
     val isDirectNavigation: Boolean,
+    val hasTriggerPage: Boolean,
 )
 
 data class LinkContext(
@@ -77,7 +78,7 @@ object LinkRouter {
         if (belongsToApp(context.policyOrigin, url, settings)) return false
         if (isExplicitDownload(url)) return false
         return context.hasPeelAppMatch(url) || nav.hasUserGesture || nav.isRedirect ||
-                nav.opensNewWindow
+                nav.opensNewWindow || nav.hasTriggerPage
     }
 
     private fun isBlocked(url: String, settings: EffectiveSettings): Boolean =
