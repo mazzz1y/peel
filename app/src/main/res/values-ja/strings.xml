@@ -46,16 +46,26 @@
     <string name="import_destination_group">インポート先グループ</string>
     <string name="import_mapping_empty">このファイルにアプリが見つかりません。</string>
     <string name="import_count_message">%1$d個のアプリをインポートしました</string>
-    <string name="n_apps_selected">%1$d件選択</string>
+    <plurals name="n_apps_selected">
+        <item quantity="other">%d件選択</item>
+    </plurals>
     <string name="share_secrets_title">機密情報を検出</string>
     <string name="share_secrets_description">選択したアプリにはカスタムヘッダーや認証情報などの機密情報が含まれています。共有ファイルから削除しますか？</string>
     <string name="share_secrets_include">保持</string>
     <string name="share_secrets_exclude">削除</string>
     <string name="remove_apps_title">アプリを削除</string>
-    <string name="remove_apps_confirm">選択した%1$d個のアプリを削除しますか？</string>
-    <string name="n_apps_removed">%1$d個のアプリを削除しました</string>
-    <string name="remove_groups_confirm">選択した%1$d個のグループとそのアプリを削除しますか？</string>
-    <string name="n_groups_removed">%1$d個のグループを削除しました</string>
+    <plurals name="remove_apps_confirm">
+        <item quantity="other">選択した%d個のアプリを削除しますか？</item>
+    </plurals>
+    <plurals name="n_apps_removed">
+        <item quantity="other">%d個のアプリを削除しました</item>
+    </plurals>
+    <plurals name="remove_groups_confirm">
+        <item quantity="other">選択した%d個のグループとそのアプリを削除しますか？</item>
+    </plurals>
+    <plurals name="n_groups_removed">
+        <item quantity="other">%d個のグループを削除しました</item>
+    </plurals>
     <string name="export_share_failed">共有用のファイルを準備できませんでした</string>
     <string name="backup_save_failed">バックアップを保存できませんでした</string>
     <string name="backup_saved">バックアップを保存しました</string>
@@ -233,7 +243,9 @@
     <string name="no_search_results">アプリが見つかりません</string>
     <string name="import_group_share_description">グループ %1$s が共有されました。インポートするアプリを選択してください：</string>
     <string name="import_group_share_description_multi">%1$sが共有されました。インポートするグループとアプリを選択してください：</string>
-    <string name="n_groups_selected">%1$d個のグループを選択</string>
+    <plurals name="n_groups_selected">
+        <item quantity="other">%d個のグループを選択</item>
+    </plurals>
     <string name="network_privacy">ネットワークとプライバシー</string>
     <string name="group_not_found">このグループはもう利用できません</string>
     <string name="icon_dimensions_source">%1$dx%2$d · %3$s</string>

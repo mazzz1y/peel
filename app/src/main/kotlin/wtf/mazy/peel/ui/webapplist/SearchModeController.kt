@@ -1,151 +1,44 @@
 package wtf.mazy.peel.ui.webapplist
 
+import android.animation.ValueAnimator
 import android.view.View
-import android.view.ViewGroup
 import android.widget.TextView
-import androidx.appcompat.widget.SearchView
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.animation.doOnCancel
+import androidx.core.animation.doOnEnd
+import androidx.core.view.OneShotPreDrawListener
+import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.core.widget.doAfterTextChanged
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import wtf.mazy.peel.R
-import wtf.mazy.peel.model.DataManager
+import com.google.android.material.search.SearchView
+import wtf.mazy.peel.model.WebApp
+import wtf.mazy.peel.ui.entitylist.EntitySelectionController
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.applyBottomScreenInsets
+import kotlin.math.abs
 
 class SearchModeController(
-    private val host: SearchableHost,
+    activity: AppCompatActivity,
+    selection: EntitySelectionController<WebApp>,
+    private val searchView: SearchView,
     private val searchResultsList: RecyclerView,
     private val searchEmptyState: TextView,
+    private val onChanged: () -> Unit,
 ) {
 
     var isActive: Boolean = false
         private set
 
-    private var searchAdapter: WebAppListAdapter? = null
-
-    init {
-        searchResultsList.applyBottomScreenInsets()
-    }
-
-    fun enter() {
-        if (isActive) return
-        isActive = true
-        host.updateBackPressEnabled()
-
-        val activity = host.hostActivity
-        searchAdapter = WebAppListAdapter(activity, host.selectionController).apply {
-            groupFilter = null
-            showGroupLabels = true
-        }
-        searchAdapter?.registerAdapterDataObserver(scrollToTopObserver)
-        searchResultsList.layoutManager = LinearLayoutManager(activity)
-        searchResultsList.adapter = searchAdapter
-        searchAdapter?.updateWebAppList()
-
-        host.tabLayout.animate().alpha(0f).setDuration(Const.ANIM_DURATION_FAST).withEndAction {
-            host.tabLayout.visibility = View.GONE
-        }.start()
-        val visibleView =
-            if ((searchAdapter?.itemCount ?: 0) > 0) searchResultsList else searchEmptyState
-        fadeOutThenIn(host.viewPager, {
-            host.viewPager.visibility = View.GONE
-            updateEmptyState()
-        }, visibleView)
-
-        host.fab.hide()
-        applySearchToolbar()
-    }
-
-    fun exit() {
-        if (!isActive) return
-        isActive = false
-        host.updateBackPressEnabled()
-
-        val activity = host.hostActivity
-        val focused = activity.currentFocus ?: activity.window.decorView
-        WindowCompat.getInsetsController(activity.window, focused)
-            .hide(WindowInsetsCompat.Type.ime())
-
-        host.onSearchModeExited()
-
-        val showTabs = DataManager.sortedGroups.isNotEmpty()
-        fadeOutThenIn(searchResultsList, {
-            searchResultsList.visibility = View.GONE
-            searchEmptyState.visibility = View.GONE
-            searchAdapter?.unregisterAdapterDataObserver(scrollToTopObserver)
-            searchAdapter = null
-            searchResultsList.adapter = null
-        }, host.viewPager, if (showTabs) host.tabLayout else null)
-    }
-
-    fun onDataChanged() {
-        searchAdapter?.updateWebAppList()
-        updateEmptyState()
-    }
-
-    private fun fadeOutThenIn(
-        outView: View?,
-        onHidden: () -> Unit,
-        vararg inViews: View?,
-    ) {
-        outView?.animate()?.alpha(0f)?.setDuration(Const.ANIM_DURATION_FAST)?.withEndAction {
-            onHidden()
-            inViews.forEach { view ->
-                view ?: return@forEach
-                view.alpha = 0f
-                view.visibility = View.VISIBLE
-                view.animate().alpha(1f).setDuration(Const.ANIM_DURATION_FAST).start()
-            }
-        }?.start()
-    }
-
-    private fun applySearchToolbar() {
-        host.crossfadeToolbar {
-            host.removeSearchViewFromToolbar()
-            host.toolbar.menu.clear()
-            host.toolbar.setNavigationIcon(R.drawable.ic_symbols_arrow_back_24)
-            host.toolbar.setNavigationOnClickListener { exit() }
-            host.toolbar.title = ""
-
-            val activity = host.hostActivity
-            val searchView = SearchView(activity).apply {
-                queryHint = activity.getString(R.string.search)
-                isIconified = false
-                maxWidth = Int.MAX_VALUE
-                setOnCloseListener { true }
-                setOnQueryTextListener(
-                    object : SearchView.OnQueryTextListener {
-                        override fun onQueryTextSubmit(query: String?) = false
-                        override fun onQueryTextChange(newText: String?): Boolean {
-                            searchAdapter?.searchQuery = newText.orEmpty()
-                            searchAdapter?.updateWebAppList()
-                            updateEmptyState()
-                            return true
-                        }
-                    },
-                )
-            }
-            host.toolbar.addView(
-                searchView,
-                ViewGroup.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT,
-                ),
-            )
-            searchView.post {
-                searchView.requestFocusFromTouch()
-                val focused = searchView.findFocus() ?: searchView
-                WindowCompat.getInsetsController(host.hostActivity.window, focused)
-                    .show(WindowInsetsCompat.Type.ime())
-            }
-        }
-    }
-
-    private fun updateEmptyState() {
-        val hasItems = (searchAdapter?.itemCount ?: 0) > 0
-        searchEmptyState.visibility = if (hasItems) View.GONE else View.VISIBLE
-        searchResultsList.visibility = if (hasItems) View.VISIBLE else View.GONE
+    private var fadeAnimator: ValueAnimator? = null
+    private var pendingFadeIn: OneShotPreDrawListener? = null
+    private var keyboardRequested = false
+    private val resultsItemAnimator = searchResultsList.itemAnimator
+    private val insetsController = WindowCompat.getInsetsController(activity.window, searchView)
+    private val showKeyboard = Runnable {
+        insetsController.show(WindowInsetsCompat.Type.ime())
     }
 
     private val scrollToTopObserver = object : RecyclerView.AdapterDataObserver() {
@@ -164,5 +57,116 @@ class SearchModeController(
         override fun onItemRangeMoved(fromPosition: Int, toPosition: Int, itemCount: Int) {
             searchResultsList.scrollToPosition(0)
         }
+    }
+
+    private val searchAdapter = WebAppListAdapter(activity, selection).apply {
+        groupFilter = null
+        showGroupLabels = true
+        registerAdapterDataObserver(scrollToTopObserver)
+    }
+
+    init {
+        ViewCompat.setOnApplyWindowInsetsListener(searchView) { _, insets -> insets }
+        searchResultsList.applyBottomScreenInsets()
+        searchResultsList.layoutManager = LinearLayoutManager(activity)
+        searchResultsList.adapter = searchAdapter
+        searchView.editText.doAfterTextChanged { text ->
+            searchAdapter.searchQuery = text?.toString().orEmpty()
+            refreshResults()
+        }
+        searchView.toolbar.setNavigationOnClickListener { exit() }
+    }
+
+    fun enter() {
+        if (isActive) return
+        isActive = true
+        searchView.clearText()
+        keyboardRequested = true
+        showSurface()
+        onChanged()
+    }
+
+    fun exit() {
+        if (!isActive) return
+        isActive = false
+        keyboardRequested = false
+        searchView.editText.removeCallbacks(showKeyboard)
+        searchView.editText.clearFocus()
+        insetsController.hide(WindowInsetsCompat.Type.ime())
+        hideSurface()
+        onChanged()
+    }
+
+    fun restore() {
+        if (isActive) return
+        isActive = true
+        searchView.setVisible(true)
+        searchAdapter.searchQuery = searchView.text.toString()
+        refreshResults()
+    }
+
+    fun onDataChanged() = refreshResults()
+
+    // The surface is inflated GONE; its first measure and layout happen on the frame after
+    // setVisible(true), so the fade is started on that frame's pre-draw rather than now.
+    // Row changes made while the surface was hidden would otherwise play their item
+    // animations over that first frame, so the animator is held back until then as well.
+    private fun showSurface() {
+        cancelPendingFadeIn()
+        if (fadeAnimator?.isRunning == true) {
+            fadeTo(1f)
+            requestKeyboardIfPending()
+            return
+        }
+        searchView.alpha = 0f
+        searchResultsList.itemAnimator = null
+        searchView.setVisible(true)
+        pendingFadeIn = OneShotPreDrawListener.add(searchView) {
+            pendingFadeIn = null
+            searchResultsList.itemAnimator = resultsItemAnimator
+            fadeTo(1f)
+            requestKeyboardIfPending()
+        }
+    }
+
+    private fun hideSurface() {
+        cancelPendingFadeIn()
+        searchResultsList.itemAnimator = resultsItemAnimator
+        fadeTo(0f) { searchView.setVisible(false) }
+    }
+
+    // SearchView.requestFocusAndShowKeyboard() posts an uncancellable delayed show that would
+    // raise the keyboard after an exit; this request is owned here and removed on exit.
+    private fun requestKeyboardIfPending() {
+        if (!keyboardRequested) return
+        keyboardRequested = false
+        searchView.editText.requestFocus()
+        searchView.editText.post(showKeyboard)
+    }
+
+    // Cancelling an animator still dispatches onAnimationEnd, so the end action is only run
+    // when the fade reached its target.
+    private fun fadeTo(target: Float, onReached: () -> Unit = {}) {
+        fadeAnimator?.cancel()
+        val start = searchView.alpha
+        fadeAnimator = ValueAnimator.ofFloat(start, target).apply {
+            duration = (Const.ANIM_DURATION_MEDIUM * abs(target - start)).toLong()
+            addUpdateListener { searchView.alpha = it.animatedValue as Float }
+            var cancelled = false
+            doOnCancel { cancelled = true }
+            doOnEnd { if (!cancelled) onReached() }
+            start()
+        }
+    }
+
+    private fun cancelPendingFadeIn() {
+        pendingFadeIn?.removeListener()
+        pendingFadeIn = null
+    }
+
+    private fun refreshResults() {
+        val empty = searchAdapter.updateWebAppList()
+        searchEmptyState.visibility = if (empty) View.VISIBLE else View.GONE
+        searchResultsList.visibility = if (empty) View.GONE else View.VISIBLE
     }
 }

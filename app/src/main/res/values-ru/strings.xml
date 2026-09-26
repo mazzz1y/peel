@@ -46,16 +46,41 @@
     <string name="import_destination_group">Группа назначения</string>
     <string name="import_mapping_empty">В этом файле нет приложений.</string>
     <string name="import_count_message">Импортировано приложений: %1$d</string>
-    <string name="n_apps_selected">Выбрано: %1$d</string>
+    <plurals name="n_apps_selected">
+        <item quantity="one">Выбрано: %d</item>
+        <item quantity="few">Выбрано: %d</item>
+        <item quantity="many">Выбрано: %d</item>
+        <item quantity="other">Выбрано: %d</item>
+    </plurals>
     <string name="share_secrets_title">Конфиденциальные данные</string>
     <string name="share_secrets_description">Выбранные приложения содержат конфиденциальные данные: пользовательские заголовки и данные авторизации. Удалить их из файла?</string>
     <string name="share_secrets_include">Оставить</string>
     <string name="share_secrets_exclude">Удалить</string>
     <string name="remove_apps_title">Удалить приложения</string>
-    <string name="remove_apps_confirm">Удалить выбранные приложения (%1$d)?</string>
-    <string name="n_apps_removed">Удалено приложений: %1$d</string>
-    <string name="remove_groups_confirm">Удалить выбранные группы (%1$d) и их приложения?</string>
-    <string name="n_groups_removed">Удалено групп: %1$d</string>
+    <plurals name="remove_apps_confirm">
+        <item quantity="one">Удалить %d выбранное приложение?</item>
+        <item quantity="few">Удалить %d выбранных приложения?</item>
+        <item quantity="many">Удалить %d выбранных приложений?</item>
+        <item quantity="other">Удалить %d выбранных приложений?</item>
+    </plurals>
+    <plurals name="n_apps_removed">
+        <item quantity="one">Удалено %d приложение</item>
+        <item quantity="few">Удалено %d приложения</item>
+        <item quantity="many">Удалено %d приложений</item>
+        <item quantity="other">Удалено %d приложений</item>
+    </plurals>
+    <plurals name="remove_groups_confirm">
+        <item quantity="one">Удалить %d выбранную группу и её приложения?</item>
+        <item quantity="few">Удалить %d выбранные группы и их приложения?</item>
+        <item quantity="many">Удалить %d выбранных групп и их приложения?</item>
+        <item quantity="other">Удалить %d выбранных групп и их приложения?</item>
+    </plurals>
+    <plurals name="n_groups_removed">
+        <item quantity="one">Удалена %d группа</item>
+        <item quantity="few">Удалены %d группы</item>
+        <item quantity="many">Удалено %d групп</item>
+        <item quantity="other">Удалено %d групп</item>
+    </plurals>
     <string name="export_share_failed">Не удалось подготовить файл для отправки</string>
     <string name="backup_save_failed">Не удалось сохранить резервную копию</string>
     <string name="backup_saved">Резервная копия сохранена</string>
@@ -236,7 +261,12 @@
     <string name="no_search_results">Приложения не найдены</string>
     <string name="import_group_share_description">Вам отправили группу %1$s. Выберите приложения для импорта:</string>
     <string name="import_group_share_description_multi">Вам отправили %1$s. Выберите группы и приложения для импорта:</string>
-    <string name="n_groups_selected">Выбрано групп: %1$d</string>
+    <plurals name="n_groups_selected">
+        <item quantity="one">Выбрана %d группа</item>
+        <item quantity="few">Выбраны %d группы</item>
+        <item quantity="many">Выбрано %d групп</item>
+        <item quantity="other">Выбрано %d групп</item>
+    </plurals>
     <string name="network_privacy">Сеть и конфиденциальность</string>
     <string name="group_not_found">Группа больше недоступна</string>
     <string name="icon_dimensions_source">%1$dx%2$d · %3$s</string>

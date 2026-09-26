@@ -28,16 +28,31 @@
     <string name="import_destination_group">Zielgruppe</string>
     <string name="import_mapping_empty">Keine Apps in dieser Datei gefunden.</string>
     <string name="import_count_message">%1$d App(s) importiert</string>
-    <string name="n_apps_selected">%1$d ausgewählt</string>
+    <plurals name="n_apps_selected">
+        <item quantity="one">%d ausgewählt</item>
+        <item quantity="other">%d ausgewählt</item>
+    </plurals>
     <string name="share_secrets_title">Geheimnisse erkannt</string>
     <string name="share_secrets_description">Ausgewählte Apps enthalten Geheimnisse wie benutzerdefinierte Header oder Anmeldedaten. Aus der freigegebenen Datei entfernen?</string>
     <string name="share_secrets_include">Behalten</string>
     <string name="share_secrets_exclude">Entfernen</string>
     <string name="remove_apps_title">Apps entfernen</string>
-    <string name="remove_apps_confirm">%1$d ausgewählte App(s) entfernen?</string>
-    <string name="n_apps_removed">%1$d App(s) entfernt</string>
-    <string name="remove_groups_confirm">%1$d ausgewählte Gruppe(n) und deren Apps entfernen?</string>
-    <string name="n_groups_removed">%1$d Gruppe(n) entfernt</string>
+    <plurals name="remove_apps_confirm">
+        <item quantity="one">%d ausgewählte App entfernen?</item>
+        <item quantity="other">%d ausgewählte Apps entfernen?</item>
+    </plurals>
+    <plurals name="n_apps_removed">
+        <item quantity="one">%d App entfernt</item>
+        <item quantity="other">%d Apps entfernt</item>
+    </plurals>
+    <plurals name="remove_groups_confirm">
+        <item quantity="one">%d ausgewählte Gruppe und deren Apps entfernen?</item>
+        <item quantity="other">%d ausgewählte Gruppen und deren Apps entfernen?</item>
+    </plurals>
+    <plurals name="n_groups_removed">
+        <item quantity="one">%d Gruppe entfernt</item>
+        <item quantity="other">%d Gruppen entfernt</item>
+    </plurals>
     <string name="export_share_failed">Datei konnte nicht zum Teilen vorbereitet werden</string>
     <string name="backup_save_failed">Sicherung konnte nicht gespeichert werden</string>
     <string name="backup_saved">Sicherung gespeichert</string>
@@ -230,7 +245,10 @@
     <string name="no_search_results">Keine Apps gefunden</string>
     <string name="import_group_share_description">Die Gruppe %1$s wurde mit dir geteilt. Wähle die Apps zum Importieren:</string>
     <string name="import_group_share_description_multi">%1$s wurden mit dir geteilt. Wähle Gruppen und Apps zum Importieren:</string>
-    <string name="n_groups_selected">%1$d Gruppe(n) ausgewählt</string>
+    <plurals name="n_groups_selected">
+        <item quantity="one">%d Gruppe ausgewählt</item>
+        <item quantity="other">%d Gruppen ausgewählt</item>
+    </plurals>
     <string name="network_privacy">Netzwerk &amp; Datenschutz</string>
     <string name="group_not_found">Die Gruppe ist nicht mehr verfügbar</string>
     <string name="icon_dimensions_source">%1$dx%2$d · %3$s</string>

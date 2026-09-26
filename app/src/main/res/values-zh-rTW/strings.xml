@@ -46,16 +46,26 @@
     <string name="import_destination_group">目標群組</string>
     <string name="import_mapping_empty">此檔案中未找到應用程式。</string>
     <string name="import_count_message">已匯入 %1$d 個應用程式</string>
-    <string name="n_apps_selected">已選取 %1$d 個</string>
+    <plurals name="n_apps_selected">
+        <item quantity="other">已選取 %d 個</item>
+    </plurals>
     <string name="share_secrets_title">偵測到密鑰</string>
     <string name="share_secrets_description">所選應用程式包含自訂標頭或授權憑證等密鑰。是否從共享檔案中移除？</string>
     <string name="share_secrets_include">保留</string>
     <string name="share_secrets_exclude">移除</string>
     <string name="remove_apps_title">移除應用程式</string>
-    <string name="remove_apps_confirm">移除 %1$d 個已選取的應用程式？</string>
-    <string name="n_apps_removed">已移除 %1$d 個應用程式</string>
-    <string name="remove_groups_confirm">移除 %1$d 個已選取的群組及其應用程式？</string>
-    <string name="n_groups_removed">已移除 %1$d 個群組</string>
+    <plurals name="remove_apps_confirm">
+        <item quantity="other">移除 %d 個已選取的應用程式？</item>
+    </plurals>
+    <plurals name="n_apps_removed">
+        <item quantity="other">已移除 %d 個應用程式</item>
+    </plurals>
+    <plurals name="remove_groups_confirm">
+        <item quantity="other">移除 %d 個已選取的群組及其應用程式？</item>
+    </plurals>
+    <plurals name="n_groups_removed">
+        <item quantity="other">已移除 %d 個群組</item>
+    </plurals>
     <string name="export_share_failed">無法準備分享檔案</string>
     <string name="backup_save_failed">無法儲存備份</string>
     <string name="backup_saved">備份已儲存</string>
@@ -233,7 +243,9 @@
     <string name="no_search_results">未找到應用程式</string>
     <string name="import_group_share_description">群組 %1$s 已與你共享。選擇要匯入的應用程式：</string>
     <string name="import_group_share_description_multi">%1$s已與你共享。選擇要匯入的群組和應用程式：</string>
-    <string name="n_groups_selected">已選擇 %1$d 個群組</string>
+    <plurals name="n_groups_selected">
+        <item quantity="other">已選取 %d 個群組</item>
+    </plurals>
     <string name="network_privacy">網路與隱私</string>
     <string name="group_not_found">此群組已不可用</string>
     <string name="icon_dimensions_source">%1$dx%2$d · %3$s</string>

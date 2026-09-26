@@ -1,25 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    style="?attr/materialCardViewElevatedStyle"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginHorizontal="@dimen/settings_hub_card_margin_horizontal"
-    android:layout_marginVertical="@dimen/settings_hub_card_margin_vertical"
-    android:clickable="true"
-    android:focusable="true"
-    app:cardBackgroundColor="?attr/colorSurfaceBright">
+    style="@style/Widget.App.ListCard">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingHorizontal="@dimen/settings_hub_card_padding_horizontal"
-        android:paddingVertical="@dimen/settings_hub_card_padding_vertical">
+        style="@style/ListCardContent">
 
         <ImageView
             android:id="@+id/hub_icon"
-            android:layout_width="@dimen/settings_hub_icon_size"
-            android:layout_height="@dimen/settings_hub_icon_size"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
             android:importantForAccessibility="no"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -30,7 +20,7 @@
             android:id="@+id/hub_title"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/settings_hub_icon_text_gap"
+            android:layout_marginStart="16dp"
             android:ellipsize="end"
             android:maxLines="1"
             android:textAppearance="?attr/textAppearanceBodyLarge"
@@ -45,7 +35,7 @@
             android:id="@+id/hub_subtitle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/settings_hub_icon_text_gap"
+            android:layout_marginStart="16dp"
             android:ellipsize="end"
             android:maxLines="2"
             android:textAppearance="?attr/textAppearanceBodyMedium"

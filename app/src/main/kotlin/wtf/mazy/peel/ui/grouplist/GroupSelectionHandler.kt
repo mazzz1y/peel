@@ -42,10 +42,10 @@ class GroupSelectionHandler(
 
     override fun deleteTitle(): String = activity.getString(R.string.delete_group_title)
     override fun deleteMessage(count: Int): String =
-        activity.getString(R.string.remove_groups_confirm, count)
+        activity.resources.getQuantityString(R.plurals.remove_groups_confirm, count, count)
 
     override fun deletedToast(count: Int): String =
-        activity.getString(R.string.n_groups_removed, count)
+        activity.resources.getQuantityString(R.plurals.n_groups_removed, count, count)
 
     override suspend fun commitDelete(uuids: List<String>) {
         val groups = DataManager.groups.filter { it.uuid in uuids }

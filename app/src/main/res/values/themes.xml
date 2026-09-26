@@ -1,6 +1,8 @@
 <resources>
 
     <style name="AppTheme" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="actionBarSize">@dimen/toolbar_height</item>
+        <item name="materialSearchViewStyle">@style/Widget.App.SearchView</item>
         <item name="colorPrimary">@color/brand_primary</item>
         <item name="colorOnPrimary">@color/brand_onPrimary</item>
         <item name="colorPrimaryContainer">@color/brand_primaryContainer</item>
@@ -35,7 +37,7 @@
         <item name="colorSurfaceContainer">@color/brand_surfaceContainer</item>
         <item name="colorSurfaceContainerHigh">@color/brand_surfaceContainerHigh</item>
         <item name="colorSurfaceContainerHighest">@color/brand_surfaceContainerHighest</item>
-        <item name="android:windowBackground">?attr/colorSurfaceContainer</item>
+        <item name="android:windowBackground">?attr/colorSurfaceContainerLow</item>
         <item name="popupMenuBackground">@drawable/popup_menu_background_rounded</item>
     </style>
 
@@ -73,6 +75,7 @@
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:orientation">vertical</item>
+        <item name="android:gravity">center_vertical</item>
         <item name="android:minHeight">@dimen/settings_row_min_height</item>
         <item name="android:paddingHorizontal">@dimen/settings_row_padding_horizontal</item>
         <item name="android:paddingVertical">@dimen/settings_row_padding_vertical</item>
@@ -108,6 +111,58 @@
         <item name="android:maxLines">1</item>
         <item name="android:textAppearance">?attr/textAppearanceBodyLarge</item>
         <item name="android:textColor">?attr/colorOnSurface</item>
+    </style>
+
+    <style name="Widget.App.SearchView" parent="Widget.Material3Expressive.SearchView.AppBarWithSearch">
+        <item name="materialThemeOverlay">@style/ThemeOverlay.App.SearchView</item>
+    </style>
+
+    <style name="ThemeOverlay.App.SearchView" parent="ThemeOverlay.Material3Expressive.SearchView.AppBarWithSearch">
+        <item name="materialSearchViewToolbarStyle">@style/Widget.App.SearchView.Toolbar</item>
+    </style>
+
+    <!-- The library's 4dp top margin aligns the pill with a SearchBar inside an AppBarLayout; Peel has no
+         SearchBar, so the pill's bottom edge sits on the app bar's and the rows below keep their page rhythm. -->
+    <style name="Widget.App.SearchView.Toolbar" parent="Widget.Material3Expressive.SearchView.Toolbar.AppBarWithSearch">
+        <item name="android:layout_marginTop">0dp</item>
+    </style>
+
+    <style name="Widget.App.TabLayout" parent="Widget.Material3.TabLayout">
+        <item name="materialThemeOverlay">@style/ThemeOverlay.App.TabLayout</item>
+    </style>
+
+    <style name="ThemeOverlay.App.TabLayout" parent="">
+        <item name="badgeStyle">@style/Widget.App.Badge</item>
+    </style>
+
+    <style name="Widget.App.Badge" parent="Widget.Material3.Badge">
+        <item name="backgroundColor">?attr/colorPrimary</item>
+        <item name="badgeTextColor">?attr/colorOnPrimary</item>
+        <item name="horizontalOffsetWithText">@dimen/tab_badge_horizontal_offset</item>
+        <item name="verticalOffsetWithText">@dimen/tab_badge_vertical_offset</item>
+    </style>
+
+    <style name="Widget.App.Toolbar" parent="Widget.Material3.Toolbar">
+        <item name="android:background">@android:color/transparent</item>
+        <item name="titleTextAppearance">?attr/textAppearanceTitleLarge</item>
+        <item name="titleTextColor">?attr/colorOnSurface</item>
+    </style>
+
+    <style name="Widget.App.ListCard" parent="Widget.Material3.CardView.Elevated">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginHorizontal">@dimen/list_card_margin_horizontal</item>
+        <item name="android:layout_marginVertical">@dimen/list_card_margin_vertical</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="cardBackgroundColor">?attr/colorSurfaceContainerHigh</item>
+    </style>
+
+    <style name="ListCardContent">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:paddingHorizontal">@dimen/list_card_padding_horizontal</item>
+        <item name="android:paddingVertical">@dimen/list_card_padding_vertical</item>
     </style>
 
     <style name="Widget.App.IconButton" parent="Widget.Material3.Button.IconButton">

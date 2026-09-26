@@ -2,12 +2,9 @@
 <com.google.android.material.appbar.MaterialToolbar xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/topAppBar"
-    style="@style/Widget.Material3.Toolbar"
+    style="@style/Widget.App.Toolbar"
     android:layout_width="match_parent"
     android:layout_height="?attr/actionBarSize"
-    android:background="@android:color/transparent"
     android:elevation="0dp"
     app:navigationIcon="@drawable/ic_symbols_arrow_back_24"
-    app:navigationIconTint="?attr/colorOnSurface"
-    app:titleTextAppearance="?attr/textAppearanceTitleLarge"
-    app:titleTextColor="?attr/colorOnSurface" />
+    app:navigationIconTint="?attr/colorOnSurface" />

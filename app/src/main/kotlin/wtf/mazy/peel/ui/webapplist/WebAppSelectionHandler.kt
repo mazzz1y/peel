@@ -27,10 +27,10 @@ class WebAppSelectionHandler(
 
     override fun deleteTitle(): String = activity.getString(R.string.remove_apps_title)
     override fun deleteMessage(count: Int): String =
-        activity.getString(R.string.remove_apps_confirm, count)
+        activity.resources.getQuantityString(R.plurals.remove_apps_confirm, count, count)
 
     override fun deletedToast(count: Int): String =
-        activity.getString(R.string.n_apps_removed, count)
+        activity.resources.getQuantityString(R.plurals.n_apps_removed, count, count)
 
     override suspend fun commitDelete(uuids: List<String>) {
         DataManager.deleteWebApps(uuids)

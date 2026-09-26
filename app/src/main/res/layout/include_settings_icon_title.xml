@@ -9,7 +9,7 @@
         android:layout_width="96dp"
         android:layout_height="96dp"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="@dimen/settings_identity_inset_top"
         android:layout_marginBottom="16dp"
         android:clickable="true"
         android:contentDescription="@string/app_icon"
@@ -29,7 +29,7 @@
             android:id="@+id/txtGroupName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
+            android:layout_marginBottom="@dimen/settings_identity_inset_bottom"
             android:gravity="center"
             android:textAppearance="?attr/textAppearanceTitleLarge" />
 

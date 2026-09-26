@@ -46,16 +46,26 @@
     <string name="import_destination_group">目标分组</string>
     <string name="import_mapping_empty">此文件中未找到应用。</string>
     <string name="import_count_message">已导入 %1$d 个应用</string>
-    <string name="n_apps_selected">已选择 %1$d 个</string>
+    <plurals name="n_apps_selected">
+        <item quantity="other">已选择 %d 个</item>
+    </plurals>
     <string name="share_secrets_title">检测到密钥</string>
     <string name="share_secrets_description">所选应用包含自定义标头或授权凭据等密钥。是否从共享文件中移除？</string>
     <string name="share_secrets_include">保留</string>
     <string name="share_secrets_exclude">移除</string>
     <string name="remove_apps_title">移除应用</string>
-    <string name="remove_apps_confirm">移除 %1$d 个已选应用？</string>
-    <string name="n_apps_removed">已移除 %1$d 个应用</string>
-    <string name="remove_groups_confirm">移除 %1$d 个已选分组及其应用？</string>
-    <string name="n_groups_removed">已移除 %1$d 个分组</string>
+    <plurals name="remove_apps_confirm">
+        <item quantity="other">移除 %d 个已选应用？</item>
+    </plurals>
+    <plurals name="n_apps_removed">
+        <item quantity="other">已移除 %d 个应用</item>
+    </plurals>
+    <plurals name="remove_groups_confirm">
+        <item quantity="other">移除 %d 个已选分组及其应用？</item>
+    </plurals>
+    <plurals name="n_groups_removed">
+        <item quantity="other">已移除 %d 个分组</item>
+    </plurals>
     <string name="export_share_failed">无法准备分享文件</string>
     <string name="backup_save_failed">无法保存备份</string>
     <string name="backup_saved">备份已保存</string>
@@ -233,7 +243,9 @@
     <string name="no_search_results">未找到应用</string>
     <string name="import_group_share_description">分组 %1$s 已与你共享。选择要导入的应用：</string>
     <string name="import_group_share_description_multi">%1$s已与你共享。选择要导入的分组和应用：</string>
-    <string name="n_groups_selected">已选择 %1$d 个分组</string>
+    <plurals name="n_groups_selected">
+        <item quantity="other">已选择 %d 个分组</item>
+    </plurals>
     <string name="network_privacy">网络与隐私</string>
     <string name="group_not_found">该分组已不可用</string>
     <string name="icon_dimensions_source">%1$dx%2$d · %3$s</string>

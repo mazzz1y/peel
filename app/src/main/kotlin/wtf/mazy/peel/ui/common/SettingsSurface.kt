@@ -14,6 +14,11 @@ import wtf.mazy.peel.R
 object SettingsSurface {
 
     fun apply(view: View, position: GroupPosition) {
+        view.background = surface(view, position)
+        applyMargin(view, position)
+    }
+
+    private fun surface(view: View, position: GroupPosition): MaterialShapeDrawable {
         val res = view.resources
         val outer = res.getDimension(R.dimen.settings_group_corner_outer)
         val inner = res.getDimension(R.dimen.settings_group_corner_inner)
@@ -25,16 +30,19 @@ object SettingsSurface {
             .setBottomLeftCornerSize(bottom)
             .setBottomRightCornerSize(bottom)
             .build()
-        view.background = MaterialShapeDrawable(shape).apply {
+        return MaterialShapeDrawable(shape).apply {
             fillColor = ColorStateList.valueOf(
                 MaterialColors.getColor(
                     view,
-                    com.google.android.material.R.attr.colorSurfaceBright
+                    com.google.android.material.R.attr.colorSurfaceContainer
                 )
             )
         }
+    }
+
+    private fun applyMargin(view: View, position: GroupPosition) {
         view.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-            bottomMargin = res.getDimensionPixelSize(
+            bottomMargin = view.resources.getDimensionPixelSize(
                 if (position.isBottom) R.dimen.settings_section_gap else R.dimen.settings_group_seam
             )
         }

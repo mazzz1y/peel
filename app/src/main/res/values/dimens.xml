@@ -8,6 +8,13 @@
     <dimen name="settings_item_gap">16dp</dimen>
     <dimen name="settings_label_control_gap">16dp</dimen>
     <dimen name="settings_section_gap">24dp</dimen>
+    <!-- Under the app bar. Chrome's sub-screens draw a first category title's cap height 21dp below the bar;
+         labelLarge carries 5dp of leading above the caps, so 16dp of padding lands the ink there.
+         A screen that opens with a surface uses the section gap under the bar, as between its surfaces. -->
+    <dimen name="settings_title_top_gap">16dp</dimen>
+    <!-- Identity card: 24dp inside above the icon and below the last text line; the row's own 8dp padding is part of it -->
+    <dimen name="settings_identity_inset_top">16dp</dimen>
+    <dimen name="settings_identity_inset_bottom">16dp</dimen>
     <dimen name="divider_height">1dp</dimen>
     <dimen name="dialog_list_top_padding">16dp</dimen>
     <dimen name="dialog_content_horizontal_padding">24dp</dimen>
@@ -17,6 +24,8 @@
     <dimen name="dialog_content_gap">16dp</dimen>
 
     <dimen name="popup_menu_corner_radius">16dp</dimen>
+    <!-- Chrome's settings bar (default_action_bar_height); Material 3's actionBarSize is 64dp -->
+    <dimen name="toolbar_height">56dp</dimen>
 
     <!-- Segmented settings groups: rows on colorSurfaceContainer joined by seams -->
     <dimen name="settings_group_corner_outer">16dp</dimen>
@@ -24,24 +33,25 @@
     <dimen name="settings_group_seam">2dp</dimen>
     <dimen name="settings_row_min_height">72dp</dimen>
     <dimen name="settings_row_padding_horizontal">16dp</dimen>
-    <dimen name="settings_row_padding_vertical">12dp</dimen>
+    <dimen name="settings_row_padding_vertical">8dp</dimen>
     <dimen name="settings_entry_min_height">48dp</dimen>
     <dimen name="settings_row_label_gap">4dp</dimen>
     <dimen name="settings_icon_slot_width">40dp</dimen>
-    <dimen name="settings_header_gap_bottom">16dp</dimen>
+    <!-- Title baseline sits 21dp above its group (Chrome); 4dp of descent leading below the baseline is inside the text box -->
+    <dimen name="settings_title_gap_bottom">17dp</dimen>
     <dimen name="settings_touch_target">48dp</dimen>
     <!-- 48dp touch-target line minus 14dp puts one-line labelLarge text at the section gap; 2dp rest completes the 16dp gap below -->
     <dimen name="settings_header_pull_up">-14dp</dimen>
     <dimen name="settings_header_pull_up_rest">2dp</dimen>
     <dimen name="settings_nested_row_inset">40dp</dimen>
 
-    <dimen name="settings_hub_card_margin_horizontal">12dp</dimen>
-    <dimen name="settings_hub_card_margin_vertical">6dp</dimen>
-    <dimen name="settings_hub_card_padding_horizontal">16dp</dimen>
-    <dimen name="settings_hub_card_padding_vertical">14dp</dimen>
-    <dimen name="settings_hub_icon_size">24dp</dimen>
-    <dimen name="settings_hub_icon_text_gap">20dp</dimen>
-    <dimen name="settings_hub_list_padding_vertical">6dp</dimen>
+    <dimen name="settings_screen_inset">12dp</dimen>
+
+    <dimen name="list_card_margin_horizontal">12dp</dimen>
+    <dimen name="list_card_margin_vertical">6dp</dimen>
+    <dimen name="list_card_padding_horizontal">16dp</dimen>
+    <dimen name="list_card_padding_vertical">12dp</dimen>
+    <dimen name="list_card_list_padding_top">6dp</dimen>
     <dimen name="settings_dropdown_max_width">160dp</dimen>
     <dimen name="toolbar_label_max_width">140dp</dimen>
 
@@ -78,4 +88,6 @@
     <!-- Virtual cursor (D-pad hosts) -->
     <dimen name="virtual_cursor_size">24dp</dimen>
     <dimen name="virtual_cursor_elevation">8dp</dimen>
+    <dimen name="tab_badge_horizontal_offset">0dp</dimen>
+    <dimen name="tab_badge_vertical_offset">4dp</dimen>
 </resources>

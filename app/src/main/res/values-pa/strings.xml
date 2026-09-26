@@ -46,16 +46,31 @@
     <string name="import_destination_group">ਮੰਜ਼ਿਲ ਸਮੂਹ</string>
     <string name="import_mapping_empty">ਇਸ ਫ਼ਾਈਲ ਵਿੱਚ ਕੋਈ ਐਪ ਨਹੀਂ ਮਿਲੀ।</string>
     <string name="import_count_message">%1$d ਐਪਾਂ ਆਯਾਤ ਕੀਤੀਆਂ</string>
-    <string name="n_apps_selected">%1$d ਚੁਣੀਆਂ</string>
+    <plurals name="n_apps_selected">
+        <item quantity="one">%d ਚੁਣੀ</item>
+        <item quantity="other">%d ਚੁਣੀਆਂ</item>
+    </plurals>
     <string name="share_secrets_title">ਗੁਪਤ ਜਾਣਕਾਰੀ ਮਿਲੀ</string>
     <string name="share_secrets_description">ਚੁਣੀਆਂ ਐਪਾਂ ਵਿੱਚ ਕਸਟਮ ਹੈਡਰ ਜਾਂ ਅਧਿਕਾਰ ਪ੍ਰਮਾਣ ਪੱਤਰ ਵਰਗੀ ਗੁਪਤ ਜਾਣਕਾਰੀ ਹੈ। ਸਾਂਝੀ ਫ਼ਾਈਲ ਤੋਂ ਹਟਾਉਣਾ ਹੈ?</string>
     <string name="share_secrets_include">ਰੱਖੋ</string>
     <string name="share_secrets_exclude">ਹਟਾਓ</string>
     <string name="remove_apps_title">ਐਪਾਂ ਹਟਾਓ</string>
-    <string name="remove_apps_confirm">%1$d ਚੁਣੀਆਂ ਐਪਾਂ ਹਟਾਓ?</string>
-    <string name="n_apps_removed">%1$d ਐਪਾਂ ਹਟਾਈਆਂ</string>
-    <string name="remove_groups_confirm">%1$d ਚੁਣੇ ਗਰੁੱਪ ਅਤੇ ਉਨ੍ਹਾਂ ਦੀਆਂ ਐਪਾਂ ਹਟਾਓ?</string>
-    <string name="n_groups_removed">%1$d ਗਰੁੱਪ ਹਟਾਏ</string>
+    <plurals name="remove_apps_confirm">
+        <item quantity="one">%d ਚੁਣੀ ਐਪ ਹਟਾਓ?</item>
+        <item quantity="other">%d ਚੁਣੀਆਂ ਐਪਾਂ ਹਟਾਓ?</item>
+    </plurals>
+    <plurals name="n_apps_removed">
+        <item quantity="one">%d ਐਪ ਹਟਾਈ</item>
+        <item quantity="other">%d ਐਪਾਂ ਹਟਾਈਆਂ</item>
+    </plurals>
+    <plurals name="remove_groups_confirm">
+        <item quantity="one">%d ਚੁਣਿਆ ਗਰੁੱਪ ਅਤੇ ਉਸ ਦੀਆਂ ਐਪਾਂ ਹਟਾਓ?</item>
+        <item quantity="other">%d ਚੁਣੇ ਗਰੁੱਪ ਅਤੇ ਉਨ੍ਹਾਂ ਦੀਆਂ ਐਪਾਂ ਹਟਾਓ?</item>
+    </plurals>
+    <plurals name="n_groups_removed">
+        <item quantity="one">%d ਗਰੁੱਪ ਹਟਾਇਆ</item>
+        <item quantity="other">%d ਗਰੁੱਪ ਹਟਾਏ</item>
+    </plurals>
     <string name="export_share_failed">ਸਾਂਝਾ ਕਰਨ ਲਈ ਫ਼ਾਈਲ ਤਿਆਰ ਨਹੀਂ ਹੋ ਸਕੀ</string>
     <string name="backup_save_failed">ਬੈਕਅੱਪ ਸੁਰੱਖਿਅਤ ਨਹੀਂ ਹੋ ਸਕਿਆ</string>
     <string name="backup_saved">ਬੈਕਅੱਪ ਸੁਰੱਖਿਅਤ ਹੋ ਗਿਆ</string>
@@ -233,7 +248,10 @@
     <string name="no_search_results">ਕੋਈ ਐਪ ਨਹੀਂ ਮਿਲੀ</string>
     <string name="import_group_share_description">ਗਰੁੱਪ %1$s ਤੁਹਾਡੇ ਨਾਲ ਸਾਂਝਾ ਕੀਤਾ ਗਿਆ। ਆਯਾਤ ਕਰਨ ਲਈ ਐਪ ਚੁਣੋ:</string>
     <string name="import_group_share_description_multi">%1$s ਤੁਹਾਡੇ ਨਾਲ ਸਾਂਝੇ ਕੀਤੇ ਗਏ। ਆਯਾਤ ਕਰਨ ਲਈ ਗਰੁੱਪ ਅਤੇ ਐਪ ਚੁਣੋ:</string>
-    <string name="n_groups_selected">%1$d ਗਰੁੱਪ ਚੁਣੇ ਗਏ</string>
+    <plurals name="n_groups_selected">
+        <item quantity="one">%d ਗਰੁੱਪ ਚੁਣਿਆ ਗਿਆ</item>
+        <item quantity="other">%d ਗਰੁੱਪ ਚੁਣੇ ਗਏ</item>
+    </plurals>
     <string name="network_privacy">ਨੈੱਟਵਰਕ ਅਤੇ ਗੋਪਨੀਅਤਾ</string>
     <string name="group_not_found">ਇਹ ਗਰੁੱਪ ਹੁਣ ਉਪਲਬਧ ਨਹੀਂ ਹੈ</string>
     <string name="icon_dimensions_source">%1$dx%2$d · %3$s</string>

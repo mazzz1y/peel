@@ -1,13 +1,14 @@
 package wtf.mazy.peel.ui.entitylist
 
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
 import androidx.annotation.ColorInt
 import androidx.annotation.StringRes
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -26,12 +27,10 @@ import wtf.mazy.peel.util.applyBottomScreenInsets
 import wtf.mazy.peel.util.applyToolbarScreenInsets
 import wtf.mazy.peel.util.disableSystemBarContrastEnforcement
 
-abstract class EntityListActivity<T : Any> : PeelActivity(), EntityListHost {
+abstract class EntityListActivity<T : Any> : PeelActivity() {
 
-    final override lateinit var toolbar: MaterialToolbar
-    final override lateinit var fab: FloatingActionButton
-    final override val hostActivity: AppCompatActivity get() = this
-
+    protected lateinit var toolbar: MaterialToolbar
+    protected lateinit var fab: FloatingActionButton
     protected lateinit var list: RecyclerView
     protected lateinit var emptyStateText: TextView
     protected lateinit var adapter: EntityListAdapter<T, *>
@@ -52,11 +51,15 @@ abstract class EntityListActivity<T : Any> : PeelActivity(), EntityListHost {
     protected abstract fun loadEntities(): List<T>
     protected abstract fun rowEntityUuid(entity: T): String
 
-    protected open fun buildRow(entity: T): EntityRow<T> =
-        EntityRow(entity = entity, selected = false, inSelectionMode = false)
-
     protected open fun onAddClicked() {}
     protected open suspend fun reorder(uuids: List<String>) {}
+
+    protected open fun createSelectionHandler(): EntitySelectionHandler<T>? = null
+    protected open val selectionConfig: SelectionConfig? = null
+
+    protected var selection: EntitySelectionController<T>? = null
+        private set
+    private var chrome: ListChrome<T>? = null
 
     protected open fun subscribeDataChanges(onChange: () -> Unit) {
         lifecycleScope.launch {
@@ -66,14 +69,10 @@ abstract class EntityListActivity<T : Any> : PeelActivity(), EntityListHost {
         }
     }
 
-    protected val backPressCallback = object : OnBackPressedCallback(false) {
-        override fun handleOnBackPressed() = handleBackPress()
-    }
-
-    protected open fun shouldHandleBackPress(): Boolean = false
-
-    protected open fun handleBackPress() {
-        finish()
+    private val backPressCallback = object : OnBackPressedCallback(false) {
+        override fun handleOnBackPressed() {
+            chrome?.handleBackPress()
+        }
     }
 
     private var itemTouchHelper: ItemTouchHelper? = null
@@ -101,6 +100,8 @@ abstract class EntityListActivity<T : Any> : PeelActivity(), EntityListHost {
         toolbar.setNavigationOnClickListener { onBackPressedDispatcher.onBackPressed() }
         onBackPressedDispatcher.addCallback(this, backPressCallback)
 
+        setupSelection(savedInstanceState)
+
         adapter = createAdapter()
         list.layoutManager = LinearLayoutManager(this)
         list.adapter = adapter
@@ -116,19 +117,68 @@ abstract class EntityListActivity<T : Any> : PeelActivity(), EntityListHost {
                     },
                 ),
             )
-            itemTouchHelper?.attachToRecyclerView(list)
         }
 
-        fab.setOnClickListener { onFabClicked() }
+        fab.setOnClickListener { if (chrome?.onFabClicked() != true) onAddClicked() }
         EntityListAnimations.bindFabResizeOnRotation(this, fab)
 
         refreshList()
+        renderChrome(animated = false)
         subscribeDataChanges(::refreshList)
     }
 
-    protected open fun onFabClicked() {
-        onAddClicked()
+    private fun setupSelection(savedInstanceState: Bundle?) {
+        val handler = createSelectionHandler() ?: return
+        val config = selectionConfig ?: return
+        val controller = EntitySelectionController(
+            activity = this,
+            toolbar = toolbar,
+            actions = handler,
+            resolveItems = { ids -> loadEntities().filter { rowEntityUuid(it) in ids } },
+            onChanged = {
+                renderChrome(animated = true)
+                refreshList()
+            },
+            config = config,
+        )
+        selection = controller
+        chrome = ListChrome(
+            activity = this,
+            toolbar = toolbar,
+            fab = fab,
+            selection = controller,
+            applyNormalToolbar = { bar ->
+                bar.setNavigationIcon(R.drawable.ic_symbols_arrow_back_24)
+                bar.title = getString(titleRes)
+            },
+        )
+        val existing = loadEntities().mapTo(HashSet(), ::rowEntityUuid)
+        chrome?.restoreState(savedInstanceState) { it in existing }
     }
+
+    private fun renderChrome(animated: Boolean) {
+        val active = selection?.isActive == true
+        backPressCallback.isEnabled = active
+        setDragEnabled(!active)
+        chrome?.render(animated = animated)
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        chrome?.saveState(outState)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean =
+        chrome?.onCreateOptionsMenu(menu) == true || super.onCreateOptionsMenu(menu)
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean =
+        chrome?.onOptionsItemSelected(item) == true || super.onOptionsItemSelected(item)
+
+    protected fun buildRow(entity: T): EntityRow<T> = EntityRow(
+        entity = entity,
+        selected = selection?.isSelected(rowEntityUuid(entity)) == true,
+        inSelectionMode = selection?.isActive == true,
+    )
 
     protected fun refreshList() {
         val rows = loadEntities().map(::buildRow)
@@ -138,29 +188,8 @@ abstract class EntityListActivity<T : Any> : PeelActivity(), EntityListHost {
         list.visibility = if (isEmpty) View.GONE else View.VISIBLE
     }
 
-    protected fun setDragEnabled(enabled: Boolean) {
+    private fun setDragEnabled(enabled: Boolean) {
         val helper = itemTouchHelper ?: return
-        if (enabled) helper.attachToRecyclerView(list) else helper.attachToRecyclerView(null)
-    }
-
-    override fun crossfadeToolbar(swap: () -> Unit) =
-        EntityListAnimations.crossfadeToolbar(toolbar, swap)
-
-    override fun animateFabSwap(iconRes: Int, descriptionRes: Int) =
-        EntityListAnimations.animateFabSwap(fab, iconRes, descriptionRes)
-
-    override fun applyNormalToolbar() {
-        crossfadeToolbar {
-            removeSearchViewFromToolbar()
-            toolbar.menu.clear()
-            toolbar.setOnMenuItemClickListener(null)
-            toolbar.setNavigationIcon(R.drawable.ic_symbols_arrow_back_24)
-            toolbar.setNavigationOnClickListener { onBackPressedDispatcher.onBackPressed() }
-            toolbar.title = getString(titleRes)
-        }
-    }
-
-    override fun updateBackPressEnabled() {
-        backPressCallback.isEnabled = shouldHandleBackPress()
+        helper.attachToRecyclerView(if (enabled) list else null)
     }
 }

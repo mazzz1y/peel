@@ -12,8 +12,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:clipToPadding="false"
-            android:paddingHorizontal="@dimen/settings_hub_card_margin_horizontal"
-            android:paddingTop="@dimen/settings_section_gap"
+            android:paddingHorizontal="@dimen/settings_screen_inset"
+            android:paddingTop="@dimen/settings_title_top_gap"
             android:paddingBottom="@dimen/margin_activity"
             android:scrollbarStyle="outsideOverlay"
             android:scrollbars="vertical" />

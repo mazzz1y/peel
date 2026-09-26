@@ -46,16 +46,31 @@
     <string name="import_destination_group">गंतव्य समूह</string>
     <string name="import_mapping_empty">इस फ़ाइल में कोई ऐप नहीं मिला।</string>
     <string name="import_count_message">%1$d ऐप आयात किए गए</string>
-    <string name="n_apps_selected">%1$d चयनित</string>
+    <plurals name="n_apps_selected">
+        <item quantity="one">%d चयनित</item>
+        <item quantity="other">%d चयनित</item>
+    </plurals>
     <string name="share_secrets_title">गोपनीय जानकारी पाई गई</string>
     <string name="share_secrets_description">चयनित ऐप्स में कस्टम हेडर या प्रमाणीकरण क्रेडेंशियल जैसी गोपनीय जानकारी है। क्या इसे साझा फ़ाइल से हटाएँ?</string>
     <string name="share_secrets_include">रखें</string>
     <string name="share_secrets_exclude">हटाएँ</string>
     <string name="remove_apps_title">ऐप्स हटाएँ</string>
-    <string name="remove_apps_confirm">%1$d चयनित ऐप्स हटाएँ?</string>
-    <string name="n_apps_removed">%1$d ऐप हटाए गए</string>
-    <string name="remove_groups_confirm">%1$d चयनित समूह और उनके ऐप्स हटाएँ?</string>
-    <string name="n_groups_removed">%1$d समूह हटाए गए</string>
+    <plurals name="remove_apps_confirm">
+        <item quantity="one">%d चयनित ऐप हटाएँ?</item>
+        <item quantity="other">%d चयनित ऐप्स हटाएँ?</item>
+    </plurals>
+    <plurals name="n_apps_removed">
+        <item quantity="one">%d ऐप हटाया गया</item>
+        <item quantity="other">%d ऐप हटाए गए</item>
+    </plurals>
+    <plurals name="remove_groups_confirm">
+        <item quantity="one">%d चयनित समूह और उसके ऐप्स हटाएँ?</item>
+        <item quantity="other">%d चयनित समूह और उनके ऐप्स हटाएँ?</item>
+    </plurals>
+    <plurals name="n_groups_removed">
+        <item quantity="one">%d समूह हटाया गया</item>
+        <item quantity="other">%d समूह हटाए गए</item>
+    </plurals>
     <string name="export_share_failed">साझा करने के लिए फ़ाइल तैयार नहीं हो सकी</string>
     <string name="backup_save_failed">बैकअप सहेजा नहीं जा सका</string>
     <string name="backup_saved">बैकअप सहेजा गया</string>
@@ -234,7 +249,10 @@
     <string name="no_search_results">कोई ऐप नहीं मिला</string>
     <string name="import_group_share_description">ग्रुप %1$s आपके साथ साझा किया गया। आयात करने के लिए ऐप चुनें:</string>
     <string name="import_group_share_description_multi">%1$s आपके साथ साझा किए गए। आयात करने के लिए ग्रुप और ऐप चुनें:</string>
-    <string name="n_groups_selected">%1$d ग्रुप चयनित</string>
+    <plurals name="n_groups_selected">
+        <item quantity="one">%d ग्रुप चयनित</item>
+        <item quantity="other">%d ग्रुप चयनित</item>
+    </plurals>
     <string name="network_privacy">नेटवर्क और गोपनीयता</string>
     <string name="group_not_found">यह ग्रुप अब उपलब्ध नहीं है</string>
     <string name="icon_dimensions_source">%1$dx%2$d · %3$s</string>

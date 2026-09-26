@@ -15,14 +15,11 @@
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
-            style="@style/Widget.Material3.Toolbar"
+            style="@style/Widget.App.Toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="@android:color/transparent"
             app:navigationIcon="@drawable/ic_symbols_arrow_back_24"
-            app:navigationIconTint="?attr/colorOnSurface"
-            app:titleTextAppearance="?attr/textAppearanceTitleLarge"
-            app:titleTextColor="?attr/colorOnSurface" />
+            app:navigationIconTint="?attr/colorOnSurface" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -35,7 +32,7 @@
         <LinearLayout
             android:id="@+id/import_header_surface"
             style="@style/SettingsSurfaceRow"
-            android:layout_marginHorizontal="@dimen/settings_hub_card_margin_horizontal"
+            android:layout_marginHorizontal="@dimen/settings_screen_inset"
             android:layout_marginTop="@dimen/settings_section_gap">
 
             <TextView
@@ -74,7 +71,7 @@
             android:fadeScrollbars="false"
             android:nestedScrollingEnabled="true"
             android:overScrollMode="ifContentScrolls"
-            android:paddingHorizontal="@dimen/settings_hub_card_margin_horizontal"
+            android:paddingHorizontal="@dimen/settings_screen_inset"
             android:paddingBottom="@dimen/list_fab_clearance"
             android:scrollbars="vertical" />
 

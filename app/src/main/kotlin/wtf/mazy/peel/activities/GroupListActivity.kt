@@ -20,9 +20,8 @@ import wtf.mazy.peel.ui.dialog.dismissOnDestroyOf
 import wtf.mazy.peel.ui.dialog.showSandboxInputDialog
 import wtf.mazy.peel.ui.entitylist.EntityListActivity
 import wtf.mazy.peel.ui.entitylist.EntityListAdapter
-import wtf.mazy.peel.ui.entitylist.EntityRow
 import wtf.mazy.peel.ui.entitylist.EntityRowListener
-import wtf.mazy.peel.ui.entitylist.EntitySelectionController
+import wtf.mazy.peel.ui.entitylist.EntitySelectionHandler
 import wtf.mazy.peel.ui.entitylist.PendingDeletes
 import wtf.mazy.peel.ui.entitylist.SelectionConfig
 import wtf.mazy.peel.ui.entitylist.scheduleEntityDelete
@@ -43,52 +42,30 @@ class GroupListActivity : EntityListActivity<WebAppGroup>() {
     private val selectionHandler: GroupSelectionHandler by lazy {
         GroupSelectionHandler(this, transferLoader)
     }
-    private lateinit var selectionController: EntitySelectionController<WebAppGroup>
 
     private val settingsLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             showApplyTimingSnackbar(this, result.data, SessionHostRegistry.hasLiveBrowsers)
         }
 
-    override fun createAdapter(): EntityListAdapter<WebAppGroup, *> {
-        selectionController = EntitySelectionController(
-            host = this,
-            actions = selectionHandler,
-            resolveItems = { ids ->
-                DataManager.groups.filter { it.uuid in ids }
-            },
-            onChanged = {
-                refreshList()
-                setDragEnabled(!selectionController.isActive)
-            },
-            config = SelectionConfig(
-                titleResForCount = R.string.n_groups_selected,
-                selectionMenuRes = R.menu.menu_selection_group,
-                deleteActionId = R.id.action_delete_selected,
-                idleFabDescription = R.string.add_group,
-            ),
-        )
-        return GroupListAdapter(GroupRowListener(), checkIconColor)
-    }
+    override fun createSelectionHandler(): EntitySelectionHandler<WebAppGroup> = selectionHandler
+
+    override val selectionConfig = SelectionConfig(
+        titleResForCount = R.plurals.n_groups_selected,
+        selectionMenuRes = R.menu.menu_selection_group,
+        deleteActionId = R.id.action_delete_selected,
+        idleFabDescription = R.string.add_group,
+    )
+
+    override fun createAdapter(): EntityListAdapter<WebAppGroup, *> =
+        GroupListAdapter(GroupRowListener(), checkIconColor)
 
     override fun loadEntities(): List<WebAppGroup> {
         val pending = PendingDeletes.groups
         return DataManager.sortedGroups.filterNot { it.uuid in pending }
     }
 
-    override fun buildRow(entity: WebAppGroup): EntityRow<WebAppGroup> = EntityRow(
-        entity = entity,
-        selected = selectionController.isSelected(entity.uuid),
-        inSelectionMode = selectionController.isActive,
-    )
-
     override fun rowEntityUuid(entity: WebAppGroup): String = entity.uuid
-
-    override fun shouldHandleBackPress(): Boolean = selectionController.isActive
-
-    override fun handleBackPress() {
-        if (selectionController.isActive) selectionController.exit() else finish()
-    }
 
     override fun onAddClicked() {
         showSandboxInputDialog(
@@ -105,10 +82,6 @@ class GroupListActivity : EntityListActivity<WebAppGroup>() {
                 DataManager.addGroup(group, appendOrder = true)
             }
         }
-    }
-
-    override fun onFabClicked() {
-        if (selectionController.isActive) selectionController.performShare() else onAddClicked()
     }
 
     override suspend fun reorder(uuids: List<String>) {
@@ -169,7 +142,7 @@ class GroupListActivity : EntityListActivity<WebAppGroup>() {
         }
 
         override fun onItemIconClick(item: WebAppGroup) {
-            selectionController.enter(item.uuid)
+            selection?.enter(item.uuid)
         }
 
         override fun onItemMenu(view: View, item: WebAppGroup) {

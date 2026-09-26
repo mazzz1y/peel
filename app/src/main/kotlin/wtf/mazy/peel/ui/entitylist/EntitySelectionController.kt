@@ -5,15 +5,18 @@ import android.view.View
 import androidx.annotation.DrawableRes
 import androidx.annotation.IdRes
 import androidx.annotation.MenuRes
+import androidx.annotation.PluralsRes
 import androidx.annotation.StringRes
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.PopupMenu
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.launch
 import wtf.mazy.peel.R
 
 data class SelectionConfig(
-    @get:StringRes val titleResForCount: Int,
+    @get:PluralsRes val titleResForCount: Int,
     @get:MenuRes val selectionMenuRes: Int? = null,
     @get:IdRes val moveActionId: Int? = null,
     @get:IdRes val deleteActionId: Int? = null,
@@ -24,18 +27,21 @@ data class SelectionConfig(
 )
 
 class EntitySelectionController<T : Any>(
-    private val host: EntityListHost,
+    private val activity: AppCompatActivity,
+    private val toolbar: MaterialToolbar,
     private val actions: EntitySelectionHandler<T>,
     private val resolveItems: (Set<String>) -> List<T>,
     private val onChanged: () -> Unit,
-    private val isSearchActive: () -> Boolean = { false },
-    private val config: SelectionConfig,
+    val config: SelectionConfig,
 ) {
 
-    var isActive: Boolean = false
-        private set
+    val isActive: Boolean get() = selectedUuids.isNotEmpty()
 
     val selectedIds: Set<String> get() = selectedUuids.toSet()
+
+    val count: Int get() = selectedUuids.size
+
+    val hasMoveTargets: Boolean get() = actions.moveTargets.isNotEmpty()
 
     private val selectedUuids = mutableSetOf<String>()
 
@@ -46,44 +52,24 @@ class EntitySelectionController<T : Any>(
             toggle(uuid)
             return
         }
-        isActive = true
-        selectedUuids.clear()
         selectedUuids.add(uuid)
-        host.updateBackPressEnabled()
-        if (!isSearchActive()) applySelectionToolbar()
-        host.animateFabSwap(config.activeFabIcon, config.activeFabDescription)
         onChanged()
     }
 
     fun toggle(uuid: String) {
         if (uuid in selectedUuids) selectedUuids.remove(uuid) else selectedUuids.add(uuid)
-        if (selectedUuids.isEmpty()) {
-            exit()
-            return
-        }
-        if (!isSearchActive()) {
-            host.toolbar.title =
-                host.hostActivity.getString(config.titleResForCount, selectedUuids.size)
-        }
         onChanged()
     }
 
     fun exit() {
         if (!isActive) return
-        isActive = false
         selectedUuids.clear()
-        host.updateBackPressEnabled()
-        if (isSearchActive()) {
-            host.fab.hide()
-        } else {
-            host.applyNormalToolbar()
-            host.animateFabSwap(config.idleFabIcon, config.idleFabDescription)
-        }
         onChanged()
     }
 
-    fun reapplyToolbar() {
-        applySelectionToolbar()
+    fun restore(uuids: Collection<String>) {
+        selectedUuids.clear()
+        selectedUuids.addAll(uuids)
     }
 
     fun performShare() {
@@ -110,32 +96,14 @@ class EntitySelectionController<T : Any>(
         }
     }
 
-    private fun applySelectionToolbar() {
-        host.crossfadeToolbar {
-            host.removeSearchViewFromToolbar()
-            host.toolbar.menu.clear()
-            config.selectionMenuRes?.let {
-                host.hostActivity.menuInflater.inflate(it, host.toolbar.menu)
-            }
-            config.moveActionId?.let { id ->
-                host.toolbar.menu.findItem(id)?.isVisible = actions.moveTargets.isNotEmpty()
-            }
-            host.toolbar.setOnMenuItemClickListener { onMenuItemClicked(it) }
-            host.toolbar.setNavigationIcon(R.drawable.ic_symbols_arrow_back_24)
-            host.toolbar.setNavigationOnClickListener { exit() }
-            host.toolbar.title =
-                host.hostActivity.getString(config.titleResForCount, selectedUuids.size)
-        }
-    }
-
     private fun showMovePopup() {
         if (selectedUuids.isEmpty()) return
         val targets = actions.moveTargets
         if (targets.isEmpty()) return
         val anchor = config.moveActionId
-            ?.let { host.toolbar.findViewById<View>(it) }
-            ?: host.toolbar
-        val popup = PopupMenu(host.hostActivity, anchor)
+            ?.let { toolbar.findViewById<View>(it) }
+            ?: toolbar
+        val popup = PopupMenu(activity, anchor)
         targets.forEachIndexed { index, target ->
             popup.menu.add(0, MENU_MOVE_BASE + index, index, target.title)
         }
@@ -145,7 +113,7 @@ class EntitySelectionController<T : Any>(
                 val target = targets[idx]
                 val uuids = selectedUuids.toList()
                 exit()
-                host.hostActivity.lifecycleScope.launch {
+                activity.lifecycleScope.launch {
                     actions.commitMove(uuids, target.groupUuid)
                 }
                 true
@@ -158,7 +126,6 @@ class EntitySelectionController<T : Any>(
 
     private fun confirmDelete() {
         if (selectedUuids.isEmpty()) return
-        val activity = host.hostActivity
         MaterialAlertDialogBuilder(activity)
             .setTitle(actions.deleteTitle())
             .setMessage(actions.deleteMessage(selectedUuids.size))
@@ -172,7 +139,7 @@ class EntitySelectionController<T : Any>(
         val count = uuids.size
         exit()
         scheduleEntityDelete(
-            activity = host.hostActivity,
+            activity = activity,
             uuids = uuids,
             message = actions.deletedToast(count),
             pendingDeleteSet = actions.pendingDeleteSet,

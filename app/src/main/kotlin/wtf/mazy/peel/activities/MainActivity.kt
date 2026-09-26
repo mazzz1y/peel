@@ -3,21 +3,14 @@ package wtf.mazy.peel.activities
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Canvas
-import android.graphics.Paint
-import android.graphics.Typeface
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.text.Spannable
-import android.text.SpannableString
-import android.text.style.ReplacementSpan
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.IntentCompat
 import androidx.core.content.edit
 import androidx.lifecycle.Lifecycle
@@ -37,18 +30,18 @@ import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.ui.common.LoadingDialogController
 import wtf.mazy.peel.ui.common.PeelActivity
-import wtf.mazy.peel.ui.common.Theming
 import wtf.mazy.peel.ui.common.runWithLoader
 import wtf.mazy.peel.ui.dialog.ImportFlowController
 import wtf.mazy.peel.ui.dialog.showSandboxInputDialog
 import wtf.mazy.peel.ui.entitylist.EntityListAnimations
 import wtf.mazy.peel.ui.entitylist.EntitySelectionController
+import wtf.mazy.peel.ui.entitylist.ListChrome
 import wtf.mazy.peel.ui.entitylist.SelectionConfig
 import wtf.mazy.peel.ui.settings.showApplyTimingSnackbar
 import wtf.mazy.peel.ui.webapplist.GroupPagerAdapter
 import wtf.mazy.peel.ui.webapplist.SearchModeController
-import wtf.mazy.peel.ui.webapplist.SearchableHost
 import wtf.mazy.peel.ui.webapplist.WebAppListFragment
+import wtf.mazy.peel.ui.webapplist.WebAppListHost
 import wtf.mazy.peel.ui.webapplist.WebAppSelectionHandler
 import wtf.mazy.peel.ui.webapplist.WebAppShareHost
 import wtf.mazy.peel.util.Const
@@ -58,14 +51,13 @@ import wtf.mazy.peel.util.toast
 
 class MainActivity :
     PeelActivity(),
-    SearchableHost,
+    WebAppListHost,
     WebAppShareHost {
 
-    override lateinit var toolbar: MaterialToolbar
-    override lateinit var fab: FloatingActionButton
-    override lateinit var tabLayout: TabLayout
-    override lateinit var viewPager: ViewPager2
-    override val hostActivity: AppCompatActivity get() = this
+    private lateinit var toolbar: MaterialToolbar
+    private lateinit var fab: FloatingActionButton
+    private lateinit var tabLayout: TabLayout
+    private lateinit var viewPager: ViewPager2
 
     private var pagerAdapter: GroupPagerAdapter? = null
     private var tabMediator: TabLayoutMediator? = null
@@ -76,9 +68,7 @@ class MainActivity :
     private lateinit var searchController: SearchModeController
     override lateinit var selectionController: EntitySelectionController<WebApp>
         private set
-
-    private var badgeBg: Int = 0
-    private var badgeFg: Int = 0
+    private lateinit var chrome: ListChrome<WebApp>
 
     private val fragmentRegistry = mutableMapOf<String?, WebAppListFragment>()
 
@@ -94,10 +84,7 @@ class MainActivity :
 
     private val backPressCallback = object : androidx.activity.OnBackPressedCallback(false) {
         override fun handleOnBackPressed() {
-            when {
-                searchController.isActive -> searchController.exit()
-                selectionController.isActive -> selectionController.exit()
-            }
+            if (searchController.isActive) searchController.exit() else chrome.handleBackPress()
         }
     }
 
@@ -120,40 +107,54 @@ class MainActivity :
 
         EntityListAnimations.bindFabResizeOnRotation(this, fab)
 
-        searchController = SearchModeController(
-            host = this,
-            searchResultsList = findViewById(R.id.searchResultsList),
-            searchEmptyState = findViewById(R.id.searchEmptyState),
-        )
+        toolbar.setTitle(R.string.app_name)
+        setSupportActionBar(toolbar)
+
         selectionController = EntitySelectionController(
-            host = this,
+            activity = this,
+            toolbar = toolbar,
             actions = WebAppSelectionHandler(this, this),
-            resolveItems = { ids ->
-                DataManager.webApps.filter { it.uuid in ids }
-            },
+            resolveItems = { ids -> DataManager.webApps.filter { it.uuid in ids } },
             onChanged = {
+                renderChrome(animated = true)
                 refreshSelectionAdapters()
-                updateTabSelectionDots()
+                updateTabBadges()
             },
-            isSearchActive = { searchController.isActive },
             config = SelectionConfig(
-                titleResForCount = R.string.n_apps_selected,
+                titleResForCount = R.plurals.n_apps_selected,
                 selectionMenuRes = R.menu.menu_selection,
                 moveActionId = R.id.action_move_selected,
                 deleteActionId = R.id.action_delete_selected,
             ),
         )
+        chrome = ListChrome(
+            activity = this,
+            toolbar = toolbar,
+            fab = fab,
+            selection = selectionController,
+            applyNormalToolbar = { bar ->
+                bar.navigationIcon = null
+                bar.setTitle(R.string.app_name)
+            },
+        )
+        searchController = SearchModeController(
+            activity = this,
+            selection = selectionController,
+            searchView = findViewById(R.id.searchView),
+            searchResultsList = findViewById(R.id.searchResultsList),
+            searchEmptyState = findViewById(R.id.searchEmptyState),
+            onChanged = {
+                renderChrome(animated = true)
+                if (!searchController.isActive) refreshCurrentPages()
+            },
+        )
 
-        toolbar.setTitle(R.string.app_name)
-        setSupportActionBar(toolbar)
-
-        badgeBg = Theming.colorPrimary(this)
-        badgeFg = Theming.colorOnPrimary(this)
-
-        fab.setOnClickListener { onFabClicked() }
+        fab.setOnClickListener { if (!chrome.onFabClicked()) buildAddWebsiteDialog() }
         onBackPressedDispatcher.addCallback(this, backPressCallback)
 
         setupViewPager()
+        restoreSelection(savedInstanceState)
+        renderChrome(animated = false)
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 DataManager.state.collect {
@@ -200,11 +201,13 @@ class MainActivity :
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        if (chrome.onCreateOptionsMenu(menu)) return true
         menuInflater.inflate(R.menu.menu_main, menu)
         return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (chrome.onOptionsItemSelected(item)) return true
         return when (item.itemId) {
             R.id.action_search -> {
                 searchController.enter()
@@ -271,6 +274,7 @@ class MainActivity :
             }.also { it.attach() }
         }
         pagerAdapter = newAdapter
+        updateTabBadges()
     }
 
     private fun refreshSelectionAdapters() {
@@ -281,68 +285,50 @@ class MainActivity :
         }
     }
 
-    private fun updateTabSelectionDots() {
+    private fun updateTabBadges() {
         val adapter = pagerAdapter ?: return
         val selected = selectionController.selectedIds
-        if (selected.isEmpty()) {
-            for (i in 0 until tabLayout.tabCount) {
-                tabLayout.getTabAt(i)?.text = adapter.getPageTitle(i)
-            }
-            return
-        }
-        val appsByGroup = DataManager.sortedWebApps
+        val countByGroup = DataManager.webApps
             .filter { it.uuid in selected }
-            .groupBy { it.groupUuid }
+            .groupingBy { it.groupUuid }
+            .eachCount()
         for (i in 0 until tabLayout.tabCount) {
-            val groupUuid = if (i < adapter.groups.size) adapter.groups[i].uuid else null
-            val title = adapter.getPageTitle(i)
-            val count = appsByGroup[groupUuid]?.size ?: 0
-            tabLayout.getTabAt(i)?.text = if (count > 0) {
-                val badge = " $count"
-                SpannableString("$title$badge").apply {
-                    setSpan(
-                        BadgeSpan(count.toString(), badgeBg, badgeFg),
-                        title.length, length,
-                        Spannable.SPAN_EXCLUSIVE_EXCLUSIVE,
-                    )
-                }
+            val tab = tabLayout.getTabAt(i) ?: continue
+            val groupUuid = adapter.groups.getOrNull(i)?.uuid
+            val count = countByGroup[groupUuid] ?: 0
+            if (count > 0) {
+                tab.orCreateBadge.number = count
             } else {
-                title
+                tab.removeBadge()
             }
         }
     }
 
-    override fun onSearchModeExited() {
-        if (selectionController.isActive) {
-            selectionController.reapplyToolbar()
-            animateFabSwap(R.drawable.ic_symbols_share_24, R.string.share)
-        } else {
-            applyNormalToolbar()
-            animateFabSwap(R.drawable.ic_symbols_add_24, R.string.add_webapp)
-            refreshCurrentPages()
-        }
-    }
-
-    override fun applyNormalToolbar() {
-        crossfadeToolbar {
-            removeSearchViewFromToolbar()
-            toolbar.menu.clear()
-            menuInflater.inflate(R.menu.menu_main, toolbar.menu)
-            toolbar.setOnMenuItemClickListener { onOptionsItemSelected(it) }
-            toolbar.navigationIcon = null
-            toolbar.setNavigationOnClickListener(null)
-            toolbar.setTitle(R.string.app_name)
-        }
-    }
-
-    override fun crossfadeToolbar(swap: () -> Unit) =
-        EntityListAnimations.crossfadeToolbar(toolbar, swap)
-
-    override fun animateFabSwap(iconRes: Int, descriptionRes: Int) =
-        EntityListAnimations.animateFabSwap(fab, iconRes, descriptionRes)
-
-    override fun updateBackPressEnabled() {
+    private fun renderChrome(animated: Boolean) {
         backPressCallback.isEnabled = searchController.isActive || selectionController.isActive
+        chrome.render(searching = searchController.isActive, animated = animated)
+    }
+
+    private fun restoreSelection(savedInstanceState: Bundle?) {
+        savedInstanceState ?: return
+        val existing = DataManager.webApps.mapTo(HashSet()) { it.uuid }
+        chrome.restoreState(savedInstanceState) { it in existing }
+        updateTabBadges()
+    }
+
+    // The search view restores its own query and visibility with the view hierarchy, which
+    // happens after onCreate; the controller is synced to it here.
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+        if (!savedInstanceState.getBoolean(STATE_SEARCHING)) return
+        searchController.restore()
+        renderChrome(animated = false)
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        chrome.saveState(outState)
+        outState.putBoolean(STATE_SEARCHING, searchController.isActive)
     }
 
     override fun shareApps(webApps: List<WebApp>, includeSecrets: Boolean) {
@@ -356,14 +342,6 @@ class MainActivity :
             if (file == null || !BackupManager.launchShareChooser(this, file)) {
                 toast(R.string.export_share_failed, long = true)
             }
-        }
-    }
-
-    private fun onFabClicked() {
-        if (selectionController.isActive) {
-            selectionController.performShare()
-        } else {
-            buildAddWebsiteDialog()
         }
     }
 
@@ -418,64 +396,7 @@ class MainActivity :
         }
     }
 
-    private class BadgeSpan(
-        private val label: String,
-        private val bgColor: Int,
-        private val fgColor: Int,
-    ) : ReplacementSpan() {
-
-        private var cachedSourceTextSize: Float = -1f
-        private lateinit var badgePaint: Paint
-        private var textWidth: Float = 0f
-        private var diameter: Float = 0f
-        private var badgeTextSize: Float = 0f
-
-        private fun ensureMetrics(source: Paint) {
-            if (cachedSourceTextSize == source.textSize && this::badgePaint.isInitialized) return
-            cachedSourceTextSize = source.textSize
-            badgeTextSize = source.textSize * 0.7f
-            badgePaint = Paint(source).apply {
-                textSize = badgeTextSize
-                typeface = Typeface.DEFAULT_BOLD
-            }
-            textWidth = badgePaint.measureText(label)
-            diameter = maxOf(textWidth + badgeTextSize * 0.6f, badgeTextSize * 1.3f)
-        }
-
-        override fun getSize(
-            paint: Paint,
-            text: CharSequence,
-            start: Int,
-            end: Int,
-            fm: Paint.FontMetricsInt?
-        ): Int {
-            ensureMetrics(paint)
-            return (diameter + badgeTextSize * 0.4f).toInt()
-        }
-
-        override fun draw(
-            canvas: Canvas,
-            text: CharSequence,
-            start: Int,
-            end: Int,
-            x: Float,
-            top: Int,
-            y: Int,
-            bottom: Int,
-            paint: Paint
-        ) {
-            ensureMetrics(paint)
-            val radius = diameter / 2f
-            val centerX = x + badgeTextSize * 0.4f + radius
-            val centerY = (top + bottom) / 2f
-
-            paint.color = bgColor
-            canvas.drawCircle(centerX, centerY, radius, paint)
-
-            badgePaint.color = fgColor
-            val labelX = centerX - textWidth / 2f
-            val labelY = centerY - (badgePaint.descent() + badgePaint.ascent()) / 2f
-            canvas.drawText(label, labelX, labelY, badgePaint)
-        }
+    companion object {
+        private const val STATE_SEARCHING = "searching"
     }
 }

@@ -88,17 +88,35 @@
     <string name="import_destination_group">Destination group</string>
     <string name="import_mapping_empty">No apps found in this file.</string>
     <string name="import_count_message">Imported %1$d app(s)</string>
-    <string name="n_apps_selected">%1$d selected</string>
-    <string name="n_groups_selected">%1$d group(s) selected</string>
+    <plurals name="n_apps_selected">
+        <item quantity="one">%d selected</item>
+        <item quantity="other">%d selected</item>
+    </plurals>
+    <plurals name="n_groups_selected">
+        <item quantity="one">%d group selected</item>
+        <item quantity="other">%d groups selected</item>
+    </plurals>
     <string name="share_secrets_title">Secrets detected</string>
     <string name="share_secrets_description">Selected apps contain secrets such as custom headers or authorization credentials. Remove them from the shared file?</string>
     <string name="share_secrets_include">Keep</string>
     <string name="share_secrets_exclude">Remove</string>
     <string name="remove_apps_title">Remove apps</string>
-    <string name="remove_apps_confirm">Remove %1$d selected app(s)?</string>
-    <string name="n_apps_removed">%1$d app(s) removed</string>
-    <string name="remove_groups_confirm">Remove %1$d selected group(s) and their apps?</string>
-    <string name="n_groups_removed">%1$d group(s) removed</string>
+    <plurals name="remove_apps_confirm">
+        <item quantity="one">Remove %d selected app?</item>
+        <item quantity="other">Remove %d selected apps?</item>
+    </plurals>
+    <plurals name="n_apps_removed">
+        <item quantity="one">%d app removed</item>
+        <item quantity="other">%d apps removed</item>
+    </plurals>
+    <plurals name="remove_groups_confirm">
+        <item quantity="one">Remove %d selected group and its apps?</item>
+        <item quantity="other">Remove %d selected groups and their apps?</item>
+    </plurals>
+    <plurals name="n_groups_removed">
+        <item quantity="one">%d group removed</item>
+        <item quantity="other">%d groups removed</item>
+    </plurals>
     <string name="export_share_failed">Could not prepare file for sharing</string>
     <string name="backup_save_failed">Could not save backup</string>
     <string name="backup_saved">Backup saved</string>
