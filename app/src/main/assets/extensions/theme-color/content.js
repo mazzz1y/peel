@@ -2,15 +2,35 @@
   var THROTTLE_MS = 250;
   var SPA_POST_NAV_RESAMPLE_MS = 300;
 
-  function parseRgb(input) {
-    if (!input) return null;
-    var m = input.match(/^rgba?\(\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)\s*(?:,\s*(-?\d+(?:\.\d+)?))?\s*\)$/i);
-    if (!m) return null;
+  var colourContext = null;
+
+  function resolveColour(cssText) {
+    if (!cssText) return null;
+    var text = String(cssText).trim();
+    if (!text || /^currentcolor$/i.test(text)) return null;
+    if (!CSS.supports("color", text)) return null;
+    if (!colourContext) {
+      colourContext = document.createElement("canvas").getContext("2d");
+      if (!colourContext) return null;
+    }
+    colourContext.fillStyle = text;
+    var serialised = colourContext.fillStyle;
+    var hex = serialised.match(/^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i);
+    if (hex) {
+      return {
+        r: parseInt(hex[1], 16),
+        g: parseInt(hex[2], 16),
+        b: parseInt(hex[3], 16),
+        a: 1,
+      };
+    }
+    var rgba = serialised.match(/^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*(-?\d+(?:\.\d+)?))?\s*\)$/i);
+    if (!rgba) return null;
     return {
-      r: parseFloat(m[1]),
-      g: parseFloat(m[2]),
-      b: parseFloat(m[3]),
-      a: m[4] === undefined ? 1 : parseFloat(m[4]),
+      r: parseInt(rgba[1], 10),
+      g: parseInt(rgba[2], 10),
+      b: parseInt(rgba[3], 10),
+      a: rgba[4] === undefined ? 1 : parseFloat(rgba[4]),
     };
   }
 
@@ -27,10 +47,15 @@
     var style = getComputedStyle(element);
     var opacity = parseFloat(style.opacity);
     if (isNaN(opacity) || opacity === 0) return null;
-    var bg = parseRgb(style.backgroundColor);
+    var bg = resolveColour(style.backgroundColor);
     if (!bg || bg.a === 0) return null;
     bg.a = bg.a * opacity;
     return formatRgb(bg);
+  }
+
+  function spansViewportWidth(element) {
+    var rect = element.getBoundingClientRect();
+    return rect.left <= 1 && rect.right >= document.documentElement.clientWidth - 1;
   }
 
   function getPageColoursAt(y) {
@@ -47,7 +72,7 @@
     for (var i = 0; i < candidates.length; i++) {
       var el = candidates[i];
       if (!(el instanceof HTMLElement)) continue;
-      if (el.offsetWidth < w * 0.9) continue;
+      if (!spansViewportWidth(el)) continue;
       if (el.offsetHeight < 20) continue;
       var c = getElementColour(el);
       if (c) colours.push(c);
@@ -67,27 +92,14 @@
     return [];
   }
 
-  function normalizeCssColor(raw) {
-    if (!raw) return "";
-    var probe = document.createElement("div");
-    probe.style.color = "";
-    probe.style.color = raw;
-    if (!probe.style.color) return "";
-    document.documentElement.appendChild(probe);
-    var resolved = getComputedStyle(probe).color;
-    probe.parentNode.removeChild(probe);
-    var rgb = parseRgb(resolved);
-    return rgb && rgb.a > 0 ? formatRgb(rgb) : "";
-  }
-
   function readMetaThemeColor() {
     if (!document.head) return "";
     var nodes = document.querySelectorAll('meta[name="theme-color"]');
     for (var i = 0; i < nodes.length; i++) {
       var media = nodes[i].getAttribute("media");
       if (media && !window.matchMedia(media).matches) continue;
-      var resolved = normalizeCssColor(nodes[i].getAttribute("content"));
-      if (resolved) return resolved;
+      var resolved = resolveColour(nodes[i].getAttribute("content"));
+      if (resolved && resolved.a > 0) return formatRgb(resolved);
     }
     return "";
   }
@@ -104,10 +116,11 @@
   }
 
   var dispatchTimer = null;
+  var frameRequest = null;
   var lastSentAt = 0;
 
   function dispatch() {
-    dispatchTimer = null;
+    frameRequest = null;
     if (document.visibilityState !== "visible") return;
     if (!document.body) return;
     lastSentAt = Date.now();
@@ -117,6 +130,12 @@
     } catch (e) {}
   }
 
+  function requestFrame() {
+    dispatchTimer = null;
+    if (frameRequest !== null) return;
+    frameRequest = requestAnimationFrame(dispatch);
+  }
+
   function sendColor() {
     if (dispatchTimer !== null) {
       clearTimeout(dispatchTimer);
@@ -124,9 +143,9 @@
     }
     var remaining = THROTTLE_MS + lastSentAt - Date.now();
     if (remaining <= 0) {
-      dispatch();
+      requestFrame();
     } else {
-      dispatchTimer = setTimeout(dispatch, remaining);
+      dispatchTimer = setTimeout(requestFrame, remaining);
     }
   }
 
