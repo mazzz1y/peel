@@ -1,0 +1,3 @@
+- Fix in-page share buttons not working
+- Update GeckoView to 157.0.20260924084938
+- Update build dependencies
