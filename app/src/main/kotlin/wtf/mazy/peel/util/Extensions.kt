@@ -79,17 +79,14 @@ fun Context.shouldOfferOpenInSystem(url: String): Boolean {
     return !(isWebLink && isDefaultBrowser())
 }
 
-fun Context.shareText(text: String, title: String? = null) {
-    startActivity(
-        Intent.createChooser(
-            Intent(Intent.ACTION_SEND).apply {
-                type = "text/plain"
-                putExtra(Intent.EXTRA_TEXT, text)
-                putExtra(Intent.EXTRA_TITLE, title ?: text)
-            },
-            null,
-        ),
-    )
+fun Context.shareText(text: String, title: String? = null, subject: String? = null) {
+    val send = Intent(Intent.ACTION_SEND).apply {
+        type = "text/plain"
+        putExtra(Intent.EXTRA_TEXT, text)
+        putExtra(Intent.EXTRA_TITLE, title ?: text)
+        if (subject != null && subject != text) putExtra(Intent.EXTRA_SUBJECT, subject)
+    }
+    startActivity(Intent.createChooser(send, null))
 }
 
 fun Context.copyToClipboard(text: String, toastResId: Int = R.string.link_copied) {

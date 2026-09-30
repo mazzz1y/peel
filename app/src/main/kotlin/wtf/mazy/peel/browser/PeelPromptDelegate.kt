@@ -18,6 +18,7 @@ import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.ui.dialog.DateTimePickerRequest
 import wtf.mazy.peel.ui.dialog.DateTimePickerType
 import wtf.mazy.peel.util.deleteFilesOlderThan
+import wtf.mazy.peel.util.shareText
 import wtf.mazy.peel.util.toast
 import java.io.File
 
@@ -301,6 +302,26 @@ class PeelPromptDelegate(private val host: SessionHost) : GeckoSession.PromptDel
                     if (!closed.isComplete) result.complete(closed.dismiss())
                 }
             })
+        }
+        return result
+    }
+
+    override fun onSharePrompt(
+        session: GeckoSession,
+        prompt: GeckoSession.PromptDelegate.SharePrompt,
+    ): GeckoResult<GeckoSession.PromptDelegate.PromptResponse> {
+        val result = GeckoResult<GeckoSession.PromptDelegate.PromptResponse>()
+        prompt.setDelegate(object : GeckoSession.PromptDelegate.PromptInstanceDelegate {
+            override fun onPromptDismiss(closed: GeckoSession.PromptDelegate.BasePrompt) {
+                if (!closed.isComplete) result.complete(closed.dismiss())
+            }
+        })
+        host.runOnUi {
+            if (prompt.isComplete) return@runOnUi
+            val text = listOfNotNull(prompt.text, prompt.uri).filter { it.isNotBlank() }.joinToString(" ")
+            val title = prompt.title?.takeIf { it.isNotBlank() }
+            host.hostContext.shareText(text, title = title, subject = title)
+            result.complete(prompt.confirm(GeckoSession.PromptDelegate.SharePrompt.Result.SUCCESS))
         }
         return result
     }
