@@ -9,7 +9,7 @@ plugins {
     id 'com.github.triplet.play'
 }
 
-def geckoviewVersion = "156.0.20260921121718"
+def geckoviewVersion = "157.0.20260924084938"
 
 android {
     compileSdkVersion = "android-37.1"
@@ -105,17 +105,17 @@ dependencies {
     implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.11.0'
     implementation "org.mozilla.geckoview:geckoview:$geckoviewVersion"
     implementation "androidx.biometric:biometric:1.1.0"
-    implementation "androidx.fragment:fragment-ktx:1.9.0"
+    implementation "androidx.fragment:fragment-ktx:1.9.1"
     implementation 'com.google.android.material:material:1.14.0'
     implementation 'com.google.android.flexbox:flexbox:3.0.0'
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.2.0'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.11.0'
-    implementation 'androidx.media3:media3-session:1.11.0'
-    implementation 'androidx.work:work-runtime-ktx:2.11.2'
-    implementation 'org.unifiedpush.android:connector:3.3.3'
-    implementation 'androidx.room:room-runtime:2.8.4'
-    implementation 'androidx.room:room-ktx:2.8.4'
-    ksp 'androidx.room:room-compiler:2.8.4'
+    implementation 'androidx.media3:media3-session:1.11.1'
+    implementation 'androidx.work:work-runtime-ktx:2.12.0'
+    implementation 'org.unifiedpush.android:connector:3.3.5'
+    implementation 'androidx.room:room-runtime:2.8.5'
+    implementation 'androidx.room:room-ktx:2.8.5'
+    ksp 'androidx.room:room-compiler:2.8.5'
 }
 
 def playDir = file("src/main/play")

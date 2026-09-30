@@ -106,9 +106,9 @@ function describe(cert) {
 // A failure here has to propagate: an empty map would read as "nothing is
 // installed", which would drop still-trusted certificates from the tracking
 // pref and leave them with nothing able to remove them.
-function currentCertsByFingerprint() {
+async function currentCertsByFingerprint() {
   const map = new Map();
-  for (const cert of certDB().getCerts()) {
+  for (const cert of await certDB().getCerts()) {
     try {
       map.set(normalizeFingerprint(cert.sha256Fingerprint), cert);
     } catch (e) {
@@ -157,7 +157,7 @@ this.peelCerts = class extends ExtensionAPI {
           const previouslyInstalled = new Set(
             readInstalledFingerprints().map(normalizeFingerprint)
           );
-          const present = currentCertsByFingerprint();
+          const present = await currentCertsByFingerprint();
           const installed = [];
           const tracked = [];
 
