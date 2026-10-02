@@ -1,0 +1,2 @@
+- Fix blank page after returning to a web app whose first load was interrupted
+- Update build dependencies
