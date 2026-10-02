@@ -31,6 +31,7 @@ import wtf.mazy.peel.browser.BaseSessionHost
 import wtf.mazy.peel.browser.BrowserContextMenu
 import wtf.mazy.peel.browser.DownloadHandler
 import wtf.mazy.peel.browser.DownloadService
+import wtf.mazy.peel.browser.HistorySnapshot
 import wtf.mazy.peel.browser.PageBridge
 import wtf.mazy.peel.browser.PeelContentDelegate
 import wtf.mazy.peel.browser.PeelNavigationDelegate
@@ -529,7 +530,7 @@ class BrowserActivity : BaseSessionHost() {
             return
         }
         pendingSessionRecovery = false
-        val restore = lastSessionState
+        val restore = lastSessionState?.takeIf { HistorySnapshot.from(it)?.hasCommittedPage == true }
         val url = lastLoadedUrl.ifBlank { sharedUrlFromIntent() ?: webApp.baseUrl }
         configureSession(effectiveSettings)
         launchSessionExtensionsAndLoad(effectiveSettings, url, restore)

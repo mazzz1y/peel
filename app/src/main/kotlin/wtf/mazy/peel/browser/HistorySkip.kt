@@ -7,6 +7,11 @@ import wtf.mazy.peel.util.SameAppDomainMatcher
 data class HistoryEntry(val uri: String, val hasUserInteraction: Boolean)
 
 data class HistorySnapshot(val entries: List<HistoryEntry>, val currentIndex: Int) {
+    val currentEntry: HistoryEntry? get() = entries.getOrNull(currentIndex)
+
+    val hasCommittedPage: Boolean
+        get() = currentEntry?.uri?.let { it.isNotBlank() && it != "about:blank" } == true
+
     companion object {
         fun from(state: GeckoSession.SessionState): HistorySnapshot? {
             val json = state.toString() ?: return null
