@@ -15,6 +15,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
 
       - name: Set up JDK 21
         uses: actions/setup-java@v5
@@ -58,6 +60,7 @@ jobs:
           CODE=$((MAJOR * 10000 + MINOR * 100 + PATCH))
           echo "name=v$TAG" >> $GITHUB_OUTPUT
           echo "version=$TAG" >> $GITHUB_OUTPUT
+          echo "semver=$SEMVER" >> $GITHUB_OUTPUT
           echo "code=$CODE" >> $GITHUB_OUTPUT
           if [[ "$TAG" == *-* ]]; then
             echo "prerelease=true" >> $GITHUB_OUTPUT
@@ -93,16 +96,38 @@ jobs:
         if: steps.version.outputs.prerelease != 'true'
         run: ./gradlew publishReleaseBundle -PVERSION_NAME=${{ steps.version.outputs.version }} -PVERSION_CODE=${{ steps.version.outputs.code }}
 
-      - name: Create Release
+      - name: Compose release notes
+        id: notes
         run: |
           CHANGELOG="metadata/en-US/changelogs/${{ steps.version.outputs.code }}.txt"
           if [ ! -f "$CHANGELOG" ]; then
             echo "::error::Changelog not found: $CHANGELOG"
             exit 1
           fi
+
+          SEMVER="${{ steps.version.outputs.semver }}"
+          NOTES="$RUNNER_TEMP/release-notes.md"
+          PREVIOUS="$RUNNER_TEMP/previous-changelog.txt"
+          if [ "${{ steps.version.outputs.prerelease }}" = 'true' ]; then
+            PREV=$(git for-each-ref --sort=-creatordate --format='%(refname:short)' \
+                     "refs/tags/v$SEMVER" "refs/tags/v$SEMVER-*" \
+                   | grep -Fxv "${{ github.ref_name }}" | head -1)
+          fi
+
+          if [ -z "${PREV:-}" ] || ! git show "$PREV:$CHANGELOG" 2>/dev/null | grep . > "$PREVIOUS"; then
+            cp "$CHANGELOG" "$NOTES"
+          elif NEW=$(grep . "$CHANGELOG" | grep -Fxv -f "$PREVIOUS"); then
+            printf '%s\n\n%s\n' "Changes since $PREV:" "$NEW" > "$NOTES"
+          else
+            echo "No changelog entries were added since $PREV." > "$NOTES"
+          fi
+          echo "path=$NOTES" >> $GITHUB_OUTPUT
+
+      - name: Create Release
+        run: |
           gh release create ${{ github.ref_name }} \
             --title "${{ steps.version.outputs.name }}" \
-            --notes-file "$CHANGELOG" \
+            --notes-file "${{ steps.notes.outputs.path }}" \
             ${{ steps.version.outputs.prerelease == 'true' && '--prerelease' || '' }} \
             release-assets/*.apk release-assets/*.aab
         env:
