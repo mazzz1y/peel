@@ -94,7 +94,7 @@ jobs:
 
       - name: Publish to Google Play
         if: steps.version.outputs.prerelease != 'true'
-        run: ./gradlew publishReleaseBundle -PVERSION_NAME=${{ steps.version.outputs.version }} -PVERSION_CODE=${{ steps.version.outputs.code }}
+        run: ./gradlew publishReleaseApps -PVERSION_NAME=${{ steps.version.outputs.version }} -PVERSION_CODE=${{ steps.version.outputs.code }}
 
       - name: Compose release notes
         id: notes

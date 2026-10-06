@@ -52,22 +52,28 @@ object HistorySkip {
         if (skipDomains.isEmpty()) return HistoryStep.Unchanged
         val adjacent = history.currentIndex + direction
         var index = adjacent
+        var crossedListed = false
+        var absorbedLauncher = isListed(history, history.currentIndex, skipDomains)
         while (index in history.entries.indices) {
-            if (restsOn(history, index, skipDomains)) {
-                return if (index == adjacent) HistoryStep.Unchanged else HistoryStep.GoTo(index)
+            when {
+                isListed(history, index, skipDomains) -> crossedListed = true
+                crossedListed && !absorbedLauncher -> absorbedLauncher = true
+                restsOn(history, index) ->
+                    return if (index == adjacent) HistoryStep.Unchanged else HistoryStep.GoTo(index)
             }
             index += direction
         }
         return HistoryStep.Exhausted
     }
 
+    private fun isListed(history: HistorySnapshot, index: Int, skipDomains: List<String>): Boolean =
+        SameAppDomainMatcher.matches(history.entries[index].uri, skipDomains)
+
     // Mirrors Gecko's own goBack() rule (ChildSHistory::Go with requireUserInteraction): the
     // first and last entries always count as stops, anything between must have been interacted
     // with. Without this, jumping by index would rest on redirect hops that goBack() steps over.
-    private fun restsOn(history: HistorySnapshot, index: Int, skipDomains: List<String>): Boolean {
-        val entry = history.entries[index]
-        if (SameAppDomainMatcher.matches(entry.uri, skipDomains)) return false
+    private fun restsOn(history: HistorySnapshot, index: Int): Boolean {
         val isEdge = index == 0 || index == history.entries.lastIndex
-        return isEdge || entry.hasUserInteraction
+        return isEdge || history.entries[index].hasUserInteraction
     }
 }

@@ -459,5 +459,5 @@
     <string name="setting_custom_gecko_prefs_desc">Raw about:config preferences</string>
     <string name="setting_same_app_domains_desc">Treated as part of this app</string>
     <string name="setting_blocked_domains_desc">Blocks navigation, not page content</string>
-    <string name="setting_skip_history_domains_desc">Skipped when Back is pressed</string>
+    <string name="setting_skip_history_domains_desc">Stepped over on Back, along with the page that opened them</string>
 </resources>
