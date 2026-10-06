@@ -439,5 +439,5 @@
     <string name="setting_custom_gecko_prefs_desc">Preferencias about:config en bruto</string>
     <string name="setting_same_app_domains_desc">Se tratan como parte de esta app</string>
     <string name="setting_blocked_domains_desc">Bloquea navegación, no el contenido</string>
-    <string name="setting_skip_history_domains_desc">Se omiten al pulsar Volver</string>
+    <string name="setting_skip_history_domains_desc">Para dominios OAuth</string>
 </resources>

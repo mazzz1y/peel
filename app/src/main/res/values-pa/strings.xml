@@ -439,5 +439,5 @@
     <string name="setting_custom_gecko_prefs_desc">about:config ਤਰਜੀਹਾਂ</string>
     <string name="setting_same_app_domains_desc">ਇਸੇ ਐਪ ਦਾ ਹਿੱਸਾ ਮੰਨੇ ਜਾਣਗੇ</string>
     <string name="setting_blocked_domains_desc">ਨੈਵੀਗੇਸ਼ਨ ਬਲਾਕ, ਸਮੱਗਰੀ ਨਹੀਂ</string>
-    <string name="setting_skip_history_domains_desc">ਪਿੱਛੇ ਦਬਾਉਣ \'ਤੇ ਛੱਡੇ ਜਾਂਦੇ</string>
+    <string name="setting_skip_history_domains_desc">OAuth ਡੋਮੇਨਾਂ ਲਈ</string>
 </resources>

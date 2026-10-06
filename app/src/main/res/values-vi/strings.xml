@@ -431,5 +431,5 @@
     <string name="setting_custom_gecko_prefs_desc">Tùy chọn about:config thô</string>
     <string name="setting_same_app_domains_desc">Xem như thuộc về ứng dụng này</string>
     <string name="setting_blocked_domains_desc">Chặn điều hướng, không chặn nội dung</string>
-    <string name="setting_skip_history_domains_desc">Bỏ qua khi nhấn Quay lại</string>
+    <string name="setting_skip_history_domains_desc">Cho tên miền OAuth</string>
 </resources>

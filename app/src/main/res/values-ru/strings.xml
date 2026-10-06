@@ -458,5 +458,5 @@
     <string name="setting_custom_gecko_prefs_desc">Параметры about:config</string>
     <string name="setting_same_app_domains_desc">Будут считаться приложением</string>
     <string name="setting_blocked_domains_desc">Блокирует переходы, не содержимое</string>
-    <string name="setting_skip_history_domains_desc">Игнорировать при нажатии \"назад\"</string>
+    <string name="setting_skip_history_domains_desc">Для OAuth доменов</string>
 </resources>
