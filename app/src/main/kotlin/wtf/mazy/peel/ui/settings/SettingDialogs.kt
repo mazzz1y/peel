@@ -150,44 +150,6 @@ object SettingDialogs {
         edit.requestFocus()
     }
 
-    fun showValidatedString(
-        context: Context,
-        titleRes: Int,
-        hintRes: Int,
-        value: String,
-        inputType: Int,
-        validate: (String) -> Int?,
-        onCommit: (String) -> Unit,
-    ) {
-        val wrapper = buildWrapper(context)
-        val layout = outlinedField(context, hintRes)
-        val edit = editIn(layout, value, inputType, maxLines = 1)
-        wrapper.addView(layout)
-
-        val dialog = MaterialAlertDialogBuilder(context)
-            .setTitle(titleRes)
-            .setView(wrapper)
-            .setPositiveButton(android.R.string.ok, null)
-            .setNegativeButton(android.R.string.cancel, null)
-            .create()
-
-        edit.doAfterTextChanged { layout.error = null }
-        dialog.setOnShowListener {
-            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
-                val entry = edit.text?.toString().orEmpty().trim()
-                val errorRes = validate(entry)
-                if (errorRes != null) {
-                    layout.error = context.getString(errorRes)
-                } else {
-                    onCommit(entry)
-                    dialog.dismiss()
-                }
-            }
-        }
-        dialog.show()
-        edit.requestFocus()
-    }
-
     fun showKeyValue(
         context: Context,
         titleRes: Int,

@@ -39,6 +39,7 @@
         <item name="colorSurfaceContainerHighest">@color/brand_surfaceContainerHighest</item>
         <item name="android:windowBackground">?attr/colorSurfaceContainerLow</item>
         <item name="popupMenuBackground">@drawable/popup_menu_background_rounded</item>
+        <item name="autoCompleteTextViewStyle">@style/Widget.App.AutoCompleteTextView</item>
     </style>
 
     <style name="AppTheme.Launcher">
@@ -163,6 +164,10 @@
         <item name="android:layout_height">wrap_content</item>
         <item name="android:paddingHorizontal">@dimen/list_card_padding_horizontal</item>
         <item name="android:paddingVertical">@dimen/list_card_padding_vertical</item>
+    </style>
+
+    <style name="Widget.App.AutoCompleteTextView" parent="Widget.Material3.AutoCompleteTextView.OutlinedBox">
+        <item name="android:popupBackground">@drawable/popup_menu_background_rounded</item>
     </style>
 
     <style name="Widget.App.IconButton" parent="Widget.Material3.Button.IconButton">

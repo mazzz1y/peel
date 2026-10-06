@@ -17,8 +17,8 @@ fun belongsToApp(origin: String, url: String, settings: EffectiveSettings): Bool
 
 fun linkAffinity(baseUrl: String, url: String, sameAppDomains: List<String>?): Int {
     val heuristic = HostIdentity.affinity(baseUrl, url)
-    if (!SameAppDomainMatcher.matches(url, sameAppDomains.orEmpty())) return heuristic
-    return maxOf(heuristic, HostIdentity.sameAppDomainAffinity(url))
+    val entry = SameAppDomainMatcher.mostSpecificMatch(url, sameAppDomains.orEmpty()) ?: return heuristic
+    return maxOf(heuristic, HostIdentity.sameAppAffinity(url, entry))
 }
 
 fun WebApp.linkAffinity(url: String): Int =

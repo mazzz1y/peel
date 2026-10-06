@@ -183,7 +183,7 @@
     <string name="remove_override">删除覆盖</string>
     <string name="overridden_settings">已覆盖的设置</string>
     <string name="add">添加</string>
-    <string name="add_domain">添加域名</string>
+    <string name="add_domain">添加地址</string>
     <string name="add_certificate">添加证书</string>
     <string name="add_preference">添加首选项</string>
     <string name="add_language_pair">添加语言对</string>
@@ -306,10 +306,23 @@
     <string name="setting_custom_gecko_prefs">自定义 Gecko 首选项</string>
     <string name="setting_custom_gecko_prefs_key_hint">名称</string>
     <string name="setting_custom_gecko_prefs_value_hint">值</string>
-    <string name="setting_same_app_domains">应用的附加域名</string>
-    <string name="setting_blocked_domains">已屏蔽的域名</string>
-    <string name="setting_skip_history_domains">返回时跳过的域名</string>
-    <string name="setting_domain_entry_invalid">正则表达式无效</string>
+    <string name="setting_same_app_domains">同一应用地址</string>
+    <string name="setting_blocked_domains">已屏蔽地址</string>
+    <string name="setting_skip_history_domains">返回时跳过的地址</string>
+    <string name="url_rule_kind">类型</string>
+    <string name="url_rule_kind_domain">域名</string>
+    <string name="url_rule_kind_url_prefix">URL 前缀</string>
+    <string name="url_rule_kind_url_regex">URL 正则</string>
+    <string name="url_rule_kind_host_regex">主机正则</string>
+    <string name="url_rule_help_domain">主机及其子域名</string>
+    <string name="url_rule_help_url_prefix">此地址及其子路径</string>
+    <string name="url_rule_help_url_regex">须匹配整个 URL</string>
+    <string name="url_rule_error_empty">请输入值</string>
+    <string name="url_rule_error_invalid_host">无效的主机名</string>
+    <string name="url_rule_error_has_path">含路径 — 请选择「URL 前缀」</string>
+    <string name="url_rule_error_needs_path">需要路径 — 请选择「域名」</string>
+    <string name="url_rule_error_invalid_regex">正则表达式无效</string>
+    <string name="url_rule_accessibility">%1$s, %2$s</string>
     <string name="setting_configure">配置</string>
     <string name="find_in_page_hint">在页面中查找</string>
     <string name="find_in_page_counter">%1$d / %2$d</string>
@@ -431,5 +444,5 @@
     <string name="setting_custom_gecko_prefs_desc">原始 about:config 首选项</string>
     <string name="setting_same_app_domains_desc">视为此应用的一部分</string>
     <string name="setting_blocked_domains_desc">屏蔽跳转，不屏蔽页面内容</string>
-    <string name="setting_skip_history_domains_desc">用于 OAuth 域名</string>
+    <string name="setting_skip_history_domains_desc">用于 OAuth 页面</string>
 </resources>

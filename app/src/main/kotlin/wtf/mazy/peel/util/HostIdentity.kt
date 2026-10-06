@@ -1,6 +1,7 @@
 package wtf.mazy.peel.util
 
 import androidx.core.net.toUri
+import wtf.mazy.peel.model.UrlRule
 
 class HostIdentity private constructor(
     private val tld: String,
@@ -28,11 +29,12 @@ class HostIdentity private constructor(
         const val NO_MATCH = 0
         const val TLD_ONLY = 1
         private const val SAME_BRAND_OTHER_TLD = 2
-        private const val LABEL_WEIGHT = 2
+        private const val LABEL_WEIGHT = 4
 
         private const val TIER_SAME_DOMAIN_OTHER_HOST = 0
         private const val TIER_SAME_APP_DOMAIN = 1
-        private const val TIER_APP_OWN_HOST = 2
+        private const val TIER_SAME_APP_URL_PREFIX = 2
+        private const val TIER_APP_OWN_HOST = 3
 
         private fun score(labels: Int, tier: Int) = TLD_ONLY + labels * LABEL_WEIGHT + tier
 
@@ -58,9 +60,10 @@ class HostIdentity private constructor(
             return app.affinityTo(target)
         }
 
-        fun sameAppDomainAffinity(url: String): Int {
+        fun sameAppAffinity(url: String, entry: UrlRule): Int {
             val target = parse(url) ?: return NO_MATCH
-            return score(target.labels.size, TIER_SAME_APP_DOMAIN)
+            val tier = if (entry is UrlRule.UrlPrefix) TIER_SAME_APP_URL_PREFIX else TIER_SAME_APP_DOMAIN
+            return score(target.labels.size, tier)
         }
     }
 }

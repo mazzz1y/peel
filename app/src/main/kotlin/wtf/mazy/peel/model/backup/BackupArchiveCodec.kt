@@ -7,6 +7,8 @@ import kotlinx.serialization.json.Json
 import wtf.mazy.peel.model.BackupData
 import wtf.mazy.peel.model.IconOwner
 import wtf.mazy.peel.model.ParsedBackup
+import wtf.mazy.peel.model.UrlRule
+import wtf.mazy.peel.model.WebAppSettings
 import wtf.mazy.peel.util.App
 import wtf.mazy.peel.util.isCanonicalUuid
 import java.io.ByteArrayInputStream
@@ -269,8 +271,21 @@ object BackupArchiveCodec {
             }
         if (backupData.version != BackupPolicy.BACKUP_VERSION) return null
         if (!hasValidUuids(backupData)) return null
-        return ParsedBackup(backupData, icons, markerVersion)
+        return ParsedBackup(normalizeUrlRules(backupData), icons, markerVersion)
     }
+
+    private fun normalizeUrlRules(backupData: BackupData): BackupData =
+        backupData.copy(
+            websites = backupData.websites.map { it.copy(settings = it.settings.normalizeUrlRules()) },
+            groups = backupData.groups.map { it.copy(settings = it.settings.normalizeUrlRules()) },
+            globalSettings = backupData.globalSettings?.normalizeUrlRules(),
+        )
+
+    private fun WebAppSettings.normalizeUrlRules(): WebAppSettings = copy(
+        sameAppDomains = sameAppDomains?.map(UrlRule::normalizeLegacy),
+        blockedDomains = blockedDomains?.map(UrlRule::normalizeLegacy),
+        skipHistoryDomains = skipHistoryDomains?.map(UrlRule::normalizeLegacy),
+    )
 
     // Uuids from a backup end up in filesystem paths (IconOwner.iconFile), so a
     // malformed uuid is a path traversal vector, not just bad data.

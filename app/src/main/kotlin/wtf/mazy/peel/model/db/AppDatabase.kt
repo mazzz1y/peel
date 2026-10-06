@@ -9,6 +9,7 @@ import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import kotlinx.serialization.json.Json
+import wtf.mazy.peel.model.UrlRule
 import wtf.mazy.peel.model.WebAppSettings
 import wtf.mazy.peel.util.Const
 
@@ -45,7 +46,7 @@ class StringListConverter {
         ProxyEntity::class,
         PushSubscriptionEntity::class,
     ],
-    version = 28,
+    version = 29,
     exportSchema = true,
 )
 @TypeConverters(StringMapConverter::class, StringListConverter::class)
@@ -122,6 +123,27 @@ abstract class AppDatabase : RoomDatabase() {
             while (cursor.moveToNext()) existing.add(cursor.getString(nameIdx))
             cursor.close()
             return existing
+        }
+
+        private val URL_RULE_COLUMNS = listOf("sameAppDomains", "blockedDomains", "skipHistoryDomains")
+
+        private fun normalizeUrlRules(db: SupportSQLiteDatabase, table: String) {
+            val columns = URL_RULE_COLUMNS.joinToString(", ")
+            db.query("SELECT uuid, $columns FROM $table").use { cursor ->
+                while (cursor.moveToNext()) {
+                    val uuid = cursor.getString(0)
+                    URL_RULE_COLUMNS.forEachIndexed { i, column ->
+                        if (cursor.isNull(i + 1)) return@forEachIndexed
+                        val rules = Json.decodeFromString<List<String>>(cursor.getString(i + 1))
+                        val normalized = rules.map(UrlRule::normalizeLegacy)
+                        if (normalized == rules) return@forEachIndexed
+                        db.execSQL(
+                            "UPDATE $table SET $column = ? WHERE uuid = ?",
+                            arrayOf(Json.encodeToString(normalized), uuid),
+                        )
+                    }
+                }
+            }
         }
 
         private fun ensureSettingsColumns(db: SupportSQLiteDatabase) {
@@ -420,6 +442,12 @@ abstract class AppDatabase : RoomDatabase() {
             },
             settingsColumnsMigration(26, 27),
             settingsColumnsMigration(27, 28),
+            migration(28, 29) { db ->
+                ensureSettingsColumns(db)
+                for (table in listOf("webapps", "webapp_groups")) {
+                    normalizeUrlRules(db, table)
+                }
+            },
         )
 
         fun getInstance(context: Context): AppDatabase {

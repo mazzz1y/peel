@@ -250,7 +250,7 @@
     <string name="remove_override">Remove Override</string>
     <string name="overridden_settings">Settings Override</string>
     <string name="add">Add</string>
-    <string name="add_domain">Add domain</string>
+    <string name="add_domain">Add address</string>
     <string name="add_certificate">Add certificate</string>
     <string name="add_preference">Add preference</string>
     <string name="add_language_pair">Add language pair</string>
@@ -360,11 +360,26 @@
     <string name="setting_custom_gecko_prefs">Custom Gecko preferences</string>
     <string name="setting_custom_gecko_prefs_key_hint">Name</string>
     <string name="setting_custom_gecko_prefs_value_hint">Value</string>
-    <string name="setting_same_app_domains">Same-app domains</string>
-    <string name="setting_blocked_domains">Blocked domains</string>
-    <string name="setting_skip_history_domains">Back-skipped domains</string>
-    <string name="setting_domain_entry_hint" translatable="false">domain suffix or /regex/</string>
-    <string name="setting_domain_entry_invalid">Invalid regular expression</string>
+    <string name="setting_same_app_domains">Same-app addresses</string>
+    <string name="setting_blocked_domains">Blocked addresses</string>
+    <string name="setting_skip_history_domains">Back-skipped addresses</string>
+    <string name="url_rule_kind">Kind</string>
+    <string name="url_rule_kind_domain">Domain</string>
+    <string name="url_rule_kind_url_prefix">URL prefix</string>
+    <string name="url_rule_kind_url_regex">URL regex</string>
+    <string name="url_rule_kind_host_regex">Host regex</string>
+    <string name="url_rule_example_domain" translatable="false">example.com</string>
+    <string name="url_rule_example_url_prefix" translatable="false">example.com/path</string>
+    <string name="url_rule_example_url_regex" translatable="false">^https://.*/oauth2/.*</string>
+    <string name="url_rule_help_domain">Matches the host and its subdomains</string>
+    <string name="url_rule_help_url_prefix">This address and its subpaths</string>
+    <string name="url_rule_help_url_regex">Must match the whole URL</string>
+    <string name="url_rule_error_empty">Enter a value</string>
+    <string name="url_rule_error_invalid_host">Not a valid host name</string>
+    <string name="url_rule_error_has_path">Has a path — choose URL prefix</string>
+    <string name="url_rule_error_needs_path">Needs a path — choose Domain</string>
+    <string name="url_rule_error_invalid_regex">Invalid regular expression</string>
+    <string name="url_rule_accessibility">%1$s, %2$s</string>
     <string name="setting_allow_cert_bypass">Allow bypassing HTTPS errors</string>
     <string name="find_in_page_hint">Find in page</string>
     <string name="find_in_page_counter">%1$d / %2$d</string>
@@ -459,5 +474,5 @@
     <string name="setting_custom_gecko_prefs_desc">Raw about:config preferences</string>
     <string name="setting_same_app_domains_desc">Treated as part of this app</string>
     <string name="setting_blocked_domains_desc">Blocks navigation, not page content</string>
-    <string name="setting_skip_history_domains_desc">For OAuth domains</string>
+    <string name="setting_skip_history_domains_desc">For OAuth pages</string>
 </resources>

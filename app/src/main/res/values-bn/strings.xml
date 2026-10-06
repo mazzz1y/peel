@@ -188,7 +188,7 @@
     <string name="remove_override">ওভাররাইড সরান</string>
     <string name="overridden_settings">ওভাররাইড করা সেটিংস</string>
     <string name="add">যোগ করুন</string>
-    <string name="add_domain">ডোমেইন যোগ করুন</string>
+    <string name="add_domain">ঠিকানা যোগ করুন</string>
     <string name="add_certificate">সার্টিফিকেট যোগ করুন</string>
     <string name="add_preference">পছন্দ যোগ করুন</string>
     <string name="add_language_pair">ভাষা জোড়া যোগ করুন</string>
@@ -315,10 +315,23 @@
     <string name="setting_custom_gecko_prefs">কাস্টম Gecko পছন্দ</string>
     <string name="setting_custom_gecko_prefs_key_hint">নাম</string>
     <string name="setting_custom_gecko_prefs_value_hint">মান</string>
-    <string name="setting_same_app_domains">অ্যাপের অতিরিক্ত ডোমেইন</string>
-    <string name="setting_blocked_domains">ব্লক করা ডোমেইন</string>
-    <string name="setting_skip_history_domains">পেছনে গেলে এড়ানো ডোমেইন</string>
-    <string name="setting_domain_entry_invalid">অবৈধ রেগুলার এক্সপ্রেশন</string>
+    <string name="setting_same_app_domains">একই অ্যাপের ঠিকানা</string>
+    <string name="setting_blocked_domains">ব্লক করা ঠিকানা</string>
+    <string name="setting_skip_history_domains">পেছনে গেলে এড়ানো ঠিকানা</string>
+    <string name="url_rule_kind">ধরন</string>
+    <string name="url_rule_kind_domain">ডোমেইন</string>
+    <string name="url_rule_kind_url_prefix">URL প্রিফিক্স</string>
+    <string name="url_rule_kind_url_regex">URL regex</string>
+    <string name="url_rule_kind_host_regex">হোস্ট regex</string>
+    <string name="url_rule_help_domain">হোস্ট ও তার সাবডোমেইন</string>
+    <string name="url_rule_help_url_prefix">এই ঠিকানা ও তার সাব-পাথ</string>
+    <string name="url_rule_help_url_regex">পুরো URL-এর সাথে মিলতে হবে</string>
+    <string name="url_rule_error_empty">একটি মান দিন</string>
+    <string name="url_rule_error_invalid_host">অবৈধ হোস্ট নাম</string>
+    <string name="url_rule_error_has_path">পাথ আছে — «URL প্রিফিক্স» বেছে নিন</string>
+    <string name="url_rule_error_needs_path">পাথ দরকার — «ডোমেইন» বেছে নিন</string>
+    <string name="url_rule_error_invalid_regex">অবৈধ রেগুলার এক্সপ্রেশন</string>
+    <string name="url_rule_accessibility">%1$s, %2$s</string>
     <string name="setting_configure">কনফিগার করুন</string>
     <string name="find_in_page_hint">পেজে খুঁজুন</string>
     <string name="find_in_page_counter">%1$d / %2$d</string>
@@ -440,5 +453,5 @@
     <string name="setting_custom_gecko_prefs_desc">সরাসরি about:config পছন্দ</string>
     <string name="setting_same_app_domains_desc">এই অ্যাপের অংশ হিসেবে গণ্য</string>
     <string name="setting_blocked_domains_desc">নেভিগেশন ব্লক, বিষয়বস্তু নয়</string>
-    <string name="setting_skip_history_domains_desc">OAuth ডোমেইনের জন্য</string>
+    <string name="setting_skip_history_domains_desc">OAuth পেজের জন্য</string>
 </resources>

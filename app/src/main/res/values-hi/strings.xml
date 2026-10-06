@@ -188,7 +188,7 @@
     <string name="remove_override">ओवरराइड हटाएं</string>
     <string name="overridden_settings">ओवरराइड की गई सेटिंग्स</string>
     <string name="add">जोड़ें</string>
-    <string name="add_domain">डोमेन जोड़ें</string>
+    <string name="add_domain">पता जोड़ें</string>
     <string name="add_certificate">प्रमाणपत्र जोड़ें</string>
     <string name="add_preference">प्राथमिकता जोड़ें</string>
     <string name="add_language_pair">भाषा जोड़ी जोड़ें</string>
@@ -315,10 +315,23 @@
     <string name="setting_custom_gecko_prefs">कस्टम Gecko प्राथमिकताएँ</string>
     <string name="setting_custom_gecko_prefs_key_hint">नाम</string>
     <string name="setting_custom_gecko_prefs_value_hint">मान</string>
-    <string name="setting_same_app_domains">ऐप के अतिरिक्त डोमेन</string>
-    <string name="setting_blocked_domains">ब्लॉक किए गए डोमेन</string>
-    <string name="setting_skip_history_domains">पीछे जाने पर छोड़े गए डोमेन</string>
-    <string name="setting_domain_entry_invalid">अमान्य रेगुलर एक्सप्रेशन</string>
+    <string name="setting_same_app_domains">इसी ऐप के पते</string>
+    <string name="setting_blocked_domains">ब्लॉक किए गए पते</string>
+    <string name="setting_skip_history_domains">पीछे जाने पर छोड़े गए पते</string>
+    <string name="url_rule_kind">प्रकार</string>
+    <string name="url_rule_kind_domain">डोमेन</string>
+    <string name="url_rule_kind_url_prefix">URL प्रीफ़िक्स</string>
+    <string name="url_rule_kind_url_regex">URL regex</string>
+    <string name="url_rule_kind_host_regex">होस्ट regex</string>
+    <string name="url_rule_help_domain">होस्ट और उसके सबडोमेन</string>
+    <string name="url_rule_help_url_prefix">यह पता और उसके सब-पाथ</string>
+    <string name="url_rule_help_url_regex">पूरे URL से मेल खाना चाहिए</string>
+    <string name="url_rule_error_empty">मान दर्ज करें</string>
+    <string name="url_rule_error_invalid_host">अमान्य होस्ट नाम</string>
+    <string name="url_rule_error_has_path">पाथ है — «URL प्रीफ़िक्स» चुनें</string>
+    <string name="url_rule_error_needs_path">पाथ चाहिए — «डोमेन» चुनें</string>
+    <string name="url_rule_error_invalid_regex">अमान्य रेगुलर एक्सप्रेशन</string>
+    <string name="url_rule_accessibility">%1$s, %2$s</string>
     <string name="setting_configure">कॉन्फ़िगर करें</string>
     <string name="find_in_page_hint">पेज में खोजें</string>
     <string name="find_in_page_counter">%1$d / %2$d</string>
@@ -440,5 +453,5 @@
     <string name="setting_custom_gecko_prefs_desc">about:config प्राथमिकताएँ</string>
     <string name="setting_same_app_domains_desc">इस ऐप का हिस्सा माने जाते हैं</string>
     <string name="setting_blocked_domains_desc">नेविगेशन ब्लॉक, सामग्री नहीं</string>
-    <string name="setting_skip_history_domains_desc">OAuth डोमेन के लिए</string>
+    <string name="setting_skip_history_domains_desc">OAuth पेज के लिए</string>
 </resources>

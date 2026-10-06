@@ -148,7 +148,7 @@
     <string name="remove_override">Eliminar anulación</string>
     <string name="overridden_settings">Anulaciones de configuración</string>
     <string name="add">Añadir</string>
-    <string name="add_domain">Añadir dominio</string>
+    <string name="add_domain">Añadir dirección</string>
     <string name="add_certificate">Añadir certificado</string>
     <string name="add_preference">Añadir preferencia</string>
     <string name="add_language_pair">Añadir par de idiomas</string>
@@ -314,10 +314,23 @@
     <string name="setting_custom_gecko_prefs">Preferencias Gecko personalizadas</string>
     <string name="setting_custom_gecko_prefs_key_hint">Nombre</string>
     <string name="setting_custom_gecko_prefs_value_hint">Valor</string>
-    <string name="setting_same_app_domains">Dominios adicionales de la app</string>
-    <string name="setting_blocked_domains">Dominios bloqueados</string>
-    <string name="setting_skip_history_domains">Dominios omitidos al volver</string>
-    <string name="setting_domain_entry_invalid">Expresión regular no válida</string>
+    <string name="setting_same_app_domains">Direcciones de la app</string>
+    <string name="setting_blocked_domains">Direcciones bloqueadas</string>
+    <string name="setting_skip_history_domains">Direcciones omitidas al volver</string>
+    <string name="url_rule_kind">Tipo</string>
+    <string name="url_rule_kind_domain">Dominio</string>
+    <string name="url_rule_kind_url_prefix">Prefijo de URL</string>
+    <string name="url_rule_kind_url_regex">Regex de URL</string>
+    <string name="url_rule_kind_host_regex">Regex de host</string>
+    <string name="url_rule_help_domain">El host y sus subdominios</string>
+    <string name="url_rule_help_url_prefix">Esta dirección y sus subrutas</string>
+    <string name="url_rule_help_url_regex">Debe coincidir con toda la URL</string>
+    <string name="url_rule_error_empty">Introduce un valor</string>
+    <string name="url_rule_error_invalid_host">Nombre de host no válido</string>
+    <string name="url_rule_error_has_path">Tiene ruta: elige «Prefijo de URL»</string>
+    <string name="url_rule_error_needs_path">Falta la ruta: elige «Dominio»</string>
+    <string name="url_rule_error_invalid_regex">Expresión regular no válida</string>
+    <string name="url_rule_accessibility">%1$s, %2$s</string>
     <string name="setting_configure">Configurar</string>
     <string name="find_in_page_hint">Buscar en la página</string>
     <string name="find_in_page_counter">%1$d / %2$d</string>
@@ -439,5 +452,5 @@
     <string name="setting_custom_gecko_prefs_desc">Preferencias about:config en bruto</string>
     <string name="setting_same_app_domains_desc">Se tratan como parte de esta app</string>
     <string name="setting_blocked_domains_desc">Bloquea navegación, no el contenido</string>
-    <string name="setting_skip_history_domains_desc">Para dominios OAuth</string>
+    <string name="setting_skip_history_domains_desc">Para páginas OAuth</string>
 </resources>

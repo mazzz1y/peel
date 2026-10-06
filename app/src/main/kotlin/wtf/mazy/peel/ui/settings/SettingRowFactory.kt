@@ -1,5 +1,6 @@
 package wtf.mazy.peel.ui.settings
 
+import android.app.Activity
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
@@ -7,8 +8,10 @@ import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.CompoundButton
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.annotation.DrawableRes
 import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
 import com.google.android.material.button.MaterialButton
@@ -21,12 +24,12 @@ import wtf.mazy.peel.R
 import wtf.mazy.peel.browser.TranslationLanguages
 import wtf.mazy.peel.browser.label
 import wtf.mazy.peel.model.SettingDefinition
+import wtf.mazy.peel.model.UrlRule
 import wtf.mazy.peel.model.WebAppSettings
 import wtf.mazy.peel.ui.bindDropdown
 import wtf.mazy.peel.ui.common.GroupPosition
 import wtf.mazy.peel.ui.common.SettingsSurface
 import wtf.mazy.peel.util.CertificatePem
-import wtf.mazy.peel.util.SameAppDomainMatcher
 
 class SettingRowFactory(
     private val inflater: LayoutInflater,
@@ -34,6 +37,8 @@ class SettingRowFactory(
     private val coroutineScope: CoroutineScope,
     private val certificateImporter: (((String) -> Unit) -> Unit)? = null,
 ) {
+
+    private val activity: Activity get() = inflater.context as Activity
 
     sealed interface ButtonStrategy {
         data object GlobalDefaults : ButtonStrategy
@@ -685,7 +690,9 @@ class SettingRowFactory(
         rowAdd.setOnClickListener {
             when (setting.entryKind) {
                 SettingDefinition.StringListSetting.EntryKind.DOMAIN ->
-                    showDomainEntryDialog(view.context, setting, "", ::addEntry)
+                    UrlRuleDialog.show(activity, setting.displayNameResId, null) { rule ->
+                        addEntry(rule.stored)
+                    }
 
                 SettingDefinition.StringListSetting.EntryKind.CERTIFICATE ->
                     certificateImporter?.invoke(::addEntry)
@@ -702,21 +709,35 @@ class SettingRowFactory(
         onChanged: () -> Unit,
     ) {
         val entryView = inflater.inflate(R.layout.item_string_collection_entry, container, false)
+        val imageKind = entryView.findViewById<ImageView>(R.id.imageEntryKind)
         val textValue = entryView.findViewById<TextView>(R.id.textEntryValue)
         val btnRemoveEntry = entryView.findViewById<MaterialButton>(R.id.btnRemoveEntry)
 
-        textValue.text = entryLabel(context, setting, value)
         when (setting.entryKind) {
-            SettingDefinition.StringListSetting.EntryKind.DOMAIN -> textValue.setOnClickListener {
-                showDomainEntryDialog(context, setting, value) { entry ->
-                    val values = getList(settings, setting.key).orEmpty()
-                    if (entry == value || entry in values) return@showDomainEntryDialog
-                    setList(settings, setting.key, values.map { if (it == value) entry else it })
-                    onChanged()
+            SettingDefinition.StringListSetting.EntryKind.DOMAIN -> {
+                val rule = UrlRule.parse(value)
+                textValue.text = rule?.value ?: value
+                if (rule != null) {
+                    imageKind.isVisible = true
+                    imageKind.setImageResource(kindIcon(rule.kind))
+                    textValue.contentDescription = context.getString(
+                        R.string.url_rule_accessibility,
+                        context.getString(UrlRuleDialog.kindName(rule.kind)),
+                        rule.value,
+                    )
+                }
+                textValue.setOnClickListener {
+                    UrlRuleDialog.show(activity, setting.displayNameResId, rule, prefill = rule?.value ?: value) { edited ->
+                        val values = getList(settings, setting.key).orEmpty()
+                        if (edited.stored == value || edited.stored in values) return@show
+                        setList(settings, setting.key, values.map { if (it == value) edited.stored else it })
+                        onChanged()
+                    }
                 }
             }
 
             SettingDefinition.StringListSetting.EntryKind.CERTIFICATE -> {
+                textValue.text = entryLabel(context, value)
                 textValue.isClickable = false
                 textValue.background = null
             }
@@ -729,39 +750,15 @@ class SettingRowFactory(
         container.addView(entryView)
     }
 
-    private fun entryLabel(
-        context: android.content.Context,
-        setting: SettingDefinition.StringListSetting,
-        value: String,
-    ): String = when (setting.entryKind) {
-        SettingDefinition.StringListSetting.EntryKind.DOMAIN -> value
-        SettingDefinition.StringListSetting.EntryKind.CERTIFICATE ->
-            CertificatePem.label(value)
-                ?: context.getString(R.string.setting_trusted_certificates_unnamed)
-    }
+    private fun entryLabel(context: android.content.Context, value: String): String =
+        CertificatePem.label(value)
+            ?: context.getString(R.string.setting_trusted_certificates_unnamed)
 
-    private fun showDomainEntryDialog(
-        context: android.content.Context,
-        setting: SettingDefinition.StringListSetting,
-        prefill: String,
-        onCommit: (String) -> Unit,
-    ) {
-        SettingDialogs.showValidatedString(
-            context = context,
-            titleRes = setting.displayNameResId,
-            hintRes = R.string.setting_domain_entry_hint,
-            value = prefill,
-            inputType = android.text.InputType.TYPE_CLASS_TEXT or
-                    android.text.InputType.TYPE_TEXT_VARIATION_URI,
-            validate = { entry ->
-                when {
-                    entry.isEmpty() -> R.string.setting_domain_entry_hint
-                    !SameAppDomainMatcher.isValid(entry) -> R.string.setting_domain_entry_invalid
-                    else -> null
-                }
-            },
-            onCommit = onCommit,
-        )
+    @DrawableRes
+    private fun kindIcon(kind: UrlRule.Kind): Int = when (kind) {
+        UrlRule.Kind.DOMAIN -> R.drawable.ic_symbols_dns_24
+        UrlRule.Kind.URL_PREFIX -> R.drawable.ic_symbols_link_24
+        UrlRule.Kind.URL_REGEX, UrlRule.Kind.HOST_REGEX -> R.drawable.ic_symbols_regular_expression_24
     }
 
     private fun setupStringMap(

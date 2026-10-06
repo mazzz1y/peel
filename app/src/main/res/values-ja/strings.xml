@@ -183,7 +183,7 @@
     <string name="remove_override">オーバーライドを削除</string>
     <string name="overridden_settings">オーバーライド設定</string>
     <string name="add">追加</string>
-    <string name="add_domain">ドメインを追加</string>
+    <string name="add_domain">アドレスを追加</string>
     <string name="add_certificate">証明書を追加</string>
     <string name="add_preference">設定を追加</string>
     <string name="add_language_pair">言語ペアを追加</string>
@@ -306,10 +306,23 @@
     <string name="setting_custom_gecko_prefs">カスタム Gecko 設定</string>
     <string name="setting_custom_gecko_prefs_key_hint">名前</string>
     <string name="setting_custom_gecko_prefs_value_hint">値</string>
-    <string name="setting_same_app_domains">アプリの追加ドメイン</string>
-    <string name="setting_blocked_domains">ブロックするドメイン</string>
-    <string name="setting_skip_history_domains">「戻る」でスキップするドメイン</string>
-    <string name="setting_domain_entry_invalid">正規表現が無効です</string>
+    <string name="setting_same_app_domains">同一アプリのアドレス</string>
+    <string name="setting_blocked_domains">ブロックするアドレス</string>
+    <string name="setting_skip_history_domains">「戻る」でスキップするアドレス</string>
+    <string name="url_rule_kind">種類</string>
+    <string name="url_rule_kind_domain">ドメイン</string>
+    <string name="url_rule_kind_url_prefix">URLプレフィックス</string>
+    <string name="url_rule_kind_url_regex">URL正規表現</string>
+    <string name="url_rule_kind_host_regex">ホスト正規表現</string>
+    <string name="url_rule_help_domain">ホストとそのサブドメイン</string>
+    <string name="url_rule_help_url_prefix">このアドレスとその下のパス</string>
+    <string name="url_rule_help_url_regex">URL全体に一致する必要あり</string>
+    <string name="url_rule_error_empty">値を入力</string>
+    <string name="url_rule_error_invalid_host">無効なホスト名</string>
+    <string name="url_rule_error_has_path">パスを含む — 「URLプレフィックス」を選択</string>
+    <string name="url_rule_error_needs_path">パスが必要 — 「ドメイン」を選択</string>
+    <string name="url_rule_error_invalid_regex">正規表現が無効です</string>
+    <string name="url_rule_accessibility">%1$s, %2$s</string>
     <string name="setting_configure">設定</string>
     <string name="find_in_page_hint">ページ内を検索</string>
     <string name="find_in_page_counter">%1$d / %2$d</string>
@@ -431,5 +444,5 @@
     <string name="setting_custom_gecko_prefs_desc">about:configの生の設定</string>
     <string name="setting_same_app_domains_desc">このアプリの一部として扱う</string>
     <string name="setting_blocked_domains_desc">ページ遷移をブロック、内容は対象外</string>
-    <string name="setting_skip_history_domains_desc">OAuthドメイン向け</string>
+    <string name="setting_skip_history_domains_desc">OAuthページ向け</string>
 </resources>

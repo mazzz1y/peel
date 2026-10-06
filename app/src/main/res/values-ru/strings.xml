@@ -198,7 +198,7 @@
     <string name="remove_override">Удалить переопределение</string>
     <string name="overridden_settings">Переопределённые настройки</string>
     <string name="add">Добавить</string>
-    <string name="add_domain">Добавить домен</string>
+    <string name="add_domain">Добавить адрес</string>
     <string name="add_certificate">Добавить сертификат</string>
     <string name="add_preference">Добавить параметр</string>
     <string name="add_language_pair">Добавить пару языков</string>
@@ -333,10 +333,23 @@
     <string name="setting_custom_gecko_prefs">Параметры Gecko</string>
     <string name="setting_custom_gecko_prefs_key_hint">Имя</string>
     <string name="setting_custom_gecko_prefs_value_hint">Значение</string>
-    <string name="setting_same_app_domains">Доп. домены приложения</string>
-    <string name="setting_blocked_domains">Заблокированные домены</string>
-    <string name="setting_skip_history_domains">Игнорируемые при навигации домены</string>
-    <string name="setting_domain_entry_invalid">Некорректный regex</string>
+    <string name="setting_same_app_domains">Адреса приложения</string>
+    <string name="setting_blocked_domains">Заблокированные адреса</string>
+    <string name="setting_skip_history_domains">Игнорируемые при навигации адреса</string>
+    <string name="url_rule_kind">Тип</string>
+    <string name="url_rule_kind_domain">Домен</string>
+    <string name="url_rule_kind_url_prefix">Префикс URL</string>
+    <string name="url_rule_kind_url_regex">Regex URL</string>
+    <string name="url_rule_kind_host_regex">Regex хоста</string>
+    <string name="url_rule_help_domain">Хост и его поддомены</string>
+    <string name="url_rule_help_url_prefix">Этот адрес и вложенные пути</string>
+    <string name="url_rule_help_url_regex">Должен совпадать с URL целиком</string>
+    <string name="url_rule_error_empty">Введите значение</string>
+    <string name="url_rule_error_invalid_host">Некорректное имя хоста</string>
+    <string name="url_rule_error_has_path">Содержит путь — выберите «Префикс URL»</string>
+    <string name="url_rule_error_needs_path">Нужен путь — выберите «Домен»</string>
+    <string name="url_rule_error_invalid_regex">Некорректный regex</string>
+    <string name="url_rule_accessibility">%1$s, %2$s</string>
     <string name="setting_configure">Настроить</string>
     <string name="find_in_page_hint">Найти на странице</string>
     <string name="find_in_page_counter">%1$d / %2$d</string>
@@ -458,5 +471,5 @@
     <string name="setting_custom_gecko_prefs_desc">Параметры about:config</string>
     <string name="setting_same_app_domains_desc">Будут считаться приложением</string>
     <string name="setting_blocked_domains_desc">Блокирует переходы, не содержимое</string>
-    <string name="setting_skip_history_domains_desc">Для OAuth доменов</string>
+    <string name="setting_skip_history_domains_desc">Для страниц OAuth</string>
 </resources>

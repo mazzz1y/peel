@@ -188,7 +188,7 @@
     <string name="remove_override">ਓਵਰਰਾਈਡ ਹਟਾਓ</string>
     <string name="overridden_settings">ਓਵਰਰਾਈਡ ਕੀਤੀਆਂ ਸੈਟਿੰਗਾਂ</string>
     <string name="add">ਸ਼ਾਮਲ ਕਰੋ</string>
-    <string name="add_domain">ਡੋਮੇਨ ਸ਼ਾਮਲ ਕਰੋ</string>
+    <string name="add_domain">ਪਤਾ ਜੋੜੋ</string>
     <string name="add_certificate">ਸਰਟੀਫਿਕੇਟ ਸ਼ਾਮਲ ਕਰੋ</string>
     <string name="add_preference">ਤਰਜੀਹ ਸ਼ਾਮਲ ਕਰੋ</string>
     <string name="add_language_pair">ਭਾਸ਼ਾ ਜੋੜਾ ਸ਼ਾਮਲ ਕਰੋ</string>
@@ -314,10 +314,23 @@
     <string name="setting_custom_gecko_prefs">ਕਸਟਮ Gecko ਤਰਜੀਹਾਂ</string>
     <string name="setting_custom_gecko_prefs_key_hint">ਨਾਮ</string>
     <string name="setting_custom_gecko_prefs_value_hint">ਮੁੱਲ</string>
-    <string name="setting_same_app_domains">ਐਪ ਦੇ ਵਾਧੂ ਡੋਮੇਨ</string>
-    <string name="setting_blocked_domains">ਬਲੌਕ ਕੀਤੇ ਡੋਮੇਨ</string>
-    <string name="setting_skip_history_domains">ਪਿੱਛੇ ਜਾਣ \'ਤੇ ਛੱਡੇ ਡੋਮੇਨ</string>
-    <string name="setting_domain_entry_invalid">ਗਲਤ ਰੈਗੂਲਰ ਸਮੀਕਰਨ</string>
+    <string name="setting_same_app_domains">ਇਸੇ ਐਪ ਦੇ ਪਤੇ</string>
+    <string name="setting_blocked_domains">ਬਲੌਕ ਕੀਤੇ ਪਤੇ</string>
+    <string name="setting_skip_history_domains">ਪਿੱਛੇ ਜਾਣ \'ਤੇ ਛੱਡੇ ਗਏ ਪਤੇ</string>
+    <string name="url_rule_kind">ਕਿਸਮ</string>
+    <string name="url_rule_kind_domain">ਡੋਮੇਨ</string>
+    <string name="url_rule_kind_url_prefix">URL ਪ੍ਰੀਫਿਕਸ</string>
+    <string name="url_rule_kind_url_regex">URL regex</string>
+    <string name="url_rule_kind_host_regex">ਹੋਸਟ regex</string>
+    <string name="url_rule_help_domain">ਹੋਸਟ ਅਤੇ ਇਸਦੇ ਸਬਡੋਮੇਨ</string>
+    <string name="url_rule_help_url_prefix">ਇਹ ਪਤਾ ਅਤੇ ਇਸਦੇ ਸਬ-ਪਾਥ</string>
+    <string name="url_rule_help_url_regex">ਪੂਰੇ URL ਨਾਲ ਮੇਲ ਖਾਣਾ ਚਾਹੀਦਾ</string>
+    <string name="url_rule_error_empty">ਮੁੱਲ ਦਰਜ ਕਰੋ</string>
+    <string name="url_rule_error_invalid_host">ਗਲਤ ਹੋਸਟ ਨਾਮ</string>
+    <string name="url_rule_error_has_path">ਪਾਥ ਹੈ — «URL ਪ੍ਰੀਫਿਕਸ» ਚੁਣੋ</string>
+    <string name="url_rule_error_needs_path">ਪਾਥ ਚਾਹੀਦਾ — «ਡੋਮੇਨ» ਚੁਣੋ</string>
+    <string name="url_rule_error_invalid_regex">ਗਲਤ ਰੈਗੂਲਰ ਸਮੀਕਰਨ</string>
+    <string name="url_rule_accessibility">%1$s, %2$s</string>
     <string name="setting_configure">ਸੰਰਚਨਾ ਕਰੋ</string>
     <string name="find_in_page_hint">ਪੰਨੇ ਵਿੱਚ ਲੱਭੋ</string>
     <string name="find_in_page_counter">%1$d / %2$d</string>
@@ -439,5 +452,5 @@
     <string name="setting_custom_gecko_prefs_desc">about:config ਤਰਜੀਹਾਂ</string>
     <string name="setting_same_app_domains_desc">ਇਸੇ ਐਪ ਦਾ ਹਿੱਸਾ ਮੰਨੇ ਜਾਣਗੇ</string>
     <string name="setting_blocked_domains_desc">ਨੈਵੀਗੇਸ਼ਨ ਬਲਾਕ, ਸਮੱਗਰੀ ਨਹੀਂ</string>
-    <string name="setting_skip_history_domains_desc">OAuth ਡੋਮੇਨਾਂ ਲਈ</string>
+    <string name="setting_skip_history_domains_desc">OAuth ਪੇਜਾਂ ਲਈ</string>
 </resources>
