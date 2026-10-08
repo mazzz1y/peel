@@ -119,7 +119,10 @@ class SettingsActivity : ToolbarBaseActivity<GlobalSettingsBinding>() {
 
         val items = buildList {
             settingsGrouped.forEach { (category, definitions) ->
-                add(SettingsListItem.Header(category))
+                // A lone category whose name matches the section's would only repeat the title.
+                val repeatsTitle = settingsGrouped.size == 1 &&
+                        category.displayNameResId == section.displayNameResId
+                if (!repeatsTitle) add(SettingsListItem.Header(category))
                 definitions.forEachIndexed { index, definition ->
                     add(
                         SettingsListItem.Setting(

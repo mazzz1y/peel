@@ -53,6 +53,7 @@ data class EffectiveSettings(
     val blockedDomains: List<String>,
     val skipHistoryDomains: List<String>,
     val trustedCertificates: List<String>,
+    val bottomSearch: Boolean,
 ) {
     fun upgradeUrl(url: String): String =
         if (alwaysHttps && url.startsWith("http://")) {
@@ -110,6 +111,7 @@ fun WebAppSettings.effective(vararg parents: WebAppSettings): EffectiveSettings 
         blockedDomains = resolved.blockedDomains.orEmpty(),
         skipHistoryDomains = resolved.skipHistoryDomains.orEmpty(),
         trustedCertificates = resolved.trustedCertificates.orEmpty(),
+        bottomSearch = resolved.value(WebAppSettings::isBottomSearch),
     )
 }
 

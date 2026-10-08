@@ -46,7 +46,7 @@ class StringListConverter {
         ProxyEntity::class,
         PushSubscriptionEntity::class,
     ],
-    version = 29,
+    version = 30,
     exportSchema = true,
 )
 @TypeConverters(StringMapConverter::class, StringListConverter::class)
@@ -114,6 +114,7 @@ abstract class AppDatabase : RoomDatabase() {
             "blockedDomains" to "TEXT",
             "skipHistoryDomains" to "TEXT",
             "trustedCertificates" to "TEXT",
+            "isBottomSearch" to "INTEGER",
         )
 
         private fun tableColumns(db: SupportSQLiteDatabase, table: String): Set<String> {
@@ -448,6 +449,7 @@ abstract class AppDatabase : RoomDatabase() {
                     normalizeUrlRules(db, table)
                 }
             },
+            settingsColumnsMigration(29, 30),
         )
 
         fun getInstance(context: Context): AppDatabase {

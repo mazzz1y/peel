@@ -108,6 +108,7 @@
     <string name="color_scheme_light">হালকা</string>
     <string name="color_scheme_dark">গাঢ়</string>
     <string name="setting_web_content_scale">স্কেল</string>
+    <string name="setting_bottom_search">নিচে অনুসন্ধান বার</string>
     <string name="webapp_already_deleted">এই ওয়েব অ্যাপটি মুছে ফেলা হয়েছে। আপনি এই শর্টকাটটি মুছতে পারেন।</string>
     <string name="behavior">আচরণ</string>
     <string name="navigation">নেভিগেশন</string>
@@ -246,6 +247,7 @@
     <string name="text_copied">লেখা কপি হয়েছে</string>
     <string name="download_failed">ডাউনলোড ব্যর্থ হয়েছে</string>
     <string name="search">অনুসন্ধান</string>
+    <string name="search_clear">অনুসন্ধান সাফ করুন</string>
     <string name="no_search_results">কোনো অ্যাপ পাওয়া যায়নি</string>
     <string name="import_group_share_description">গ্রুপ %1$s আপনার সাথে শেয়ার করা হয়েছে। আমদানি করতে অ্যাপ বেছে নিন:</string>
     <string name="import_group_share_description_multi">%1$s আপনার সাথে শেয়ার করা হয়েছে। আমদানি করতে গ্রুপ ও অ্যাপ বেছে নিন:</string>
@@ -384,6 +386,7 @@
     <string name="clear_translations">অনুবাদ মডেল মুছুন</string>
     <string name="settings_section_engine">ইঞ্জিন</string>
     <string name="settings_section_global_summary">সব অ্যাপের জন্য ডিফল্ট সেটিংস, অ্যাপভিত্তিক পরিবর্তনযোগ্য</string>
+    <string name="settings_section_appearance_summary">Peel-এর ইন্টারফেস</string>
     <string name="settings_section_engine_summary">গোপনীয়তা, সুরক্ষা এবং উন্নত Gecko বিকল্প</string>
     <string name="settings_section_proxies_summary">প্রক্সি সার্ভার পরিচালনা করুন</string>
     <string name="settings_section_extensions_summary">এক্সটেনশন ইনস্টল ও পরিচালনা করুন</string>
@@ -415,6 +418,7 @@
     <!-- Setting descriptions, shown under each label in global settings -->
     <string name="setting_color_scheme_desc">prefers-color-scheme সেট করে</string>
     <string name="setting_web_content_scale_desc">পেজের প্রদর্শন ঘনত্ব বদলায়</string>
+    <string name="setting_bottom_search_desc">অনুসন্ধান অ্যাপ তালিকার নিচে</string>
     <string name="setting_dynamic_status_bar_desc">সিস্টেম বার theme-color নেয়</string>
     <string name="show_progress_bar_during_page_load_desc">নিচের প্রান্তে অগ্রগতি বার</string>
     <string name="show_fullscreen_desc">Immersive mode, সোয়াইপে বার</string>

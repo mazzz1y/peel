@@ -108,6 +108,7 @@
     <string name="color_scheme_light">हल्का</string>
     <string name="color_scheme_dark">गहरा</string>
     <string name="setting_web_content_scale">स्केल</string>
+    <string name="setting_bottom_search">नीचे खोज पट्टी</string>
     <string name="webapp_already_deleted">यह वेब ऐप हटा दिया गया है। आप यह शॉर्टकट हटा सकते हैं।</string>
     <string name="behavior">व्यवहार</string>
     <string name="navigation">नेविगेशन</string>
@@ -246,6 +247,7 @@
     <string name="text_copied">टेक्स्ट कॉपी हुआ</string>
     <string name="download_failed">डाउनलोड विफल</string>
     <string name="search">खोजें</string>
+    <string name="search_clear">खोज साफ़ करें</string>
     <string name="no_search_results">कोई ऐप नहीं मिला</string>
     <string name="import_group_share_description">ग्रुप %1$s आपके साथ साझा किया गया। आयात करने के लिए ऐप चुनें:</string>
     <string name="import_group_share_description_multi">%1$s आपके साथ साझा किए गए। आयात करने के लिए ग्रुप और ऐप चुनें:</string>
@@ -384,6 +386,7 @@
     <string name="clear_translations">अनुवाद मॉडल साफ़ करें</string>
     <string name="settings_section_engine">इंजन</string>
     <string name="settings_section_global_summary">सभी ऐप्स के लिए डिफ़ॉल्ट सेटिंग, हर ऐप के लिए बदली जा सकती हैं</string>
+    <string name="settings_section_appearance_summary">Peel का इंटरफ़ेस</string>
     <string name="settings_section_engine_summary">गोपनीयता, सुरक्षा और उन्नत Gecko विकल्प</string>
     <string name="settings_section_proxies_summary">प्रॉक्सी सर्वर प्रबंधित करें</string>
     <string name="settings_section_extensions_summary">एक्सटेंशन इंस्टॉल और प्रबंधित करें</string>
@@ -415,6 +418,7 @@
     <!-- Setting descriptions, shown under each label in global settings -->
     <string name="setting_color_scheme_desc">prefers-color-scheme सेट करे</string>
     <string name="setting_web_content_scale_desc">डिस्प्ले घनत्व बदलता है</string>
+    <string name="setting_bottom_search_desc">खोज ऐप सूची के नीचे</string>
     <string name="setting_dynamic_status_bar_desc">सिस्टम बार theme-color अनुसार</string>
     <string name="show_progress_bar_during_page_load_desc">निचले किनारे पर प्रगति बार</string>
     <string name="show_fullscreen_desc">Immersive mode, स्वाइप पर बार</string>

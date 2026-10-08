@@ -9,6 +9,7 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.view.ViewGroup
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.IntentCompat
@@ -21,6 +22,8 @@ import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import wtf.mazy.peel.R
 import wtf.mazy.peel.browser.SessionHostRegistry
@@ -28,8 +31,11 @@ import wtf.mazy.peel.gecko.GeckoRuntimeProvider
 import wtf.mazy.peel.model.BackupManager
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.WebApp
+import wtf.mazy.peel.model.effective
 import wtf.mazy.peel.ui.common.LoadingDialogController
 import wtf.mazy.peel.ui.common.PeelActivity
+import wtf.mazy.peel.ui.common.animateReflow
+import wtf.mazy.peel.ui.common.applyBottomLineFade
 import wtf.mazy.peel.ui.common.runWithLoader
 import wtf.mazy.peel.ui.dialog.ImportFlowController
 import wtf.mazy.peel.ui.dialog.showSandboxInputDialog
@@ -38,13 +44,17 @@ import wtf.mazy.peel.ui.entitylist.EntitySelectionController
 import wtf.mazy.peel.ui.entitylist.ListChrome
 import wtf.mazy.peel.ui.entitylist.SelectionConfig
 import wtf.mazy.peel.ui.settings.showApplyTimingSnackbar
+import wtf.mazy.peel.ui.webapplist.BottomSearchSurface
+import wtf.mazy.peel.ui.webapplist.ContainedSearchSurface
 import wtf.mazy.peel.ui.webapplist.GroupPagerAdapter
 import wtf.mazy.peel.ui.webapplist.SearchModeController
+import wtf.mazy.peel.ui.webapplist.SearchSurface
 import wtf.mazy.peel.ui.webapplist.WebAppListFragment
 import wtf.mazy.peel.ui.webapplist.WebAppListHost
 import wtf.mazy.peel.ui.webapplist.WebAppSelectionHandler
 import wtf.mazy.peel.ui.webapplist.WebAppShareHost
 import wtf.mazy.peel.util.Const
+import wtf.mazy.peel.util.applyBottomScreenInsets
 import wtf.mazy.peel.util.applyToolbarScreenInsets
 import wtf.mazy.peel.util.disableSystemBarContrastEnforcement
 import wtf.mazy.peel.util.toast
@@ -55,7 +65,8 @@ class MainActivity :
     WebAppShareHost {
 
     private lateinit var toolbar: MaterialToolbar
-    private lateinit var fab: FloatingActionButton
+    private lateinit var topSearch: SearchSurface
+    private lateinit var bottomSearch: SearchSurface
     private lateinit var tabLayout: TabLayout
     private lateinit var viewPager: ViewPager2
 
@@ -97,7 +108,9 @@ class MainActivity :
         applyToolbarScreenInsets()
 
         toolbar = findViewById(R.id.toolbar)
-        fab = findViewById(R.id.fab)
+        val fab = findViewById<FloatingActionButton>(R.id.fab)
+        val bottomLine = findViewById<ViewGroup>(R.id.bottomLine)
+        val bottomLineFab = findViewById<FloatingActionButton>(R.id.bottomLineFab)
         tabLayout = findViewById(R.id.tabLayout)
         viewPager = findViewById(R.id.viewPager)
         // ViewPager2's inner RecyclerView is focusable and traps D-pad focus with no highlight,
@@ -106,6 +119,10 @@ class MainActivity :
         exportLoader = LoadingDialogController(this)
 
         EntityListAnimations.bindFabResizeOnRotation(this, fab)
+        EntityListAnimations.bindFabResizeOnRotation(this, bottomLineFab)
+        bottomLine.animateReflow()
+        bottomLine.applyBottomLineFade()
+        bottomLine.applyBottomScreenInsets()
 
         toolbar.setTitle(R.string.app_name)
         setSupportActionBar(toolbar)
@@ -116,6 +133,7 @@ class MainActivity :
             actions = WebAppSelectionHandler(this, this),
             resolveItems = { ids -> DataManager.webApps.filter { it.uuid in ids } },
             onChanged = {
+                searchController.onSelectionChanged()
                 renderChrome(animated = true)
                 refreshSelectionAdapters()
                 updateTabBadges()
@@ -137,19 +155,42 @@ class MainActivity :
                 bar.setTitle(R.string.app_name)
             },
         )
+        topSearch = ContainedSearchSurface(
+            activity = this,
+            searchView = findViewById(R.id.searchView),
+            fab = fab,
+            resultsList = findViewById(R.id.searchResultsList),
+            emptyState = findViewById(R.id.searchEmptyState),
+        )
+        bottomSearch = BottomSearchSurface(
+            activity = this,
+            line = bottomLine,
+            fab = bottomLineFab,
+            bar = findViewById(R.id.searchBar),
+            listPage = findViewById(R.id.listPage),
+            results = findViewById(R.id.bottomSearchResults),
+            resultsList = findViewById(R.id.bottomSearchResultsList),
+            emptyState = findViewById(R.id.bottomSearchEmptyState),
+        )
         searchController = SearchModeController(
             activity = this,
             selection = selectionController,
-            searchView = findViewById(R.id.searchView),
-            searchResultsList = findViewById(R.id.searchResultsList),
-            searchEmptyState = findViewById(R.id.searchEmptyState),
+            chrome = chrome,
+            initial = surfaceFor(DataManager.globalEffectiveSettings.bottomSearch),
             onChanged = {
                 renderChrome(animated = true)
                 if (!searchController.isActive) refreshCurrentPages()
             },
+            onSurfaceChanged = {
+                invalidateOptionsMenu()
+                fragmentRegistry.values.forEach { it.applyBottomClearance() }
+                renderChrome(animated = false)
+            },
         )
 
-        fab.setOnClickListener { if (!chrome.onFabClicked()) buildAddWebsiteDialog() }
+        val onFabClicked = View.OnClickListener { if (!chrome.onFabClicked()) buildAddWebsiteDialog() }
+        fab.setOnClickListener(onFabClicked)
+        bottomLineFab.setOnClickListener(onFabClicked)
         onBackPressedDispatcher.addCallback(this, backPressCallback)
 
         setupViewPager()
@@ -164,6 +205,14 @@ class MainActivity :
                         refreshCurrentPages()
                     }
                 }
+            }
+        }
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                DataManager.state
+                    .map { it.globalSettings.settings.effective().bottomSearch }
+                    .distinctUntilChanged()
+                    .collect { searchController.attach(surfaceFor(it)) }
             }
         }
         handleIncomingBackupIntent(intent)
@@ -203,6 +252,7 @@ class MainActivity :
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         if (chrome.onCreateOptionsMenu(menu)) return true
         menuInflater.inflate(R.menu.menu_main, menu)
+        menu.findItem(R.id.action_search)?.isVisible = searchController.offersSearchAction
         return true
     }
 
@@ -224,6 +274,11 @@ class MainActivity :
     }
 
     override fun refreshWebAppList() = refreshCurrentPages()
+
+    override val listBottomClearance: Int
+        get() = searchController.listBottomClearance
+
+    private fun surfaceFor(bottom: Boolean): SearchSurface = if (bottom) bottomSearch else topSearch
 
     fun refreshCurrentPages() {
         val groups = DataManager.sortedGroups
@@ -316,12 +371,12 @@ class MainActivity :
         updateTabBadges()
     }
 
-    // The search view restores its own query and visibility with the view hierarchy, which
-    // happens after onCreate; the controller is synced to it here.
+    // The view hierarchy restores search's own views with the state — the contained view's
+    // query and visibility, the bar's query and focus — after onCreate, so the surface is told
+    // here whether search was open and decides what to do with that.
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
         super.onRestoreInstanceState(savedInstanceState)
-        if (!savedInstanceState.getBoolean(STATE_SEARCHING)) return
-        searchController.restore()
+        searchController.onRestoredState(savedInstanceState.getBoolean(STATE_SEARCHING))
         renderChrome(animated = false)
     }
 

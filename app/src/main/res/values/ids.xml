@@ -4,4 +4,5 @@
     <item name="toolbar_pending_swap" type="id" />
     <item name="toolbar_in_flight" type="id" />
     <item name="tag_text_watcher" type="id" />
+    <item name="view_fade_target" type="id" />
 </resources>

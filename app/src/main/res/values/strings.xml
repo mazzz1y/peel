@@ -3,6 +3,7 @@
     <string name="global_settings">Global Settings</string>
     <string name="settings_section_global_summary">Default settings for all apps, overridable per app</string>
     <string name="settings_section_engine">Engine</string>
+    <string name="settings_section_appearance_summary">Peel\'s own interface</string>
     <string name="settings_section_engine_summary">Privacy, protection and advanced Gecko options</string>
     <string name="settings_section_proxies_summary">Manage proxy servers</string>
     <string name="settings_section_extensions_summary">Install and manage extensions</string>
@@ -162,6 +163,7 @@
     <string name="web_content_scale_150" translatable="false">150%</string>
     <string name="web_content_scale_175" translatable="false">175%</string>
     <string name="web_content_scale_200" translatable="false">200%</string>
+    <string name="setting_bottom_search">Bottom search bar</string>
     <string name="webapp_already_deleted">This Web App is no longer available. You can delete this shortcut</string>
     <string name="behavior">Behavior</string>
     <string name="navigation">Navigation</string>
@@ -321,6 +323,7 @@
         <item quantity="other">%d apps</item>
     </plurals>
     <string name="search">Search</string>
+    <string name="search_clear">Clear search</string>
     <string name="no_search_results">No apps found</string>
     <string name="extensions">Extensions</string>
     <string name="no_extensions_installed">No extensions installed</string>
@@ -436,6 +439,7 @@
     <!-- Setting descriptions, shown under each label in global settings -->
     <string name="setting_color_scheme_desc">Sets prefers-color-scheme</string>
     <string name="setting_web_content_scale_desc">Overrides page display density</string>
+    <string name="setting_bottom_search_desc">Search below the app list</string>
     <string name="setting_dynamic_status_bar_desc">System bars follow theme-color</string>
     <string name="show_progress_bar_during_page_load_desc">Progress bar at the bottom edge</string>
     <string name="show_fullscreen_desc">Immersive mode, swipe shows bars</string>

@@ -19,7 +19,7 @@ sealed class SettingDefinition(
     @param:StringRes val displayNameResId: Int,
     @param:StringRes val descriptionResId: Int,
     val category: SettingCategory,
-    val engineOnly: Boolean = false,
+    val section: SettingSection = SettingSection.GLOBAL,
 ) {
     val key: String
         get() = primaryField.key
@@ -42,8 +42,8 @@ sealed class SettingDefinition(
         @StringRes displayNameResId: Int,
         @StringRes descriptionResId: Int,
         category: SettingCategory,
-        engineOnly: Boolean = false,
-    ) : SettingDefinition(toggle, displayNameResId, descriptionResId, category, engineOnly) {
+        section: SettingSection = SettingSection.GLOBAL,
+    ) : SettingDefinition(toggle, displayNameResId, descriptionResId, category, section) {
         override val layoutRes get() = R.layout.item_setting_boolean
     }
 
@@ -52,11 +52,11 @@ sealed class SettingDefinition(
         @StringRes displayNameResId: Int,
         @StringRes descriptionResId: Int,
         category: SettingCategory,
-        engineOnly: Boolean = false,
+        section: SettingSection = SettingSection.GLOBAL,
         val values: IntArray,
         @param:StringRes val labels: IntArray,
         @param:StringRes val shortLabels: IntArray = labels,
-    ) : SettingDefinition(toggle, displayNameResId, descriptionResId, category, engineOnly) {
+    ) : SettingDefinition(toggle, displayNameResId, descriptionResId, category, section) {
         override val layoutRes get() = R.layout.item_setting_dropdown
 
         init {
@@ -71,9 +71,9 @@ sealed class SettingDefinition(
                 @StringRes displayNameResId: Int,
                 @StringRes descriptionResId: Int,
                 category: SettingCategory,
-                engineOnly: Boolean = false,
+                section: SettingSection = SettingSection.GLOBAL,
             ) = ChoiceSetting(
-                toggle, displayNameResId, descriptionResId, category, engineOnly,
+                toggle, displayNameResId, descriptionResId, category, section,
                 values = intArrayOf(
                     WebAppSettings.PERMISSION_OFF,
                     WebAppSettings.PERMISSION_ASK,
@@ -95,7 +95,8 @@ sealed class SettingDefinition(
         category: SettingCategory,
         val intField: SettingField,
         @param:StringRes val intLabelResId: Int,
-    ) : SettingDefinition(toggle, displayNameResId, descriptionResId, category) {
+        section: SettingSection = SettingSection.GLOBAL,
+    ) : SettingDefinition(toggle, displayNameResId, descriptionResId, category, section) {
         override val layoutRes get() = R.layout.item_setting_boolean_int
 
         override val allFields
@@ -121,7 +122,8 @@ sealed class SettingDefinition(
         category: SettingCategory,
         val usernameField: SettingField,
         val passwordField: SettingField,
-    ) : SettingDefinition(toggle, displayNameResId, descriptionResId, category) {
+        section: SettingSection = SettingSection.GLOBAL,
+    ) : SettingDefinition(toggle, displayNameResId, descriptionResId, category, section) {
         override val layoutRes get() = R.layout.item_setting_boolean_value
 
         override val allFields
@@ -147,8 +149,8 @@ sealed class SettingDefinition(
         category: SettingCategory,
         val stringField: SettingField,
         @param:StringRes val hintResId: Int,
-        engineOnly: Boolean = false,
-    ) : SettingDefinition(toggle, displayNameResId, descriptionResId, category, engineOnly) {
+        section: SettingSection = SettingSection.GLOBAL,
+    ) : SettingDefinition(toggle, displayNameResId, descriptionResId, category, section) {
         override val layoutRes get() = R.layout.item_setting_boolean_value
 
         override val allFields
@@ -172,8 +174,8 @@ sealed class SettingDefinition(
         category: SettingCategory,
         @param:StringRes val keyHintResId: Int,
         @param:StringRes val valueHintResId: Int,
-        engineOnly: Boolean = false,
-    ) : SettingDefinition(toggle, displayNameResId, descriptionResId, category, engineOnly) {
+        section: SettingSection = SettingSection.GLOBAL,
+    ) : SettingDefinition(toggle, displayNameResId, descriptionResId, category, section) {
         override val layoutRes get() = R.layout.item_setting_string_collection
 
         override fun sanitize(settings: WebAppSettings, asOverride: Boolean) {
@@ -198,9 +200,9 @@ sealed class SettingDefinition(
         @StringRes displayNameResId: Int,
         @StringRes descriptionResId: Int,
         category: SettingCategory,
-        engineOnly: Boolean = false,
+        section: SettingSection = SettingSection.GLOBAL,
         val entryKind: EntryKind = EntryKind.DOMAIN,
-    ) : SettingDefinition(toggle, displayNameResId, descriptionResId, category, engineOnly) {
+    ) : SettingDefinition(toggle, displayNameResId, descriptionResId, category, section) {
         override val layoutRes get() = R.layout.item_setting_string_collection
 
         override fun sanitize(settings: WebAppSettings, asOverride: Boolean) {
@@ -228,8 +230,8 @@ sealed class SettingDefinition(
         @StringRes descriptionResId: Int,
         category: SettingCategory,
         val mapField: SettingField,
-        engineOnly: Boolean = false,
-    ) : SettingDefinition(toggle, displayNameResId, descriptionResId, category, engineOnly) {
+        section: SettingSection = SettingSection.GLOBAL,
+    ) : SettingDefinition(toggle, displayNameResId, descriptionResId, category, section) {
         override val layoutRes get() = R.layout.item_setting_language_pair_map
 
         override val allFields
@@ -251,6 +253,7 @@ sealed class SettingDefinition(
 
 enum class SettingSection(@param:StringRes val displayNameResId: Int) {
     GLOBAL(R.string.global_settings),
+    APPEARANCE(R.string.appearance),
     ENGINE(R.string.settings_section_engine),
 }
 
@@ -300,7 +303,7 @@ object SettingRegistry {
                 R.string.setting_color_scheme,
                 R.string.setting_color_scheme_desc,
                 SettingCategory.APPEARANCE,
-                engineOnly = true,
+                section = SettingSection.ENGINE,
                 values = intArrayOf(
                     WebAppSettings.COLOR_SCHEME_AUTO,
                     WebAppSettings.COLOR_SCHEME_LIGHT,
@@ -321,7 +324,7 @@ object SettingRegistry {
                 R.string.setting_web_content_scale,
                 R.string.setting_web_content_scale_desc,
                 SettingCategory.APPEARANCE,
-                engineOnly = true,
+                section = SettingSection.ENGINE,
                 values = WebAppSettings.WEB_CONTENT_ZOOM_VALUES,
                 labels = intArrayOf(
                     R.string.web_content_scale_50,
@@ -332,6 +335,13 @@ object SettingRegistry {
                     R.string.web_content_scale_175,
                     R.string.web_content_scale_200,
                 ),
+            ),
+            SettingDefinition.BooleanSetting(
+                SettingField(WebAppSettings::isBottomSearch, false),
+                R.string.setting_bottom_search,
+                R.string.setting_bottom_search_desc,
+                SettingCategory.APPEARANCE,
+                section = SettingSection.APPEARANCE,
             ),
             SettingDefinition.BooleanSetting(
                 SettingField(WebAppSettings::isDynamicStatusBar, true, ApplyTiming.WEBAPP_RESTART),
@@ -476,7 +486,7 @@ object SettingRegistry {
                 R.string.setting_tracker_protection,
                 R.string.setting_tracker_protection_desc,
                 SettingCategory.NETWORK_PRIVACY,
-                engineOnly = true,
+                section = SettingSection.ENGINE,
                 values = intArrayOf(
                     WebAppSettings.TRACKER_PROTECTION_NONE,
                     WebAppSettings.TRACKER_PROTECTION_DEFAULT,
@@ -497,7 +507,7 @@ object SettingRegistry {
                 R.string.setting_global_privacy_control,
                 R.string.setting_global_privacy_control_desc,
                 SettingCategory.NETWORK_PRIVACY,
-                engineOnly = true,
+                section = SettingSection.ENGINE,
             ),
             SettingDefinition.BooleanSetting(
                 SettingField(
@@ -508,21 +518,21 @@ object SettingRegistry {
                 R.string.setting_fingerprinting_protection,
                 R.string.setting_fingerprinting_protection_desc,
                 SettingCategory.NETWORK_PRIVACY,
-                engineOnly = true,
+                section = SettingSection.ENGINE,
             ),
             SettingDefinition.BooleanSetting(
                 SettingField(WebAppSettings::isBlockLocalNetwork, true, ApplyTiming.PEEL_RESTART),
                 R.string.setting_block_local_network,
                 R.string.setting_block_local_network_desc,
                 SettingCategory.NETWORK_PRIVACY,
-                engineOnly = true,
+                section = SettingSection.ENGINE,
             ),
             SettingDefinition.BooleanSetting(
                 SettingField(WebAppSettings::isBlockWebRtcIpLeak, true, ApplyTiming.PEEL_RESTART),
                 R.string.setting_block_webrtc_ip_leak,
                 R.string.setting_block_webrtc_ip_leak_desc,
                 SettingCategory.NETWORK_PRIVACY,
-                engineOnly = true,
+                section = SettingSection.ENGINE,
             ),
             SettingDefinition.BooleanSetting(
                 SettingField(WebAppSettings::isAlwaysHttps, true),
@@ -591,42 +601,42 @@ object SettingRegistry {
                     ApplyTiming.PEEL_RESTART
                 ),
                 hintResId = R.string.custom_locale_hint,
-                engineOnly = true,
+                section = SettingSection.ENGINE,
             ),
             SettingDefinition.BooleanSetting(
                 SettingField(WebAppSettings::isDisableQuic, false, ApplyTiming.PEEL_RESTART),
                 R.string.setting_disable_quic,
                 R.string.setting_disable_quic_desc,
                 SettingCategory.ADVANCED,
-                engineOnly = true,
+                section = SettingSection.ENGINE,
             ),
             SettingDefinition.BooleanSetting(
                 SettingField(WebAppSettings::isDisableEch, false, ApplyTiming.PEEL_RESTART),
                 R.string.setting_disable_ech,
                 R.string.setting_disable_ech_desc,
                 SettingCategory.ADVANCED,
-                engineOnly = true,
+                section = SettingSection.ENGINE,
             ),
             SettingDefinition.BooleanSetting(
                 SettingField(WebAppSettings::isClearCache, false),
                 R.string.clear_cache_after_usage,
                 R.string.clear_cache_after_usage_desc,
                 SettingCategory.ADVANCED,
-                engineOnly = true,
+                section = SettingSection.ENGINE,
             ),
             SettingDefinition.BooleanSetting(
                 SettingField(WebAppSettings::isUseSystemCerts, false, ApplyTiming.PEEL_RESTART),
                 R.string.setting_use_system_certs,
                 R.string.setting_use_system_certs_desc,
                 SettingCategory.ADVANCED,
-                engineOnly = true,
+                section = SettingSection.ENGINE,
             ),
             SettingDefinition.StringListSetting(
                 SettingField(WebAppSettings::trustedCertificates, null),
                 R.string.setting_trusted_certificates,
                 R.string.setting_trusted_certificates_desc,
                 SettingCategory.ADVANCED,
-                engineOnly = true,
+                section = SettingSection.ENGINE,
                 entryKind = SettingDefinition.StringListSetting.EntryKind.CERTIFICATE,
             ),
             SettingDefinition.StringMapSetting(
@@ -636,7 +646,7 @@ object SettingRegistry {
                 SettingCategory.ADVANCED,
                 keyHintResId = R.string.setting_custom_gecko_prefs_key_hint,
                 valueHintResId = R.string.setting_custom_gecko_prefs_value_hint,
-                engineOnly = true,
+                section = SettingSection.ENGINE,
             ),
             SettingDefinition.StringListSetting(
                 SettingField(WebAppSettings::sameAppDomains, null),
@@ -662,16 +672,10 @@ object SettingRegistry {
         get() = ALL_SETTINGS
 
     val perApp: List<SettingDefinition>
-        get() = ALL_SETTINGS.filter { !it.engineOnly }
-
-    val engine: List<SettingDefinition>
-        get() = ALL_SETTINGS.filter { it.engineOnly }
+        get() = forSection(SettingSection.GLOBAL)
 
     fun forSection(section: SettingSection): List<SettingDefinition> =
-        when (section) {
-            SettingSection.GLOBAL -> perApp
-            SettingSection.ENGINE -> engine
-        }
+        ALL_SETTINGS.filter { it.section == section }
 
     fun byKey(key: String): SettingDefinition? = ALL_SETTINGS.find { it.key == key }
 

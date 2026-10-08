@@ -1,7 +1,22 @@
 <resources>
-    <dimen name="fab_margin">16dp</dimen>
-    <!-- fab_margin, a 56dp action button and a gap again, so it never rests on the last row. -->
-    <dimen name="list_fab_clearance">88dp</dimen>
+    <!-- The bottom line: the search bar and the add action, and the gap around and between them. -->
+    <dimen name="bottom_line_gap">16dp</dimen>
+    <dimen name="bottom_line_height">56dp</dimen>
+    <!-- bottom_line_gap + bottom_line_height + bottom_line_gap, so a list's last row can be
+         scrolled clear of the line. Keep in step with the two above. -->
+    <dimen name="list_bottom_line_clearance">88dp</dimen>
+    <!-- How far above the bottom line's controls its fade of the page colour begins. A
+         smoothstep ramp after Napper's list foot, shortened to the user's taste. -->
+    <dimen name="bottom_line_fade">36dp</dimen>
+    <!-- list_bottom_line_clearance plus just over half of bottom_line_fade, so a list under the
+         fade scrolls its last row up to where the fade is still light enough to read through.
+         Keep in step with the two above. -->
+    <dimen name="list_bottom_fade_clearance">108dp</dimen>
+    <!-- Inset plus half an icon button puts the glyph's centre 28dp from the bar's edge and the
+         hint's ink 56dp in, the leading rhythm of a Material search bar, with 48dp touch targets. -->
+    <dimen name="search_bar_inset">4dp</dimen>
+    <dimen name="search_bar_icon_size">48dp</dimen>
+    <dimen name="search_bar_field_gap">4dp</dimen>
     <dimen name="margin_activity">25dp</dimen>
 
     <!-- Unified settings spacing -->

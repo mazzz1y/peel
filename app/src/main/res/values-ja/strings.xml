@@ -103,6 +103,7 @@
     <string name="color_scheme_light">ライト</string>
     <string name="color_scheme_dark">ダーク</string>
     <string name="setting_web_content_scale">拡大率</string>
+    <string name="setting_bottom_search">検索バーを下に</string>
     <string name="webapp_already_deleted">このウェブアプリは削除されました。このショートカットを削除できます</string>
     <string name="behavior">動作</string>
     <string name="navigation">ナビゲーション</string>
@@ -240,6 +241,7 @@
     <string name="text_copied">テキストをコピーしました</string>
     <string name="download_failed">ダウンロードに失敗しました</string>
     <string name="search">検索</string>
+    <string name="search_clear">検索をクリア</string>
     <string name="no_search_results">アプリが見つかりません</string>
     <string name="import_group_share_description">グループ %1$s が共有されました。インポートするアプリを選択してください：</string>
     <string name="import_group_share_description_multi">%1$sが共有されました。インポートするグループとアプリを選択してください：</string>
@@ -375,6 +377,7 @@
     <string name="clear_translations">翻訳モデルを削除</string>
     <string name="settings_section_engine">エンジン</string>
     <string name="settings_section_global_summary">すべてのアプリの既定設定（アプリごとに変更可能）</string>
+    <string name="settings_section_appearance_summary">Peel のインターフェース</string>
     <string name="settings_section_engine_summary">プライバシー、保護、Gecko の詳細オプション</string>
     <string name="settings_section_proxies_summary">プロキシサーバーを管理</string>
     <string name="settings_section_extensions_summary">拡張機能のインストールと管理</string>
@@ -406,6 +409,7 @@
     <!-- Setting descriptions, shown under each label in global settings -->
     <string name="setting_color_scheme_desc">prefers-color-schemeを設定</string>
     <string name="setting_web_content_scale_desc">ページの表示密度を上書き</string>
+    <string name="setting_bottom_search_desc">検索欄をアプリ一覧の下に</string>
     <string name="setting_dynamic_status_bar_desc">システムバーがtheme-colorに追従</string>
     <string name="show_progress_bar_during_page_load_desc">画面下端の進捗バー</string>
     <string name="show_fullscreen_desc">Immersive mode、スワイプでバー表示</string>

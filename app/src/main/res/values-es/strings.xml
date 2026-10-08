@@ -86,6 +86,7 @@
     <string name="color_scheme_light">Claro</string>
     <string name="color_scheme_dark">Oscuro</string>
     <string name="setting_web_content_scale">Escala</string>
+    <string name="setting_bottom_search">Barra de búsqueda abajo</string>
     <string name="webapp_already_deleted">Esta aplicación web ya no está disponible. Puede eliminar este acceso directo</string>
     <string name="behavior">Comportamiento</string>
     <string name="navigation">Navegación</string>
@@ -241,6 +242,7 @@
     <string name="text_copied">Texto copiado</string>
     <string name="download_failed">Error en la descarga</string>
     <string name="search">Buscar</string>
+    <string name="search_clear">Borrar búsqueda</string>
     <string name="no_search_results">No se encontraron apps</string>
     <string name="import_group_share_description">El grupo %1$s se compartió contigo. Elige las apps a importar:</string>
     <string name="import_group_share_description_multi">%1$s se compartieron contigo. Elige los grupos y apps a importar:</string>
@@ -383,6 +385,7 @@
     <string name="clear_translations">Borrar modelos de traducción</string>
     <string name="settings_section_engine">Motor</string>
     <string name="settings_section_global_summary">Ajustes predeterminados para todas las apps, modificables por app</string>
+    <string name="settings_section_appearance_summary">Interfaz de Peel</string>
     <string name="settings_section_engine_summary">Privacidad, protección y opciones avanzadas de Gecko</string>
     <string name="settings_section_proxies_summary">Gestionar servidores proxy</string>
     <string name="settings_section_extensions_summary">Instalar y gestionar extensiones</string>
@@ -414,6 +417,7 @@
     <!-- Setting descriptions, shown under each label in global settings -->
     <string name="setting_color_scheme_desc">Define prefers-color-scheme</string>
     <string name="setting_web_content_scale_desc">Cambia la densidad de la página</string>
+    <string name="setting_bottom_search_desc">Búsqueda debajo de la lista de apps</string>
     <string name="setting_dynamic_status_bar_desc">Barras del sistema según theme-color</string>
     <string name="show_progress_bar_during_page_load_desc">Barra de progreso inferior</string>
     <string name="show_fullscreen_desc">Immersive mode, gesto muestra barras</string>

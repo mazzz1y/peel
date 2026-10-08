@@ -128,6 +128,29 @@
         <item name="android:layout_marginTop">0dp</item>
     </style>
 
+    <!-- The bottom line owns the window insets for every control on it, so the bar's own
+         inset margins are off. The container's padding leaves the leading icon 16dp from the
+         bar's edge, matching a search bar's leading margin. -->
+    <style name="Widget.App.SearchBar" parent="Widget.Material3.FloatingToolbar">
+        <item name="android:minHeight">@dimen/bottom_line_height</item>
+        <item name="android:minWidth">0dp</item>
+        <item name="android:paddingStart">@dimen/search_bar_inset</item>
+        <item name="android:paddingEnd">@dimen/search_bar_inset</item>
+        <item name="android:paddingTop">0dp</item>
+        <item name="android:paddingBottom">0dp</item>
+        <item name="marginLeftSystemWindowInsets">false</item>
+        <item name="marginRightSystemWindowInsets">false</item>
+        <item name="marginBottomSystemWindowInsets">false</item>
+    </style>
+
+    <style name="Widget.App.SearchBar.Icon" parent="">
+        <item name="android:layout_width">@dimen/search_bar_icon_size</item>
+        <item name="android:layout_height">@dimen/search_bar_icon_size</item>
+        <item name="android:background">?attr/selectableItemBackgroundBorderless</item>
+        <item name="android:scaleType">centerInside</item>
+        <item name="android:tint">?attr/colorOnSurfaceVariant</item>
+    </style>
+
     <style name="Widget.App.TabLayout" parent="Widget.Material3.TabLayout">
         <item name="materialThemeOverlay">@style/ThemeOverlay.App.TabLayout</item>
     </style>

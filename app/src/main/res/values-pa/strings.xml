@@ -108,6 +108,7 @@
     <string name="color_scheme_light">ਹਲਕਾ</string>
     <string name="color_scheme_dark">ਗੂੜ੍ਹਾ</string>
     <string name="setting_web_content_scale">ਸਕੇਲ</string>
+    <string name="setting_bottom_search">ਹੇਠਾਂ ਖੋਜ ਪੱਟੀ</string>
     <string name="webapp_already_deleted">ਇਹ ਵੈੱਬ ਐਪ ਮਿਟਾ ਦਿੱਤੀ ਗਈ ਹੈ। ਤੁਸੀਂ ਇਹ ਸ਼ਾਰਟਕੱਟ ਮਿਟਾ ਸਕਦੇ ਹੋ।</string>
     <string name="behavior">ਵਿਹਾਰ</string>
     <string name="navigation">ਨੈਵੀਗੇਸ਼ਨ</string>
@@ -245,6 +246,7 @@
     <string name="text_copied">ਟੈਕਸਟ ਕਾਪੀ ਹੋਇਆ</string>
     <string name="download_failed">ਡਾਊਨਲੋਡ ਅਸਫਲ</string>
     <string name="search">ਖੋਜੋ</string>
+    <string name="search_clear">ਖੋਜ ਸਾਫ਼ ਕਰੋ</string>
     <string name="no_search_results">ਕੋਈ ਐਪ ਨਹੀਂ ਮਿਲੀ</string>
     <string name="import_group_share_description">ਗਰੁੱਪ %1$s ਤੁਹਾਡੇ ਨਾਲ ਸਾਂਝਾ ਕੀਤਾ ਗਿਆ। ਆਯਾਤ ਕਰਨ ਲਈ ਐਪ ਚੁਣੋ:</string>
     <string name="import_group_share_description_multi">%1$s ਤੁਹਾਡੇ ਨਾਲ ਸਾਂਝੇ ਕੀਤੇ ਗਏ। ਆਯਾਤ ਕਰਨ ਲਈ ਗਰੁੱਪ ਅਤੇ ਐਪ ਚੁਣੋ:</string>
@@ -383,6 +385,7 @@
     <string name="clear_translations">ਅਨੁਵਾਦ ਮਾਡਲ ਮਿਟਾਓ</string>
     <string name="settings_section_engine">ਇੰਜਣ</string>
     <string name="settings_section_global_summary">ਸਾਰੀਆਂ ਐਪਾਂ ਲਈ ਡਿਫੌਲਟ ਸੈਟਿੰਗਾਂ, ਹਰ ਐਪ ਲਈ ਬਦਲੀਆਂ ਜਾ ਸਕਦੀਆਂ ਹਨ</string>
+    <string name="settings_section_appearance_summary">Peel ਦਾ ਇੰਟਰਫੇਸ</string>
     <string name="settings_section_engine_summary">ਪਰਦੇਦਾਰੀ, ਸੁਰੱਖਿਆ ਅਤੇ ਉੱਨਤ Gecko ਵਿਕਲਪ</string>
     <string name="settings_section_proxies_summary">ਪ੍ਰੌਕਸੀ ਸਰਵਰ ਪ੍ਰਬੰਧਿਤ ਕਰੋ</string>
     <string name="settings_section_extensions_summary">ਐਕਸਟੈਂਸ਼ਨ ਇੰਸਟਾਲ ਅਤੇ ਪ੍ਰਬੰਧਿਤ ਕਰੋ</string>
@@ -414,6 +417,7 @@
     <!-- Setting descriptions, shown under each label in global settings -->
     <string name="setting_color_scheme_desc">prefers-color-scheme ਦਾ ਮੁੱਲ</string>
     <string name="setting_web_content_scale_desc">ਪੰਨੇ ਦੀ ਡਿਸਪਲੇ ਘਣਤਾ ਬਦਲਦਾ ਹੈ</string>
+    <string name="setting_bottom_search_desc">ਖੋਜ ਐਪ ਸੂਚੀ ਦੇ ਹੇਠਾਂ</string>
     <string name="setting_dynamic_status_bar_desc">ਸਿਸਟਮ ਬਾਰ theme-color ਮੁਤਾਬਕ</string>
     <string name="show_progress_bar_during_page_load_desc">ਹੇਠਲੇ ਕਿਨਾਰੇ \'ਤੇ ਪ੍ਰਗਤੀ ਪੱਟੀ</string>
     <string name="show_fullscreen_desc">Immersive mode, ਸਵਾਈਪ ਨਾਲ ਬਾਰ</string>

@@ -72,7 +72,7 @@
             android:nestedScrollingEnabled="true"
             android:overScrollMode="ifContentScrolls"
             android:paddingHorizontal="@dimen/settings_screen_inset"
-            android:paddingBottom="@dimen/list_fab_clearance"
+            android:paddingBottom="@dimen/list_bottom_line_clearance"
             android:scrollbars="vertical" />
 
         <TextView
@@ -92,7 +92,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
-        android:layout_margin="@dimen/fab_margin"
+        android:layout_margin="@dimen/bottom_line_gap"
         android:contentDescription="@string/import_btn"
         app:srcCompat="@drawable/ic_symbols_check_24" />
 

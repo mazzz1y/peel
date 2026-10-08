@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -44,7 +45,7 @@ class WebAppListFragment : Fragment(R.layout.fragment_web_app_list) {
 
         list.layoutManager = LinearLayoutManager(requireContext())
         list.adapter = adapter
-        list.applyBottomScreenInsets()
+        applyBottomClearance()
 
         attachDragHelper()
         updateDragEnabled()
@@ -62,6 +63,13 @@ class WebAppListFragment : Fragment(R.layout.fragment_web_app_list) {
         val isEmpty = adapter.updateWebAppList()
         updateDragEnabled()
         updateEmptyState(isEmpty)
+    }
+
+    // The inset listener captures the padding it finds as its base, so it is re-armed on a
+    // fresh padding whenever the clearance changes rather than stacked on the old one.
+    fun applyBottomClearance() {
+        list.updatePadding(bottom = (activity as WebAppListHost).listBottomClearance)
+        list.applyBottomScreenInsets()
     }
 
     private fun updateEmptyState(isEmpty: Boolean) {

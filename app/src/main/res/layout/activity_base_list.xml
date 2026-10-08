@@ -33,7 +33,7 @@
             android:layout_height="match_parent"
             android:clipToPadding="false"
             android:paddingTop="@dimen/list_card_list_padding_top"
-            android:paddingBottom="@dimen/list_fab_clearance" />
+            android:paddingBottom="@dimen/list_bottom_line_clearance" />
 
         <TextView
             android:id="@+id/base_empty_state"
@@ -53,7 +53,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
-        android:layout_margin="@dimen/fab_margin"
+        android:layout_margin="@dimen/bottom_line_gap"
         android:contentDescription="@string/add"
         app:srcCompat="@drawable/ic_symbols_add_24" />
 

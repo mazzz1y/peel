@@ -52,6 +52,7 @@ data class WebAppSettings(
     var blockedDomains: List<String>? = null,
     var skipHistoryDomains: List<String>? = null,
     var trustedCertificates: List<String>? = null,
+    var isBottomSearch: Boolean? = null,
 ) {
     companion object {
         const val PERMISSION_OFF = 0
