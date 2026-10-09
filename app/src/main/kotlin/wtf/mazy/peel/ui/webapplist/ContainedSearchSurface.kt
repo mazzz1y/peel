@@ -1,8 +1,9 @@
 package wtf.mazy.peel.ui.webapplist
 
+import android.animation.LayoutTransition
 import android.animation.ValueAnimator
 import android.view.View
-import android.widget.TextView
+import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.animation.doOnCancel
 import androidx.core.animation.doOnEnd
@@ -14,10 +15,12 @@ import androidx.core.widget.doAfterTextChanged
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.search.SearchView
+import kotlin.math.abs
 import wtf.mazy.peel.R
+import wtf.mazy.peel.ui.common.ListEmptyState
+import wtf.mazy.peel.ui.common.animateReflow
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.applyBottomScreenInsets
-import kotlin.math.abs
 
 /**
  * The Top search position: Material's contained [SearchView], a full-screen surface faded in
@@ -27,9 +30,11 @@ import kotlin.math.abs
 class ContainedSearchSurface(
     activity: AppCompatActivity,
     private val searchView: SearchView,
+    private val content: ViewGroup,
     override val fab: FloatingActionButton,
     override val resultsList: RecyclerView,
-    override val emptyState: TextView,
+    override val emptyState: ListEmptyState,
+    override val suggestions: UrlSuggestionStrip,
 ) : SearchSurface {
 
     override var isActive: Boolean = false
@@ -37,11 +42,7 @@ class ContainedSearchSurface(
 
     override val query: String get() = searchView.text.toString()
 
-    override val searchBar: View? = null
-
     override val offersSearchAction: Boolean = true
-
-    override val coexistsWithSelection: Boolean = true
 
     override val listBottomClearance: Int =
         activity.resources.getDimensionPixelSize(R.dimen.list_bottom_line_clearance)
@@ -52,7 +53,9 @@ class ContainedSearchSurface(
     private var fadeAnimator: ValueAnimator? = null
     private var pendingFadeIn: OneShotPreDrawListener? = null
     private var keyboardRequested = false
+    private var animationsHeld = false
     private val resultsItemAnimator = resultsList.itemAnimator
+    private val contentReflow: LayoutTransition
     private val insetsController = WindowCompat.getInsetsController(activity.window, searchView)
     private val showKeyboard = Runnable {
         insetsController.show(WindowInsetsCompat.Type.ime())
@@ -60,6 +63,8 @@ class ContainedSearchSurface(
 
     init {
         ViewCompat.setOnApplyWindowInsetsListener(searchView) { _, insets -> insets }
+        content.animateReflow()
+        contentReflow = content.layoutTransition
         resultsList.applyBottomScreenInsets()
         searchView.editText.doAfterTextChanged { text -> onQueryChanged(text?.toString().orEmpty()) }
         searchView.toolbar.setNavigationOnClickListener { exit() }
@@ -85,6 +90,11 @@ class ContainedSearchSurface(
         onActiveChanged(false)
     }
 
+    override fun setQuery(query: String) {
+        searchView.setText(query)
+        searchView.editText.setSelection(query.length)
+    }
+
     override fun onRestoredState(wasActive: Boolean) {
         if (!wasActive || isActive) return
         isActive = true
@@ -93,9 +103,8 @@ class ContainedSearchSurface(
     }
 
     // The surface is inflated GONE; its first measure and layout happen on the frame after
-    // setVisible(true), so the fade is started on that frame's pre-draw rather than now.
-    // Row changes made while the surface was hidden would otherwise play their item
-    // animations over that first frame, so the animator is held back until then as well.
+    // setVisible(true), so the fade is started on that frame's pre-draw rather than now, and
+    // changes made while hidden would otherwise animate over that first frame.
     private fun showSurface() {
         cancelPendingFadeIn()
         if (fadeAnimator?.isRunning == true) {
@@ -104,11 +113,11 @@ class ContainedSearchSurface(
             return
         }
         searchView.alpha = 0f
-        resultsList.itemAnimator = null
+        holdAnimations(true)
         searchView.setVisible(true)
         pendingFadeIn = OneShotPreDrawListener.add(searchView) {
             pendingFadeIn = null
-            resultsList.itemAnimator = resultsItemAnimator
+            holdAnimations(false)
             fadeTo(1f)
             requestKeyboardIfPending()
         }
@@ -116,8 +125,18 @@ class ContainedSearchSurface(
 
     private fun hideSurface() {
         cancelPendingFadeIn()
-        resultsList.itemAnimator = resultsItemAnimator
+        holdAnimations(false)
         fadeTo(0f) { searchView.setVisible(false) }
+    }
+
+    // Reinstalling an animator or a transition cancels whatever it is running.
+    private fun holdAnimations(held: Boolean) {
+        if (held == animationsHeld) return
+        animationsHeld = held
+        resultsList.itemAnimator = if (held) null else resultsItemAnimator
+        content.layoutTransition = if (held) null else contentReflow
+        suggestions.animated = !held
+        emptyState.animated = !held
     }
 
     // SearchView.requestFocusAndShowKeyboard() posts an uncancellable delayed show that would

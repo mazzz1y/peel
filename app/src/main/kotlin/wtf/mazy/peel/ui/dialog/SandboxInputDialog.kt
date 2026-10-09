@@ -24,6 +24,8 @@ fun Activity.showSandboxInputDialog(
     @StringRes titleRes: Int,
     @StringRes hintRes: Int,
     inputType: Int = InputType.TYPE_CLASS_TEXT,
+    prefill: String = "",
+    onCancel: (() -> Unit)? = null,
     onResult: (SandboxInputResult) -> Unit,
 ) {
     var switchSandbox: MaterialSwitch? = null
@@ -36,6 +38,9 @@ fun Activity.showSandboxInputDialog(
             titleRes = titleRes,
             hintRes = hintRes,
             inputType = inputType,
+            prefill = prefill,
+            initialSelection = InitialSelection.CURSOR_AT_END,
+            onCancel = onCancel,
             positiveRes = R.string.ok,
             extraContent = { container ->
                 val density = resources.displayMetrics.density

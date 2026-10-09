@@ -75,18 +75,18 @@ class SettingsHubActivity : ToolbarBaseActivity<SettingsHubBinding>() {
             openSection(SettingSection.GLOBAL)
         },
         HubEntry(
-            R.string.appearance,
-            R.string.settings_section_appearance_summary,
-            R.drawable.ic_symbols_palette_24
-        ) {
-            openSection(SettingSection.APPEARANCE)
-        },
-        HubEntry(
             R.string.settings_section_engine,
             R.string.settings_section_engine_summary,
             R.drawable.ic_symbols_memory_24
         ) {
             openSection(SettingSection.ENGINE)
+        },
+        HubEntry(
+            R.string.appearance,
+            R.string.settings_section_appearance_summary,
+            R.drawable.ic_symbols_palette_24
+        ) {
+            openSection(SettingSection.APPEARANCE)
         },
         HubEntry(
             R.string.groups,

@@ -1,20 +1,27 @@
 package wtf.mazy.peel.ui.webapplist
 
-import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.ui.entitylist.EntitySelectionController
 import wtf.mazy.peel.ui.entitylist.ListChrome
+import wtf.mazy.peel.ui.entitylist.PendingDeletes
+import wtf.mazy.peel.util.TypedUrl
+import wtf.mazy.peel.util.servesHost
 
 /**
  * Drives search on the list screen through whichever [SearchSurface] the search position
  * setting has chosen, and performs the switch between surfaces: the one leaving the screen has
- * its session ended and its controls taken back, the one arriving hands its floating action and
- * bar to the chrome. The surface owns its views, its query and the keyboard; this owns the one
+ * its session ended and its control taken back, the one arriving hands its floating action to
+ * the chrome. The surface owns its views, its query and the keyboard; this owns the one
  * results adapter and moves it between surfaces, so the two positions never hold results at the
  * same time.
+ *
+ * A URL-shaped query is also something to act on: adding it as a web app (unless one with that
+ * host exists) or opening it privately, carried out by the host through [onAddUrl] and
+ * [onOpenPrivate].
  */
 class SearchModeController(
     private val activity: AppCompatActivity,
@@ -23,6 +30,8 @@ class SearchModeController(
     initial: SearchSurface,
     private val onChanged: () -> Unit,
     private val onSurfaceChanged: () -> Unit,
+    private val onAddUrl: (url: String, onAdded: () -> Unit, onCancelled: () -> Unit) -> Unit,
+    private val onOpenPrivate: (String) -> Unit,
 ) {
 
     val isActive: Boolean get() = surface.isActive
@@ -76,11 +85,6 @@ class SearchModeController(
         if (isActive) refreshResults()
     }
 
-    /** A selection made from the results takes the screen where the position cannot share it. */
-    fun onSelectionChanged() {
-        if (selection.isActive && !surface.coexistsWithSelection) exit()
-    }
-
     private fun bind(surface: SearchSurface) {
         surface.resultsList.layoutManager = LinearLayoutManager(activity)
         surface.resultsList.adapter = searchAdapter
@@ -96,10 +100,13 @@ class SearchModeController(
             if (active) {
                 searchAdapter.searchQuery = surface.query
                 refreshResults()
+            } else {
+                surface.suggestions.render(emptySet())
             }
             onChanged()
         }
-        chrome.setControls(fab = surface.fab, searchBar = surface.searchBar)
+        surface.suggestions.onSuggestion = ::onSuggestion
+        chrome.setControls(surface.fab)
         surface.onAttached()
     }
 
@@ -107,15 +114,51 @@ class SearchModeController(
         surface.onDetached()
         surface.onActiveChanged = {}
         surface.onQueryChanged = {}
+        surface.suggestions.onSuggestion = {}
+        surface.suggestions.render(emptySet())
         surface.resultsList.adapter = null
         surface.resultsList.layoutManager = null
     }
 
+    // A URL with no matching app is not "nothing found"; the strip stands in for the empty state.
     private fun refreshResults() {
         val empty = searchAdapter.updateWebAppList()
-        surface.emptyState.visibility = if (empty) View.VISIBLE else View.GONE
-        surface.resultsList.visibility = if (empty) View.GONE else View.VISIBLE
+        val offered = suggestionsFor(TypedUrl.parse(searchAdapter.searchQuery))
+        surface.suggestions.render(offered)
+        surface.emptyState.render(empty && offered.isEmpty())
     }
 
-    private fun scrollToTop() = surface.resultsList.scrollToPosition(0)
+    private fun suggestionsFor(typed: TypedUrl?): Set<UrlSuggestion> {
+        typed ?: return emptySet()
+        val pending = PendingDeletes.webApps
+        val alreadyAdded = DataManager.webApps.any { it.uuid !in pending && it.servesHost(typed.host) }
+        return buildSet {
+            if (!alreadyAdded) add(UrlSuggestion.ADD)
+            add(UrlSuggestion.OPEN_PRIVATE)
+        }
+    }
+
+    private fun onSuggestion(suggestion: UrlSuggestion) {
+        val query = surface.query
+        val typed = TypedUrl.parse(query) ?: return
+        when (suggestion) {
+            UrlSuggestion.ADD -> onAddUrl(typed.url, ::exit) { resume(query) }
+            UrlSuggestion.OPEN_PRIVATE -> {
+                exit()
+                onOpenPrivate(typed.url)
+            }
+        }
+    }
+
+    // On a surface whose session is the keyboard's, the add dialog's own keyboard has ended it.
+    private fun resume(query: String) {
+        if (!surface.isActive) surface.enter()
+        if (surface.query != query) surface.setQuery(query)
+    }
+
+    // A scroll pending over an empty layout makes the layout manager drop the rows outright,
+    // without their exit animation.
+    private fun scrollToTop() {
+        if (searchAdapter.itemCount > 0) surface.resultsList.scrollToPosition(0)
+    }
 }

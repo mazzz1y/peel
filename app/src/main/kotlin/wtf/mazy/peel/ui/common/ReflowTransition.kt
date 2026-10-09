@@ -5,14 +5,14 @@ import android.view.ViewGroup
 import wtf.mazy.peel.util.Const
 
 /**
- * Animates a row's reflow when a control joins or leaves it, so the control that stays slides
- * and stretches into its new place instead of jumping there in one frame.
+ * Animates a group's reflow when a child joins or leaves it, so the children that stay slide
+ * and stretch into their new places instead of jumping there in one frame.
  *
  * Only the two "change" types are kept — they animate the staying children's bounds when a
  * sibling comes or goes, which is the whole point here. The appear and disappear types are
- * switched off: the controls run their own fades, and a transition-owned alpha animation starts
- * by writing its first frame synchronously, snapping a half-faded control back to opaque. Their
- * default start delays go with them, so the row reflows with the fade rather than after it.
+ * switched off: the children run their own fades, and a transition-owned alpha animation starts
+ * by writing its first frame synchronously, snapping a half-faded child back to opaque. Their
+ * default start delays go with them, so the group reflows with the fade rather than after it.
  */
 fun ViewGroup.animateReflow() {
     layoutTransition = LayoutTransition().apply {

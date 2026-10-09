@@ -33,31 +33,49 @@
         android:hint="@string/search"
         app:backgroundTint="?attr/colorSurfaceContainer">
 
-        <FrameLayout
+        <!-- URL suggestions sit under the pill, on the field's side of the results, which
+             slide down to make room as the strip fades in. -->
+        <LinearLayout
+            android:id="@+id/searchContent"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/searchResultsList"
+            <wtf.mazy.peel.ui.webapplist.UrlSuggestionStrip
+                android:id="@+id/searchSuggestions"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:clipToPadding="false"
-                android:paddingTop="@dimen/list_card_list_padding_top"
-                android:paddingBottom="@dimen/list_bottom_line_clearance" />
-
-            <TextView
-                android:id="@+id/searchEmptyState"
-                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:gravity="center"
-                android:padding="32dp"
-                android:text="@string/no_search_results"
-                android:textAppearance="?attr/textAppearanceBodyLarge"
-                android:textColor="?attr/colorOnSurfaceVariant"
+                android:paddingTop="@dimen/list_card_list_padding_top"
                 android:visibility="gone" />
 
-        </FrameLayout>
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/searchResultsList"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:clipToPadding="false"
+                    android:paddingTop="@dimen/list_card_list_padding_top"
+                    android:paddingBottom="@dimen/list_bottom_line_clearance" />
+
+                <TextView
+                    android:id="@+id/searchEmptyState"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:padding="32dp"
+                    android:text="@string/no_search_results"
+                    android:textAppearance="?attr/textAppearanceBodyLarge"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    android:visibility="gone" />
+
+            </FrameLayout>
+
+        </LinearLayout>
 
     </com.google.android.material.search.SearchView>
 

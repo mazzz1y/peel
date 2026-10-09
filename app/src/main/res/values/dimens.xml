@@ -9,9 +9,13 @@
          smoothstep ramp after Napper's list foot, shortened to the user's taste. -->
     <dimen name="bottom_line_fade">36dp</dimen>
     <!-- list_bottom_line_clearance plus just over half of bottom_line_fade, so a list under the
-         fade scrolls its last row up to where the fade is still light enough to read through.
-         Keep in step with the two above. -->
+         fade scrolls its last row's ink up to where the fade is still light enough to read
+         through. Keep in step with the two above. -->
     <dimen name="list_bottom_fade_clearance">108dp</dimen>
+    <!-- A row of controls resting above the line's controls, not dissolving under them: the
+         controls' height and gap, plus the gap again above their top edge, less the card margin
+         the row already carries. 16 + 56 + 16 - 6. -->
+    <dimen name="bottom_line_rest_clearance">82dp</dimen>
     <!-- Inset plus half an icon button puts the glyph's centre 28dp from the bar's edge and the
          hint's ink 56dp in, the leading rhythm of a Material search bar, with 48dp touch targets. -->
     <dimen name="search_bar_inset">4dp</dimen>
@@ -67,6 +71,10 @@
     <dimen name="list_card_padding_horizontal">16dp</dimen>
     <dimen name="list_card_padding_vertical">12dp</dimen>
     <dimen name="list_card_list_padding_top">6dp</dimen>
+    <!-- A suggestion row is a 24dp glyph in a 48dp touch target: about half a web-app row. -->
+    <dimen name="suggestion_card_min_height">48dp</dimen>
+    <dimen name="suggestion_card_padding_vertical">8dp</dimen>
+    <dimen name="suggestion_icon_size">24dp</dimen>
     <dimen name="settings_dropdown_max_width">160dp</dimen>
     <dimen name="toolbar_label_max_width">140dp</dimen>
 

@@ -49,12 +49,13 @@ class SearchBar @JvmOverloads constructor(
     private val clearButton: ImageButton
 
     private var lastActive = false
+    private var keyboardSeen = false
 
     private val focusWatcher = ViewTreeObserver.OnGlobalFocusChangeListener { _, _ ->
         val active = isActive
         if (active != lastActive) {
             lastActive = active
-            if (!active) queryField.setText("")
+            if (active) keyboardSeen = false else queryField.setText("")
             renderControls()
             onActiveChanged(active)
         }
@@ -86,8 +87,12 @@ class SearchBar @JvmOverloads constructor(
         }
         // The keyboard swallows a system back before the activity sees it, so a dismissed
         // keyboard is the end of the session however it was dismissed — one press, one exit.
+        // Hidden-keyboard insets before the keyboard has shown once (a closing dialog's, say)
+        // are the old state, not a dismissal.
         ViewCompat.setOnApplyWindowInsetsListener(this) { _, insets ->
-            if (!insets.isVisible(WindowInsetsCompat.Type.ime())) close()
+            val imeShown = insets.isVisible(WindowInsetsCompat.Type.ime())
+            if (imeShown) keyboardSeen = true
+            if (!imeShown && keyboardSeen) close()
             insets
         }
         renderControls()
@@ -106,6 +111,11 @@ class SearchBar @JvmOverloads constructor(
     fun focusQuery() {
         queryField.requestFocus()
         queryField.setSelection(queryField.text.length)
+    }
+
+    fun setQuery(query: String) {
+        queryField.setText(query)
+        queryField.setSelection(query.length)
     }
 
     fun close() {

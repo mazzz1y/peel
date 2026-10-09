@@ -71,13 +71,17 @@ fun Activity.showInputDialogRaw(
     val builder = MaterialAlertDialogBuilder(this)
         .setView(content.view)
         .setPositiveButton(config.positiveRes) { _, _ -> onPositive(input, container) }
-        .setNegativeButton(android.R.string.cancel) { _, _ -> config.onCancel?.invoke() }
+        .setNegativeButton(android.R.string.cancel) { dialog, _ -> dialog.cancel() }
     if (config.titleRes != 0) builder.setTitle(config.titleRes)
     else config.title?.let { builder.setTitle(it) }
     val dialog = builder.create()
 
-    if (config.onCancel != null) {
-        dialog.setOnCancelListener { config.onCancel.invoke() }
+    // Reported after dismiss: the dialog's keyboard goes down with its window, and would take a
+    // keyboard the caller raises in reply down with it. Takes the one dismiss-listener slot.
+    config.onCancel?.let { onCancel ->
+        var cancelled = false
+        dialog.setOnCancelListener { cancelled = true }
+        dialog.setOnDismissListener { if (cancelled) onCancel() }
     }
 
     dialog.dismissOnDestroyOf(this)

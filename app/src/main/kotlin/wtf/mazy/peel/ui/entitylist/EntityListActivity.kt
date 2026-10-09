@@ -3,7 +3,6 @@ package wtf.mazy.peel.ui.entitylist
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
 import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
@@ -20,6 +19,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.launch
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.DataManager
+import wtf.mazy.peel.ui.common.ListEmptyState
 import wtf.mazy.peel.ui.common.PeelActivity
 import wtf.mazy.peel.ui.common.Theming
 import wtf.mazy.peel.ui.dragReorderCallback
@@ -33,6 +33,7 @@ abstract class EntityListActivity<T : Any> : PeelActivity() {
     protected lateinit var fab: FloatingActionButton
     protected lateinit var list: RecyclerView
     protected lateinit var emptyStateText: TextView
+    private lateinit var emptyState: ListEmptyState
     protected lateinit var adapter: EntityListAdapter<T, *>
 
     @get:StringRes
@@ -91,6 +92,7 @@ abstract class EntityListActivity<T : Any> : PeelActivity() {
         list.applyBottomScreenInsets()
         emptyStateText = findViewById(R.id.base_empty_state)
         emptyStateText.setText(emptyStateRes)
+        emptyState = ListEmptyState(emptyStateText)
 
         checkIconColor = Theming.colorPrimary(this)
 
@@ -183,9 +185,7 @@ abstract class EntityListActivity<T : Any> : PeelActivity() {
     protected fun refreshList() {
         val rows = loadEntities().map(::buildRow)
         adapter.submitRows(rows)
-        val isEmpty = rows.isEmpty()
-        emptyStateText.visibility = if (isEmpty) View.VISIBLE else View.GONE
-        list.visibility = if (isEmpty) View.GONE else View.VISIBLE
+        emptyState.render(rows.isEmpty())
     }
 
     private fun setDragEnabled(enabled: Boolean) {

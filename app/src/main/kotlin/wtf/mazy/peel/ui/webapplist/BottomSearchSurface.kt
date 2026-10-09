@@ -1,15 +1,18 @@
 package wtf.mazy.peel.ui.webapplist
 
 import android.view.View
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import wtf.mazy.peel.R
+import wtf.mazy.peel.ui.common.ListEmptyState
+import wtf.mazy.peel.ui.common.applyBottomLineFade
 import wtf.mazy.peel.ui.common.fadeVisibility
 import wtf.mazy.peel.util.applyBottomScreenInsets
+import wtf.mazy.peel.util.screenInsetBottom
+import wtf.mazy.peel.util.setBottomClearance
 
 /**
  * The Bottom search position: the [SearchBar] on the floating bottom line owns the query, and
@@ -28,18 +31,15 @@ class BottomSearchSurface(
     private val listPage: View,
     private val results: View,
     override val resultsList: RecyclerView,
-    override val emptyState: TextView,
+    override val emptyState: ListEmptyState,
+    override val suggestions: UrlSuggestionStrip,
 ) : SearchSurface {
 
     override val isActive: Boolean get() = bar.isActive
 
     override val query: String get() = bar.query
 
-    override val searchBar: View get() = bar
-
     override val offersSearchAction: Boolean = false
-
-    override val coexistsWithSelection: Boolean = false
 
     override val listBottomClearance: Int =
         activity.resources.getDimensionPixelSize(R.dimen.list_bottom_fade_clearance)
@@ -49,9 +49,18 @@ class BottomSearchSurface(
 
     private val insetsController = WindowCompat.getInsetsController(activity.window, bar)
 
+    private val lineClearance = activity.resources.getDimensionPixelSize(R.dimen.list_bottom_line_clearance)
+
     init {
+        line.applyBottomLineFade()
         resultsList.applyBottomScreenInsets()
+        suggestions.applyBottomLineFade()
+        suggestions.applyBottomScreenInsets()
         bar.sessionExtent = results
+        suggestions.onOfferingChanged = { clearListOfSuggestions() }
+        suggestions.addOnLayoutChangeListener { _, _, top, _, bottom, _, oldTop, _, oldBottom ->
+            if (bottom - top != oldBottom - oldTop) clearListOfSuggestions()
+        }
         bar.onQueryChanged = { query -> onQueryChanged(query) }
         // However the bar gains or loses focus — a tap, a D-pad, a screen reader, the back
         // control — the keyboard and the results follow it, so there is one path in and one
@@ -67,6 +76,8 @@ class BottomSearchSurface(
     override fun enter() = bar.focusQuery()
 
     override fun exit() = bar.close()
+
+    override fun setQuery(query: String) = bar.setQuery(query)
 
     // The view hierarchy restores the bar's query and focus by id regardless, which would
     // reopen results over a list that was never searched. State is restored before the bar is
@@ -86,6 +97,21 @@ class BottomSearchSurface(
 
     override fun onDetached() {
         line.visibility = View.GONE
+    }
+
+    // While the strip shows, the list clears its rows and their rest above the line instead of
+    // the line itself. The strip's bottom padding includes the screen insets, which the list
+    // adds for itself.
+    private fun clearListOfSuggestions() {
+        val rows = suggestions.height - suggestions.paddingTop - suggestions.paddingBottom
+        val clearance =
+            if (suggestions.isOffering && rows > 0) {
+                val restAboveLine = suggestions.paddingBottom - suggestions.screenInsetBottom
+                rows + restAboveLine + (listBottomClearance - lineClearance)
+            } else {
+                listBottomClearance
+            }
+        resultsList.setBottomClearance(clearance)
     }
 
     // The results are opaque and cover the page rather than replace it, so the page is drawn

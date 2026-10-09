@@ -27,7 +27,9 @@ import wtf.mazy.peel.util.ActivityRoutes
 import wtf.mazy.peel.util.App
 import wtf.mazy.peel.util.BrowserLauncher.launch
 import wtf.mazy.peel.util.Const
+import wtf.mazy.peel.util.TypedUrl
 import wtf.mazy.peel.util.prettyBaseUrl
+import wtf.mazy.peel.util.servesHost
 
 class WebAppListAdapter(
     activity: AppCompatActivity,
@@ -84,12 +86,14 @@ class WebAppListAdapter(
             afterPending
         } else {
             val query = searchQuery.lowercase()
+            val typedHost = TypedUrl.parse(searchQuery)?.host
             val groupNames = DataManager.sortedGroups.associate { it.uuid to it.title }
             afterPending.filter { app ->
                 app.title.lowercase().contains(query) ||
                         app.baseUrl.lowercase().contains(query) ||
-                        groupNames[app.groupUuid]?.lowercase()?.contains(query) == true
-            }
+                        groupNames[app.groupUuid]?.lowercase()?.contains(query) == true ||
+                        typedHost != null && app.servesHost(typedHost)
+            }.hostFirst(typedHost)
         }
         val inSelectionMode = selection?.isActive == true
         return filtered.map { app ->
@@ -102,6 +106,12 @@ class WebAppListAdapter(
                 else null,
             )
         }
+    }
+
+    private fun List<WebApp>.hostFirst(host: String?): List<WebApp> {
+        host ?: return this
+        val (matching, rest) = partition { it.servesHost(host) }
+        return matching + rest
     }
 
     fun updateWebAppList(): Boolean {

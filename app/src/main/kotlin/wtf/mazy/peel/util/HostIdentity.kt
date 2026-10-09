@@ -2,6 +2,7 @@ package wtf.mazy.peel.util
 
 import androidx.core.net.toUri
 import wtf.mazy.peel.model.UrlRule
+import wtf.mazy.peel.model.WebApp
 
 class HostIdentity private constructor(
     private val tld: String,
@@ -42,7 +43,7 @@ class HostIdentity private constructor(
             setOf("ac", "co", "com", "edu", "gov", "mil", "net", "org")
 
         private fun parse(url: String): HostIdentity? {
-            val host = url.toUri().host?.removePrefix("www.")?.lowercase() ?: return null
+            val host = url.normalizedHost() ?: return null
             val parts = host.split('.')
             if (parts.size < 2) return null
             val secondLevel = parts[parts.lastIndex - 1]
@@ -68,4 +69,6 @@ class HostIdentity private constructor(
     }
 }
 
-fun String.normalizedHost(): String? = toUri().host?.removePrefix("www.")?.lowercase()
+fun String.normalizedHost(): String? = toUri().host?.lowercase()?.removePrefix("www.")
+
+fun WebApp.servesHost(host: String): Boolean = baseUrl.normalizedHost() == host

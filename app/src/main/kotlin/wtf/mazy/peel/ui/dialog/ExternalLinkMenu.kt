@@ -16,6 +16,7 @@ import wtf.mazy.peel.util.BrowserLauncher
 import wtf.mazy.peel.util.HostIdentity
 import wtf.mazy.peel.util.linkAffinity
 import wtf.mazy.peel.util.normalizedHost
+import wtf.mazy.peel.util.servesHost
 import wtf.mazy.peel.util.shortLabel
 import wtf.mazy.peel.util.shouldOfferOpenInSystem
 import wtf.mazy.peel.util.sortedByAffinity
@@ -148,9 +149,7 @@ object ExternalLinkMenu {
         val targetHost = url.normalizedHost() ?: return emptyList()
         val pending = PendingDeletes.webApps
         return peelApps.filter { app ->
-            app.uuid != excludeUuid &&
-                    app.uuid !in pending &&
-                    app.baseUrl.normalizedHost() == targetHost
+            app.uuid != excludeUuid && app.uuid !in pending && app.servesHost(targetHost)
         }
     }
 

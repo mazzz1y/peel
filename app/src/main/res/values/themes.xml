@@ -182,6 +182,33 @@
         <item name="cardBackgroundColor">?attr/colorSurfaceContainerHigh</item>
     </style>
 
+    <!-- A suggestion is a lighter kind of result: the list card's shape and rhythm at half the
+         height, one tone down, so it reads as something to act on rather than something had. -->
+    <style name="Widget.App.SuggestionCard" parent="Widget.App.ListCard">
+        <item name="cardBackgroundColor">?attr/colorSurfaceContainer</item>
+    </style>
+
+    <style name="SuggestionCardContent">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:orientation">horizontal</item>
+        <item name="android:minHeight">@dimen/suggestion_card_min_height</item>
+        <item name="android:paddingHorizontal">@dimen/list_card_padding_horizontal</item>
+        <item name="android:paddingVertical">@dimen/suggestion_card_padding_vertical</item>
+    </style>
+
+    <style name="SuggestionCardLabel">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:layout_marginStart">@dimen/list_card_padding_horizontal</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:textAppearance">?attr/textAppearanceBodyLarge</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
+    </style>
+
     <style name="ListCardContent">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>

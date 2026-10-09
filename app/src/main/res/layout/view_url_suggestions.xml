@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:orientation="vertical"
+    tools:parentTag="android.widget.LinearLayout">
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/suggestionAdd"
+        style="@style/Widget.App.SuggestionCard">
+
+        <LinearLayout style="@style/SuggestionCardContent">
+
+            <ImageView
+                android:layout_width="@dimen/suggestion_icon_size"
+                android:layout_height="@dimen/suggestion_icon_size"
+                android:importantForAccessibility="no"
+                app:srcCompat="@drawable/ic_symbols_add_24"
+                app:tint="?attr/colorOnSurfaceVariant" />
+
+            <TextView
+                style="@style/SuggestionCardLabel"
+                android:text="@string/add_webapp" />
+
+        </LinearLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/suggestionPrivate"
+        style="@style/Widget.App.SuggestionCard">
+
+        <LinearLayout style="@style/SuggestionCardContent">
+
+            <ImageView
+                android:layout_width="@dimen/suggestion_icon_size"
+                android:layout_height="@dimen/suggestion_icon_size"
+                android:importantForAccessibility="no"
+                app:srcCompat="@drawable/ic_symbols_visibility_off_24"
+                app:tint="?attr/colorOnSurfaceVariant" />
+
+            <TextView
+                style="@style/SuggestionCardLabel"
+                android:text="@string/open_incognito_action" />
+
+        </LinearLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
+</merge>

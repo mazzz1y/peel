@@ -32,7 +32,9 @@
     </LinearLayout>
 
     <!-- Bottom-position results cover the tabs and the pager exactly, so a result row lands on
-         the y of the list row it replaces and nothing shifts as search starts. -->
+         the y of the list row it replaces and nothing shifts as search starts. URL suggestions
+         float over the results' foot the way the bottom line does, on the same fade, resting
+         one gap above the line; the list pads for them while they show. -->
     <FrameLayout
         android:id="@+id/bottomSearchResults"
         android:layout_width="match_parent"
@@ -58,6 +60,15 @@
             android:text="@string/no_search_results"
             android:textAppearance="?attr/textAppearanceBodyLarge"
             android:textColor="?attr/colorOnSurfaceVariant"
+            android:visibility="gone" />
+
+        <wtf.mazy.peel.ui.webapplist.UrlSuggestionStrip
+            android:id="@+id/bottomSearchSuggestions"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:paddingTop="@dimen/bottom_line_fade"
+            android:paddingBottom="@dimen/bottom_line_rest_clearance"
             android:visibility="gone" />
 
     </FrameLayout>

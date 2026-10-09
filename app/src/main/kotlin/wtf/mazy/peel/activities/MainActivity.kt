@@ -32,10 +32,10 @@ import wtf.mazy.peel.model.BackupManager
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.model.effective
+import wtf.mazy.peel.ui.common.ListEmptyState
 import wtf.mazy.peel.ui.common.LoadingDialogController
 import wtf.mazy.peel.ui.common.PeelActivity
 import wtf.mazy.peel.ui.common.animateReflow
-import wtf.mazy.peel.ui.common.applyBottomLineFade
 import wtf.mazy.peel.ui.common.runWithLoader
 import wtf.mazy.peel.ui.dialog.ImportFlowController
 import wtf.mazy.peel.ui.dialog.showSandboxInputDialog
@@ -53,7 +53,9 @@ import wtf.mazy.peel.ui.webapplist.WebAppListFragment
 import wtf.mazy.peel.ui.webapplist.WebAppListHost
 import wtf.mazy.peel.ui.webapplist.WebAppSelectionHandler
 import wtf.mazy.peel.ui.webapplist.WebAppShareHost
+import wtf.mazy.peel.util.BrowserLauncher
 import wtf.mazy.peel.util.Const
+import wtf.mazy.peel.util.TypedUrl
 import wtf.mazy.peel.util.applyBottomScreenInsets
 import wtf.mazy.peel.util.applyToolbarScreenInsets
 import wtf.mazy.peel.util.disableSystemBarContrastEnforcement
@@ -121,7 +123,6 @@ class MainActivity :
         EntityListAnimations.bindFabResizeOnRotation(this, fab)
         EntityListAnimations.bindFabResizeOnRotation(this, bottomLineFab)
         bottomLine.animateReflow()
-        bottomLine.applyBottomLineFade()
         bottomLine.applyBottomScreenInsets()
 
         toolbar.setTitle(R.string.app_name)
@@ -133,7 +134,6 @@ class MainActivity :
             actions = WebAppSelectionHandler(this, this),
             resolveItems = { ids -> DataManager.webApps.filter { it.uuid in ids } },
             onChanged = {
-                searchController.onSelectionChanged()
                 renderChrome(animated = true)
                 refreshSelectionAdapters()
                 updateTabBadges()
@@ -158,9 +158,11 @@ class MainActivity :
         topSearch = ContainedSearchSurface(
             activity = this,
             searchView = findViewById(R.id.searchView),
+            content = findViewById(R.id.searchContent),
             fab = fab,
             resultsList = findViewById(R.id.searchResultsList),
-            emptyState = findViewById(R.id.searchEmptyState),
+            emptyState = ListEmptyState(findViewById(R.id.searchEmptyState)),
+            suggestions = findViewById(R.id.searchSuggestions),
         )
         bottomSearch = BottomSearchSurface(
             activity = this,
@@ -170,7 +172,8 @@ class MainActivity :
             listPage = findViewById(R.id.listPage),
             results = findViewById(R.id.bottomSearchResults),
             resultsList = findViewById(R.id.bottomSearchResultsList),
-            emptyState = findViewById(R.id.bottomSearchEmptyState),
+            emptyState = ListEmptyState(findViewById(R.id.bottomSearchEmptyState)),
+            suggestions = findViewById(R.id.bottomSearchSuggestions),
         )
         searchController = SearchModeController(
             activity = this,
@@ -186,6 +189,10 @@ class MainActivity :
                 fragmentRegistry.values.forEach { it.applyBottomClearance() }
                 renderChrome(animated = false)
             },
+            onAddUrl = { url, onAdded, onCancelled ->
+                buildAddWebsiteDialog(prefill = url, onAdded = onAdded, onCancelled = onCancelled)
+            },
+            onOpenPrivate = { url -> BrowserLauncher.launchIncognito(this, url) },
         )
 
         val onFabClicked = View.OnClickListener { if (!chrome.onFabClicked()) buildAddWebsiteDialog() }
@@ -420,26 +427,30 @@ class MainActivity :
         }
     }
 
-    private fun buildAddWebsiteDialog() {
+    private fun buildAddWebsiteDialog(
+        prefill: String = "",
+        onAdded: () -> Unit = {},
+        onCancelled: () -> Unit = {},
+    ) {
         showSandboxInputDialog(
             titleRes = R.string.add_webapp,
             hintRes = R.string.url,
             inputType = android.text.InputType.TYPE_TEXT_VARIATION_URI,
+            prefill = prefill,
+            onCancel = onCancelled,
         ) { result ->
-            val url = result.text
-            val urlWithProtocol =
-                if (url.startsWith("https://") || url.startsWith("http://")) url
-                else "https://$url"
+            val url = TypedUrl.normalize(result.text)
             val currentPage = viewPager.currentItem
             val groups = DataManager.sortedGroups
             val newSite = WebApp(
-                baseUrl = urlWithProtocol,
+                baseUrl = url,
                 isUseContainer = result.sandbox,
                 isEphemeralSandbox = result.ephemeral,
                 proxyUuid = result.proxyUuid,
                 groupUuid = groups.getOrNull(currentPage)?.uuid,
             )
 
+            onAdded()
             lifecycleScope.launch {
                 DataManager.addWebApp(newSite, appendOrder = true)
 
