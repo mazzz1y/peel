@@ -29,7 +29,7 @@ internal fun parseIntentUri(url: String): Intent? {
 
 private class ExternalLinkPrompt(
     val url: String,
-    val redirectFallback: String?,
+    val isRedirect: Boolean,
     val reloadOnLoadHere: Boolean,
     val isScriptNavigation: Boolean,
     private val decision: GeckoResult<AllowOrDeny>,
@@ -60,6 +60,9 @@ class PeelNavigationDelegate(
 
     private val pendingPrompts = ArrayDeque<ExternalLinkPrompt>()
 
+    // Gecko commits a denied redirect's redirector ("302 Moved") only after the decision lands.
+    private var deniedRedirectOrigin: String? = null
+
     private var promptGeneration = 0
 
     @Volatile
@@ -69,8 +72,13 @@ class PeelNavigationDelegate(
     var lastLocation: String = ""
         private set
 
+    // Also fires for subframe changes, which never move lastLocation.
     override fun onCanGoBack(session: GeckoSession, canGoBack: Boolean) {
         host.canGoBack = canGoBack
+        val origin = deniedRedirectOrigin ?: return
+        if (lastLocation == origin) return
+        deniedRedirectOrigin = null
+        if (canGoBack) host.runOnUi { host.goBackOrFinish() }
     }
 
     override fun onLocationChange(
@@ -92,18 +100,19 @@ class PeelNavigationDelegate(
     ): GeckoResult<AllowOrDeny> {
         val url = request.uri
         val settings = host.effectiveSettings
+        deniedRedirectOrigin = null
 
         return when (val route = routeFor(url, settings, request)) {
             LinkRoute.Allow -> allow()
             LinkRoute.Blocked -> {
                 showBlockedToast()
-                refuse()
+                refuse(request)
             }
 
-            LinkRoute.Refused -> refuse()
+            LinkRoute.Refused -> refuse(request)
             LinkRoute.AppLink -> {
-                handleAppLink(url, settings, request)
-                refuse()
+                handleAppLink(url, settings)
+                refuse(request)
             }
 
             is LinkRoute.Redirect -> redirectTo(route.target)
@@ -111,7 +120,7 @@ class PeelNavigationDelegate(
             // instead of loading here, so "load here" must deny and reload explicitly.
             is LinkRoute.PromptExternal -> promptForExternalLink(
                 route.target,
-                redirectFallbackFor(request),
+                isRedirect = request.isRedirect,
                 reloadOnLoadHere = route.wasUpgraded || route.opensNewWindow,
                 isScriptNavigation = request.triggerUri != null && !request.isRedirect &&
                         !request.hasUserGesture,
@@ -151,7 +160,8 @@ class PeelNavigationDelegate(
     }
 
     // No load will start, so nothing downstream will report the page as settled.
-    private fun refuse(): GeckoResult<AllowOrDeny> {
+    private fun refuse(request: LoadRequest): GeckoResult<AllowOrDeny> {
+        if (request.isRedirect) deniedRedirectOrigin = lastLocation
         host.runOnUi { host.onPageLoadEnded() }
         return deny()
     }
@@ -198,14 +208,14 @@ class PeelNavigationDelegate(
 
     private fun promptForExternalLink(
         url: String,
-        redirectFallback: String?,
+        isRedirect: Boolean,
         reloadOnLoadHere: Boolean,
         isScriptNavigation: Boolean,
     ): GeckoResult<AllowOrDeny> {
         val decision = GeckoResult<AllowOrDeny>()
         val prompt = ExternalLinkPrompt(
             url = url,
-            redirectFallback = redirectFallback,
+            isRedirect = isRedirect,
             reloadOnLoadHere = reloadOnLoadHere,
             isScriptNavigation = isScriptNavigation,
             decision = decision,
@@ -242,17 +252,18 @@ class PeelNavigationDelegate(
 
         prompt.settle(AllowOrDeny.DENY)
         when (result) {
-            ExternalLinkResult.OpenInSystem -> openInSystem(prompt.url, prompt.redirectFallback)
-            ExternalLinkResult.OpenIncognito -> openIncognito(prompt.url, prompt.redirectFallback)
-            ExternalLinkResult.Share -> shareUrl(prompt.url, prompt.redirectFallback)
-            ExternalLinkResult.CopyLink -> copyLink(prompt.url, prompt.redirectFallback)
-            ExternalLinkResult.Dismissed -> dismissRedirect(prompt.redirectFallback)
+            ExternalLinkResult.OpenInSystem -> openInSystem(prompt.url)
+            ExternalLinkResult.OpenIncognito -> openIncognito(prompt.url)
+            ExternalLinkResult.Share -> host.shareUrl(prompt.url)
+            ExternalLinkResult.CopyLink -> host.copyLink(prompt.url)
             is ExternalLinkResult.OpenInPeelApp -> result.launcher {}
-            ExternalLinkResult.LoadHere -> Unit
+            ExternalLinkResult.Dismissed, ExternalLinkResult.LoadHere -> Unit
         }
         if (abandonsWindow(result) && (strandedWithoutContent() || strandedOnRedirector(prompt))) {
             host.onInitialNavigationDenied()
+            return
         }
+        if (prompt.isRedirect) deniedRedirectOrigin = lastLocation
     }
 
     fun cancelPendingPrompts() {
@@ -280,72 +291,39 @@ class PeelNavigationDelegate(
     private fun strandedOnRedirector(prompt: ExternalLinkPrompt): Boolean =
         isContentInitiatedWindow && prompt.isScriptNavigation && !host.canGoBack
 
-    private fun openInSystem(url: String, redirectFallback: String?) {
+    private fun openInSystem(url: String) {
         host.startExternalIntent(url.toUri())
         isOnJumpHost = true
-        dismissRedirect(redirectFallback)
     }
 
-    private fun openIncognito(url: String, redirectFallback: String?) {
+    private fun openIncognito(url: String) {
         host.openIncognito(url)
         isOnJumpHost = true
-        dismissRedirect(redirectFallback)
     }
 
-    private fun shareUrl(url: String, redirectFallback: String?) {
-        host.shareUrl(url)
-        dismissRedirect(redirectFallback)
-    }
-
-    private fun copyLink(url: String, redirectFallback: String?) {
-        host.copyLink(url)
-        dismissRedirect(redirectFallback)
-    }
-
-    private fun dismissRedirect(redirectFallback: String?) {
-        redirectFallback?.let { host.dismissRedirectToFallback(it) }
-    }
-
-    private fun handleAppLink(url: String, settings: EffectiveSettings, request: LoadRequest) {
+    private fun handleAppLink(url: String, settings: EffectiveSettings) {
         val intent = parseIntentUri(url)
         val targetPackage = intent?.`package`
         val browserFallback = intent?.getStringExtra("browser_fallback_url")
             ?.takeIf { it.startsWith("http://") || it.startsWith("https://") }
-        val redirectFallback = redirectFallbackFor(request)
 
         when (settings.appLinksPermission) {
             WebAppSettings.PERMISSION_OFF -> host.runOnUi {
-                applyAppLinkDeny(browserFallback, redirectFallback)
+                browserFallback?.let { loadFallback(it) }
             }
 
-            WebAppSettings.PERMISSION_ON -> host.runOnUi {
-                applyAppLinkAllow(url, redirectFallback)
-            }
+            WebAppSettings.PERMISSION_ON -> host.runOnUi { openInSystem(url) }
 
             WebAppSettings.PERMISSION_ASK -> showAppLinkDialog(
                 url = url,
                 targetPackage = targetPackage,
                 display = intent?.data?.toString() ?: url,
                 browserFallback = browserFallback,
-                redirectFallback = redirectFallback,
             )
         }
     }
 
-    private fun applyAppLinkAllow(url: String, redirectFallback: String?) {
-        host.startExternalIntent(url.toUri())
-        isOnJumpHost = true
-        dismissRedirect(redirectFallback)
-    }
-
-    private fun applyAppLinkDeny(browserFallback: String?, redirectFallback: String?) {
-        when {
-            browserFallback != null -> loadFallback(browserFallback, redirectFallback)
-            else -> dismissRedirect(redirectFallback)
-        }
-    }
-
-    private fun loadFallback(url: String, redirectFallback: String?) {
+    private fun loadFallback(url: String) {
         val route = LinkRouter.route(
             url = url,
             settings = host.effectiveSettings,
@@ -362,7 +340,7 @@ class PeelNavigationDelegate(
             LinkRoute.Blocked -> showBlockedToast()
             is LinkRoute.PromptExternal -> promptForExternalLink(
                 route.target,
-                redirectFallback,
+                isRedirect = false,
                 reloadOnLoadHere = true,
                 isScriptNavigation = false,
             )
@@ -377,7 +355,6 @@ class PeelNavigationDelegate(
         targetPackage: String?,
         display: String,
         browserFallback: String?,
-        redirectFallback: String?,
     ) {
         if (appLinkDialogShowing) return
         appLinkDialogShowing = true
@@ -385,8 +362,8 @@ class PeelNavigationDelegate(
         host.runOnUi {
             host.showPermissionDialog(message) { result, _, _ ->
                 when (result) {
-                    PermissionResult.ALLOW -> applyAppLinkAllow(url, redirectFallback)
-                    PermissionResult.DENY -> applyAppLinkDeny(browserFallback, redirectFallback)
+                    PermissionResult.ALLOW -> openInSystem(url)
+                    PermissionResult.DENY -> browserFallback?.let { loadFallback(it) }
                 }
                 appLinkDialogShowing = false
             }
@@ -412,11 +389,6 @@ class PeelNavigationDelegate(
         host.runOnUi { host.loadURL(url) }
         return deny()
     }
-
-    private fun redirectFallbackFor(request: LoadRequest): String? =
-        if (request.isRedirect) {
-            host.lastLoadedUrl.ifEmpty { host.baseUrl }.takeIf { it.isNotBlank() }
-        } else null
 
     companion object {
         private val ERROR_NAMES: Map<Int, String> by lazy {

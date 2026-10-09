@@ -304,10 +304,6 @@ abstract class BaseSessionHost : PeelActivity(), SessionHost, TranslationHost {
         copyToClipboard(url)
     }
 
-    override fun dismissRedirectToFallback(fallback: String) {
-        if (canGoBack) geckoSession?.goBack() else loadURL(fallback)
-    }
-
     override fun loadURL(url: String) {
         geckoSession?.loadUri(effectiveSettings.upgradeUrl(url))
     }
