@@ -9,6 +9,7 @@ import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.ui.PickerDialog
 import wtf.mazy.peel.ui.common.PeelActivity
+import wtf.mazy.peel.ui.common.showIcon
 import wtf.mazy.peel.util.BrowserLauncher
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.toast
@@ -68,7 +69,7 @@ class TrampolineActivity : PeelActivity() {
             },
         ) { webApp, icon, name, _, _ ->
             name.text = webApp.title
-            icon.setImageBitmap(webApp.resolveIcon())
+            icon.showIcon(webApp.resolveIcon())
         }
     }
 }

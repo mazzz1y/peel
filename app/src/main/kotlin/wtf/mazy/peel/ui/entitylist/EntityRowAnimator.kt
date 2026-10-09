@@ -8,6 +8,7 @@ import androidx.core.view.OneShotPreDrawListener
 import androidx.core.view.isVisible
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.IconOwner
+import wtf.mazy.peel.ui.common.showIcon
 import wtf.mazy.peel.util.Const
 
 object EntityRowAnimator {
@@ -89,7 +90,7 @@ object EntityRowAnimator {
         } else {
             icon.imageTintList = null
             icon.background = null
-            icon.setImageBitmap(owner.resolveIcon())
+            icon.showIcon(owner.resolveIcon())
         }
     }
 

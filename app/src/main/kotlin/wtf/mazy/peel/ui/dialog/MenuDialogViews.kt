@@ -11,6 +11,7 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.widget.TextViewCompat
+import wtf.mazy.peel.ui.common.showIcon
 
 object MenuDialogViews {
 
@@ -124,7 +125,7 @@ object MenuDialogViews {
             val iconSize = dpToPx(context, 24f)
             val iconPad = dpToPx(context, 16f)
             addView(ImageView(context).apply {
-                setImageBitmap(icon)
+                showIcon(icon)
                 layoutParams = LinearLayout.LayoutParams(
                     iconSize + iconPad * 2,
                     LinearLayout.LayoutParams.MATCH_PARENT,

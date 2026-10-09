@@ -11,6 +11,7 @@ import wtf.mazy.peel.R
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.ui.PickerDialog
+import wtf.mazy.peel.ui.common.showIcon
 import wtf.mazy.peel.ui.entitylist.PendingDeletes
 import wtf.mazy.peel.util.BrowserLauncher
 import wtf.mazy.peel.util.HostIdentity
@@ -198,7 +199,7 @@ object ExternalLinkMenu {
                 configure = { setOnDismissListener { onDismiss() } },
             ) { webApp, icon, name, label, _ ->
                 name.text = webApp.title
-                icon.setImageBitmap(webApp.resolveIcon())
+                icon.showIcon(webApp.resolveIcon())
                 if (hasGroups) {
                     label.text = webApp.groupUuid?.let { groupTitles[it] }
                         ?.let { shortLabel(it) }

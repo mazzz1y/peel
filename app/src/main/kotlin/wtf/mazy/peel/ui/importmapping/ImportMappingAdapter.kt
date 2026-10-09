@@ -15,6 +15,7 @@ import wtf.mazy.peel.model.StableIdRegistry
 import wtf.mazy.peel.model.WebAppSurrogate
 import wtf.mazy.peel.ui.common.GroupPosition
 import wtf.mazy.peel.ui.common.SettingsSurface
+import wtf.mazy.peel.ui.common.showIcon
 import wtf.mazy.peel.util.LetterIconGenerator
 
 class ImportMappingAdapter(
@@ -116,7 +117,7 @@ class ImportMappingAdapter(
 
         val bitmap = icons[item.uuid]
         if (bitmap != null) {
-            holder.icon.setImageBitmap(bitmap)
+            holder.icon.showIcon(bitmap)
         } else {
             val label = item.title.ifBlank { item.baseUrl }
             holder.icon.setImageBitmap(LetterIconGenerator.generate(label, label, ICON_SIZE_PX))
@@ -157,7 +158,7 @@ class ImportMappingAdapter(
 
         val bitmap = icons[section.uuid]
         if (bitmap != null) {
-            holder.icon.setImageBitmap(bitmap)
+            holder.icon.showIcon(bitmap)
         } else {
             holder.icon.setImageBitmap(
                 LetterIconGenerator.generate(section.title, section.title, ICON_SIZE_PX)

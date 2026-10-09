@@ -8,6 +8,7 @@ import org.mozilla.geckoview.GeckoSession.PermissionDelegate.ContentPermission
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.StableIdRegistry
 import wtf.mazy.peel.model.db.PushSubscriptionEntity
+import wtf.mazy.peel.ui.common.showIcon
 import wtf.mazy.peel.ui.entitylist.EntityBinder
 import wtf.mazy.peel.ui.entitylist.EntityListAdapter
 import wtf.mazy.peel.ui.entitylist.EntityListViewHolder
@@ -35,7 +36,7 @@ object PushSubscriptionBinder : EntityBinder<PushSubscriptionItem> {
         selected: Boolean,
         checkIconColor: Int,
     ) {
-        host.itemIcon.setImageBitmap(item.icon)
+        host.itemIcon.showIcon(item.icon)
     }
 
     override fun contentEquals(a: PushSubscriptionItem, b: PushSubscriptionItem): Boolean =
