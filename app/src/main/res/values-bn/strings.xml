@@ -108,7 +108,7 @@
     <string name="color_scheme_light">হালকা</string>
     <string name="color_scheme_dark">গাঢ়</string>
     <string name="setting_web_content_scale">স্কেল</string>
-    <string name="setting_bottom_search">নিচে অনুসন্ধান বার</string>
+    <string name="setting_bottom_search">নিচে অনুসন্ধান বোতাম</string>
     <string name="webapp_already_deleted">এই ওয়েব অ্যাপটি মুছে ফেলা হয়েছে। আপনি এই শর্টকাটটি মুছতে পারেন।</string>
     <string name="behavior">আচরণ</string>
     <string name="navigation">নেভিগেশন</string>
@@ -418,7 +418,7 @@
     <!-- Setting descriptions, shown under each label in global settings -->
     <string name="setting_color_scheme_desc">prefers-color-scheme সেট করে</string>
     <string name="setting_web_content_scale_desc">পেজের প্রদর্শন ঘনত্ব বদলায়</string>
-    <string name="setting_bottom_search_desc">অনুসন্ধান অ্যাপ তালিকার নিচে</string>
+    <string name="setting_bottom_search_desc">যোগ ও অনুসন্ধান বোতাম অদলবদল করে</string>
     <string name="setting_dynamic_status_bar_desc">সিস্টেম বার theme-color নেয়</string>
     <string name="show_progress_bar_during_page_load_desc">নিচের প্রান্তে অগ্রগতি বার</string>
     <string name="show_fullscreen_desc">Immersive mode, সোয়াইপে বার</string>

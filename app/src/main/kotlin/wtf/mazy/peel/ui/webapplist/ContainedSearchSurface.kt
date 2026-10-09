@@ -19,6 +19,7 @@ import kotlin.math.abs
 import wtf.mazy.peel.R
 import wtf.mazy.peel.ui.common.ListEmptyState
 import wtf.mazy.peel.ui.common.animateReflow
+import wtf.mazy.peel.ui.entitylist.IdleAction
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.applyBottomScreenInsets
 
@@ -35,6 +36,7 @@ class ContainedSearchSurface(
     override val resultsList: RecyclerView,
     override val emptyState: ListEmptyState,
     override val suggestions: UrlSuggestionStrip,
+    onAdd: () -> Unit,
 ) : SearchSurface {
 
     override var isActive: Boolean = false
@@ -42,7 +44,9 @@ class ContainedSearchSurface(
 
     override val query: String get() = searchView.text.toString()
 
-    override val offersSearchAction: Boolean = true
+    override val idleAction = IdleAction(R.drawable.ic_symbols_add_24, R.string.add_webapp, onAdd)
+
+    override val appBarAction = AppBarAction.SEARCH
 
     override val listBottomClearance: Int =
         activity.resources.getDimensionPixelSize(R.dimen.list_bottom_line_clearance)

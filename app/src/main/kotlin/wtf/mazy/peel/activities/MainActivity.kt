@@ -44,6 +44,7 @@ import wtf.mazy.peel.ui.entitylist.EntitySelectionController
 import wtf.mazy.peel.ui.entitylist.ListChrome
 import wtf.mazy.peel.ui.entitylist.SelectionConfig
 import wtf.mazy.peel.ui.settings.showApplyTimingSnackbar
+import wtf.mazy.peel.ui.webapplist.AppBarAction
 import wtf.mazy.peel.ui.webapplist.BottomSearchSurface
 import wtf.mazy.peel.ui.webapplist.ContainedSearchSurface
 import wtf.mazy.peel.ui.webapplist.GroupPagerAdapter
@@ -145,16 +146,6 @@ class MainActivity :
                 deleteActionId = R.id.action_delete_selected,
             ),
         )
-        chrome = ListChrome(
-            activity = this,
-            toolbar = toolbar,
-            fab = fab,
-            selection = selectionController,
-            applyNormalToolbar = { bar ->
-                bar.navigationIcon = null
-                bar.setTitle(R.string.app_name)
-            },
-        )
         topSearch = ContainedSearchSurface(
             activity = this,
             searchView = findViewById(R.id.searchView),
@@ -163,6 +154,7 @@ class MainActivity :
             resultsList = findViewById(R.id.searchResultsList),
             emptyState = ListEmptyState(findViewById(R.id.searchEmptyState)),
             suggestions = findViewById(R.id.searchSuggestions),
+            onAdd = { buildAddWebsiteDialog() },
         )
         bottomSearch = BottomSearchSurface(
             activity = this,
@@ -175,27 +167,40 @@ class MainActivity :
             emptyState = ListEmptyState(findViewById(R.id.bottomSearchEmptyState)),
             suggestions = findViewById(R.id.bottomSearchSuggestions),
         )
+        val initialSearch = surfaceFor(DataManager.globalEffectiveSettings.bottomSearch)
+        chrome = ListChrome(
+            activity = this,
+            toolbar = toolbar,
+            fab = initialSearch.fab,
+            idleAction = initialSearch.idleAction,
+            selection = selectionController,
+            applyNormalToolbar = { bar ->
+                bar.navigationIcon = null
+                bar.setTitle(R.string.app_name)
+            },
+        )
         searchController = SearchModeController(
             activity = this,
             selection = selectionController,
             chrome = chrome,
-            initial = surfaceFor(DataManager.globalEffectiveSettings.bottomSearch),
+            initial = initialSearch,
             onChanged = {
                 renderChrome(animated = true)
+                applyBottomClearance()
                 if (!searchController.isActive) refreshCurrentPages()
             },
             onSurfaceChanged = {
                 invalidateOptionsMenu()
-                fragmentRegistry.values.forEach { it.applyBottomClearance() }
+                applyBottomClearance()
                 renderChrome(animated = false)
             },
-            onAddUrl = { url, onAdded, onCancelled ->
-                buildAddWebsiteDialog(prefill = url, onAdded = onAdded, onCancelled = onCancelled)
+            onAddUrl = { url, onConfirmed, onCancelled ->
+                buildAddWebsiteDialog(prefill = url, onConfirmed = onConfirmed, onCancelled = onCancelled)
             },
             onOpenPrivate = { url -> BrowserLauncher.launchIncognito(this, url) },
         )
 
-        val onFabClicked = View.OnClickListener { if (!chrome.onFabClicked()) buildAddWebsiteDialog() }
+        val onFabClicked = View.OnClickListener { chrome.onFabClicked() }
         fab.setOnClickListener(onFabClicked)
         bottomLineFab.setOnClickListener(onFabClicked)
         onBackPressedDispatcher.addCallback(this, backPressCallback)
@@ -259,7 +264,9 @@ class MainActivity :
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         if (chrome.onCreateOptionsMenu(menu)) return true
         menuInflater.inflate(R.menu.menu_main, menu)
-        menu.findItem(R.id.action_search)?.isVisible = searchController.offersSearchAction
+        val offered = searchController.appBarAction
+        menu.findItem(R.id.action_search)?.isVisible = offered == AppBarAction.SEARCH
+        menu.findItem(R.id.action_add)?.isVisible = offered == AppBarAction.ADD
         return true
     }
 
@@ -268,6 +275,11 @@ class MainActivity :
         return when (item.itemId) {
             R.id.action_search -> {
                 searchController.enter()
+                true
+            }
+
+            R.id.action_add -> {
+                buildAddWebsiteDialog()
                 true
             }
 
@@ -371,6 +383,10 @@ class MainActivity :
         chrome.render(searching = searchController.isActive, animated = animated)
     }
 
+    private fun applyBottomClearance() {
+        fragmentRegistry.values.forEach { it.applyBottomClearance() }
+    }
+
     private fun restoreSelection(savedInstanceState: Bundle?) {
         savedInstanceState ?: return
         val existing = DataManager.webApps.mapTo(HashSet()) { it.uuid }
@@ -429,7 +445,7 @@ class MainActivity :
 
     private fun buildAddWebsiteDialog(
         prefill: String = "",
-        onAdded: () -> Unit = {},
+        onConfirmed: () -> Unit = {},
         onCancelled: () -> Unit = {},
     ) {
         showSandboxInputDialog(
@@ -450,7 +466,7 @@ class MainActivity :
                 groupUuid = groups.getOrNull(currentPage)?.uuid,
             )
 
-            onAdded()
+            onConfirmed()
             lifecycleScope.launch {
                 DataManager.addWebApp(newSite, appendOrder = true)
 

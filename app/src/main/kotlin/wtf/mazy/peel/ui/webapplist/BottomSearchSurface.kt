@@ -1,5 +1,6 @@
 package wtf.mazy.peel.ui.webapplist
 
+import android.animation.ObjectAnimator
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
@@ -10,14 +11,16 @@ import wtf.mazy.peel.R
 import wtf.mazy.peel.ui.common.ListEmptyState
 import wtf.mazy.peel.ui.common.applyBottomLineFade
 import wtf.mazy.peel.ui.common.fadeVisibility
+import wtf.mazy.peel.ui.entitylist.IdleAction
+import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.applyBottomScreenInsets
-import wtf.mazy.peel.util.screenInsetBottom
 import wtf.mazy.peel.util.setBottomClearance
 
 /**
- * The Bottom search position: the [SearchBar] on the floating bottom line owns the query, and
- * the results are shown in place over the list page under the unchanged app bar. The session
- * is the keyboard's, so it does not survive recreation.
+ * The Bottom search position: the search action floats at the end of the bottom line, alone
+ * at rest, and the [SearchBar] unfolds beside it while search is active. The results are shown
+ * in place over the list page under the unchanged app bar. The session is the keyboard's, so it
+ * does not survive recreation.
  *
  * The session spans the bar and the results: a D-pad or a screen reader travelling from the
  * field into a result row is still searching, so focus landing in the results keeps the bar's
@@ -39,10 +42,12 @@ class BottomSearchSurface(
 
     override val query: String get() = bar.query
 
-    override val offersSearchAction: Boolean = false
+    override val idleAction = IdleAction(R.drawable.ic_symbols_search_24, R.string.search, ::enter)
 
-    override val listBottomClearance: Int =
-        activity.resources.getDimensionPixelSize(R.dimen.list_bottom_fade_clearance)
+    override val appBarAction = AppBarAction.ADD
+
+    override val listBottomClearance: Int
+        get() = if (barShown) fadeClearance else lineClearance
 
     override var onActiveChanged: (Boolean) -> Unit = {}
     override var onQueryChanged: (String) -> Unit = {}
@@ -50,9 +55,15 @@ class BottomSearchSurface(
     private val insetsController = WindowCompat.getInsetsController(activity.window, bar)
 
     private val lineClearance = activity.resources.getDimensionPixelSize(R.dimen.list_bottom_line_clearance)
+    private val fadeClearance = activity.resources.getDimensionPixelSize(R.dimen.list_bottom_fade_clearance)
+    private val restClearance = activity.resources.getDimensionPixelSize(R.dimen.bottom_line_rest_clearance)
+
+    private var barShown = false
+    private var fadeAnimator: ObjectAnimator? = null
 
     init {
         line.applyBottomLineFade()
+        line.background.alpha = 0
         resultsList.applyBottomScreenInsets()
         suggestions.applyBottomLineFade()
         suggestions.applyBottomScreenInsets()
@@ -64,16 +75,23 @@ class BottomSearchSurface(
         bar.onQueryChanged = { query -> onQueryChanged(query) }
         // However the bar gains or loses focus — a tap, a D-pad, a screen reader, the back
         // control — the keyboard and the results follow it, so there is one path in and one
-        // path out rather than one per input method.
+        // path out rather than one per input method. The bar is settled before the session is
+        // reported, so the clearance the host reads on that report is already the new one.
         bar.onActiveChanged = { active ->
             val ime = WindowInsetsCompat.Type.ime()
             setResultsShown(active)
             if (active) insetsController.show(ime) else insetsController.hide(ime)
+            showBar(active)
             onActiveChanged(active)
         }
     }
 
-    override fun enter() = bar.focusQuery()
+    // Focus cannot land on a view that is not laid out, so the bar is shown first; its focus
+    // watcher then raises the keyboard and reports the session.
+    override fun enter() {
+        showBar(true)
+        bar.focusQuery()
+    }
 
     override fun exit() = bar.close()
 
@@ -86,30 +104,47 @@ class BottomSearchSurface(
     override fun onRestoredState(wasActive: Boolean) {
         bar.reset()
         setResultsShown(false, animated = false)
+        showBar(false, animated = false)
     }
 
     // A surface arriving after the screen was restored into the other position has not had
     // its restored session dropped, so it starts clean here.
     override fun onAttached() {
         bar.reset()
+        showBar(false, animated = false)
         line.visibility = View.VISIBLE
     }
 
     override fun onDetached() {
+        showBar(false, animated = false)
         line.visibility = View.GONE
     }
 
+    private fun showBar(shown: Boolean, animated: Boolean = true) {
+        if (shown == barShown) return
+        barShown = shown
+        bar.fadeVisibility(visible = shown, animated = animated)
+        val target = if (shown) OPAQUE else 0
+        fadeAnimator?.cancel()
+        if (animated) {
+            fadeAnimator = ObjectAnimator.ofInt(line.background, "alpha", target).apply {
+                duration = Const.ANIM_DURATION_MEDIUM
+                start()
+            }
+        } else {
+            line.background.alpha = target
+        }
+    }
+
     // While the strip shows, the list clears its rows and their rest above the line instead of
-    // the line itself. The strip's bottom padding includes the screen insets, which the list
-    // adds for itself.
+    // the line itself.
     private fun clearListOfSuggestions() {
-        val rows = suggestions.height - suggestions.paddingTop - suggestions.paddingBottom
+        val rows = suggestions.rowsHeight
         val clearance =
             if (suggestions.isOffering && rows > 0) {
-                val restAboveLine = suggestions.paddingBottom - suggestions.screenInsetBottom
-                rows + restAboveLine + (listBottomClearance - lineClearance)
+                rows + restClearance + (fadeClearance - lineClearance)
             } else {
-                listBottomClearance
+                fadeClearance
             }
         resultsList.setBottomClearance(clearance)
     }
@@ -123,5 +158,9 @@ class BottomSearchSurface(
         results.fadeVisibility(visible = shown, animated = animated) {
             if (shown) listPage.visibility = View.INVISIBLE
         }
+    }
+
+    private companion object {
+        const val OPAQUE = 255
     }
 }

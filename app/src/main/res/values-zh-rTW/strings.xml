@@ -103,7 +103,7 @@
     <string name="color_scheme_light">淺色</string>
     <string name="color_scheme_dark">深色</string>
     <string name="setting_web_content_scale">縮放</string>
-    <string name="setting_bottom_search">底部搜尋列</string>
+    <string name="setting_bottom_search">搜尋按鈕置於底部</string>
     <string name="webapp_already_deleted">此網頁應用程式已刪除。您可以刪除此捷徑</string>
     <string name="behavior">行為</string>
     <string name="navigation">導覽</string>
@@ -409,7 +409,7 @@
     <!-- Setting descriptions, shown under each label in global settings -->
     <string name="setting_color_scheme_desc">設定 prefers-color-scheme</string>
     <string name="setting_web_content_scale_desc">覆寫頁面顯示密度</string>
-    <string name="setting_bottom_search_desc">搜尋欄位於應用程式清單下方</string>
+    <string name="setting_bottom_search_desc">交換新增與搜尋按鈕</string>
     <string name="setting_dynamic_status_bar_desc">系統列跟隨 theme-color</string>
     <string name="show_progress_bar_during_page_load_desc">底部邊緣的進度列</string>
     <string name="show_fullscreen_desc">Immersive mode，滑動顯示系統列</string>

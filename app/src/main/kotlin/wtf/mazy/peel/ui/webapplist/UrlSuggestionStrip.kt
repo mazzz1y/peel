@@ -32,6 +32,9 @@ class UrlSuggestionStrip @JvmOverloads constructor(
     var isOffering = false
         private set
 
+    /** The height of the rows alone, without the rest the strip pads around them. */
+    val rowsHeight: Int get() = height - paddingTop - paddingBottom
+
     private val rows: Map<UrlSuggestion, View>
 
     init {

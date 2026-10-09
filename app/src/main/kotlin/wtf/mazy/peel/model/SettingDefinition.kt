@@ -93,9 +93,9 @@ sealed class SettingDefinition(
         @StringRes displayNameResId: Int,
         @StringRes descriptionResId: Int,
         category: SettingCategory,
+        section: SettingSection = SettingSection.GLOBAL,
         val intField: SettingField,
         @param:StringRes val intLabelResId: Int,
-        section: SettingSection = SettingSection.GLOBAL,
     ) : SettingDefinition(toggle, displayNameResId, descriptionResId, category, section) {
         override val layoutRes get() = R.layout.item_setting_boolean_int
 
@@ -120,9 +120,9 @@ sealed class SettingDefinition(
         @StringRes displayNameResId: Int,
         @StringRes descriptionResId: Int,
         category: SettingCategory,
+        section: SettingSection = SettingSection.GLOBAL,
         val usernameField: SettingField,
         val passwordField: SettingField,
-        section: SettingSection = SettingSection.GLOBAL,
     ) : SettingDefinition(toggle, displayNameResId, descriptionResId, category, section) {
         override val layoutRes get() = R.layout.item_setting_boolean_value
 
@@ -147,9 +147,9 @@ sealed class SettingDefinition(
         @StringRes displayNameResId: Int,
         @StringRes descriptionResId: Int,
         category: SettingCategory,
+        section: SettingSection = SettingSection.GLOBAL,
         val stringField: SettingField,
         @param:StringRes val hintResId: Int,
-        section: SettingSection = SettingSection.GLOBAL,
     ) : SettingDefinition(toggle, displayNameResId, descriptionResId, category, section) {
         override val layoutRes get() = R.layout.item_setting_boolean_value
 
@@ -172,9 +172,9 @@ sealed class SettingDefinition(
         @StringRes displayNameResId: Int,
         @StringRes descriptionResId: Int,
         category: SettingCategory,
+        section: SettingSection = SettingSection.GLOBAL,
         @param:StringRes val keyHintResId: Int,
         @param:StringRes val valueHintResId: Int,
-        section: SettingSection = SettingSection.GLOBAL,
     ) : SettingDefinition(toggle, displayNameResId, descriptionResId, category, section) {
         override val layoutRes get() = R.layout.item_setting_string_collection
 
@@ -671,7 +671,7 @@ object SettingRegistry {
     val all: List<SettingDefinition>
         get() = ALL_SETTINGS
 
-    val perApp: List<SettingDefinition>
+    val overridable: List<SettingDefinition>
         get() = forSection(SettingSection.GLOBAL)
 
     fun forSection(section: SettingSection): List<SettingDefinition> =

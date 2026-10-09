@@ -87,7 +87,7 @@
     <string name="color_scheme_light">Chiaro</string>
     <string name="color_scheme_dark">Scuro</string>
     <string name="setting_web_content_scale">Scala</string>
-    <string name="setting_bottom_search">Barra di ricerca in basso</string>
+    <string name="setting_bottom_search">Pulsante di ricerca in basso</string>
     <string name="webapp_already_deleted">Questa Web App non è più disponibile. È possibile eliminare questo collegamento</string>
     <string name="behavior">Comportamento</string>
     <string name="navigation">Navigazione</string>
@@ -418,7 +418,7 @@
     <!-- Setting descriptions, shown under each label in global settings -->
     <string name="setting_color_scheme_desc">Imposta prefers-color-scheme</string>
     <string name="setting_web_content_scale_desc">Modifica la densità della pagina</string>
-    <string name="setting_bottom_search_desc">Ricerca sotto l\'elenco delle app</string>
+    <string name="setting_bottom_search_desc">Scambia i pulsanti aggiungi e cerca</string>
     <string name="setting_dynamic_status_bar_desc">Barre di sistema secondo theme-color</string>
     <string name="show_progress_bar_during_page_load_desc">Barra di avanzamento in basso</string>
     <string name="show_fullscreen_desc">Immersive mode, swipe mostra barre</string>

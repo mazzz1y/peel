@@ -103,7 +103,7 @@
     <string name="color_scheme_light">浅色</string>
     <string name="color_scheme_dark">深色</string>
     <string name="setting_web_content_scale">缩放</string>
-    <string name="setting_bottom_search">底部搜索栏</string>
+    <string name="setting_bottom_search">搜索按钮置于底部</string>
     <string name="webapp_already_deleted">此网页应用已删除。您可以删除此快捷方式</string>
     <string name="behavior">行为</string>
     <string name="navigation">导航</string>
@@ -409,7 +409,7 @@
     <!-- Setting descriptions, shown under each label in global settings -->
     <string name="setting_color_scheme_desc">设置 prefers-color-scheme</string>
     <string name="setting_web_content_scale_desc">覆盖页面显示密度</string>
-    <string name="setting_bottom_search_desc">搜索框位于应用列表下方</string>
+    <string name="setting_bottom_search_desc">交换添加与搜索按钮</string>
     <string name="setting_dynamic_status_bar_desc">系统栏跟随 theme-color</string>
     <string name="show_progress_bar_during_page_load_desc">底部边缘显示进度条</string>
     <string name="show_fullscreen_desc">Immersive mode，滑动显示系统栏</string>

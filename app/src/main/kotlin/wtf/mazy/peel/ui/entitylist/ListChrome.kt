@@ -13,21 +13,21 @@ import wtf.mazy.peel.R
  * The single writer of a list screen's chrome — the app bar and the floating action — derived
  * from the selection and from whether search is active: selection → back arrow, count,
  * selection menu and share action; searching with nothing selected → no floating action;
- * otherwise the normal bar and the add action. The menu goes through the activity's
- * options-menu callbacks so the action bar's own repopulation never drops it.
- *
- * Which floating action is driven is set with [setControls]: a screen whose search position
- * can change hands over the action of the position it has just laid out.
+ * otherwise the normal bar and the screen's idle action. The menu goes through the activity's
+ * options-menu callbacks so the action bar's own repopulation never drops it. A screen whose
+ * search position can change hands over the position's action with [setControls].
  */
 class ListChrome<T : Any>(
     private val activity: AppCompatActivity,
     private val toolbar: MaterialToolbar,
     fab: FloatingActionButton,
+    idleAction: IdleAction,
     private val selection: EntitySelectionController<T>,
     private val applyNormalToolbar: (MaterialToolbar) -> Unit,
 ) {
 
     private var fab: FloatingActionButton = fab
+    private var idleAction: IdleAction = idleAction
 
     private enum class ToolbarMode { NORMAL, SELECTION }
 
@@ -45,7 +45,8 @@ class ListChrome<T : Any>(
         renderFab(searching, animated)
     }
 
-    fun setControls(fab: FloatingActionButton) {
+    fun setControls(fab: FloatingActionButton, idleAction: IdleAction) {
+        this.idleAction = idleAction
         if (this.fab === fab) return
         this.fab.hide()
         this.fab = fab
@@ -64,10 +65,8 @@ class ListChrome<T : Any>(
     fun onOptionsItemSelected(item: MenuItem): Boolean =
         selection.isActive && selection.onMenuItemClicked(item)
 
-    fun onFabClicked(): Boolean {
-        if (!selection.isActive) return false
-        selection.performShare()
-        return true
+    fun onFabClicked() {
+        if (selection.isActive) selection.performShare() else idleAction.action()
     }
 
     fun handleBackPress(): Boolean {
@@ -117,8 +116,8 @@ class ListChrome<T : Any>(
         fab.importantForAccessibility =
             if (searching) View.IMPORTANT_FOR_ACCESSIBILITY_YES
             else View.IMPORTANT_FOR_ACCESSIBILITY_AUTO
-        val icon = if (selected) config.activeFabIcon else config.idleFabIcon
-        val description = if (selected) config.activeFabDescription else config.idleFabDescription
+        val icon = if (selected) config.activeFabIcon else idleAction.icon
+        val description = if (selected) config.activeFabDescription else idleAction.description
         if (animated && fab.isOrWillBeShown && icon != appliedFabIcon) {
             EntityListAnimations.animateFabSwap(fab, icon, description)
         } else {

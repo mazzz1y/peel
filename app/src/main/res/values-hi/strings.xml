@@ -108,7 +108,7 @@
     <string name="color_scheme_light">हल्का</string>
     <string name="color_scheme_dark">गहरा</string>
     <string name="setting_web_content_scale">स्केल</string>
-    <string name="setting_bottom_search">नीचे खोज पट्टी</string>
+    <string name="setting_bottom_search">नीचे खोज बटन</string>
     <string name="webapp_already_deleted">यह वेब ऐप हटा दिया गया है। आप यह शॉर्टकट हटा सकते हैं।</string>
     <string name="behavior">व्यवहार</string>
     <string name="navigation">नेविगेशन</string>
@@ -418,7 +418,7 @@
     <!-- Setting descriptions, shown under each label in global settings -->
     <string name="setting_color_scheme_desc">prefers-color-scheme सेट करे</string>
     <string name="setting_web_content_scale_desc">डिस्प्ले घनत्व बदलता है</string>
-    <string name="setting_bottom_search_desc">खोज ऐप सूची के नीचे</string>
+    <string name="setting_bottom_search_desc">जोड़ें और खोज बटन की अदला-बदली करता है</string>
     <string name="setting_dynamic_status_bar_desc">सिस्टम बार theme-color अनुसार</string>
     <string name="show_progress_bar_during_page_load_desc">निचले किनारे पर प्रगति बार</string>
     <string name="show_fullscreen_desc">Immersive mode, स्वाइप पर बार</string>

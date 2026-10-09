@@ -74,17 +74,15 @@
     </FrameLayout>
 
     <!-- The bottom line of the Bottom search position floats over the list as the page's last
-         child: the search bar and the add action, resting on a short, eased fade of the page
-         colour that starts bottom_line_fade above them and is fully the page by the time it
-         reaches them, so rows dissolve on their way under the line and the controls sit on plain
-         page colour. The line takes the navigation bar and the keyboard as its own bottom
-         padding, so it and its fade ride the keyboard. -->
+         child: the search bar while it is shown, and the floating action. The line takes the
+         navigation bar and the keyboard as its own bottom padding, so it rides the keyboard;
+         its top padding is the bar's fade, which the surface shows with the bar. -->
     <LinearLayout
         android:id="@+id/bottomLine"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        android:gravity="center_vertical"
+        android:gravity="center_vertical|end"
         android:orientation="horizontal"
         android:paddingHorizontal="@dimen/bottom_line_gap"
         android:paddingTop="@dimen/bottom_line_fade"
@@ -98,15 +96,16 @@
             android:layout_height="@dimen/bottom_line_height"
             android:layout_weight="1"
             android:focusable="false"
-            android:importantForAccessibility="no" />
+            android:importantForAccessibility="no"
+            android:visibility="gone" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/bottomLineFab"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/bottom_line_gap"
-            android:contentDescription="@string/add_webapp"
-            app:srcCompat="@drawable/ic_symbols_add_24" />
+            android:contentDescription="@string/search"
+            app:srcCompat="@drawable/ic_symbols_search_24" />
 
     </LinearLayout>
 

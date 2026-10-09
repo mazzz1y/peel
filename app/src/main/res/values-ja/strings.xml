@@ -103,7 +103,7 @@
     <string name="color_scheme_light">ライト</string>
     <string name="color_scheme_dark">ダーク</string>
     <string name="setting_web_content_scale">拡大率</string>
-    <string name="setting_bottom_search">検索バーを下に</string>
+    <string name="setting_bottom_search">検索ボタンを下に</string>
     <string name="webapp_already_deleted">このウェブアプリは削除されました。このショートカットを削除できます</string>
     <string name="behavior">動作</string>
     <string name="navigation">ナビゲーション</string>
@@ -409,7 +409,7 @@
     <!-- Setting descriptions, shown under each label in global settings -->
     <string name="setting_color_scheme_desc">prefers-color-schemeを設定</string>
     <string name="setting_web_content_scale_desc">ページの表示密度を上書き</string>
-    <string name="setting_bottom_search_desc">検索欄をアプリ一覧の下に</string>
+    <string name="setting_bottom_search_desc">追加ボタンと検索ボタンを入れ替えます</string>
     <string name="setting_dynamic_status_bar_desc">システムバーがtheme-colorに追従</string>
     <string name="show_progress_bar_during_page_load_desc">画面下端の進捗バー</string>
     <string name="show_fullscreen_desc">Immersive mode、スワイプでバー表示</string>

@@ -21,9 +21,7 @@ data class SelectionConfig(
     @get:IdRes val moveActionId: Int? = null,
     @get:IdRes val deleteActionId: Int? = null,
     @get:DrawableRes val activeFabIcon: Int = R.drawable.ic_symbols_share_24,
-    @get:DrawableRes val idleFabIcon: Int = R.drawable.ic_symbols_add_24,
     @get:StringRes val activeFabDescription: Int = R.string.share,
-    @get:StringRes val idleFabDescription: Int = R.string.add_webapp,
 )
 
 class EntitySelectionController<T : Any>(

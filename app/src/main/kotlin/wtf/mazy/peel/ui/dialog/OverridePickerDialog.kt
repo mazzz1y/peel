@@ -76,7 +76,7 @@ class OverridePickerDialog : DialogFragment() {
         val overriddenKeys = currentSettings?.overriddenKeys?.toSet() ?: emptySet()
 
         val settingsGrouped =
-            SettingRegistry.perApp
+            SettingRegistry.overridable
                 .filter { it.key !in overriddenKeys }
                 .groupBy { it.category }
                 .toSortedMap(compareBy { it.ordinal })

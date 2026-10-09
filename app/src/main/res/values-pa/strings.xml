@@ -108,7 +108,7 @@
     <string name="color_scheme_light">ਹਲਕਾ</string>
     <string name="color_scheme_dark">ਗੂੜ੍ਹਾ</string>
     <string name="setting_web_content_scale">ਸਕੇਲ</string>
-    <string name="setting_bottom_search">ਹੇਠਾਂ ਖੋਜ ਪੱਟੀ</string>
+    <string name="setting_bottom_search">ਹੇਠਾਂ ਖੋਜ ਬਟਨ</string>
     <string name="webapp_already_deleted">ਇਹ ਵੈੱਬ ਐਪ ਮਿਟਾ ਦਿੱਤੀ ਗਈ ਹੈ। ਤੁਸੀਂ ਇਹ ਸ਼ਾਰਟਕੱਟ ਮਿਟਾ ਸਕਦੇ ਹੋ।</string>
     <string name="behavior">ਵਿਹਾਰ</string>
     <string name="navigation">ਨੈਵੀਗੇਸ਼ਨ</string>
@@ -417,7 +417,7 @@
     <!-- Setting descriptions, shown under each label in global settings -->
     <string name="setting_color_scheme_desc">prefers-color-scheme ਦਾ ਮੁੱਲ</string>
     <string name="setting_web_content_scale_desc">ਪੰਨੇ ਦੀ ਡਿਸਪਲੇ ਘਣਤਾ ਬਦਲਦਾ ਹੈ</string>
-    <string name="setting_bottom_search_desc">ਖੋਜ ਐਪ ਸੂਚੀ ਦੇ ਹੇਠਾਂ</string>
+    <string name="setting_bottom_search_desc">ਸ਼ਾਮਲ ਅਤੇ ਖੋਜ ਬਟਨ ਬਦਲਦਾ ਹੈ</string>
     <string name="setting_dynamic_status_bar_desc">ਸਿਸਟਮ ਬਾਰ theme-color ਮੁਤਾਬਕ</string>
     <string name="show_progress_bar_during_page_load_desc">ਹੇਠਲੇ ਕਿਨਾਰੇ \'ਤੇ ਪ੍ਰਗਤੀ ਪੱਟੀ</string>
     <string name="show_fullscreen_desc">Immersive mode, ਸਵਾਈਪ ਨਾਲ ਬਾਰ</string>

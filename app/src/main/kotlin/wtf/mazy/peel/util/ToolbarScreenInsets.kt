@@ -39,15 +39,11 @@ fun View.applyBottomScreenInsets() {
     ViewCompat.setOnApplyWindowInsetsListener(this) { view, insets ->
         val bars = insets.getInsets(screenBars).bottom
         val ime = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom
-        val inset = maxOf(bars, ime)
-        view.setTag(R.id.bottom_screen_inset, inset)
-        view.updatePadding(bottom = view.bottomClearance + inset)
+        view.updatePadding(bottom = view.bottomClearance + maxOf(bars, ime))
         insets
     }
     doOnAttach { it.requestApplyInsets() }
 }
-
-val View.screenInsetBottom: Int get() = getTag(R.id.bottom_screen_inset) as? Int ?: 0
 
 fun View.setBottomClearance(clearance: Int) {
     if (bottomClearance == clearance) return

@@ -17,11 +17,9 @@ import kotlin.math.roundToInt
 
 /**
  * Backs a line floating over a list with a fade of the page colour: transparent at the line's
- * top, [PEAK] of the page colour [R.dimen.bottom_line_fade] lower, and held there to the line's
- * bottom. The fade is the line's top padding, so the controls stand on a near-page colour the
- * way a floating action does, and rows dissolve on their way under them. The peak stops short
- * of opaque so a row under the line still shows faintly between the controls, which keeps the
- * fade from reading as a band of its own.
+ * top, the page colour [R.dimen.bottom_line_fade] lower, and held there to the line's bottom. The fade is the line's top padding, so the controls stand on the page colour and
+ * rows dissolve on their way under them; by the controls nothing of a row is left. The fade
+ * shows only with the bar, so its alpha is animatable.
  *
  * The ramp is a smoothstep, not linear: a linear ramp arrives at each end at full slope and
  * stops dead, and the eye sharpens that kink into a line (a Mach band) wherever the ramp is
@@ -42,7 +40,7 @@ private class BottomLineFadeDrawable(color: Int, private val length: Float) : Dr
     private val colors = IntArray(STEPS + 1) { i ->
         val t = stops[i]
         val eased = t * t * (3f - 2f * t)
-        ColorUtils.setAlphaComponent(color, (eased * PEAK * 255f).roundToInt())
+        ColorUtils.setAlphaComponent(color, (eased * 255f).roundToInt())
     }
 
     override fun onBoundsChange(bounds: Rect) {
@@ -52,7 +50,12 @@ private class BottomLineFadeDrawable(color: Int, private val length: Float) : Dr
 
     override fun draw(canvas: Canvas) = canvas.drawRect(bounds, paint)
 
-    override fun setAlpha(alpha: Int) = Unit
+    override fun setAlpha(alpha: Int) {
+        paint.alpha = alpha
+        invalidateSelf()
+    }
+
+    override fun getAlpha(): Int = paint.alpha
 
     override fun setColorFilter(colorFilter: ColorFilter?) = Unit
 
@@ -61,6 +64,5 @@ private class BottomLineFadeDrawable(color: Int, private val length: Float) : Dr
 
     private companion object {
         const val STEPS = 16
-        const val PEAK = 0.9f
     }
 }

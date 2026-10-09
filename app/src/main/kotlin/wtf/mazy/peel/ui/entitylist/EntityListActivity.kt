@@ -52,6 +52,9 @@ abstract class EntityListActivity<T : Any> : PeelActivity() {
     protected abstract fun loadEntities(): List<T>
     protected abstract fun rowEntityUuid(entity: T): String
 
+    @get:StringRes
+    protected open val addDescriptionRes: Int = R.string.add
+
     protected open fun onAddClicked() {}
     protected open suspend fun reorder(uuids: List<String>) {}
 
@@ -121,7 +124,7 @@ abstract class EntityListActivity<T : Any> : PeelActivity() {
             )
         }
 
-        fab.setOnClickListener { if (chrome?.onFabClicked() != true) onAddClicked() }
+        fab.setOnClickListener { chrome?.onFabClicked() ?: onAddClicked() }
         EntityListAnimations.bindFabResizeOnRotation(this, fab)
 
         refreshList()
@@ -148,6 +151,7 @@ abstract class EntityListActivity<T : Any> : PeelActivity() {
             activity = this,
             toolbar = toolbar,
             fab = fab,
+            idleAction = IdleAction(R.drawable.ic_symbols_add_24, addDescriptionRes, ::onAddClicked),
             selection = controller,
             applyNormalToolbar = { bar ->
                 bar.setNavigationIcon(R.drawable.ic_symbols_arrow_back_24)

@@ -71,6 +71,8 @@ class SearchBar @JvmOverloads constructor(
             renderControls()
             onQueryChanged(query)
         }
+        // The results are live as the query is typed; the action key has nothing to submit, and
+        // consuming it keeps the keyboard where it is.
         queryField.setOnEditorActionListener { _, actionId, _ ->
             actionId == EditorInfo.IME_ACTION_SEARCH
         }
@@ -131,6 +133,8 @@ class SearchBar @JvmOverloads constructor(
     fun reset() {
         close()
         queryField.setText("")
+        // The focus watcher is not listening before the bar is attached, so the baseline it
+        // compares against is set here, or the first focus event would report a stale change.
         lastActive = isActive
         renderControls()
     }

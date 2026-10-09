@@ -54,8 +54,9 @@ class GroupListActivity : EntityListActivity<WebAppGroup>() {
         titleResForCount = R.plurals.n_groups_selected,
         selectionMenuRes = R.menu.menu_selection_group,
         deleteActionId = R.id.action_delete_selected,
-        idleFabDescription = R.string.add_group,
     )
+
+    override val addDescriptionRes = R.string.add_group
 
     override fun createAdapter(): EntityListAdapter<WebAppGroup, *> =
         GroupListAdapter(GroupRowListener(), checkIconColor)

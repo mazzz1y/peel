@@ -30,13 +30,13 @@ class SearchModeController(
     initial: SearchSurface,
     private val onChanged: () -> Unit,
     private val onSurfaceChanged: () -> Unit,
-    private val onAddUrl: (url: String, onAdded: () -> Unit, onCancelled: () -> Unit) -> Unit,
+    private val onAddUrl: (url: String, onConfirmed: () -> Unit, onCancelled: () -> Unit) -> Unit,
     private val onOpenPrivate: (String) -> Unit,
 ) {
 
     val isActive: Boolean get() = surface.isActive
 
-    val offersSearchAction: Boolean get() = surface.offersSearchAction
+    val appBarAction: AppBarAction get() = surface.appBarAction
 
     val listBottomClearance: Int get() = surface.listBottomClearance
 
@@ -106,7 +106,7 @@ class SearchModeController(
             onChanged()
         }
         surface.suggestions.onSuggestion = ::onSuggestion
-        chrome.setControls(surface.fab)
+        chrome.setControls(surface.fab, surface.idleAction)
         surface.onAttached()
     }
 

@@ -6,5 +6,4 @@
     <item name="tag_text_watcher" type="id" />
     <item name="view_fade_target" type="id" />
     <item name="bottom_clearance" type="id" />
-    <item name="bottom_screen_inset" type="id" />
 </resources>

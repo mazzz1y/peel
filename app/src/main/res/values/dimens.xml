@@ -1,5 +1,5 @@
 <resources>
-    <!-- The bottom line: the search bar and the add action, and the gap around and between them. -->
+    <!-- The bottom line: the search bar and the floating action, and the gap around and between them. -->
     <dimen name="bottom_line_gap">16dp</dimen>
     <dimen name="bottom_line_height">56dp</dimen>
     <!-- bottom_line_gap + bottom_line_height + bottom_line_gap, so a list's last row can be
@@ -9,8 +9,8 @@
          smoothstep ramp after Napper's list foot, shortened to the user's taste. -->
     <dimen name="bottom_line_fade">36dp</dimen>
     <!-- list_bottom_line_clearance plus just over half of bottom_line_fade, so a list under the
-         fade scrolls its last row's ink up to where the fade is still light enough to read
-         through. Keep in step with the two above. -->
+         fade scrolls its last row's ink up to where the fade is still light. Keep in step with
+         the two above. -->
     <dimen name="list_bottom_fade_clearance">108dp</dimen>
     <!-- A row of controls resting above the line's controls, not dissolving under them: the
          controls' height and gap, plus the gap again above their top edge, less the card margin

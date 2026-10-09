@@ -86,6 +86,7 @@
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/bottom_line_gap"
         android:contentDescription="@string/add_webapp"
+        android:visibility="gone"
         app:srcCompat="@drawable/ic_symbols_add_24" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

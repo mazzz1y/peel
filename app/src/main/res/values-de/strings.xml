@@ -87,7 +87,7 @@
     <string name="color_scheme_light">Hell</string>
     <string name="color_scheme_dark">Dunkel</string>
     <string name="setting_web_content_scale">Skalierung</string>
-    <string name="setting_bottom_search">Suchleiste unten</string>
+    <string name="setting_bottom_search">Suchschaltfläche unten</string>
     <string name="webapp_already_deleted">Diese Web-App wurde gelöscht. Sie können diese Verknüpfung löschen</string>
     <string name="behavior">Verhalten</string>
     <string name="navigation">Navigation</string>
@@ -418,7 +418,7 @@
     <!-- Setting descriptions, shown under each label in global settings -->
     <string name="setting_color_scheme_desc">Setzt prefers-color-scheme</string>
     <string name="setting_web_content_scale_desc">Ändert die Darstellungsdichte</string>
-    <string name="setting_bottom_search_desc">Suche unter der App-Liste</string>
+    <string name="setting_bottom_search_desc">Vertauscht die Schaltflächen Hinzufügen und Suchen</string>
     <string name="setting_dynamic_status_bar_desc">Systemleisten folgen theme-color</string>
     <string name="show_progress_bar_during_page_load_desc">Fortschrittsbalken am unteren Rand</string>
     <string name="show_fullscreen_desc">Immersive mode, Wischen zeigt Leisten</string>
