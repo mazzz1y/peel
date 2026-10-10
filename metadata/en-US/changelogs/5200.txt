@@ -1,0 +1,5 @@
+- Add "Search button at the bottom" setting that swaps the add and search buttons
+- Add an Appearance section to Settings
+- Round the corners of square web app icons in lists and menus
+- Offer adding a typed URL as a web app or opening it privately from search
+- Fix declining an external link reached by redirect going back a page
