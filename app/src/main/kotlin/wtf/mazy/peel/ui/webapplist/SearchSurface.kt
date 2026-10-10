@@ -52,6 +52,9 @@ interface SearchSurface {
      */
     fun onRestoredState(wasActive: Boolean)
 
+    /** A field left focused while the window is away has the keyboard restored for it on return, unasked. */
+    fun onHostPaused()
+
     /** This position is now the one on screen. */
     fun onAttached() = Unit
 

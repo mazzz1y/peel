@@ -86,12 +86,18 @@ class ContainedSearchSurface(
     override fun exit() {
         if (!isActive) return
         isActive = false
-        keyboardRequested = false
-        searchView.editText.removeCallbacks(showKeyboard)
-        searchView.editText.clearFocus()
+        dropFocus()
         insetsController.hide(WindowInsetsCompat.Type.ime())
         hideSurface()
         onActiveChanged(false)
+    }
+
+    override fun onHostPaused() = dropFocus()
+
+    private fun dropFocus() {
+        keyboardRequested = false
+        searchView.editText.removeCallbacks(showKeyboard)
+        searchView.editText.clearFocus()
     }
 
     override fun setQuery(query: String) {

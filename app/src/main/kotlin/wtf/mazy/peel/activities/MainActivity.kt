@@ -247,6 +247,11 @@ class MainActivity :
         handleIncomingBackupIntent(intent)
     }
 
+    override fun onPause() {
+        searchController.onHostPaused()
+        super.onPause()
+    }
+
     override fun onDestroy() {
         importFlow.onHostDestroy()
         exportLoader.dismiss()

@@ -81,6 +81,8 @@ class SearchModeController(
 
     fun onRestoredState(wasActive: Boolean) = surface.onRestoredState(wasActive)
 
+    fun onHostPaused() = surface.onHostPaused()
+
     fun onDataChanged() {
         if (isActive) refreshResults()
     }

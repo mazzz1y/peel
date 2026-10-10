@@ -95,6 +95,8 @@ class BottomSearchSurface(
 
     override fun exit() = bar.close()
 
+    override fun onHostPaused() = bar.close()
+
     override fun setQuery(query: String) = bar.setQuery(query)
 
     // The view hierarchy restores the bar's query and focus by id regardless, which would
