@@ -105,6 +105,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/bottom_line_gap"
             android:contentDescription="@string/search"
+            app:hideMotionSpec="@animator/bottom_line_fab_hide"
             app:srcCompat="@drawable/ic_symbols_search_24" />
 
     </LinearLayout>

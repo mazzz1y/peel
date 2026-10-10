@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Material's default hide eases its 250 ms with an emphasized-accelerate curve and drops
+     opacity over the first fifth of that eased progress, which leaves the action as a small
+     opaque tile for its last frames — invisible while a bar grew over it, not now that it
+     leaves alone. Opacity goes with the scale instead, on the line's own duration. -->
+<set xmlns:android="http://schemas.android.com/apk/res/android">
+    <objectAnimator
+        android:propertyName="opacity"
+        android:duration="@integer/bottom_line_duration"
+        android:interpolator="@android:interpolator/fast_out_linear_in" />
+    <objectAnimator
+        android:propertyName="scale"
+        android:duration="@integer/bottom_line_duration"
+        android:interpolator="@android:interpolator/fast_out_linear_in" />
+    <objectAnimator
+        android:propertyName="iconScale"
+        android:duration="@integer/bottom_line_duration"
+        android:interpolator="@android:interpolator/fast_out_linear_in" />
+</set>

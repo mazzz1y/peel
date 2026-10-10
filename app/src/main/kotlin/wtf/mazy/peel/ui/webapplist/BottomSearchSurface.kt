@@ -38,7 +38,9 @@ class BottomSearchSurface(
     override val suggestions: UrlSuggestionStrip,
 ) : SearchSurface {
 
-    override val isActive: Boolean get() = bar.isActive
+    // The session begins at the tap, before the bar exists to hold focus, so that Back during
+    // the floating action's exit cancels the search instead of leaving the screen.
+    override val isActive: Boolean get() = pendingEnter || bar.isActive
 
     override val query: String get() = bar.query
 
@@ -59,6 +61,7 @@ class BottomSearchSurface(
     private val restClearance = activity.resources.getDimensionPixelSize(R.dimen.bottom_line_rest_clearance)
 
     private var barShown = false
+    private var pendingEnter = false
     private var fadeAnimator: ObjectAnimator? = null
 
     init {
@@ -75,27 +78,57 @@ class BottomSearchSurface(
         bar.onQueryChanged = { query -> onQueryChanged(query) }
         // However the bar gains or loses focus — a tap, a D-pad, a screen reader, the back
         // control — the keyboard and the results follow it, so there is one path in and one
-        // path out rather than one per input method. The bar is settled before the session is
-        // reported, so the clearance the host reads on that report is already the new one.
+        // path out rather than one per input method. A session that [enter] began is already
+        // reported; the end of a session is reported only once the bar has gone, so the chrome
+        // brings the floating action back into an empty slot rather than over the fading bar.
         bar.onActiveChanged = { active ->
             val ime = WindowInsetsCompat.Type.ime()
             setResultsShown(active)
             if (active) insetsController.show(ime) else insetsController.hide(ime)
-            showBar(active)
-            onActiveChanged(active)
+            if (active) {
+                if (pendingEnter) pendingEnter = false else onActiveChanged(true)
+                showBar(true)
+            } else {
+                showBar(false) { onActiveChanged(false) }
+            }
         }
     }
 
-    // Focus cannot land on a view that is not laid out, so the bar is shown first; its focus
-    // watcher then raises the keyboard and reports the session.
+    // The floating action and the bar share the end of the line, so the action leaves before
+    // the bar appears. The hide is requested here, before the chrome hears of the session and
+    // would hide the action itself without this listener.
     override fun enter() {
+        if (isActive) return
+        pendingEnter = true
+        if (fab.isOrWillBeHidden) {
+            openBar()
+        } else {
+            fab.hide(object : FloatingActionButton.OnVisibilityChangedListener() {
+                override fun onHidden(fab: FloatingActionButton) {
+                    if (pendingEnter) openBar()
+                }
+            })
+        }
+        onActiveChanged(true)
+    }
+
+    // Focus cannot land on a view that is not laid out, so the bar is shown first; its focus
+    // watcher then raises the keyboard.
+    private fun openBar() {
         showBar(true)
         bar.focusQuery()
     }
 
-    override fun exit() = bar.close()
+    override fun exit() {
+        if (pendingEnter) {
+            pendingEnter = false
+            onActiveChanged(false)
+            return
+        }
+        bar.close()
+    }
 
-    override fun onHostPaused() = bar.close()
+    override fun onHostPaused() = exit()
 
     override fun setQuery(query: String) = bar.setQuery(query)
 
@@ -122,10 +155,13 @@ class BottomSearchSurface(
         line.visibility = View.GONE
     }
 
-    private fun showBar(shown: Boolean, animated: Boolean = true) {
-        if (shown == barShown) return
+    private fun showBar(shown: Boolean, animated: Boolean = true, onSettled: () -> Unit = {}) {
+        if (shown == barShown) {
+            onSettled()
+            return
+        }
         barShown = shown
-        bar.fadeVisibility(visible = shown, animated = animated)
+        bar.fadeVisibility(visible = shown, animated = animated, onSettled = onSettled)
         val target = if (shown) OPAQUE else 0
         fadeAnimator?.cancel()
         if (animated) {

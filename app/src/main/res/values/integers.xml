@@ -1,0 +1,4 @@
+<resources>
+    <!-- Const.ANIM_DURATION_MEDIUM, for animator resources that cannot read it. -->
+    <integer name="bottom_line_duration">150</integer>
+</resources>

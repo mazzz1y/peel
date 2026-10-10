@@ -96,9 +96,18 @@ class MainActivity :
             handleSettingsResult(result.data)
         }
 
+    // The callback is re-enabled from the chrome render, which a Bottom search defers until its
+    // bar has faded; a Back landing in that window has nothing to handle and is passed on.
     private val backPressCallback = object : androidx.activity.OnBackPressedCallback(false) {
         override fun handleOnBackPressed() {
-            if (searchController.isActive) searchController.exit() else chrome.handleBackPress()
+            when {
+                searchController.isActive -> searchController.exit()
+                chrome.handleBackPress() -> Unit
+                else -> {
+                    isEnabled = false
+                    onBackPressedDispatcher.onBackPressed()
+                }
+            }
         }
     }
 
