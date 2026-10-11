@@ -1,0 +1,1 @@
+- Fix the bottom search button sometimes not opening search
