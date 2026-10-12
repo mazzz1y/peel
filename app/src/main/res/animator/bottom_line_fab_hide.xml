@@ -1,19 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Material's default hide eases its 250 ms with an emphasized-accelerate curve and drops
-     opacity over the first fifth of that eased progress, which leaves the action as a small
-     opaque tile for its last frames — invisible while a bar grew over it, not now that it
-     leaves alone. Opacity goes with the scale instead, on the line's own duration. -->
+<!-- The line rides the keyboard, which search raises at the tap, so any exit would play out
+     wherever the line has risen to. The action leaves in one frame, before the line moves. -->
 <set xmlns:android="http://schemas.android.com/apk/res/android">
     <objectAnimator
         android:propertyName="opacity"
-        android:duration="@integer/bottom_line_duration"
-        android:interpolator="@android:interpolator/fast_out_linear_in" />
+        android:duration="0" />
     <objectAnimator
         android:propertyName="scale"
-        android:duration="@integer/bottom_line_duration"
-        android:interpolator="@android:interpolator/fast_out_linear_in" />
+        android:duration="0" />
     <objectAnimator
         android:propertyName="iconScale"
-        android:duration="@integer/bottom_line_duration"
-        android:interpolator="@android:interpolator/fast_out_linear_in" />
+        android:duration="0" />
 </set>
