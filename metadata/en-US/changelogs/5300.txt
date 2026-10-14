@@ -1,0 +1,4 @@
+- Block motion sensors for all sites, with per-site exceptions
+- Update GeckoView to 158
+- Fix changed web app icons not showing in the list until restart
+- Fix the bottom search button shrinking mid-screen when search opens
