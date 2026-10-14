@@ -24,5 +24,5 @@ data class WebAppGroup(
     )
 
     val contentFingerprint: Int
-        get() = Objects.hash(title, isUseContainer, isEphemeralSandbox, proxyUuid, iconStamp)
+        get() = Objects.hash(title, isUseContainer, isEphemeralSandbox, proxyUuid)
 }

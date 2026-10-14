@@ -45,7 +45,6 @@ data class WebApp(
             isUseContainer,
             isEphemeralSandbox,
             proxyUuid,
-            iconStamp,
         )
 
     fun resolveContextId(): String? {

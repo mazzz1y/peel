@@ -2,12 +2,14 @@ package wtf.mazy.peel.ui.entitylist
 
 import android.view.View
 import android.widget.ImageView
+import wtf.mazy.peel.model.IconOwner
 
 data class EntityRow<T : Any>(
     val entity: T,
     val selected: Boolean,
     val inSelectionMode: Boolean,
     val tertiaryText: String? = null,
+    val iconStamp: Long = (entity as? IconOwner)?.iconStamp ?: 0L,
 )
 
 interface EntityRowView {

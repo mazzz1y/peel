@@ -98,11 +98,13 @@ abstract class EntityListAdapter<T : Any, VH : EntityListViewHolder>(
             binder.contentEquals(oldItem.entity, newItem.entity) &&
                     oldItem.selected == newItem.selected &&
                     oldItem.inSelectionMode == newItem.inSelectionMode &&
-                    oldItem.tertiaryText == newItem.tertiaryText
+                    oldItem.tertiaryText == newItem.tertiaryText &&
+                    oldItem.iconStamp == newItem.iconStamp
 
         override fun getChangePayload(oldItem: EntityRow<T>, newItem: EntityRow<T>): Any? {
             if (!binder.contentEquals(oldItem.entity, newItem.entity)) return null
             if (oldItem.tertiaryText != newItem.tertiaryText) return null
+            if (oldItem.iconStamp != newItem.iconStamp) return null
             return entityRowChangePayload(
                 selectionChanged = oldItem.selected != newItem.selected,
                 modeChanged = oldItem.inSelectionMode != newItem.inSelectionMode,
