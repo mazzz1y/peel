@@ -185,6 +185,7 @@
     <string name="overridden_settings">已覆寫的設定</string>
     <string name="add">新增</string>
     <string name="add_domain">新增位址</string>
+    <string name="add_site_exception">新增例外網站</string>
     <string name="add_certificate">新增憑證</string>
     <string name="add_preference">新增偏好設定</string>
     <string name="add_language_pair">新增語言組合</string>
@@ -256,6 +257,7 @@
     <string name="restart">重新啟動</string>
     <string name="setting_block_local_network">封鎖本機網路存取</string>
     <string name="setting_block_webrtc_ip_leak">封鎖 WebRTC IP 洩漏</string>
+    <string name="setting_block_motion_sensors">封鎖動作感應器</string>
     <string name="setting_tracker_protection">追蹤器保護</string>
     <string name="tracker_protection_none">無</string>
     <string name="tracker_protection_default">標準</string>
@@ -432,6 +434,7 @@
     <string name="setting_fingerprinting_protection_desc">Gecko 指紋保護</string>
     <string name="setting_block_local_network_desc">封鎖 LAN 與 localhost 請求</string>
     <string name="setting_block_webrtc_ip_leak_desc">對 WebRTC ICE 隱藏本機 IP</string>
+    <string name="setting_block_motion_sensors_desc">網站無法使用動作感應器</string>
     <string name="setting_always_https_desc">將 http:// 升級為 https://</string>
     <string name="enable_access_restriction_desc">開啟與返回時生物辨識或 PIN</string>
     <string name="setting_disable_screenshots_desc">封鎖截圖，不顯示於最近項目</string>

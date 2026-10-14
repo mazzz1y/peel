@@ -190,6 +190,7 @@
     <string name="overridden_settings">ਓਵਰਰਾਈਡ ਕੀਤੀਆਂ ਸੈਟਿੰਗਾਂ</string>
     <string name="add">ਸ਼ਾਮਲ ਕਰੋ</string>
     <string name="add_domain">ਪਤਾ ਜੋੜੋ</string>
+    <string name="add_site_exception">ਸਾਈਟ ਅਪਵਾਦ ਸ਼ਾਮਲ ਕਰੋ</string>
     <string name="add_certificate">ਸਰਟੀਫਿਕੇਟ ਸ਼ਾਮਲ ਕਰੋ</string>
     <string name="add_preference">ਤਰਜੀਹ ਸ਼ਾਮਲ ਕਰੋ</string>
     <string name="add_language_pair">ਭਾਸ਼ਾ ਜੋੜਾ ਸ਼ਾਮਲ ਕਰੋ</string>
@@ -262,6 +263,7 @@
     <string name="restart">ਰੀਸਟਾਰਟ</string>
     <string name="setting_block_local_network">ਲੋਕਲ ਨੈੱਟਵਰਕ ਐਕਸੈਸ ਬਲਾਕ</string>
     <string name="setting_block_webrtc_ip_leak">WebRTC IP ਲੀਕ ਬਲਾਕ</string>
+    <string name="setting_block_motion_sensors">ਮੋਸ਼ਨ ਸੈਂਸਰ ਬਲਾਕ ਕਰੋ</string>
     <string name="setting_tracker_protection">ਟ੍ਰੈਕਰ ਸੁਰੱਖਿਆ</string>
     <string name="tracker_protection_none">ਕੋਈ ਨਹੀਂ</string>
     <string name="tracker_protection_default">ਮਿਆਰੀ</string>
@@ -440,6 +442,7 @@
     <string name="setting_fingerprinting_protection_desc">Gecko ਫਿੰਗਰਪ੍ਰਿੰਟਿੰਗ ਸੁਰੱਖਿਆ</string>
     <string name="setting_block_local_network_desc">LAN ਤੇ localhost ਬੇਨਤੀਆਂ ਬਲਾਕ</string>
     <string name="setting_block_webrtc_ip_leak_desc">WebRTC ਤੋਂ ਲੋਕਲ IP ਲੁਕਾਉਂਦਾ ਹੈ</string>
+    <string name="setting_block_motion_sensors_desc">ਸਾਈਟਾਂ ਮੋਸ਼ਨ ਸੈਂਸਰ ਨਹੀਂ ਵਰਤ ਸਕਦੀਆਂ</string>
     <string name="setting_always_https_desc">http:// ਦੀ ਥਾਂ https://</string>
     <string name="enable_access_restriction_desc">ਖੋਲ੍ਹਣ ਵੇਲੇ ਬਾਇਓਮੈਟ੍ਰਿਕ/PIN</string>
     <string name="setting_disable_screenshots_desc">ਕੈਪਚਰ ਬਲਾਕ, ਹਾਲੀਆ ਤੋਂ ਲੁਕਾਏ</string>

@@ -190,6 +190,7 @@
     <string name="overridden_settings">Configurações substituídas</string>
     <string name="add">Adicionar</string>
     <string name="add_domain">Adicionar endereço</string>
+    <string name="add_site_exception">Adicionar site às exceções</string>
     <string name="add_certificate">Adicionar certificado</string>
     <string name="add_preference">Adicionar preferência</string>
     <string name="add_language_pair">Adicionar par de idiomas</string>
@@ -263,6 +264,7 @@
     <string name="restart">Reiniciar</string>
     <string name="setting_block_local_network">Bloquear acesso à rede local</string>
     <string name="setting_block_webrtc_ip_leak">Bloquear vazamento de IP por WebRTC</string>
+    <string name="setting_block_motion_sensors">Bloquear sensores de movimento</string>
     <string name="setting_tracker_protection">Proteção contra rastreadores</string>
     <string name="tracker_protection_none">Nenhuma</string>
     <string name="tracker_protection_default">Padrão</string>
@@ -441,6 +443,7 @@
     <string name="setting_fingerprinting_protection_desc">Proteção anti-fingerprinting do Gecko</string>
     <string name="setting_block_local_network_desc">Bloqueia requisições LAN e localhost</string>
     <string name="setting_block_webrtc_ip_leak_desc">Oculta IPs locais do WebRTC ICE</string>
+    <string name="setting_block_motion_sensors_desc">Os sites não podem usar sensores de movimento</string>
     <string name="setting_always_https_desc">Converte http:// em https://</string>
     <string name="enable_access_restriction_desc">Biometria ou PIN ao abrir e retornar</string>
     <string name="setting_disable_screenshots_desc">Bloqueia captura, oculta nos Recentes</string>

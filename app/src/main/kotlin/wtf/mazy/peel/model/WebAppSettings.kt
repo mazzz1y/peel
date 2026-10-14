@@ -34,6 +34,7 @@ data class WebAppSettings(
     var isFingerprintingProtection: Boolean? = null,
     var isBlockLocalNetwork: Boolean? = null,
     var isBlockWebRtcIpLeak: Boolean? = null,
+    var isBlockMotionSensors: Boolean? = null,
     var isDisableQuic: Boolean? = null,
     var isDisableEch: Boolean? = null,
     var isUseSystemCerts: Boolean? = null,
@@ -52,6 +53,7 @@ data class WebAppSettings(
     var blockedDomains: List<String>? = null,
     var skipHistoryDomains: List<String>? = null,
     var trustedCertificates: List<String>? = null,
+    var sensorAllowedDomains: List<String>? = null,
     var isBottomSearch: Boolean? = null,
 ) {
     companion object {
@@ -153,5 +155,6 @@ data class WebAppSettings(
         blockedDomains = blockedDomains?.toList(),
         skipHistoryDomains = skipHistoryDomains?.toList(),
         trustedCertificates = trustedCertificates?.toList(),
+        sensorAllowedDomains = sensorAllowedDomains?.toList(),
     )
 }

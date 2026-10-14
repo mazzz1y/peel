@@ -151,6 +151,7 @@
     <string name="overridden_settings">Einstellungsüberschreibungen</string>
     <string name="add">Hinzufügen</string>
     <string name="add_domain">Adresse hinzufügen</string>
+    <string name="add_site_exception">Ausnahme für Website hinzufügen</string>
     <string name="add_certificate">Zertifikat hinzufügen</string>
     <string name="add_preference">Einstellung hinzufügen</string>
     <string name="add_language_pair">Sprachpaar hinzufügen</string>
@@ -263,6 +264,7 @@
     <string name="restart">Neustart</string>
     <string name="setting_block_local_network">Lokalen Netzwerkzugriff blockieren</string>
     <string name="setting_block_webrtc_ip_leak">WebRTC-IP-Leak blockieren</string>
+    <string name="setting_block_motion_sensors">Bewegungssensoren blockieren</string>
     <string name="setting_tracker_protection">Tracking-Schutz</string>
     <string name="tracker_protection_none">Aus</string>
     <string name="tracker_protection_default">Standard</string>
@@ -441,6 +443,7 @@
     <string name="setting_fingerprinting_protection_desc">Gecko-Schutz vor Fingerprinting</string>
     <string name="setting_block_local_network_desc">Blockiert LAN- und localhost-Anfragen</string>
     <string name="setting_block_webrtc_ip_leak_desc">Verbirgt lokale IPs vor WebRTC ICE</string>
+    <string name="setting_block_motion_sensors_desc">Websites können keine Bewegungssensoren verwenden</string>
     <string name="setting_always_https_desc">Ersetzt http:// durch https://</string>
     <string name="enable_access_restriction_desc">Biometrie oder PIN beim Öffnen</string>
     <string name="setting_disable_screenshots_desc">Sperrt Screenshots, Recents-Vorschau</string>

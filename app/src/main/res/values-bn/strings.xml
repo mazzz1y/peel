@@ -190,6 +190,7 @@
     <string name="overridden_settings">ওভাররাইড করা সেটিংস</string>
     <string name="add">যোগ করুন</string>
     <string name="add_domain">ঠিকানা যোগ করুন</string>
+    <string name="add_site_exception">ব্যতিক্রমী সাইট যোগ করুন</string>
     <string name="add_certificate">সার্টিফিকেট যোগ করুন</string>
     <string name="add_preference">পছন্দ যোগ করুন</string>
     <string name="add_language_pair">ভাষা জোড়া যোগ করুন</string>
@@ -263,6 +264,7 @@
     <string name="restart">রিস্টার্ট</string>
     <string name="setting_block_local_network">লোকাল নেটওয়ার্ক অ্যাক্সেস ব্লক</string>
     <string name="setting_block_webrtc_ip_leak">WebRTC IP লিক ব্লক</string>
+    <string name="setting_block_motion_sensors">মোশন সেন্সর ব্লক করুন</string>
     <string name="setting_tracker_protection">ট্র্যাকার সুরক্ষা</string>
     <string name="tracker_protection_none">নেই</string>
     <string name="tracker_protection_default">মানক</string>
@@ -441,6 +443,7 @@
     <string name="setting_fingerprinting_protection_desc">Gecko ফিঙ্গারপ্রিন্টিং সুরক্ষা</string>
     <string name="setting_block_local_network_desc">LAN ও localhost-এ অনুরোধ ব্লক</string>
     <string name="setting_block_webrtc_ip_leak_desc">WebRTC-এ লোকাল IP লুকায়</string>
+    <string name="setting_block_motion_sensors_desc">সাইটগুলি মোশন সেন্সর ব্যবহার করতে পারে না</string>
     <string name="setting_always_https_desc">http://-কে https://-এ বদলায়</string>
     <string name="enable_access_restriction_desc">খুললে বায়োমেট্রিক বা PIN</string>
     <string name="setting_disable_screenshots_desc">ক্যাপচার ব্লক, সাম্প্রতিকে নেই</string>

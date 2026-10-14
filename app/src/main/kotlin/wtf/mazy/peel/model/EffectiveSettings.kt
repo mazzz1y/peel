@@ -35,6 +35,7 @@ data class EffectiveSettings(
     val fingerprintingProtection: Boolean,
     val blockLocalNetwork: Boolean,
     val blockWebRtcIpLeak: Boolean,
+    val blockMotionSensors: Boolean,
     val disableQuic: Boolean,
     val disableEch: Boolean,
     val useSystemCerts: Boolean,
@@ -53,6 +54,7 @@ data class EffectiveSettings(
     val blockedDomains: List<String>,
     val skipHistoryDomains: List<String>,
     val trustedCertificates: List<String>,
+    val sensorAllowedDomains: List<String>,
     val bottomSearch: Boolean,
 ) {
     fun upgradeUrl(url: String): String =
@@ -93,6 +95,7 @@ fun WebAppSettings.effective(vararg parents: WebAppSettings): EffectiveSettings 
         fingerprintingProtection = resolved.value(WebAppSettings::isFingerprintingProtection),
         blockLocalNetwork = resolved.value(WebAppSettings::isBlockLocalNetwork),
         blockWebRtcIpLeak = resolved.value(WebAppSettings::isBlockWebRtcIpLeak),
+        blockMotionSensors = resolved.value(WebAppSettings::isBlockMotionSensors),
         disableQuic = resolved.value(WebAppSettings::isDisableQuic),
         disableEch = resolved.value(WebAppSettings::isDisableEch),
         useSystemCerts = resolved.value(WebAppSettings::isUseSystemCerts),
@@ -111,6 +114,7 @@ fun WebAppSettings.effective(vararg parents: WebAppSettings): EffectiveSettings 
         blockedDomains = resolved.blockedDomains.orEmpty(),
         skipHistoryDomains = resolved.skipHistoryDomains.orEmpty(),
         trustedCertificates = resolved.trustedCertificates.orEmpty(),
+        sensorAllowedDomains = resolved.sensorAllowedDomains.orEmpty(),
         bottomSearch = resolved.value(WebAppSettings::isBottomSearch),
     )
 }

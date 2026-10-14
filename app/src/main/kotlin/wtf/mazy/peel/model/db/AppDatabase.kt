@@ -46,7 +46,7 @@ class StringListConverter {
         ProxyEntity::class,
         PushSubscriptionEntity::class,
     ],
-    version = 30,
+    version = 31,
     exportSchema = true,
 )
 @TypeConverters(StringMapConverter::class, StringListConverter::class)
@@ -96,6 +96,7 @@ abstract class AppDatabase : RoomDatabase() {
             "isFingerprintingProtection" to "INTEGER",
             "isBlockLocalNetwork" to "INTEGER",
             "isBlockWebRtcIpLeak" to "INTEGER",
+            "isBlockMotionSensors" to "INTEGER",
             "isDisableQuic" to "INTEGER",
             "isDisableEch" to "INTEGER",
             "isUseSystemCerts" to "INTEGER",
@@ -114,6 +115,7 @@ abstract class AppDatabase : RoomDatabase() {
             "blockedDomains" to "TEXT",
             "skipHistoryDomains" to "TEXT",
             "trustedCertificates" to "TEXT",
+            "sensorAllowedDomains" to "TEXT",
             "isBottomSearch" to "INTEGER",
         )
 
@@ -450,6 +452,7 @@ abstract class AppDatabase : RoomDatabase() {
                 }
             },
             settingsColumnsMigration(29, 30),
+            settingsColumnsMigration(30, 31),
         )
 
         fun getInstance(context: Context): AppDatabase {

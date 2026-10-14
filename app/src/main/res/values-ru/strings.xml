@@ -200,6 +200,7 @@
     <string name="overridden_settings">Переопределённые настройки</string>
     <string name="add">Добавить</string>
     <string name="add_domain">Добавить адрес</string>
+    <string name="add_site_exception">Добавить исключение</string>
     <string name="add_certificate">Добавить сертификат</string>
     <string name="add_preference">Добавить параметр</string>
     <string name="add_language_pair">Добавить пару языков</string>
@@ -277,6 +278,7 @@
     <string name="restart">Перезапустить</string>
     <string name="setting_block_local_network">Блокировка локальной сети</string>
     <string name="setting_block_webrtc_ip_leak">Блокировка утечки IP через WebRTC</string>
+    <string name="setting_block_motion_sensors">Блокировка датчиков движения</string>
     <string name="setting_tracker_protection">Защита от трекеров</string>
     <string name="tracker_protection_none">Нет</string>
     <string name="tracker_protection_default">Стандарт</string>
@@ -459,6 +461,7 @@
     <string name="setting_fingerprinting_protection_desc">Защита Gecko от отпечатков</string>
     <string name="setting_block_local_network_desc">Блокирует запросы в LAN и localhost</string>
     <string name="setting_block_webrtc_ip_leak_desc">Скрывает локальные IP в WebRTC</string>
+    <string name="setting_block_motion_sensors_desc">Сайты не смогут использовать датчики движения</string>
     <string name="setting_always_https_desc">Заменяет http:// на https://</string>
     <string name="enable_access_restriction_desc">Биометрия или PIN при открытии</string>
     <string name="setting_disable_screenshots_desc">Блокирует скриншоты и превью в недавних</string>

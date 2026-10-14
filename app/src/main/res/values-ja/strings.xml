@@ -185,6 +185,7 @@
     <string name="overridden_settings">オーバーライド設定</string>
     <string name="add">追加</string>
     <string name="add_domain">アドレスを追加</string>
+    <string name="add_site_exception">例外のサイトを追加</string>
     <string name="add_certificate">証明書を追加</string>
     <string name="add_preference">設定を追加</string>
     <string name="add_language_pair">言語ペアを追加</string>
@@ -256,6 +257,7 @@
     <string name="restart">再起動</string>
     <string name="setting_block_local_network">ローカルネットワークアクセスをブロック</string>
     <string name="setting_block_webrtc_ip_leak">WebRTC IPリークをブロック</string>
+    <string name="setting_block_motion_sensors">モーション センサーをブロック</string>
     <string name="setting_tracker_protection">トラッカー保護</string>
     <string name="tracker_protection_none">なし</string>
     <string name="tracker_protection_default">標準</string>
@@ -432,6 +434,7 @@
     <string name="setting_fingerprinting_protection_desc">Geckoのフィンガープリント防止</string>
     <string name="setting_block_local_network_desc">LANとlocalhostの要求をブロック</string>
     <string name="setting_block_webrtc_ip_leak_desc">WebRTC ICEからローカルIPを隠す</string>
+    <string name="setting_block_motion_sensors_desc">サイトはモーション センサーを使用できません</string>
     <string name="setting_always_https_desc">http://をhttps://に変更</string>
     <string name="enable_access_restriction_desc">起動時と復帰時に生体認証かPIN</string>
     <string name="setting_disable_screenshots_desc">撮影をブロック、最近のアプリで隠す</string>

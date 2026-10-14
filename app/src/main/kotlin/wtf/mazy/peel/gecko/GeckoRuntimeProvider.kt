@@ -10,8 +10,13 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.add
+import kotlinx.serialization.json.buildJsonArray
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 import org.mozilla.geckoview.AllowOrDeny
 import org.mozilla.geckoview.ContentBlocking
+import org.mozilla.geckoview.GeckoPreferenceController
 import org.mozilla.geckoview.GeckoResult
 import org.mozilla.geckoview.GeckoRuntime
 import org.mozilla.geckoview.GeckoRuntimeSettings
@@ -23,6 +28,7 @@ import wtf.mazy.peel.R
 import wtf.mazy.peel.browser.PeelOrientationDelegate
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.EffectiveSettings
+import wtf.mazy.peel.model.UrlRule
 import wtf.mazy.peel.model.WebAppSettings
 import wtf.mazy.peel.push.PushBridge
 import wtf.mazy.peel.push.ServiceWorkerBridge
@@ -346,6 +352,7 @@ object GeckoRuntimeProvider {
         val rt = GeckoRuntime.create(context, builder.build())
         rt.orientationController.delegate = PeelOrientationDelegate
         rt.settings.setFingerprintingProtection(defaults.fingerprintingProtection)
+        applySensorAllowList(defaults)
         rt.settings.preferredColorScheme = colorScheme
         rt.warmUp()
         return rt
@@ -380,6 +387,10 @@ object GeckoRuntimeProvider {
                 add(pref("network.dns.echconfig.enabled", false))
                 add(pref("network.dns.http3_echconfig.enabled", false))
             }
+            if (defaults.blockMotionSensors) {
+                add(pref("privacy.fingerprintingProtection.overrides", yamlQuote(BLOCK_SENSORS)))
+                add(pref("privacy.baselineFingerprintingProtection.overrides", yamlQuote(BLOCK_SENSORS)))
+            }
             defaults.customGeckoPrefs.forEach { (rawKey, rawValue) ->
                 val key = rawKey.trim()
                 val value = rawValue.trim()
@@ -398,6 +409,47 @@ object GeckoRuntimeProvider {
     }
 
     private val PREF_KEY_REGEX = Regex("^[A-Za-z0-9._-]+$")
+
+    // Config-file prefs reach Gecko through an env var that drops quote escaping, so JSON
+    // values must be set at runtime. The default branch keeps them out of prefs.js.
+    private fun applySensorAllowList(defaults: EffectiveSettings) {
+        if (!defaults.blockMotionSensors || defaults.sensorAllowedDomains.isEmpty()) return
+        val json = sensorAllowListJson(defaults.sensorAllowedDomains)
+        listOf(
+            "privacy.fingerprintingProtection.granularOverrides",
+            "privacy.baselineFingerprintingProtection.granularOverrides",
+        ).forEach {
+            GeckoPreferenceController.setGeckoPref(it, json, GeckoPreferenceController.PREF_BRANCH_DEFAULT)
+        }
+    }
+
+    private fun sensorAllowListJson(allowedDomains: List<String>): String =
+        buildJsonArray {
+            allowedDomains
+                .mapNotNull { (UrlRule.parse(it) as? UrlRule.Domain)?.value }
+                .flatMap(::siteKeyCandidates)
+                .distinct()
+                .forEach { domain ->
+                    add(buildJsonObject {
+                        put("firstPartyDomain", domain)
+                        put("overrides", ALLOW_SENSORS)
+                    })
+                }
+        }.toString()
+
+    // Gecko keys overrides by the page's base domain, found with a public-suffix list Peel
+    // lacks; every suffix of the entry is written so whichever one Gecko computes is present.
+    private fun siteKeyCandidates(host: String): List<String> {
+        val labels = host.split('.')
+        return (0..labels.size - 2)
+            .map { labels.drop(it).joinToString(".") }
+            .filter(GRANULAR_DOMAIN_REGEX::matches)
+    }
+
+    private const val BLOCK_SENSORS = "+DeviceSensors"
+    private const val ALLOW_SENSORS = "-DeviceSensors"
+
+    private val GRANULAR_DOMAIN_REGEX = Regex("^((?!-)[A-Za-z0-9-]{1,63}(?<!-)\\.)+[A-Za-z]{2,6}$")
 
     private fun formatPrefValue(raw: String): Any {
         if (raw.length >= 2 && raw.startsWith('"') && raw.endsWith('"')) {

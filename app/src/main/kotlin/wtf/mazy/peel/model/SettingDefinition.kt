@@ -224,6 +224,29 @@ sealed class SettingDefinition(
         enum class EntryKind { DOMAIN, CERTIFICATE }
     }
 
+    class BooleanWithSiteListSetting(
+        toggle: SettingField,
+        @StringRes displayNameResId: Int,
+        @StringRes descriptionResId: Int,
+        category: SettingCategory,
+        val listField: SettingField,
+        section: SettingSection = SettingSection.GLOBAL,
+    ) : SettingDefinition(toggle, displayNameResId, descriptionResId, category, section) {
+        override val layoutRes get() = R.layout.item_setting_switch_entries
+
+        override val allFields
+            get() = listOf(primaryField, listField)
+
+        override fun sanitize(settings: WebAppSettings, asOverride: Boolean) {
+            @Suppress("UNCHECKED_CAST")
+            val cleaned = (settings.getValue(listField.key) as? List<String>)
+                ?.map { it.trim() }
+                ?.filter { it.isNotEmpty() }
+                ?.distinct()
+            settings.setValue(listField.key, cleaned?.takeIf { it.isNotEmpty() })
+        }
+    }
+
     class LanguagePairMapSetting(
         toggle: SettingField,
         @StringRes displayNameResId: Int,
@@ -232,7 +255,7 @@ sealed class SettingDefinition(
         val mapField: SettingField,
         section: SettingSection = SettingSection.GLOBAL,
     ) : SettingDefinition(toggle, displayNameResId, descriptionResId, category, section) {
-        override val layoutRes get() = R.layout.item_setting_language_pair_map
+        override val layoutRes get() = R.layout.item_setting_switch_entries
 
         override val allFields
             get() = listOf(primaryField, mapField)
@@ -532,6 +555,14 @@ object SettingRegistry {
                 R.string.setting_block_webrtc_ip_leak,
                 R.string.setting_block_webrtc_ip_leak_desc,
                 SettingCategory.NETWORK_PRIVACY,
+                section = SettingSection.ENGINE,
+            ),
+            SettingDefinition.BooleanWithSiteListSetting(
+                SettingField(WebAppSettings::isBlockMotionSensors, true, ApplyTiming.PEEL_RESTART),
+                R.string.setting_block_motion_sensors,
+                R.string.setting_block_motion_sensors_desc,
+                SettingCategory.NETWORK_PRIVACY,
+                listField = SettingField(WebAppSettings::sensorAllowedDomains, null, ApplyTiming.PEEL_RESTART),
                 section = SettingSection.ENGINE,
             ),
             SettingDefinition.BooleanSetting(

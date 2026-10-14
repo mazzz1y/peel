@@ -190,6 +190,7 @@
     <string name="overridden_settings">ओवरराइड की गई सेटिंग्स</string>
     <string name="add">जोड़ें</string>
     <string name="add_domain">पता जोड़ें</string>
+    <string name="add_site_exception">अपवाद वाली साइट जोड़ें</string>
     <string name="add_certificate">प्रमाणपत्र जोड़ें</string>
     <string name="add_preference">प्राथमिकता जोड़ें</string>
     <string name="add_language_pair">भाषा जोड़ी जोड़ें</string>
@@ -263,6 +264,7 @@
     <string name="restart">रीस्टार्ट</string>
     <string name="setting_block_local_network">स्थानीय नेटवर्क एक्सेस ब्लॉक करें</string>
     <string name="setting_block_webrtc_ip_leak">WebRTC IP लीक ब्लॉक करें</string>
+    <string name="setting_block_motion_sensors">मोशन सेंसर ब्लॉक करें</string>
     <string name="setting_tracker_protection">ट्रैकर सुरक्षा</string>
     <string name="tracker_protection_none">कोई नहीं</string>
     <string name="tracker_protection_default">मानक</string>
@@ -441,6 +443,7 @@
     <string name="setting_fingerprinting_protection_desc">Gecko फ़िंगरप्रिंटिंग सुरक्षा</string>
     <string name="setting_block_local_network_desc">LAN और localhost को ब्लॉक करे</string>
     <string name="setting_block_webrtc_ip_leak_desc">WebRTC ICE से स्थानीय IP छिपाए</string>
+    <string name="setting_block_motion_sensors_desc">साइटें मोशन सेंसर इस्तेमाल नहीं कर सकतीं</string>
     <string name="setting_always_https_desc">http:// को https:// में बदले</string>
     <string name="enable_access_restriction_desc">खोलने पर बायोमेट्रिक या PIN</string>
     <string name="setting_disable_screenshots_desc">कैप्चर रोके, Recents से छिपाए</string>

@@ -2,10 +2,12 @@ package wtf.mazy.peel.ui.settings
 
 import android.app.Activity
 import android.view.LayoutInflater
+import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.ArrayAdapter
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
+import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
@@ -17,7 +19,7 @@ import wtf.mazy.peel.ui.dialog.dismissOnDestroyOf
 
 object UrlRuleDialog {
 
-    private val kinds = listOf(UrlRule.Kind.DOMAIN, UrlRule.Kind.URL_PREFIX, UrlRule.Kind.URL_REGEX)
+    val allKinds = listOf(UrlRule.Kind.DOMAIN, UrlRule.Kind.URL_PREFIX, UrlRule.Kind.URL_REGEX)
 
     @StringRes
     fun kindName(kind: UrlRule.Kind): Int = when (kind) {
@@ -55,21 +57,23 @@ object UrlRuleDialog {
         @StringRes titleRes: Int,
         existing: UrlRule?,
         prefill: String = existing?.value.orEmpty(),
+        kinds: List<UrlRule.Kind> = allKinds,
         onCommit: (UrlRule) -> Unit,
     ) {
         if (existing is UrlRule.HostRegex) {
-            return show(activity, titleRes, existing.asUrlRegex, onCommit = onCommit)
+            return show(activity, titleRes, existing.asUrlRegex, kinds = kinds, onCommit = onCommit)
         }
         val context = activity
         val view = LayoutInflater.from(context).inflate(R.layout.dialog_url_rule, null, false)
         val kindInput = view.findViewById<MaterialAutoCompleteTextView>(R.id.urlRuleKind)
+        view.findViewById<View>(R.id.urlRuleKindLayout).isVisible = kinds.size > 1
         val valueLayout = view.findViewById<TextInputLayout>(R.id.urlRuleValueLayout)
         val valueInput = view.findViewById<TextInputEditText>(R.id.urlRuleValue)
 
         val kindLabels = kinds.map { context.getString(kindName(it)) }
         kindInput.setAdapter(ArrayAdapter(context, android.R.layout.simple_list_item_1, kindLabels))
 
-        var selectedKind = existing?.kind ?: UrlRule.Kind.DOMAIN
+        var selectedKind = existing?.kind?.takeIf { it in kinds } ?: kinds.first()
 
         fun applyKind() {
             valueLayout.error = null

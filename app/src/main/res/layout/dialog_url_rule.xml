@@ -14,6 +14,7 @@
         style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/dialog_content_gap"
         android:hint="@string/url_rule_kind">
 
         <com.google.android.material.textfield.MaterialAutoCompleteTextView
@@ -31,7 +32,6 @@
         style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/dialog_content_gap"
         app:helperTextEnabled="true">
 
         <com.google.android.material.textfield.TextInputEditText

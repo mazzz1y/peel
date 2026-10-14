@@ -12,6 +12,7 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
 import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
 import com.google.android.material.button.MaterialButton
@@ -100,6 +101,11 @@ class SettingRowFactory(
 
             is SettingDefinition.StringMapSetting -> setupStringMap(view, setting, settings)
             is SettingDefinition.StringListSetting -> setupStringList(view, setting, settings)
+            is SettingDefinition.BooleanWithSiteListSetting -> setupBooleanWithSiteList(
+                view,
+                setting,
+                settings,
+            )
             is SettingDefinition.LanguagePairMapSetting -> setupLanguagePairMap(
                 view,
                 setting,
@@ -380,7 +386,7 @@ class SettingRowFactory(
         setting: SettingDefinition.LanguagePairMapSetting,
         settings: WebAppSettings,
     ) {
-        val switchTranslator = view.findViewById<MaterialSwitch>(R.id.switchTranslator)
+        val switchToggle = view.findViewById<MaterialSwitch>(R.id.switchToggle)
         val btnRemove = view.findViewById<MaterialButton>(R.id.btnRemoveOverride)
         val btnUndo = view.findViewById<MaterialButton>(R.id.btnUndo)
         val container = view.findViewById<LinearLayout>(R.id.containerEntries)
@@ -445,9 +451,9 @@ class SettingRowFactory(
         }
 
         fun syncUi() {
-            switchTranslator.setOnCheckedChangeListener(null)
-            switchTranslator.isChecked = isEnabled()
-            switchTranslator.setOnCheckedChangeListener(switchListener)
+            switchToggle.setOnCheckedChangeListener(null)
+            switchToggle.isChecked = isEnabled()
+            switchToggle.setOnCheckedChangeListener(switchListener)
             applyEnabledState()
             val cached = TranslationLanguages.cachedSupport
             if (cached != null) {
@@ -661,8 +667,13 @@ class SettingRowFactory(
             container.removeAllViews()
             val entries = getList(settings, setting.key).orEmpty()
             entries.forEach { entry ->
-                addStringListEntryView(view.context, container, settings, setting, entry) {
-                    renderEntries()
+                if (setting.entryKind == SettingDefinition.StringListSetting.EntryKind.CERTIFICATE) {
+                    addCertificateEntryView(view.context, container, settings, setting.key, entry, ::renderEntries)
+                } else {
+                    addUrlRuleEntryView(
+                        container, settings, setting.key, setting.displayNameResId,
+                        UrlRuleDialog.allKinds, entry, ::renderEntries,
+                    )
                 }
             }
             updateUndoVisibility(btnUndo, setting, settings)
@@ -700,54 +711,138 @@ class SettingRowFactory(
         }
     }
 
-    private fun addStringListEntryView(
-        context: android.content.Context,
+    private fun addUrlRuleEntryView(
         container: LinearLayout,
         settings: WebAppSettings,
-        setting: SettingDefinition.StringListSetting,
+        key: String,
+        @StringRes titleRes: Int,
+        kinds: List<UrlRule.Kind>,
         value: String,
         onChanged: () -> Unit,
     ) {
         val entryView = inflater.inflate(R.layout.item_string_collection_entry, container, false)
         val imageKind = entryView.findViewById<ImageView>(R.id.imageEntryKind)
         val textValue = entryView.findViewById<TextView>(R.id.textEntryValue)
-        val btnRemoveEntry = entryView.findViewById<MaterialButton>(R.id.btnRemoveEntry)
-
-        when (setting.entryKind) {
-            SettingDefinition.StringListSetting.EntryKind.DOMAIN -> {
-                val rule = UrlRule.parse(value)
-                textValue.text = rule?.value ?: value
-                if (rule != null) {
-                    imageKind.isVisible = true
-                    imageKind.setImageResource(kindIcon(rule.kind))
-                    textValue.contentDescription = context.getString(
-                        R.string.url_rule_accessibility,
-                        context.getString(UrlRuleDialog.kindName(rule.kind)),
-                        rule.value,
-                    )
-                }
-                textValue.setOnClickListener {
-                    UrlRuleDialog.show(activity, setting.displayNameResId, rule, prefill = rule?.value ?: value) { edited ->
-                        val values = getList(settings, setting.key).orEmpty()
-                        if (edited.stored == value || edited.stored in values) return@show
-                        setList(settings, setting.key, values.map { if (it == value) edited.stored else it })
-                        onChanged()
-                    }
-                }
-            }
-
-            SettingDefinition.StringListSetting.EntryKind.CERTIFICATE -> {
-                textValue.text = entryLabel(context, value)
-                textValue.isClickable = false
-                textValue.background = null
+        val rule = UrlRule.parse(value)
+        textValue.text = rule?.value ?: value
+        if (rule != null) {
+            imageKind.isVisible = true
+            imageKind.setImageResource(kindIcon(rule.kind))
+            textValue.contentDescription = container.context.getString(
+                R.string.url_rule_accessibility,
+                container.context.getString(UrlRuleDialog.kindName(rule.kind)),
+                rule.value,
+            )
+        }
+        textValue.setOnClickListener {
+            UrlRuleDialog.show(activity, titleRes, rule, prefill = rule?.value ?: value, kinds = kinds) { edited ->
+                val values = getList(settings, key).orEmpty()
+                if (edited.stored == value || edited.stored in values) return@show
+                setList(settings, key, values.map { if (it == value) edited.stored else it })
+                onChanged()
             }
         }
-        btnRemoveEntry.setOnClickListener {
-            setList(settings, setting.key, getList(settings, setting.key).orEmpty() - value)
+        bindRemoveEntry(entryView, settings, key, value, onChanged)
+        container.addView(entryView)
+    }
+
+    private fun addCertificateEntryView(
+        context: android.content.Context,
+        container: LinearLayout,
+        settings: WebAppSettings,
+        key: String,
+        value: String,
+        onChanged: () -> Unit,
+    ) {
+        val entryView = inflater.inflate(R.layout.item_string_collection_entry, container, false)
+        val textValue = entryView.findViewById<TextView>(R.id.textEntryValue)
+        textValue.text = entryLabel(context, value)
+        textValue.isClickable = false
+        textValue.background = null
+        bindRemoveEntry(entryView, settings, key, value, onChanged)
+        container.addView(entryView)
+    }
+
+    private fun bindRemoveEntry(
+        entryView: View,
+        settings: WebAppSettings,
+        key: String,
+        value: String,
+        onChanged: () -> Unit,
+    ) {
+        entryView.findViewById<MaterialButton>(R.id.btnRemoveEntry).setOnClickListener {
+            setList(settings, key, getList(settings, key).orEmpty() - value)
             onChanged()
         }
+    }
 
-        container.addView(entryView)
+    private fun setupBooleanWithSiteList(
+        view: View,
+        setting: SettingDefinition.BooleanWithSiteListSetting,
+        settings: WebAppSettings,
+    ) {
+        val switch = view.findViewById<MaterialSwitch>(R.id.switchToggle)
+        val btnRemove = view.findViewById<MaterialButton>(R.id.btnRemoveOverride)
+        val btnUndo = view.findViewById<MaterialButton>(R.id.btnUndo)
+        val container = view.findViewById<LinearLayout>(R.id.containerEntries)
+        val hairline = view.findViewById<View>(R.id.hairlineEntries)
+        val rowAdd = view.findViewById<View>(R.id.rowAddEntry)
+        val listKey = setting.listField.key
+        val siteKinds = listOf(UrlRule.Kind.DOMAIN)
+
+        bindLabel(view, setting)
+        bindAddRow(view, R.string.add_site_exception)
+
+        fun isEnabled(): Boolean = settings.getValue(setting.key) as? Boolean ?: false
+
+        fun render() {
+            container.removeAllViews()
+            val enabled = isEnabled()
+            if (enabled) {
+                getList(settings, listKey).orEmpty().forEach { entry ->
+                    addUrlRuleEntryView(
+                        container, settings, listKey, setting.displayNameResId, siteKinds, entry, ::render,
+                    )
+                }
+            }
+            container.isVisible = enabled
+            hairline.isVisible = enabled
+            rowAdd.isVisible = enabled
+            updateUndoVisibility(btnUndo, setting, settings)
+        }
+
+        val switchListener = { _: CompoundButton?, checked: Boolean ->
+            settings.setValue(setting.key, checked)
+            render()
+        }
+
+        fun syncUi() {
+            switch.setOnCheckedChangeListener(null)
+            switch.isChecked = isEnabled()
+            switch.setOnCheckedChangeListener(switchListener)
+            render()
+        }
+
+        syncUi()
+
+        rowAdd.setOnClickListener {
+            UrlRuleDialog.show(activity, setting.displayNameResId, null, kinds = siteKinds) { rule ->
+                val values = getList(settings, listKey).orEmpty()
+                if (rule.stored !in values) {
+                    setList(settings, listKey, values + rule.stored)
+                    render()
+                }
+            }
+        }
+
+        configureButtons(
+            view, btnRemove, btnUndo, setting, settings,
+            onBeforeRemove = {
+                settings.setValue(setting.key, null)
+                setList(settings, listKey, null)
+            },
+            onUndoRefreshUi = ::syncUi,
+        )
     }
 
     private fun entryLabel(context: android.content.Context, value: String): String =

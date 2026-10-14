@@ -253,6 +253,7 @@
     <string name="overridden_settings">Settings Override</string>
     <string name="add">Add</string>
     <string name="add_domain">Add address</string>
+    <string name="add_site_exception">Add site exception</string>
     <string name="add_certificate">Add certificate</string>
     <string name="add_preference">Add preference</string>
     <string name="add_language_pair">Add language pair</string>
@@ -279,6 +280,7 @@
     <string name="setting_fingerprinting_protection">Fingerprinting protection</string>
     <string name="setting_block_local_network">Block local network access</string>
     <string name="setting_block_webrtc_ip_leak">Prevent WebRTC IP leaks</string>
+    <string name="setting_block_motion_sensors">Block motion sensors</string>
     <string name="setting_always_https">HTTPS only</string>
     <string name="setting_basic_auth">HTTP authorization</string>
     <string name="setting_dynamic_status_bar">Dynamic status bar</string>
@@ -462,6 +464,7 @@
     <string name="setting_fingerprinting_protection_desc">Gecko fingerprinting protection</string>
     <string name="setting_block_local_network_desc">Blocks LAN and localhost requests</string>
     <string name="setting_block_webrtc_ip_leak_desc">Hides local IPs from WebRTC ICE</string>
+    <string name="setting_block_motion_sensors_desc">Sites can\'t use motion sensors</string>
     <string name="setting_always_https_desc">Upgrades http:// to https://</string>
     <string name="enable_access_restriction_desc">Biometric or PIN on open and return</string>
     <string name="setting_disable_screenshots_desc">Blocks capture, hides from Recents</string>

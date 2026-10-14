@@ -185,6 +185,7 @@
     <string name="overridden_settings">已覆盖的设置</string>
     <string name="add">添加</string>
     <string name="add_domain">添加地址</string>
+    <string name="add_site_exception">添加例外网站</string>
     <string name="add_certificate">添加证书</string>
     <string name="add_preference">添加首选项</string>
     <string name="add_language_pair">添加语言对</string>
@@ -256,6 +257,7 @@
     <string name="restart">重启</string>
     <string name="setting_block_local_network">阻止本地网络访问</string>
     <string name="setting_block_webrtc_ip_leak">阻止 WebRTC IP 泄露</string>
+    <string name="setting_block_motion_sensors">阻止移动传感器</string>
     <string name="setting_tracker_protection">跟踪器保护</string>
     <string name="tracker_protection_none">无</string>
     <string name="tracker_protection_default">标准</string>
@@ -432,6 +434,7 @@
     <string name="setting_fingerprinting_protection_desc">Gecko 指纹保护</string>
     <string name="setting_block_local_network_desc">阻止 LAN 和 localhost 请求</string>
     <string name="setting_block_webrtc_ip_leak_desc">对 WebRTC ICE 隐藏本地 IP</string>
+    <string name="setting_block_motion_sensors_desc">网站无法使用移动传感器</string>
     <string name="setting_always_https_desc">将 http:// 升级为 https://</string>
     <string name="enable_access_restriction_desc">打开和返回时需生物识别或 PIN</string>
     <string name="setting_disable_screenshots_desc">阻止截屏并在最近任务中隐藏</string>
