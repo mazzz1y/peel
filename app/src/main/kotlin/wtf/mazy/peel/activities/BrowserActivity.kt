@@ -42,19 +42,16 @@ import wtf.mazy.peel.browser.SessionHostRegistry
 import wtf.mazy.peel.browser.StartupAuthReturnTracker
 import wtf.mazy.peel.gecko.ContentPermissionStore
 import wtf.mazy.peel.gecko.GeckoRuntimeProvider
-import wtf.mazy.peel.gecko.SandboxManager
 import wtf.mazy.peel.media.MediaPlaybackManager
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.EffectiveSandbox
 import wtf.mazy.peel.model.EffectiveSettings
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.model.contextId
-import wtf.mazy.peel.model.ephemeralContextId
 import wtf.mazy.peel.ui.browser.AutoReloadController
 import wtf.mazy.peel.ui.browser.BiometricUnlockController
 import wtf.mazy.peel.ui.dialog.ExternalLinkMenu
 import wtf.mazy.peel.ui.extensions.ExtensionActionController
-import wtf.mazy.peel.util.App
 import wtf.mazy.peel.util.BrowserLauncher
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.isAutomotiveHost
@@ -352,14 +349,9 @@ class BrowserActivity : BaseSessionHost() {
         pageBridge = null
         closeGeckoSession()
         geckoView = null
-        if (isFinishing) {
-            ContentPermissionStore.requestSweep(applicationContext)
-            resolvedWebApp?.let { DataManager.effectiveSandbox(it).ephemeralContextId }?.let {
-                SandboxManager.enqueueSandboxClear(applicationContext, it, App.appScope)
-            }
-        }
-        webAppUuid?.let { DataManager.removeTransientWebApp(it) }
+        if (isFinishing) ContentPermissionStore.requestSweep(applicationContext)
         super.onDestroy()
+        webAppUuid?.let { DataManager.removeTransientWebApp(it) }
     }
 
     override fun onNewIntent(intent: Intent) {

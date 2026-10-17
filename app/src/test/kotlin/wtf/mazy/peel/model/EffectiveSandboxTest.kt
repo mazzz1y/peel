@@ -32,14 +32,14 @@ class EffectiveSandboxTest {
     @Test
     fun sharedAppInSandboxedGroupUsesGroupContainerAndRoute() {
         assertEquals(
-            EffectiveSandbox.Shared("group", tor),
+            EffectiveSandbox.Shared("group", ephemeral = true, route = tor),
             effectiveSandbox(app(Isolation.Shared), sandboxedTorGroup),
         )
     }
 
     @Test
     fun sharedAppWithoutSandboxedGroupIsDirect() {
-        val expected = EffectiveSandbox.Shared(null, ProxyRoute.Direct)
+        val expected = EffectiveSandbox.Shared(null, ephemeral = false, route = ProxyRoute.Direct)
         assertEquals(expected, effectiveSandbox(app(Isolation.Shared), sharedGroup))
         assertEquals(expected, effectiveSandbox(app(Isolation.Shared), null))
     }
@@ -89,15 +89,29 @@ class EffectiveSandboxTest {
     }
 
     @Test
+    fun sharedAppInEphemeralGroupWipesGroupContainer() {
+        assertEquals("group", effectiveSandbox(app(Isolation.Shared), sandboxedTorGroup).ephemeralContextId)
+    }
+
+    @Test
+    fun sharedAppInNonEphemeralGroupKeepsGroupContainer() {
+        val keptGroup = group(Isolation.Sandboxed(ephemeral = false, proxy = tor))
+        assertEquals(null, effectiveSandbox(app(Isolation.Shared), keptGroup).ephemeralContextId)
+    }
+
+    @Test
     fun groupResolution() {
         assertEquals(EffectiveSandbox.Own("group", true, tor), effectiveSandbox(sandboxedTorGroup))
-        assertEquals(EffectiveSandbox.Shared(null, ProxyRoute.Direct), effectiveSandbox(sharedGroup))
+        assertEquals(
+            EffectiveSandbox.Shared(null, ephemeral = false, route = ProxyRoute.Direct),
+            effectiveSandbox(sharedGroup),
+        )
     }
 
     @Test
     fun contextIdPerKind() {
         assertEquals(null, EffectiveSandbox.Private.contextId)
-        assertEquals("group", EffectiveSandbox.Shared("group", tor).contextId)
+        assertEquals("group", EffectiveSandbox.Shared("group", false, tor).contextId)
         assertEquals("app", EffectiveSandbox.Own("app", false, tor).contextId)
     }
 }

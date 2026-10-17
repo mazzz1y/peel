@@ -53,10 +53,13 @@ import wtf.mazy.peel.gecko.ExtensionStateListener
 import wtf.mazy.peel.gecko.GeckoRuntimeProvider
 import wtf.mazy.peel.gecko.GeckoRuntimeProvider.awaitVoid
 import wtf.mazy.peel.gecko.NestedGeckoView
+import wtf.mazy.peel.gecko.SandboxManager
 import wtf.mazy.peel.gecko.VerticalSwipeRefreshLayout
+import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.EffectiveSettings
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.model.WebAppSettings
+import wtf.mazy.peel.model.ephemeralContextId
 import wtf.mazy.peel.ui.FindInPageView
 import wtf.mazy.peel.ui.FloatingControlsView
 import wtf.mazy.peel.ui.browser.PullToRefreshController
@@ -81,6 +84,7 @@ import wtf.mazy.peel.ui.dialog.showDateTimePickerDialog
 import wtf.mazy.peel.ui.dialog.showInputDialogRaw
 import wtf.mazy.peel.ui.extensions.ExtensionActionController
 import wtf.mazy.peel.ui.extensions.ExtensionPickerDialog
+import wtf.mazy.peel.util.App
 import wtf.mazy.peel.util.BrowserLauncher
 import wtf.mazy.peel.util.applyBottomScreenInsets
 import wtf.mazy.peel.util.applyToolbarScreenInsets
@@ -710,7 +714,17 @@ abstract class BaseSessionHost : PeelActivity(), SessionHost, TranslationHost {
         extensionActions.detach()
         systemBarController.release()
         SessionHostRegistry.unregister(this)
+        if (isFinishing) wipeEphemeralSandboxIfLast()
         super.onDestroy()
+    }
+
+    // Several windows and popups can share one ephemeral sandbox (a group's, or an app's with
+    // its popups); it may only be wiped once the last of them is gone.
+    private fun wipeEphemeralSandboxIfLast() {
+        val owner = ownerWebAppUuid?.let(DataManager::webApp) ?: return
+        val contextId = DataManager.effectiveSandbox(owner).ephemeralContextId ?: return
+        if (SessionHostRegistry.hasLiveHostsIn(contextId)) return
+        SandboxManager.enqueueSandboxClear(applicationContext, contextId, App.appScope)
     }
 
     protected fun closeGeckoSession() {

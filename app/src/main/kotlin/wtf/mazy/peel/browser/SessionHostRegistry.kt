@@ -47,6 +47,9 @@ object SessionHostRegistry {
     val hasLiveBrowsers: Boolean
         get() = synchronized(lock) { hosts.values.any { it.isBrowser } }
 
+    fun hasLiveHostsIn(contextId: String): Boolean =
+        synchronized(lock) { hosts.values.any { it.contextId == contextId } }
+
     fun finishBrowsers() = finish { it.isBrowser }
 
     fun finishPopupsOwnedBy(ownerUuid: String) =

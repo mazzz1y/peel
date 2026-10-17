@@ -8,7 +8,11 @@ sealed interface EffectiveSandbox {
             get() = ProxyRoute.Direct
     }
 
-    data class Shared(val groupContextId: String?, override val route: ProxyRoute) : EffectiveSandbox
+    data class Shared(
+        val groupContextId: String?,
+        val ephemeral: Boolean,
+        override val route: ProxyRoute,
+    ) : EffectiveSandbox
 
     data class Own(
         val contextId: String,
@@ -25,11 +29,15 @@ val EffectiveSandbox.contextId: String?
     }
 
 val EffectiveSandbox.ephemeralContextId: String?
-    get() = (this as? EffectiveSandbox.Own)?.takeIf { it.ephemeral }?.contextId
+    get() = when (this) {
+        EffectiveSandbox.Private -> null
+        is EffectiveSandbox.Shared -> groupContextId?.takeIf { ephemeral }
+        is EffectiveSandbox.Own -> contextId.takeIf { ephemeral }
+    }
 
 fun effectiveSandbox(group: WebAppGroup): EffectiveSandbox =
     when (val isolation = group.isolation) {
-        Isolation.Shared -> EffectiveSandbox.Shared(null, ProxyRoute.Direct)
+        Isolation.Shared -> EffectiveSandbox.Shared(null, ephemeral = false, route = ProxyRoute.Direct)
         is Isolation.Sandboxed -> EffectiveSandbox.Own(group.uuid, isolation.ephemeral, isolation.proxy)
     }
 
@@ -38,7 +46,11 @@ fun effectiveSandbox(webApp: WebApp, group: WebAppGroup?): EffectiveSandbox {
     val groupOwn = group?.let(::effectiveSandbox) as? EffectiveSandbox.Own
     val groupRoute = groupOwn?.route ?: ProxyRoute.Direct
     return when (val isolation = webApp.isolation) {
-        Isolation.Shared -> EffectiveSandbox.Shared(groupOwn?.contextId, groupRoute)
+        Isolation.Shared -> EffectiveSandbox.Shared(
+            groupContextId = groupOwn?.contextId,
+            ephemeral = groupOwn?.ephemeral == true,
+            route = groupRoute,
+        )
         is Isolation.Sandboxed -> EffectiveSandbox.Own(
             contextId = webApp.uuid,
             ephemeral = isolation.ephemeral,
