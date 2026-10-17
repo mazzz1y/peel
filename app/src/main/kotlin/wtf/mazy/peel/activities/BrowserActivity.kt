@@ -45,8 +45,11 @@ import wtf.mazy.peel.gecko.GeckoRuntimeProvider
 import wtf.mazy.peel.gecko.SandboxManager
 import wtf.mazy.peel.media.MediaPlaybackManager
 import wtf.mazy.peel.model.DataManager
+import wtf.mazy.peel.model.EffectiveSandbox
 import wtf.mazy.peel.model.EffectiveSettings
 import wtf.mazy.peel.model.WebApp
+import wtf.mazy.peel.model.contextId
+import wtf.mazy.peel.model.ephemeralContextId
 import wtf.mazy.peel.ui.browser.AutoReloadController
 import wtf.mazy.peel.ui.browser.BiometricUnlockController
 import wtf.mazy.peel.ui.dialog.ExternalLinkMenu
@@ -351,7 +354,7 @@ class BrowserActivity : BaseSessionHost() {
         geckoView = null
         if (isFinishing) {
             ContentPermissionStore.requestSweep(applicationContext)
-            resolvedWebApp?.resolveEphemeralContextId()?.let {
+            resolvedWebApp?.let { DataManager.effectiveSandbox(it).ephemeralContextId }?.let {
                 SandboxManager.enqueueSandboxClear(applicationContext, it, App.appScope)
             }
         }
@@ -428,9 +431,9 @@ class BrowserActivity : BaseSessionHost() {
         get() = webApp.baseUrl
 
     override val sessionContextId: String?
-        get() = webApp.resolveContextId()
+        get() = DataManager.effectiveSandbox(webApp).contextId
     override val sessionPrivateMode: Boolean
-        get() = webApp.resolvePrivateMode()
+        get() = DataManager.effectiveSandbox(webApp) is EffectiveSandbox.Private
 
     override val externalLinkExcludeUuid: String?
         get() = webAppUuid

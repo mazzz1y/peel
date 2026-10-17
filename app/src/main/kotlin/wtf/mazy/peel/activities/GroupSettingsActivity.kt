@@ -20,6 +20,8 @@ import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.SettingDefinition
 import wtf.mazy.peel.model.WebAppGroup
 import wtf.mazy.peel.model.WebAppSettings
+import wtf.mazy.peel.model.isEphemeral
+import wtf.mazy.peel.model.isSandboxed
 import wtf.mazy.peel.ui.IconEditorController
 import wtf.mazy.peel.ui.common.Draft
 import wtf.mazy.peel.ui.common.GroupPosition
@@ -27,8 +29,9 @@ import wtf.mazy.peel.ui.common.SettingsSurface
 import wtf.mazy.peel.ui.dialog.InputDialogConfig
 import wtf.mazy.peel.ui.dialog.OverridePickerDialog
 import wtf.mazy.peel.ui.dialog.showInputDialog
+import wtf.mazy.peel.ui.proxy.ProxyOptions
 import wtf.mazy.peel.ui.settings.OverridePickerController
-import wtf.mazy.peel.ui.settings.ProxyDropdownController
+import wtf.mazy.peel.ui.settings.ProxyPickerController
 import wtf.mazy.peel.ui.settings.SandboxSwitchController
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.toast
@@ -74,8 +77,8 @@ class GroupSettingsActivity :
             stored.settings.deepCopy().apply { sanitize(asOverride = true) }
         txtGroupName.text = stored.title
         sandboxLabel.setText(R.string.group_sandbox)
-        switchSandbox.isChecked = stored.isUseContainer
-        switchEphemeralSandbox.isChecked = stored.isEphemeralSandbox
+        switchSandbox.isChecked = stored.isolation.isSandboxed
+        switchEphemeralSandbox.isChecked = stored.isolation.isEphemeral
 
         imgGroupIcon.setOnClickListener { iconEditor.onIconTap() }
         titleBlock.setOnClickListener { showEditDialog(draft) }
@@ -134,12 +137,12 @@ class GroupSettingsActivity :
 
     private fun setupSandboxSwitch() {
         val draft = draft ?: return
-        val proxyController = ProxyDropdownController(
+        val proxyController = ProxyPickerController(
             activity = this,
             draft = draft,
             proxyRow = proxyRow,
             proxyButton = btnProxyPicker,
-        )
+        ) { ProxyOptions.forGroup(this, DataManager.proxies) }
         SandboxSwitchController(
             this,
             draft,

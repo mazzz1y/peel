@@ -7,22 +7,16 @@ data class WebAppGroup(
     override val uuid: String = UUID.randomUUID().toString(),
     override val title: String = "",
     val order: Int = 0,
-    override val isUseContainer: Boolean = false,
-    override val isEphemeralSandbox: Boolean = false,
-    override val proxyUuid: String? = null,
+    override val isolation: Isolation<ProxyRoute> = Isolation.Shared,
     val settings: WebAppSettings = WebAppSettings(),
-) : IconOwner, SandboxOwner<WebAppGroup> {
+) : IconOwner, SandboxOwner<WebAppGroup, ProxyRoute> {
 
-    override fun withSandbox(
-        isUseContainer: Boolean,
-        isEphemeralSandbox: Boolean,
-        proxyUuid: String?,
-    ): WebAppGroup = copy(
-        isUseContainer = isUseContainer,
-        isEphemeralSandbox = isEphemeralSandbox,
-        proxyUuid = proxyUuid,
-    )
+    override val defaultProxy: ProxyRoute
+        get() = ProxyRoute.Direct
+
+    override fun withIsolation(isolation: Isolation<ProxyRoute>): WebAppGroup =
+        copy(isolation = isolation)
 
     val contentFingerprint: Int
-        get() = Objects.hash(title, isUseContainer, isEphemeralSandbox, proxyUuid)
+        get() = Objects.hash(title, isolation)
 }

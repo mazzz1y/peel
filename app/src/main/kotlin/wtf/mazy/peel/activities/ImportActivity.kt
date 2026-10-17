@@ -16,6 +16,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.launch
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.DataManager
+import wtf.mazy.peel.model.ProxyRoute
 import wtf.mazy.peel.model.WebAppGroup
 import wtf.mazy.peel.ui.common.GroupPosition
 import wtf.mazy.peel.ui.common.PeelActivity
@@ -23,6 +24,7 @@ import wtf.mazy.peel.ui.common.SettingsSurface
 import wtf.mazy.peel.ui.dialog.showSandboxInputDialog
 import wtf.mazy.peel.ui.importmapping.ImportMappingAdapter
 import wtf.mazy.peel.ui.importmapping.ImportMappingContract
+import wtf.mazy.peel.ui.proxy.ProxyOptions
 import wtf.mazy.peel.util.applyBottomScreenInsets
 import wtf.mazy.peel.util.applyToolbarScreenInsets
 import wtf.mazy.peel.util.disableSystemBarContrastEnforcement
@@ -138,15 +140,12 @@ class ImportActivity : PeelActivity() {
                     showSandboxInputDialog(
                         titleRes = R.string.add_group,
                         hintRes = R.string.group_name_hint,
+                        proxyOptions = ProxyOptions.forGroup(this, DataManager.proxies),
+                        defaultProxy = ProxyRoute.Direct,
                     ) { result ->
                         val title = result.text.trim()
                         if (title.isEmpty()) return@showSandboxInputDialog
-                        val group = WebAppGroup(
-                            title = title,
-                            isUseContainer = result.sandbox,
-                            isEphemeralSandbox = result.ephemeral,
-                            proxyUuid = result.proxyUuid,
-                        )
+                        val group = WebAppGroup(title = title, isolation = result.isolation)
                         lifecycleScope.launch {
                             DataManager.addGroup(group, appendOrder = true)
                             selectedGroupUuid = group.uuid

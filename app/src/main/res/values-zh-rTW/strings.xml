@@ -336,6 +336,7 @@
     <string name="cache_cleared">已清除快取</string>
     <string name="proxy">代理伺服器</string>
     <string name="proxy_direct">不使用代理</string>
+    <string name="proxy_inherit_group">繼承 (%1$s)</string>
     <string name="proxy_add">新增代理</string>
     <string name="proxy_edit">編輯代理</string>
     <string name="proxy_name">名稱</string>

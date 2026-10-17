@@ -10,28 +10,32 @@ import androidx.annotation.StringRes
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.materialswitch.MaterialSwitch
 import wtf.mazy.peel.R
-import wtf.mazy.peel.model.DataManager
-import wtf.mazy.peel.ui.bindDropdown
+import wtf.mazy.peel.model.Isolation
+import wtf.mazy.peel.model.ProxyChoice
+import wtf.mazy.peel.model.ProxyRoute
+import wtf.mazy.peel.ui.proxy.ProxyOption
+import wtf.mazy.peel.ui.proxy.ProxyOptions
+import wtf.mazy.peel.ui.proxy.ProxyPickerDialog
 
-data class SandboxInputResult(
+data class SandboxInputResult<out P : ProxyChoice>(
     val text: String,
-    val sandbox: Boolean,
-    val ephemeral: Boolean,
-    val proxyUuid: String?,
+    val isolation: Isolation<P>,
 )
 
-fun Activity.showSandboxInputDialog(
+fun <P : ProxyChoice> Activity.showSandboxInputDialog(
     @StringRes titleRes: Int,
     @StringRes hintRes: Int,
+    proxyOptions: List<ProxyOption<P>>,
+    defaultProxy: P,
     inputType: Int = InputType.TYPE_CLASS_TEXT,
     prefill: String = "",
     onCancel: (() -> Unit)? = null,
-    onResult: (SandboxInputResult) -> Unit,
+    onResult: (SandboxInputResult<P>) -> Unit,
 ) {
     var switchSandbox: MaterialSwitch? = null
     var switchEphemeral: MaterialSwitch? = null
-    var selectedProxyUuid: String? = null
-    val proxies = DataManager.proxies.sortedBy { it.displayName().lowercase() }
+    var selectedProxy = defaultProxy
+    val hasProxies = proxyOptions.any { it.choice is ProxyRoute.Via }
 
     showInputDialogRaw(
         InputDialogConfig(
@@ -60,8 +64,6 @@ fun Activity.showSandboxInputDialog(
                     ).apply { topMargin = (8 * density).toInt() }
                 }
 
-                val proxyLabels = listOf(getString(R.string.proxy_direct)) +
-                        proxies.map { it.displayName() }
                 val proxyButton = MaterialButton(
                     container.context,
                     null,
@@ -72,19 +74,16 @@ fun Activity.showSandboxInputDialog(
                         LinearLayout.LayoutParams.WRAP_CONTENT,
                     )
                 }
-                proxyButton.bindDropdown(
-                    items = proxyLabels,
-                    currentIndex = {
-                        val uuid = selectedProxyUuid
-                        if (uuid == null) 0
-                        else proxies.indexOfFirst { it.uuid == uuid }.let { idx ->
-                            if (idx >= 0) idx + 1 else 0
-                        }
-                    },
-                    onSelected = { i ->
-                        selectedProxyUuid = if (i == 0) null else proxies[i - 1].uuid
-                    },
-                )
+                fun showSelectedProxy() {
+                    proxyButton.text = ProxyOptions.current(proxyOptions, selectedProxy).routeLabel
+                }
+                showSelectedProxy()
+                proxyButton.setOnClickListener {
+                    ProxyPickerDialog.show(this, proxyOptions, selectedProxy) { picked ->
+                        selectedProxy = picked
+                        showSelectedProxy()
+                    }
+                }
 
                 val proxyLabel = TextView(container.context).apply {
                     text = getString(R.string.proxy)
@@ -119,11 +118,11 @@ fun Activity.showSandboxInputDialog(
                 switchSandbox.setOnCheckedChangeListener { _, isChecked ->
                     switchEphemeral.visibility = if (isChecked) View.VISIBLE else View.GONE
                     if (!isChecked) switchEphemeral.isChecked = false
-                    val showProxy = isChecked && proxies.isNotEmpty()
+                    val showProxy = isChecked && hasProxies
                     proxyRowView.visibility = if (showProxy) View.VISIBLE else View.GONE
                     if (!isChecked) {
-                        selectedProxyUuid = null
-                        proxyButton.text = proxyLabels[0]
+                        selectedProxy = defaultProxy
+                        showSelectedProxy()
                     }
                 }
                 container.addView(switchSandbox)
@@ -134,13 +133,11 @@ fun Activity.showSandboxInputDialog(
     ) { input, _ ->
         val text = input.text?.toString()?.trim() ?: return@showInputDialogRaw
         if (text.isBlank()) return@showInputDialogRaw
-        onResult(
-            SandboxInputResult(
-                text = text,
-                sandbox = switchSandbox?.isChecked == true,
-                ephemeral = switchEphemeral?.isChecked == true,
-                proxyUuid = if (switchSandbox?.isChecked == true) selectedProxyUuid else null,
-            )
-        )
+        val isolation = if (switchSandbox?.isChecked == true) {
+            Isolation.Sandboxed(switchEphemeral?.isChecked == true, selectedProxy)
+        } else {
+            Isolation.Shared
+        }
+        onResult(SandboxInputResult(text, isolation))
     }
 }

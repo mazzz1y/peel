@@ -8,6 +8,7 @@ import kotlinx.coroutines.launch
 import org.mozilla.geckoview.GeckoResult
 import org.mozilla.geckoview.GeckoRuntime
 import wtf.mazy.peel.model.DataManager
+import wtf.mazy.peel.model.EffectiveSandbox
 import wtf.mazy.peel.ui.dialog.ExternalLinkMenu
 import wtf.mazy.peel.util.ActivityRoutes
 import wtf.mazy.peel.util.App
@@ -33,7 +34,9 @@ object ServiceWorkerBridge {
                 return@launch
             }
             if (claim?.alreadyRouted == true) return@launch
-            val apps = DataManager.webApps.filter { !it.resolvePrivateMode() }
+            val apps = DataManager.webApps.filter {
+                DataManager.effectiveSandbox(it) !is EffectiveSandbox.Private
+            }
             val target = ExternalLinkMenu.bestPeelMatch(apps, url, excludeUuid = null)
             if (target != null) {
                 BrowserLauncher.launch(target, context, url)

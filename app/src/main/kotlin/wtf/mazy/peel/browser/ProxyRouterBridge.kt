@@ -7,7 +7,10 @@ import org.json.JSONObject
 import org.mozilla.geckoview.WebExtension
 import wtf.mazy.peel.gecko.GeckoRuntimeProvider
 import wtf.mazy.peel.model.DataManager
+import wtf.mazy.peel.model.EffectiveSandbox
 import wtf.mazy.peel.model.Proxy
+import wtf.mazy.peel.model.ProxyRoute
+import wtf.mazy.peel.model.effectiveSandbox
 
 object ProxyRouterBridge : ExtensionSyncBridge<Map<String, Map<String, Any?>>>(
     tag = "ProxyRouterBridge",
@@ -48,26 +51,21 @@ object ProxyRouterBridge : ExtensionSyncBridge<Map<String, Map<String, Any?>>>(
     override fun buildSnapshot(): Map<String, Map<String, Any?>> {
         val state = DataManager.state.value
         val proxies = state.proxies.associateBy { it.uuid }
-        val out = LinkedHashMap<String, Map<String, Any?>>()
+        val groups = state.groups.associateBy { it.uuid }
+        val sandboxes = state.groups.map(::effectiveSandbox) +
+                (state.webApps + DataManager.transientWebAppList).map { app ->
+                    effectiveSandbox(app, app.groupUuid?.let(groups::get))
+                }
 
-        for (group in state.groups) {
-            if (!group.isUseContainer) continue
-            val storeId = CONTAINER_PREFIX + group.uuid
-            val proxy = group.proxyUuid?.let { proxies[it] }
-            out[storeId] = proxy?.let(::proxyToMap) ?: DIRECT
-        }
-        for (app in state.webApps + DataManager.transientWebAppList) {
-            if (!app.isUseContainer) continue
-            val contextId = app.resolveContextId() ?: continue
-            val storeId = CONTAINER_PREFIX + contextId
-            if (out.containsKey(storeId)) continue
-            val pUuid = app.proxyUuid
-                ?: app.groupUuid
-                    ?.let { gid -> state.groups.find { it.uuid == gid } }
-                    ?.takeIf { it.isUseContainer }
-                    ?.proxyUuid
-            val proxy = pUuid?.let { proxies[it] }
-            out[storeId] = proxy?.let(::proxyToMap) ?: DIRECT
+        val out = LinkedHashMap<String, Map<String, Any?>>()
+        for (sandbox in sandboxes) {
+            if (sandbox !is EffectiveSandbox.Own) continue
+            val storeId = CONTAINER_PREFIX + sandbox.contextId
+            if (storeId in out) continue
+            out[storeId] = when (val route = sandbox.route) {
+                ProxyRoute.Direct -> DIRECT
+                is ProxyRoute.Via -> proxies[route.proxyUuid]?.let(::proxyToMap) ?: continue
+            }
         }
         return out
     }

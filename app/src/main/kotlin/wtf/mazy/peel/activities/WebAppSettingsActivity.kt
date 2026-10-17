@@ -20,10 +20,15 @@ import wtf.mazy.peel.R
 import wtf.mazy.peel.databinding.WebAppSettingsBinding
 import wtf.mazy.peel.model.ApplyTimingRegistry
 import wtf.mazy.peel.model.DataManager
+import wtf.mazy.peel.model.EffectiveSandbox
 import wtf.mazy.peel.model.IconCache
+import wtf.mazy.peel.model.ProxyChoice
 import wtf.mazy.peel.model.SettingDefinition
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.model.WebAppSettings
+import wtf.mazy.peel.model.contextId
+import wtf.mazy.peel.model.isEphemeral
+import wtf.mazy.peel.model.isSandboxed
 import wtf.mazy.peel.shortcut.FetchCandidate
 import wtf.mazy.peel.shortcut.FetchResult
 import wtf.mazy.peel.shortcut.HeadlessFetcher
@@ -39,8 +44,9 @@ import wtf.mazy.peel.ui.dialog.InputDialogConfig
 import wtf.mazy.peel.ui.dialog.OverridePickerDialog
 import wtf.mazy.peel.ui.dialog.ScopeExtensionsPrompt
 import wtf.mazy.peel.ui.dialog.showInputDialogRaw
+import wtf.mazy.peel.ui.proxy.ProxyOptions
 import wtf.mazy.peel.ui.settings.OverridePickerController
-import wtf.mazy.peel.ui.settings.ProxyDropdownController
+import wtf.mazy.peel.ui.settings.ProxyPickerController
 import wtf.mazy.peel.ui.settings.SandboxSwitchController
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.LetterIconGenerator
@@ -95,15 +101,15 @@ class WebAppSettingsActivity :
         txtWebAppName.text = stored.title
         textBaseUrl.text = prettyBaseUrl(stored.baseUrl)
         sandboxLabel.setText(R.string.enable_sandbox)
-        switchSandbox.isChecked = stored.isUseContainer
-        switchEphemeralSandbox.isChecked = stored.isEphemeralSandbox
+        switchSandbox.isChecked = stored.isolation.isSandboxed
+        switchEphemeralSandbox.isChecked = stored.isolation.isEphemeral
 
         imgWebAppIcon.setOnClickListener { iconEditor.onIconTap() }
         titleUrlBlock.setOnClickListener { showEditDialog(draft) }
         setupFetchButton(draft)
         setupOverridePicker(draft.value.settings)
-        setupSandboxSwitch(draft)
-        setupGroupPicker(draft)
+        val proxyController = setupSandboxSwitch(draft)
+        setupGroupPicker(draft) { proxyController.refresh() }
         SettingsSurface.apply(binding.root.findViewById(R.id.identityBlock), GroupPosition.ONLY)
         SettingsSurface.bindGroup(binding.settingsRowsGroup)
 
@@ -177,7 +183,7 @@ class WebAppSettingsActivity :
         }
     }
 
-    private fun setupGroupPicker(draft: Draft<WebApp>) {
+    private fun setupGroupPicker(draft: Draft<WebApp>, onGroupChanged: () -> Unit) {
         val groups = DataManager.sortedGroups
         if (groups.isEmpty()) {
             binding.groupRow.visibility = View.GONE
@@ -200,17 +206,20 @@ class WebAppSettingsActivity :
             onSelected = { i ->
                 val groupUuid = if (i < groups.size) groups[i].uuid else null
                 draft.update { it.copy(groupUuid = groupUuid) }
+                onGroupChanged()
             },
         )
     }
 
-    private fun setupSandboxSwitch(draft: Draft<WebApp>) {
-        val proxyController = ProxyDropdownController(
+    private fun setupSandboxSwitch(draft: Draft<WebApp>): ProxyPickerController<WebApp, ProxyChoice> {
+        val proxyController = ProxyPickerController(
             activity = this,
             draft = draft,
             proxyRow = proxyRow,
             proxyButton = btnProxyPicker,
-        )
+        ) { webApp ->
+            ProxyOptions.forWebApp(this, webApp.groupUuid?.let(DataManager::group), DataManager.proxies)
+        }
         SandboxSwitchController(
             this,
             draft,
@@ -221,6 +230,7 @@ class WebAppSettingsActivity :
             onSandboxChanged = { proxyController.refresh() },
         ).setup()
         proxyController.setup()
+        return proxyController
     }
 
     private fun setupFetchButton(draft: Draft<WebApp>) {
@@ -247,8 +257,9 @@ class WebAppSettingsActivity :
         fetchGeneration += 1
         val generation = fetchGeneration
 
-        val contextId = webApp.resolveContextId()
-        val usePrivateMode = webApp.resolvePrivateMode()
+        val sandbox = DataManager.effectiveSandbox(webApp)
+        val contextId = sandbox.contextId
+        val usePrivateMode = sandbox is EffectiveSandbox.Private
 
         val fetcher = HeadlessFetcher(
             activity = this,

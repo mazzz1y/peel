@@ -345,6 +345,7 @@
     <string name="cache_cleared">कैश साफ़ किया गया</string>
     <string name="proxy">प्रॉक्सी</string>
     <string name="proxy_direct">कोई प्रॉक्सी नहीं</string>
+    <string name="proxy_inherit_group">इनहेरिट करें (%1$s)</string>
     <string name="proxy_add">प्रॉक्सी जोड़ें</string>
     <string name="proxy_edit">प्रॉक्सी संपादित करें</string>
     <string name="proxy_name">नाम</string>

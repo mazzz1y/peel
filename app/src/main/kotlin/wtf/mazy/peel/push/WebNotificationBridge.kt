@@ -16,7 +16,9 @@ import org.mozilla.geckoview.WebNotification
 import org.mozilla.geckoview.WebNotificationDelegate
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.DataManager
+import wtf.mazy.peel.model.EffectiveSandbox
 import wtf.mazy.peel.model.WebApp
+import wtf.mazy.peel.model.contextId
 import wtf.mazy.peel.ui.dialog.ExternalLinkMenu
 import wtf.mazy.peel.util.App
 import wtf.mazy.peel.util.AppPrefs
@@ -103,7 +105,8 @@ object WebNotificationBridge {
 
     private fun resolveTarget(contextId: String?, originUrl: String): WebApp? {
         val candidates = DataManager.webApps.filter { app ->
-            !app.resolvePrivateMode() && app.resolveContextId() == contextId
+            val sandbox = DataManager.effectiveSandbox(app)
+            sandbox !is EffectiveSandbox.Private && sandbox.contextId == contextId
         }
         return ExternalLinkMenu.bestPeelMatch(candidates, originUrl, excludeUuid = null)
     }

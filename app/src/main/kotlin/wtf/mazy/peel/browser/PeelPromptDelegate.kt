@@ -15,6 +15,7 @@ import org.mozilla.geckoview.GeckoResult
 import org.mozilla.geckoview.GeckoSession
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.DataManager
+import wtf.mazy.peel.model.ProxyRoute
 import wtf.mazy.peel.ui.dialog.DateTimePickerRequest
 import wtf.mazy.peel.ui.dialog.DateTimePickerType
 import wtf.mazy.peel.util.deleteFilesOlderThan
@@ -173,8 +174,8 @@ class PeelPromptDelegate(private val host: SessionHost) : GeckoSession.PromptDel
     private fun resolveActiveProxy(): wtf.mazy.peel.model.Proxy? {
         val uuid = host.webAppUuid ?: return null
         val webApp = DataManager.webApp(uuid) ?: return null
-        val proxyUuid = webApp.resolveProxyUuid() ?: return null
-        return DataManager.proxy(proxyUuid)
+        val via = DataManager.effectiveSandbox(webApp).route as? ProxyRoute.Via ?: return null
+        return DataManager.proxy(via.proxyUuid)
     }
 
     override fun onChoicePrompt(

@@ -5,7 +5,11 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.ColorInt
 import wtf.mazy.peel.R
+import wtf.mazy.peel.model.ProxyRoute
 import wtf.mazy.peel.model.WebAppGroup
+import wtf.mazy.peel.model.isEphemeral
+import wtf.mazy.peel.model.isSandboxed
+import wtf.mazy.peel.model.proxyOrNull
 import wtf.mazy.peel.ui.entitylist.EntityListAdapter
 import wtf.mazy.peel.ui.entitylist.EntityListViewHolder
 import wtf.mazy.peel.ui.entitylist.EntityRow
@@ -35,10 +39,9 @@ class GroupListAdapter(
     override fun bindRow(holder: ViewHolder, row: EntityRow<WebAppGroup>) {
         val group = row.entity
         holder.titleView.text = group.title
-        holder.iconSandbox.visibility = if (group.isUseContainer) View.VISIBLE else View.GONE
-        holder.iconEphemeral.visibility =
-            if (group.isUseContainer && group.isEphemeralSandbox) View.VISIBLE else View.GONE
-        holder.iconProxy.visibility =
-            if (group.isUseContainer && group.proxyUuid != null) View.VISIBLE else View.GONE
+        val proxied = group.isolation.proxyOrNull is ProxyRoute.Via
+        holder.iconSandbox.visibility = if (group.isolation.isSandboxed) View.VISIBLE else View.GONE
+        holder.iconEphemeral.visibility = if (group.isolation.isEphemeral) View.VISIBLE else View.GONE
+        holder.iconProxy.visibility = if (proxied) View.VISIBLE else View.GONE
     }
 }

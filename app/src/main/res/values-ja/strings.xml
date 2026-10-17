@@ -336,6 +336,7 @@
     <string name="cache_cleared">キャッシュを消去しました</string>
     <string name="proxy">プロキシ</string>
     <string name="proxy_direct">プロキシなし</string>
+    <string name="proxy_inherit_group">継承 (%1$s)</string>
     <string name="proxy_add">プロキシを追加</string>
     <string name="proxy_edit">プロキシを編集</string>
     <string name="proxy_name">名前</string>

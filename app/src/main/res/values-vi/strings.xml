@@ -336,6 +336,7 @@
     <string name="cache_cleared">Đã xoá bộ nhớ đệm</string>
     <string name="proxy">Proxy</string>
     <string name="proxy_direct">Không proxy</string>
+    <string name="proxy_inherit_group">Kế thừa (%1$s)</string>
     <string name="proxy_add">Thêm proxy</string>
     <string name="proxy_edit">Chỉnh sửa proxy</string>
     <string name="proxy_name">Tên</string>

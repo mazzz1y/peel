@@ -30,6 +30,7 @@ import wtf.mazy.peel.browser.SessionHostRegistry
 import wtf.mazy.peel.gecko.GeckoRuntimeProvider
 import wtf.mazy.peel.model.BackupManager
 import wtf.mazy.peel.model.DataManager
+import wtf.mazy.peel.model.ProxyChoice
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.model.effective
 import wtf.mazy.peel.ui.common.ListEmptyState
@@ -43,6 +44,7 @@ import wtf.mazy.peel.ui.entitylist.EntityListAnimations
 import wtf.mazy.peel.ui.entitylist.EntitySelectionController
 import wtf.mazy.peel.ui.entitylist.ListChrome
 import wtf.mazy.peel.ui.entitylist.SelectionConfig
+import wtf.mazy.peel.ui.proxy.ProxyOptions
 import wtf.mazy.peel.ui.settings.showApplyTimingSnackbar
 import wtf.mazy.peel.ui.webapplist.AppBarAction
 import wtf.mazy.peel.ui.webapplist.BottomSearchSurface
@@ -453,22 +455,21 @@ class MainActivity :
         onConfirmed: () -> Unit = {},
         onCancelled: () -> Unit = {},
     ) {
+        val targetGroup = DataManager.sortedGroups.getOrNull(viewPager.currentItem)
         showSandboxInputDialog(
             titleRes = R.string.add_webapp,
             hintRes = R.string.url,
+            proxyOptions = ProxyOptions.forWebApp(this, targetGroup, DataManager.proxies),
+            defaultProxy = ProxyChoice.Inherit,
             inputType = android.text.InputType.TYPE_TEXT_VARIATION_URI,
             prefill = prefill,
             onCancel = onCancelled,
         ) { result ->
             val url = TypedUrl.normalize(result.text)
-            val currentPage = viewPager.currentItem
-            val groups = DataManager.sortedGroups
             val newSite = WebApp(
                 baseUrl = url,
-                isUseContainer = result.sandbox,
-                isEphemeralSandbox = result.ephemeral,
-                proxyUuid = result.proxyUuid,
-                groupUuid = groups.getOrNull(currentPage)?.uuid,
+                isolation = result.isolation,
+                groupUuid = targetGroup?.uuid,
             )
 
             onConfirmed()

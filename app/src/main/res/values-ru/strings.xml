@@ -363,6 +363,7 @@
     <string name="cache_cleared">Кеш очищен</string>
     <string name="proxy">Прокси</string>
     <string name="proxy_direct">Без прокси</string>
+    <string name="proxy_inherit_group">Наследовать (%1$s)</string>
     <string name="proxy_add">Добавить прокси</string>
     <string name="proxy_edit">Изменить прокси</string>
     <string name="proxy_name">Название</string>

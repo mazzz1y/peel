@@ -13,6 +13,7 @@ import wtf.mazy.peel.R
 import wtf.mazy.peel.browser.SessionHostRegistry
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.EntityCloner
+import wtf.mazy.peel.model.ProxyRoute
 import wtf.mazy.peel.model.WebAppGroup
 import wtf.mazy.peel.shortcut.Shortcuts
 import wtf.mazy.peel.ui.common.LoadingDialogController
@@ -27,6 +28,7 @@ import wtf.mazy.peel.ui.entitylist.SelectionConfig
 import wtf.mazy.peel.ui.entitylist.scheduleEntityDelete
 import wtf.mazy.peel.ui.grouplist.GroupListAdapter
 import wtf.mazy.peel.ui.grouplist.GroupSelectionHandler
+import wtf.mazy.peel.ui.proxy.ProxyOptions
 import wtf.mazy.peel.ui.settings.showApplyTimingSnackbar
 import wtf.mazy.peel.util.App
 import wtf.mazy.peel.util.Const
@@ -72,13 +74,10 @@ class GroupListActivity : EntityListActivity<WebAppGroup>() {
         showSandboxInputDialog(
             titleRes = R.string.add_group,
             hintRes = R.string.group_name_hint,
+            proxyOptions = ProxyOptions.forGroup(this, DataManager.proxies),
+            defaultProxy = ProxyRoute.Direct,
         ) { result ->
-            val group = WebAppGroup(
-                title = result.text,
-                isUseContainer = result.sandbox,
-                isEphemeralSandbox = result.ephemeral,
-                proxyUuid = result.proxyUuid,
-            )
+            val group = WebAppGroup(title = result.text, isolation = result.isolation)
             lifecycleScope.launch {
                 DataManager.addGroup(group, appendOrder = true)
             }

@@ -345,6 +345,7 @@
     <string name="cache_cleared">ক্যাশ পরিষ্কার করা হয়েছে</string>
     <string name="proxy">প্রক্সি</string>
     <string name="proxy_direct">কোনো প্রক্সি নেই</string>
+    <string name="proxy_inherit_group">উত্তরাধিকার (%1$s)</string>
     <string name="proxy_add">নতুন প্রক্সি যোগ করুন</string>
     <string name="proxy_edit">প্রক্সি সম্পাদনা</string>
     <string name="proxy_name">নাম</string>

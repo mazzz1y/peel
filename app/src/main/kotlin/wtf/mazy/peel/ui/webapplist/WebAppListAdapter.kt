@@ -11,7 +11,10 @@ import kotlinx.coroutines.launch
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.EntityCloner
+import wtf.mazy.peel.model.ProxyRoute
 import wtf.mazy.peel.model.WebApp
+import wtf.mazy.peel.model.isEphemeral
+import wtf.mazy.peel.model.isSandboxed
 import wtf.mazy.peel.shortcut.Shortcuts
 import wtf.mazy.peel.ui.common.ShareSecretsDialog
 import wtf.mazy.peel.ui.common.Theming
@@ -65,11 +68,11 @@ class WebAppListAdapter(
         holder.groupLabel.text = row.tertiaryText
         holder.groupLabel.visibility = if (row.tertiaryText != null) View.VISIBLE else View.GONE
 
-        holder.iconSandbox.visibility = if (app.isUseContainer) View.VISIBLE else View.GONE
-        holder.iconEphemeral.visibility =
-            if (app.isUseContainer && app.isEphemeralSandbox) View.VISIBLE else View.GONE
-        holder.iconProxy.visibility =
-            if (app.isUseContainer && app.resolveProxyUuid() != null) View.VISIBLE else View.GONE
+        val proxied = app.isolation.isSandboxed &&
+                DataManager.effectiveSandbox(app).route is ProxyRoute.Via
+        holder.iconSandbox.visibility = if (app.isolation.isSandboxed) View.VISIBLE else View.GONE
+        holder.iconEphemeral.visibility = if (app.isolation.isEphemeral) View.VISIBLE else View.GONE
+        holder.iconProxy.visibility = if (proxied) View.VISIBLE else View.GONE
     }
 
     private fun buildRows(): List<EntityRow<WebApp>> {

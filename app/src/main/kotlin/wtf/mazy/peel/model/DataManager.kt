@@ -154,15 +154,24 @@ object DataManager {
 
     fun group(uuid: String): WebAppGroup? = groups.find { it.uuid == uuid }
 
-    fun sandboxOwner(contextId: String): SandboxOwner<*>? = webApp(contextId) ?: group(contextId)
+    fun sandboxOwner(contextId: String): SandboxOwner<*, *>? = webApp(contextId) ?: group(contextId)
 
     val proxies: List<Proxy>
         get() = state.value.proxies
 
     fun proxy(uuid: String): Proxy? = proxies.find { it.uuid == uuid }
 
-    fun proxyDependents(uuid: String): Pair<List<WebApp>, List<WebAppGroup>> =
-        webApps.filter { it.proxyUuid == uuid } to groups.filter { it.proxyUuid == uuid }
+    fun proxyDependents(uuid: String): Pair<List<WebApp>, List<WebAppGroup>> {
+        val via = ProxyRoute.Via(uuid)
+        return webApps.filter { it.isolation.proxyOrNull == via } to
+                groups.filter { it.isolation.proxyOrNull == via }
+    }
+
+    fun effectiveSandbox(webApp: WebApp): EffectiveSandbox =
+        effectiveSandbox(webApp, webApp.groupUuid?.let(::group))
+
+    fun effectiveSandbox(contextId: String): EffectiveSandbox? =
+        webApp(contextId)?.let(::effectiveSandbox) ?: group(contextId)?.let(::effectiveSandbox)
 
     fun effectiveSettings(webApp: WebApp): EffectiveSettings {
         val current = state.value
@@ -326,8 +335,12 @@ object DataManager {
     private fun ensureLoaded(action: Action.EnsureWebAppLoaded) {
         val current = state.value
         if (!action.forceReload && current.webApps.any { it.uuid == action.uuid }) return
-        val loadedWebApp = repository.loadWebApp(action.uuid) ?: return
+        val proxyUuids = current.proxyUuids
+        val loadedWebApp = repository.loadWebApp(action.uuid)
+            ?.withExistingProxy(proxyUuids)
+            ?: return
         val loadedGroup = loadedWebApp.groupUuid?.let(repository::loadGroup)
+            ?.withExistingProxy(proxyUuids)
         val loadedGlobal = repository.loadGlobalSettings()?.let(::ensureGlobalSettingsConcrete)
             ?: current.globalSettings
         _state.value = current.copy(
@@ -340,10 +353,11 @@ object DataManager {
 
     private fun handleAddWebApp(action: Action.AddWebApp) {
         val current = state.value
+        val added = action.webApp.withExistingProxy(current.proxyUuids)
         val webApp = if (action.appendOrder) {
-            action.webApp.copy(order = OrderAllocator(current).nextWebAppOrder(action.webApp.groupUuid))
+            added.copy(order = OrderAllocator(current).nextWebAppOrder(added.groupUuid))
         } else {
-            action.webApp
+            added
         }
         repository.upsertWebApp(webApp)
         _state.value = current.copy(webApps = current.webApps + webApp)
@@ -361,7 +375,7 @@ object DataManager {
     private fun handleReplaceWebApp(action: Action.ReplaceWebApp) {
         val current = state.value
         if (current.webApps.none { it.uuid == action.webApp.uuid }) return
-        val webApp = action.webApp.withOwnSettings()
+        val webApp = action.webApp.withOwnSettings().withExistingProxy(current.proxyUuids)
         repository.upsertWebApp(webApp)
         _state.value =
             current.copy(webApps = current.webApps.replacingOrAppending(webApp) { it.uuid })
@@ -382,10 +396,11 @@ object DataManager {
 
     private fun handleAddGroup(action: Action.AddGroup) {
         val current = state.value
+        val added = action.group.withExistingProxy(current.proxyUuids)
         val group = if (action.appendOrder) {
-            action.group.copy(order = OrderAllocator(current).nextGroupOrder())
+            added.copy(order = OrderAllocator(current).nextGroupOrder())
         } else {
-            action.group
+            added
         }
         repository.upsertGroup(group)
         _state.value = current.copy(groups = current.groups + group)
@@ -394,7 +409,7 @@ object DataManager {
     private fun handleReplaceGroup(action: Action.ReplaceGroup) {
         val current = state.value
         if (current.groups.none { it.uuid == action.group.uuid }) return
-        val group = action.group.withOwnSettings()
+        val group = action.group.withOwnSettings().withExistingProxy(current.proxyUuids)
         repository.upsertGroup(group)
         _state.value = current.copy(groups = current.groups.replacingOrAppending(group) { it.uuid })
         sideEffects.onShortcutOwnerChanged(group)
@@ -452,23 +467,8 @@ object DataManager {
         val current = state.value
         if (current.proxies.none { it.uuid == action.uuid }) return
         repository.deleteProxy(action.uuid)
-
-        val nextWebApps = current.webApps.map { webApp ->
-            if (webApp.proxyUuid == action.uuid) webApp.copy(proxyUuid = null) else webApp
-        }
-        val nextGroups = current.groups.map { group ->
-            if (group.proxyUuid == action.uuid) group.copy(proxyUuid = null) else group
-        }
-        val changedWebApps =
-            nextWebApps.filterIndexed { i, webApp -> webApp !== current.webApps[i] }
-        val changedGroups = nextGroups.filterIndexed { i, group -> group !== current.groups[i] }
-        if (changedWebApps.isNotEmpty()) repository.upsertWebApps(changedWebApps)
-        if (changedGroups.isNotEmpty()) repository.upsertGroups(changedGroups)
-
-        _state.value = current.copy(
-            webApps = nextWebApps,
-            groups = nextGroups,
-            proxies = current.proxies.filterNot { it.uuid == action.uuid },
+        _state.value = withExistingProxies(
+            current.copy(proxies = current.proxies.filterNot { it.uuid == action.uuid })
         )
     }
 
@@ -515,17 +515,33 @@ object DataManager {
         val current = state.value
         val loadedWebApps = repository.loadAllWebApps()
         removeStaleShortcuts(current.webApps, loadedWebApps)
-        _state.value = DataState(
-            webApps = loadedWebApps,
-            groups = repository.loadAllGroups(),
-            globalSettings = repository.loadGlobalSettings()?.let(::ensureGlobalSettingsConcrete)
-                ?: ensureGlobalSettingsConcrete(current.globalSettings),
-            proxies = repository.loadAllProxies(),
+        _state.value = withExistingProxies(
+            DataState(
+                webApps = loadedWebApps,
+                groups = repository.loadAllGroups(),
+                globalSettings = repository.loadGlobalSettings()?.let(::ensureGlobalSettingsConcrete)
+                    ?: ensureGlobalSettingsConcrete(current.globalSettings),
+                proxies = repository.loadAllProxies(),
+            )
         )
     }
 
+    private fun withExistingProxies(state: DataState): DataState {
+        val proxyUuids = state.proxyUuids
+        val webApps = state.webApps.map { it.withExistingProxy(proxyUuids) }
+        val groups = state.groups.map { it.withExistingProxy(proxyUuids) }
+        val changedWebApps = webApps.filterIndexed { i, webApp -> webApp !== state.webApps[i] }
+        val changedGroups = groups.filterIndexed { i, group -> group !== state.groups[i] }
+        if (changedWebApps.isNotEmpty()) repository.upsertWebApps(changedWebApps)
+        if (changedGroups.isNotEmpty()) repository.upsertGroups(changedGroups)
+        return state.copy(webApps = webApps, groups = groups)
+    }
+
+    private val DataState.proxyUuids: Set<String>
+        get() = proxies.mapTo(mutableSetOf()) { it.uuid }
+
     private fun forgetWebApp(webApp: WebApp) {
-        if (webApp.isUseContainer) sideEffects.onSandboxRemoved(webApp.uuid)
+        if (webApp.isolation.isSandboxed) sideEffects.onSandboxRemoved(webApp.uuid)
         webApp.deleteIcon()
         deleteAppPrefs(App.appContext, webApp.uuid)
     }

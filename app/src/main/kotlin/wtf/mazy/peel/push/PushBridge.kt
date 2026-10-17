@@ -22,6 +22,7 @@ import wtf.mazy.peel.gecko.GeckoRuntimeProvider
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.IconOwner
 import wtf.mazy.peel.model.db.PushSubscriptionEntity
+import wtf.mazy.peel.model.ephemeralContextId
 import wtf.mazy.peel.util.App
 import wtf.mazy.peel.util.AppPrefs
 import java.math.BigInteger
@@ -319,7 +320,7 @@ object PushBridge {
 
     private fun isEphemeralScope(scopeUrl: String): Boolean {
         val contextId = scopeContextId(scopeUrl) ?: return false
-        return DataManager.sandboxOwner(contextId)?.resolveEphemeral() == true
+        return DataManager.effectiveSandbox(contextId)?.ephemeralContextId != null
     }
 
     private fun decodeGeckoContextId(encoded: String): String? {

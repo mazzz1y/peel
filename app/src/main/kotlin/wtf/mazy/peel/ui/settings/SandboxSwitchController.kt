@@ -8,11 +8,17 @@ import com.google.android.material.materialswitch.MaterialSwitch
 import kotlinx.coroutines.launch
 import wtf.mazy.peel.R
 import wtf.mazy.peel.gecko.SandboxManager
+import wtf.mazy.peel.model.Isolation
+import wtf.mazy.peel.model.ProxyChoice
 import wtf.mazy.peel.model.SandboxOwner
+import wtf.mazy.peel.model.isEphemeral
+import wtf.mazy.peel.model.isSandboxed
+import wtf.mazy.peel.model.sandboxed
+import wtf.mazy.peel.model.withEphemeral
 import wtf.mazy.peel.ui.common.Draft
 import wtf.mazy.peel.util.toast
 
-class SandboxSwitchController<T : SandboxOwner<T>>(
+class SandboxSwitchController<T : SandboxOwner<T, P>, P : ProxyChoice>(
     private val activity: AppCompatActivity,
     private val draft: Draft<T>,
     private val switchSandbox: MaterialSwitch,
@@ -30,7 +36,7 @@ class SandboxSwitchController<T : SandboxOwner<T>>(
         onSandboxChanged?.invoke()
 
         switchSandbox.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked == owner.isUseContainer) return@setOnCheckedChangeListener
+            if (isChecked == owner.isolation.isSandboxed) return@setOnCheckedChangeListener
             if (!isChecked) {
                 MaterialAlertDialogBuilder(activity)
                     .setMessage(R.string.clear_sandbox_data_confirm)
@@ -48,12 +54,12 @@ class SandboxSwitchController<T : SandboxOwner<T>>(
         }
 
         switchEphemeral.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked == owner.isEphemeralSandbox) return@setOnCheckedChangeListener
+            if (isChecked == owner.isolation.isEphemeral) return@setOnCheckedChangeListener
             if (isChecked) {
                 MaterialAlertDialogBuilder(activity)
                     .setMessage(R.string.clear_sandbox_data_confirm)
                     .setPositiveButton(R.string.ok) { _, _ ->
-                        draft.update { it.withSandbox(isEphemeralSandbox = true) }
+                        draft.update { it.withEphemeral(true) }
                         clearSandboxData()
                     }
                     .setNegativeButton(R.string.cancel) { _, _ ->
@@ -61,7 +67,7 @@ class SandboxSwitchController<T : SandboxOwner<T>>(
                     }
                     .show()
             } else {
-                draft.update { it.withSandbox(isEphemeralSandbox = false) }
+                draft.update { it.withEphemeral(false) }
                 updateClearButtonVisibility()
             }
         }
@@ -70,11 +76,11 @@ class SandboxSwitchController<T : SandboxOwner<T>>(
     }
 
     private fun updateEphemeralVisibility() {
-        ephemeralRow.visibility = if (owner.isUseContainer) View.VISIBLE else View.GONE
+        ephemeralRow.visibility = if (owner.isolation.isSandboxed) View.VISIBLE else View.GONE
     }
 
     private fun updateClearButtonVisibility() {
-        val show = owner.isUseContainer && !owner.isEphemeralSandbox
+        val show = owner.isolation.isSandboxed && !owner.isolation.isEphemeral
         btnClear.visibility = if (show) View.VISIBLE else View.GONE
     }
 
@@ -87,16 +93,14 @@ class SandboxSwitchController<T : SandboxOwner<T>>(
     }
 
     private fun setSandboxEnabled() {
-        draft.update { it.withSandbox(isUseContainer = true) }
+        draft.update { it.sandboxed() }
         updateEphemeralVisibility()
         updateClearButtonVisibility()
         onSandboxChanged?.invoke()
     }
 
     private fun disableSandbox() {
-        draft.update {
-            it.withSandbox(isUseContainer = false, isEphemeralSandbox = false, proxyUuid = null)
-        }
+        draft.update { it.withIsolation(Isolation.Shared) }
         switchEphemeral.isChecked = false
         updateEphemeralVisibility()
         updateClearButtonVisibility()

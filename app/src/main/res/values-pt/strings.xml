@@ -345,6 +345,7 @@
     <string name="cache_cleared">Cache limpo</string>
     <string name="proxy">Proxy</string>
     <string name="proxy_direct">Sem proxy</string>
+    <string name="proxy_inherit_group">Herdar (%1$s)</string>
     <string name="proxy_add">Adicionar proxy</string>
     <string name="proxy_edit">Editar proxy</string>
     <string name="proxy_name">Nome</string>
