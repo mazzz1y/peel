@@ -357,7 +357,7 @@
     <string name="proxy_type_socks5">SOCKS5</string>
     <string name="proxy_delete_title">删除代理</string>
     <string name="proxy_delete_confirm">删除此代理?</string>
-    <string name="proxy_in_use_warning">正在被 %1$d 个应用/分组使用。它们的代理将变回「不使用代理」。</string>
+    <string name="proxy_in_use_warning">正在被 %1$d 个应用/分组使用。应用将改为「继承」，分组将改为「不使用代理」。</string>
     <string name="proxy_auth_failed">代理身份验证失败</string>
     <string name="beforeunload_message">所做的更改可能不会被保存</string>
     <string name="beforeunload_leave">离开页面</string>

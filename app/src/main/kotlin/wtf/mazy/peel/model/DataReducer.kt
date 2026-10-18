@@ -2,6 +2,14 @@ package wtf.mazy.peel.model
 
 object DataReducer {
 
+    fun withExistingProxies(state: DataState): DataState {
+        val proxyUuids = state.proxyUuids
+        return state.copy(
+            webApps = state.webApps.map { it.withExistingProxy(proxyUuids) },
+            groups = state.groups.map { it.withExistingProxy(proxyUuids) },
+        )
+    }
+
     fun movingWebAppsToGroup(state: DataState, uuids: Set<String>, groupUuid: String?): DataState {
         // Order is scoped to a group, so a moved app has to be renumbered onto the end of the
         // destination; keeping its old value would collide with whatever already sits there.

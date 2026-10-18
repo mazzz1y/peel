@@ -7,9 +7,6 @@ import androidx.annotation.ColorInt
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.ProxyRoute
 import wtf.mazy.peel.model.WebAppGroup
-import wtf.mazy.peel.model.isEphemeral
-import wtf.mazy.peel.model.isSandboxed
-import wtf.mazy.peel.model.proxyOrNull
 import wtf.mazy.peel.ui.entitylist.EntityListAdapter
 import wtf.mazy.peel.ui.entitylist.EntityListViewHolder
 import wtf.mazy.peel.ui.entitylist.EntityRow

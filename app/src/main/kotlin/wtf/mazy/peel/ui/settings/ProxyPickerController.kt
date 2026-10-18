@@ -10,7 +10,6 @@ import kotlinx.coroutines.launch
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.ProxyChoice
 import wtf.mazy.peel.model.SandboxOwner
-import wtf.mazy.peel.model.proxyOrNull
 import wtf.mazy.peel.model.withExistingProxy
 import wtf.mazy.peel.model.withProxy
 import wtf.mazy.peel.ui.common.Draft
@@ -36,18 +35,19 @@ class ProxyPickerController<T : SandboxOwner<T, P>, P : ProxyChoice>(
         }
     }
 
+    private val storedOwner: T
+        get() = draft.value.withExistingProxy(DataManager.state.value.proxyUuids)
+
     fun refresh() {
-        val proxyUuids = DataManager.proxies.mapTo(mutableSetOf()) { it.uuid }
-        draft.update { it.withExistingProxy(proxyUuids) }
-        val owner = draft.value
-        val proxy = owner.isolation.proxyOrNull?.takeIf { proxyUuids.isNotEmpty() }
+        val owner = storedOwner
+        val proxy = owner.isolation.proxyOrNull?.takeIf { DataManager.proxies.isNotEmpty() }
         proxyRow.visibility = if (proxy != null) View.VISIBLE else View.GONE
         if (proxy == null) return
         proxyButton.text = ProxyOptions.current(options(owner), proxy).routeLabel
     }
 
     private fun showPicker() {
-        val owner = draft.value
+        val owner = storedOwner
         val proxy = owner.isolation.proxyOrNull ?: return
         ProxyPickerDialog.show(activity, options(owner), proxy) { picked ->
             draft.update { it.withProxy(picked) }

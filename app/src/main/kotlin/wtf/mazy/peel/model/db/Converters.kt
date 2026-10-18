@@ -119,9 +119,17 @@ private data class StoredIsolation(
     companion object {
         fun <P : ProxyChoice> of(isolation: Isolation<P>, proxyToStored: (P) -> String?) =
             when (isolation) {
-                Isolation.Shared -> StoredIsolation(false, false, null)
+                Isolation.Shared -> StoredIsolation(
+                    isUseContainer = false,
+                    isEphemeralSandbox = false,
+                    proxyUuid = null,
+                )
                 is Isolation.Sandboxed ->
-                    StoredIsolation(true, isolation.ephemeral, proxyToStored(isolation.proxy))
+                    StoredIsolation(
+                        isUseContainer = true,
+                        isEphemeralSandbox = isolation.ephemeral,
+                        proxyUuid = proxyToStored(isolation.proxy),
+                    )
             }
     }
 }

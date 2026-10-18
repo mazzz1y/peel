@@ -13,8 +13,6 @@ import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.EntityCloner
 import wtf.mazy.peel.model.ProxyRoute
 import wtf.mazy.peel.model.WebApp
-import wtf.mazy.peel.model.isEphemeral
-import wtf.mazy.peel.model.isSandboxed
 import wtf.mazy.peel.shortcut.Shortcuts
 import wtf.mazy.peel.ui.common.ShareSecretsDialog
 import wtf.mazy.peel.ui.common.Theming

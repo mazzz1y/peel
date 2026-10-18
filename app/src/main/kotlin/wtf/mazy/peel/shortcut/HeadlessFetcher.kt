@@ -28,6 +28,7 @@ import org.mozilla.geckoview.WebExtension
 import org.mozilla.geckoview.WebRequestError
 import wtf.mazy.peel.R
 import wtf.mazy.peel.gecko.GeckoRuntimeProvider
+import wtf.mazy.peel.gecko.SandboxSession
 import wtf.mazy.peel.model.EffectiveSettings
 import java.net.URL
 import kotlin.time.Duration.Companion.milliseconds
@@ -127,7 +128,7 @@ class HeadlessFetcher(
 
         val ext = GeckoRuntimeProvider.ensurePageBridgeExtension(appContext)
 
-        val session = GeckoSession(
+        val session = SandboxSession(
             GeckoSessionSettings.Builder()
                 .allowJavascript(true)
                 .apply {

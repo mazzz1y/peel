@@ -31,7 +31,7 @@ class IsolationStorageMappingTest {
 
     @Test
     fun webAppStoredCombinations() {
-        assertEquals(Isolation.Shared, appEntity(false, true, "tor").toDomain().isolation)
+        assertEquals(Isolation.Shared, appEntity(false, true, "proxy-a").toDomain().isolation)
         assertEquals(
             Isolation.Sandboxed(true, ProxyChoice.Inherit),
             appEntity(true, true, null).toDomain().isolation,
@@ -41,21 +41,25 @@ class IsolationStorageMappingTest {
             appEntity(true, false, "direct").toDomain().isolation,
         )
         assertEquals(
-            Isolation.Sandboxed(false, ProxyRoute.Via("tor")),
-            appEntity(true, false, "tor").toDomain().isolation,
+            Isolation.Sandboxed(false, ProxyRoute.Via("proxy-a")),
+            appEntity(true, false, "proxy-a").toDomain().isolation,
         )
     }
 
     @Test
     fun groupStoredCombinations() {
-        assertEquals(Isolation.Shared, groupEntity(false, true, "tor").toDomain().isolation)
+        assertEquals(Isolation.Shared, groupEntity(false, true, "proxy-a").toDomain().isolation)
         assertEquals(
             Isolation.Sandboxed(true, ProxyRoute.Direct),
             groupEntity(true, true, null).toDomain().isolation,
         )
         assertEquals(
-            Isolation.Sandboxed(false, ProxyRoute.Via("tor")),
-            groupEntity(true, false, "tor").toDomain().isolation,
+            Isolation.Sandboxed(false, ProxyRoute.Direct),
+            groupEntity(true, false, "direct").toDomain().isolation,
+        )
+        assertEquals(
+            Isolation.Sandboxed(false, ProxyRoute.Via("proxy-a")),
+            groupEntity(true, false, "proxy-a").toDomain().isolation,
         )
     }
 
@@ -100,8 +104,8 @@ class IsolationStorageMappingTest {
         Isolation.Shared,
         Isolation.Sandboxed(false, ProxyRoute.Direct),
         Isolation.Sandboxed(true, ProxyRoute.Direct),
-        Isolation.Sandboxed(false, ProxyRoute.Via("tor")),
-        Isolation.Sandboxed(true, ProxyRoute.Via("tor")),
+        Isolation.Sandboxed(false, ProxyRoute.Via("proxy-a")),
+        Isolation.Sandboxed(true, ProxyRoute.Via("proxy-a")),
     )
 
     private val webAppIsolations: List<Isolation<ProxyChoice>> = groupIsolations + listOf(

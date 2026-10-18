@@ -527,18 +527,13 @@ object DataManager {
     }
 
     private fun withExistingProxies(state: DataState): DataState {
-        val proxyUuids = state.proxyUuids
-        val webApps = state.webApps.map { it.withExistingProxy(proxyUuids) }
-        val groups = state.groups.map { it.withExistingProxy(proxyUuids) }
-        val changedWebApps = webApps.filterIndexed { i, webApp -> webApp !== state.webApps[i] }
-        val changedGroups = groups.filterIndexed { i, group -> group !== state.groups[i] }
+        val next = DataReducer.withExistingProxies(state)
+        val changedWebApps = next.webApps.filterIndexed { i, webApp -> webApp !== state.webApps[i] }
+        val changedGroups = next.groups.filterIndexed { i, group -> group !== state.groups[i] }
         if (changedWebApps.isNotEmpty()) repository.upsertWebApps(changedWebApps)
         if (changedGroups.isNotEmpty()) repository.upsertGroups(changedGroups)
-        return state.copy(webApps = webApps, groups = groups)
+        return next
     }
-
-    private val DataState.proxyUuids: Set<String>
-        get() = proxies.mapTo(mutableSetOf()) { it.uuid }
 
     private fun forgetWebApp(webApp: WebApp) {
         if (webApp.isolation.isSandboxed) sideEffects.onSandboxRemoved(webApp.uuid)

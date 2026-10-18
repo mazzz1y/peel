@@ -18,7 +18,6 @@ import wtf.mazy.peel.R
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.EffectiveSandbox
 import wtf.mazy.peel.model.WebApp
-import wtf.mazy.peel.model.contextId
 import wtf.mazy.peel.ui.dialog.ExternalLinkMenu
 import wtf.mazy.peel.util.App
 import wtf.mazy.peel.util.AppPrefs

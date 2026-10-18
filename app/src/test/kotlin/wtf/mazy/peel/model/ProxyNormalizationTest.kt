@@ -6,7 +6,7 @@ import org.junit.Test
 
 class ProxyNormalizationTest {
 
-    private val existing = setOf("tor")
+    private val existing = setOf("proxy-a")
 
     private fun app(isolation: Isolation<ProxyChoice>) =
         WebApp(baseUrl = "https://example.com", uuid = "app", title = "app", isolation = isolation)
@@ -35,14 +35,34 @@ class ProxyNormalizationTest {
     @Test
     fun unchangedOwnersAreReturnedAsIs() {
         val owners = listOf(
-            app(Isolation.Sandboxed(false, ProxyRoute.Via("tor"))),
+            app(Isolation.Sandboxed(false, ProxyRoute.Via("proxy-a"))),
             app(Isolation.Sandboxed(false, ProxyRoute.Direct)),
             app(Isolation.Sandboxed(false, ProxyChoice.Inherit)),
             app(Isolation.Shared),
         )
         owners.forEach { assertSame(it, it.withExistingProxy(existing)) }
-        val group = group(Isolation.Sandboxed(false, ProxyRoute.Via("tor")))
+        val group = group(Isolation.Sandboxed(false, ProxyRoute.Via("proxy-a")))
         assertSame(group, group.withExistingProxy(existing))
+    }
+
+    @Test
+    fun wholeStateDropsDeletedProxyAndKeepsTheRest() {
+        val keptApp = app(Isolation.Sandboxed(false, ProxyRoute.Via("proxy-a")))
+        val staleApp = app(Isolation.Sandboxed(false, ProxyRoute.Via("gone"))).copy(uuid = "stale")
+        val staleGroup = group(Isolation.Sandboxed(false, ProxyRoute.Via("gone")))
+        val state = DataState(
+            webApps = listOf(keptApp, staleApp),
+            groups = listOf(staleGroup),
+            globalSettings = WebApp(baseUrl = "", uuid = "global", title = ""),
+            proxies = listOf(Proxy(uuid = "proxy-a")),
+        )
+
+        val next = DataReducer.withExistingProxies(state)
+
+        assertSame(keptApp, next.webApps[0])
+        assertEquals(Isolation.Sandboxed(false, ProxyChoice.Inherit), next.webApps[1].isolation)
+        assertEquals(Isolation.Sandboxed(false, ProxyRoute.Direct), next.groups[0].isolation)
+        assertSame(state.proxies, next.proxies)
     }
 
     @Test

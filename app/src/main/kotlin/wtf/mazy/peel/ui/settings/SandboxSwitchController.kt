@@ -11,8 +11,6 @@ import wtf.mazy.peel.gecko.SandboxManager
 import wtf.mazy.peel.model.Isolation
 import wtf.mazy.peel.model.ProxyChoice
 import wtf.mazy.peel.model.SandboxOwner
-import wtf.mazy.peel.model.isEphemeral
-import wtf.mazy.peel.model.isSandboxed
 import wtf.mazy.peel.model.sandboxed
 import wtf.mazy.peel.model.withEphemeral
 import wtf.mazy.peel.ui.common.Draft

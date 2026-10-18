@@ -20,8 +20,6 @@ import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.SettingDefinition
 import wtf.mazy.peel.model.WebAppGroup
 import wtf.mazy.peel.model.WebAppSettings
-import wtf.mazy.peel.model.isEphemeral
-import wtf.mazy.peel.model.isSandboxed
 import wtf.mazy.peel.ui.IconEditorController
 import wtf.mazy.peel.ui.common.Draft
 import wtf.mazy.peel.ui.common.GroupPosition

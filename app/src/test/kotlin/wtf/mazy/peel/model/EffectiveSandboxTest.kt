@@ -5,35 +5,35 @@ import org.junit.Test
 
 class EffectiveSandboxTest {
 
-    private val tor = ProxyRoute.Via("tor")
-    private val vpn = ProxyRoute.Via("vpn")
+    private val proxyA = ProxyRoute.Via("proxy-a")
+    private val proxyB = ProxyRoute.Via("proxy-b")
 
-    private fun app(isolation: Isolation<ProxyChoice>, private: Boolean = false) = WebApp(
+    private fun app(isolation: Isolation<ProxyChoice>, isPrivate: Boolean = false) = WebApp(
         baseUrl = "https://example.com",
         uuid = "app",
         title = "app",
         isolation = isolation,
-        isPrivateSession = private,
+        isPrivateSession = isPrivate,
         groupUuid = "group",
     )
 
     private fun group(isolation: Isolation<ProxyRoute>) =
         WebAppGroup(uuid = "group", isolation = isolation)
 
-    private val sandboxedTorGroup = group(Isolation.Sandboxed(ephemeral = true, proxy = tor))
+    private val sandboxedProxiedGroup = group(Isolation.Sandboxed(ephemeral = true, proxy = proxyA))
     private val sharedGroup = group(Isolation.Shared)
 
     @Test
     fun privateSessionIsPrivateWhateverItsIsolation() {
-        val webApp = app(Isolation.Sandboxed(false, vpn), private = true)
-        assertEquals(EffectiveSandbox.Private, effectiveSandbox(webApp, sandboxedTorGroup))
+        val webApp = app(Isolation.Sandboxed(false, proxyB), isPrivate = true)
+        assertEquals(EffectiveSandbox.Private, effectiveSandbox(webApp, sandboxedProxiedGroup))
     }
 
     @Test
     fun sharedAppInSandboxedGroupUsesGroupContainerAndRoute() {
         assertEquals(
-            EffectiveSandbox.Shared("group", ephemeral = true, route = tor),
-            effectiveSandbox(app(Isolation.Shared), sandboxedTorGroup),
+            EffectiveSandbox.Shared("group", ephemeral = true, route = proxyA),
+            effectiveSandbox(app(Isolation.Shared), sandboxedProxiedGroup),
         )
     }
 
@@ -48,23 +48,23 @@ class EffectiveSandboxTest {
     fun explicitDirectIgnoresGroupProxy() {
         assertEquals(
             EffectiveSandbox.Own("app", false, ProxyRoute.Direct),
-            effectiveSandbox(app(Isolation.Sandboxed(false, ProxyRoute.Direct)), sandboxedTorGroup),
+            effectiveSandbox(app(Isolation.Sandboxed(false, ProxyRoute.Direct)), sandboxedProxiedGroup),
         )
     }
 
     @Test
     fun namedProxyOverridesGroupProxy() {
         assertEquals(
-            EffectiveSandbox.Own("app", false, vpn),
-            effectiveSandbox(app(Isolation.Sandboxed(false, vpn)), sandboxedTorGroup),
+            EffectiveSandbox.Own("app", false, proxyB),
+            effectiveSandbox(app(Isolation.Sandboxed(false, proxyB)), sandboxedProxiedGroup),
         )
     }
 
     @Test
     fun inheritTakesSandboxedGroupRoute() {
         assertEquals(
-            EffectiveSandbox.Own("app", false, tor),
-            effectiveSandbox(app(Isolation.Sandboxed(false, ProxyChoice.Inherit)), sandboxedTorGroup),
+            EffectiveSandbox.Own("app", false, proxyA),
+            effectiveSandbox(app(Isolation.Sandboxed(false, ProxyChoice.Inherit)), sandboxedProxiedGroup),
         )
     }
 
@@ -78,7 +78,7 @@ class EffectiveSandboxTest {
 
     @Test
     fun ownSandboxIgnoresEphemeralGroup() {
-        val sandbox = effectiveSandbox(app(Isolation.Sandboxed(false, ProxyChoice.Inherit)), sandboxedTorGroup)
+        val sandbox = effectiveSandbox(app(Isolation.Sandboxed(false, ProxyChoice.Inherit)), sandboxedProxiedGroup)
         assertEquals(null, sandbox.ephemeralContextId)
     }
 
@@ -90,18 +90,18 @@ class EffectiveSandboxTest {
 
     @Test
     fun sharedAppInEphemeralGroupWipesGroupContainer() {
-        assertEquals("group", effectiveSandbox(app(Isolation.Shared), sandboxedTorGroup).ephemeralContextId)
+        assertEquals("group", effectiveSandbox(app(Isolation.Shared), sandboxedProxiedGroup).ephemeralContextId)
     }
 
     @Test
     fun sharedAppInNonEphemeralGroupKeepsGroupContainer() {
-        val keptGroup = group(Isolation.Sandboxed(ephemeral = false, proxy = tor))
+        val keptGroup = group(Isolation.Sandboxed(ephemeral = false, proxy = proxyA))
         assertEquals(null, effectiveSandbox(app(Isolation.Shared), keptGroup).ephemeralContextId)
     }
 
     @Test
     fun groupResolution() {
-        assertEquals(EffectiveSandbox.Own("group", true, tor), effectiveSandbox(sandboxedTorGroup))
+        assertEquals(EffectiveSandbox.Own("group", true, proxyA), effectiveSandbox(sandboxedProxiedGroup))
         assertEquals(
             EffectiveSandbox.Shared(null, ephemeral = false, route = ProxyRoute.Direct),
             effectiveSandbox(sharedGroup),
@@ -111,7 +111,7 @@ class EffectiveSandboxTest {
     @Test
     fun contextIdPerKind() {
         assertEquals(null, EffectiveSandbox.Private.contextId)
-        assertEquals("group", EffectiveSandbox.Shared("group", false, tor).contextId)
-        assertEquals("app", EffectiveSandbox.Own("app", false, tor).contextId)
+        assertEquals("group", EffectiveSandbox.Shared("group", false, proxyA).contextId)
+        assertEquals("app", EffectiveSandbox.Own("app", false, proxyA).contextId)
     }
 }

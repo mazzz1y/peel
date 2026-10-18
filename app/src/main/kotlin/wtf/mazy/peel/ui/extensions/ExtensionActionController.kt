@@ -12,6 +12,7 @@ import org.mozilla.geckoview.WebExtension
 import wtf.mazy.peel.browser.SessionHandoff
 import wtf.mazy.peel.browser.SessionHost
 import wtf.mazy.peel.gecko.GeckoRuntimeProvider
+import wtf.mazy.peel.gecko.SandboxSession
 import wtf.mazy.peel.util.ForegroundActivityTracker
 
 class ExtensionActionController(
@@ -103,7 +104,7 @@ class ExtensionActionController(
     private fun mainSession(): GeckoSession? = attachedSessions.firstOrNull()?.second
 
     private fun createPopupSession(extension: WebExtension): GeckoResult<GeckoSession> {
-        val session = GeckoSession(buildAuxiliarySettings())
+        val session = SandboxSession(buildAuxiliarySettings())
         session.open(GeckoRuntimeProvider.getRuntime(activity))
         val shown = showPage(session, extension.metaData.name ?: extension.id)
         if (!shown) {
@@ -218,7 +219,7 @@ class ExtensionActionController(
                     ?: ForegroundActivityTracker.current as? FragmentActivity
                     ?: return null
                 val owner = active
-                val session = GeckoSession(buildSheetSessionSettings(owner))
+                val session = SandboxSession(buildSheetSessionSettings(owner))
                 val title = source.metaData.name ?: source.id
                 if (!launchSessionPage(host, session, owner?.mainSession(), title)) {
                     session.close()

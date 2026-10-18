@@ -26,9 +26,6 @@ import wtf.mazy.peel.model.ProxyChoice
 import wtf.mazy.peel.model.SettingDefinition
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.model.WebAppSettings
-import wtf.mazy.peel.model.contextId
-import wtf.mazy.peel.model.isEphemeral
-import wtf.mazy.peel.model.isSandboxed
 import wtf.mazy.peel.shortcut.FetchCandidate
 import wtf.mazy.peel.shortcut.FetchResult
 import wtf.mazy.peel.shortcut.HeadlessFetcher

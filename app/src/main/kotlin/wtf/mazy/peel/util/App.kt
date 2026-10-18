@@ -65,6 +65,7 @@ class App : Application() {
         appScope.launch {
             PushBridge.reconcile(applicationContext)
         }
+        SandboxManager.clearIdleEphemeralSandboxes(applicationContext)
     }
 
     companion object {

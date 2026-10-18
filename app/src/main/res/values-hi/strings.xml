@@ -366,7 +366,7 @@
     <string name="proxy_type_socks5">SOCKS5</string>
     <string name="proxy_delete_title">प्रॉक्सी हटाएँ</string>
     <string name="proxy_delete_confirm">इस प्रॉक्सी को हटाएँ?</string>
-    <string name="proxy_in_use_warning">%1$d ऐप्स/समूहों द्वारा उपयोग में. उनका प्रॉक्सी «कोई प्रॉक्सी नहीं» पर वापस आ जाएगा.</string>
+    <string name="proxy_in_use_warning">%1$d ऐप्स/समूहों द्वारा उपयोग में. ऐप्स «इनहेरिट करें» पर और समूह «कोई प्रॉक्सी नहीं» पर चले जाएंगे.</string>
     <string name="proxy_auth_failed">प्रॉक्सी प्रमाणीकरण विफल</string>
     <string name="beforeunload_message">किए गए बदलाव सेव नहीं हो सकते हैं</string>
     <string name="beforeunload_leave">पेज छोड़ें</string>

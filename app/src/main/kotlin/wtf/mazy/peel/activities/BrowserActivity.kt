@@ -47,7 +47,6 @@ import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.EffectiveSandbox
 import wtf.mazy.peel.model.EffectiveSettings
 import wtf.mazy.peel.model.WebApp
-import wtf.mazy.peel.model.contextId
 import wtf.mazy.peel.ui.browser.AutoReloadController
 import wtf.mazy.peel.ui.browser.BiometricUnlockController
 import wtf.mazy.peel.ui.dialog.ExternalLinkMenu
@@ -63,6 +62,10 @@ import wtf.mazy.peel.util.webAppUuid
 
 class BrowserActivity : BaseSessionHost() {
     override var webAppUuid: String? = null
+        private set(value) {
+            field?.takeIf { it != value }?.let(DataManager::removeTransientWebApp)
+            field = value
+        }
 
     override val ownerWebAppUuid: String?
         get() = webAppUuid

@@ -1,43 +1,39 @@
 package wtf.mazy.peel.model
 
 sealed interface EffectiveSandbox {
+    val contextId: String?
     val route: ProxyRoute
 
+    val ephemeralContextId: String?
+        get() = when (this) {
+            Private -> null
+            is Shared -> contextId?.takeIf { ephemeral }
+            is Own -> contextId.takeIf { ephemeral }
+        }
+
     data object Private : EffectiveSandbox {
+        override val contextId: String?
+            get() = null
         override val route: ProxyRoute
             get() = ProxyRoute.Direct
     }
 
     data class Shared(
-        val groupContextId: String?,
+        override val contextId: String?,
         val ephemeral: Boolean,
         override val route: ProxyRoute,
     ) : EffectiveSandbox
 
     data class Own(
-        val contextId: String,
+        override val contextId: String,
         val ephemeral: Boolean,
         override val route: ProxyRoute,
     ) : EffectiveSandbox
 }
 
-val EffectiveSandbox.contextId: String?
-    get() = when (this) {
-        EffectiveSandbox.Private -> null
-        is EffectiveSandbox.Shared -> groupContextId
-        is EffectiveSandbox.Own -> contextId
-    }
-
-val EffectiveSandbox.ephemeralContextId: String?
-    get() = when (this) {
-        EffectiveSandbox.Private -> null
-        is EffectiveSandbox.Shared -> groupContextId?.takeIf { ephemeral }
-        is EffectiveSandbox.Own -> contextId.takeIf { ephemeral }
-    }
-
 fun effectiveSandbox(group: WebAppGroup): EffectiveSandbox =
     when (val isolation = group.isolation) {
-        Isolation.Shared -> EffectiveSandbox.Shared(null, ephemeral = false, route = ProxyRoute.Direct)
+        Isolation.Shared -> EffectiveSandbox.Shared(contextId = null, ephemeral = false, route = ProxyRoute.Direct)
         is Isolation.Sandboxed -> EffectiveSandbox.Own(group.uuid, isolation.ephemeral, isolation.proxy)
     }
 
@@ -47,7 +43,7 @@ fun effectiveSandbox(webApp: WebApp, group: WebAppGroup?): EffectiveSandbox {
     val groupRoute = groupOwn?.route ?: ProxyRoute.Direct
     return when (val isolation = webApp.isolation) {
         Isolation.Shared -> EffectiveSandbox.Shared(
-            groupContextId = groupOwn?.contextId,
+            contextId = groupOwn?.contextId,
             ephemeral = groupOwn?.ephemeral == true,
             route = groupRoute,
         )

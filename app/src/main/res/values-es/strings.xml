@@ -365,7 +365,7 @@
     <string name="proxy_type_socks5">SOCKS5</string>
     <string name="proxy_delete_title">Eliminar proxy</string>
     <string name="proxy_delete_confirm">¿Eliminar este proxy?</string>
-    <string name="proxy_in_use_warning">Usado por %1$d aplicaciones/grupos. Su proxy volverá a «Sin proxy».</string>
+    <string name="proxy_in_use_warning">Usado por %1$d aplicaciones/grupos. Las aplicaciones pasarán a «Heredar» y los grupos a «Sin proxy».</string>
     <string name="proxy_auth_failed">Falló la autenticación del proxy</string>
     <string name="beforeunload_message">Los cambios realizados podrían no guardarse</string>
     <string name="beforeunload_leave">Salir de la página</string>

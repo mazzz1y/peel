@@ -8,11 +8,16 @@ import kotlinx.coroutines.withContext
 import org.mozilla.geckoview.GeckoRuntime
 import org.mozilla.geckoview.StorageController
 import wtf.mazy.peel.browser.SessionHostRegistry
+import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.push.PushBridge
 import wtf.mazy.peel.util.App
 import wtf.mazy.peel.util.AppPrefs
 
 object SandboxManager {
+
+    val usage = SandboxUsage { contextId ->
+        if (isEphemeral(contextId)) clearIdle(App.appContext, contextId)
+    }
 
     suspend fun clearSandboxData(context: Context, contextId: String): Boolean {
         PushBridge.onContextCleared(context, contextId)
@@ -50,8 +55,31 @@ object SandboxManager {
         }
     }
 
+    fun clearIdleEphemeralSandboxes(context: Context) {
+        val appContext = context.applicationContext
+        App.appScope.launch(Dispatchers.Main.immediate) {
+            DataManager.awaitReady()
+            DataManager.state.value.ephemeralContextIds
+                .filterNot(usage::isInUse)
+                .forEach { clearIdle(appContext, it) }
+        }
+    }
+
     suspend fun clearNonSandboxData() {
         withContext(Dispatchers.IO) { App.appContext.cacheDir?.deleteRecursively() }
+    }
+
+    private fun isEphemeral(contextId: String): Boolean =
+        DataManager.effectiveSandbox(contextId)?.ephemeralContextId == contextId
+
+    // Persisted only as a fallback: a pending clear is flushed again later, possibly after a
+    // window has reopened the sandbox.
+    private fun clearIdle(context: Context, contextId: String) {
+        PushBridge.onContextCleared(context, contextId)
+        val runtime = GeckoRuntimeProvider.runtimeOrNull()
+        val cleared = runtime != null &&
+                runCatching { runtime.storageController.clearDataForSessionContext(contextId) }.isSuccess
+        if (!cleared) AppPrefs.addPendingSandboxClear(context, contextId)
     }
 
     private suspend fun clearContext(contextId: String): Boolean =

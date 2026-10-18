@@ -357,7 +357,7 @@
     <string name="proxy_type_socks5">SOCKS5</string>
     <string name="proxy_delete_title">プロキシを削除</string>
     <string name="proxy_delete_confirm">このプロキシを削除しますか?</string>
-    <string name="proxy_in_use_warning">%1$d 個のアプリ/グループで使用中です。それらのプロキシは「プロキシなし」に戻ります。</string>
+    <string name="proxy_in_use_warning">%1$d 個のアプリ/グループで使用中です。アプリは「継承」、グループは「プロキシなし」に切り替わります。</string>
     <string name="proxy_auth_failed">プロキシ認証に失敗しました</string>
     <string name="beforeunload_message">変更内容が保存されない場合があります</string>
     <string name="beforeunload_leave">ページを離れる</string>

@@ -6,11 +6,10 @@ import org.json.JSONArray
 import org.json.JSONObject
 import org.mozilla.geckoview.WebExtension
 import wtf.mazy.peel.gecko.GeckoRuntimeProvider
+import wtf.mazy.peel.model.ContainerRoutes
 import wtf.mazy.peel.model.DataManager
-import wtf.mazy.peel.model.EffectiveSandbox
 import wtf.mazy.peel.model.Proxy
 import wtf.mazy.peel.model.ProxyRoute
-import wtf.mazy.peel.model.effectiveSandbox
 
 object ProxyRouterBridge : ExtensionSyncBridge<Map<String, Map<String, Any?>>>(
     tag = "ProxyRouterBridge",
@@ -51,23 +50,14 @@ object ProxyRouterBridge : ExtensionSyncBridge<Map<String, Map<String, Any?>>>(
     override fun buildSnapshot(): Map<String, Map<String, Any?>> {
         val state = DataManager.state.value
         val proxies = state.proxies.associateBy { it.uuid }
-        val groups = state.groups.associateBy { it.uuid }
-        val sandboxes = state.groups.map(::effectiveSandbox) +
-                (state.webApps + DataManager.transientWebAppList).map { app ->
-                    effectiveSandbox(app, app.groupUuid?.let(groups::get))
+        return ContainerRoutes.of(state, DataManager.transientWebAppList)
+            .entries
+            .associate { (contextId, route) ->
+                CONTAINER_PREFIX + contextId to when (route) {
+                    ProxyRoute.Direct -> DIRECT
+                    is ProxyRoute.Via -> proxyToMap(proxies.getValue(route.proxyUuid))
                 }
-
-        val out = LinkedHashMap<String, Map<String, Any?>>()
-        for (sandbox in sandboxes) {
-            if (sandbox !is EffectiveSandbox.Own) continue
-            val storeId = CONTAINER_PREFIX + sandbox.contextId
-            if (storeId in out) continue
-            out[storeId] = when (val route = sandbox.route) {
-                ProxyRoute.Direct -> DIRECT
-                is ProxyRoute.Via -> proxies[route.proxyUuid]?.let(::proxyToMap) ?: continue
             }
-        }
-        return out
     }
 
     private fun proxyToMap(proxy: Proxy): Map<String, Any?> {
