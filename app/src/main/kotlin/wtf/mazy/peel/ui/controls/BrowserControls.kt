@@ -15,12 +15,14 @@ data class ControlAction(
 ) {
     companion object {
         const val TAG_TRANSLATE = "translate"
+        const val TAG_FORWARD = "forward"
     }
 }
 
 class ControlCallbacks(
     private val onBack: (() -> Unit)? = null,
     private val onHome: (() -> Unit)? = null,
+    private val onForward: () -> Unit,
     private val onReload: () -> Unit,
     private val onReloadLongPress: (() -> Unit)? = null,
     private val onShare: () -> Unit,
@@ -60,6 +62,14 @@ class ControlCallbacks(
                 )
             )
         }
+        add(
+            ControlAction(
+                R.drawable.ic_symbols_arrow_forward_wght300_24,
+                R.string.browser_controls_forward,
+                onForward,
+                tag = ControlAction.TAG_FORWARD,
+            )
+        )
         add(
             ControlAction(
                 R.drawable.ic_symbols_share_wght300_24,
@@ -106,6 +116,7 @@ interface BrowserControls {
     fun remove()
     fun setHidden(hidden: Boolean)
     fun setTranslateActive(active: Boolean)
+    fun setForwardEnabled(enabled: Boolean)
     fun setIncognito(active: Boolean)
     fun onContentScrolled(scrollY: Int) = Unit
     fun onImeVisibilityChanged(visible: Boolean) = Unit

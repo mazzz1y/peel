@@ -174,7 +174,9 @@
     <string name="browser_controls_bar_short">Leiste</string>
     <string name="browser_controls_panel_short">Panel</string>
     <string name="browser_controls_show">Browser-Steuerung anzeigen</string>
+    <string name="browser_controls_back">Zurück</string>
     <string name="browser_controls_home">Startseite</string>
+    <string name="browser_controls_forward">Vorwärts</string>
     <string name="browser_controls_reload">Neu laden</string>
     <string name="groups">Gruppen</string>
     <string name="group">Gruppe</string>
@@ -462,4 +464,5 @@
     <string name="setting_same_app_domains_desc">Gelten als Teil dieser App</string>
     <string name="setting_blocked_domains_desc">Blockiert Navigation, nicht Inhalte</string>
     <string name="setting_skip_history_domains_desc">Für OAuth-Seiten</string>
+    <string name="open_peel">Peel öffnen</string>
 </resources>

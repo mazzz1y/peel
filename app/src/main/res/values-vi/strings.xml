@@ -207,7 +207,9 @@
     <string name="browser_controls_bar_short">Thanh</string>
     <string name="browser_controls_panel_short">Bảng</string>
     <string name="browser_controls_show">Hiện điều khiển trình duyệt</string>
+    <string name="browser_controls_back">Quay lại</string>
     <string name="browser_controls_home">Trang chủ</string>
+    <string name="browser_controls_forward">Tiến</string>
     <string name="browser_controls_reload">Tải lại</string>
     <string name="groups">Nhóm</string>
     <string name="group">Nhóm</string>
@@ -453,4 +455,5 @@
     <string name="setting_same_app_domains_desc">Xem như thuộc về ứng dụng này</string>
     <string name="setting_blocked_domains_desc">Chặn điều hướng, không chặn nội dung</string>
     <string name="setting_skip_history_domains_desc">Cho trang OAuth</string>
+    <string name="open_peel">Mở Peel</string>
 </resources>

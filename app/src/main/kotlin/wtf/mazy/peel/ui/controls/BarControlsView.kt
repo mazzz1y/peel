@@ -6,7 +6,6 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewConfiguration
 import android.widget.FrameLayout
-import android.widget.LinearLayout
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.doOnLayout
@@ -19,7 +18,7 @@ class BarControlsView(
     actions: List<ControlAction>,
 ) : ActionRowView(
     LayoutInflater.from(parent.context)
-        .inflate(R.layout.view_bar_controls, parent, false) as LinearLayout,
+        .inflate(R.layout.view_bar_controls, parent, false) as ActionRowLayout,
 ) {
 
     private val marginPx =
@@ -50,18 +49,7 @@ class BarControlsView(
             gravity = Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
         }
         root.background = root.background.mutate().apply { alpha = BACKGROUND_ALPHA }
-        val slotWidthPx =
-            context.resources.getDimensionPixelSize(R.dimen.bar_controls_slot_width)
-        val buttonGapPx =
-            context.resources.getDimensionPixelSize(R.dimen.bar_controls_button_gap)
-        populate(actions) { sectionStart ->
-            LinearLayout.LayoutParams(
-                slotWidthPx,
-                LinearLayout.LayoutParams.MATCH_PARENT,
-            ).apply {
-                if (!sectionStart) marginStart = buttonGapPx
-            }
-        }
+        populate(actions)
         parent.addView(root)
         root.doOnLayout { it.translationY = hiddenOffset() }
     }

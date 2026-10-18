@@ -207,7 +207,9 @@
     <string name="browser_controls_bar_short">浮動列</string>
     <string name="browser_controls_panel_short">面板</string>
     <string name="browser_controls_show">顯示瀏覽器控制項</string>
+    <string name="browser_controls_back">上一頁</string>
     <string name="browser_controls_home">首頁</string>
+    <string name="browser_controls_forward">下一頁</string>
     <string name="browser_controls_reload">重新載入</string>
     <string name="groups">群組</string>
     <string name="group">群組</string>
@@ -453,4 +455,5 @@
     <string name="setting_same_app_domains_desc">視為此應用程式的一部分</string>
     <string name="setting_blocked_domains_desc">封鎖導覽，不封鎖頁面內容</string>
     <string name="setting_skip_history_domains_desc">用於 OAuth 頁面</string>
+    <string name="open_peel">開啟 Peel</string>
 </resources>

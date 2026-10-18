@@ -207,7 +207,9 @@
     <string name="browser_controls_bar_short">バー</string>
     <string name="browser_controls_panel_short">パネル</string>
     <string name="browser_controls_show">ブラウザーコントロールを表示</string>
+    <string name="browser_controls_back">戻る</string>
     <string name="browser_controls_home">ホーム</string>
+    <string name="browser_controls_forward">進む</string>
     <string name="browser_controls_reload">再読み込み</string>
     <string name="groups">グループ</string>
     <string name="group">グループ</string>
@@ -453,4 +455,5 @@
     <string name="setting_same_app_domains_desc">このアプリの一部として扱う</string>
     <string name="setting_blocked_domains_desc">ページ遷移をブロック、内容は対象外</string>
     <string name="setting_skip_history_domains_desc">OAuthページ向け</string>
+    <string name="open_peel">Peel を開く</string>
 </resources>

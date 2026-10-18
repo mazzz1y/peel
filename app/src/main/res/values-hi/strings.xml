@@ -212,7 +212,9 @@
     <string name="browser_controls_bar_short">बार</string>
     <string name="browser_controls_panel_short">पैनल</string>
     <string name="browser_controls_show">ब्राउज़र नियंत्रण दिखाएँ</string>
+    <string name="browser_controls_back">पीछे</string>
     <string name="browser_controls_home">होम</string>
+    <string name="browser_controls_forward">आगे</string>
     <string name="browser_controls_reload">फिर लोड करें</string>
     <string name="groups">समूह</string>
     <string name="group">समूह</string>
@@ -462,4 +464,5 @@
     <string name="setting_same_app_domains_desc">इस ऐप का हिस्सा माने जाते हैं</string>
     <string name="setting_blocked_domains_desc">नेविगेशन ब्लॉक, सामग्री नहीं</string>
     <string name="setting_skip_history_domains_desc">OAuth पेज के लिए</string>
+    <string name="open_peel">Peel खोलें</string>
 </resources>

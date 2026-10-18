@@ -212,7 +212,9 @@
     <string name="browser_controls_bar_short">Barra</string>
     <string name="browser_controls_panel_short">Painel</string>
     <string name="browser_controls_show">Mostrar controles do navegador</string>
+    <string name="browser_controls_back">Voltar</string>
     <string name="browser_controls_home">Início</string>
+    <string name="browser_controls_forward">Avançar</string>
     <string name="browser_controls_reload">Recarregar</string>
     <string name="groups">Grupos</string>
     <string name="group">Grupo</string>
@@ -462,4 +464,5 @@
     <string name="setting_same_app_domains_desc">Tratados como parte deste app</string>
     <string name="setting_blocked_domains_desc">Bloqueia navegação, não o conteúdo</string>
     <string name="setting_skip_history_domains_desc">Para páginas OAuth</string>
+    <string name="open_peel">Abrir Peel</string>
 </resources>

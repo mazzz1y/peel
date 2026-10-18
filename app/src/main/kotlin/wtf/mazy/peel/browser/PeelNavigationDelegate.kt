@@ -72,6 +72,10 @@ class PeelNavigationDelegate(
     var lastLocation: String = ""
         private set
 
+    override fun onCanGoForward(session: GeckoSession, canGoForward: Boolean) {
+        host.canGoForward = canGoForward
+    }
+
     // Also fires for subframe changes, which never move lastLocation.
     override fun onCanGoBack(session: GeckoSession, canGoBack: Boolean) {
         host.canGoBack = canGoBack

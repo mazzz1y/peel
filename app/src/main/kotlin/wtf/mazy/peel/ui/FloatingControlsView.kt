@@ -11,7 +11,6 @@ import android.view.View
 import android.view.ViewConfiguration
 import android.view.ViewPropertyAnimator
 import android.widget.FrameLayout
-import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
 import androidx.core.content.ContextCompat
@@ -23,6 +22,7 @@ import androidx.core.view.doOnLayout
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import com.google.android.material.card.MaterialCardView
 import wtf.mazy.peel.R
+import wtf.mazy.peel.ui.controls.ActionViews
 import wtf.mazy.peel.ui.controls.BrowserControls
 import wtf.mazy.peel.ui.controls.ControlAction
 
@@ -125,8 +125,7 @@ class FloatingControlsView(
     private var currentAxis = Axis.VERTICAL
     private var builtAxis: Axis? = null
     private var destroyed = false
-    private var translateActiveDot: View? = null
-    private var translateActive: Boolean = false
+    private val actionViews = ActionViews(parent, beforeAction = ::collapse)
 
     private val layoutChangeListener =
         View.OnLayoutChangeListener { _, l, t, r, b, oldL, oldT, oldR, oldB ->
@@ -245,7 +244,7 @@ class FloatingControlsView(
             Axis.HORIZONTAL -> LinearLayout.HORIZONTAL
         }
         panelContainer.removeAllViews()
-        translateActiveDot = null
+        actionViews.forget()
         actions.forEachIndexed { index, action ->
             val lp = LinearLayout.LayoutParams(buttonSizePx, buttonSizePx).apply {
                 if (index > 0) {
@@ -255,7 +254,7 @@ class FloatingControlsView(
                     }
                 }
             }
-            panelContainer.addView(createActionView(action), lp)
+            panelContainer.addView(actionViews.create(action), lp)
             if (action.dividerAfter) addPanelDivider(axis)
         }
     }
@@ -288,11 +287,9 @@ class FloatingControlsView(
         panelContainer.addView(divider, lp)
     }
 
-    override fun setTranslateActive(active: Boolean) {
-        if (translateActive == active) return
-        translateActive = active
-        translateActiveDot?.visibility = if (active) View.VISIBLE else View.GONE
-    }
+    override fun setTranslateActive(active: Boolean) = actionViews.setTranslateActive(active)
+
+    override fun setForwardEnabled(enabled: Boolean) = actionViews.setForwardEnabled(enabled)
 
     override fun setIncognito(active: Boolean) {
         trigger.setCardBackgroundColor(
@@ -309,44 +306,6 @@ class FloatingControlsView(
         }
         triggerIconMenu.imageTintList = foreground
         triggerIconClose.imageTintList = foreground
-    }
-
-    private fun createActionView(action: ControlAction): View {
-        val btn = createActionButton(action)
-        if (action.tag != ControlAction.TAG_TRANSLATE) return btn
-        val wrapper = FrameLayout(context)
-        wrapper.addView(
-            btn,
-            FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.MATCH_PARENT,
-                FrameLayout.LayoutParams.MATCH_PARENT,
-            ),
-        )
-        val dot = inflater.inflate(R.layout.view_indicator_dot, wrapper, false)
-        dot.visibility = if (translateActive) View.VISIBLE else View.GONE
-        wrapper.addView(dot)
-        translateActiveDot = dot
-        return wrapper
-    }
-
-    private fun createActionButton(action: ControlAction): ImageButton {
-        val btn =
-            inflater.inflate(R.layout.view_floating_action, panelContainer, false) as ImageButton
-        btn.setImageResource(action.iconRes)
-        btn.contentDescription = context.getString(action.labelRes)
-        btn.setOnClickListener {
-            collapse()
-            action.onClick()
-        }
-        action.onLongClick?.let { longClick ->
-            btn.setOnLongClickListener {
-                btn.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
-                collapse()
-                longClick()
-                true
-            }
-        }
-        return btn
     }
 
     @SuppressLint("ClickableViewAccessibility")

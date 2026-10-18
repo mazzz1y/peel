@@ -37,6 +37,7 @@ interface SessionHost {
     fun reloadEffectiveSettings() = Unit
 
     var canGoBack: Boolean
+    var canGoForward: Boolean
     var lastLoadedUrl: String
 
     var currentlyReloading: Boolean

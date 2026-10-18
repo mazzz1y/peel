@@ -295,6 +295,7 @@
     <string name="browser_controls_show">Show browser controls</string>
     <string name="browser_controls_back">Back</string>
     <string name="browser_controls_home">Home</string>
+    <string name="browser_controls_forward">Forward</string>
     <string name="browser_controls_reload">Reload</string>
     <string name="setting_requires_peel_restart">Changes take effect after Peel restart</string>
     <string name="setting_requires_webapp_restart">Changes take effect after webapps restart</string>

@@ -3,7 +3,6 @@ package wtf.mazy.peel.ui.controls
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.FrameLayout
-import android.widget.LinearLayout
 import androidx.core.view.doOnLayout
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import wtf.mazy.peel.R
@@ -15,7 +14,7 @@ class PanelControlsView(
     private val onVisibilityChanged: () -> Unit,
 ) : ActionRowView(
     LayoutInflater.from(container.context)
-        .inflate(R.layout.view_panel_controls, container, false) as LinearLayout,
+        .inflate(R.layout.view_panel_controls, container, false) as ActionRowLayout,
 ) {
 
     private val scrollThresholdPx =
@@ -26,9 +25,8 @@ class PanelControlsView(
     private var lastScrollY = 0
 
     init {
-        populate(actions) {
-            LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1f)
-        }
+        root.stretchSlots = true
+        populate(actions)
         container.addView(root)
         container.visibility = View.VISIBLE
         root.doOnLayout { if (!destroyed) onVisibilityChanged() }

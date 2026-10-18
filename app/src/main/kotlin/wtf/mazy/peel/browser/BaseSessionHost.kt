@@ -124,6 +124,12 @@ abstract class BaseSessionHost : PeelActivity(), SessionHost, TranslationHost {
     private val pendingPermissionCallbacks = ArrayDeque<(Boolean) -> Unit>()
 
     override var canGoBack: Boolean = false
+    override var canGoForward: Boolean = false
+        set(value) {
+            if (field == value) return
+            field = value
+            browserControls?.setForwardEnabled(value)
+        }
     override var lastLoadedUrl: String = ""
     override var currentlyReloading: Boolean = false
     override var filePathCallback: ((Array<Uri>?) -> Unit)? = null
@@ -1016,6 +1022,7 @@ abstract class BaseSessionHost : PeelActivity(), SessionHost, TranslationHost {
         val actions = ControlCallbacks(
             onBack = if (isAutomotiveHost()) ({ onBackPressedDispatcher.onBackPressed() }) else null,
             onHome = if (ownerWebAppUuid != null) ({ homeAction() }) else null,
+            onForward = { geckoSession?.goForward() },
             onReload = ::reloadCurrentPage,
             onReloadLongPress = ::clearSiteCacheAndReload,
             onShare = ::shareCurrentPage,
@@ -1054,6 +1061,7 @@ abstract class BaseSessionHost : PeelActivity(), SessionHost, TranslationHost {
             )
         }.also { controls ->
             controls.setIncognito(sessionPrivateMode)
+            controls.setForwardEnabled(canGoForward)
             if (translationsSupported) {
                 controls.setTranslateActive(translationDelegate?.isPageTranslated == true)
             }

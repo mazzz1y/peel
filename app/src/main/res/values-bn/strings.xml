@@ -212,7 +212,9 @@
     <string name="browser_controls_bar_short">বার</string>
     <string name="browser_controls_panel_short">প্যানেল</string>
     <string name="browser_controls_show">ব্রাউজার নিয়ন্ত্রণ দেখান</string>
+    <string name="browser_controls_back">পিছনে</string>
     <string name="browser_controls_home">হোম</string>
+    <string name="browser_controls_forward">সামনে</string>
     <string name="browser_controls_reload">পুনরায় লোড</string>
     <string name="groups">গ্রুপ</string>
     <string name="group">গ্রুপ</string>
@@ -462,4 +464,5 @@
     <string name="setting_same_app_domains_desc">এই অ্যাপের অংশ হিসেবে গণ্য</string>
     <string name="setting_blocked_domains_desc">নেভিগেশন ব্লক, বিষয়বস্তু নয়</string>
     <string name="setting_skip_history_domains_desc">OAuth পেজের জন্য</string>
+    <string name="open_peel">Peel খুলুন</string>
 </resources>

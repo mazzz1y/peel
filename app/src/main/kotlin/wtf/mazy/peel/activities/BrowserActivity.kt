@@ -580,6 +580,7 @@ class BrowserActivity : BaseSessionHost() {
         lastLoadedUrl = ""
         lastSessionState = null
         canGoBack = false
+        canGoForward = false
         currentlyReloading = true
         pageLoadHandled = false
         filePathCallback = null
@@ -704,6 +705,7 @@ class BrowserActivity : BaseSessionHost() {
         session.purgeHistory()
         historyPurged = true
         canGoBack = false
+        canGoForward = false
     }
 
     private fun handleStartupAuthHistoryReset(url: String) {

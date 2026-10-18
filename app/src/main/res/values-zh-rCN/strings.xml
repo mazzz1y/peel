@@ -207,7 +207,9 @@
     <string name="browser_controls_bar_short">浮动栏</string>
     <string name="browser_controls_panel_short">面板</string>
     <string name="browser_controls_show">显示浏览器控件</string>
+    <string name="browser_controls_back">返回</string>
     <string name="browser_controls_home">主页</string>
+    <string name="browser_controls_forward">前进</string>
     <string name="browser_controls_reload">重新加载</string>
     <string name="groups">分组</string>
     <string name="group">分组</string>
@@ -453,4 +455,5 @@
     <string name="setting_same_app_domains_desc">视为此应用的一部分</string>
     <string name="setting_blocked_domains_desc">屏蔽跳转，不屏蔽页面内容</string>
     <string name="setting_skip_history_domains_desc">用于 OAuth 页面</string>
+    <string name="open_peel">打开 Peel</string>
 </resources>
