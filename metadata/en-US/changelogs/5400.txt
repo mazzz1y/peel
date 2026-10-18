@@ -1,0 +1,3 @@
+- Fix "No proxy" on a web app in a group with a proxy; add an Inherit option
+- Fix and harden sandboxes, proxies and ephemeral storage
+- Add a Forward button to browser controls
