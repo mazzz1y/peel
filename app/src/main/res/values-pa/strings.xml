@@ -33,9 +33,12 @@
     <string name="advanced">ਐਡਵਾਂਸਡ</string>
     <string name="appearance">ਦਿੱਖ</string>
     <string name="import_failed">ਬੈਕਅੱਪ ਬਹਾਲ ਨਹੀਂ ਹੋ ਸਕਿਆ</string>
-    <string name="import_success">%1$d ਵੈੱਬ ਐਪਾਂ ਦਾ ਬੈਕਅੱਪ ਸਫਲਤਾਪੂਰਵਕ ਬਹਾਲ ਹੋਇਆ।</string>
+    <plurals name="import_success">
+        <item quantity="one">%d ਵੈੱਬ ਐਪ ਦਾ ਬੈਕਅੱਪ ਸਫਲਤਾਪੂਰਵਕ ਬਹਾਲ ਹੋਇਆ।</item>
+        <item quantity="other">%d ਵੈੱਬ ਐਪਾਂ ਦਾ ਬੈਕਅੱਪ ਸਫਲਤਾਪੂਰਵਕ ਬਹਾਲ ਹੋਇਆ।</item>
+    </plurals>
     <string name="import_mode_title">ਪੂਰਾ ਬੈਕਅੱਪ</string>
-    <string name="import_mode_description">%1$d ਐਪਾਂ ਅਤੇ %2$d ਸਮੂਹ ਸ਼ਾਮਲ ਹਨ। ਮੌਜੂਦਾ ਡੇਟਾ ਬਦਲ ਦਿੱਤਾ ਜਾਵੇਗਾ। ਬੈਕਅੱਪ ਵਿੱਚ ਸ਼ਾਮਲ ਨਾ ਕੀਤੀਆਂ ਐਪਾਂ ਰੱਖਣ ਲਈ ਮਰਜ ਮੋਡ ਚਾਲੂ ਕਰੋ।</string>
+    <string name="import_mode_description">%1$s ਅਤੇ %2$s ਸ਼ਾਮਲ ਹਨ। ਮੌਜੂਦਾ ਡੇਟਾ ਬਦਲ ਦਿੱਤਾ ਜਾਵੇਗਾ। ਬੈਕਅੱਪ ਵਿੱਚ ਸ਼ਾਮਲ ਨਾ ਕੀਤੀਆਂ ਐਪਾਂ ਰੱਖਣ ਲਈ ਮਰਜ ਮੋਡ ਚਾਲੂ ਕਰੋ।</string>
     <string name="import_mode_merge_switch">ਮਰਜ ਮੋਡ</string>
     <string name="import_mapping_title">ਐਪਾਂ ਆਯਾਤ ਕਰੋ</string>
     <string name="import_mapping_description">%1$s ਤੁਹਾਡੇ ਨਾਲ ਸਾਂਝੀਆਂ ਕੀਤੀਆਂ ਗਈਆਂ। ਮੰਜ਼ਿਲ ਸਮੂਹ ਚੁਣੋ ਅਤੇ ਆਯਾਤ ਕਰਨ ਲਈ ਐਪਾਂ ਚੁਣੋ:</string>
@@ -45,7 +48,10 @@
     <string name="import_group_mode_new">ਨਵਾਂ ਸਮੂਹ ਬਣਾਓ</string>
     <string name="import_destination_group">ਮੰਜ਼ਿਲ ਸਮੂਹ</string>
     <string name="import_mapping_empty">ਇਸ ਫ਼ਾਈਲ ਵਿੱਚ ਕੋਈ ਐਪ ਨਹੀਂ ਮਿਲੀ।</string>
-    <string name="import_count_message">%1$d ਐਪਾਂ ਆਯਾਤ ਕੀਤੀਆਂ</string>
+    <plurals name="import_count_message">
+        <item quantity="one">%d ਐਪ ਆਯਾਤ ਕੀਤੀ</item>
+        <item quantity="other">%d ਐਪਾਂ ਆਯਾਤ ਕੀਤੀਆਂ</item>
+    </plurals>
     <plurals name="n_apps_selected">
         <item quantity="one">%d ਚੁਣੀ</item>
         <item quantity="other">%d ਚੁਣੀਆਂ</item>
@@ -291,8 +297,20 @@
     <string name="extension_already_up_to_date">ਪਹਿਲਾਂ ਹੀ ਅੱਪਡੇਟ ਹੈ</string>
     <string name="update_all_extensions">ਸਭ ਅੱਪਡੇਟ ਕਰੋ</string>
     <string name="auto_update_extensions">ਸਵੈ-ਅੱਪਡੇਟ</string>
-    <string name="extensions_update_summary">%1$d ਅੱਪਡੇਟ, %2$d ਬਿਨਾ ਬਦਲਾਅ</string>
-    <string name="extensions_update_summary_with_failed">%1$d ਅੱਪਡੇਟ, %2$d ਬਿਨਾ ਬਦਲਾਅ, %3$d ਅਸਫਲ</string>
+    <string name="extensions_update_summary">%1$s, %2$s</string>
+    <string name="extensions_update_summary_with_failed">%1$s, %2$s, %3$s</string>
+    <plurals name="extensions_updated_count">
+        <item quantity="one">%d ਅੱਪਡੇਟ</item>
+        <item quantity="other">%d ਅੱਪਡੇਟ</item>
+    </plurals>
+    <plurals name="extensions_up_to_date_count">
+        <item quantity="one">%d ਬਿਨਾ ਬਦਲਾਅ</item>
+        <item quantity="other">%d ਬਿਨਾ ਬਦਲਾਅ</item>
+    </plurals>
+    <plurals name="extensions_failed_count">
+        <item quantity="one">%d ਅਸਫਲ</item>
+        <item quantity="other">%d ਅਸਫਲ</item>
+    </plurals>
     <string name="install_extension_confirm_title">ਐਕਸਟੈਂਸ਼ਨ ਇੰਸਟਾਲ ਕਰੋ?</string>
     <string name="install_extension_permission_summary">%1$s ਹੇਠ ਲਿਖੀਆਂ ਇਜਾਜ਼ਤਾਂ ਮੰਗ ਰਿਹਾ ਹੈ:</string>
     <string name="install_extension_permissions_header">ਇਜਾਜ਼ਤਾਂ:</string>
@@ -367,7 +385,10 @@
     <string name="proxy_type_socks5">SOCKS5</string>
     <string name="proxy_delete_title">ਪ੍ਰੌਕਸੀ ਮਿਟਾਓ</string>
     <string name="proxy_delete_confirm">ਇਹ ਪ੍ਰੌਕਸੀ ਮਿਟਾਉਣਾ ਹੈ?</string>
-    <string name="proxy_in_use_warning">%1$d ਐਪਾਂ/ਗਰੁੱਪਾਂ ਵੱਲੋਂ ਵਰਤੀ ਜਾ ਰਹੀ ਹੈ। ਐਪਾਂ «ਵਿਰਸੇ ਵਿੱਚ ਲਓ» ਅਤੇ ਗਰੁੱਪ «ਕੋਈ ਪ੍ਰੌਕਸੀ ਨਹੀਂ» ਵਿੱਚ ਬਦਲ ਜਾਣਗੇ।</string>
+    <plurals name="proxy_in_use_warning">
+        <item quantity="one">%d ਐਪ/ਗਰੁੱਪ ਵੱਲੋਂ ਵਰਤੀ ਜਾ ਰਹੀ ਹੈ। ਐਪਾਂ «ਵਿਰਸੇ ਵਿੱਚ ਲਓ» ਅਤੇ ਗਰੁੱਪ «ਕੋਈ ਪ੍ਰੌਕਸੀ ਨਹੀਂ» ਵਿੱਚ ਬਦਲ ਜਾਣਗੇ।</item>
+        <item quantity="other">%d ਐਪਾਂ/ਗਰੁੱਪਾਂ ਵੱਲੋਂ ਵਰਤੀ ਜਾ ਰਹੀ ਹੈ। ਐਪਾਂ «ਵਿਰਸੇ ਵਿੱਚ ਲਓ» ਅਤੇ ਗਰੁੱਪ «ਕੋਈ ਪ੍ਰੌਕਸੀ ਨਹੀਂ» ਵਿੱਚ ਬਦਲ ਜਾਣਗੇ।</item>
+    </plurals>
     <string name="proxy_auth_failed">ਪ੍ਰੌਕਸੀ ਪ੍ਰਮਾਣੀਕਰਨ ਅਸਫਲ</string>
     <string name="beforeunload_message">ਕੀਤੀਆਂ ਤਬਦੀਲੀਆਂ ਸੇਵ ਨਹੀਂ ਹੋ ਸਕਦੀਆਂ</string>
     <string name="beforeunload_leave">ਪੰਨਾ ਛੱਡੋ</string>

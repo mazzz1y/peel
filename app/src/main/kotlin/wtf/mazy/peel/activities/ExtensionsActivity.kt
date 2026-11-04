@@ -33,6 +33,7 @@ import wtf.mazy.peel.util.toast
 import wtf.mazy.peel.util.withBoldSpan
 import wtf.mazy.peel.work.ExtensionUpdateScheduler
 import java.io.File
+import kotlin.time.Duration.Companion.minutes
 
 class ExtensionsActivity : EntityListActivity<WebExtension>() {
 
@@ -80,7 +81,6 @@ class ExtensionsActivity : EntityListActivity<WebExtension>() {
 
     override fun createAdapter(): EntityListAdapter<WebExtension, *> = ExtensionAdapter(
         context = this,
-        checkIconColor = checkIconColor,
         onUpdate = ::updateExtension,
         onSettings = {
             startActivity(ExtensionPageLaunch.intentForExtension(this, it.id))
@@ -198,10 +198,18 @@ class ExtensionsActivity : EntityListActivity<WebExtension>() {
                 }
             }
             loader.dismiss()
+            fun count(res: Int, n: Int) = resources.getQuantityString(res, n, n)
+            val updatedText = count(R.plurals.extensions_updated_count, updated)
+            val upToDateText = count(R.plurals.extensions_up_to_date_count, upToDate)
             val message = if (failed > 0) {
-                getString(R.string.extensions_update_summary_with_failed, updated, upToDate, failed)
+                getString(
+                    R.string.extensions_update_summary_with_failed,
+                    updatedText,
+                    upToDateText,
+                    count(R.plurals.extensions_failed_count, failed),
+                )
             } else {
-                getString(R.string.extensions_update_summary, updated, upToDate)
+                getString(R.string.extensions_update_summary, updatedText, upToDateText)
             }
             toast(message)
             loadInstalledExtensions()
@@ -296,7 +304,7 @@ class ExtensionsActivity : EntityListActivity<WebExtension>() {
         loader.show(R.string.loading_extension)
         lifecycleScope.launch {
             try {
-                val installed = withTimeout(60_000) {
+                val installed = withTimeout(1.minutes) {
                     GeckoRuntimeProvider.installExtension(this@ExtensionsActivity, uri)
                 }
                 ExtensionIconCache.refreshFromExtension(this@ExtensionsActivity, installed)

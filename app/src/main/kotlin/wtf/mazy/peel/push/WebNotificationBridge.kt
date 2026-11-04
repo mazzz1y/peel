@@ -1,10 +1,12 @@
 package wtf.mazy.peel.push
 
+import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.net.toUri
@@ -33,7 +35,7 @@ object WebNotificationBridge {
 
     fun attach(runtime: GeckoRuntime, context: Context) {
         val appContext = context.applicationContext
-        runtime.setWebNotificationDelegate(object : WebNotificationDelegate {
+        runtime.webNotificationDelegate = object : WebNotificationDelegate {
             override fun onShowNotification(notification: WebNotification) {
                 App.appScope.launch(Dispatchers.Main.immediate) {
                     DataManager.awaitReady()
@@ -46,7 +48,7 @@ object WebNotificationBridge {
                     .cancel(notification.tag, NOTIFICATION_ID)
                 activeNotifications.remove(notification.tag)
             }
-        })
+        }
     }
 
     fun onNotificationOpened(context: Context, tag: String, fallback: WebNotification?) {
@@ -73,6 +75,9 @@ object WebNotificationBridge {
         if (!AppPrefs.isPushEnabled(context)) return
         val manager = NotificationManagerCompat.from(context)
         if (!manager.areNotificationsEnabled()) return
+        if (context.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) !=
+            PackageManager.PERMISSION_GRANTED
+        ) return
 
         val contextId = PushBridge.scopeContextId(notification.origin)
         val host = PushBridge.scopeHost(notification.origin) ?: return
@@ -98,7 +103,7 @@ object WebNotificationBridge {
             .setDeleteIntent(dismissIntent(context, notification.tag, notification))
             .setLargeIcon(largeIcon)
 
-        runCatching { manager.notify(notification.tag, NOTIFICATION_ID, builder.build()) }
+        manager.notify(notification.tag, NOTIFICATION_ID, builder.build())
         notification.show()
     }
 

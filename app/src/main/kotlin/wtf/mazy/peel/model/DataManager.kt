@@ -345,7 +345,7 @@ object DataManager {
             ?: current.globalSettings
         _state.value = current.copy(
             webApps = current.webApps.replacingOrAppending(loadedWebApp) { it.uuid },
-            groups = loadedGroup?.let { current.groups.replacingOrAppending(it) { it.uuid } }
+            groups = loadedGroup?.let { group -> current.groups.replacingOrAppending(group) { it.uuid } }
                 ?: current.groups,
             globalSettings = loadedGlobal,
         )

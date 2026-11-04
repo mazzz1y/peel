@@ -290,11 +290,9 @@ class HeadlessFetcher(
             }
         }
 
-        for (page in pages.reversed()) {
-            for (ref in page.iconRefs) {
-                if (!isAllowedRemoteUrl(ref.href)) continue
-                if (seenHrefs.add(ref.href)) allRefs += ref
-            }
+        for (ref in pages.reversed().flatMap { it.iconRefs }) {
+            if (!isAllowedRemoteUrl(ref.href)) continue
+            if (seenHrefs.add(ref.href)) allRefs += ref
         }
 
         for (faviconPath in listOf("/favicon.ico", "/favicon.svg")) {

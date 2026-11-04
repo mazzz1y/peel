@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <View xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="@dimen/divider_height"
     android:layout_height="@dimen/floating_controls_button_size"
     android:layout_gravity="center_vertical"
-    android:background="?attr/colorOutlineVariant" />
+    android:background="?attr/colorOutlineVariant"
+    tools:ignore="Overdraw" />

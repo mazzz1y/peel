@@ -8,6 +8,7 @@ import wtf.mazy.peel.R
 import wtf.mazy.peel.browser.PeelTranslationDelegate
 import wtf.mazy.peel.browser.PopupLaunch
 import wtf.mazy.peel.browser.SessionHandoff
+import wtf.mazy.peel.browser.isBlankDocument
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.EffectiveSettings
 import wtf.mazy.peel.ui.extensions.ExtensionActionController
@@ -52,6 +53,7 @@ class PopupActivity : SessionPageActivity() {
     override fun onSessionHostReady() {
         val key = intent.getStringExtra(PopupLaunch.EXTRA_SESSION_KEY) ?: run { finish(); return }
         val popup = SessionHandoff.take(key)?.session ?: run { finish(); return }
+        baseUrl = intent.getStringExtra(PopupLaunch.EXTRA_URL)?.takeUnless(::isBlankDocument).orEmpty()
         connectSession(popup)
         translationDelegate = PeelTranslationDelegate(this).also {
             it.presetManualTarget(intent.getStringExtra(PopupLaunch.EXTRA_TRANSLATE_TARGET))
@@ -81,15 +83,15 @@ class PopupActivity : SessionPageActivity() {
 
     override fun onInitialNavigationDenied() = finish()
 
-    override fun navigateHome() = launchOwnerApp(url = null)
+    override fun navigateHome() = launchOwnerApp()
 
-    private fun launchOwnerApp(url: String?) {
+    private fun launchOwnerApp() {
         val ownerUuid = ownerWebAppUuid ?: return
         val webApp = DataManager.webApp(ownerUuid) ?: run {
             toast(R.string.browser_launch_failed, long = true)
             return
         }
-        BrowserLauncher.launch(webApp, this, url = url)
+        BrowserLauncher.launch(webApp, this)
         finish()
     }
 

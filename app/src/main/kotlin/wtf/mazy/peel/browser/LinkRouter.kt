@@ -95,9 +95,7 @@ object LinkRouter {
 
     private fun isExplicitDownload(url: String): Boolean {
         val query = url.substringAfter('?', "").lowercase()
-        if (query.isEmpty()) return false
-        return "response-content-disposition=attachment" in query ||
-                "rscd=attachment" in query
+        return "response-content-disposition=attachment" in query || "rscd=attachment" in query
     }
 
     private val BROWSER_SCHEMES = arrayOf(

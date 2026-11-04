@@ -33,9 +33,14 @@
     <string name="advanced">Дополнительно</string>
     <string name="appearance">Внешний вид</string>
     <string name="import_failed">Не удалось восстановить резервную копию</string>
-    <string name="import_success">Резервная копия восстановлена (%1$d веб-приложений).</string>
+    <plurals name="import_success">
+        <item quantity="one">Резервная копия восстановлена: %d веб-приложение.</item>
+        <item quantity="few">Резервная копия восстановлена: %d веб-приложения.</item>
+        <item quantity="many">Резервная копия восстановлена: %d веб-приложений.</item>
+        <item quantity="other">Резервная копия восстановлена: %d веб-приложения.</item>
+    </plurals>
     <string name="import_mode_title">Полная копия</string>
-    <string name="import_mode_description">Содержит %1$d приложений и %2$d групп. Существующие данные будут заменены. Включите режим слияния, чтобы сохранить приложения, не входящие в резервную копию.</string>
+    <string name="import_mode_description">Содержит: %1$s, %2$s. Существующие данные будут заменены. Включите режим слияния, чтобы сохранить приложения, не входящие в резервную копию.</string>
     <string name="import_mode_merge_switch">Режим слияния</string>
     <string name="import_mapping_title">Импорт приложений</string>
     <string name="import_mapping_description">Вам отправили %1$s. Выберите группу и приложения для импорта:</string>
@@ -45,7 +50,12 @@
     <string name="import_group_mode_new">Создать группу</string>
     <string name="import_destination_group">Группа назначения</string>
     <string name="import_mapping_empty">В этом файле нет приложений.</string>
-    <string name="import_count_message">Импортировано приложений: %1$d</string>
+    <plurals name="import_count_message">
+        <item quantity="one">Импортировано %d приложение</item>
+        <item quantity="few">Импортировано %d приложения</item>
+        <item quantity="many">Импортировано %d приложений</item>
+        <item quantity="other">Импортировано %d приложения</item>
+    </plurals>
     <plurals name="n_apps_selected">
         <item quantity="one">Выбрано: %d</item>
         <item quantity="few">Выбрано: %d</item>
@@ -306,8 +316,26 @@
     <string name="extension_already_up_to_date">Уже обновлено</string>
     <string name="update_all_extensions">Обновить все</string>
     <string name="auto_update_extensions">Автообновление</string>
-    <string name="extensions_update_summary">%1$d обновлено, %2$d без изменений</string>
-    <string name="extensions_update_summary_with_failed">%1$d обновлено, %2$d без изменений, %3$d с ошибкой</string>
+    <string name="extensions_update_summary">%1$s, %2$s</string>
+    <string name="extensions_update_summary_with_failed">%1$s, %2$s, %3$s</string>
+    <plurals name="extensions_updated_count">
+        <item quantity="one">%d обновлено</item>
+        <item quantity="few">%d обновлено</item>
+        <item quantity="many">%d обновлено</item>
+        <item quantity="other">%d обновлено</item>
+    </plurals>
+    <plurals name="extensions_up_to_date_count">
+        <item quantity="one">%d без изменений</item>
+        <item quantity="few">%d без изменений</item>
+        <item quantity="many">%d без изменений</item>
+        <item quantity="other">%d без изменений</item>
+    </plurals>
+    <plurals name="extensions_failed_count">
+        <item quantity="one">%d с ошибкой</item>
+        <item quantity="few">%d с ошибкой</item>
+        <item quantity="many">%d с ошибкой</item>
+        <item quantity="other">%d с ошибкой</item>
+    </plurals>
     <string name="install_extension_confirm_title">Установить расширение?</string>
     <string name="install_extension_permission_summary">%1$s запрашивает следующие разрешения:</string>
     <string name="install_extension_permissions_header">Разрешения:</string>
@@ -386,7 +414,12 @@
     <string name="proxy_type_socks5">SOCKS5</string>
     <string name="proxy_delete_title">Удалить прокси</string>
     <string name="proxy_delete_confirm">Удалить этот прокси?</string>
-    <string name="proxy_in_use_warning">Используется в %1$d приложениях/группах. Приложения переключатся на «Наследовать», группы — на «Без прокси».</string>
+    <plurals name="proxy_in_use_warning">
+        <item quantity="one">Используется в %d приложении или группе. Приложения переключатся на «Наследовать», группы — на «Без прокси».</item>
+        <item quantity="few">Используется в %d приложениях/группах. Приложения переключатся на «Наследовать», группы — на «Без прокси».</item>
+        <item quantity="many">Используется в %d приложениях/группах. Приложения переключатся на «Наследовать», группы — на «Без прокси».</item>
+        <item quantity="other">Используется в %d приложениях/группах. Приложения переключатся на «Наследовать», группы — на «Без прокси».</item>
+    </plurals>
     <string name="proxy_auth_failed">Не удалось пройти аутентификацию прокси</string>
     <string name="beforeunload_message">Внесённые изменения могут не сохраниться</string>
     <string name="beforeunload_leave">Покинуть страницу</string>

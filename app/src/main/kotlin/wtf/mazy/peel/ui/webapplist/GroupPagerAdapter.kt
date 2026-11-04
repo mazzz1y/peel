@@ -30,8 +30,8 @@ class GroupPagerAdapter(
     }
 
     override fun containsItem(itemId: Long): Boolean {
-        if (showUngrouped && itemId == StableIdRegistry.idFor(WebAppListFragment.UNGROUPED_FILTER)) return true
-        return groups.any { it.stableId == itemId }
+        return (showUngrouped && itemId == StableIdRegistry.idFor(WebAppListFragment.UNGROUPED_FILTER)) ||
+                groups.any { it.stableId == itemId }
     }
 
     fun getPageTitle(position: Int): String {

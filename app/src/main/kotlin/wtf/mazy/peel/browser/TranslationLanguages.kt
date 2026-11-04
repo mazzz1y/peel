@@ -11,6 +11,7 @@ import wtf.mazy.peel.gecko.GeckoRuntimeProvider
 import wtf.mazy.peel.gecko.GeckoRuntimeProvider.awaitNullable
 import wtf.mazy.peel.util.App
 import java.util.Locale
+import kotlin.time.Duration.Companion.milliseconds
 
 object TranslationLanguages {
 
@@ -90,7 +91,7 @@ object TranslationLanguages {
                 cachedSupport = support
                 return support
             }
-            if (attempt < LANGUAGE_LOAD_ATTEMPTS - 1) delay(LANGUAGE_LOAD_RETRY_MS)
+            if (attempt < LANGUAGE_LOAD_ATTEMPTS - 1) delay(LANGUAGE_LOAD_RETRY_MS.milliseconds)
         }
         return null
     }

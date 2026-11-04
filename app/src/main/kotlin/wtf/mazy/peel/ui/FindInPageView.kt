@@ -19,7 +19,7 @@ import wtf.mazy.peel.R
 
 class FindInPageView(
     private val parent: FrameLayout,
-    private val window: Window,
+    window: Window,
     private val session: GeckoSession,
     private val onClose: () -> Unit,
 ) {

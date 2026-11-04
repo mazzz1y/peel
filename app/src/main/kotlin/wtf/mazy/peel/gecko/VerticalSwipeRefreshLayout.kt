@@ -44,8 +44,7 @@ class VerticalSwipeRefreshLayout(
     }
 
     override fun onStartNestedScroll(child: View, target: View, nestedScrollAxes: Int): Boolean {
-        if (isEnabled) return false
-        return super.onStartNestedScroll(child, target, nestedScrollAxes)
+        return !isEnabled && super.onStartNestedScroll(child, target, nestedScrollAxes)
     }
 
     override fun requestDisallowInterceptTouchEvent(b: Boolean) {

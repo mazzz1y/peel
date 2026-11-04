@@ -9,20 +9,10 @@
         android:id="@+id/suggestionAdd"
         style="@style/Widget.App.SuggestionCard">
 
-        <LinearLayout style="@style/SuggestionCardContent">
-
-            <ImageView
-                android:layout_width="@dimen/suggestion_icon_size"
-                android:layout_height="@dimen/suggestion_icon_size"
-                android:importantForAccessibility="no"
-                app:srcCompat="@drawable/ic_symbols_add_24"
-                app:tint="?attr/colorOnSurfaceVariant" />
-
-            <TextView
-                style="@style/SuggestionCardLabel"
-                android:text="@string/add_webapp" />
-
-        </LinearLayout>
+        <TextView
+            style="@style/SuggestionCardRow"
+            android:text="@string/add_webapp"
+            app:drawableStartCompat="@drawable/ic_symbols_add_24" />
 
     </com.google.android.material.card.MaterialCardView>
 
@@ -30,20 +20,10 @@
         android:id="@+id/suggestionPrivate"
         style="@style/Widget.App.SuggestionCard">
 
-        <LinearLayout style="@style/SuggestionCardContent">
-
-            <ImageView
-                android:layout_width="@dimen/suggestion_icon_size"
-                android:layout_height="@dimen/suggestion_icon_size"
-                android:importantForAccessibility="no"
-                app:srcCompat="@drawable/ic_symbols_visibility_off_24"
-                app:tint="?attr/colorOnSurfaceVariant" />
-
-            <TextView
-                style="@style/SuggestionCardLabel"
-                android:text="@string/open_incognito_action" />
-
-        </LinearLayout>
+        <TextView
+            style="@style/SuggestionCardRow"
+            android:text="@string/open_incognito_action"
+            app:drawableStartCompat="@drawable/ic_symbols_visibility_off_24" />
 
     </com.google.android.material.card.MaterialCardView>
 

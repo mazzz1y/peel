@@ -9,13 +9,7 @@ object ProxyBinder : EntityBinder<Proxy> {
     override fun uuid(item: Proxy): String = item.uuid
     override fun stableId(item: Proxy): Long = StableIdRegistry.idFor(item.uuid)
 
-    override fun bindIcon(
-        host: EntityRowView,
-        item: Proxy,
-        selected: Boolean,
-        checkIconColor: Int,
-    ) {
-    }
+    override fun bindIcon(host: EntityRowView, item: Proxy, selected: Boolean) = Unit
 
     override fun contentEquals(a: Proxy, b: Proxy): Boolean =
         a.contentFingerprint == b.contentFingerprint

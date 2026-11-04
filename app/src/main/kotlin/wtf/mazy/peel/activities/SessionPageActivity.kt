@@ -9,6 +9,7 @@ import wtf.mazy.peel.browser.BaseSessionHost
 import wtf.mazy.peel.browser.DownloadHandler
 import wtf.mazy.peel.browser.PeelContentDelegate
 import wtf.mazy.peel.browser.PeelNavigationDelegate
+import wtf.mazy.peel.browser.isBlankDocument
 import wtf.mazy.peel.gecko.GeckoRuntimeProvider
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.WebApp
@@ -106,7 +107,7 @@ abstract class SessionPageActivity : BaseSessionHost() {
     }
 
     override fun onLocationChanged(url: String) {
-        if (baseUrl.isEmpty() && url.isNotBlank() && url != "about:blank") baseUrl = url
+        if (baseUrl.isEmpty() && !isBlankDocument(url)) baseUrl = url
     }
 
     protected open fun onPageTitleChanged(title: String?) = Unit

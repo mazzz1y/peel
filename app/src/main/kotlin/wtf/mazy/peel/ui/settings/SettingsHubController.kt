@@ -11,7 +11,6 @@ import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.materialswitch.MaterialSwitch
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
 import wtf.mazy.peel.R
 import wtf.mazy.peel.browser.SessionHostRegistry
@@ -102,7 +101,7 @@ class SettingsHubController(
 
     private fun discardExportDocument(uri: Uri) {
         val resolver = activity.applicationContext.contentResolver
-        activity.lifecycleScope.launch(Dispatchers.IO + NonCancellable) {
+        App.appScope.launch(Dispatchers.IO) {
             try {
                 DocumentsContract.deleteDocument(resolver, uri)
             } catch (_: Exception) {

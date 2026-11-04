@@ -131,6 +131,8 @@ abstract class BaseSessionHost : PeelActivity(), SessionHost, TranslationHost {
             browserControls?.setForwardEnabled(value)
         }
     override var lastLoadedUrl: String = ""
+    protected val pageUrl: String?
+        get() = navigationDelegate.pageUrl ?: baseUrl.takeUnless(::isBlankDocument)
     override var currentlyReloading: Boolean = false
     override var filePathCallback: ((Array<Uri>?) -> Unit)? = null
     override var pendingCaptureFile: File? = null
@@ -538,7 +540,7 @@ abstract class BaseSessionHost : PeelActivity(), SessionHost, TranslationHost {
     protected open val ownerWebAppUuid: String? = null
     protected open val activeTranslateTarget: String? = null
 
-    override fun openPopupSession(): GeckoResult<GeckoSession> {
+    override fun openPopupSession(url: String): GeckoResult<GeckoSession> {
         val popup = createSession(effectiveSettings)
         val key = SessionHandoff.put(popup)
         val launched = runCatching {
@@ -546,6 +548,7 @@ abstract class BaseSessionHost : PeelActivity(), SessionHost, TranslationHost {
                 PopupLaunch.intent(
                     context = this,
                     key = key,
+                    url = url,
                     title = webAppName,
                     settings = effectiveSettings,
                     contextId = sessionContextId,
@@ -563,8 +566,16 @@ abstract class BaseSessionHost : PeelActivity(), SessionHost, TranslationHost {
         return GeckoResult.fromValue(popup)
     }
 
-    override fun markCurrentPageAsJumpHost() {
-        navigationDelegate.markCurrentPageAsJumpHost()
+    override fun onDownloadStarted() {
+        navigationDelegate.onDownloadStarted()
+    }
+
+    override fun onTopLevelLoadStart(url: String) {
+        navigationDelegate.onTopLevelLoadStart(url)
+    }
+
+    override fun onTopLevelLoadStop() {
+        navigationDelegate.onTopLevelLoadStop()
     }
 
     override fun resetSystemBarColorsForNewPage() {
@@ -958,7 +969,7 @@ abstract class BaseSessionHost : PeelActivity(), SessionHost, TranslationHost {
 
     protected fun reloadCurrentPage() {
         val committed = navigationDelegate.lastLocation
-        if (committed.isEmpty() || committed == "about:blank") {
+        if (isBlankDocument(committed)) {
             val fallback = lastLoadedUrl.ifBlank { baseUrl }
             if (fallback.isBlank()) pullToRefreshController.stopRefreshing()
             else loadURL(fallback)
@@ -968,8 +979,7 @@ abstract class BaseSessionHost : PeelActivity(), SessionHost, TranslationHost {
     }
 
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
-        if (virtualCursor?.onKeyEvent(event) == true) return true
-        return super.dispatchKeyEvent(event)
+        return virtualCursor?.onKeyEvent(event) == true || super.dispatchKeyEvent(event)
     }
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {
@@ -1009,7 +1019,9 @@ abstract class BaseSessionHost : PeelActivity(), SessionHost, TranslationHost {
     protected open val floatingControlsKey: String?
         get() = ownerWebAppUuid
 
-    protected open fun shareCurrentPage() = shareText(lastLoadedUrl)
+    private fun shareCurrentPage() {
+        pageUrl?.let(::shareText)
+    }
 
     protected open fun onShareLongPress(): (() -> Unit)? = null
 
@@ -1045,8 +1057,7 @@ abstract class BaseSessionHost : PeelActivity(), SessionHost, TranslationHost {
         val parent = findViewById<FrameLayout>(R.id.browserContent)
         val panel = panelControls
         return when {
-            mode == WebAppSettings.BROWSER_CONTROLS_BAR ->
-                BarControlsView(parent, actions)
+            mode == WebAppSettings.BROWSER_CONTROLS_BAR -> BarControlsView(parent, actions)
 
             mode == WebAppSettings.BROWSER_CONTROLS_PANEL && panel != null ->
                 PanelControlsView(panel, actions, ::requestInsetsUpdate)

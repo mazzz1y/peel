@@ -1,6 +1,7 @@
 package wtf.mazy.peel.ui.controls
 
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class ActionRowsTest {
@@ -33,7 +34,7 @@ class ActionRowsTest {
 
     @Test
     fun noActionsNoRows() {
-        assertEquals(emptyList<Int>(), ActionRows.split(count = 0, perRow = 6))
+        assertTrue(ActionRows.split(count = 0, perRow = 6).isEmpty())
     }
 
     @Test

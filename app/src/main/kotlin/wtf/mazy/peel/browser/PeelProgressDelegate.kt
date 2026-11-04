@@ -20,7 +20,8 @@ class PeelProgressDelegate(
 
     override fun onPageStart(session: GeckoSession, url: String) {
         currentUrl = url
-        if (isBlank(url)) return
+        host.onTopLevelLoadStart(url)
+        if (isBlankDocument(url)) return
         if (host.effectiveSettings.dynamicStatusBar) {
             host.resetSystemBarColorsForNewPage()
         }
@@ -38,7 +39,8 @@ class PeelProgressDelegate(
 
     override fun onPageStop(session: GeckoSession, success: Boolean) {
         host.onPageLoadEnded()
-        if (isBlank(currentUrl)) return
+        host.onTopLevelLoadStop()
+        if (isBlankDocument(currentUrl)) return
         if (ticking) runTail()
         if (success) host.onPageFullyLoaded()
     }
@@ -138,8 +140,6 @@ class PeelProgressDelegate(
         ticking = false
         bar.removeCallbacks(tickRunnable)
     }
-
-    private fun isBlank(url: String): Boolean = url == "about:blank"
 
     private companion object {
         const val BUCKET_SIZE = 10

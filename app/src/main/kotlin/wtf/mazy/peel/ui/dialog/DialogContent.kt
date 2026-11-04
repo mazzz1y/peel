@@ -5,6 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.ScrollView
+import androidx.core.view.isNotEmpty
 import com.google.android.material.textview.MaterialTextView
 import wtf.mazy.peel.R
 
@@ -31,7 +32,7 @@ class DialogContent private constructor(
     }
 
     fun add(child: View): DialogContent = apply {
-        if (contentColumn.childCount > 0) {
+        if (contentColumn.isNotEmpty()) {
             (child.layoutParams as? LinearLayout.LayoutParams
                 ?: LinearLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,

@@ -11,6 +11,7 @@ import org.json.JSONObject
 import java.net.HttpURLConnection
 import java.net.URL
 import java.util.Locale
+import kotlin.time.Duration.Companion.milliseconds
 
 object AmoExtensionsRepository {
 
@@ -76,7 +77,7 @@ object AmoExtensionsRepository {
     private suspend fun prefetchIcons(context: Context, list: List<AmoExtension>) {
         val targets = list.filter { it.iconUrl.isNotBlank() }
         if (targets.isEmpty()) return
-        withTimeoutOrNull(ICON_PREFETCH_TIMEOUT_MS) {
+        withTimeoutOrNull(ICON_PREFETCH_TIMEOUT_MS.milliseconds) {
             coroutineScope {
                 targets.forEach { ext ->
                     launch {

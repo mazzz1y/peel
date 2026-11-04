@@ -51,12 +51,7 @@ object EntityRowAnimator {
         }
     }
 
-    fun animateIconSwap(
-        host: EntityRowView,
-        owner: IconOwner,
-        selected: Boolean,
-        checkIconColor: Int,
-    ) {
+    fun animateIconSwap(host: EntityRowView, owner: IconOwner, selected: Boolean) {
         val icon = host.itemIcon
         icon.animate().cancel()
         icon.animate()
@@ -65,7 +60,7 @@ object EntityRowAnimator {
             .setDuration(Const.ANIM_DURATION_FAST)
             .setInterpolator(AccelerateInterpolator())
             .withEndAction {
-                applyIconState(host, owner, selected, checkIconColor)
+                applyIconState(host, owner, selected)
                 icon.animate()
                     .scaleX(1f)
                     .scaleY(1f)
@@ -76,12 +71,7 @@ object EntityRowAnimator {
             .start()
     }
 
-    fun applyIconState(
-        host: EntityRowView,
-        owner: IconOwner,
-        selected: Boolean,
-        checkIconColor: Int,
-    ) {
+    fun applyIconState(host: EntityRowView, owner: IconOwner, selected: Boolean) {
         val icon = host.itemIcon
         if (selected) {
             icon.background = null

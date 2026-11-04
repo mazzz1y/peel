@@ -6,6 +6,7 @@ import org.json.JSONObject
 import org.mozilla.geckoview.GeckoSession
 import org.mozilla.geckoview.WebExtension
 import wtf.mazy.peel.gecko.GeckoRuntimeProvider
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * Connects to the page-bridge built-in extension on a [GeckoSession] and
@@ -95,7 +96,7 @@ class PageBridge(
             pending.remove(requestId)
             return null
         }
-        val response = withTimeoutOrNull(BINARY_TIMEOUT_MS) { deferred.await() }
+        val response = withTimeoutOrNull(BINARY_TIMEOUT_MS.milliseconds) { deferred.await() }
             ?: run {
                 pending.remove(requestId)
                 return null

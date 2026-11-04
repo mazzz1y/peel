@@ -58,7 +58,7 @@ class ProxyListActivity : EntityListActivity<Proxy>() {
         val message = if (dependents == 0) {
             getString(R.string.proxy_delete_confirm)
         } else {
-            getString(R.string.proxy_in_use_warning, dependents)
+            resources.getQuantityString(R.plurals.proxy_in_use_warning, dependents, dependents)
         }
         MaterialAlertDialogBuilder(this)
             .setTitle(R.string.proxy_delete_title)

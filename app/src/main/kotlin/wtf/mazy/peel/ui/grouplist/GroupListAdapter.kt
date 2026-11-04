@@ -3,7 +3,6 @@ package wtf.mazy.peel.ui.grouplist
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.annotation.ColorInt
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.ProxyRoute
 import wtf.mazy.peel.model.WebAppGroup
@@ -15,11 +14,9 @@ import wtf.mazy.peel.ui.entitylist.binders.WebAppGroupBinder
 
 class GroupListAdapter(
     actions: EntityRowListener<WebAppGroup>,
-    @ColorInt checkIconColor: Int,
 ) : EntityListAdapter<WebAppGroup, GroupListAdapter.ViewHolder>(
     binder = WebAppGroupBinder,
     actions = actions,
-    checkIconColor = checkIconColor,
 ) {
 
     class ViewHolder(itemView: View) : EntityListViewHolder(itemView) {

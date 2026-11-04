@@ -1,7 +1,8 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context="wtf.mazy.peel.activities.MainActivity">
+    tools:context="wtf.mazy.peel.activities.MainActivity"
+    tools:ignore="AlwaysShowAction">
     <item
         android:id="@+id/action_add"
         android:icon="@drawable/ic_symbols_add_24"

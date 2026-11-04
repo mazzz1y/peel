@@ -61,7 +61,7 @@ class GroupListActivity : EntityListActivity<WebAppGroup>() {
     override val addDescriptionRes = R.string.add_group
 
     override fun createAdapter(): EntityListAdapter<WebAppGroup, *> =
-        GroupListAdapter(GroupRowListener(), checkIconColor)
+        GroupListAdapter(GroupRowListener())
 
     override fun loadEntities(): List<WebAppGroup> {
         val pending = PendingDeletes.groups

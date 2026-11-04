@@ -12,6 +12,7 @@ import wtf.mazy.peel.R
 import wtf.mazy.peel.model.EffectiveSettings
 import wtf.mazy.peel.ui.common.LoadingDialogController
 import java.lang.ref.WeakReference
+import kotlin.time.Duration.Companion.milliseconds
 
 data class PairKey(val from: String, val to: String) {
     companion object {
@@ -207,12 +208,12 @@ class PeelTranslationDelegate(host: TranslationHost) :
         val started = runCatching { sessionTranslation.translate(fromCode, toCode, options) }
         if (started.isFailure) return
         val loaderJob = activity.translationScope.launch {
-            delay(LOADER_DELAY_MS)
+            delay(LOADER_DELAY_MS.milliseconds)
             activity.translationLoader.show(R.string.translation_loading)
         }
         try {
             val modelReady =
-                withTimeoutOrNull(MODEL_READY_TIMEOUT_MS) { ready.await() } ?: false
+                withTimeoutOrNull(MODEL_READY_TIMEOUT_MS.milliseconds) { ready.await() } ?: false
             if (modelReady) {
                 page = page.copy(
                     decision = PageDecision.Translated(

@@ -2,7 +2,6 @@ package wtf.mazy.peel.ui.webapplist
 
 import android.animation.LayoutTransition
 import android.animation.ValueAnimator
-import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.animation.doOnCancel

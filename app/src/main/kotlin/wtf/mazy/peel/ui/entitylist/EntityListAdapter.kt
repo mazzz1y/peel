@@ -3,7 +3,6 @@ package wtf.mazy.peel.ui.entitylist
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.annotation.ColorInt
 import androidx.annotation.LayoutRes
 import androidx.recyclerview.widget.AsyncDifferConfig
 import androidx.recyclerview.widget.DiffUtil
@@ -13,7 +12,6 @@ import wtf.mazy.peel.model.SyncExecutor
 abstract class EntityListAdapter<T : Any, VH : EntityListViewHolder>(
     private val binder: EntityBinder<T>,
     private val actions: EntityRowListener<T>,
-    @get:ColorInt private val checkIconColor: Int,
 ) : ListAdapter<EntityRow<T>, VH>(buildDiffer(binder)) {
 
     init {
@@ -35,7 +33,7 @@ abstract class EntityListAdapter<T : Any, VH : EntityListViewHolder>(
     final override fun onBindViewHolder(holder: VH, position: Int) {
         val row = getItem(position)
         bindRow(holder, row)
-        binder.bindIcon(holder, row.entity, row.selected, checkIconColor)
+        binder.bindIcon(holder, row.entity, row.selected)
         EntityRowAnimator.applyModeState(holder, row.inSelectionMode)
         attachClickListeners(holder, row)
     }
@@ -48,7 +46,7 @@ abstract class EntityListAdapter<T : Any, VH : EntityListViewHolder>(
         }
         val row = getItem(position)
         if (PAYLOAD_SELECTION in tags) {
-            binder.animateIconSwap(holder, row.entity, row.selected, checkIconColor)
+            binder.animateIconSwap(holder, row.entity, row.selected)
         }
         if (PAYLOAD_MODE in tags) {
             EntityRowAnimator.animateModeTransition(holder, row.inSelectionMode)

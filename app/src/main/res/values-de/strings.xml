@@ -15,9 +15,12 @@
     <string name="about_description">Ein leichtgewichtiger Browser für Web-Apps\nBetrieben von Mozilla GeckoView</string>
     <string name="web_app_settings">Web-App-Einstellungen</string>
     <string name="import_failed">Die Sicherung konnte nicht wiederhergestellt werden</string>
-    <string name="import_success">Sicherung mit %1$d Web-App(s) wurde wiederhergestellt.</string>
+    <plurals name="import_success">
+        <item quantity="one">Sicherung mit %d Web-App wurde wiederhergestellt.</item>
+        <item quantity="other">Sicherung mit %d Web-Apps wurde wiederhergestellt.</item>
+    </plurals>
     <string name="import_mode_title">Vollständiges Backup</string>
-    <string name="import_mode_description">Enthält %1$d App(s) und %2$d Gruppe(n). Vorhandene Daten werden ersetzt. Aktiviere den Zusammenführungsmodus, um Apps zu behalten, die nicht im Backup enthalten sind.</string>
+    <string name="import_mode_description">Enthält %1$s und %2$s. Vorhandene Daten werden ersetzt. Aktiviere den Zusammenführungsmodus, um Apps zu behalten, die nicht im Backup enthalten sind.</string>
     <string name="import_mode_merge_switch">Zusammenführungsmodus</string>
     <string name="import_mapping_title">Apps importieren</string>
     <string name="import_mapping_description">%1$s mit dir geteilt. Wähle eine Zielgruppe und die Apps zum Importieren:</string>
@@ -27,7 +30,10 @@
     <string name="import_group_mode_new">Neue Gruppe erstellen</string>
     <string name="import_destination_group">Zielgruppe</string>
     <string name="import_mapping_empty">Keine Apps in dieser Datei gefunden.</string>
-    <string name="import_count_message">%1$d App(s) importiert</string>
+    <plurals name="import_count_message">
+        <item quantity="one">%d App importiert</item>
+        <item quantity="other">%d Apps importiert</item>
+    </plurals>
     <plurals name="n_apps_selected">
         <item quantity="one">%d ausgewählt</item>
         <item quantity="other">%d ausgewählt</item>
@@ -292,8 +298,20 @@
     <string name="extension_already_up_to_date">Bereits aktuell</string>
     <string name="update_all_extensions">Alle aktualisieren</string>
     <string name="auto_update_extensions">Automatisch aktualisieren</string>
-    <string name="extensions_update_summary">%1$d aktualisiert, %2$d aktuell</string>
-    <string name="extensions_update_summary_with_failed">%1$d aktualisiert, %2$d aktuell, %3$d fehlgeschlagen</string>
+    <string name="extensions_update_summary">%1$s, %2$s</string>
+    <string name="extensions_update_summary_with_failed">%1$s, %2$s, %3$s</string>
+    <plurals name="extensions_updated_count">
+        <item quantity="one">%d aktualisiert</item>
+        <item quantity="other">%d aktualisiert</item>
+    </plurals>
+    <plurals name="extensions_up_to_date_count">
+        <item quantity="one">%d aktuell</item>
+        <item quantity="other">%d aktuell</item>
+    </plurals>
+    <plurals name="extensions_failed_count">
+        <item quantity="one">%d fehlgeschlagen</item>
+        <item quantity="other">%d fehlgeschlagen</item>
+    </plurals>
     <string name="install_extension_confirm_title">Erweiterung installieren?</string>
     <string name="install_extension_permission_summary">%1$s fordert folgende Berechtigungen an:</string>
     <string name="install_extension_permissions_header">Berechtigungen:</string>
@@ -368,7 +386,10 @@
     <string name="proxy_type_socks5">SOCKS5</string>
     <string name="proxy_delete_title">Proxy löschen</string>
     <string name="proxy_delete_confirm">Diesen Proxy löschen?</string>
-    <string name="proxy_in_use_warning">Wird von %1$d Apps/Gruppen verwendet. Apps wechseln zu „Übernehmen“, Gruppen zu „Kein Proxy“.</string>
+    <plurals name="proxy_in_use_warning">
+        <item quantity="one">Wird von %d App/Gruppe verwendet. Apps wechseln zu „Übernehmen“, Gruppen zu „Kein Proxy“.</item>
+        <item quantity="other">Wird von %d Apps/Gruppen verwendet. Apps wechseln zu „Übernehmen“, Gruppen zu „Kein Proxy“.</item>
+    </plurals>
     <string name="proxy_auth_failed">Proxy-Authentifizierung fehlgeschlagen</string>
     <string name="beforeunload_message">Vorgenommene Änderungen werden möglicherweise nicht gespeichert</string>
     <string name="beforeunload_leave">Seite verlassen</string>
@@ -418,7 +439,7 @@
     <string name="push_status_local">Erlaubt, Benachrichtigungen nur bei geöffneter App</string>
     <string name="push_status_denied">Verweigert</string>
     <string name="push_subscription_deleted">Benachrichtigungsberechtigung zurückgesetzt</string>
-    <string name="push_subscription_delete_confirm">Benachrichtigungen für diese Website zurücksetzen? Vorhandene Abonnements werden entfernt und die Website fragt erneut nach der Berechtigung, wenn sie sie das nächste Mal anfordert.</string>
+    <string name="push_subscription_delete_confirm">Benachrichtigungen für diese Website zurücksetzen? Vorhandene Abonnements werden entfernt und die Website fragt beim nächsten Mal erneut nach der Berechtigung.</string>
     <string name="permission_prompt_notifications">%1$s erlauben, Ihnen Benachrichtigungen zu senden?</string>
     <!-- Setting descriptions, shown under each label in global settings -->
     <string name="setting_color_scheme_desc">Setzt prefers-color-scheme</string>

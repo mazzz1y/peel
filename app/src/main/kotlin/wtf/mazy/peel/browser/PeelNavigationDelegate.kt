@@ -72,6 +72,11 @@ class PeelNavigationDelegate(
     var lastLocation: String = ""
         private set
 
+    private val loadAttempt = LoadAttempt()
+
+    val pageUrl: String?
+        get() = lastLocation.takeUnless(::isBlankDocument) ?: loadAttempt.pendingUrl
+
     override fun onCanGoForward(session: GeckoSession, canGoForward: Boolean) {
         host.canGoForward = canGoForward
     }
@@ -165,6 +170,7 @@ class PeelNavigationDelegate(
 
     // No load will start, so nothing downstream will report the page as settled.
     private fun refuse(request: LoadRequest): GeckoResult<AllowOrDeny> {
+        loadAttempt.settleActive()
         if (request.isRedirect) deniedRedirectOrigin = lastLocation
         host.runOnUi { host.onPageLoadEnded() }
         return deny()
@@ -173,7 +179,7 @@ class PeelNavigationDelegate(
     override fun onNewSession(
         session: GeckoSession,
         uri: String,
-    ): GeckoResult<GeckoSession> = host.openPopupSession()
+    ): GeckoResult<GeckoSession> = host.openPopupSession(uri)
 
     override fun onLoadError(
         session: GeckoSession,
@@ -183,19 +189,37 @@ class PeelNavigationDelegate(
         if (uri == null || !LinkRouter.isBrowserScheme(uri)) return null
         if (isSpuriousError(error)) return null
         if (isCertError(error) && host.effectiveSettings.allowCertBypass) {
+            loadAttempt.settleActive()
             return GeckoResult.fromValue(CertErrorPage.urlFor(uri))
         }
 
         val description = ERROR_NAMES[error.code] ?: error.message ?: return null
+        loadAttempt.settleActive()
         host.runOnUi { host.showConnectionError(description, uri) }
         return null
+    }
+
+    fun onTopLevelLoadStart(url: String) {
+        loadAttempt.start(url)
+    }
+
+    fun onTopLevelLoadStop() {
+        val unanswered = loadAttempt.stop() ?: return
+        if (hasCommittedContent()) return
+        host.showConnectionError(host.hostResources.getString(R.string.empty_page), unanswered)
+    }
+
+    fun onSessionReset() {
+        lastLocation = ""
+        loadAttempt.reset()
     }
 
     fun resetDialogState() {
         appLinkDialogShowing = false
     }
 
-    fun markCurrentPageAsJumpHost() {
+    fun onDownloadStarted() {
+        loadAttempt.downloadStarted()
         isOnJumpHost = true
     }
 
@@ -207,8 +231,7 @@ class PeelNavigationDelegate(
         isInitialLoad = false
     }
 
-    private fun hasCommittedContent(): Boolean =
-        lastLocation.isNotEmpty() && lastLocation != "about:blank"
+    private fun hasCommittedContent(): Boolean = !isBlankDocument(lastLocation)
 
     private fun promptForExternalLink(
         url: String,
@@ -216,6 +239,7 @@ class PeelNavigationDelegate(
         reloadOnLoadHere: Boolean,
         isScriptNavigation: Boolean,
     ): GeckoResult<AllowOrDeny> {
+        loadAttempt.settleActive()
         val decision = GeckoResult<AllowOrDeny>()
         val prompt = ExternalLinkPrompt(
             url = url,
@@ -390,6 +414,7 @@ class PeelNavigationDelegate(
     }
 
     private fun redirectTo(url: String): GeckoResult<AllowOrDeny> {
+        loadAttempt.settleActive()
         host.runOnUi { host.loadURL(url) }
         return deny()
     }

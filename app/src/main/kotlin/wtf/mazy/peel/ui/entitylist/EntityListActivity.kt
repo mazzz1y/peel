@@ -6,7 +6,6 @@ import android.view.MenuItem
 import android.widget.TextView
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
-import androidx.annotation.ColorInt
 import androidx.annotation.StringRes
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -21,7 +20,6 @@ import wtf.mazy.peel.R
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.ui.common.ListEmptyState
 import wtf.mazy.peel.ui.common.PeelActivity
-import wtf.mazy.peel.ui.common.Theming
 import wtf.mazy.peel.ui.dragReorderCallback
 import wtf.mazy.peel.util.applyBottomScreenInsets
 import wtf.mazy.peel.util.applyToolbarScreenInsets
@@ -43,10 +41,6 @@ abstract class EntityListActivity<T : Any> : PeelActivity() {
     protected abstract val emptyStateRes: Int
 
     protected open val supportsDrag: Boolean = false
-
-    @get:ColorInt
-    protected var checkIconColor: Int = 0
-        private set
 
     protected abstract fun createAdapter(): EntityListAdapter<T, *>
     protected abstract fun loadEntities(): List<T>
@@ -96,8 +90,6 @@ abstract class EntityListActivity<T : Any> : PeelActivity() {
         emptyStateText = findViewById(R.id.base_empty_state)
         emptyStateText.setText(emptyStateRes)
         emptyState = ListEmptyState(emptyStateText)
-
-        checkIconColor = Theming.colorPrimary(this)
 
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)

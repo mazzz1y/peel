@@ -16,7 +16,6 @@ class ProxyListAdapter(
 ) : EntityListAdapter<Proxy, ProxyListAdapter.ViewHolder>(
     binder = ProxyBinder,
     actions = actions,
-    checkIconColor = 0,
 ) {
 
     class ViewHolder(itemView: View) : EntityListViewHolder(itemView) {

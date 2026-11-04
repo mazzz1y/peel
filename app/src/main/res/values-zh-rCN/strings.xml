@@ -33,9 +33,11 @@
     <string name="advanced">高级</string>
     <string name="appearance">外观</string>
     <string name="import_failed">无法恢复备份</string>
-    <string name="import_success">已成功恢复包含 %1$d 个网页应用的备份。</string>
+    <plurals name="import_success">
+        <item quantity="other">已成功恢复包含 %d 个网页应用的备份。</item>
+    </plurals>
     <string name="import_mode_title">完整备份</string>
-    <string name="import_mode_description">包含 %1$d 个应用和 %2$d 个分组。现有数据将被替换。启用合并模式可保留备份中未包含的应用。</string>
+    <string name="import_mode_description">包含 %1$s 和 %2$s。现有数据将被替换。启用合并模式可保留备份中未包含的应用。</string>
     <string name="import_mode_merge_switch">合并模式</string>
     <string name="import_mapping_title">导入应用</string>
     <string name="import_mapping_description">%1$s已分享给你。选择目标分组和要导入的应用：</string>
@@ -45,7 +47,9 @@
     <string name="import_group_mode_new">创建新分组</string>
     <string name="import_destination_group">目标分组</string>
     <string name="import_mapping_empty">此文件中未找到应用。</string>
-    <string name="import_count_message">已导入 %1$d 个应用</string>
+    <plurals name="import_count_message">
+        <item quantity="other">已导入 %d 个应用</item>
+    </plurals>
     <plurals name="n_apps_selected">
         <item quantity="other">已选择 %d 个</item>
     </plurals>
@@ -285,8 +289,17 @@
     <string name="extension_already_up_to_date">已是最新</string>
     <string name="update_all_extensions">全部更新</string>
     <string name="auto_update_extensions">自动更新</string>
-    <string name="extensions_update_summary">%1$d 已更新，%2$d 无变化</string>
-    <string name="extensions_update_summary_with_failed">%1$d 已更新，%2$d 无变化，%3$d 失败</string>
+    <string name="extensions_update_summary">%1$s，%2$s</string>
+    <string name="extensions_update_summary_with_failed">%1$s，%2$s，%3$s</string>
+    <plurals name="extensions_updated_count">
+        <item quantity="other">%d 已更新</item>
+    </plurals>
+    <plurals name="extensions_up_to_date_count">
+        <item quantity="other">%d 无变化</item>
+    </plurals>
+    <plurals name="extensions_failed_count">
+        <item quantity="other">%d 失败</item>
+    </plurals>
     <string name="install_extension_confirm_title">安装扩展？</string>
     <string name="install_extension_permission_summary">%1$s 请求以下权限：</string>
     <string name="install_extension_permissions_header">权限：</string>
@@ -359,7 +372,9 @@
     <string name="proxy_type_socks5">SOCKS5</string>
     <string name="proxy_delete_title">删除代理</string>
     <string name="proxy_delete_confirm">删除此代理?</string>
-    <string name="proxy_in_use_warning">正在被 %1$d 个应用/分组使用。应用将改为「继承」，分组将改为「不使用代理」。</string>
+    <plurals name="proxy_in_use_warning">
+        <item quantity="other">正在被 %d 个应用/分组使用。应用将改为「继承」，分组将改为「不使用代理」。</item>
+    </plurals>
     <string name="proxy_auth_failed">代理身份验证失败</string>
     <string name="beforeunload_message">所做的更改可能不会被保存</string>
     <string name="beforeunload_leave">离开页面</string>

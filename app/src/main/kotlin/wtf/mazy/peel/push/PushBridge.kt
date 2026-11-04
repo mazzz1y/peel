@@ -27,6 +27,7 @@ import wtf.mazy.peel.util.AppPrefs
 import java.math.BigInteger
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.time.Duration.Companion.milliseconds
 
 object PushBridge {
 
@@ -35,17 +36,17 @@ object PushBridge {
 
     fun attach(runtime: GeckoRuntime, context: Context) {
         val appContext = context.applicationContext
-        runtime.webPushController.setDelegate(object : WebPushDelegate {
+        runtime.webPushController.delegate = object : WebPushDelegate {
             override fun onSubscribe(
                 scopeUrl: String,
                 appServerKey: ByteArray?,
-            ): GeckoResult<WebPushSubscription>? =
+            ): GeckoResult<WebPushSubscription> =
                 geckoResult { subscribe(appContext, scopeUrl, appServerKey) }
 
-            override fun onGetSubscription(scopeUrl: String): GeckoResult<WebPushSubscription>? =
+            override fun onGetSubscription(scopeUrl: String): GeckoResult<WebPushSubscription> =
                 geckoResult { getSubscription(appContext, scopeUrl) }
 
-            override fun onUnsubscribe(scopeUrl: String): GeckoResult<Void>? {
+            override fun onUnsubscribe(scopeUrl: String): GeckoResult<Void> {
                 val result = GeckoResult<Void>()
                 App.appScope.launch(Dispatchers.Main.immediate) {
                     unsubscribe(appContext, scopeUrl)
@@ -53,7 +54,7 @@ object PushBridge {
                 }
                 return result
             }
-        })
+        }
     }
 
     private fun geckoResult(
@@ -88,7 +89,7 @@ object PushBridge {
                 messageForDistributor = distributorLabel(scopeUrl),
                 vapid = vapid,
             )
-            withTimeoutOrNull(REGISTER_TIMEOUT_MS) { deferred.await() }
+            withTimeoutOrNull(REGISTER_TIMEOUT_MS.milliseconds) { deferred.await() }
         } finally {
             pendingRegistrations.remove(instance)
         }

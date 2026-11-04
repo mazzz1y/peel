@@ -108,11 +108,6 @@ data class WebAppSettings(
         }
     }
 
-    fun upgradeUrl(url: String): String =
-        if (isAlwaysHttps == true && url.startsWith("http://")) {
-            url.replaceFirst("http://", "https://")
-        } else url
-
     fun getValue(key: String): Any? {
         return PROPERTY_MAP[key]?.get(this)
     }

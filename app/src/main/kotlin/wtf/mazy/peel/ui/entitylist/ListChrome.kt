@@ -20,14 +20,11 @@ import wtf.mazy.peel.R
 class ListChrome<T : Any>(
     private val activity: AppCompatActivity,
     private val toolbar: MaterialToolbar,
-    fab: FloatingActionButton,
-    idleAction: IdleAction,
+    private var fab: FloatingActionButton,
+    private var idleAction: IdleAction,
     private val selection: EntitySelectionController<T>,
     private val applyNormalToolbar: (MaterialToolbar) -> Unit,
 ) {
-
-    private var fab: FloatingActionButton = fab
-    private var idleAction: IdleAction = idleAction
 
     private enum class ToolbarMode { NORMAL, SELECTION }
 

@@ -82,15 +82,11 @@ class ImportMappingAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val inflater = LayoutInflater.from(parent.context)
+        fun row(layout: Int) = inflater.inflate(layout, parent, false).apply { clipToOutline = true }
         return when (viewType) {
-            VIEW_TYPE_GROUP ->
-                GroupViewHolder(inflater.inflate(R.layout.item_import_group_header, parent, false))
-
-            VIEW_TYPE_GROUP_CHILD ->
-                AppViewHolder(inflater.inflate(R.layout.item_import_group_child, parent, false))
-
-            else ->
-                AppViewHolder(inflater.inflate(R.layout.item_import_mapping, parent, false))
+            VIEW_TYPE_GROUP -> GroupViewHolder(row(R.layout.item_import_group_header))
+            VIEW_TYPE_GROUP_CHILD -> AppViewHolder(row(R.layout.item_import_group_child))
+            else -> AppViewHolder(row(R.layout.item_import_mapping))
         }
     }
 

@@ -5,7 +5,6 @@ import android.view.Menu
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.annotation.ColorInt
 import androidx.appcompat.widget.PopupMenu
 import com.google.android.material.materialswitch.MaterialSwitch
 import org.mozilla.geckoview.WebExtension
@@ -18,7 +17,6 @@ import wtf.mazy.peel.ui.entitylist.binders.WebExtensionBinder
 
 class ExtensionAdapter(
     context: Context,
-    @ColorInt checkIconColor: Int,
     onUpdate: (WebExtension) -> Unit,
     onSettings: (WebExtension) -> Unit,
     onUninstall: (WebExtension) -> Unit,
@@ -26,7 +24,6 @@ class ExtensionAdapter(
 ) : EntityListAdapter<WebExtension, ExtensionAdapter.ViewHolder>(
     binder = WebExtensionBinder(context),
     actions = ExtensionRowListener(onUpdate, onSettings, onUninstall),
-    checkIconColor = checkIconColor,
 ) {
 
     class ViewHolder(itemView: View) : EntityListViewHolder(itemView) {

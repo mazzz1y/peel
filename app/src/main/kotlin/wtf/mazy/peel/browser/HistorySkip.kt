@@ -10,7 +10,7 @@ data class HistorySnapshot(val entries: List<HistoryEntry>, val currentIndex: In
     val currentEntry: HistoryEntry? get() = entries.getOrNull(currentIndex)
 
     val hasCommittedPage: Boolean
-        get() = currentEntry?.uri?.let { it.isNotBlank() && it != "about:blank" } == true
+        get() = currentEntry?.uri?.let { !isBlankDocument(it) } == true
 
     companion object {
         fun from(state: GeckoSession.SessionState): HistorySnapshot? {

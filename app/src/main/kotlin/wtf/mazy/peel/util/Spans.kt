@@ -13,7 +13,7 @@ fun CharSequence.withBoldSpan(arg: String): SpannableString =
     applySpan(arg) { StyleSpan(Typeface.BOLD) }
 
 private inline fun CharSequence.applySpan(arg: String, span: () -> Any): SpannableString {
-    val spannable = if (this is SpannableString) this else SpannableString(this)
+    val spannable = this as? SpannableString ?: SpannableString(this)
     val start = spannable.indexOf(arg)
     if (start >= 0) {
         spannable.setSpan(

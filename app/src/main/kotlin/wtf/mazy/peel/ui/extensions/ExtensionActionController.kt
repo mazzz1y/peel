@@ -36,7 +36,7 @@ class ExtensionActionController(
 
     fun snapshot(): List<Entry> {
         return liveExtensions.mapNotNull { ext ->
-            if (ext.metaData.enabled == false) return@mapNotNull null
+            if (!ext.metaData.enabled) return@mapNotNull null
             val defaultAction = defaults[ext.id] ?: return@mapNotNull null
             val override = overrides[ext.id]
             val merged = override?.withDefault(defaultAction) ?: defaultAction

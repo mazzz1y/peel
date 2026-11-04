@@ -74,7 +74,6 @@
     <!-- A suggestion row is a 24dp glyph in a 48dp touch target: about half a web-app row. -->
     <dimen name="suggestion_card_min_height">48dp</dimen>
     <dimen name="suggestion_card_padding_vertical">8dp</dimen>
-    <dimen name="suggestion_icon_size">24dp</dimen>
     <dimen name="settings_dropdown_max_width">160dp</dimen>
     <dimen name="toolbar_label_max_width">140dp</dimen>
 

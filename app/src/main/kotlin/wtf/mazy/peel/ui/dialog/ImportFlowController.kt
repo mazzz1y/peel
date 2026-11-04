@@ -131,10 +131,12 @@ class ImportFlowController(
                 R.id.switchMergeMode
             )
         val messageView = dialogView.findViewById<TextView>(R.id.import_mode_message)
+        val apps = parsed.backupData.websites.size
+        val groups = parsed.backupData.groups.size
         messageView.text = activity.getString(
             R.string.import_mode_description,
-            parsed.backupData.websites.size,
-            parsed.backupData.groups.size,
+            activity.resources.getQuantityString(R.plurals.import_apps_count, apps, apps),
+            activity.resources.getQuantityString(R.plurals.import_groups_count, groups, groups),
         )
 
         MaterialAlertDialogBuilder(activity)
@@ -179,7 +181,7 @@ class ImportFlowController(
             loadingRes = R.string.importing,
             ioTask = { BackupManager.importShared(parsed, selectedUuids, destinationGroupUuid) },
         ) { imported ->
-            activity.toast(R.string.import_count_message, imported)
+            activity.toast(activity.resources.getQuantityString(R.plurals.import_count_message, imported, imported))
         }
     }
 
@@ -198,7 +200,7 @@ class ImportFlowController(
             loadingRes = R.string.importing,
             ioTask = { BackupManager.importGroupShared(parsed, selectedUuids, selectedGroupUuids) },
         ) { imported ->
-            activity.toast(R.string.import_count_message, imported)
+            activity.toast(activity.resources.getQuantityString(R.plurals.import_count_message, imported, imported))
         }
     }
 
@@ -209,8 +211,9 @@ class ImportFlowController(
     private fun showSuccessDialog() {
         MaterialAlertDialogBuilder(activity)
             .setMessage(
-                activity.getString(
-                    R.string.import_success,
+                activity.resources.getQuantityString(
+                    R.plurals.import_success,
+                    DataManager.webAppCount,
                     DataManager.webAppCount,
                 )
             )

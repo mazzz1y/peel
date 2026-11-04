@@ -33,9 +33,12 @@
     <string name="advanced">উন্নত</string>
     <string name="appearance">চেহারা</string>
     <string name="import_failed">ব্যাকআপ পুনরুদ্ধার করা যায়নি</string>
-    <string name="import_success">%1$dটি ওয়েব অ্যাপের ব্যাকআপ সফলভাবে পুনরুদ্ধার হয়েছে।</string>
+    <plurals name="import_success">
+        <item quantity="one">%dটি ওয়েব অ্যাপের ব্যাকআপ সফলভাবে পুনরুদ্ধার হয়েছে।</item>
+        <item quantity="other">%dটি ওয়েব অ্যাপের ব্যাকআপ সফলভাবে পুনরুদ্ধার হয়েছে।</item>
+    </plurals>
     <string name="import_mode_title">সম্পূর্ণ ব্যাকআপ</string>
-    <string name="import_mode_description">%1$dটি অ্যাপ এবং %2$dটি গ্রুপ রয়েছে। বিদ্যমান ডেটা প্রতিস্থাপিত হবে। ব্যাকআপে অন্তর্ভুক্ত নয় এমন অ্যাপ রাখতে মার্জ মোড চালু করুন।</string>
+    <string name="import_mode_description">%1$s এবং %2$s রয়েছে। বিদ্যমান ডেটা প্রতিস্থাপিত হবে। ব্যাকআপে অন্তর্ভুক্ত নয় এমন অ্যাপ রাখতে মার্জ মোড চালু করুন।</string>
     <string name="import_mode_merge_switch">মার্জ মোড</string>
     <string name="import_mapping_title">অ্যাপ ইমপোর্ট</string>
     <string name="import_mapping_description">%1$s আপনার সাথে শেয়ার করা হয়েছে। গন্তব্য গ্রুপ এবং আমদানি করার অ্যাপ নির্বাচন করুন:</string>
@@ -45,7 +48,10 @@
     <string name="import_group_mode_new">নতুন গ্রুপ তৈরি করুন</string>
     <string name="import_destination_group">গন্তব্য গ্রুপ</string>
     <string name="import_mapping_empty">এই ফাইলে কোনো অ্যাপ পাওয়া যায়নি।</string>
-    <string name="import_count_message">%1$dটি অ্যাপ আমদানি হয়েছে</string>
+    <plurals name="import_count_message">
+        <item quantity="one">%dটি অ্যাপ আমদানি হয়েছে</item>
+        <item quantity="other">%dটি অ্যাপ আমদানি হয়েছে</item>
+    </plurals>
     <plurals name="n_apps_selected">
         <item quantity="one">%dটি নির্বাচিত</item>
         <item quantity="other">%dটি নির্বাচিত</item>
@@ -292,8 +298,20 @@
     <string name="extension_already_up_to_date">ইতিমধ্যে আপডেট</string>
     <string name="update_all_extensions">সব আপডেট করুন</string>
     <string name="auto_update_extensions">স্বয়ংক্রিয় আপডেট</string>
-    <string name="extensions_update_summary">%1$d আপডেট, %2$d পরিবর্তন নেই</string>
-    <string name="extensions_update_summary_with_failed">%1$d আপডেট, %2$d পরিবর্তন নেই, %3$d ব্যর্থ</string>
+    <string name="extensions_update_summary">%1$s, %2$s</string>
+    <string name="extensions_update_summary_with_failed">%1$s, %2$s, %3$s</string>
+    <plurals name="extensions_updated_count">
+        <item quantity="one">%d আপডেট</item>
+        <item quantity="other">%d আপডেট</item>
+    </plurals>
+    <plurals name="extensions_up_to_date_count">
+        <item quantity="one">%d পরিবর্তন নেই</item>
+        <item quantity="other">%d পরিবর্তন নেই</item>
+    </plurals>
+    <plurals name="extensions_failed_count">
+        <item quantity="one">%d ব্যর্থ</item>
+        <item quantity="other">%d ব্যর্থ</item>
+    </plurals>
     <string name="install_extension_confirm_title">এক্সটেনশন ইনস্টল করবেন?</string>
     <string name="install_extension_permission_summary">%1$s নিম্নলিখিত অনুমতি চাইছে:</string>
     <string name="install_extension_permissions_header">অনুমতিসমূহ:</string>
@@ -368,7 +386,10 @@
     <string name="proxy_type_socks5">SOCKS5</string>
     <string name="proxy_delete_title">প্রক্সি মুছুন</string>
     <string name="proxy_delete_confirm">এই প্রক্সিটি মুছবেন?</string>
-    <string name="proxy_in_use_warning">%1$d অ্যাপ/গ্রুপে ব্যবহৃত। অ্যাপগুলো «উত্তরাধিকার»-এ এবং গ্রুপগুলো «কোনো প্রক্সি নেই»-তে চলে যাবে।</string>
+    <plurals name="proxy_in_use_warning">
+        <item quantity="one">%dটি অ্যাপ/গ্রুপে ব্যবহৃত। অ্যাপগুলো «উত্তরাধিকার»-এ এবং গ্রুপগুলো «কোনো প্রক্সি নেই»-তে চলে যাবে।</item>
+        <item quantity="other">%dটি অ্যাপ/গ্রুপে ব্যবহৃত। অ্যাপগুলো «উত্তরাধিকার»-এ এবং গ্রুপগুলো «কোনো প্রক্সি নেই»-তে চলে যাবে।</item>
+    </plurals>
     <string name="proxy_auth_failed">প্রক্সি প্রমাণীকরণ ব্যর্থ</string>
     <string name="beforeunload_message">করা পরিবর্তনগুলো সংরক্ষিত নাও হতে পারে</string>
     <string name="beforeunload_leave">পেজ ছেড়ে যান</string>

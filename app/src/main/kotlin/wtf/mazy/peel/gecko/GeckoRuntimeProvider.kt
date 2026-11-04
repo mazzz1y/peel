@@ -3,6 +3,7 @@ package wtf.mazy.peel.gecko
 import android.content.Context
 import android.os.LocaleList
 import android.util.Log
+import androidx.annotation.OptIn
 import androidx.annotation.StringRes
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -16,6 +17,7 @@ import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import org.mozilla.geckoview.AllowOrDeny
 import org.mozilla.geckoview.ContentBlocking
+import org.mozilla.geckoview.ExperimentalGeckoViewApi
 import org.mozilla.geckoview.GeckoPreferenceController
 import org.mozilla.geckoview.GeckoResult
 import org.mozilla.geckoview.GeckoRuntime
@@ -412,6 +414,7 @@ object GeckoRuntimeProvider {
 
     // Config-file prefs reach Gecko through an env var that drops quote escaping, so JSON
     // values must be set at runtime. The default branch keeps them out of prefs.js.
+    @OptIn(ExperimentalGeckoViewApi::class)
     private fun applySensorAllowList(defaults: EffectiveSettings) {
         if (!defaults.blockMotionSensors || defaults.sensorAllowedDomains.isEmpty()) return
         val json = sensorAllowListJson(defaults.sensorAllowedDomains)

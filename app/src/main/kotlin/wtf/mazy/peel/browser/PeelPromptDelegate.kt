@@ -37,12 +37,12 @@ class PeelPromptDelegate(private val host: SessionHost) : GeckoSession.PromptDel
         dialog: AlertDialog,
         result: GeckoResult<GeckoSession.PromptDelegate.PromptResponse>,
     ) {
-        setDelegate(object : GeckoSession.PromptDelegate.PromptInstanceDelegate {
+        this.delegate = object : GeckoSession.PromptDelegate.PromptInstanceDelegate {
             override fun onPromptDismiss(closed: GeckoSession.PromptDelegate.BasePrompt) {
                 dialog.dismiss()
                 if (!closed.isComplete) result.complete(closed.dismiss())
             }
-        })
+        }
     }
 
     override fun onAlertPrompt(
@@ -153,8 +153,7 @@ class PeelPromptDelegate(private val host: SessionHost) : GeckoSession.PromptDel
         } else if (settings.useBasicAuth) {
             val username = settings.basicAuthUsername
             val password = settings.basicAuthPassword
-            val challengeKey = authUri
-            if (username.isNotEmpty() && autoAuthAttempted.add(challengeKey)) {
+            if (username.isNotEmpty() && autoAuthAttempted.add(authUri)) {
                 return GeckoResult.fromValue(prompt.confirm(username, password))
             }
         }
@@ -297,12 +296,12 @@ class PeelPromptDelegate(private val host: SessionHost) : GeckoSession.PromptDel
                     if (!prompt.isComplete) result.complete(prompt.dismiss())
                 },
             )
-            prompt.setDelegate(object : GeckoSession.PromptDelegate.PromptInstanceDelegate {
+            prompt.delegate = object : GeckoSession.PromptDelegate.PromptInstanceDelegate {
                 override fun onPromptDismiss(closed: GeckoSession.PromptDelegate.BasePrompt) {
                     picker.dismiss()
                     if (!closed.isComplete) result.complete(closed.dismiss())
                 }
-            })
+            }
         }
         return result
     }
@@ -312,11 +311,11 @@ class PeelPromptDelegate(private val host: SessionHost) : GeckoSession.PromptDel
         prompt: GeckoSession.PromptDelegate.SharePrompt,
     ): GeckoResult<GeckoSession.PromptDelegate.PromptResponse> {
         val result = GeckoResult<GeckoSession.PromptDelegate.PromptResponse>()
-        prompt.setDelegate(object : GeckoSession.PromptDelegate.PromptInstanceDelegate {
+        prompt.delegate = object : GeckoSession.PromptDelegate.PromptInstanceDelegate {
             override fun onPromptDismiss(closed: GeckoSession.PromptDelegate.BasePrompt) {
                 if (!closed.isComplete) result.complete(closed.dismiss())
             }
-        })
+        }
         host.runOnUi {
             if (prompt.isComplete) return@runOnUi
             val text = listOfNotNull(prompt.text, prompt.uri).filter { it.isNotBlank() }.joinToString(" ")
@@ -349,13 +348,13 @@ class PeelPromptDelegate(private val host: SessionHost) : GeckoSession.PromptDel
                 }
             }
         }
-        prompt.setDelegate(object : GeckoSession.PromptDelegate.PromptInstanceDelegate {
+        prompt.delegate = object : GeckoSession.PromptDelegate.PromptInstanceDelegate {
             override fun onPromptDismiss(closed: GeckoSession.PromptDelegate.BasePrompt) {
                 host.filePathCallback = null
                 host.pendingCaptureFile = null
                 if (!closed.isComplete) result.complete(closed.dismiss())
             }
-        })
+        }
 
         fun matchesAny(prefix: String) =
             mimeTypes.isEmpty() || mimeTypes.any { it.startsWith(prefix) || it == "*/*" }

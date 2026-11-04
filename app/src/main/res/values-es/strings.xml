@@ -14,9 +14,13 @@
     <string name="about_description">Un navegador ligero para aplicaciones web\nImpulsado por Mozilla GeckoView</string>
     <string name="web_app_settings">Configuración de la aplicación web</string>
     <string name="import_failed">La copia de seguridad no se ha podido restaurar</string>
-    <string name="import_success">Copia de seguridad con %1$d aplicación(es) web ha sido restaurada con éxito.</string>
+    <plurals name="import_success">
+        <item quantity="one">Copia de seguridad con %d aplicación web restaurada con éxito.</item>
+        <item quantity="many">Copia de seguridad con %d aplicaciones web restaurada con éxito.</item>
+        <item quantity="other">Copia de seguridad con %d aplicaciones web restaurada con éxito.</item>
+    </plurals>
     <string name="import_mode_title">Copia completa</string>
-    <string name="import_mode_description">Contiene %1$d app(s) y %2$d grupo(s). Los datos existentes serán reemplazados. Activa el modo combinar para conservar las apps que no están en la copia.</string>
+    <string name="import_mode_description">Contiene %1$s y %2$s. Los datos existentes serán reemplazados. Activa el modo combinar para conservar las apps que no están en la copia.</string>
     <string name="import_mode_merge_switch">Modo combinar</string>
     <string name="import_mapping_title">Importar apps</string>
     <string name="import_mapping_description">%1$s compartida contigo. Elige un grupo de destino y selecciona las apps a importar:</string>
@@ -26,9 +30,14 @@
     <string name="import_group_mode_new">Crear nuevo grupo</string>
     <string name="import_destination_group">Grupo de destino</string>
     <string name="import_mapping_empty">No se encontraron apps en este archivo.</string>
-    <string name="import_count_message">%1$d app(s) importada(s)</string>
+    <plurals name="import_count_message">
+        <item quantity="one">%d app importada</item>
+        <item quantity="many">%d apps importadas</item>
+        <item quantity="other">%d apps importadas</item>
+    </plurals>
     <plurals name="n_apps_selected">
         <item quantity="one">%d seleccionada</item>
+        <item quantity="many">%d seleccionadas</item>
         <item quantity="other">%d seleccionadas</item>
     </plurals>
     <string name="share_secrets_title">Secretos detectados</string>
@@ -38,18 +47,22 @@
     <string name="remove_apps_title">Eliminar apps</string>
     <plurals name="remove_apps_confirm">
         <item quantity="one">¿Eliminar %d app seleccionada?</item>
+        <item quantity="many">¿Eliminar %d apps seleccionadas?</item>
         <item quantity="other">¿Eliminar %d apps seleccionadas?</item>
     </plurals>
     <plurals name="n_apps_removed">
         <item quantity="one">%d app eliminada</item>
+        <item quantity="many">%d apps eliminadas</item>
         <item quantity="other">%d apps eliminadas</item>
     </plurals>
     <plurals name="remove_groups_confirm">
         <item quantity="one">¿Eliminar %d grupo seleccionado y sus apps?</item>
+        <item quantity="many">¿Eliminar %d grupos seleccionados y sus apps?</item>
         <item quantity="other">¿Eliminar %d grupos seleccionados y sus apps?</item>
     </plurals>
     <plurals name="n_groups_removed">
         <item quantity="one">%d grupo eliminado</item>
+        <item quantity="many">%d grupos eliminados</item>
         <item quantity="other">%d grupos eliminados</item>
     </plurals>
     <string name="export_share_failed">No se pudo preparar el archivo para compartir</string>
@@ -231,6 +244,7 @@
 
     <plurals name="group_app_count">
         <item quantity="one">%d app</item>
+        <item quantity="many">%d apps</item>
         <item quantity="other">%d apps</item>
     </plurals>
 
@@ -251,6 +265,7 @@
     <string name="import_group_share_description_multi">%1$s se compartieron contigo. Elige los grupos y apps a importar:</string>
     <plurals name="n_groups_selected">
         <item quantity="one">%d grupo seleccionado</item>
+        <item quantity="many">%d grupos seleccionados</item>
         <item quantity="other">%d grupos seleccionados</item>
     </plurals>
     <string name="network_privacy">Red y privacidad</string>
@@ -291,8 +306,23 @@
     <string name="extension_already_up_to_date">Ya está actualizado</string>
     <string name="update_all_extensions">Actualizar todo</string>
     <string name="auto_update_extensions">Actualizar automáticamente</string>
-    <string name="extensions_update_summary">%1$d actualizadas, %2$d sin cambios</string>
-    <string name="extensions_update_summary_with_failed">%1$d actualizadas, %2$d sin cambios, %3$d fallidas</string>
+    <string name="extensions_update_summary">%1$s, %2$s</string>
+    <string name="extensions_update_summary_with_failed">%1$s, %2$s, %3$s</string>
+    <plurals name="extensions_updated_count">
+        <item quantity="one">%d actualizada</item>
+        <item quantity="many">%d actualizadas</item>
+        <item quantity="other">%d actualizadas</item>
+    </plurals>
+    <plurals name="extensions_up_to_date_count">
+        <item quantity="one">%d sin cambios</item>
+        <item quantity="many">%d sin cambios</item>
+        <item quantity="other">%d sin cambios</item>
+    </plurals>
+    <plurals name="extensions_failed_count">
+        <item quantity="one">%d fallida</item>
+        <item quantity="many">%d fallidas</item>
+        <item quantity="other">%d fallidas</item>
+    </plurals>
     <string name="install_extension_confirm_title">¿Instalar extensión?</string>
     <string name="install_extension_permission_summary">%1$s solicita los siguientes permisos:</string>
     <string name="install_extension_permissions_header">Permisos:</string>
@@ -303,10 +333,12 @@
     <string name="install">Instalar</string>
     <plurals name="import_apps_count">
         <item quantity="one">%d app</item>
+        <item quantity="many">%d apps</item>
         <item quantity="other">%d apps</item>
     </plurals>
     <plurals name="import_groups_count">
         <item quantity="one">%d grupo</item>
+        <item quantity="many">%d grupos</item>
         <item quantity="other">%d grupos</item>
     </plurals>
     <string name="setting_disable_quic">Desactivar QUIC</string>
@@ -367,7 +399,11 @@
     <string name="proxy_type_socks5">SOCKS5</string>
     <string name="proxy_delete_title">Eliminar proxy</string>
     <string name="proxy_delete_confirm">¿Eliminar este proxy?</string>
-    <string name="proxy_in_use_warning">Usado por %1$d aplicaciones/grupos. Las aplicaciones pasarán a «Heredar» y los grupos a «Sin proxy».</string>
+    <plurals name="proxy_in_use_warning">
+        <item quantity="one">Usado por %d aplicación/grupo. Las aplicaciones pasarán a «Heredar» y los grupos a «Sin proxy».</item>
+        <item quantity="many">Usado por %d aplicaciones/grupos. Las aplicaciones pasarán a «Heredar» y los grupos a «Sin proxy».</item>
+        <item quantity="other">Usado por %d aplicaciones/grupos. Las aplicaciones pasarán a «Heredar» y los grupos a «Sin proxy».</item>
+    </plurals>
     <string name="proxy_auth_failed">Falló la autenticación del proxy</string>
     <string name="beforeunload_message">Los cambios realizados podrían no guardarse</string>
     <string name="beforeunload_leave">Salir de la página</string>

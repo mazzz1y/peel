@@ -278,8 +278,7 @@ class MainActivity :
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (chrome.onOptionsItemSelected(item)) return true
-        return when (item.itemId) {
+        return chrome.onOptionsItemSelected(item) || when (item.itemId) {
             R.id.action_search -> {
                 searchController.enter()
                 true
@@ -309,9 +308,7 @@ class MainActivity :
     fun refreshCurrentPages() {
         val groups = DataManager.sortedGroups
         val newGroupKeys = groups.map { it.uuid to it.title }
-        val newShowUngrouped =
-            if (groups.isEmpty()) true
-            else DataManager.webAppsInGroup(null).isNotEmpty()
+        val newShowUngrouped = groups.isEmpty() || DataManager.webAppsInGroup(null).isNotEmpty()
 
         if (lastGroupKeys != newGroupKeys || lastShowUngrouped != newShowUngrouped) {
             setupViewPager()

@@ -27,8 +27,7 @@ object ProxyRouterBridge : ExtensionSyncBridge<Map<String, Map<String, Any?>>>(
 
     @CheckResult
     suspend fun awaitRoutesReady(contextId: String?): Boolean {
-        if (contextId == null || !hasProxiedRoute(contextId)) return true
-        return awaitReady()
+        return contextId == null || !hasProxiedRoute(contextId) || awaitReady()
     }
 
     private fun hasProxiedRoute(contextId: String): Boolean {

@@ -3,6 +3,7 @@ package wtf.mazy.peel.push
 import android.os.SystemClock
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.withTimeoutOrNull
+import kotlin.time.Duration.Companion.milliseconds
 
 object NotificationClickCoordinator {
 
@@ -27,8 +28,8 @@ object NotificationClickCoordinator {
     }
 
     suspend fun serviceWorkerWillNavigate(slot: PendingClick): Boolean {
-        if (withTimeoutOrNull(GRACE_MS) { slot.handled.await() } != null) return true
-        return !slot.handled.complete(Unit)
+        return withTimeoutOrNull(GRACE_MS.milliseconds) { slot.handled.await() } != null ||
+                !slot.handled.complete(Unit)
     }
 
     private const val GRACE_MS = 2_500L

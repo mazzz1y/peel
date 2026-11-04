@@ -66,9 +66,12 @@
     <string name="advanced">Advanced</string>
     <string name="appearance">Appearance</string>
     <string name="import_failed">Backup could not be restored</string>
-    <string name="import_success">Backup with %1$d Web App(s) was restored successfully.</string>
+    <plurals name="import_success">
+        <item quantity="one">Backup with %d Web App was restored successfully.</item>
+        <item quantity="other">Backup with %d Web Apps was restored successfully.</item>
+    </plurals>
     <string name="import_mode_title">Full Backup</string>
-    <string name="import_mode_description">Contains %1$d app(s) and %2$d group(s). Existing data will be replaced. Enable merge mode to keep apps not included in the backup.</string>
+    <string name="import_mode_description">Contains %1$s and %2$s. Existing data will be replaced. Enable merge mode to keep apps not included in the backup.</string>
     <string name="import_mode_merge_switch">Merge mode</string>
     <string name="import_mapping_title">Import Apps</string>
     <string name="import_mapping_description">%1$s shared with you. Choose a destination group and select which apps to import:</string>
@@ -88,7 +91,10 @@
     <string name="import_group_mode_new">Create new group</string>
     <string name="import_destination_group">Destination group</string>
     <string name="import_mapping_empty">No apps found in this file.</string>
-    <string name="import_count_message">Imported %1$d app(s)</string>
+    <plurals name="import_count_message">
+        <item quantity="one">Imported %d app</item>
+        <item quantity="other">Imported %d apps</item>
+    </plurals>
     <plurals name="n_apps_selected">
         <item quantity="one">%d selected</item>
         <item quantity="other">%d selected</item>
@@ -181,6 +187,7 @@
     <string name="site_not_found">Page could not be loaded</string>
     <string name="connection_error">Connection error: %1$s</string>
     <string name="proxy_not_ready" translatable="false">PROXY_ROUTES_NOT_READY</string>
+    <string name="empty_page" translatable="false">EMPTY_PAGE</string>
     <string name="retry">Retry</string>
     <string name="back">Back</string>
     <string name="crash_restart_title">Page keeps crashing</string>
@@ -345,8 +352,20 @@
     <string name="loading_extension">Loading…</string>
     <string name="loading_extensions">Loading\u2026</string>
     <string name="install_extension_error">Failed to install extension</string>
-    <string name="extensions_update_summary">%1$d updated, %2$d up to date</string>
-    <string name="extensions_update_summary_with_failed">%1$d updated, %2$d up to date, %3$d failed</string>
+    <string name="extensions_update_summary">%1$s, %2$s</string>
+    <string name="extensions_update_summary_with_failed">%1$s, %2$s, %3$s</string>
+    <plurals name="extensions_updated_count">
+        <item quantity="one">%d updated</item>
+        <item quantity="other">%d updated</item>
+    </plurals>
+    <plurals name="extensions_up_to_date_count">
+        <item quantity="one">%d up to date</item>
+        <item quantity="other">%d up to date</item>
+    </plurals>
+    <plurals name="extensions_failed_count">
+        <item quantity="one">%d failed</item>
+        <item quantity="other">%d failed</item>
+    </plurals>
     <string name="install_extension_confirm_title">Install extension?</string>
     <string name="install_extension_permission_summary">%1$s is requesting the following permissions:</string>
     <string name="install_extension_permissions_header">Permissions:</string>
@@ -416,7 +435,10 @@
     <string name="proxy_type_socks5">SOCKS5</string>
     <string name="proxy_delete_title">Delete proxy</string>
     <string name="proxy_delete_confirm">Delete this proxy?</string>
-    <string name="proxy_in_use_warning">Used by %1$d apps/groups. Apps will switch to \"Inherit\", groups to \"No proxy\".</string>
+    <plurals name="proxy_in_use_warning">
+        <item quantity="one">Used by %d app or group. Apps will switch to \"Inherit\", groups to \"No proxy\".</item>
+        <item quantity="other">Used by %d apps and groups. Apps will switch to \"Inherit\", groups to \"No proxy\".</item>
+    </plurals>
     <string name="proxy_auth_failed">Proxy authentication failed</string>
     <string name="beforeunload_message">Changes you made may not be saved</string>
     <string name="beforeunload_leave">Leave page</string>

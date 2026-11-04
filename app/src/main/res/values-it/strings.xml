@@ -15,9 +15,13 @@
     <string name="about_description">Un browser leggero per le app web\nAlimentato da Mozilla GeckoView</string>
     <string name="web_app_settings">Impostazioni Web App</string>
     <string name="import_failed">Backup non ripristinabile</string>
-    <string name="import_success">Il backup di %1$d Web App è stato ripristinato con successo.</string>
+    <plurals name="import_success">
+        <item quantity="one">Il backup di %d Web App è stato ripristinato con successo.</item>
+        <item quantity="many">Il backup di %d Web App è stato ripristinato con successo.</item>
+        <item quantity="other">Il backup di %d Web App è stato ripristinato con successo.</item>
+    </plurals>
     <string name="import_mode_title">Backup completo</string>
-    <string name="import_mode_description">Contiene %1$d app e %2$d gruppi. I dati esistenti verranno sostituiti. Attiva la modalità unione per conservare le app non incluse nel backup.</string>
+    <string name="import_mode_description">Contiene %1$s e %2$s. I dati esistenti verranno sostituiti. Attiva la modalità unione per conservare le app non incluse nel backup.</string>
     <string name="import_mode_merge_switch">Modalità unione</string>
     <string name="import_mapping_title">Importa app</string>
     <string name="import_mapping_description">%1$s condivise con te. Scegli un gruppo di destinazione e seleziona le app da importare:</string>
@@ -27,9 +31,14 @@
     <string name="import_group_mode_new">Crea nuovo gruppo</string>
     <string name="import_destination_group">Gruppo di destinazione</string>
     <string name="import_mapping_empty">Nessuna app trovata in questo file.</string>
-    <string name="import_count_message">%1$d app importate</string>
+    <plurals name="import_count_message">
+        <item quantity="one">%d app importata</item>
+        <item quantity="many">%d app importate</item>
+        <item quantity="other">%d app importate</item>
+    </plurals>
     <plurals name="n_apps_selected">
         <item quantity="one">%d selezionata</item>
+        <item quantity="many">%d selezionate</item>
         <item quantity="other">%d selezionate</item>
     </plurals>
     <string name="share_secrets_title">Segreti rilevati</string>
@@ -39,18 +48,22 @@
     <string name="remove_apps_title">Rimuovi app</string>
     <plurals name="remove_apps_confirm">
         <item quantity="one">Rimuovere %d app selezionata?</item>
+        <item quantity="many">Rimuovere %d app selezionate?</item>
         <item quantity="other">Rimuovere %d app selezionate?</item>
     </plurals>
     <plurals name="n_apps_removed">
         <item quantity="one">%d app rimossa</item>
+        <item quantity="many">%d app rimosse</item>
         <item quantity="other">%d app rimosse</item>
     </plurals>
     <plurals name="remove_groups_confirm">
         <item quantity="one">Rimuovere %d gruppo selezionato e le sue app?</item>
+        <item quantity="many">Rimuovere %d gruppi selezionati e le loro app?</item>
         <item quantity="other">Rimuovere %d gruppi selezionati e le loro app?</item>
     </plurals>
     <plurals name="n_groups_removed">
         <item quantity="one">%d gruppo rimosso</item>
+        <item quantity="many">%d gruppi rimossi</item>
         <item quantity="other">%d gruppi rimossi</item>
     </plurals>
     <string name="export_share_failed">Impossibile preparare il file per la condivisione</string>
@@ -232,6 +245,7 @@
 
     <plurals name="group_app_count">
         <item quantity="one">%d app</item>
+        <item quantity="many">%d app</item>
         <item quantity="other">%d app</item>
     </plurals>
 
@@ -252,6 +266,7 @@
     <string name="import_group_share_description_multi">%1$s sono stati condivisi con te. Scegli i gruppi e le app da importare:</string>
     <plurals name="n_groups_selected">
         <item quantity="one">%d gruppo selezionato</item>
+        <item quantity="many">%d gruppi selezionati</item>
         <item quantity="other">%d gruppi selezionati</item>
     </plurals>
     <string name="network_privacy">Rete e privacy</string>
@@ -292,8 +307,23 @@
     <string name="extension_already_up_to_date">Già aggiornato</string>
     <string name="update_all_extensions">Aggiorna tutto</string>
     <string name="auto_update_extensions">Aggiornamento automatico</string>
-    <string name="extensions_update_summary">%1$d aggiornate, %2$d già aggiornate</string>
-    <string name="extensions_update_summary_with_failed">%1$d aggiornate, %2$d già aggiornate, %3$d fallite</string>
+    <string name="extensions_update_summary">%1$s, %2$s</string>
+    <string name="extensions_update_summary_with_failed">%1$s, %2$s, %3$s</string>
+    <plurals name="extensions_updated_count">
+        <item quantity="one">%d aggiornata</item>
+        <item quantity="many">%d aggiornate</item>
+        <item quantity="other">%d aggiornate</item>
+    </plurals>
+    <plurals name="extensions_up_to_date_count">
+        <item quantity="one">%d già aggiornata</item>
+        <item quantity="many">%d già aggiornate</item>
+        <item quantity="other">%d già aggiornate</item>
+    </plurals>
+    <plurals name="extensions_failed_count">
+        <item quantity="one">%d fallita</item>
+        <item quantity="many">%d fallite</item>
+        <item quantity="other">%d fallite</item>
+    </plurals>
     <string name="install_extension_confirm_title">Installare l\'estensione?</string>
     <string name="install_extension_permission_summary">%1$s richiede le seguenti autorizzazioni:</string>
     <string name="install_extension_permissions_header">Autorizzazioni:</string>
@@ -304,10 +334,12 @@
     <string name="install">Installa</string>
     <plurals name="import_apps_count">
         <item quantity="one">%d app</item>
+        <item quantity="many">%d app</item>
         <item quantity="other">%d app</item>
     </plurals>
     <plurals name="import_groups_count">
         <item quantity="one">%d gruppo</item>
+        <item quantity="many">%d gruppi</item>
         <item quantity="other">%d gruppi</item>
     </plurals>
     <string name="setting_disable_quic">Disabilita QUIC</string>
@@ -368,7 +400,11 @@
     <string name="proxy_type_socks5">SOCKS5</string>
     <string name="proxy_delete_title">Elimina proxy</string>
     <string name="proxy_delete_confirm">Eliminare questo proxy?</string>
-    <string name="proxy_in_use_warning">Usato da %1$d app/gruppi. Le app passeranno a «Eredita», i gruppi a «Nessun proxy».</string>
+    <plurals name="proxy_in_use_warning">
+        <item quantity="one">Usato da %d app/gruppo. Le app passeranno a «Eredita», i gruppi a «Nessun proxy».</item>
+        <item quantity="many">Usato da %d app/gruppi. Le app passeranno a «Eredita», i gruppi a «Nessun proxy».</item>
+        <item quantity="other">Usato da %d app/gruppi. Le app passeranno a «Eredita», i gruppi a «Nessun proxy».</item>
+    </plurals>
     <string name="proxy_auth_failed">Autenticazione proxy non riuscita</string>
     <string name="beforeunload_message">Le modifiche apportate potrebbero non essere salvate</string>
     <string name="beforeunload_leave">Abbandona la pagina</string>

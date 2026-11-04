@@ -5,6 +5,7 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * Tracks every live session host so callers can finish hosts by owner web app, by sandbox
@@ -75,7 +76,7 @@ object SessionHostRegistry {
 
         try {
             withContext(Dispatchers.Main) { targets.forEach { it.finish() } }
-            withTimeoutOrNull(CLOSE_TIMEOUT_MS) { waiter.done.await() }
+            withTimeoutOrNull(CLOSE_TIMEOUT_MS.milliseconds) { waiter.done.await() }
         } finally {
             synchronized(lock) { closeWaiters.remove(waiter) }
         }

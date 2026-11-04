@@ -2,7 +2,6 @@ package wtf.mazy.peel.ui.extensions
 
 import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.annotation.StringRes
@@ -83,8 +82,8 @@ object ExtensionPermissionPrompt {
         for (raw in items) {
             val row = inflater.inflate(
                 R.layout.item_extension_permission, container, false,
-            ) as ViewGroup
-            row.findViewById<TextView>(R.id.permissionLabel).text = raw
+            ) as TextView
+            row.text = raw
             container.addView(row)
         }
     }

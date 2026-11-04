@@ -13,12 +13,7 @@ class WebExtensionBinder(context: Context) : EntityBinder<WebExtension> {
     override fun uuid(item: WebExtension): String = item.id
     override fun stableId(item: WebExtension): Long = StableIdRegistry.idFor(item.id)
 
-    override fun bindIcon(
-        host: EntityRowView,
-        item: WebExtension,
-        selected: Boolean,
-        checkIconColor: Int,
-    ) {
+    override fun bindIcon(host: EntityRowView, item: WebExtension, selected: Boolean) {
         ExtensionIconCache.bind(host.itemIcon, appContext, item.id, item.metaData.name ?: item.id)
     }
 

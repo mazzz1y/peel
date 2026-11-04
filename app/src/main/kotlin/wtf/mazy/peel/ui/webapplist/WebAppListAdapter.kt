@@ -15,7 +15,6 @@ import wtf.mazy.peel.model.ProxyRoute
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.shortcut.Shortcuts
 import wtf.mazy.peel.ui.common.ShareSecretsDialog
-import wtf.mazy.peel.ui.common.Theming
 import wtf.mazy.peel.ui.entitylist.EntityListAdapter
 import wtf.mazy.peel.ui.entitylist.EntityListViewHolder
 import wtf.mazy.peel.ui.entitylist.EntityRow
@@ -38,7 +37,6 @@ class WebAppListAdapter(
 ) : EntityListAdapter<WebApp, WebAppListAdapter.ViewHolder>(
     binder = WebAppBinder,
     actions = WebAppRowListener(activity, selection),
-    checkIconColor = Theming.colorPrimary(activity),
 ) {
 
     var groupFilter: String? = null

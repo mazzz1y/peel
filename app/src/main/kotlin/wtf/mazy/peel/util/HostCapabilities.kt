@@ -51,5 +51,5 @@ fun Context.webContentDensityOverride(zoomPercent: Int): Float? {
 }
 
 private fun scaleToDensity(dp: Int): Int =
-    if (dp == Configuration.SCREEN_WIDTH_DP_UNDEFINED) dp
+    if (dp == Configuration.SCREEN_WIDTH_DP_UNDEFINED) Configuration.SCREEN_WIDTH_DP_UNDEFINED
     else (dp / AUTOMOTIVE_DENSITY_SCALE).roundToInt()

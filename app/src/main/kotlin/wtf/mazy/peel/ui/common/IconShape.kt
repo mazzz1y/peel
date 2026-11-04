@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import android.graphics.Color
 import android.widget.ImageView
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory
+import androidx.core.graphics.get
 import kotlin.math.max
 import kotlin.math.roundToInt
 
@@ -37,8 +38,7 @@ private val Bitmap.isOpaqueSquare: Boolean
         if (width != height) return false
         val inset = max(1, (width * CORNER_INSET).roundToInt())
         val far = width - 1 - inset
-        if (far <= inset) return false
-        return listOf(inset to inset, far to inset, inset to far, far to far).all { (x, y) ->
-            Color.alpha(getPixel(x, y)) >= OPAQUE_ALPHA
+        return far > inset && listOf(inset to inset, far to inset, inset to far, far to far).all { (x, y) ->
+            Color.alpha(this[x, y]) >= OPAQUE_ALPHA
         }
     }

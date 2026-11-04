@@ -33,9 +33,11 @@
     <string name="advanced">Nâng cao</string>
     <string name="appearance">Giao diện</string>
     <string name="import_failed">Không thể khôi phục bản sao lưu</string>
-    <string name="import_success">Đã khôi phục bản sao lưu với %1$d ứng dụng web.</string>
+    <plurals name="import_success">
+        <item quantity="other">Đã khôi phục bản sao lưu với %d ứng dụng web.</item>
+    </plurals>
     <string name="import_mode_title">Sao lưu đầy đủ</string>
-    <string name="import_mode_description">Chứa %1$d ứng dụng và %2$d nhóm. Dữ liệu hiện có sẽ bị thay thế. Bật chế độ gộp để giữ các ứng dụng không có trong bản sao lưu.</string>
+    <string name="import_mode_description">Chứa %1$s và %2$s. Dữ liệu hiện có sẽ bị thay thế. Bật chế độ gộp để giữ các ứng dụng không có trong bản sao lưu.</string>
     <string name="import_mode_merge_switch">Chế độ gộp</string>
     <string name="import_mapping_title">Nhập ứng dụng</string>
     <string name="import_mapping_description">%1$s được chia sẻ với bạn. Chọn nhóm đích và ứng dụng cần nhập:</string>
@@ -45,7 +47,9 @@
     <string name="import_group_mode_new">Tạo nhóm mới</string>
     <string name="import_destination_group">Nhóm đích</string>
     <string name="import_mapping_empty">Không tìm thấy ứng dụng trong tệp này.</string>
-    <string name="import_count_message">Đã nhập %1$d ứng dụng</string>
+    <plurals name="import_count_message">
+        <item quantity="other">Đã nhập %d ứng dụng</item>
+    </plurals>
     <plurals name="n_apps_selected">
         <item quantity="other">Đã chọn %d</item>
     </plurals>
@@ -285,8 +289,17 @@
     <string name="extension_already_up_to_date">Đã là phiên bản mới nhất</string>
     <string name="update_all_extensions">Cập nhật tất cả</string>
     <string name="auto_update_extensions">Tự động cập nhật</string>
-    <string name="extensions_update_summary">%1$d đã cập nhật, %2$d không thay đổi</string>
-    <string name="extensions_update_summary_with_failed">%1$d đã cập nhật, %2$d không thay đổi, %3$d thất bại</string>
+    <string name="extensions_update_summary">%1$s, %2$s</string>
+    <string name="extensions_update_summary_with_failed">%1$s, %2$s, %3$s</string>
+    <plurals name="extensions_updated_count">
+        <item quantity="other">%d đã cập nhật</item>
+    </plurals>
+    <plurals name="extensions_up_to_date_count">
+        <item quantity="other">%d không thay đổi</item>
+    </plurals>
+    <plurals name="extensions_failed_count">
+        <item quantity="other">%d thất bại</item>
+    </plurals>
     <string name="install_extension_confirm_title">Cài đặt tiện ích?</string>
     <string name="install_extension_permission_summary">%1$s yêu cầu các quyền sau:</string>
     <string name="install_extension_permissions_header">Quyền:</string>
@@ -359,7 +372,9 @@
     <string name="proxy_type_socks5">SOCKS5</string>
     <string name="proxy_delete_title">Xoá proxy</string>
     <string name="proxy_delete_confirm">Xoá proxy này?</string>
-    <string name="proxy_in_use_warning">Đang được dùng bởi %1$d ứng dụng/nhóm. Ứng dụng sẽ chuyển sang «Kế thừa», nhóm sang «Không proxy».</string>
+    <plurals name="proxy_in_use_warning">
+        <item quantity="other">Đang được dùng bởi %d ứng dụng/nhóm. Ứng dụng sẽ chuyển sang «Kế thừa», nhóm sang «Không proxy».</item>
+    </plurals>
     <string name="proxy_auth_failed">Xác thực proxy thất bại</string>
     <string name="beforeunload_message">Các thay đổi bạn thực hiện có thể không được lưu</string>
     <string name="beforeunload_leave">Rời khỏi trang</string>

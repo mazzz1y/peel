@@ -49,6 +49,8 @@ interface SessionHost {
     var pendingCaptureFile: File?
 
     fun onLocationChanged(url: String)
+    fun onTopLevelLoadStart(url: String)
+    fun onTopLevelLoadStop()
     fun onPageStarted()
     fun onPageFullyLoaded()
     fun onPageLoadEnded()
@@ -56,7 +58,7 @@ interface SessionHost {
     fun onSessionStateUpdated(state: GeckoSession.SessionState)
     fun onProcessKilled()
     fun onContentCrashed()
-    fun openPopupSession(): GeckoResult<GeckoSession>
+    fun openPopupSession(url: String): GeckoResult<GeckoSession>
 
     fun showHttpAuthDialog(
         onResult: (username: String, password: String) -> Unit,
@@ -77,7 +79,7 @@ interface SessionHost {
 
     fun onWindowCloseRequest()
     fun onInitialNavigationDenied()
-    fun markCurrentPageAsJumpHost()
+    fun onDownloadStarted()
     fun showConnectionError(description: String, url: String, onRetry: (() -> Unit)? = null)
     fun resetSystemBarColorsForNewPage()
     fun reportSystemBarColorsFromContent(

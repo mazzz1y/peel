@@ -47,9 +47,7 @@ object ProxyEditorDialog {
             Proxy.TYPE_HTTP, Proxy.TYPE_HTTPS,
             Proxy.TYPE_SOCKS4, Proxy.TYPE_SOCKS5,
         )
-        typeInput.setAdapter(
-            ArrayAdapter(activity, android.R.layout.simple_list_item_1, typeLabels)
-        )
+        typeInput.setAdapter(ArrayAdapter(activity, android.R.layout.simple_list_item_1, typeLabels))
 
         fun applyTypeVisibility(type: Int) {
             val isSocks = type == Proxy.TYPE_SOCKS4 || type == Proxy.TYPE_SOCKS5

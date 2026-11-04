@@ -8,6 +8,7 @@ import wtf.mazy.peel.util.ActivityRoutes
 
 object PopupLaunch {
     const val EXTRA_SESSION_KEY = "popup_session_key"
+    const val EXTRA_URL = "popup_url"
     const val EXTRA_TITLE = "popup_title"
     const val EXTRA_SETTINGS = "popup_settings"
     const val EXTRA_CONTEXT_ID = "popup_context_id"
@@ -19,6 +20,7 @@ object PopupLaunch {
     fun intent(
         context: Context,
         key: String,
+        url: String,
         title: String,
         settings: EffectiveSettings,
         contextId: String?,
@@ -29,6 +31,7 @@ object PopupLaunch {
     ): Intent =
         Intent(context, ActivityRoutes.popup)
             .putExtra(EXTRA_SESSION_KEY, key)
+            .putExtra(EXTRA_URL, url)
             .putExtra(EXTRA_TITLE, title)
             .putExtra(EXTRA_SETTINGS, Json.encodeToString(settings))
             .putExtra(EXTRA_CONTEXT_ID, contextId)

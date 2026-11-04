@@ -253,7 +253,7 @@ class DownloadHandler(
         }
 
         override fun hashCode(): Int {
-            var result = mime?.hashCode() ?: 0
+            var result = mime.hashCode()
             result = 31 * result + bytes.contentHashCode()
             return result
         }

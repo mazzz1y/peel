@@ -11,8 +11,7 @@ fun isSameHost(origin: String, url: String): Boolean {
 
 fun belongsToApp(origin: String, url: String, settings: EffectiveSettings): Boolean {
     val base = settings.upgradeUrl(origin)
-    if (isSameHost(base, url)) return true
-    return linkAffinity(base, url, settings.sameAppDomains) > HostIdentity.TLD_ONLY
+    return isSameHost(base, url) || linkAffinity(base, url, settings.sameAppDomains) > HostIdentity.TLD_ONLY
 }
 
 fun linkAffinity(baseUrl: String, url: String, sameAppDomains: List<String>?): Int {

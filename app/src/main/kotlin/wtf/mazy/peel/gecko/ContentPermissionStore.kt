@@ -10,8 +10,6 @@ import org.mozilla.geckoview.GeckoResult
 import org.mozilla.geckoview.GeckoSession.PermissionDelegate
 import org.mozilla.geckoview.GeckoSession.PermissionDelegate.ContentPermission
 import org.mozilla.geckoview.StorageController
-import wtf.mazy.peel.gecko.ContentPermissionStore.requestSweep
-import wtf.mazy.peel.gecko.ContentPermissionStore.valueFor
 import wtf.mazy.peel.gecko.GeckoRuntimeProvider.awaitNullable
 import wtf.mazy.peel.util.App
 import java.util.concurrent.atomic.AtomicBoolean

@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/identityBlock"
-    style="@style/SettingsSurfaceRow">
+    style="@style/SettingsSurfaceRow"
+    tools:ignore="MergeRootFrame">
 
     <ImageView
         android:id="@+id/btnFetch"

@@ -30,12 +30,7 @@ object PushSubscriptionBinder : EntityBinder<PushSubscriptionItem> {
     override fun uuid(item: PushSubscriptionItem): String = item.key
     override fun stableId(item: PushSubscriptionItem): Long = StableIdRegistry.idFor(item.key)
 
-    override fun bindIcon(
-        host: EntityRowView,
-        item: PushSubscriptionItem,
-        selected: Boolean,
-        checkIconColor: Int,
-    ) {
+    override fun bindIcon(host: EntityRowView, item: PushSubscriptionItem, selected: Boolean) {
         host.itemIcon.showIcon(item.icon)
     }
 
@@ -50,7 +45,6 @@ class PushSubscriptionListAdapter(
 ) : EntityListAdapter<PushSubscriptionItem, PushSubscriptionListAdapter.ViewHolder>(
     binder = PushSubscriptionBinder,
     actions = actions,
-    checkIconColor = 0,
 ) {
 
     class ViewHolder(itemView: View) : EntityListViewHolder(itemView) {

@@ -76,7 +76,7 @@ class PeelContentDelegate(
     }
 
     override fun onExternalResponse(session: GeckoSession, response: WebResponse) {
-        host.markCurrentPageAsJumpHost()
+        host.onDownloadStarted()
         onDownload(response)
     }
 

@@ -1,7 +1,6 @@
 package wtf.mazy.peel.ui.dialog
 
 import android.view.LayoutInflater
-import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -28,8 +27,8 @@ object ScopeExtensionsPrompt {
         for (domain in domains) {
             val row = inflater.inflate(
                 R.layout.item_extension_permission, container, false,
-            ) as ViewGroup
-            row.findViewById<TextView>(R.id.permissionLabel).text = domain
+            ) as TextView
+            row.text = domain
             container.addView(row)
         }
 

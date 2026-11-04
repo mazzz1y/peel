@@ -31,35 +31,41 @@ class IsolationStorageMappingTest {
 
     @Test
     fun webAppStoredCombinations() {
-        assertEquals(Isolation.Shared, appEntity(false, true, "proxy-a").toDomain().isolation)
+        assertEquals(
+            Isolation.Shared,
+            appEntity(container = false, ephemeral = true, proxy = "proxy-a").toDomain().isolation,
+        )
         assertEquals(
             Isolation.Sandboxed(true, ProxyChoice.Inherit),
-            appEntity(true, true, null).toDomain().isolation,
+            appEntity(container = true, ephemeral = true, proxy = null).toDomain().isolation,
         )
         assertEquals(
             Isolation.Sandboxed(false, ProxyRoute.Direct),
-            appEntity(true, false, "direct").toDomain().isolation,
+            appEntity(container = true, ephemeral = false, proxy = "direct").toDomain().isolation,
         )
         assertEquals(
             Isolation.Sandboxed(false, ProxyRoute.Via("proxy-a")),
-            appEntity(true, false, "proxy-a").toDomain().isolation,
+            appEntity(container = true, ephemeral = false, proxy = "proxy-a").toDomain().isolation,
         )
     }
 
     @Test
     fun groupStoredCombinations() {
-        assertEquals(Isolation.Shared, groupEntity(false, true, "proxy-a").toDomain().isolation)
+        assertEquals(
+            Isolation.Shared,
+            groupEntity(container = false, ephemeral = true, proxy = "proxy-a").toDomain().isolation,
+        )
         assertEquals(
             Isolation.Sandboxed(true, ProxyRoute.Direct),
-            groupEntity(true, true, null).toDomain().isolation,
+            groupEntity(container = true, ephemeral = true, proxy = null).toDomain().isolation,
         )
         assertEquals(
             Isolation.Sandboxed(false, ProxyRoute.Direct),
-            groupEntity(true, false, "direct").toDomain().isolation,
+            groupEntity(container = true, ephemeral = false, proxy = "direct").toDomain().isolation,
         )
         assertEquals(
             Isolation.Sandboxed(false, ProxyRoute.Via("proxy-a")),
-            groupEntity(true, false, "proxy-a").toDomain().isolation,
+            groupEntity(container = true, ephemeral = false, proxy = "proxy-a").toDomain().isolation,
         )
     }
 

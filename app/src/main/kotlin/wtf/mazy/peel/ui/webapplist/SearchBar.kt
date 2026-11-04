@@ -149,7 +149,7 @@ class SearchBar @JvmOverloads constructor(
         leadingButton.isClickable = active
         leadingButton.isFocusable = active
         leadingButton.importantForAccessibility =
-            if (active) View.IMPORTANT_FOR_ACCESSIBILITY_AUTO else View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        clearButton.visibility = if (query.isEmpty()) View.GONE else View.VISIBLE
+            if (active) IMPORTANT_FOR_ACCESSIBILITY_AUTO else IMPORTANT_FOR_ACCESSIBILITY_NO
+        clearButton.visibility = if (query.isEmpty()) GONE else VISIBLE
     }
 }

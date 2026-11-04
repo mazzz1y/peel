@@ -129,7 +129,7 @@ object BackupArchiveCodec {
                 zip.putNextEntry(ZipEntry(BackupPolicy.CRYPTO_ENTRY))
                 zip.write(paramsBytes)
                 zip.closeEntry()
-                zip.putNextEntry(storedEntry(BackupPolicy.PAYLOAD_ENTRY, payload))
+                zip.putNextEntry(storedPayloadEntry(payload))
                 zip.write(payload)
                 zip.closeEntry()
             }
@@ -138,8 +138,8 @@ object BackupArchiveCodec {
         }
     }
 
-    private fun storedEntry(name: String, bytes: ByteArray): ZipEntry =
-        ZipEntry(name).apply {
+    private fun storedPayloadEntry(bytes: ByteArray): ZipEntry =
+        ZipEntry(BackupPolicy.PAYLOAD_ENTRY).apply {
             method = ZipEntry.STORED
             size = bytes.size.toLong()
             compressedSize = bytes.size.toLong()

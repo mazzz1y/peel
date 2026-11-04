@@ -56,7 +56,6 @@ import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.isAutomotiveHost
 import wtf.mazy.peel.util.isSameHost
 import wtf.mazy.peel.util.isSingleWindowHost
-import wtf.mazy.peel.util.shareText
 import wtf.mazy.peel.util.toast
 import wtf.mazy.peel.util.webAppUuid
 
@@ -288,10 +287,7 @@ class BrowserActivity : BaseSessionHost() {
         autoReloadController.stop()
     }
 
-    override fun shareCurrentPage() = shareText(currentUrl)
-
-    override fun onShareLongPress(): () -> Unit =
-        { currentUrl.takeIf { it.isNotBlank() }?.let(::openInPeel) }
+    override fun onShareLongPress(): () -> Unit = { pageUrl?.let(::openInPeel) }
 
     override fun onOpenAppList(): (() -> Unit)? =
         if (isSingleWindowHost()) ({ openAppList() }) else null
@@ -557,7 +553,7 @@ class BrowserActivity : BaseSessionHost() {
                     it.contextId != null || it.usePrivateMode
                 } == true
             },
-            getPageUrl = { currentUrl.takeIf { it.isNotBlank() } },
+            getPageUrl = { pageUrl },
         )
         navigationDelegate = PeelNavigationDelegate(this)
         permissionDelegate = PeelPermissionDelegate(this)
@@ -587,6 +583,7 @@ class BrowserActivity : BaseSessionHost() {
         pendingCaptureFile = null
         navigationDelegate.resetDialogState()
         navigationDelegate.cancelPendingPrompts()
+        navigationDelegate.onSessionReset()
         navigationDelegate.browsingExternally = false
         permissionDelegate.clearSessionPermissions()
         ContentPermissionStore.requestSweep(this)
