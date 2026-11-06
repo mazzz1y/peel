@@ -71,6 +71,7 @@
     <dimen name="list_card_padding_horizontal">16dp</dimen>
     <dimen name="list_card_padding_vertical">12dp</dimen>
     <dimen name="list_card_list_padding_top">6dp</dimen>
+    <dimen name="suggestion_strip_margin_bottom">-6dp</dimen>
     <!-- A suggestion row is a 24dp glyph in a 48dp touch target: about half a web-app row. -->
     <dimen name="suggestion_card_min_height">48dp</dimen>
     <dimen name="suggestion_card_padding_vertical">8dp</dimen>

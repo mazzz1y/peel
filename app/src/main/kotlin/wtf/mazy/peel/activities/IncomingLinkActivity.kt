@@ -8,10 +8,7 @@ import wtf.mazy.peel.gecko.GeckoRuntimeProvider
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.ui.common.PeelActivity
 import wtf.mazy.peel.ui.dialog.ExternalLinkMenu
-import wtf.mazy.peel.ui.dialog.ExternalLinkResult
 import wtf.mazy.peel.util.BrowserLauncher
-import wtf.mazy.peel.util.copyToClipboard
-import wtf.mazy.peel.util.shareText
 
 /**
  * Receives links from outside Peel, both as the default browser (`ACTION_VIEW`) and as a
@@ -29,36 +26,20 @@ class IncomingLinkActivity : PeelActivity() {
             finish()
             return
         }
-        // the share sheet this came from already offers share and copy
-        val shared = intent.action == Intent.ACTION_SEND
 
         lifecycleScope.launch {
             DataManager.reloadAll()
-            val apps = DataManager.sortedWebApps
-            if (apps.isEmpty()) {
+            if (DataManager.webApps.isEmpty()) {
                 openIncognito(url)
                 return@launch
             }
-            ExternalLinkMenu.show(
+            ExternalLinkMenu.openInPeelPicker(
                 activity = this@IncomingLinkActivity,
                 url = url,
                 excludeUuid = null,
-                peelApps = apps,
-                includeLoadHere = false,
-                includeOpenInSystem = false,
-                includeShareAndCopy = !shared,
-            ) { result ->
-                when (result) {
-                    // the launcher may open a picker parented here, so it says when to finish
-                    is ExternalLinkResult.OpenInPeelApp -> result.launcher(::finish)
-                    ExternalLinkResult.OpenIncognito -> openIncognito(url)
-                    ExternalLinkResult.Share -> shareText(url).also { finish() }
-                    ExternalLinkResult.CopyLink -> copyToClipboard(url).also { finish() }
-                    ExternalLinkResult.LoadHere,
-                    ExternalLinkResult.OpenInSystem,
-                    ExternalLinkResult.Dismissed -> finish()
-                }
-            }
+                onIncognito = { openIncognito(url) },
+                onDismiss = ::finish,
+            )
         }
     }
 

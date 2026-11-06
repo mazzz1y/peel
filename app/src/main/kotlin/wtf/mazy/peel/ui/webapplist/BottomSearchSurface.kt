@@ -14,17 +14,15 @@ import wtf.mazy.peel.ui.common.fadeVisibility
 import wtf.mazy.peel.ui.entitylist.IdleAction
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.applyBottomScreenInsets
+import wtf.mazy.peel.util.isImeVisible
 import wtf.mazy.peel.util.setBottomClearance
 
 /**
  * The Bottom search position: the search action floats at the end of the bottom line, alone
  * at rest, and the [SearchBar] unfolds beside it while search is active. The results are shown
- * in place over the list page under the unchanged app bar. The session is the keyboard's, so it
- * does not survive recreation.
- *
- * The session spans the bar and the results: a D-pad or a screen reader travelling from the
- * field into a result row is still searching, so focus landing in the results keeps the bar's
- * session open rather than ending it on the way.
+ * in place over the list page under the unchanged app bar. The session is the bar's: the keyboard
+ * and focus may come and go within it, and it ends only through the bar's back control or a
+ * back press. It does not survive recreation.
  */
 class BottomSearchSurface(
     activity: AppCompatActivity,
@@ -67,15 +65,12 @@ class BottomSearchSurface(
         resultsList.applyBottomScreenInsets()
         suggestions.applyBottomLineFade()
         suggestions.applyBottomScreenInsets()
-        bar.sessionExtent = results
         suggestions.onOfferingChanged = { clearListOfSuggestions() }
         suggestions.addOnLayoutChangeListener { _, _, top, _, bottom, _, oldTop, _, oldBottom ->
             if (bottom - top != oldBottom - oldTop) clearListOfSuggestions()
         }
         bar.onQueryChanged = { query -> onQueryChanged(query) }
-        // However the bar gains or loses focus — a tap, a D-pad, a screen reader, the back
-        // control — the keyboard and the results follow it, so there is one path in and one
-        // path out rather than one per input method.
+        bar.onKeyboardRequested = { insetsController.show(WindowInsetsCompat.Type.ime()) }
         bar.onActiveChanged = { active ->
             val ime = WindowInsetsCompat.Type.ime()
             setResultsShown(active)
@@ -92,7 +87,14 @@ class BottomSearchSurface(
 
     override fun exit() = bar.close()
 
-    override fun onHostPaused() = exit()
+    override fun lowerKeyboard(): Boolean {
+        if (!bar.hasFocus() || !bar.isImeVisible) return false
+        bar.dropFocus()
+        insetsController.hide(WindowInsetsCompat.Type.ime())
+        return true
+    }
+
+    override fun onHostPaused() = bar.dropFocus()
 
     override fun setQuery(query: String) = bar.setQuery(query)
 

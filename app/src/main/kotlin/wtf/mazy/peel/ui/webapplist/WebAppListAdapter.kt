@@ -11,8 +11,8 @@ import kotlinx.coroutines.launch
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.EntityCloner
-import wtf.mazy.peel.model.ProxyRoute
 import wtf.mazy.peel.model.WebApp
+import wtf.mazy.peel.model.matchesQuery
 import wtf.mazy.peel.shortcut.Shortcuts
 import wtf.mazy.peel.ui.common.ShareSecretsDialog
 import wtf.mazy.peel.ui.entitylist.EntityListAdapter
@@ -44,10 +44,8 @@ class WebAppListAdapter(
     var showGroupLabels: Boolean = false
 
     class ViewHolder(itemView: View) : EntityListViewHolder(itemView) {
-        val iconSandbox: ImageView = itemView.findViewById(R.id.iconSandbox)
-        val iconEphemeral: ImageView = itemView.findViewById(R.id.iconEphemeral)
-        val iconProxy: ImageView = itemView.findViewById(R.id.iconProxy)
-        override val indicators: List<ImageView> = listOf(iconSandbox, iconEphemeral, iconProxy)
+        val webAppIndicators = WebAppIndicators(itemView)
+        override val indicators: List<ImageView> = webAppIndicators.views
         val titleView: TextView = itemView.findViewById(R.id.item_primary)
         val urlView: TextView = itemView.findViewById(R.id.item_secondary)
         val groupLabel: TextView = itemView.findViewById(R.id.item_tertiary)
@@ -64,11 +62,7 @@ class WebAppListAdapter(
         holder.groupLabel.text = row.tertiaryText
         holder.groupLabel.visibility = if (row.tertiaryText != null) View.VISIBLE else View.GONE
 
-        val proxied = app.isolation.isSandboxed &&
-                DataManager.effectiveSandbox(app).route is ProxyRoute.Via
-        holder.iconSandbox.visibility = if (app.isolation.isSandboxed) View.VISIBLE else View.GONE
-        holder.iconEphemeral.visibility = if (app.isolation.isEphemeral) View.VISIBLE else View.GONE
-        holder.iconProxy.visibility = if (proxied) View.VISIBLE else View.GONE
+        holder.webAppIndicators.bind(app)
     }
 
     private fun buildRows(): List<EntityRow<WebApp>> {
@@ -84,13 +78,10 @@ class WebAppListAdapter(
         val filtered = if (searchQuery.isBlank()) {
             afterPending
         } else {
-            val query = searchQuery.lowercase()
             val typedHost = TypedUrl.parse(searchQuery)?.host
-            val groupNames = DataManager.sortedGroups.associate { it.uuid to it.title }
+            val groupTitles = DataManager.groups.associate { it.uuid to it.title }
             afterPending.filter { app ->
-                app.title.lowercase().contains(query) ||
-                        app.baseUrl.lowercase().contains(query) ||
-                        groupNames[app.groupUuid]?.lowercase()?.contains(query) == true ||
+                app.matchesQuery(searchQuery, groupTitles) ||
                         typedHost != null && app.servesHost(typedHost)
             }.hostFirst(typedHost)
         }

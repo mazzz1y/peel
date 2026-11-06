@@ -21,6 +21,7 @@ import wtf.mazy.peel.ui.common.animateReflow
 import wtf.mazy.peel.ui.entitylist.IdleAction
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.applyBottomScreenInsets
+import wtf.mazy.peel.util.isImeVisible
 
 /**
  * The Top search position: Material's contained [SearchView], a full-screen surface faded in
@@ -89,6 +90,14 @@ class ContainedSearchSurface(
         insetsController.hide(WindowInsetsCompat.Type.ime())
         hideSurface()
         onActiveChanged(false)
+    }
+
+    override fun lowerKeyboard(): Boolean {
+        val field = searchView.editText
+        if (!field.hasFocus() || !field.isImeVisible) return false
+        dropFocus()
+        insetsController.hide(WindowInsetsCompat.Type.ime())
+        return true
     }
 
     override fun onHostPaused() = dropFocus()

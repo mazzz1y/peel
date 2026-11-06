@@ -29,7 +29,6 @@ fun <P : ProxyChoice> Activity.showSandboxInputDialog(
     defaultProxy: P,
     inputType: Int = InputType.TYPE_CLASS_TEXT,
     prefill: String = "",
-    onCancel: (() -> Unit)? = null,
     onResult: (SandboxInputResult<P>) -> Unit,
 ) {
     var switchSandbox: MaterialSwitch? = null
@@ -44,7 +43,6 @@ fun <P : ProxyChoice> Activity.showSandboxInputDialog(
             inputType = inputType,
             prefill = prefill,
             initialSelection = InitialSelection.CURSOR_AT_END,
-            onCancel = onCancel,
             positiveRes = R.string.ok,
             extraContent = { container ->
                 val density = resources.displayMetrics.density

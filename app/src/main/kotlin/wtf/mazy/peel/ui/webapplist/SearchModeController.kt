@@ -30,7 +30,7 @@ class SearchModeController(
     initial: SearchSurface,
     private val onChanged: () -> Unit,
     private val onSurfaceChanged: () -> Unit,
-    private val onAddUrl: (url: String, onConfirmed: () -> Unit, onCancelled: () -> Unit) -> Unit,
+    private val onAddUrl: (url: String, onConfirmed: () -> Unit) -> Unit,
     private val onOpenPrivate: (String) -> Unit,
 ) {
 
@@ -78,6 +78,12 @@ class SearchModeController(
     fun enter() = surface.enter()
 
     fun exit() = surface.exit()
+
+    // With the platform back callbacks the screen receives the back press while the keyboard is
+    // still up, so the first one only lowers it.
+    fun onBackPressed() {
+        if (!surface.lowerKeyboard()) surface.exit()
+    }
 
     fun onRestoredState(wasActive: Boolean) = surface.onRestoredState(wasActive)
 
@@ -141,21 +147,14 @@ class SearchModeController(
     }
 
     private fun onSuggestion(suggestion: UrlSuggestion) {
-        val query = surface.query
-        val typed = TypedUrl.parse(query) ?: return
+        val typed = TypedUrl.parse(surface.query) ?: return
         when (suggestion) {
-            UrlSuggestion.ADD -> onAddUrl(typed.url, ::exit) { resume(query) }
+            UrlSuggestion.ADD -> onAddUrl(typed.url, ::exit)
             UrlSuggestion.OPEN_PRIVATE -> {
                 exit()
                 onOpenPrivate(typed.url)
             }
         }
-    }
-
-    // On a surface whose session is the keyboard's, the add dialog's own keyboard has ended it.
-    private fun resume(query: String) {
-        if (!surface.isActive) surface.enter()
-        if (surface.query != query) surface.setQuery(query)
     }
 
     // A scroll pending over an empty layout makes the layout manager drop the rows outright,

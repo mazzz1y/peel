@@ -100,7 +100,7 @@ class MainActivity :
 
     private val backPressCallback = object : androidx.activity.OnBackPressedCallback(false) {
         override fun handleOnBackPressed() {
-            if (searchController.isActive) searchController.exit() else chrome.handleBackPress()
+            if (searchController.isActive) searchController.onBackPressed() else chrome.handleBackPress()
         }
     }
 
@@ -196,8 +196,8 @@ class MainActivity :
                 applyBottomClearance()
                 renderChrome(animated = false)
             },
-            onAddUrl = { url, onConfirmed, onCancelled ->
-                buildAddWebsiteDialog(prefill = url, onConfirmed = onConfirmed, onCancelled = onCancelled)
+            onAddUrl = { url, onConfirmed ->
+                buildAddWebsiteDialog(prefill = url, onConfirmed = onConfirmed)
             },
             onOpenPrivate = { url -> BrowserLauncher.launchIncognito(this, url) },
         )
@@ -450,7 +450,6 @@ class MainActivity :
     private fun buildAddWebsiteDialog(
         prefill: String = "",
         onConfirmed: () -> Unit = {},
-        onCancelled: () -> Unit = {},
     ) {
         val targetGroup = DataManager.sortedGroups.getOrNull(viewPager.currentItem)
         showSandboxInputDialog(
@@ -460,7 +459,6 @@ class MainActivity :
             defaultProxy = ProxyChoice.Inherit,
             inputType = android.text.InputType.TYPE_TEXT_VARIATION_URI,
             prefill = prefill,
-            onCancel = onCancelled,
         ) { result ->
             val url = TypedUrl.normalize(result.text)
             val newSite = WebApp(

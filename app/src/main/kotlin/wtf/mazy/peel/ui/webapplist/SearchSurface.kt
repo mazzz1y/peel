@@ -44,6 +44,12 @@ interface SearchSurface {
 
     fun exit()
 
+    /**
+     * Puts the keyboard down if the field has it up, leaving the session, its query and results
+     * as they are. Returns whether there was a keyboard to put down.
+     */
+    fun lowerKeyboard(): Boolean
+
     fun setQuery(query: String)
 
     /**

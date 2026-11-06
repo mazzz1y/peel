@@ -9,7 +9,6 @@ import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.ui.PickerDialog
 import wtf.mazy.peel.ui.common.PeelActivity
-import wtf.mazy.peel.ui.common.showIcon
 import wtf.mazy.peel.util.BrowserLauncher
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.toast
@@ -55,21 +54,17 @@ class TrampolineActivity : PeelActivity() {
     }
 
     private fun showPickerDialog(title: String, apps: List<WebApp>) {
-        PickerDialog.show(
+        PickerDialog.showWebApps(
             activity = this,
             title = title,
-            items = apps,
+            apps = apps,
+            groupTitles = DataManager.groups.associate { it.uuid to it.title },
+            labelGroupsInDialog = false,
             onPick = { webApp ->
                 BrowserLauncher.launch(webApp, this)
                 finish()
             },
-            configure = {
-                setOnCancelListener { finish() }
-                setOnDismissListener { finish() }
-            },
-        ) { webApp, icon, name, _, _ ->
-            name.text = webApp.title
-            icon.showIcon(webApp.resolveIcon())
-        }
+            onDismiss = ::finish,
+        )
     }
 }

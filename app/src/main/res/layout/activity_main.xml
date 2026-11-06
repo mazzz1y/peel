@@ -45,6 +45,7 @@
                 android:id="@+id/searchSuggestions"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/suggestion_strip_margin_bottom"
                 android:paddingTop="@dimen/list_card_list_padding_top"
                 android:visibility="gone" />
 

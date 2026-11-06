@@ -22,7 +22,9 @@ object EntityRowAnimator {
 
         if (inSelectionMode) {
             host.menuButton.alpha = 0f
-            if (host.menuButton.width == 0) {
+            // An indicator just made visible on a recycled row has no width until the next
+            // layout, and its slide is measured from that width.
+            if (host.menuButton.width == 0 || visibleIndicators(host).any { it.width == 0 }) {
                 schedulePendingSlide(host)
             } else {
                 applyIndicatorSlide(host)

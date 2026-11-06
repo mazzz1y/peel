@@ -1,6 +1,5 @@
 package wtf.mazy.peel.ui.dialog
 
-import android.view.View
 import android.widget.LinearLayout
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -11,14 +10,12 @@ import wtf.mazy.peel.R
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.ui.PickerDialog
-import wtf.mazy.peel.ui.common.showIcon
 import wtf.mazy.peel.ui.entitylist.PendingDeletes
 import wtf.mazy.peel.util.BrowserLauncher
 import wtf.mazy.peel.util.HostIdentity
 import wtf.mazy.peel.util.linkAffinity
 import wtf.mazy.peel.util.normalizedHost
 import wtf.mazy.peel.util.servesHost
-import wtf.mazy.peel.util.shortLabel
 import wtf.mazy.peel.util.shouldOfferOpenInSystem
 import wtf.mazy.peel.util.sortedByAffinity
 import wtf.mazy.peel.util.toast
@@ -44,8 +41,6 @@ object ExternalLinkMenu {
         excludeUuid: String?,
         peelApps: List<WebApp>,
         includeLoadHere: Boolean,
-        includeOpenInSystem: Boolean = true,
-        includeShareAndCopy: Boolean = true,
         onResult: (ExternalLinkResult) -> Unit,
     ) {
         var dialog: AlertDialog? = null
@@ -77,7 +72,7 @@ object ExternalLinkMenu {
                     iconClick,
                 ) {
                     dismiss(ExternalLinkResult.OpenInPeelApp { onPickerDismiss ->
-                        openInPeelPicker(activity, url, excludeUuid, onPickerDismiss)
+                        openInPeelPicker(activity, url, excludeUuid, onDismiss = onPickerDismiss)
                     })
                 }
             )
@@ -91,7 +86,7 @@ object ExternalLinkMenu {
                     }
                 )
             }
-            if (includeOpenInSystem && activity.shouldOfferOpenInSystem(url)) {
+            if (activity.shouldOfferOpenInSystem(url)) {
                 addView(
                     MenuDialogViews.buildActionRow(
                         activity,
@@ -109,24 +104,22 @@ object ExternalLinkMenu {
                     dismiss(ExternalLinkResult.OpenIncognito)
                 }
             )
-            if (includeShareAndCopy) {
-                addView(
-                    MenuDialogViews.buildActionRow(
-                        activity,
-                        activity.getString(R.string.context_menu_share_link),
-                    ) {
-                        dismiss(ExternalLinkResult.Share)
-                    }
-                )
-                addView(
-                    MenuDialogViews.buildActionRow(
-                        activity,
-                        activity.getString(R.string.context_menu_copy_link),
-                    ) {
-                        dismiss(ExternalLinkResult.CopyLink)
-                    }
-                )
-            }
+            addView(
+                MenuDialogViews.buildActionRow(
+                    activity,
+                    activity.getString(R.string.context_menu_share_link),
+                ) {
+                    dismiss(ExternalLinkResult.Share)
+                }
+            )
+            addView(
+                MenuDialogViews.buildActionRow(
+                    activity,
+                    activity.getString(R.string.context_menu_copy_link),
+                ) {
+                    dismiss(ExternalLinkResult.CopyLink)
+                }
+            )
         }
 
         dialog = MaterialAlertDialogBuilder(activity)
@@ -173,6 +166,7 @@ object ExternalLinkMenu {
         activity: AppCompatActivity,
         url: String,
         excludeUuid: String?,
+        onIncognito: (() -> Unit)? = null,
         onDismiss: () -> Unit = {},
     ) {
         activity.lifecycleScope.launch {
@@ -185,28 +179,21 @@ object ExternalLinkMenu {
                 return@launch
             }
 
-            val hasGroups = apps.any { it.groupUuid != null }
-            val groupTitles = if (hasGroups) {
-                apps.mapNotNull { it.groupUuid }.distinct()
-                    .associateWith { DataManager.queryGroup(it)?.title }
-            } else emptyMap()
+            val groupUuids = apps.mapNotNullTo(mutableSetOf()) { it.groupUuid }
+            val groupTitles = groupUuids
+                .mapNotNull { uuid -> DataManager.queryGroup(uuid)?.let { uuid to it.title } }
+                .toMap()
 
-            PickerDialog.show(
+            PickerDialog.showWebApps(
                 activity = activity,
                 title = activity.getString(R.string.open_in_peel),
-                items = apps,
+                apps = apps,
+                groupTitles = groupTitles,
+                labelGroupsInDialog = groupUuids.isNotEmpty(),
                 onPick = { webApp -> BrowserLauncher.launch(webApp, activity, url) },
-                configure = { setOnDismissListener { onDismiss() } },
-            ) { webApp, icon, name, label, _ ->
-                name.text = webApp.title
-                icon.showIcon(webApp.resolveIcon())
-                if (hasGroups) {
-                    label.text = webApp.groupUuid?.let { groupTitles[it] }
-                        ?.let { shortLabel(it) }
-                        ?: activity.getString(R.string.ungrouped)
-                    label.visibility = View.VISIBLE
-                }
-            }
+                onDismiss = onDismiss,
+                onIncognito = onIncognito,
+            )
         }
     }
 

@@ -52,3 +52,6 @@ fun View.setBottomClearance(clearance: Int) {
 }
 
 private val View.bottomClearance: Int get() = getTag(R.id.bottom_clearance) as? Int ?: 0
+
+val View.isImeVisible: Boolean
+    get() = ViewCompat.getRootWindowInsets(this)?.isVisible(WindowInsetsCompat.Type.ime()) == true
