@@ -46,6 +46,7 @@ import wtf.mazy.peel.media.MediaPlaybackManager
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.EffectiveSandbox
 import wtf.mazy.peel.model.EffectiveSettings
+import wtf.mazy.peel.model.UnwrappedLink
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.ui.browser.AutoReloadController
 import wtf.mazy.peel.ui.browser.BiometricUnlockController
@@ -736,7 +737,7 @@ class BrowserActivity : BaseSessionHost() {
     }
 
     private fun openInPeel(url: String) {
-        ExternalLinkMenu.openInPeelPicker(this, url, webAppUuid)
+        ExternalLinkMenu.openInPeelPicker(this, UnwrappedLink(url), webAppUuid)
     }
 
     private fun openAppList() {

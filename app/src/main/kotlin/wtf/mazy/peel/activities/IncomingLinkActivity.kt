@@ -6,6 +6,7 @@ import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import wtf.mazy.peel.gecko.GeckoRuntimeProvider
 import wtf.mazy.peel.model.DataManager
+import wtf.mazy.peel.model.Redirectors
 import wtf.mazy.peel.ui.common.PeelActivity
 import wtf.mazy.peel.ui.dialog.ExternalLinkMenu
 import wtf.mazy.peel.util.BrowserLauncher
@@ -22,7 +23,7 @@ class IncomingLinkActivity : PeelActivity() {
         super.onCreate(savedInstanceState)
         GeckoRuntimeProvider.initAsync(this, warmUp = false)
 
-        val url = extractUrl() ?: run {
+        val link = extractUrl()?.let(Redirectors::unwrap) ?: run {
             finish()
             return
         }
@@ -30,14 +31,14 @@ class IncomingLinkActivity : PeelActivity() {
         lifecycleScope.launch {
             DataManager.reloadAll()
             if (DataManager.webApps.isEmpty()) {
-                openIncognito(url)
+                openIncognito(link.launchUrl)
                 return@launch
             }
             ExternalLinkMenu.openInPeelPicker(
                 activity = this@IncomingLinkActivity,
-                url = url,
+                link = link,
                 excludeUuid = null,
-                onIncognito = { openIncognito(url) },
+                onIncognito = { openIncognito(link.launchUrl) },
                 onDismiss = ::finish,
             )
         }

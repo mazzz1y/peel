@@ -8,6 +8,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.launch
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.DataManager
+import wtf.mazy.peel.model.UnwrappedLink
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.ui.PickerDialog
 import wtf.mazy.peel.ui.entitylist.PendingDeletes
@@ -72,7 +73,7 @@ object ExternalLinkMenu {
                     iconClick,
                 ) {
                     dismiss(ExternalLinkResult.OpenInPeelApp { onPickerDismiss ->
-                        openInPeelPicker(activity, url, excludeUuid, onDismiss = onPickerDismiss)
+                        openInPeelPicker(activity, UnwrappedLink(url), excludeUuid, onDismiss = onPickerDismiss)
                     })
                 }
             )
@@ -164,7 +165,7 @@ object ExternalLinkMenu {
 
     fun openInPeelPicker(
         activity: AppCompatActivity,
-        url: String,
+        link: UnwrappedLink,
         excludeUuid: String?,
         onIncognito: (() -> Unit)? = null,
         onDismiss: () -> Unit = {},
@@ -172,7 +173,7 @@ object ExternalLinkMenu {
         activity.lifecycleScope.launch {
             val apps = DataManager.queryAllWebApps()
                 .filter { it.uuid != excludeUuid }
-                .sortedByAffinity(url)
+                .sortedByAffinity(link.destination)
             if (apps.isEmpty()) {
                 activity.toast(R.string.no_web_apps_available, long = true)
                 onDismiss()
@@ -190,7 +191,7 @@ object ExternalLinkMenu {
                 apps = apps,
                 groupTitles = groupTitles,
                 labelGroupsInDialog = groupUuids.isNotEmpty(),
-                onPick = { webApp -> BrowserLauncher.launch(webApp, activity, url) },
+                onPick = { webApp -> BrowserLauncher.launch(webApp, activity, link.launchUrl) },
                 onDismiss = onDismiss,
                 onIncognito = onIncognito,
             )
