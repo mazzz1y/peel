@@ -1,0 +1,8 @@
+- Open links from other apps straight in the web app list
+- Add search to the web app picker when there are more than eight apps
+- Skip redirect wrappers in links from other apps
+- Open back-skipped sign-in pages without the external link prompt
+- Keep the bottom search query when the keyboard is hidden
+- Fix uploaded files losing their names
+- Fix a blank page when a site sends nothing to display
+- Fix Share sending about:blank before a page has loaded
