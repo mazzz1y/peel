@@ -89,6 +89,8 @@
     <string name="backup_decrypting">Đang giải mã…</string>
     <string name="webapp_not_found">Ứng dụng web này không còn khả dụng</string>
     <string name="no_filemanager">Vui lòng cài đặt trình quản lý tệp</string>
+    <string name="upload_file_unreadable">Không thể đọc %1$s</string>
+    <string name="upload_file_unreadable_unnamed">Không thể đọc tệp đã chọn</string>
     <string name="import_btn">Nhập</string>
     <string name="allow_location_access">Vị trí</string>
     <string name="allow_drm_content">Nội dung DRM</string>

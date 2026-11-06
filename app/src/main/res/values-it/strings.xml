@@ -85,6 +85,8 @@
     <string name="backup_decrypting">Decifratura…</string>
     <string name="webapp_not_found">L\'applicazione Web che si sta cercando di aprire non è più disponibile</string>
     <string name="no_filemanager">Installate un gestore di file</string>
+    <string name="upload_file_unreadable">Impossibile leggere %1$s</string>
+    <string name="upload_file_unreadable_unnamed">Impossibile leggere il file selezionato</string>
     <string name="allow_location_access">Consenti l\'accesso alla posizione</string>
     <string name="allow_drm_content">Consenti i contenuti DRM</string>
     <string name="download_in_progress">Scaricamento in corso…</string>

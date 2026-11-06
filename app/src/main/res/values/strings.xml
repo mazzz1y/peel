@@ -144,6 +144,8 @@
     <string name="webapp_not_found">The Web App you are trying to reach is no longer available</string>
     <string name="group_not_found">The Group you are trying to reach is no longer available</string>
     <string name="no_filemanager">Please install a file manager</string>
+    <string name="upload_file_unreadable">Could not read %1$s</string>
+    <string name="upload_file_unreadable_unnamed">Could not read the selected file</string>
     <string name="import_btn">Import</string>
     <string name="allow_location_access">Location</string>
     <string name="allow_drm_content">DRM content</string>

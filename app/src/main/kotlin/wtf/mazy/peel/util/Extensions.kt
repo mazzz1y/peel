@@ -26,9 +26,9 @@ fun Activity.disableSystemBarContrastEnforcement() {
 
 const val STALE_UPLOAD_FILE_MAX_AGE_MS = 24L * 60 * 60 * 1000
 
-fun java.io.File.deleteFilesOlderThan(maxAgeMs: Long = STALE_UPLOAD_FILE_MAX_AGE_MS) {
+fun java.io.File.deleteEntriesOlderThan(maxAgeMs: Long = STALE_UPLOAD_FILE_MAX_AGE_MS) {
     val cutoff = System.currentTimeMillis() - maxAgeMs
-    listFiles()?.forEach { if (it.lastModified() < cutoff) it.delete() }
+    listFiles()?.forEach { if (it.lastModified() < cutoff) it.deleteRecursively() }
 }
 
 fun prettyBaseUrl(url: String): String {

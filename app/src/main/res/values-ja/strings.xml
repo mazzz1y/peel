@@ -89,6 +89,8 @@
     <string name="backup_decrypting">復号中…</string>
     <string name="webapp_not_found">このウェブアプリは利用できなくなりました</string>
     <string name="no_filemanager">ファイルマネージャーをインストールしてください</string>
+    <string name="upload_file_unreadable">%1$s を読み込めませんでした</string>
+    <string name="upload_file_unreadable_unnamed">選択したファイルを読み込めませんでした</string>
     <string name="import_btn">インポート</string>
     <string name="allow_location_access">位置情報</string>
     <string name="allow_drm_content">DRMコンテンツ</string>

@@ -110,6 +110,8 @@
     <string name="backup_decrypting">Расшифровка…</string>
     <string name="webapp_not_found">Это веб-приложение больше недоступно</string>
     <string name="no_filemanager">Пожалуйста, установите файловый менеджер</string>
+    <string name="upload_file_unreadable">Не удалось прочитать %1$s</string>
+    <string name="upload_file_unreadable_unnamed">Не удалось прочитать выбранный файл</string>
     <string name="import_btn">Импорт</string>
     <string name="allow_location_access">Местоположение</string>
     <string name="allow_drm_content">DRM-контент</string>

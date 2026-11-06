@@ -96,6 +96,8 @@
     <string name="backup_decrypting">डिक्रिप्ट हो रहा है…</string>
     <string name="webapp_not_found">यह वेब ऐप अब उपलब्ध नहीं है</string>
     <string name="no_filemanager">कृपया एक फ़ाइल प्रबंधक इंस्टॉल करें</string>
+    <string name="upload_file_unreadable">%1$s पढ़ी नहीं जा सकी</string>
+    <string name="upload_file_unreadable_unnamed">चुनी गई फ़ाइल पढ़ी नहीं जा सकी</string>
     <string name="import_btn">आयात</string>
     <string name="allow_location_access">स्थान</string>
     <string name="allow_drm_content">DRM सामग्री</string>

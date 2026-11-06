@@ -89,6 +89,8 @@
     <string name="backup_decrypting">正在解密…</string>
     <string name="webapp_not_found">此網頁應用程式已無法使用</string>
     <string name="no_filemanager">請安裝檔案管理員</string>
+    <string name="upload_file_unreadable">無法讀取 %1$s</string>
+    <string name="upload_file_unreadable_unnamed">無法讀取所選檔案</string>
     <string name="import_btn">匯入</string>
     <string name="allow_location_access">位置</string>
     <string name="allow_drm_content">DRM 內容</string>

@@ -78,6 +78,8 @@
     <string name="backup_decrypting">Wird entschlüsselt…</string>
     <string name="webapp_not_found">Diese Web-App ist nicht mehr verfügbar</string>
     <string name="no_filemanager">Bitte installieren Sie einen Datei-Manager</string>
+    <string name="upload_file_unreadable">%1$s konnte nicht gelesen werden</string>
+    <string name="upload_file_unreadable_unnamed">Die ausgewählte Datei konnte nicht gelesen werden</string>
     <string name="allow_location_access">Standort</string>
     <string name="allow_drm_content">DRM-Inhalte erlauben</string>
     <string name="download_in_progress">Wird heruntergeladen…</string>

@@ -18,7 +18,7 @@ import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.ProxyRoute
 import wtf.mazy.peel.ui.dialog.DateTimePickerRequest
 import wtf.mazy.peel.ui.dialog.DateTimePickerType
-import wtf.mazy.peel.util.deleteFilesOlderThan
+import wtf.mazy.peel.util.deleteEntriesOlderThan
 import wtf.mazy.peel.util.shareText
 import wtf.mazy.peel.util.toast
 import java.io.File
@@ -436,7 +436,7 @@ class PeelPromptDelegate(private val host: SessionHost) : GeckoSession.PromptDel
     private fun buildImageCaptureIntent(): Intent? {
         val context = host.hostContext
         val capturesDir = File(context.cacheDir, "captures").apply { mkdirs() }
-        capturesDir.deleteFilesOlderThan()
+        capturesDir.deleteEntriesOlderThan()
         val photoFile = try {
             File.createTempFile("img_", ".jpg", capturesDir)
         } catch (_: Exception) {

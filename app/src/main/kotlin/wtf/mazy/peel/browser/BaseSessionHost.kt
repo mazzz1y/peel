@@ -1,5 +1,6 @@
 package wtf.mazy.peel.browser
 
+import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -7,6 +8,7 @@ import android.content.res.Configuration
 import android.content.res.Resources
 import android.net.Uri
 import android.os.Bundle
+import android.provider.OpenableColumns
 import android.text.InputType
 import android.util.TypedValue
 import android.view.KeyEvent
@@ -88,14 +90,16 @@ import wtf.mazy.peel.util.BrowserLauncher
 import wtf.mazy.peel.util.applyBottomScreenInsets
 import wtf.mazy.peel.util.applyToolbarScreenInsets
 import wtf.mazy.peel.util.copyToClipboard
-import wtf.mazy.peel.util.deleteFilesOlderThan
+import wtf.mazy.peel.util.deleteEntriesOlderThan
 import wtf.mazy.peel.util.disableSystemBarContrastEnforcement
 import wtf.mazy.peel.util.isAutomotiveHost
 import wtf.mazy.peel.util.isSingleWindowHost
 import wtf.mazy.peel.util.isTelevisionHost
 import wtf.mazy.peel.util.shareText
 import wtf.mazy.peel.util.toast
+import wtf.mazy.peel.util.uploadFileName
 import java.io.File
+import java.util.UUID
 
 abstract class BaseSessionHost : PeelActivity(), SessionHost, TranslationHost {
 
@@ -782,13 +786,18 @@ abstract class BaseSessionHost : PeelActivity(), SessionHost, TranslationHost {
             callback.invoke(captured?.let { arrayOf(it) })
             return
         }
+        consumeCaptureUri()
         lifecycleScope.launch {
-            val fileUris = withContext(Dispatchers.IO) { resolveToFileUris(contentUris) }
-            if (fileUris.isNotEmpty()) {
-                callback.invoke(fileUris)
-            } else {
-                val captured = consumeCaptureUri()
-                callback.invoke(captured?.let { arrayOf(it) })
+            when (val copied = withContext(Dispatchers.IO) { copyPicksToCache(contentUris) }) {
+                is PickCopy.Copied -> callback.invoke(copied.fileUris)
+                is PickCopy.Unreadable -> {
+                    callback.invoke(null)
+                    if (copied.displayName != null) {
+                        toast(R.string.upload_file_unreadable, copied.displayName, long = true)
+                    } else {
+                        toast(R.string.upload_file_unreadable_unnamed, long = true)
+                    }
+                }
             }
         }
     }
@@ -797,23 +806,49 @@ abstract class BaseSessionHost : PeelActivity(), SessionHost, TranslationHost {
         intent?.data?.let { arrayOf(it) }
             ?: intent?.clipData?.let { clip -> Array(clip.itemCount) { clip.getItemAt(it).uri } }
 
-    private fun resolveToFileUris(uris: Array<Uri>): Array<Uri> {
+    // GeckoView resolves content:// only through the `_data` column, which document providers no
+    // longer fill, so each pick is copied. The copy keeps the picked name, which is what the page
+    // sees, and its own directory keeps equal names apart.
+    private fun copyPicksToCache(uris: Array<Uri>): PickCopy {
         val picksDir = File(cacheDir, "picks").apply { mkdirs() }
-        picksDir.deleteFilesOlderThan()
-        return uris.mapNotNull { uri ->
-            if (uri.scheme == "file") return@mapNotNull uri
-            try {
-                val mimeType = contentResolver.getType(uri)
-                val ext = MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType) ?: "bin"
-                val dest = File.createTempFile("pick_", ".$ext", picksDir)
-                contentResolver.openInputStream(uri)?.use { input ->
-                    dest.outputStream().use { output -> input.copyTo(output) }
+        picksDir.deleteEntriesOlderThan()
+        val pickDirs = mutableListOf<File>()
+        val fileUris = uris.map { uri ->
+            if (uri.scheme == ContentResolver.SCHEME_FILE) return@map uri
+            val displayName = displayNameOf(uri)
+            val name = uploadFileName(displayName, typeExtensionOf(uri))
+            val pickDir = File(picksDir, UUID.randomUUID().toString()).apply { mkdirs() }
+            pickDirs += pickDir
+            val copied = runCatching {
+                val input = contentResolver.openInputStream(uri) ?: return@runCatching null
+                File(pickDir, name).also { dest ->
+                    input.use { source -> dest.outputStream().use { source.copyTo(it) } }
                 }
-                Uri.fromFile(dest)
-            } catch (_: Exception) {
-                null
+            }.getOrNull()
+            if (copied == null) {
+                pickDirs.forEach { it.deleteRecursively() }
+                return PickCopy.Unreadable(displayName)
             }
-        }.toTypedArray()
+            Uri.fromFile(copied)
+        }
+        return PickCopy.Copied(fileUris.toTypedArray())
+    }
+
+    private fun displayNameOf(uri: Uri): String? = runCatching {
+        contentResolver.query(uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)?.use { cursor ->
+            if (cursor.moveToFirst()) cursor.getString(0) else null
+        }
+    }.getOrNull()
+
+    private fun typeExtensionOf(uri: Uri): String? = runCatching {
+        contentResolver.getType(uri)
+            ?.takeUnless { it == "application/octet-stream" }
+            ?.let(MimeTypeMap.getSingleton()::getExtensionFromMimeType)
+    }.getOrNull()
+
+    private sealed interface PickCopy {
+        class Copied(val fileUris: Array<Uri>) : PickCopy
+        class Unreadable(val displayName: String?) : PickCopy
     }
 
     protected fun setupSessionHostLayout(showToolbar: Boolean) {

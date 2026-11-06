@@ -103,6 +103,8 @@
     <string name="backup_decrypting">Descriptografando…</string>
     <string name="webapp_not_found">Este Web App não está mais disponível</string>
     <string name="no_filemanager">Por favor, instale um gerenciador de arquivos</string>
+    <string name="upload_file_unreadable">Não foi possível ler %1$s</string>
+    <string name="upload_file_unreadable_unnamed">Não foi possível ler o arquivo selecionado</string>
     <string name="import_btn">Importar</string>
     <string name="allow_location_access">Localização</string>
     <string name="allow_drm_content">Conteúdo DRM</string>
