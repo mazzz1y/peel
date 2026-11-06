@@ -76,6 +76,7 @@ object LinkRouter {
     ): Boolean {
         if (context.browsingExternally || context.isInitialLoad) return false
         if (belongsToApp(context.policyOrigin, url, settings)) return false
+        if (isSignInWaypoint(url, settings)) return false
         if (isExplicitDownload(url)) return false
         return context.hasPeelAppMatch(url) || nav.hasUserGesture || nav.isRedirect ||
                 nav.opensNewWindow || nav.hasTriggerPage
@@ -83,6 +84,11 @@ object LinkRouter {
 
     private fun isBlocked(url: String, settings: EffectiveSettings): Boolean =
         SameAppDomainMatcher.matches(url, settings.blockedDomains)
+
+    // A page the user steps over on Back is one the app sends them through, such as a sign-in
+    // provider, so reaching it is not leaving the app; it still is not part of the app.
+    private fun isSignInWaypoint(url: String, settings: EffectiveSettings): Boolean =
+        SameAppDomainMatcher.matches(url, settings.skipHistoryDomains)
 
     fun isBrowserScheme(url: String): Boolean =
         BROWSER_SCHEMES.any { url.startsWith(it) }
