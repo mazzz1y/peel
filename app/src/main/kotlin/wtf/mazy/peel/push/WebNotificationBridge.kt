@@ -16,9 +16,7 @@ import org.mozilla.geckoview.WebNotification
 import org.mozilla.geckoview.WebNotificationDelegate
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.DataManager
-import wtf.mazy.peel.model.EffectiveSandbox
 import wtf.mazy.peel.model.WebApp
-import wtf.mazy.peel.ui.dialog.ExternalLinkMenu
 import wtf.mazy.peel.util.App
 import wtf.mazy.peel.util.AppPrefs
 
@@ -79,7 +77,7 @@ object WebNotificationBridge {
 
         val contextId = PushBridge.scopeContextId(notification.origin)
         val originUrl = PushBridge.scopeOrigin(notification.origin)
-        val target = resolveTarget(contextId, originUrl)
+        val target = NotificationTarget.forSandbox(contextId, originUrl)
         val channelKey = contextId ?: "site-$host"
         val channelName = sandboxTitle(contextId, target) ?: host
 
@@ -95,7 +93,7 @@ object WebNotificationBridge {
             .setAutoCancel(true)
             .setSilent(notification.silent)
             .setContentIntent(
-                clickIntent(context, notification.tag, target?.uuid, originUrl, notification)
+                clickIntent(context, notification.tag, target?.uuid, originUrl, contextId, notification)
             )
             .setDeleteIntent(dismissIntent(context, notification.tag, notification))
             .setLargeIcon(largeIcon)
@@ -120,14 +118,6 @@ object WebNotificationBridge {
             AppPrefs.isPushEnabled(context) &&
             manager.areNotificationsEnabled()
 
-    private fun resolveTarget(contextId: String?, originUrl: String): WebApp? {
-        val candidates = DataManager.webApps.filter { app ->
-            val sandbox = DataManager.effectiveSandbox(app)
-            sandbox !is EffectiveSandbox.Private && sandbox.contextId == contextId
-        }
-        return ExternalLinkMenu.bestPeelMatch(candidates, originUrl, excludeUuid = null)
-    }
-
     private fun sandboxTitle(contextId: String?, target: WebApp?): String? {
         if (contextId == null) return null
         if (target?.uuid == contextId) return target.title
@@ -141,12 +131,15 @@ object WebNotificationBridge {
         tag: String,
         webAppUuid: String?,
         origin: String,
+        contextId: String?,
         notification: WebNotification,
     ): PendingIntent {
         return PendingIntent.getActivity(
             context,
             tag.hashCode(),
-            NotificationClickLaunch.intent(context, tag, webAppUuid, origin, notification),
+            NotificationClickLaunch.intent(
+                context, tag, webAppUuid, origin, NotificationClickLaunch.Sandbox(contextId), notification,
+            ),
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
     }

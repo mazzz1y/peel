@@ -8,6 +8,9 @@ import kotlinx.coroutines.launch
 import wtf.mazy.peel.gecko.GeckoRuntimeProvider
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.Redirectors
+import wtf.mazy.peel.model.WebApp
+import wtf.mazy.peel.push.NotificationClickLaunch
+import wtf.mazy.peel.push.NotificationTarget
 import wtf.mazy.peel.ui.common.PeelActivity
 import wtf.mazy.peel.ui.dialog.ExternalLinkMenu
 import wtf.mazy.peel.ui.webapplist.UrlSuggestion
@@ -45,9 +48,17 @@ class IncomingLinkActivity : PeelActivity() {
                     UrlSuggestion.OPEN_PRIVATE to { openIncognito(link.launchUrl) },
                     UrlSuggestion.SHARE to { shareOnward(link.destination) },
                 ),
+                include = notificationSandboxFilter(),
                 onDismiss = ::finish,
             )
         }
+    }
+
+    // The exported aliases take links from other apps, which have no say in the list.
+    private fun notificationSandboxFilter(): (WebApp) -> Boolean {
+        if (intent.component?.className != IncomingLinkActivity::class.java.name) return { true }
+        val sandbox = NotificationClickLaunch.sandbox(intent) ?: return { true }
+        return { NotificationTarget.isInSandbox(it, sandbox.contextId) }
     }
 
     private fun extractUrl(): String? = when (intent?.action) {

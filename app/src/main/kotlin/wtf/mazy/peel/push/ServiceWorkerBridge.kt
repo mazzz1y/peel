@@ -2,15 +2,11 @@ package wtf.mazy.peel.push
 
 import android.content.Context
 import android.content.Intent
-import androidx.core.net.toUri
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.mozilla.geckoview.GeckoResult
 import org.mozilla.geckoview.GeckoRuntime
 import wtf.mazy.peel.model.DataManager
-import wtf.mazy.peel.model.EffectiveSandbox
-import wtf.mazy.peel.ui.dialog.ExternalLinkMenu
-import wtf.mazy.peel.util.ActivityRoutes
 import wtf.mazy.peel.util.App
 import wtf.mazy.peel.util.BrowserLauncher
 
@@ -34,17 +30,17 @@ object ServiceWorkerBridge {
                 return@launch
             }
             if (claim?.alreadyRouted == true) return@launch
-            val apps = DataManager.webApps.filter {
-                DataManager.effectiveSandbox(it) !is EffectiveSandbox.Private
+            val sandbox = claim?.sandbox
+            val target = if (sandbox != null) {
+                NotificationTarget.forSandbox(sandbox.contextId, url)
+            } else {
+                NotificationTarget.forAddress(url)
             }
-            val target = ExternalLinkMenu.bestPeelMatch(apps, url, excludeUuid = null)
             if (target != null) {
                 BrowserLauncher.launch(target, context, url)
             } else {
                 context.startActivity(
-                    Intent(context, ActivityRoutes.linkRouter)
-                        .setAction(Intent.ACTION_VIEW)
-                        .setData(url.toUri())
+                    NotificationClickLaunch.listIntent(context, url, sandbox)
                         .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 )
             }

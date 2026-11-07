@@ -169,12 +169,12 @@ object ExternalLinkMenu {
         link: UnwrappedLink,
         excludeUuid: String?,
         actions: Map<UrlSuggestion, () -> Unit> = emptyMap(),
+        include: (WebApp) -> Boolean = { true },
         onDismiss: () -> Unit = {},
     ) {
         activity.lifecycleScope.launch {
-            val apps = DataManager.queryAllWebApps()
-                .filter { it.uuid != excludeUuid }
-                .sortedByAffinity(link.destination)
+            val all = DataManager.queryAllWebApps().filter { it.uuid != excludeUuid }
+            val apps = all.filter(include).ifEmpty { all }.sortedByAffinity(link.destination)
             if (apps.isEmpty()) {
                 activity.toast(R.string.no_web_apps_available, long = true)
                 onDismiss()
