@@ -54,12 +54,10 @@ class TrampolineActivity : PeelActivity() {
     }
 
     private fun showPickerDialog(title: String, apps: List<WebApp>) {
-        PickerDialog.showWebApps(
+        PickerDialog.showWebAppDialog(
             activity = this,
             title = title,
             apps = apps,
-            groupTitles = DataManager.groups.associate { it.uuid to it.title },
-            labelGroupsInDialog = false,
             onPick = { webApp ->
                 BrowserLauncher.launch(webApp, this)
                 finish()

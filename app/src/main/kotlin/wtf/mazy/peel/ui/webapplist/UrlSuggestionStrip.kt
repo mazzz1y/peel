@@ -9,8 +9,8 @@ import androidx.core.view.isVisible
 import wtf.mazy.peel.R
 import wtf.mazy.peel.ui.common.fadeVisibility
 
-/** An action search offers for a URL-shaped query, ahead of the results. */
-enum class UrlSuggestion { ADD, OPEN_PRIVATE }
+/** A suggestion card offered for a URL, ahead of the results. */
+enum class UrlSuggestion { ADD, OPEN_PRIVATE, SHARE }
 
 /**
  * The rows for the [UrlSuggestion]s on offer. Which are offered is the search controller's
@@ -43,6 +43,7 @@ class UrlSuggestionStrip @JvmOverloads constructor(
         rows = mapOf(
             UrlSuggestion.ADD to findViewById(R.id.suggestionAdd),
             UrlSuggestion.OPEN_PRIVATE to findViewById(R.id.suggestionPrivate),
+            UrlSuggestion.SHARE to findViewById(R.id.suggestionShare),
         )
         rows.forEach { (suggestion, row) -> row.setOnClickListener { onSuggestion(suggestion) } }
         isVisible = false

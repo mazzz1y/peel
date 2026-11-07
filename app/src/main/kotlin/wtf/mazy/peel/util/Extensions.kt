@@ -4,6 +4,7 @@ import android.app.Activity
 import android.app.role.RoleManager
 import android.content.ClipData
 import android.content.ClipboardManager
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -79,14 +80,23 @@ fun Context.shouldOfferOpenInSystem(url: String): Boolean {
     return !(isWebLink && isDefaultBrowser())
 }
 
-fun Context.shareText(text: String, title: String? = null, subject: String? = null) {
+fun Context.shareText(
+    text: String,
+    title: String? = null,
+    subject: String? = null,
+    excluded: List<ComponentName> = emptyList(),
+) {
     val send = Intent(Intent.ACTION_SEND).apply {
         type = "text/plain"
         putExtra(Intent.EXTRA_TEXT, text)
         putExtra(Intent.EXTRA_TITLE, title ?: text)
         if (subject != null && subject != text) putExtra(Intent.EXTRA_SUBJECT, subject)
     }
-    startActivity(Intent.createChooser(send, null))
+    val chooser = Intent.createChooser(send, null)
+    if (excluded.isNotEmpty()) {
+        chooser.putExtra(Intent.EXTRA_EXCLUDE_COMPONENTS, excluded.toTypedArray())
+    }
+    startActivity(chooser)
 }
 
 fun Context.copyToClipboard(text: String, toastResId: Int = R.string.link_copied) {

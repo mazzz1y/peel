@@ -154,6 +154,8 @@ class SearchModeController(
                 exit()
                 onOpenPrivate(typed.url)
             }
+
+            UrlSuggestion.SHARE -> Unit
         }
     }
 

@@ -35,7 +35,7 @@ import wtf.mazy.peel.util.isImeVisible
 import wtf.mazy.peel.util.prettyBaseUrl
 
 /**
- * A long list of web apps to choose from, laid out as the web-app list's own contained search:
+ * The web apps to choose from for a link, laid out as the web-app list's own contained search:
  * the search pill at the top over the list's own cards, shown as in selection mode.
  */
 class WebAppPickerSurface(
@@ -43,7 +43,7 @@ class WebAppPickerSurface(
     private val apps: List<WebApp>,
     private val groupTitles: Map<String, String>,
     private val onPick: (WebApp) -> Unit,
-    private val onIncognito: (() -> Unit)?,
+    private val actions: Map<UrlSuggestion, () -> Unit>,
 ) : AppCompatDialog(activity, R.style.AppTheme_PickerSurface) {
 
     private val adapter = Adapter()
@@ -85,11 +85,11 @@ class WebAppPickerSurface(
             }
         }
 
-        if (onIncognito != null) {
+        if (actions.isNotEmpty()) {
             suggestions.animated = false
-            suggestions.render(setOf(UrlSuggestion.OPEN_PRIVATE))
-            suggestions.onSuggestion = {
-                onIncognito()
+            suggestions.render(actions.keys)
+            suggestions.onSuggestion = { suggestion ->
+                actions[suggestion]?.invoke()
                 dismiss()
             }
         }

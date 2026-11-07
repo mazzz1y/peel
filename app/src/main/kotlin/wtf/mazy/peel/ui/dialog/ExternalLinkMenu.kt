@@ -12,6 +12,7 @@ import wtf.mazy.peel.model.UnwrappedLink
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.ui.PickerDialog
 import wtf.mazy.peel.ui.entitylist.PendingDeletes
+import wtf.mazy.peel.ui.webapplist.UrlSuggestion
 import wtf.mazy.peel.util.BrowserLauncher
 import wtf.mazy.peel.util.HostIdentity
 import wtf.mazy.peel.util.linkAffinity
@@ -167,7 +168,7 @@ object ExternalLinkMenu {
         activity: AppCompatActivity,
         link: UnwrappedLink,
         excludeUuid: String?,
-        onIncognito: (() -> Unit)? = null,
+        actions: Map<UrlSuggestion, () -> Unit> = emptyMap(),
         onDismiss: () -> Unit = {},
     ) {
         activity.lifecycleScope.launch {
@@ -187,13 +188,11 @@ object ExternalLinkMenu {
 
             PickerDialog.showWebApps(
                 activity = activity,
-                title = activity.getString(R.string.open_in_peel),
                 apps = apps,
                 groupTitles = groupTitles,
-                labelGroupsInDialog = groupUuids.isNotEmpty(),
                 onPick = { webApp -> BrowserLauncher.launch(webApp, activity, link.launchUrl) },
                 onDismiss = onDismiss,
-                onIncognito = onIncognito,
+                actions = actions,
             )
         }
     }
