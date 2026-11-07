@@ -7,6 +7,7 @@ import kotlinx.coroutines.launch
 import org.mozilla.geckoview.ExperimentalGeckoViewApi
 import org.mozilla.geckoview.GeckoResult
 import org.mozilla.geckoview.GeckoSession
+import org.mozilla.geckoview.GeckoSession.PermissionDelegate.ContentPermission
 import wtf.mazy.peel.R
 import wtf.mazy.peel.gecko.ContentPermissionStore
 import wtf.mazy.peel.model.DataManager
@@ -34,7 +35,7 @@ class PeelPermissionDelegate(private val host: SessionHost) : GeckoSession.Permi
     @OptIn(ExperimentalGeckoViewApi::class)
     override fun onContentPermissionRequest(
         session: GeckoSession,
-        perm: GeckoSession.PermissionDelegate.ContentPermission,
+        perm: ContentPermission,
     ): GeckoResult<Int> {
         val result = GeckoResult<Int>()
         val type = perm.permission
@@ -63,15 +64,7 @@ class PeelPermissionDelegate(private val host: SessionHost) : GeckoSession.Permi
 
             GeckoSession.PermissionDelegate.PERMISSION_DESKTOP_NOTIFICATION -> {
                 if (AppPrefs.isPushEnabled(host.hostContext)) {
-                    handleTriState(
-                        WebAppSettings.PERMISSION_ASK,
-                        notificationOsPermissions(),
-                        PERM_KEY_NOTIFICATION,
-                        R.string.permission_prompt_notifications,
-                        perm.uri,
-                        onShown = notifyShown,
-                        onResult = reply,
-                    )
+                    answerNotificationRequest(perm, result, notifyShown)
                 } else {
                     result.complete(ContentPermissionStore.UNDECIDED)
                 }
@@ -81,6 +74,46 @@ class PeelPermissionDelegate(private val host: SessionHost) : GeckoSession.Permi
         }
 
         return result
+    }
+
+    // Gecko asks on every requestPermission() call, even with a decision stored, so the stored
+    // decision is looked up here before the user is asked again.
+    private fun answerNotificationRequest(
+        perm: ContentPermission,
+        result: GeckoResult<Int>,
+        onShown: () -> Unit,
+    ) {
+        val osPermissions = notificationOsPermissions()
+        // The prompt is shown only once Android's permission is held, so a refusal without it is
+        // Android's, and stores nothing for the site.
+        val reply: (Boolean) -> Unit = { granted ->
+            result.complete(
+                when {
+                    granted -> ContentPermission.VALUE_ALLOW
+                    host.hasPermissions(*osPermissions.toTypedArray()) -> ContentPermission.VALUE_DENY
+                    else -> ContentPermissionStore.UNDECIDED
+                }
+            )
+        }
+        host.hostScope.launch {
+            when (ContentPermissionStore.storedDecision(host.hostContext, perm)) {
+                // Gecko writes the reply back to the store, so a stored decision is replied
+                // unchanged; a missing Android grant only keeps notifications from being posted.
+                ContentPermission.VALUE_ALLOW -> ensureOsPermission(osPermissions) {
+                    result.complete(ContentPermission.VALUE_ALLOW)
+                }
+                ContentPermission.VALUE_DENY -> result.complete(ContentPermission.VALUE_DENY)
+                else -> handleTriState(
+                    WebAppSettings.PERMISSION_ASK,
+                    osPermissions,
+                    PERM_KEY_NOTIFICATION,
+                    R.string.permission_prompt_notifications,
+                    perm.uri,
+                    onShown = onShown,
+                    onResult = reply,
+                )
+            }
+        }
     }
 
     override fun onMediaPermissionRequest(

@@ -93,6 +93,13 @@ object ContentPermissionStore {
     ): List<ContentPermission> =
         query(context) { it.getPermissions(origin, contextId, false) }
 
+    /** The decision stored for [request]'s site and sandbox, or null when it is undecided. */
+    suspend fun storedDecision(context: Context, request: ContentPermission): Int? =
+        query(context) { it.getPermissions(request.uri, request.contextId, request.privateMode) }
+            .firstOrNull { it.permission == request.permission }
+            ?.value
+            ?.takeIf { it == ContentPermission.VALUE_ALLOW || it == ContentPermission.VALUE_DENY }
+
     private suspend fun query(
         context: Context,
         request: (StorageController) -> GeckoResult<List<ContentPermission>>,

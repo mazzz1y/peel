@@ -1,12 +1,10 @@
 package wtf.mazy.peel.push
 
-import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.net.toUri
@@ -71,16 +69,15 @@ object WebNotificationBridge {
     }
 
     private suspend fun show(context: Context, notification: WebNotification) {
-        if (notification.privateBrowsing) return
-        if (!AppPrefs.isPushEnabled(context)) return
         val manager = NotificationManagerCompat.from(context)
-        if (!manager.areNotificationsEnabled()) return
-        if (context.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) !=
-            PackageManager.PERMISSION_GRANTED
-        ) return
+        val host = PushBridge.scopeHost(notification.origin)
+        if (host == null || !canPost(context, manager, notification)) {
+            // The site's showNotification() settles only once Gecko hears the outcome.
+            notification.dismiss()
+            return
+        }
 
         val contextId = PushBridge.scopeContextId(notification.origin)
-        val host = PushBridge.scopeHost(notification.origin) ?: return
         val originUrl = PushBridge.scopeOrigin(notification.origin)
         val target = resolveTarget(contextId, originUrl)
         val channelKey = contextId ?: "site-$host"
@@ -103,9 +100,25 @@ object WebNotificationBridge {
             .setDeleteIntent(dismissIntent(context, notification.tag, notification))
             .setLargeIcon(largeIcon)
 
-        manager.notify(notification.tag, NOTIFICATION_ID, builder.build())
+        try {
+            manager.notify(notification.tag, NOTIFICATION_ID, builder.build())
+        } catch (_: SecurityException) {
+            activeNotifications.remove(notification.tag)
+            notification.dismiss()
+            return
+        }
         notification.show()
     }
+
+    // On API 33+ areNotificationsEnabled() is exactly the POST_NOTIFICATIONS grant.
+    private fun canPost(
+        context: Context,
+        manager: NotificationManagerCompat,
+        notification: WebNotification,
+    ): Boolean =
+        !notification.privateBrowsing &&
+            AppPrefs.isPushEnabled(context) &&
+            manager.areNotificationsEnabled()
 
     private fun resolveTarget(contextId: String?, originUrl: String): WebApp? {
         val candidates = DataManager.webApps.filter { app ->
