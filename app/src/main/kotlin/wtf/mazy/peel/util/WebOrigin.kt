@@ -5,6 +5,8 @@ import java.net.IDN
 /** The scheme, host and port of a web address, with the port filled in when it is the default. */
 data class WebOrigin(val scheme: String, val host: String, val port: Int) {
 
+    val hasDefaultPort: Boolean get() = port == DEFAULT_PORTS[scheme]
+
     /** The same site, whether or not either address is written with a leading `www.`. */
     fun isSamePlaceAs(other: WebOrigin): Boolean =
         scheme == other.scheme && port == other.port &&

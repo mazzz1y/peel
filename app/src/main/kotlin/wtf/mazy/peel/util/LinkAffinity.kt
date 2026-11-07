@@ -11,19 +11,18 @@ fun isSameHost(origin: String, url: String): Boolean {
 
 fun belongsToApp(origin: String, url: String, settings: EffectiveSettings): Boolean {
     val base = settings.upgradeUrl(origin)
-    return isSameHost(base, url) || linkAffinity(base, url, settings.sameAppDomains) > HostIdentity.TLD_ONLY
+    return isSameHost(base, url) || linkMatch(base, url, settings).belongs
 }
 
-fun linkAffinity(baseUrl: String, url: String, sameAppDomains: List<String>?): Int {
-    val heuristic = HostIdentity.affinity(baseUrl, url)
-    val entry = SameAppDomainMatcher.mostSpecificMatch(url, sameAppDomains.orEmpty()) ?: return heuristic
-    return maxOf(heuristic, HostIdentity.sameAppAffinity(url, entry))
-}
+fun linkMatch(appAddress: String, url: String, settings: EffectiveSettings): LinkMatch =
+    linkMatch(appAddress, url) { SameAppDomainMatcher.matching(it, settings.sameAppDomains) }
 
-fun WebApp.linkAffinity(url: String): Int =
-    linkAffinity(baseUrl, url, DataManager.effectiveSettings(this).sameAppDomains)
+fun WebApp.linkMatch(url: String): LinkMatch {
+    val settings = DataManager.effectiveSettings(this)
+    return linkMatch(settings.upgradeUrl(baseUrl), url, settings)
+}
 
 fun List<WebApp>.sortedByAffinity(url: String): List<WebApp> {
-    val scores = associateWith { it.linkAffinity(url) }
-    return sortedWith(compareByDescending<WebApp> { scores.getValue(it) }.thenBy { it.title })
+    val matches = associateWith { it.linkMatch(url) }
+    return sortedWith(compareByDescending<WebApp> { matches.getValue(it) }.thenBy { it.title })
 }

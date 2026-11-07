@@ -14,8 +14,8 @@ import wtf.mazy.peel.ui.PickerDialog
 import wtf.mazy.peel.ui.entitylist.PendingDeletes
 import wtf.mazy.peel.ui.webapplist.UrlSuggestion
 import wtf.mazy.peel.util.BrowserLauncher
-import wtf.mazy.peel.util.HostIdentity
-import wtf.mazy.peel.util.linkAffinity
+import wtf.mazy.peel.util.bestBy
+import wtf.mazy.peel.util.linkMatch
 import wtf.mazy.peel.util.normalizedHost
 import wtf.mazy.peel.util.servesHost
 import wtf.mazy.peel.util.shouldOfferOpenInSystem
@@ -153,16 +153,7 @@ object ExternalLinkMenu {
         peelApps: List<WebApp>,
         url: String,
         excludeUuid: String?,
-    ): WebApp? {
-        val scores = peelApps
-            .filter { it.uuid != excludeUuid }
-            .associateWith { it.linkAffinity(url) }
-        val topScore = scores.values.maxOrNull() ?: return null
-        if (topScore <= HostIdentity.TLD_ONLY) return null
-        val topMatches = scores.filterValues { it == topScore }
-        if (topMatches.size != 1) return null
-        return topMatches.keys.first()
-    }
+    ): WebApp? = peelApps.filter { it.uuid != excludeUuid }.bestBy { it.linkMatch(url) }
 
     fun openInPeelPicker(
         activity: AppCompatActivity,

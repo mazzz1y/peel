@@ -10,20 +10,13 @@ object SameAppDomainMatcher {
 
     private val regexCache = ConcurrentHashMap<String, Regex>()
 
-    fun matches(url: String, entries: List<String>): Boolean =
-        mostSpecificMatch(url, entries) != null
+    fun matches(url: String, entries: List<String>): Boolean = matching(url, entries).isNotEmpty()
 
-    fun mostSpecificMatch(url: String, entries: List<String>): UrlRule? {
-        if (entries.isEmpty()) return null
-        val target = target(url) ?: return null
-        var best: UrlRule? = null
-        for (stored in entries) {
-            val entry = UrlRule.parse(stored) ?: continue
-            if (!matchesEntry(target, entry)) continue
-            if (entry is UrlRule.UrlPrefix) return entry
-            if (best == null) best = entry
-        }
-        return best
+    /** Every entry of [entries] that [url] matches. */
+    fun matching(url: String, entries: List<String>): List<UrlRule> {
+        if (entries.isEmpty()) return emptyList()
+        val target = target(url) ?: return emptyList()
+        return entries.mapNotNull { UrlRule.parse(it) }.filter { matchesEntry(target, it) }
     }
 
     private fun matchesEntry(target: MatchTarget, entry: UrlRule): Boolean =
