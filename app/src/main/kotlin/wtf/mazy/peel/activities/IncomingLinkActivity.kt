@@ -42,6 +42,7 @@ class IncomingLinkActivity : PeelActivity() {
                 link = link,
                 excludeUuid = null,
                 include = notificationSandboxFilter(),
+                fromOutside = true,
                 onDismiss = ::finish,
             )
         }

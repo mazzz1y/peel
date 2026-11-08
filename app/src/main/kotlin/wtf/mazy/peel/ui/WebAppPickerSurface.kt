@@ -38,6 +38,9 @@ import wtf.mazy.peel.util.isImeVisible
 /** The link a picker opens, and how its web apps are ordered for a link. */
 class PickerLink(val initial: UnwrappedLink, val order: (UnwrappedLink) -> List<WebApp>)
 
+/** What a link from another app can do besides opening in a web app. */
+class PickerLinkCallbacks(val onIncognito: (UnwrappedLink) -> Unit, val onShare: (UnwrappedLink) -> Unit)
+
 /**
  * The web apps to choose from for a link, laid out as the web-app list's own contained search:
  * the search pill at the top over the link and its actions, then the list's own cards, shown as
@@ -48,8 +51,7 @@ class WebAppPickerSurface(
     private val link: PickerLink,
     private val groupTitles: Map<String, String>,
     private val onPick: (WebApp, UnwrappedLink) -> Unit,
-    private val onIncognito: (UnwrappedLink) -> Unit,
-    private val onShare: (UnwrappedLink) -> Unit,
+    private val linkCallbacks: PickerLinkCallbacks?,
     private val onAdd: (UnwrappedLink, onAdded: () -> Unit) -> Unit,
     private val canAdd: (UnwrappedLink) -> Boolean,
 ) : AppCompatDialog(activity, R.style.AppTheme_PickerSurface) {
@@ -103,8 +105,11 @@ class WebAppPickerSurface(
         }
 
         decor.requireViewById<View>(R.id.pickerLinkCard).setOnClickListener { editLink() }
-        decor.requireViewById<View>(R.id.pickerIncognito).setOnClickListener { finishWith(onIncognito) }
-        decor.requireViewById<View>(R.id.pickerShare).setOnClickListener { finishWith(onShare) }
+        decor.requireViewById<View>(R.id.pickerLinkActions).isVisible = linkCallbacks != null
+        if (linkCallbacks != null) {
+            decor.requireViewById<View>(R.id.pickerIncognito).setOnClickListener { finishWith(linkCallbacks.onIncognito) }
+            decor.requireViewById<View>(R.id.pickerShare).setOnClickListener { finishWith(linkCallbacks.onShare) }
+        }
         showLink()
 
         field.imeOptions = EditorInfo.IME_ACTION_GO or EditorInfo.IME_FLAG_NO_EXTRACT_UI

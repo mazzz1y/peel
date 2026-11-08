@@ -16,6 +16,7 @@ import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.ui.entitylist.PendingDeletes
 import wtf.mazy.peel.ui.PickerDialog
 import wtf.mazy.peel.ui.PickerLink
+import wtf.mazy.peel.ui.PickerLinkCallbacks
 import wtf.mazy.peel.util.BrowserLauncher
 import wtf.mazy.peel.util.bestBy
 import wtf.mazy.peel.util.isAt
@@ -165,6 +166,7 @@ object ExternalLinkMenu {
         link: UnwrappedLink,
         excludeUuid: String?,
         include: (WebApp) -> Boolean = { true },
+        fromOutside: Boolean = false,
         onDismiss: () -> Unit = {},
     ) {
         activity.lifecycleScope.launch {
@@ -188,10 +190,14 @@ object ExternalLinkMenu {
                 groupTitles = groupTitles,
                 onPick = { webApp, current -> BrowserLauncher.launch(webApp, activity, current.launchUrl) },
                 onDismiss = onDismiss,
-                onIncognito = { current -> BrowserLauncher.launchIncognito(activity, current.launchUrl) },
-                onShare = { current ->
-                    activity.shareText(current.destination, excluded = listOf(shareReceiver(activity)))
-                },
+                linkCallbacks = if (fromOutside) {
+                    PickerLinkCallbacks(
+                        onIncognito = { current -> BrowserLauncher.launchIncognito(activity, current.launchUrl) },
+                        onShare = { current ->
+                            activity.shareText(current.destination, excluded = listOf(shareReceiver(activity)))
+                        },
+                    )
+                } else null,
                 onAdd = { current, onAdded ->
                     AddWebAppDialog.show(activity, prefill = current.destination, onConfirmed = onAdded)
                 },

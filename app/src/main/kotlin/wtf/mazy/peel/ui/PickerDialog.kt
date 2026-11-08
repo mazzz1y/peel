@@ -57,12 +57,11 @@ object PickerDialog {
         groupTitles: Map<String, String>,
         onPick: (WebApp, UnwrappedLink) -> Unit,
         onDismiss: () -> Unit,
-        onIncognito: (UnwrappedLink) -> Unit,
-        onShare: (UnwrappedLink) -> Unit,
+        linkCallbacks: PickerLinkCallbacks?,
         onAdd: (UnwrappedLink, onAdded: () -> Unit) -> Unit,
         canAdd: (UnwrappedLink) -> Boolean,
     ) {
-        WebAppPickerSurface(activity, link, groupTitles, onPick, onIncognito, onShare, onAdd, canAdd).run {
+        WebAppPickerSurface(activity, link, groupTitles, onPick, linkCallbacks, onAdd, canAdd).run {
             setOnDismissListener { onDismiss() }
             show()
             dismissOnDestroyOf(activity)
