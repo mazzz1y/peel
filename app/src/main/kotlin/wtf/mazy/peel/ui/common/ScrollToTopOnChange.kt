@@ -2,7 +2,6 @@ package wtf.mazy.peel.ui.common
 
 import androidx.recyclerview.widget.RecyclerView
 
-/** Keeps the list showing its first row whenever the adapter's rows change. */
 fun RecyclerView.Adapter<*>.scrollToTopOnChange(list: () -> RecyclerView) {
     // A scroll pending over an empty layout makes the layout manager drop the rows outright,
     // without their exit animation.

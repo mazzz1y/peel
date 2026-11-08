@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/pickerRoot"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/colorSurfaceContainerLow">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/pickerLinkCard"
+            style="@style/Widget.App.SuggestionCard"
+            android:layout_marginTop="@dimen/list_card_list_padding_top"
+            app:cardBackgroundColor="@android:color/transparent"
+            app:cardElevation="0dp">
+
+            <TextView
+                android:id="@+id/pickerLink"
+                style="@style/SuggestionCardRow"
+                android:ellipsize="middle"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                app:drawableStartCompat="@drawable/ic_symbols_link_24" />
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <LinearLayout
+            android:id="@+id/pickerLinkActions"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingHorizontal="@dimen/picker_action_card_margin">
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/pickerIncognito"
+                style="@style/Widget.App.PickerActionCard.Half">
+
+                <TextView
+                    style="@style/SuggestionCardRow"
+                    android:text="@string/incognito"
+                    app:drawableStartCompat="@drawable/ic_symbols_visibility_off_24" />
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/pickerShare"
+                style="@style/Widget.App.PickerActionCard.Half">
+
+                <TextView
+                    style="@style/SuggestionCardRow"
+                    android:text="@string/share"
+                    app:drawableStartCompat="@drawable/ic_symbols_share_24" />
+
+            </com.google.android.material.card.MaterialCardView>
+
+        </LinearLayout>
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/pickerAdd"
+            style="@style/Widget.App.PickerActionCard"
+            android:visibility="gone">
+
+            <TextView
+                style="@style/SuggestionCardRow"
+                android:text="@string/add_webapp"
+                app:drawableStartCompat="@drawable/ic_symbols_add_24" />
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/pickerList"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:paddingBottom="@dimen/list_bottom_fade_clearance" />
+
+            <FrameLayout
+                android:id="@+id/pickerEmptyFrame"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingBottom="@dimen/list_bottom_fade_clearance">
+
+                <TextView
+                    android:id="@+id/pickerEmptyState"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:padding="32dp"
+                    android:text="@string/no_search_results"
+                    android:textAppearance="?attr/textAppearanceBodyLarge"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    android:visibility="gone" />
+
+            </FrameLayout>
+
+        </FrameLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/pickerBottomLine"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:orientation="vertical"
+        android:paddingTop="@dimen/bottom_line_fade"
+        android:paddingBottom="@dimen/bottom_line_gap">
+
+        <wtf.mazy.peel.ui.webapplist.SearchBar
+            android:id="@+id/pickerSearchBar"
+            style="@style/Widget.App.SearchBar"
+            android:layout_width="match_parent"
+            android:focusable="false"
+            android:importantForAccessibility="no"
+            android:layout_height="@dimen/bottom_line_height"
+            android:layout_marginHorizontal="@dimen/bottom_line_gap" />
+
+    </LinearLayout>
+
+</FrameLayout>

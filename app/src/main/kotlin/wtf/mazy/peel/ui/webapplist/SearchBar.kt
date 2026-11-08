@@ -2,6 +2,7 @@ package wtf.mazy.peel.ui.webapplist
 
 import android.content.Context
 import android.util.AttributeSet
+import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.ViewTreeObserver
 import android.view.inputmethod.EditorInfo
@@ -12,7 +13,8 @@ import com.google.android.material.floatingtoolbar.FloatingToolbarLayout
 import wtf.mazy.peel.R
 
 /**
- * The persistent search field on the list screen's bottom line.
+ * The persistent search field on a bottom line: the list screen's, and the picker's in the
+ * Bottom search position.
  *
  * The field is the real one: tapping the bar puts the caret where the user tapped rather than
  * opening a second surface. The session starts when focus enters the bar and lasts until
@@ -33,6 +35,7 @@ class SearchBar @JvmOverloads constructor(
     var onActiveChanged: (Boolean) -> Unit = {}
     var onQueryChanged: (String) -> Unit = {}
     var onKeyboardRequested: () -> Unit = {}
+    var onSearch: () -> Unit = {}
 
     val query: String get() = queryField.text.toString()
 
@@ -57,10 +60,12 @@ class SearchBar @JvmOverloads constructor(
             renderControls()
             onQueryChanged(query)
         }
-        // The results are live as the query is typed; the action key has nothing to submit, and
-        // consuming it keeps the keyboard where it is.
-        queryField.setOnEditorActionListener { _, actionId, _ ->
-            actionId == EditorInfo.IME_ACTION_SEARCH
+        // The results are live as the query is typed, so the action key submits nothing of its
+        // own; consuming it keeps the keyboard where it is.
+        queryField.setOnEditorActionListener { _, actionId, event ->
+            val submitted = actionId == EditorInfo.IME_ACTION_SEARCH ||
+                    actionId == EditorInfo.IME_NULL && event?.action == KeyEvent.ACTION_DOWN
+            submitted.also { if (it) onSearch() }
         }
         // The bar is the field's touch surface, not a control of its own: a tap anywhere on it
         // lands in the field. It stays out of the accessibility tree so a screen reader reaches

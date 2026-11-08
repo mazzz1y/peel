@@ -15,8 +15,8 @@ import wtf.mazy.peel.ui.proxy.ProxyOption
 import wtf.mazy.peel.ui.proxy.ProxyOptions
 
 /**
- * The sandbox switches and the proxy row of a dialog that adds a sandboxable owner. [afterRow]
- * spaces them as the next row of a list rather than as the first row under the input field.
+ * [afterRow] spaces the controls as the next row of a list rather than as the first row under
+ * the input field.
  */
 class SandboxControls<P : ProxyChoice>(
     private val activity: Activity,

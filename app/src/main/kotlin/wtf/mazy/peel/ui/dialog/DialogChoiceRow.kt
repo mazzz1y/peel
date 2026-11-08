@@ -9,7 +9,6 @@ import androidx.annotation.StringRes
 import com.google.android.material.button.MaterialButton
 import wtf.mazy.peel.R
 
-/** A dialog row naming a choice, with the current value on a chevron button, as settings rows show it. */
 class DialogChoiceRow(container: LinearLayout, @StringRes labelRes: Int, @DimenRes topMargin: Int) {
     val view: View = LayoutInflater.from(container.context)
         .inflate(R.layout.view_dialog_choice_row, container, false)
