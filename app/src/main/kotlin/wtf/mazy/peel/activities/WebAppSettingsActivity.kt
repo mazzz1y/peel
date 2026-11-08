@@ -1,9 +1,11 @@
 package wtf.mazy.peel.activities
 
+import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
+import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -40,6 +42,7 @@ import wtf.mazy.peel.ui.common.SettingsSurface
 import wtf.mazy.peel.ui.dialog.InputDialogConfig
 import wtf.mazy.peel.ui.dialog.OverridePickerDialog
 import wtf.mazy.peel.ui.dialog.ScopeExtensionsPrompt
+import wtf.mazy.peel.ui.dialog.UrlField
 import wtf.mazy.peel.ui.dialog.showInputDialogRaw
 import wtf.mazy.peel.ui.proxy.ProxyOptions
 import wtf.mazy.peel.ui.settings.OverridePickerController
@@ -48,6 +51,7 @@ import wtf.mazy.peel.ui.settings.SandboxSwitchController
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.LetterIconGenerator
 import wtf.mazy.peel.util.SameAppDomainMatcher
+import wtf.mazy.peel.util.TypedUrl
 import wtf.mazy.peel.util.isSameHost
 import wtf.mazy.peel.util.prettyBaseUrl
 import wtf.mazy.peel.util.toast
@@ -145,12 +149,14 @@ class WebAppSettingsActivity :
 
     private fun showEditDialog(draft: Draft<WebApp>) {
         val webApp = draft.value
-        var urlInput: TextInputEditText? = null
-        showInputDialogRaw(
+        lateinit var urlInput: TextInputEditText
+        lateinit var nameInput: EditText
+        val dialog = showInputDialogRaw(
             InputDialogConfig(
                 hintRes = R.string.name,
                 prefill = webApp.title,
                 positiveRes = R.string.save,
+                onInputReady = { nameInput = it },
                 extraContent = { container ->
                     val urlLayout = TextInputLayout(container.context).apply {
                         hint = getString(R.string.url)
@@ -163,21 +169,26 @@ class WebAppSettingsActivity :
                     }
                     urlInput = TextInputEditText(urlLayout.context).apply {
                         setText(webApp.baseUrl)
-                        inputType = android.text.InputType.TYPE_TEXT_VARIATION_URI
-                        isSingleLine = true
+                        UrlField.configure(this)
                     }
                     urlLayout.addView(urlInput)
                     container.addView(urlLayout)
                 },
             ),
-        ) { nameInput, _ ->
-            val title = nameInput.text.toString().trim()
-            val baseUrl = urlInput?.text.toString().trim()
+        ) { name, _ ->
+            val title = name.text.toString().trim()
+            val baseUrl = TypedUrl.normalize(urlInput.text.toString())
             draft.update { it.copy(title = title, baseUrl = baseUrl) }
             txtWebAppName.text = title
             textBaseUrl.text = prettyBaseUrl(baseUrl)
             iconEditor.refreshIcon()
         }
+        UrlField.gate(
+            urlInput,
+            dialog.getButton(DialogInterface.BUTTON_POSITIVE),
+            UrlField.TYPED,
+            filled = listOf(nameInput),
+        )
     }
 
     private fun setupGroupPicker(draft: Draft<WebApp>, onGroupChanged: () -> Unit) {

@@ -1,7 +1,8 @@
 package wtf.mazy.peel.ui.dialog
 
+import android.content.DialogInterface
 import android.content.Intent
-import android.text.InputType
+import android.widget.EditText
 import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -33,14 +34,17 @@ object AddWebAppDialog {
         val groups = DataManager.sortedGroups
         var group = initialGroup?.takeIf { it in groups }
         lateinit var controls: SandboxControls<ProxyChoice>
-        activity.showInputDialogRaw(
+        lateinit var input: EditText
+        val dialog = activity.showInputDialogRaw(
             InputDialogConfig(
                 titleRes = R.string.add_webapp,
                 hintRes = R.string.url,
-                inputType = InputType.TYPE_TEXT_VARIATION_URI,
                 prefill = prefill,
-                initialSelection = InitialSelection.CURSOR_AT_END,
                 positiveRes = R.string.ok,
+                onInputReady = { field ->
+                    input = field
+                    UrlField.configure(field)
+                },
                 extraContent = { container ->
                     if (groups.isNotEmpty()) {
                         addGroupChooser(container, groups, { group }) { chosen ->
@@ -57,9 +61,8 @@ object AddWebAppDialog {
                     )
                 },
             ),
-        ) { input, _ ->
-            val text = input.text?.toString()?.trim().orEmpty()
-            if (text.isBlank()) return@showInputDialogRaw
+        ) { field, _ ->
+            val text = field.text?.toString()?.trim().orEmpty()
             val webApp = WebApp(
                 baseUrl = TypedUrl.normalize(text),
                 isolation = controls.isolation,
@@ -76,6 +79,7 @@ object AddWebAppDialog {
                 onConfirmed()
             }
         }
+        UrlField.gate(input, dialog.getButton(DialogInterface.BUTTON_POSITIVE), UrlField.TYPED)
     }
 
     private fun proxyOptions(activity: AppCompatActivity, group: WebAppGroup?) =

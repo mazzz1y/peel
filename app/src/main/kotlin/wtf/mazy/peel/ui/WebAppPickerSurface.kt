@@ -2,7 +2,6 @@ package wtf.mazy.peel.ui
 
 import android.content.res.Configuration
 import android.os.Bundle
-import android.text.InputType
 import android.view.KeyEvent
 import android.view.View
 import android.view.ViewGroup
@@ -31,12 +30,11 @@ import wtf.mazy.peel.model.searched
 import wtf.mazy.peel.ui.common.ListEmptyState
 import wtf.mazy.peel.ui.common.applyBottomLineFade
 import wtf.mazy.peel.ui.common.scrollToTopOnChange
-import wtf.mazy.peel.ui.dialog.InitialSelection
 import wtf.mazy.peel.ui.dialog.InputDialogConfig
+import wtf.mazy.peel.ui.dialog.UrlField
 import wtf.mazy.peel.ui.dialog.showInputDialogRaw
 import wtf.mazy.peel.ui.webapplist.SearchBar
 import wtf.mazy.peel.ui.webapplist.WebAppPickerAdapter
-import wtf.mazy.peel.util.WebOrigin
 import wtf.mazy.peel.util.applyBottomScreenInsets
 import wtf.mazy.peel.util.isImeVisible
 
@@ -165,29 +163,18 @@ class WebAppPickerSurface(
         val config = InputDialogConfig(
             hintRes = R.string.url,
             prefill = current.launchUrl,
-            inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_URI,
-            initialSelection = InitialSelection.CURSOR_AT_END,
             onInputReady = { field ->
                 input = field
-                field.setHorizontallyScrolling(false)
-                field.maxLines = LINK_EDITOR_MAX_LINES
-                field.imeOptions = EditorInfo.IME_ACTION_DONE or EditorInfo.IME_FLAG_NO_EXTRACT_UI
+                UrlField.configure(field)
             },
         )
         val dialog = activity.showInputDialogRaw(config) { field, _ ->
             applyLink(field.text.toString().trim())
         }
-        val ok = dialog.getButton(BUTTON_POSITIVE)
-        ok.isEnabled = input.text.toString().trim().isWebAddress()
-        input.doAfterTextChanged { ok.isEnabled = it.toString().trim().isWebAddress() }
-        input.setOnEditorActionListener { _, actionId, _ ->
-            (actionId == EditorInfo.IME_ACTION_DONE && ok.isEnabled).also { if (it) ok.performClick() }
-        }
+        UrlField.gate(input, dialog.getButton(BUTTON_POSITIVE), UrlField.FULL)
         input.requestFocus()
         dialog.window?.let { WindowCompat.getInsetsController(it, input).show(WindowInsetsCompat.Type.ime()) }
     }
-
-    private fun String.isWebAddress(): Boolean = WebOrigin.of(this) != null
 
     private fun applyLink(edited: String) {
         current = Redirectors.unwrap(edited)
@@ -198,10 +185,6 @@ class WebAppPickerSurface(
     private fun pick(app: WebApp) {
         dismiss()
         onPick(app, current)
-    }
-
-    private companion object {
-        const val LINK_EDITOR_MAX_LINES = 6
     }
 }
 
