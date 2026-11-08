@@ -1,4 +1,4 @@
-package wtf.mazy.peel.ui.webapplist
+package wtf.mazy.peel.ui.picker
 
 import android.view.View
 import wtf.mazy.peel.R
@@ -7,6 +7,7 @@ import wtf.mazy.peel.ui.entitylist.EntityListAdapter
 import wtf.mazy.peel.ui.entitylist.EntityRow
 import wtf.mazy.peel.ui.entitylist.EntityRowListener
 import wtf.mazy.peel.ui.entitylist.binders.WebAppBinder
+import wtf.mazy.peel.ui.webapplist.WebAppRowHolder
 
 /**
  * The web-app list's cards for choosing one web app: every row is shown as in selection mode,

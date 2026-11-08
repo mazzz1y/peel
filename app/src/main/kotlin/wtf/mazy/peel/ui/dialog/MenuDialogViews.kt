@@ -11,7 +11,9 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.widget.TextViewCompat
+import com.google.android.material.color.MaterialColors
 import wtf.mazy.peel.ui.common.showIcon
+import wtf.mazy.peel.ui.common.themeResource
 
 object MenuDialogViews {
 
@@ -52,9 +54,10 @@ object MenuDialogViews {
                         com.google.android.material.R.style.TextAppearance_Material3_BodySmall
                     )
                     setTextColor(
-                        resolveThemeColor(
+                        MaterialColors.getColor(
                             context,
-                            com.google.android.material.R.attr.colorOnSurfaceVariant
+                            com.google.android.material.R.attr.colorOnSurfaceVariant,
+                            0,
                         )
                     )
                     setPadding(0, dpToPx(context, 2f), 0, 0)
@@ -67,10 +70,7 @@ object MenuDialogViews {
             LinearLayout.LayoutParams.MATCH_PARENT, dpToPx(context, 1f),
         )
         setBackgroundColor(
-            resolveThemeColor(
-                context,
-                com.google.android.material.R.attr.colorOutlineVariant
-            )
+            MaterialColors.getColor(context, com.google.android.material.R.attr.colorOutlineVariant, 0),
         )
     }
 
@@ -81,10 +81,9 @@ object MenuDialogViews {
         onIconClick: (() -> Unit)? = null,
         onClick: () -> Unit,
     ): View {
-        val outValue = TypedValue()
-        context.theme.resolveAttribute(android.R.attr.selectableItemBackground, outValue, true)
+        val ripple = context.themeResource(android.R.attr.selectableItemBackground)
         val textColor =
-            resolveThemeColor(context, com.google.android.material.R.attr.colorOnSurface)
+            MaterialColors.getColor(context, com.google.android.material.R.attr.colorOnSurface, 0)
 
         if (icon == null || onIconClick == null) {
             return TextView(context).apply {
@@ -97,7 +96,7 @@ object MenuDialogViews {
                     dpToPx(context, 16f),
                     dpToPx(context, 14f)
                 )
-                setBackgroundResource(outValue.resourceId)
+                setBackgroundResource(ripple)
                 setOnClickListener { onClick() }
             }
         }
@@ -118,7 +117,7 @@ object MenuDialogViews {
                 )
                 layoutParams =
                     LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
-                setBackgroundResource(outValue.resourceId)
+                setBackgroundResource(ripple)
                 setOnClickListener { onClick() }
             })
 
@@ -134,7 +133,7 @@ object MenuDialogViews {
                 scaleType = ImageView.ScaleType.CENTER_INSIDE
                 isClickable = true
                 isFocusable = true
-                setBackgroundResource(outValue.resourceId)
+                setBackgroundResource(ripple)
                 setOnClickListener { onIconClick() }
             })
         }
@@ -146,10 +145,4 @@ object MenuDialogViews {
     fun dpToPx(context: Context, dp: Float): Int = TypedValue.applyDimension(
         TypedValue.COMPLEX_UNIT_DIP, dp, context.resources.displayMetrics,
     ).toInt()
-
-    private fun resolveThemeColor(context: Context, attr: Int): Int {
-        val tv = TypedValue()
-        context.theme.resolveAttribute(attr, tv, true)
-        return tv.data
-    }
 }

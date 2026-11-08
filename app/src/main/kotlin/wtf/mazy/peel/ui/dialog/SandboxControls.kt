@@ -1,16 +1,17 @@
 package wtf.mazy.peel.ui.dialog
 
 import android.app.Activity
-import android.util.TypedValue
 import android.widget.LinearLayout
 import androidx.annotation.DimenRes
 import androidx.core.view.isVisible
+import com.google.android.material.R as MaterialR
 import com.google.android.material.materialswitch.MaterialSwitch
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.Isolation
 import wtf.mazy.peel.model.ProxyChoice
 import wtf.mazy.peel.model.ProxyRoute
 import wtf.mazy.peel.ui.bindDropdown
+import wtf.mazy.peel.ui.common.themeResource
 import wtf.mazy.peel.ui.proxy.ProxyOption
 import wtf.mazy.peel.ui.proxy.ProxyOptions
 
@@ -27,12 +28,12 @@ class SandboxControls<P : ProxyChoice>(
 ) {
     private val switchSandbox = MaterialSwitch(container.context).apply {
         text = activity.getString(R.string.enable_sandbox)
-        setTextAppearance(bodyLarge(container))
+        setTextAppearance(container.context.themeResource(MaterialR.attr.textAppearanceBodyLarge))
         layoutParams = rowParams(if (afterRow) R.dimen.dialog_row_gap else R.dimen.dialog_content_gap)
     }
     private val switchEphemeral = MaterialSwitch(container.context).apply {
         text = activity.getString(R.string.ephemeral_sandbox)
-        setTextAppearance(bodyLarge(container))
+        setTextAppearance(container.context.themeResource(MaterialR.attr.textAppearanceBodyLarge))
         isVisible = false
         layoutParams = rowParams(R.dimen.dialog_row_gap)
     }
@@ -83,14 +84,6 @@ class SandboxControls<P : ProxyChoice>(
 
     private fun renderProxyRow() {
         proxyRow.view.isVisible = switchSandbox.isChecked && proxyOptions.any { it.choice is ProxyRoute.Via }
-    }
-
-    private fun bodyLarge(container: LinearLayout): Int {
-        val value = TypedValue()
-        container.context.theme.resolveAttribute(
-            com.google.android.material.R.attr.textAppearanceBodyLarge, value, true,
-        )
-        return value.resourceId
     }
 
     private fun rowParams(@DimenRes topMargin: Int) = LinearLayout.LayoutParams(

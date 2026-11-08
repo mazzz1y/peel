@@ -13,11 +13,12 @@ import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.EffectiveSandbox
 import wtf.mazy.peel.model.UnwrappedLink
 import wtf.mazy.peel.model.WebApp
-import wtf.mazy.peel.ui.entitylist.PendingDeletes
 import wtf.mazy.peel.ui.PickerDialog
-import wtf.mazy.peel.ui.PickerLink
-import wtf.mazy.peel.ui.PickerLinkCallbacks
+import wtf.mazy.peel.ui.entitylist.PendingDeletes
+import wtf.mazy.peel.ui.picker.PickerLink
+import wtf.mazy.peel.ui.picker.PickerLinkCallbacks
 import wtf.mazy.peel.util.BrowserLauncher
+import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.bestBy
 import wtf.mazy.peel.util.isAt
 import wtf.mazy.peel.util.linkMatch
@@ -212,5 +213,5 @@ object ExternalLinkMenu {
 
     // Peel's own share target is left out, so the link can't come back into this list.
     private fun shareReceiver(context: Context) =
-        ComponentName(context, "wtf.mazy.peel.activities.ShareReceiverActivity")
+        ComponentName(context, Const.SHARE_RECEIVER_ALIAS)
 }

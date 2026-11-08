@@ -1,11 +1,9 @@
-package wtf.mazy.peel.ui
+package wtf.mazy.peel.ui.picker
 
 import android.content.res.Configuration
 import android.os.Bundle
-import android.view.KeyEvent
 import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import android.widget.TextView
 import androidx.activity.addCallback
@@ -14,10 +12,8 @@ import androidx.appcompat.app.AppCompatDialog
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.WindowInsetsControllerCompat
 import androidx.core.view.isVisible
 import androidx.core.view.updatePadding
-import androidx.core.widget.doAfterTextChanged
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.search.SearchView
@@ -34,15 +30,7 @@ import wtf.mazy.peel.ui.dialog.InputDialogConfig
 import wtf.mazy.peel.ui.dialog.UrlField
 import wtf.mazy.peel.ui.dialog.showInputDialogRaw
 import wtf.mazy.peel.ui.webapplist.SearchBar
-import wtf.mazy.peel.ui.webapplist.WebAppPickerAdapter
 import wtf.mazy.peel.util.applyBottomScreenInsets
-import wtf.mazy.peel.util.isImeVisible
-
-/** The link a picker opens, and how its web apps are ordered for a link. */
-class PickerLink(val initial: UnwrappedLink, val order: (UnwrappedLink) -> List<WebApp>)
-
-/** What a link from another app can do besides opening in a web app. */
-class PickerLinkCallbacks(val onIncognito: (UnwrappedLink) -> Unit, val onShare: (UnwrappedLink) -> Unit)
 
 /**
  * The web apps to choose from for a link, laid out as the web-app list's own search in the
@@ -185,61 +173,5 @@ class WebAppPickerSurface(
     private fun pick(app: WebApp) {
         dismiss()
         onPick(app, current)
-    }
-}
-
-private interface PickerField {
-    var onQueryChanged: (String) -> Unit
-    var onConfirm: () -> Unit
-
-    /** Puts the keyboard down if the field has it up; returns whether there was one. */
-    fun lowerKeyboard(): Boolean
-}
-
-private class TopPickerField(
-    private val field: EditText,
-    private val insets: WindowInsetsControllerCompat,
-) : PickerField {
-    override var onQueryChanged: (String) -> Unit = {}
-    override var onConfirm: () -> Unit = {}
-
-    init {
-        field.imeOptions = EditorInfo.IME_ACTION_GO or EditorInfo.IME_FLAG_NO_EXTRACT_UI
-        field.doAfterTextChanged { onQueryChanged(it?.toString().orEmpty()) }
-        field.setOnEditorActionListener { _, actionId, event ->
-            val confirmed = actionId == EditorInfo.IME_ACTION_GO ||
-                    actionId == EditorInfo.IME_NULL && event?.action == KeyEvent.ACTION_DOWN
-            if (confirmed) onConfirm()
-            confirmed
-        }
-    }
-
-    override fun lowerKeyboard(): Boolean {
-        if (!field.hasFocus() || !field.isImeVisible) return false
-        insets.hide(WindowInsetsCompat.Type.ime())
-        field.clearFocus()
-        return true
-    }
-}
-
-private class BottomPickerField(
-    private val bar: SearchBar,
-    private val insets: WindowInsetsControllerCompat,
-) : PickerField {
-    override var onQueryChanged: (String) -> Unit = {}
-    override var onConfirm: () -> Unit = {}
-
-    init {
-        bar.onQueryChanged = { onQueryChanged(it) }
-        bar.onSearch = { onConfirm() }
-        bar.onKeyboardRequested = { insets.show(WindowInsetsCompat.Type.ime()) }
-        bar.onActiveChanged = { active -> if (!active) insets.hide(WindowInsetsCompat.Type.ime()) }
-    }
-
-    override fun lowerKeyboard(): Boolean {
-        if (!bar.hasFocus() || !bar.isImeVisible) return false
-        bar.dropFocus()
-        insets.hide(WindowInsetsCompat.Type.ime())
-        return true
     }
 }

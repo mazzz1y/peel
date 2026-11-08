@@ -2,7 +2,6 @@ package wtf.mazy.peel.ui.webapplist
 
 import android.content.Context
 import android.util.AttributeSet
-import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.ViewTreeObserver
 import android.view.inputmethod.EditorInfo
@@ -11,6 +10,7 @@ import android.widget.ImageButton
 import androidx.core.widget.doAfterTextChanged
 import com.google.android.material.floatingtoolbar.FloatingToolbarLayout
 import wtf.mazy.peel.R
+import wtf.mazy.peel.ui.common.onImeAction
 
 /**
  * The persistent search field on a bottom line: the list screen's, and the picker's in the
@@ -62,11 +62,7 @@ class SearchBar @JvmOverloads constructor(
         }
         // The results are live as the query is typed, so the action key submits nothing of its
         // own; consuming it keeps the keyboard where it is.
-        queryField.setOnEditorActionListener { _, actionId, event ->
-            val submitted = actionId == EditorInfo.IME_ACTION_SEARCH ||
-                    actionId == EditorInfo.IME_NULL && event?.action == KeyEvent.ACTION_DOWN
-            submitted.also { if (it) onSearch() }
-        }
+        queryField.onImeAction(EditorInfo.IME_ACTION_SEARCH) { onSearch() }
         // The bar is the field's touch surface, not a control of its own: a tap anywhere on it
         // lands in the field. It stays out of the accessibility tree so a screen reader reaches
         // one labelled target instead of a button wrapping a field.

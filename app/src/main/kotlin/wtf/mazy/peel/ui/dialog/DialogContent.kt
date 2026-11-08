@@ -6,8 +6,11 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import androidx.core.view.isNotEmpty
+import com.google.android.material.R as MaterialR
+import com.google.android.material.color.MaterialColors
 import com.google.android.material.textview.MaterialTextView
 import wtf.mazy.peel.R
+import wtf.mazy.peel.ui.common.themeResource
 
 class DialogContent private constructor(
     private val context: Context,
@@ -24,8 +27,8 @@ class DialogContent private constructor(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT,
             )
-            setTextAppearance(bodyTextAppearance())
-            setTextColor(bodyTextColor())
+            setTextAppearance(context.themeResource(MaterialR.attr.textAppearanceBodyMedium))
+            setTextColor(MaterialColors.getColor(context, MaterialR.attr.colorOnSurfaceVariant, 0))
             this.text = text
         }
         add(message)
@@ -47,26 +50,6 @@ class DialogContent private constructor(
 
     private val gap: Int
         get() = context.resources.getDimensionPixelSize(R.dimen.dialog_content_gap)
-
-    private fun bodyTextAppearance(): Int = resolveAttr(
-        com.google.android.material.R.attr.textAppearanceBodyMedium
-    )
-
-    private fun bodyTextColor(): Int {
-        val ta = context.obtainStyledAttributes(
-            intArrayOf(com.google.android.material.R.attr.colorOnSurfaceVariant)
-        )
-        val color = ta.getColor(0, 0)
-        ta.recycle()
-        return color
-    }
-
-    private fun resolveAttr(attr: Int): Int {
-        val ta = context.obtainStyledAttributes(intArrayOf(attr))
-        val res = ta.getResourceId(0, 0)
-        ta.recycle()
-        return res
-    }
 
     companion object {
         fun of(context: Context): DialogContent {

@@ -1,11 +1,11 @@
 package wtf.mazy.peel.ui.dialog
 
 import android.text.InputType
-import android.view.KeyEvent
 import android.view.inputmethod.EditorInfo
 import android.widget.Button
 import android.widget.EditText
 import androidx.core.widget.doAfterTextChanged
+import wtf.mazy.peel.ui.common.onImeAction
 import wtf.mazy.peel.util.TypedUrl
 import wtf.mazy.peel.util.WebOrigin
 
@@ -39,11 +39,8 @@ object UrlField {
         }
         render()
         (filled + field).forEach { it.doAfterTextChanged { render() } }
-        field.setOnEditorActionListener { _, actionId, event ->
-            val submitted = actionId == EditorInfo.IME_ACTION_DONE ||
-                    actionId == EditorInfo.IME_NULL && event?.action == KeyEvent.ACTION_DOWN
-            if (submitted && confirm.isEnabled) confirm.performClick()
-            submitted
+        field.onImeAction(EditorInfo.IME_ACTION_DONE) {
+            if (confirm.isEnabled) confirm.performClick()
         }
     }
 }

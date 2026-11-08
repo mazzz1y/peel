@@ -8,13 +8,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import wtf.mazy.peel.R
-import wtf.mazy.peel.activities.WebAppSettingsActivity
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.ProxyChoice
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.model.WebAppGroup
 import wtf.mazy.peel.ui.bindDropdown
 import wtf.mazy.peel.ui.proxy.ProxyOptions
+import wtf.mazy.peel.util.ActivityRoutes
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.TypedUrl
 
@@ -71,7 +71,7 @@ object AddWebAppDialog {
             activity.lifecycleScope.launch {
                 DataManager.addWebApp(webApp, appendOrder = true)
                 openSettings(
-                    Intent(activity, WebAppSettingsActivity::class.java)
+                    Intent(activity, ActivityRoutes.webAppSettings)
                         .putExtra(Const.INTENT_WEBAPP_UUID, webApp.uuid)
                         .putExtra(Const.INTENT_AUTO_FETCH, true)
                 )

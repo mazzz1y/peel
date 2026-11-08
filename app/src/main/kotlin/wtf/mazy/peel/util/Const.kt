@@ -8,6 +8,7 @@ object Const {
     const val INTENT_LAUNCHED_FROM_MENU: String = "launched_from_menu"
 
     const val WEBAPP_SHORTCUT_ALIAS: String = "wtf.mazy.peel.activities.WebAppShortcutAlias"
+    const val SHARE_RECEIVER_ALIAS: String = "wtf.mazy.peel.activities.ShareReceiverActivity"
 
     const val WEBAPP_URI_SCHEME: String = "app"
 
