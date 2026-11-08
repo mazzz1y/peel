@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import wtf.mazy.peel.R
 import wtf.mazy.peel.ui.BiometricPrompter
+import wtf.mazy.peel.ui.UnlockedWebApps
 import wtf.mazy.peel.util.biometricUnavailableReason
 import wtf.mazy.peel.util.toast
 
@@ -25,7 +26,7 @@ class BiometricUnlockController(
     private val screenOffReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             if (intent?.action == Intent.ACTION_SCREEN_OFF) {
-                unlocked.clear()
+                UnlockedWebApps.lockAll()
             }
         }
     }
@@ -49,7 +50,7 @@ class BiometricUnlockController(
 
     fun isUnlocked(): Boolean {
         val uuid = getWebAppUuid() ?: return false
-        return unlocked.contains(uuid)
+        return UnlockedWebApps.isUnlocked(uuid)
     }
 
     fun showPromptIfNeeded(
@@ -101,7 +102,7 @@ class BiometricUnlockController(
 
     fun onStop() {
         val uuid = getWebAppUuid() ?: return
-        unlocked.remove(uuid)
+        UnlockedWebApps.lock(uuid)
     }
 
     fun resetForSwap() {
@@ -110,12 +111,8 @@ class BiometricUnlockController(
 
     private fun setUnlocked() {
         val uuid = getWebAppUuid() ?: return
-        unlocked.add(uuid)
+        UnlockedWebApps.unlock(uuid)
     }
 
     enum class PromptOutcome { SHOWN, NOT_NEEDED, UNAVAILABLE }
-
-    companion object {
-        private val unlocked = mutableSetOf<String>()
-    }
 }

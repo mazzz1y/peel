@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.WebApp
+import wtf.mazy.peel.ui.ProtectionGate
 import wtf.mazy.peel.ui.common.ShareSecretsDialog
 import wtf.mazy.peel.ui.entitylist.EntitySelectionHandler
 import wtf.mazy.peel.ui.entitylist.MoveTarget
@@ -19,6 +20,11 @@ class WebAppSelectionHandler(
 
     override fun confirmShare(items: List<WebApp>, onConfirm: (Boolean) -> Unit) {
         ShareSecretsDialog.confirmForWebApps(activity, items, onConfirm)
+    }
+
+    override fun confirmMove(uuids: List<String>, onConfirm: () -> Unit) {
+        val needed = uuids.mapNotNull(DataManager::webApp).any(ProtectionGate::isProtected)
+        ProtectionGate.require(activity, needed, onPass = onConfirm)
     }
 
     override fun share(items: List<WebApp>, includeSecrets: Boolean) {

@@ -34,6 +34,8 @@ import wtf.mazy.peel.shortcut.HeadlessFetcher
 import wtf.mazy.peel.shortcut.Shortcuts
 import wtf.mazy.peel.ui.IconEditorController
 import wtf.mazy.peel.ui.PickerDialog
+import wtf.mazy.peel.ui.ProtectionGate
+import wtf.mazy.peel.ui.UnlockedWebApps
 import wtf.mazy.peel.ui.bindDropdown
 import wtf.mazy.peel.ui.common.Draft
 import wtf.mazy.peel.ui.common.GroupPosition
@@ -95,6 +97,10 @@ class WebAppSettingsActivity :
             finish()
             return
         }
+        requireUnlock(
+            needed = ProtectionGate.isProtected(stored),
+            unlocked = UnlockedWebApps.isUnlocked(stored.uuid),
+        )
         val draft = Draft(stored.copy(settings = stored.settings.deepCopy()))
         this.draft = draft
         originalSettingsSnapshot =

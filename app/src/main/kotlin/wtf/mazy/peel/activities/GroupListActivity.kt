@@ -16,6 +16,7 @@ import wtf.mazy.peel.model.EntityCloner
 import wtf.mazy.peel.model.ProxyRoute
 import wtf.mazy.peel.model.WebAppGroup
 import wtf.mazy.peel.shortcut.Shortcuts
+import wtf.mazy.peel.ui.ProtectionGate
 import wtf.mazy.peel.ui.common.LoadingDialogController
 import wtf.mazy.peel.ui.dialog.dismissOnDestroyOf
 import wtf.mazy.peel.ui.dialog.showSandboxInputDialog
@@ -111,7 +112,10 @@ class GroupListActivity : EntityListActivity<WebAppGroup>() {
             .setTitle(getString(R.string.delete_group_title))
             .setView(dialogView)
             .setPositiveButton(R.string.delete) { _, _ ->
-                scheduleGroupDelete(group, ungroupApps = switchUngroup.isChecked)
+                val ungroup = switchUngroup.isChecked
+                ProtectionGate.require(this, ungroup && appsInGroup.any(ProtectionGate::isProtected)) {
+                    scheduleGroupDelete(group, ungroupApps = ungroup)
+                }
             }
             .setNegativeButton(R.string.cancel, null)
             .show()

@@ -5,12 +5,15 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.widget.NestedScrollView
+import androidx.lifecycle.ViewModel
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
 import wtf.mazy.peel.databinding.ActivityToolbarBaseBinding
+import wtf.mazy.peel.ui.ProtectionGate
 import wtf.mazy.peel.ui.common.PeelActivity
 import wtf.mazy.peel.util.applyBottomScreenInsets
 import wtf.mazy.peel.util.applyToolbarScreenInsets
@@ -43,6 +46,22 @@ abstract class ToolbarBaseActivity<VB : ViewBinding> : PeelActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         toolbar.setNavigationOnClickListener { finish() }
+    }
+
+    // The pass outlives a rotation but not the process: a screen restored from Recents, or
+    // recreated while the prompt was still up, asks again.
+    protected fun requireUnlock(needed: Boolean, unlocked: Boolean = false) {
+        val gate: UnlockPass by viewModels()
+        if (gate.passed) return
+        baseBinding.root.visibility = View.INVISIBLE
+        ProtectionGate.require(this, needed, unlocked, onDenied = ::finish) {
+            gate.passed = true
+            baseBinding.root.visibility = View.VISIBLE
+        }
+    }
+
+    class UnlockPass : ViewModel() {
+        var passed = false
     }
 
     fun setToolbarTitle(title: String) {

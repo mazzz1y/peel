@@ -110,9 +110,11 @@ class EntitySelectionController<T : Any>(
             if (idx in targets.indices) {
                 val target = targets[idx]
                 val uuids = selectedUuids.toList()
-                exit()
-                activity.lifecycleScope.launch {
-                    actions.commitMove(uuids, target.groupUuid)
+                actions.confirmMove(uuids) {
+                    exit()
+                    activity.lifecycleScope.launch {
+                        actions.commitMove(uuids, target.groupUuid)
+                    }
                 }
                 true
             } else {

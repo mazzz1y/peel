@@ -12,6 +12,7 @@ import wtf.mazy.peel.model.EntityCloner
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.model.searched
 import wtf.mazy.peel.shortcut.Shortcuts
+import wtf.mazy.peel.ui.ProtectionGate
 import wtf.mazy.peel.ui.common.ShareSecretsDialog
 import wtf.mazy.peel.ui.entitylist.EntityListAdapter
 import wtf.mazy.peel.ui.entitylist.EntityRow
@@ -141,11 +142,13 @@ class WebAppListAdapter(
                         if (groupIndex in 0..groups.size) {
                             val targetGroupUuid =
                                 if (groupIndex < groups.size) groups[groupIndex].uuid else null
-                            activity.lifecycleScope.launch {
-                                DataManager.moveWebAppsToGroup(
-                                    listOf(webApp.uuid),
-                                    targetGroupUuid,
-                                )
+                            ProtectionGate.require(activity, ProtectionGate.isProtected(webApp)) {
+                                activity.lifecycleScope.launch {
+                                    DataManager.moveWebAppsToGroup(
+                                        listOf(webApp.uuid),
+                                        targetGroupUuid,
+                                    )
+                                }
                             }
                             true
                         } else {

@@ -20,6 +20,7 @@ import wtf.mazy.peel.model.BackupManager
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.WebAppSettings
 import wtf.mazy.peel.ui.common.LoadingDialogController
+import wtf.mazy.peel.ui.common.ShareSecretsDialog
 import wtf.mazy.peel.ui.common.runWithLoader
 import wtf.mazy.peel.ui.dialog.BackupPasswordDialog
 import wtf.mazy.peel.ui.dialog.ImportFlowController
@@ -59,10 +60,17 @@ class SettingsHubController(
     }
 
     fun exportBackup() {
-        try {
-            exportLauncher.launch(BackupManager.buildExportFilename())
-        } catch (_: ActivityNotFoundException) {
-            activity.toast(R.string.no_filemanager, long = true)
+        ShareSecretsDialog.requireForSecrets(
+            activity,
+            DataManager.groups,
+            DataManager.webApps,
+            DataManager.globalSettings.settings,
+        ) {
+            try {
+                exportLauncher.launch(BackupManager.buildExportFilename())
+            } catch (_: ActivityNotFoundException) {
+                activity.toast(R.string.no_filemanager, long = true)
+            }
         }
     }
 

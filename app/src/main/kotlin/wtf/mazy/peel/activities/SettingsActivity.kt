@@ -19,6 +19,7 @@ import wtf.mazy.peel.model.SettingRegistry
 import wtf.mazy.peel.model.SettingSection
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.model.WebAppSettings
+import wtf.mazy.peel.ui.ProtectionGate
 import wtf.mazy.peel.ui.common.GroupPosition
 import wtf.mazy.peel.ui.settings.SettingRowFactory
 import wtf.mazy.peel.ui.settings.SettingsAdapter
@@ -68,6 +69,7 @@ class SettingsActivity : ToolbarBaseActivity<GlobalSettingsBinding>() {
             ?.let { runCatching { SettingSection.valueOf(it) }.getOrNull() }
             ?: SettingSection.GLOBAL
         setToolbarTitle(getString(section.displayNameResId))
+        requireUnlock(needed = section == SettingSection.GLOBAL && ProtectionGate.isProtectedGlobally)
         editableSettings =
             DataManager.globalSettings.let { it.copy(settings = it.settings.deepCopy()) }
         originalSnapshot = editableSettings.settings.deepCopy().apply { sanitize() }

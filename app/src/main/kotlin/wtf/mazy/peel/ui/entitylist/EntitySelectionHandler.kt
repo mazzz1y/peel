@@ -16,5 +16,7 @@ interface EntitySelectionHandler<T : Any> {
     val moveTargets: List<MoveTarget>
         get() = emptyList()
 
+    fun confirmMove(uuids: List<String>, onConfirm: () -> Unit) = onConfirm()
+
     suspend fun commitMove(uuids: List<String>, targetGroupUuid: String?) {}
 }

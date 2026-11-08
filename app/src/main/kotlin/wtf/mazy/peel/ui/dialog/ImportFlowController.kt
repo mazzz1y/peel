@@ -5,6 +5,7 @@ import android.net.Uri
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import javax.crypto.BadPaddingException
 import kotlinx.coroutines.CancellationException
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.BackupManager
@@ -12,11 +13,11 @@ import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.ImportMode
 import wtf.mazy.peel.model.ParsedBackup
 import wtf.mazy.peel.model.backup.BackupSource
+import wtf.mazy.peel.ui.ProtectionGate
 import wtf.mazy.peel.ui.common.LoadingDialogController
 import wtf.mazy.peel.ui.common.runWithLoader
 import wtf.mazy.peel.ui.importmapping.ImportMappingContract
 import wtf.mazy.peel.util.toast
-import javax.crypto.BadPaddingException
 
 class ImportFlowController(
     private val activity: AppCompatActivity,
@@ -64,7 +65,10 @@ class ImportFlowController(
 
     private fun dispatchParsed(parsed: ParsedBackup) {
         when (parsed.backupData.payloadType) {
-            BackupManager.PAYLOAD_FULL -> showFullBackupDialog(parsed)
+            BackupManager.PAYLOAD_FULL ->
+                ProtectionGate.require(activity, ProtectionGate.isAnythingProtected) {
+                    showFullBackupDialog(parsed)
+                }
             BackupManager.PAYLOAD_GROUP_SHARE -> launchImportActivity(parsed, groupShare = true)
             else -> launchImportActivity(parsed, groupShare = false)
         }

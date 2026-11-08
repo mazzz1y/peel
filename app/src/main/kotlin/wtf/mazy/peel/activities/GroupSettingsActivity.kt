@@ -21,6 +21,7 @@ import wtf.mazy.peel.model.SettingDefinition
 import wtf.mazy.peel.model.WebAppGroup
 import wtf.mazy.peel.model.WebAppSettings
 import wtf.mazy.peel.ui.IconEditorController
+import wtf.mazy.peel.ui.ProtectionGate
 import wtf.mazy.peel.ui.common.Draft
 import wtf.mazy.peel.ui.common.GroupPosition
 import wtf.mazy.peel.ui.common.SettingsSurface
@@ -68,6 +69,7 @@ class GroupSettingsActivity :
             return
         }
 
+        requireUnlock(needed = ProtectionGate.isProtected(stored))
         val draft = Draft(stored.copy(settings = stored.settings.deepCopy()))
         this.draft = draft
         originalTitle = stored.title
