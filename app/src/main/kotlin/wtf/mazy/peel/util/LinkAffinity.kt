@@ -17,9 +17,16 @@ fun belongsToApp(origin: String, url: String, settings: EffectiveSettings): Bool
 fun linkMatch(appAddress: String, url: String, settings: EffectiveSettings): LinkMatch =
     linkMatch(appAddress, url) { SameAppDomainMatcher.matching(it, settings.sameAppDomains) }
 
-fun WebApp.linkMatch(url: String): LinkMatch {
-    val settings = DataManager.effectiveSettings(this)
-    return linkMatch(settings.upgradeUrl(baseUrl), url, settings)
+/** The web app's address as it opens, after its HTTPS upgrade. */
+val WebApp.address: String get() = DataManager.effectiveSettings(this).upgradeUrl(baseUrl)
+
+fun WebApp.linkMatch(url: String): LinkMatch =
+    linkMatch(address, url, DataManager.effectiveSettings(this))
+
+/** Whether the web app opens at [url]'s scheme, host and port, a leading `www.` aside. */
+fun WebApp.isAt(url: String): Boolean {
+    val target = WebOrigin.of(url) ?: return false
+    return WebOrigin.of(address)?.isSamePlaceAs(target) == true
 }
 
 fun List<WebApp>.sortedByAffinity(url: String): List<WebApp> {

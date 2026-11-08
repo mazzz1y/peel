@@ -14,13 +14,70 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <wtf.mazy.peel.ui.webapplist.UrlSuggestionStrip
-            android:id="@+id/pickerSuggestions"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/suggestion_strip_margin_bottom"
-            android:paddingTop="@dimen/list_card_list_padding_top"
-            android:visibility="gone" />
+            android:orientation="vertical"
+            android:paddingTop="@dimen/list_card_list_padding_top">
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/pickerLinkCard"
+                style="@style/Widget.App.SuggestionCard"
+                app:cardBackgroundColor="@android:color/transparent"
+                app:cardElevation="0dp">
+
+                <TextView
+                    android:id="@+id/pickerLink"
+                    style="@style/SuggestionCardRow"
+                    android:ellipsize="middle"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    app:drawableStartCompat="@drawable/ic_symbols_link_24" />
+
+            </com.google.android.material.card.MaterialCardView>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingHorizontal="@dimen/picker_action_card_margin">
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/pickerIncognito"
+                    style="@style/Widget.App.PickerActionCard.Half">
+
+                    <TextView
+                        style="@style/SuggestionCardRow"
+                        android:text="@string/incognito"
+                        app:drawableStartCompat="@drawable/ic_symbols_visibility_off_24" />
+
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/pickerShare"
+                    style="@style/Widget.App.PickerActionCard.Half">
+
+                    <TextView
+                        style="@style/SuggestionCardRow"
+                        android:text="@string/share"
+                        app:drawableStartCompat="@drawable/ic_symbols_share_24" />
+
+                </com.google.android.material.card.MaterialCardView>
+
+            </LinearLayout>
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/pickerAdd"
+                style="@style/Widget.App.PickerActionCard"
+                android:visibility="gone">
+
+                <TextView
+                    style="@style/SuggestionCardRow"
+                    android:text="@string/add_webapp"
+                    app:drawableStartCompat="@drawable/ic_symbols_add_24" />
+
+            </com.google.android.material.card.MaterialCardView>
+
+        </LinearLayout>
 
         <FrameLayout
             android:layout_width="match_parent"
@@ -32,7 +89,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:clipToPadding="false"
-                android:paddingTop="@dimen/list_card_list_padding_top"
                 android:paddingBottom="@dimen/list_card_list_padding_top" />
 
             <TextView

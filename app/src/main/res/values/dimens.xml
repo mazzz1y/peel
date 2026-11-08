@@ -75,6 +75,9 @@
     <!-- A suggestion row is a 24dp glyph in a 48dp touch target: about half a web-app row. -->
     <dimen name="suggestion_card_min_height">48dp</dimen>
     <dimen name="suggestion_card_padding_vertical">8dp</dimen>
+    <!-- Half of the list's card margin on each side: two cards in a row keep the outer margin
+         and are spaced by it. -->
+    <dimen name="picker_action_card_margin">6dp</dimen>
     <dimen name="settings_dropdown_max_width">160dp</dimen>
     <dimen name="toolbar_label_max_width">140dp</dimen>
 

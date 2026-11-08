@@ -8,10 +8,10 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import wtf.mazy.peel.R
+import wtf.mazy.peel.model.UnwrappedLink
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.ui.common.showIcon
 import wtf.mazy.peel.ui.dialog.dismissOnDestroyOf
-import wtf.mazy.peel.ui.webapplist.UrlSuggestion
 
 object PickerDialog {
     fun <T> show(
@@ -47,19 +47,22 @@ object PickerDialog {
     }
 
     /**
-     * Lets the user choose one of [apps] in the full-screen searchable list. [groupTitles] maps
-     * group ids to titles for the cards and the search; [actions] are the suggestion cards offered
-     * above the rows.
+     * Lets the user choose a web app for [link] in the full-screen searchable list. [groupTitles]
+     * maps group ids to titles for the cards and the search. Every callback gets the link as the
+     * user last edited it.
      */
     fun showWebApps(
         activity: AppCompatActivity,
-        apps: List<WebApp>,
+        link: PickerLink,
         groupTitles: Map<String, String>,
-        onPick: (WebApp) -> Unit,
+        onPick: (WebApp, UnwrappedLink) -> Unit,
         onDismiss: () -> Unit,
-        actions: Map<UrlSuggestion, () -> Unit> = emptyMap(),
+        onIncognito: (UnwrappedLink) -> Unit,
+        onShare: (UnwrappedLink) -> Unit,
+        onAdd: (UnwrappedLink, onAdded: () -> Unit) -> Unit,
+        canAdd: (UnwrappedLink) -> Boolean,
     ) {
-        WebAppPickerSurface(activity, apps, groupTitles, onPick, actions).run {
+        WebAppPickerSurface(activity, link, groupTitles, onPick, onIncognito, onShare, onAdd, canAdd).run {
             setOnDismissListener { onDismiss() }
             show()
             dismissOnDestroyOf(activity)

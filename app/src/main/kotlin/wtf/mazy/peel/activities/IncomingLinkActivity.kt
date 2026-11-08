@@ -1,6 +1,5 @@
 package wtf.mazy.peel.activities
 
-import android.content.ComponentName
 import android.content.Intent
 import android.os.Bundle
 import androidx.lifecycle.lifecycleScope
@@ -13,9 +12,7 @@ import wtf.mazy.peel.push.NotificationClickLaunch
 import wtf.mazy.peel.push.NotificationTarget
 import wtf.mazy.peel.ui.common.PeelActivity
 import wtf.mazy.peel.ui.dialog.ExternalLinkMenu
-import wtf.mazy.peel.ui.webapplist.UrlSuggestion
 import wtf.mazy.peel.util.BrowserLauncher
-import wtf.mazy.peel.util.shareText
 
 /**
  * Receives links from outside Peel, both as the default browser (`ACTION_VIEW`) and as a
@@ -44,10 +41,6 @@ class IncomingLinkActivity : PeelActivity() {
                 activity = this@IncomingLinkActivity,
                 link = link,
                 excludeUuid = null,
-                actions = mapOf(
-                    UrlSuggestion.OPEN_PRIVATE to { openIncognito(link.launchUrl) },
-                    UrlSuggestion.SHARE to { shareOnward(link.destination) },
-                ),
                 include = notificationSandboxFilter(),
                 onDismiss = ::finish,
             )
@@ -69,17 +62,12 @@ class IncomingLinkActivity : PeelActivity() {
         else -> null
     }
 
-    private fun shareOnward(url: String) {
-        shareText(url, excluded = listOf(ComponentName(this, SHARE_RECEIVER)))
-    }
-
     private fun openIncognito(url: String) {
         BrowserLauncher.launchIncognito(this, url)
         finish()
     }
 
     private companion object {
-        const val SHARE_RECEIVER = "wtf.mazy.peel.activities.ShareReceiverActivity"
         val URL_PATTERN = Regex("https?://[^\\s)>\\]\"]+")
     }
 }

@@ -27,15 +27,4 @@
 
     </com.google.android.material.card.MaterialCardView>
 
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/suggestionShare"
-        style="@style/Widget.App.SuggestionCard">
-
-        <TextView
-            style="@style/SuggestionCardRow"
-            android:text="@string/share"
-            app:drawableStartCompat="@drawable/ic_symbols_share_24" />
-
-    </com.google.android.material.card.MaterialCardView>
-
 </merge>

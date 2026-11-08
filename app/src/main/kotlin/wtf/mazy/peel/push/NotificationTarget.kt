@@ -5,16 +5,17 @@ import wtf.mazy.peel.model.EffectiveSandbox
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.ui.dialog.ExternalLinkMenu
 import wtf.mazy.peel.util.WebOrigin
+import wtf.mazy.peel.util.address
 
 /** The web app a web notification, or a window its site opens, belongs to. */
 object NotificationTarget {
 
     fun forSandbox(contextId: String?, url: String): WebApp? =
-        resolve(contextId, url, DataManager.webApps, DataManager::effectiveSandbox, ::address, ::bestMatch)
+        resolve(contextId, url, DataManager.webApps, DataManager::effectiveSandbox, { it.address }, ::bestMatch)
 
     fun forAddress(url: String): WebApp? {
         val apps = DataManager.webApps.filter { DataManager.effectiveSandbox(it) !is EffectiveSandbox.Private }
-        return byPlace(apps, url, ::address, ::bestMatch)
+        return byPlace(apps, url, { it.address }, ::bestMatch)
     }
 
     fun isInSandbox(webApp: WebApp, contextId: String?): Boolean =
@@ -52,9 +53,6 @@ object NotificationTarget {
 
     private fun sharesSandbox(sandbox: EffectiveSandbox, contextId: String?): Boolean =
         sandbox !is EffectiveSandbox.Private && sandbox.contextId == contextId
-
-    private fun address(webApp: WebApp): String =
-        DataManager.effectiveSettings(webApp).upgradeUrl(webApp.baseUrl)
 
     private fun bestMatch(apps: List<WebApp>, url: String): WebApp? =
         ExternalLinkMenu.bestPeelMatch(apps, url, excludeUuid = null)

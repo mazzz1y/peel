@@ -1,5 +1,7 @@
 package wtf.mazy.peel.ui.dialog
 
+import android.content.ComponentName
+import android.content.Context
 import android.widget.LinearLayout
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -8,16 +10,19 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.launch
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.DataManager
+import wtf.mazy.peel.model.EffectiveSandbox
 import wtf.mazy.peel.model.UnwrappedLink
 import wtf.mazy.peel.model.WebApp
-import wtf.mazy.peel.ui.PickerDialog
 import wtf.mazy.peel.ui.entitylist.PendingDeletes
-import wtf.mazy.peel.ui.webapplist.UrlSuggestion
+import wtf.mazy.peel.ui.PickerDialog
+import wtf.mazy.peel.ui.PickerLink
 import wtf.mazy.peel.util.BrowserLauncher
 import wtf.mazy.peel.util.bestBy
+import wtf.mazy.peel.util.isAt
 import wtf.mazy.peel.util.linkMatch
 import wtf.mazy.peel.util.normalizedHost
 import wtf.mazy.peel.util.servesHost
+import wtf.mazy.peel.util.shareText
 import wtf.mazy.peel.util.shouldOfferOpenInSystem
 import wtf.mazy.peel.util.sortedByAffinity
 import wtf.mazy.peel.util.toast
@@ -159,13 +164,13 @@ object ExternalLinkMenu {
         activity: AppCompatActivity,
         link: UnwrappedLink,
         excludeUuid: String?,
-        actions: Map<UrlSuggestion, () -> Unit> = emptyMap(),
         include: (WebApp) -> Boolean = { true },
         onDismiss: () -> Unit = {},
     ) {
         activity.lifecycleScope.launch {
-            val all = DataManager.queryAllWebApps().filter { it.uuid != excludeUuid }
-            val apps = all.filter(include).ifEmpty { all }.sortedByAffinity(link.destination)
+            val everyApp = DataManager.queryAllWebApps()
+            val all = everyApp.filter { it.uuid != excludeUuid }
+            val apps = all.filter(include).ifEmpty { all }
             if (apps.isEmpty()) {
                 activity.toast(R.string.no_web_apps_available, long = true)
                 onDismiss()
@@ -179,13 +184,27 @@ object ExternalLinkMenu {
 
             PickerDialog.showWebApps(
                 activity = activity,
-                apps = apps,
+                link = PickerLink(link) { current -> apps.sortedByAffinity(current.destination) },
                 groupTitles = groupTitles,
-                onPick = { webApp -> BrowserLauncher.launch(webApp, activity, link.launchUrl) },
+                onPick = { webApp, current -> BrowserLauncher.launch(webApp, activity, current.launchUrl) },
                 onDismiss = onDismiss,
-                actions = actions,
+                onIncognito = { current -> BrowserLauncher.launchIncognito(activity, current.launchUrl) },
+                onShare = { current ->
+                    activity.shareText(current.destination, excluded = listOf(shareReceiver(activity)))
+                },
+                onAdd = { current, onAdded ->
+                    AddWebAppDialog.show(activity, prefill = current.destination, onConfirmed = onAdded)
+                },
+                canAdd = { current ->
+                    everyApp.none {
+                        DataManager.effectiveSandbox(it) !is EffectiveSandbox.Private && it.isAt(current.destination)
+                    }
+                },
             )
         }
     }
 
+    // Peel's own share target is left out, so the link can't come back into this list.
+    private fun shareReceiver(context: Context) =
+        ComponentName(context, "wtf.mazy.peel.activities.ShareReceiverActivity")
 }

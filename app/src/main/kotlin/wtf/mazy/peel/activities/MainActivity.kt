@@ -30,7 +30,6 @@ import wtf.mazy.peel.browser.SessionHostRegistry
 import wtf.mazy.peel.gecko.GeckoRuntimeProvider
 import wtf.mazy.peel.model.BackupManager
 import wtf.mazy.peel.model.DataManager
-import wtf.mazy.peel.model.ProxyChoice
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.model.effective
 import wtf.mazy.peel.ui.common.ListEmptyState
@@ -38,13 +37,12 @@ import wtf.mazy.peel.ui.common.LoadingDialogController
 import wtf.mazy.peel.ui.common.PeelActivity
 import wtf.mazy.peel.ui.common.animateReflow
 import wtf.mazy.peel.ui.common.runWithLoader
+import wtf.mazy.peel.ui.dialog.AddWebAppDialog
 import wtf.mazy.peel.ui.dialog.ImportFlowController
-import wtf.mazy.peel.ui.dialog.showSandboxInputDialog
 import wtf.mazy.peel.ui.entitylist.EntityListAnimations
 import wtf.mazy.peel.ui.entitylist.EntitySelectionController
 import wtf.mazy.peel.ui.entitylist.ListChrome
 import wtf.mazy.peel.ui.entitylist.SelectionConfig
-import wtf.mazy.peel.ui.proxy.ProxyOptions
 import wtf.mazy.peel.ui.settings.showApplyTimingSnackbar
 import wtf.mazy.peel.ui.webapplist.AppBarAction
 import wtf.mazy.peel.ui.webapplist.BottomSearchSurface
@@ -57,8 +55,6 @@ import wtf.mazy.peel.ui.webapplist.WebAppListHost
 import wtf.mazy.peel.ui.webapplist.WebAppSelectionHandler
 import wtf.mazy.peel.ui.webapplist.WebAppShareHost
 import wtf.mazy.peel.util.BrowserLauncher
-import wtf.mazy.peel.util.Const
-import wtf.mazy.peel.util.TypedUrl
 import wtf.mazy.peel.util.applyBottomScreenInsets
 import wtf.mazy.peel.util.applyToolbarScreenInsets
 import wtf.mazy.peel.util.disableSystemBarContrastEnforcement
@@ -451,32 +447,13 @@ class MainActivity :
         prefill: String = "",
         onConfirmed: () -> Unit = {},
     ) {
-        val targetGroup = DataManager.sortedGroups.getOrNull(viewPager.currentItem)
-        showSandboxInputDialog(
-            titleRes = R.string.add_webapp,
-            hintRes = R.string.url,
-            proxyOptions = ProxyOptions.forWebApp(this, targetGroup, DataManager.proxies),
-            defaultProxy = ProxyChoice.Inherit,
-            inputType = android.text.InputType.TYPE_TEXT_VARIATION_URI,
+        AddWebAppDialog.show(
+            activity = this,
             prefill = prefill,
-        ) { result ->
-            val url = TypedUrl.normalize(result.text)
-            val newSite = WebApp(
-                baseUrl = url,
-                isolation = result.isolation,
-                groupUuid = targetGroup?.uuid,
-            )
-
-            onConfirmed()
-            lifecycleScope.launch {
-                DataManager.addWebApp(newSite, appendOrder = true)
-
-                val settingsIntent = Intent(this@MainActivity, WebAppSettingsActivity::class.java)
-                settingsIntent.putExtra(Const.INTENT_WEBAPP_UUID, newSite.uuid)
-                settingsIntent.putExtra(Const.INTENT_AUTO_FETCH, true)
-                settingsLauncher.launch(settingsIntent)
-            }
-        }
+            group = DataManager.sortedGroups.getOrNull(viewPager.currentItem),
+            onConfirmed = onConfirmed,
+            openSettings = settingsLauncher::launch,
+        )
     }
 
     companion object {
