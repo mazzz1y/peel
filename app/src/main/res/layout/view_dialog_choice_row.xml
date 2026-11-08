@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:minHeight="@dimen/settings_touch_target"
+    android:orientation="horizontal">
+
+    <TextView
+        android:id="@+id/choiceLabel"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:textAppearance="?attr/textAppearanceBodyLarge" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/choiceButton"
+        style="@style/SettingsTextButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:maxWidth="@dimen/settings_dropdown_max_width"
+        android:maxLines="1"
+        android:paddingStart="12dp"
+        android:paddingEnd="0dp" />
+
+</LinearLayout>

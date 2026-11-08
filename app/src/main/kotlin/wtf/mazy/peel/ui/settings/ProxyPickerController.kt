@@ -12,10 +12,10 @@ import wtf.mazy.peel.model.ProxyChoice
 import wtf.mazy.peel.model.SandboxOwner
 import wtf.mazy.peel.model.withExistingProxy
 import wtf.mazy.peel.model.withProxy
+import wtf.mazy.peel.ui.bindDropdown
 import wtf.mazy.peel.ui.common.Draft
 import wtf.mazy.peel.ui.proxy.ProxyOption
 import wtf.mazy.peel.ui.proxy.ProxyOptions
-import wtf.mazy.peel.ui.proxy.ProxyPickerDialog
 
 class ProxyPickerController<T : SandboxOwner<T, P>, P : ProxyChoice>(
     private val activity: AppCompatActivity,
@@ -26,7 +26,16 @@ class ProxyPickerController<T : SandboxOwner<T, P>, P : ProxyChoice>(
 ) {
 
     fun setup() {
-        proxyButton.setOnClickListener { showPicker() }
+        proxyButton.bindDropdown(
+            itemsProvider = { options(storedOwner).map { it.label } },
+            currentIndex = ::currentIndex,
+            onSelected = { i ->
+                val picked = options(storedOwner)[i].choice
+                draft.update { it.withProxy(picked) }
+                refresh()
+            },
+            buttonItemsProvider = { options(storedOwner).map { it.routeLabel } },
+        )
         refresh()
         activity.lifecycleScope.launch {
             activity.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -46,12 +55,10 @@ class ProxyPickerController<T : SandboxOwner<T, P>, P : ProxyChoice>(
         proxyButton.text = ProxyOptions.current(options(owner), proxy).routeLabel
     }
 
-    private fun showPicker() {
+    private fun currentIndex(): Int {
         val owner = storedOwner
-        val proxy = owner.isolation.proxyOrNull ?: return
-        ProxyPickerDialog.show(activity, options(owner), proxy) { picked ->
-            draft.update { it.withProxy(picked) }
-            refresh()
-        }
+        val proxy = owner.isolation.proxyOrNull ?: return -1
+        val options = options(owner)
+        return options.indexOf(ProxyOptions.current(options, proxy))
     }
 }

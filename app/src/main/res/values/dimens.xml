@@ -41,6 +41,7 @@
     <dimen name="dialog_subheader_gap_top">16dp</dimen>
     <dimen name="dialog_subheader_gap_bottom">8dp</dimen>
     <dimen name="dialog_content_gap">16dp</dimen>
+    <dimen name="dialog_row_gap">8dp</dimen>
 
     <dimen name="popup_menu_corner_radius">16dp</dimen>
     <!-- Chrome's settings bar (default_action_bar_height); Material 3's actionBarSize is 64dp -->

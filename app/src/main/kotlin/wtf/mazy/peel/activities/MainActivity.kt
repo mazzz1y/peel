@@ -450,7 +450,7 @@ class MainActivity :
         AddWebAppDialog.show(
             activity = this,
             prefill = prefill,
-            group = DataManager.sortedGroups.getOrNull(viewPager.currentItem),
+            initialGroup = DataManager.sortedGroups.getOrNull(viewPager.currentItem),
             onConfirmed = onConfirmed,
             openSettings = settingsLauncher::launch,
         )
