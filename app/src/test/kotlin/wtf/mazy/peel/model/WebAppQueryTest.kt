@@ -1,5 +1,6 @@
 package wtf.mazy.peel.model
 
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -49,5 +50,22 @@ class WebAppQueryTest {
     fun blankQueryMatchesEverything() {
         assertTrue(gitLab.matchesQuery("", groupTitles))
         assertTrue(gitLab.matchesQuery("  ", groupTitles))
+    }
+
+    @Test
+    fun searchedKeepsMatchesInGivenOrder() {
+        val wiki = WebApp(baseUrl = "https://wiki.example.com", title = "Wiki")
+        val gitHub = WebApp(baseUrl = "https://github.example.com", title = "GitHub")
+        val apps = listOf(wiki, gitLab, gitHub)
+        val cases = listOf(
+            "" to apps,
+            "  " to apps,
+            "git" to listOf(gitLab, gitHub),
+            "tools" to listOf(gitLab),
+            "zzqq" to emptyList(),
+        )
+        cases.forEach { (query, expected) ->
+            assertEquals(query, expected, apps.searched(query, groupTitles, typedHost = null))
+        }
     }
 }

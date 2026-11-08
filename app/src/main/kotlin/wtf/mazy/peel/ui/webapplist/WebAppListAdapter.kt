@@ -2,8 +2,6 @@ package wtf.mazy.peel.ui.webapplist
 
 import android.content.Intent
 import android.view.View
-import android.widget.ImageView
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.PopupMenu
 import androidx.lifecycle.lifecycleScope
@@ -12,11 +10,10 @@ import wtf.mazy.peel.R
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.EntityCloner
 import wtf.mazy.peel.model.WebApp
-import wtf.mazy.peel.model.matchesQuery
+import wtf.mazy.peel.model.searched
 import wtf.mazy.peel.shortcut.Shortcuts
 import wtf.mazy.peel.ui.common.ShareSecretsDialog
 import wtf.mazy.peel.ui.entitylist.EntityListAdapter
-import wtf.mazy.peel.ui.entitylist.EntityListViewHolder
 import wtf.mazy.peel.ui.entitylist.EntityRow
 import wtf.mazy.peel.ui.entitylist.EntityRowListener
 import wtf.mazy.peel.ui.entitylist.EntitySelectionController
@@ -27,14 +24,11 @@ import wtf.mazy.peel.util.ActivityRoutes
 import wtf.mazy.peel.util.App
 import wtf.mazy.peel.util.BrowserLauncher.launch
 import wtf.mazy.peel.util.Const
-import wtf.mazy.peel.util.TypedUrl
-import wtf.mazy.peel.util.prettyBaseUrl
-import wtf.mazy.peel.util.servesHost
 
 class WebAppListAdapter(
     activity: AppCompatActivity,
     private val selection: EntitySelectionController<WebApp>? = null,
-) : EntityListAdapter<WebApp, WebAppListAdapter.ViewHolder>(
+) : EntityListAdapter<WebApp, WebAppRowHolder>(
     binder = WebAppBinder,
     actions = WebAppRowListener(activity, selection),
 ) {
@@ -43,26 +37,11 @@ class WebAppListAdapter(
     var searchQuery: String = ""
     var showGroupLabels: Boolean = false
 
-    class ViewHolder(itemView: View) : EntityListViewHolder(itemView) {
-        val webAppIndicators = WebAppIndicators(itemView)
-        override val indicators: List<ImageView> = webAppIndicators.views
-        val titleView: TextView = itemView.findViewById(R.id.item_primary)
-        val urlView: TextView = itemView.findViewById(R.id.item_secondary)
-        val groupLabel: TextView = itemView.findViewById(R.id.item_tertiary)
-    }
-
     override fun layoutRes(): Int = R.layout.web_app_list_item
-    override fun createViewHolder(view: View): ViewHolder = ViewHolder(view)
+    override fun createViewHolder(view: View): WebAppRowHolder = WebAppRowHolder(view)
 
-    override fun bindRow(holder: ViewHolder, row: EntityRow<WebApp>) {
-        val app = row.entity
-        holder.titleView.text = app.title
-        holder.urlView.text = prettyBaseUrl(app.baseUrl)
-
-        holder.groupLabel.text = row.tertiaryText
-        holder.groupLabel.visibility = if (row.tertiaryText != null) View.VISIBLE else View.GONE
-
-        holder.webAppIndicators.bind(app)
+    override fun bindRow(holder: WebAppRowHolder, row: EntityRow<WebApp>) {
+        holder.bind(row.entity, row.tertiaryText)
     }
 
     private fun buildRows(): List<EntityRow<WebApp>> {
@@ -75,16 +54,10 @@ class WebAppListAdapter(
         }
         val pending = PendingDeletes.webApps
         val afterPending = if (pending.isEmpty()) all else all.filterNot { it.uuid in pending }
-        val filtered = if (searchQuery.isBlank()) {
-            afterPending
-        } else {
-            val typedHost = TypedUrl.parse(searchQuery)?.host
-            val groupTitles = DataManager.groups.associate { it.uuid to it.title }
-            afterPending.filter { app ->
-                app.matchesQuery(searchQuery, groupTitles) ||
-                        typedHost != null && app.servesHost(typedHost)
-            }.hostFirst(typedHost)
-        }
+        val filtered = afterPending.searched(
+            searchQuery,
+            DataManager.groups.associate { it.uuid to it.title },
+        )
         val inSelectionMode = selection?.isActive == true
         return filtered.map { app ->
             EntityRow(
@@ -96,12 +69,6 @@ class WebAppListAdapter(
                 else null,
             )
         }
-    }
-
-    private fun List<WebApp>.hostFirst(host: String?): List<WebApp> {
-        host ?: return this
-        val (matching, rest) = partition { it.servesHost(host) }
-        return matching + rest
     }
 
     fun updateWebAppList(): Boolean {

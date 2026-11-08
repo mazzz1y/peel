@@ -1,16 +1,13 @@
 package wtf.mazy.peel.ui
 
-import android.annotation.SuppressLint
 import android.content.res.Configuration
 import android.os.Bundle
 import android.text.InputType
 import android.view.KeyEvent
-import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.widget.EditText
-import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.addCallback
 import androidx.appcompat.app.AppCompatActivity
@@ -27,18 +24,16 @@ import wtf.mazy.peel.R
 import wtf.mazy.peel.model.Redirectors
 import wtf.mazy.peel.model.UnwrappedLink
 import wtf.mazy.peel.model.WebApp
-import wtf.mazy.peel.model.matchesQuery
-import wtf.mazy.peel.ui.common.showIcon
+import wtf.mazy.peel.model.searched
+import wtf.mazy.peel.ui.common.ListEmptyState
+import wtf.mazy.peel.ui.common.scrollToTopOnChange
 import wtf.mazy.peel.ui.dialog.InitialSelection
 import wtf.mazy.peel.ui.dialog.InputDialogConfig
 import wtf.mazy.peel.ui.dialog.showInputDialogRaw
-import wtf.mazy.peel.ui.entitylist.EntityRowAnimator
-import wtf.mazy.peel.ui.entitylist.EntityRowView
-import wtf.mazy.peel.ui.webapplist.WebAppIndicators
+import wtf.mazy.peel.ui.webapplist.WebAppPickerAdapter
 import wtf.mazy.peel.util.WebOrigin
 import wtf.mazy.peel.util.applyBottomScreenInsets
 import wtf.mazy.peel.util.isImeVisible
-import wtf.mazy.peel.util.prettyBaseUrl
 
 /** The link a picker opens, and how its web apps are ordered for a link. */
 class PickerLink(val initial: UnwrappedLink, val order: (UnwrappedLink) -> List<WebApp>)
@@ -60,7 +55,10 @@ class WebAppPickerSurface(
 ) : AppCompatDialog(activity, R.style.AppTheme_PickerSurface) {
 
     private var current = link.initial
-    private val adapter = Adapter(link.order(current))
+    private var query = ""
+    private var results = emptyList<WebApp>()
+    private val adapter = WebAppPickerAdapter(groupTitles, ::pick)
+    private lateinit var emptyState: ListEmptyState
     private lateinit var linkLine: TextView
     private lateinit var addCard: View
 
@@ -79,12 +77,13 @@ class WebAppPickerSurface(
 
         val decor = window.decorView
         val list = decor.requireViewById<RecyclerView>(R.id.pickerList)
-        val empty = decor.requireViewById<View>(R.id.pickerEmptyState)
+        emptyState = ListEmptyState(decor.requireViewById(R.id.pickerEmptyState))
         linkLine = decor.requireViewById(R.id.pickerLink)
         addCard = decor.requireViewById(R.id.pickerAdd)
         addCard.setOnClickListener { onAdd(current) { dismiss() } }
         list.layoutManager = LinearLayoutManager(context)
         list.adapter = adapter
+        adapter.scrollToTopOnChange { list }
         list.applyBottomScreenInsets()
 
         val searchView = decor.requireViewById<SearchView>(R.id.pickerSearchView)
@@ -110,18 +109,22 @@ class WebAppPickerSurface(
 
         field.imeOptions = EditorInfo.IME_ACTION_GO or EditorInfo.IME_FLAG_NO_EXTRACT_UI
         field.doAfterTextChanged { text ->
-            adapter.filter(text?.toString().orEmpty())
-            list.scrollToPosition(0)
-            val none = adapter.itemCount == 0
-            list.isVisible = !none
-            empty.isVisible = none
+            query = text?.toString().orEmpty()
+            render()
         }
         field.setOnEditorActionListener { _, actionId, event ->
             val confirmed = actionId == EditorInfo.IME_ACTION_GO ||
                     actionId == EditorInfo.IME_NULL && event?.action == KeyEvent.ACTION_DOWN
-            if (confirmed) adapter.pickFirst()
+            if (confirmed) results.firstOrNull()?.let(::pick)
             confirmed
         }
+        render()
+    }
+
+    private fun render() {
+        results = link.order(current).searched(query, groupTitles)
+        adapter.submit(results)
+        emptyState.render(results.isEmpty())
     }
 
     private fun finishWith(action: (UnwrappedLink) -> Unit) {
@@ -166,72 +169,12 @@ class WebAppPickerSurface(
     private fun applyLink(edited: String) {
         current = Redirectors.unwrap(edited)
         showLink()
-        adapter.reorder(link.order(current))
+        render()
     }
 
     private fun pick(app: WebApp) {
         dismiss()
         onPick(app, current)
-    }
-
-    private inner class Adapter(private var apps: List<WebApp>) : RecyclerView.Adapter<Holder>() {
-        private var query = ""
-        private var shown: List<WebApp> = apps
-
-        fun filter(query: String) {
-            this.query = query
-            refresh()
-        }
-
-        fun reorder(apps: List<WebApp>) {
-            this.apps = apps
-            refresh()
-        }
-
-        @SuppressLint("NotifyDataSetChanged")
-        private fun refresh() {
-            shown = apps.filter { it.matchesQuery(query, groupTitles) }
-            notifyDataSetChanged()
-        }
-
-        fun pickFirst() {
-            shown.firstOrNull()?.let(::pick)
-        }
-
-        override fun getItemCount(): Int = shown.size
-
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): Holder =
-            Holder(LayoutInflater.from(parent.context).inflate(R.layout.web_app_list_item, parent, false))
-
-        override fun onBindViewHolder(holder: Holder, position: Int) = holder.bind(shown[position])
-    }
-
-    private inner class Holder(view: View) : RecyclerView.ViewHolder(view), EntityRowView {
-        override val itemIcon: ImageView = view.requireViewById(R.id.item_icon)
-        override val menuButton: View = view.requireViewById(R.id.item_menu)
-        private val webAppIndicators = WebAppIndicators(view)
-        override val indicators: List<ImageView> = webAppIndicators.views
-        private val title: TextView = view.requireViewById(R.id.item_primary)
-        private val url: TextView = view.requireViewById(R.id.item_secondary)
-        private val group: TextView = view.requireViewById(R.id.item_tertiary)
-
-        init {
-            menuButton.isEnabled = false
-            menuButton.isClickable = false
-            menuButton.importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
-        }
-
-        fun bind(app: WebApp) {
-            itemIcon.showIcon(app.resolveIcon())
-            title.text = app.title
-            url.text = prettyBaseUrl(app.baseUrl)
-            val groupTitle = app.groupUuid?.let(groupTitles::get)
-            group.text = groupTitle
-            group.isVisible = groupTitle != null
-            webAppIndicators.bind(app)
-            EntityRowAnimator.applyModeState(this, inSelectionMode = true)
-            itemView.setOnClickListener { pick(app) }
-        }
     }
 
     private companion object {

@@ -2,9 +2,9 @@ package wtf.mazy.peel.ui.webapplist
 
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.WebApp
+import wtf.mazy.peel.ui.common.scrollToTopOnChange
 import wtf.mazy.peel.ui.entitylist.EntitySelectionController
 import wtf.mazy.peel.ui.entitylist.ListChrome
 import wtf.mazy.peel.ui.entitylist.PendingDeletes
@@ -47,16 +47,8 @@ class SearchModeController(
         showGroupLabels = true
     }
 
-    private val scrollToTopObserver = object : RecyclerView.AdapterDataObserver() {
-        override fun onChanged() = scrollToTop()
-        override fun onItemRangeInserted(positionStart: Int, itemCount: Int) = scrollToTop()
-        override fun onItemRangeRemoved(positionStart: Int, itemCount: Int) = scrollToTop()
-        override fun onItemRangeMoved(fromPosition: Int, toPosition: Int, itemCount: Int) =
-            scrollToTop()
-    }
-
     init {
-        searchAdapter.registerAdapterDataObserver(scrollToTopObserver)
+        searchAdapter.scrollToTopOnChange { surface.resultsList }
         bind(initial)
     }
 
@@ -155,11 +147,5 @@ class SearchModeController(
                 onOpenPrivate(typed.url)
             }
         }
-    }
-
-    // A scroll pending over an empty layout makes the layout manager drop the rows outright,
-    // without their exit animation.
-    private fun scrollToTop() {
-        if (searchAdapter.itemCount > 0) surface.resultsList.scrollToPosition(0)
     }
 }
