@@ -18,6 +18,7 @@ import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.ProxyRoute
 import wtf.mazy.peel.ui.dialog.DateTimePickerRequest
 import wtf.mazy.peel.ui.dialog.DateTimePickerType
+import wtf.mazy.peel.util.belongsToApp
 import wtf.mazy.peel.util.deleteEntriesOlderThan
 import wtf.mazy.peel.util.shareText
 import wtf.mazy.peel.util.toast
@@ -153,7 +154,8 @@ class PeelPromptDelegate(private val host: SessionHost) : GeckoSession.PromptDel
         } else if (settings.useBasicAuth) {
             val username = settings.basicAuthUsername
             val password = settings.basicAuthPassword
-            if (username.isNotEmpty() && autoAuthAttempted.add(authUri)) {
+            val ownSite = belongsToApp(host.policyOrigin, authUri, settings)
+            if (username.isNotEmpty() && ownSite && autoAuthAttempted.add(authUri)) {
                 return GeckoResult.fromValue(prompt.confirm(username, password))
             }
         }

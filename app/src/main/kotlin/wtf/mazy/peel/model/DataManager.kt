@@ -325,14 +325,20 @@ object DataManager {
                 _pushSubscriptionsChanged.tryEmit(Unit)
             }
 
-            is Action.ImportData -> when (action.mode) {
-                ImportMode.REPLACE -> replaceAllData(action)
-                ImportMode.MERGE -> mergeData(action)
+            is Action.ImportData -> {
+                val imported = action.copy(
+                    webApps = action.webApps.filterNot { it.uuid == Const.GLOBAL_WEBAPP_UUID },
+                )
+                when (action.mode) {
+                    ImportMode.REPLACE -> replaceAllData(imported)
+                    ImportMode.MERGE -> mergeData(imported)
+                }
             }
         }
     }
 
     private fun ensureLoaded(action: Action.EnsureWebAppLoaded) {
+        if (action.uuid == Const.GLOBAL_WEBAPP_UUID) return
         val current = state.value
         if (!action.forceReload && current.webApps.any { it.uuid == action.uuid }) return
         val proxyUuids = current.proxyUuids
@@ -352,6 +358,7 @@ object DataManager {
     }
 
     private fun handleAddWebApp(action: Action.AddWebApp) {
+        if (action.webApp.uuid == Const.GLOBAL_WEBAPP_UUID) return
         val current = state.value
         val added = action.webApp.withExistingProxy(current.proxyUuids)
         val webApp = if (action.appendOrder) {
@@ -373,6 +380,7 @@ object DataManager {
     }
 
     private fun handleReplaceWebApp(action: Action.ReplaceWebApp) {
+        if (action.webApp.uuid == Const.GLOBAL_WEBAPP_UUID) return
         val current = state.value
         if (current.webApps.none { it.uuid == action.webApp.uuid }) return
         val webApp = action.webApp.withOwnSettings().withExistingProxy(current.proxyUuids)

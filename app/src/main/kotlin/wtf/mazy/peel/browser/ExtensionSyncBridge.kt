@@ -43,6 +43,12 @@ abstract class ExtensionSyncBridge<Snapshot : Any>(
 
     private val ready = MutableStateFlow(false)
 
+    // Ready lets loads proceed; failed says the routes did not reach the extension, so a caller
+    // that must not load without them can refuse.
+    @Volatile
+    protected var failed = false
+        private set
+
     protected abstract suspend fun installExtension(context: Context): WebExtension?
 
     protected abstract fun buildSnapshot(): Snapshot
@@ -57,6 +63,7 @@ abstract class ExtensionSyncBridge<Snapshot : Any>(
         ext.get()?.let { return it }
         val installed = withContext(Dispatchers.Main) { installExtension(context) }
         if (installed == null) {
+            failed = true
             ready.value = true
             return null
         }
@@ -64,8 +71,9 @@ abstract class ExtensionSyncBridge<Snapshot : Any>(
         if (attached.compareAndSet(false, true)) {
             withContext(Dispatchers.Main) { attachMessageDelegate(installed) }
         }
+        failed = false
+        ready.value = !hasWork(buildSnapshot())
         startSubscription()
-        if (!hasWork(buildSnapshot())) ready.value = true
         return installed
     }
 
@@ -116,7 +124,10 @@ abstract class ExtensionSyncBridge<Snapshot : Any>(
             if (seq <= current) return
             if (lastAckedSeq.compareAndSet(current, seq)) break
         }
-        if (seq >= lastPushedSeq.get()) ready.value = true
+        if (seq >= lastPushedSeq.get()) {
+            failed = false
+            ready.value = true
+        }
     }
 
     private fun startSubscription() {
@@ -133,6 +144,7 @@ abstract class ExtensionSyncBridge<Snapshot : Any>(
         val snapshot = buildSnapshot()
         if (!hasWork(snapshot)) {
             lastSnapshot = snapshot
+            failed = false
             ready.value = true
             return
         }
@@ -149,6 +161,7 @@ abstract class ExtensionSyncBridge<Snapshot : Any>(
         } catch (e: Exception) {
             Log.w(tag, "could not push to $nativeApp", e)
             lastPushedSeq.set(lastAckedSeq.get())
+            failed = true
             ready.value = true
         }
     }

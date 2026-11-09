@@ -153,21 +153,22 @@ class GroupListActivity : EntityListActivity<WebAppGroup>() {
             val popup = PopupMenu(this@GroupListActivity, view)
             popup.menuInflater.inflate(R.menu.group_item_menu, popup.menu)
             popup.setOnMenuItemClickListener { menuItem ->
+                val group = DataManager.group(item.uuid) ?: return@setOnMenuItemClickListener true
                 when (menuItem.itemId) {
                     R.id.action_share_group -> {
-                        selectionHandler.confirmShare(listOf(item)) { includeSecrets ->
-                            selectionHandler.share(listOf(item), includeSecrets)
+                        selectionHandler.confirmShare(listOf(group)) { includeSecrets ->
+                            selectionHandler.share(listOf(group), includeSecrets)
                         }
                         true
                     }
 
                     R.id.action_create_shortcut -> {
-                        Shortcuts.createShortcut(item, this@GroupListActivity); true
+                        Shortcuts.createShortcut(group, this@GroupListActivity); true
                     }
 
                     R.id.action_clone -> {
                         App.appScope.launch {
-                            EntityCloner.deepCloneGroup(item)
+                            EntityCloner.deepCloneGroup(group)
                         }
                         true
                     }
@@ -175,12 +176,12 @@ class GroupListActivity : EntityListActivity<WebAppGroup>() {
                     R.id.action_edit -> {
                         val intent =
                             Intent(this@GroupListActivity, GroupSettingsActivity::class.java)
-                        intent.putExtra(Const.INTENT_GROUP_UUID, item.uuid)
+                        intent.putExtra(Const.INTENT_GROUP_UUID, group.uuid)
                         settingsLauncher.launch(intent); true
                     }
 
                     R.id.action_delete -> {
-                        showDeleteGroupDialog(item); true
+                        showDeleteGroupDialog(group); true
                     }
 
                     else -> false

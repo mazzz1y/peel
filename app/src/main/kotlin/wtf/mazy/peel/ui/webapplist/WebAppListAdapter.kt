@@ -84,7 +84,8 @@ class WebAppListAdapter(
     ) : EntityRowListener<WebApp> {
 
         override fun onItemClick(item: WebApp) {
-            launch(item, activity, fromMenu = true)
+            val webApp = DataManager.webApp(item.uuid) ?: return
+            launch(webApp, activity, fromMenu = true)
         }
 
         override fun onItemIconClick(item: WebApp) {
@@ -95,7 +96,7 @@ class WebAppListAdapter(
             showPopupMenu(view, item)
         }
 
-        private fun showPopupMenu(view: View, webApp: WebApp) {
+        private fun showPopupMenu(view: View, shown: WebApp) {
             val popup = PopupMenu(activity, view)
             popup.menuInflater.inflate(R.menu.webapp_item_menu, popup.menu)
 
@@ -116,6 +117,7 @@ class WebAppListAdapter(
             }
 
             popup.setOnMenuItemClickListener { menuItem ->
+                val webApp = DataManager.webApp(shown.uuid) ?: return@setOnMenuItemClickListener true
                 when (menuItem.itemId) {
                     R.id.action_settings -> {
                         openSettings(webApp); true

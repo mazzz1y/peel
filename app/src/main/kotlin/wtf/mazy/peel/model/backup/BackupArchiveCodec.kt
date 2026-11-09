@@ -10,6 +10,7 @@ import wtf.mazy.peel.model.ParsedBackup
 import wtf.mazy.peel.model.UrlRule
 import wtf.mazy.peel.model.WebAppSettings
 import wtf.mazy.peel.util.App
+import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.isCanonicalUuid
 import java.io.ByteArrayInputStream
 import java.io.File
@@ -290,9 +291,14 @@ object BackupArchiveCodec {
     // Uuids from a backup end up in filesystem paths (IconOwner.iconFile), so a
     // malformed uuid is a path traversal vector, not just bad data.
     private fun hasValidUuids(backupData: BackupData): Boolean =
-        backupData.websites.all { it.uuid.isCanonicalUuid() } &&
-                backupData.groups.all { it.uuid.isCanonicalUuid() } &&
-                backupData.proxies.all { it.uuid.isCanonicalUuid() }
+        backupData.websites.all { it.uuid.isEntityUuid() } &&
+                backupData.groups.all { it.uuid.isEntityUuid() } &&
+                backupData.proxies.all { it.uuid.isEntityUuid() }
+
+    // The reserved id names the global settings row, which only the global part of a backup
+    // may write.
+    private fun String.isEntityUuid(): Boolean =
+        isCanonicalUuid() && !equals(Const.GLOBAL_WEBAPP_UUID, ignoreCase = true)
 
     // Zip entries report their own size, which an attacker controls; read with a
     // hard cap instead of trusting it.

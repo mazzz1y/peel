@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.content.res.Resources
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.OpenableColumns
 import android.text.InputType
@@ -26,6 +27,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.core.graphics.drawable.toDrawable
 import androidx.core.net.toUri
 import androidx.core.view.ViewCompat
@@ -786,9 +788,10 @@ abstract class BaseSessionHost : PeelActivity(), SessionHost, TranslationHost {
             callback.invoke(captured?.let { arrayOf(it) })
             return
         }
+        val capture = pendingCaptureFile
         consumeCaptureUri()
         lifecycleScope.launch {
-            when (val copied = withContext(Dispatchers.IO) { copyPicksToCache(contentUris) }) {
+            when (val copied = withContext(Dispatchers.IO) { copyPicksToCache(contentUris, capture) }) {
                 is PickCopy.Copied -> callback.invoke(copied.fileUris)
                 is PickCopy.Unreadable -> {
                     callback.invoke(null)
@@ -809,12 +812,22 @@ abstract class BaseSessionHost : PeelActivity(), SessionHost, TranslationHost {
     // GeckoView resolves content:// only through the `_data` column, which document providers no
     // longer fill, so each pick is copied. The copy keeps the picked name, which is what the page
     // sees, and its own directory keeps equal names apart.
-    private fun copyPicksToCache(uris: Array<Uri>): PickCopy {
+    // A picker is any app that answers the intent. Peel reads its own files and its own provider
+    // with full access, so such an address is only trusted when it is the capture Peel asked the
+    // camera for; otherwise a picker could hand the page Peel's private data.
+    private fun copyPicksToCache(uris: Array<Uri>, capture: File?): PickCopy {
         val picksDir = File(cacheDir, "picks").apply { mkdirs() }
         picksDir.deleteEntriesOlderThan()
         val pickDirs = mutableListOf<File>()
         val fileUris = uris.map { uri ->
-            if (uri.scheme == ContentResolver.SCHEME_FILE) return@map uri
+            if (uri.scheme == ContentResolver.SCHEME_FILE || uri.authority == fileProviderAuthority) {
+                val captured = capture?.takeIf { isCaptureUri(uri, it) }
+                if (captured == null) {
+                    pickDirs.forEach { it.deleteRecursively() }
+                    return PickCopy.Unreadable(null)
+                }
+                return@map Uri.fromFile(captured)
+            }
             val displayName = displayNameOf(uri)
             val name = uploadFileName(displayName, typeExtensionOf(uri))
             val pickDir = File(picksDir, UUID.randomUUID().toString()).apply { mkdirs() }
@@ -833,6 +846,16 @@ abstract class BaseSessionHost : PeelActivity(), SessionHost, TranslationHost {
         }
         return PickCopy.Copied(fileUris.toTypedArray())
     }
+
+    private val fileProviderAuthority: String get() = "$packageName.fileprovider"
+
+    private fun isCaptureUri(uri: Uri, capture: File): Boolean = runCatching {
+        if (uri.scheme == ContentResolver.SCHEME_FILE) {
+            uri.path?.let { File(it).canonicalPath } == capture.canonicalPath
+        } else {
+            uri == FileProvider.getUriForFile(this, fileProviderAuthority, capture)
+        }
+    }.getOrDefault(false)
 
     private fun displayNameOf(uri: Uri): String? = runCatching {
         contentResolver.query(uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)?.use { cursor ->
@@ -995,7 +1018,11 @@ abstract class BaseSessionHost : PeelActivity(), SessionHost, TranslationHost {
         } else {
             window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         }
-        if (settings.disableScreenshots) {
+        // Below API 33 there is no per-task Recents switch, so FLAG_SECURE is the only way to keep
+        // a protected app's content out of its Recents thumbnail.
+        val hidesRecents = settings.biometricProtection &&
+                Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU
+        if (settings.disableScreenshots || hidesRecents) {
             window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
         } else {
             window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)

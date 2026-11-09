@@ -26,9 +26,8 @@ object ProxyRouterBridge : ExtensionSyncBridge<Map<String, Map<String, Any?>>>(
     override fun hasWork(snapshot: Map<String, Map<String, Any?>>): Boolean = snapshot.isNotEmpty()
 
     @CheckResult
-    suspend fun awaitRoutesReady(contextId: String?): Boolean {
-        return contextId == null || !hasProxiedRoute(contextId) || awaitReady()
-    }
+    suspend fun awaitRoutesReady(contextId: String?): Boolean =
+        contextId == null || !hasProxiedRoute(contextId) || (awaitReady() && !failed)
 
     private fun hasProxiedRoute(contextId: String): Boolean {
         val cfg = buildSnapshot()[CONTAINER_PREFIX + contextId] ?: return false

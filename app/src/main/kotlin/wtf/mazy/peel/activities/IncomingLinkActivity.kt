@@ -13,6 +13,7 @@ import wtf.mazy.peel.push.NotificationTarget
 import wtf.mazy.peel.ui.common.PeelActivity
 import wtf.mazy.peel.ui.dialog.ExternalLinkMenu
 import wtf.mazy.peel.util.BrowserLauncher
+import wtf.mazy.peel.util.IncomingUrl
 
 /**
  * Receives links from outside Peel, both as the default browser (`ACTION_VIEW`) and as a
@@ -55,13 +56,15 @@ class IncomingLinkActivity : PeelActivity() {
         return { NotificationTarget.isInSandbox(it, sandbox.contextId) }
     }
 
-    private fun extractUrl(): String? = when (intent?.action) {
-        Intent.ACTION_VIEW -> intent.data?.toString()
-        Intent.ACTION_SEND -> intent.getStringExtra(Intent.EXTRA_TEXT)
-            ?.let { URL_PATTERN.find(it)?.value }
+    private fun extractUrl(): String? = IncomingUrl.accept(
+        when (intent?.action) {
+            Intent.ACTION_VIEW -> intent.data?.toString()
+            Intent.ACTION_SEND -> intent.getStringExtra(Intent.EXTRA_TEXT)
+                ?.let { URL_PATTERN.find(it)?.value }
 
-        else -> null
-    }
+            else -> null
+        },
+    )
 
     private fun openIncognito(url: String) {
         BrowserLauncher.launchIncognito(this, url)

@@ -69,7 +69,13 @@ class SettingsActivity : ToolbarBaseActivity<GlobalSettingsBinding>() {
             ?.let { runCatching { SettingSection.valueOf(it) }.getOrNull() }
             ?: SettingSection.GLOBAL
         setToolbarTitle(getString(section.displayNameResId))
-        requireUnlock(needed = section == SettingSection.GLOBAL && ProtectionGate.isProtectedGlobally)
+        requireUnlock(
+            needed = when (section) {
+                SettingSection.GLOBAL -> ProtectionGate.isProtectedGlobally
+                SettingSection.ENGINE -> ProtectionGate.isAnythingProtected
+                SettingSection.APPEARANCE -> false
+            },
+        )
         editableSettings =
             DataManager.globalSettings.let { it.copy(settings = it.settings.deepCopy()) }
         originalSnapshot = editableSettings.settings.deepCopy().apply { sanitize() }

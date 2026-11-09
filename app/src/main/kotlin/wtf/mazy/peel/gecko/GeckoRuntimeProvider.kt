@@ -195,7 +195,7 @@ object GeckoRuntimeProvider {
         return extensions
     }
 
-    private fun allowResponse() = WebExtension.PermissionPromptResponse(true, true, true)
+    private fun allowResponse() = WebExtension.PermissionPromptResponse(true, true, false)
 
     private fun denyResponse() = WebExtension.PermissionPromptResponse(false, false, false)
 

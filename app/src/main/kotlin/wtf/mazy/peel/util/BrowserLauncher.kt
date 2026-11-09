@@ -10,6 +10,7 @@ import wtf.mazy.peel.model.WebApp
 
 object BrowserLauncher {
     fun launch(webApp: WebApp, c: Context, url: String? = null, fromMenu: Boolean = false) {
+        if (url != null && IncomingUrl.accept(url) == null) return
         try {
             if (DataManager.effectiveSettings(webApp).biometricProtection) {
                 val error = c.biometricUnavailableReason()
@@ -29,6 +30,7 @@ object BrowserLauncher {
     }
 
     fun launchIncognito(c: Context, url: String) {
+        if (IncomingUrl.accept(url) == null) return
         val host = url.normalizedHost() ?: url
         val uuid = DataManager.registerTransientWebApp(
             baseUrl = url,

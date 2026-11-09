@@ -23,6 +23,7 @@ internal fun parseIntentUri(url: String): Intent? {
         Intent.parseUri(url, Intent.URI_INTENT_SCHEME).apply {
             selector = null
             component = null
+            addCategory(Intent.CATEGORY_BROWSABLE)
         }
     }.getOrNull()
 }
@@ -120,7 +121,7 @@ class PeelNavigationDelegate(
 
             LinkRoute.Refused -> refuse(request)
             LinkRoute.AppLink -> {
-                handleAppLink(url, settings)
+                handleAppLink(url, settings, request.hasUserGesture)
                 refuse(request)
             }
 
@@ -329,13 +330,16 @@ class PeelNavigationDelegate(
         isOnJumpHost = true
     }
 
-    private fun handleAppLink(url: String, settings: EffectiveSettings) {
+    private fun handleAppLink(url: String, settings: EffectiveSettings, hasUserGesture: Boolean) {
         val intent = parseIntentUri(url)
         val targetPackage = intent?.`package`
         val browserFallback = intent?.getStringExtra("browser_fallback_url")
             ?.takeIf { it.startsWith("http://") || it.startsWith("https://") }
 
-        when (settings.appLinksPermission) {
+        val permission = settings.appLinksPermission.takeUnless {
+            it == WebAppSettings.PERMISSION_ON && !hasUserGesture
+        } ?: WebAppSettings.PERMISSION_ASK
+        when (permission) {
             WebAppSettings.PERMISSION_OFF -> host.runOnUi {
                 browserFallback?.let { loadFallback(it) }
             }
