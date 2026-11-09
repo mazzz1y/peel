@@ -1,6 +1,7 @@
 package wtf.mazy.peel.gecko
 
 import android.content.Context
+import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -8,12 +9,15 @@ import kotlinx.coroutines.withContext
 import org.mozilla.geckoview.GeckoRuntime
 import org.mozilla.geckoview.StorageController
 import wtf.mazy.peel.browser.SessionHostRegistry
+import wtf.mazy.peel.gecko.GeckoRuntimeProvider.awaitVoid
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.push.PushBridge
 import wtf.mazy.peel.util.App
 import wtf.mazy.peel.util.AppPrefs
 
 object SandboxManager {
+
+    private const val TAG = "SandboxManager"
 
     val usage = SandboxUsage { contextId ->
         if (isEphemeral(contextId)) clearIdle(App.appContext, contextId)
@@ -23,7 +27,7 @@ object SandboxManager {
         PushBridge.onContextCleared(context, contextId)
         AppPrefs.addPendingSandboxClear(context, contextId)
         SessionHostRegistry.closeSessionsFor(contextId)
-        return clearContext(contextId)
+        return wipe(context.applicationContext, contextId)
     }
 
     fun enqueueSandboxClear(context: Context, contextId: String, scope: CoroutineScope) {
@@ -31,27 +35,29 @@ object SandboxManager {
         AppPrefs.addPendingSandboxClear(context, contextId)
         scope.launch {
             SessionHostRegistry.closeSessionsFor(contextId)
-            clearContext(contextId)
+            wipe(context.applicationContext, contextId)
         }
     }
 
     suspend fun clearAllSandboxData(context: Context) {
         PushBridge.onAllContextsCleared(context)
         AppPrefs.markSandboxClearAllPending(context)
-        clearAll()
+        wipe(context.applicationContext, contextId = null)
     }
 
+    // Runs as the engine starts, before any session exists, so a clear that could not complete
+    // earlier cannot wipe data created after it.
     fun flushPendingClears(context: Context, runtime: GeckoRuntime) {
-        val pending = AppPrefs.getPendingSandboxClears(context)
-        val clearAll = AppPrefs.isSandboxClearAllPending(context)
+        val appContext = context.applicationContext
+        val clearAll = AppPrefs.isSandboxClearAllPending(appContext)
+        val pending = AppPrefs.getPendingSandboxClears(appContext)
         if (!clearAll && pending.isEmpty()) return
-        runCatching {
+        App.appScope.launch(Dispatchers.Main.immediate) {
             if (clearAll) {
-                runtime.storageController.clearData(StorageController.ClearFlags.ALL)
+                wipeWith(appContext, runtime, contextId = null)
             } else {
-                pending.forEach { runtime.storageController.clearDataForSessionContext(it) }
+                pending.forEach { wipeWith(appContext, runtime, it) }
             }
-            AppPrefs.removePendingSandboxClears(context, pending)
         }
     }
 
@@ -72,30 +78,40 @@ object SandboxManager {
     private fun isEphemeral(contextId: String): Boolean =
         DataManager.effectiveSandbox(contextId)?.ephemeralContextId == contextId
 
-    // Persisted only as a fallback: a pending clear is flushed again later, possibly after a
-    // window has reopened the sandbox.
     private fun clearIdle(context: Context, contextId: String) {
         PushBridge.onContextCleared(context, contextId)
-        val runtime = GeckoRuntimeProvider.runtimeOrNull()
-        val cleared = runtime != null &&
-                runCatching { runtime.storageController.clearDataForSessionContext(contextId) }.isSuccess
-        if (!cleared) AppPrefs.addPendingSandboxClear(context, contextId)
+        AppPrefs.addPendingSandboxClear(context, contextId)
+        App.appScope.launch(Dispatchers.Main.immediate) { wipe(context, contextId) }
     }
 
-    private suspend fun clearContext(contextId: String): Boolean =
+    /**
+     * Wipes one sandbox, or every sandbox when [contextId] is null, and forgets its pending
+     * record once the engine has taken the request. Without a running engine the record is left
+     * for [flushPendingClears]. Returns false only when the engine refused it.
+     */
+    private suspend fun wipe(context: Context, contextId: String?): Boolean =
         withContext(Dispatchers.Main) {
             val runtime = GeckoRuntimeProvider.runtimeOrNull() ?: return@withContext true
-            runCatching {
-                runtime.storageController.clearDataForSessionContext(contextId)
-            }.isSuccess
+            wipeWith(context, runtime, contextId)
         }
 
-    private suspend fun clearAll() {
-        withContext(Dispatchers.Main) {
-            val runtime = GeckoRuntimeProvider.runtimeOrNull() ?: return@withContext
-            runCatching {
-                runtime.storageController.clearData(StorageController.ClearFlags.ALL)
+    private suspend fun wipeWith(context: Context, runtime: GeckoRuntime, contextId: String?): Boolean {
+        val storage = runtime.storageController
+        val wiped = runCatching {
+            if (contextId == null) {
+                storage.clearData(StorageController.ClearFlags.ALL).awaitVoid()
+            } else {
+                // Fire-and-forget in GeckoView: once dispatched, the engine carries it out.
+                storage.clearDataForSessionContext(contextId)
+            }
+        }.onFailure { Log.w(TAG, "could not clear sandbox ${contextId ?: "(all)"}", it) }.isSuccess
+        if (wiped) {
+            if (contextId == null) {
+                AppPrefs.forgetSandboxClearAll(context)
+            } else {
+                AppPrefs.forgetPendingSandboxClear(context, contextId)
             }
         }
+        return wiped
     }
 }

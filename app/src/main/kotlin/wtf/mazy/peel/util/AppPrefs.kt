@@ -43,17 +43,25 @@ object AppPrefs {
     fun isSandboxClearAllPending(context: Context): Boolean =
         prefs(context).getBoolean(KEY_SANDBOX_CLEAR_ALL_PENDING, false)
 
+    @Synchronized
     fun markSandboxClearAllPending(context: Context) {
         prefs(context).edit(commit = true) { putBoolean(KEY_SANDBOX_CLEAR_ALL_PENDING, true) }
     }
 
     @Synchronized
-    fun removePendingSandboxClears(context: Context, contextIds: Set<String>) {
-        prefs(context).edit {
+    fun forgetPendingSandboxClear(context: Context, contextId: String) {
+        prefs(context).edit(commit = true) {
             putStringSet(
                 KEY_PENDING_SANDBOX_CLEARS,
-                getPendingSandboxClears(context) - contextIds,
+                getPendingSandboxClears(context) - contextId,
             )
+        }
+    }
+
+    @Synchronized
+    fun forgetSandboxClearAll(context: Context) {
+        prefs(context).edit(commit = true) {
+            remove(KEY_PENDING_SANDBOX_CLEARS)
             remove(KEY_SANDBOX_CLEAR_ALL_PENDING)
         }
     }

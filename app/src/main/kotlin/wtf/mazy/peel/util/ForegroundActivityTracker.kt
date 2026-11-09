@@ -10,18 +10,12 @@ object ForegroundActivityTracker : Application.ActivityLifecycleCallbacks {
     @Volatile
     private var currentRef: WeakReference<Activity>? = null
 
-    private var startedCount = 0
-
-    var onBackground: (() -> Unit)? = null
-
     val current: Activity?
         get() = currentRef?.get()
 
     override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) = Unit
 
-    override fun onActivityStarted(activity: Activity) {
-        startedCount++
-    }
+    override fun onActivityStarted(activity: Activity) = Unit
 
     override fun onActivityResumed(activity: Activity) {
         currentRef = WeakReference(activity)
@@ -29,10 +23,7 @@ object ForegroundActivityTracker : Application.ActivityLifecycleCallbacks {
 
     override fun onActivityPaused(activity: Activity) = Unit
 
-    override fun onActivityStopped(activity: Activity) {
-        startedCount--
-        if (startedCount == 0 && !activity.isChangingConfigurations) onBackground?.invoke()
-    }
+    override fun onActivityStopped(activity: Activity) = Unit
 
     override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) = Unit
 

@@ -53,11 +53,6 @@ class App : Application() {
         AppLock.lockOnScreenOff(this)
         GeckoRuntimeProvider.extensionUi = ExtensionUiBridge
         DataManager.sideEffects = ShortcutSideEffects(applicationContext, appScope)
-        ForegroundActivityTracker.onBackground = {
-            GeckoRuntimeProvider.runtimeOrNull()?.let {
-                SandboxManager.flushPendingClears(applicationContext, it)
-            }
-        }
         appScope.launch {
             DataManager.initialize(applicationContext)
             ProxyRouterBridge.ensure(applicationContext)
