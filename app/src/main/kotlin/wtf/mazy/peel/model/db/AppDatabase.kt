@@ -218,13 +218,18 @@ abstract class AppDatabase : RoomDatabase() {
 
         private val PROXY_COLUMN = "proxyUuid" to "TEXT"
 
+        // Retired at 23, where it becomes browserControlsMode; rebuilds before that must carry it.
+        private val SHOW_NOTIFICATION_COLUMN = "isShowNotification" to "INTEGER"
+        private val PRE_23_SETTINGS_COLUMNS = SETTINGS_COLUMNS + SHOW_NOTIFICATION_COLUMN
+
         private fun recreateTables(
             db: SupportSQLiteDatabase,
             webAppColumns: List<Pair<String, String>>,
             groupColumns: List<Pair<String, String>>,
+            settingsColumns: List<Pair<String, String>> = SETTINGS_COLUMNS,
         ) {
-            recreateTable(db, "webapps", webAppColumns + SETTINGS_COLUMNS)
-            recreateTable(db, "webapp_groups", groupColumns + SETTINGS_COLUMNS)
+            recreateTable(db, "webapps", webAppColumns + settingsColumns)
+            recreateTable(db, "webapp_groups", groupColumns + settingsColumns)
         }
 
         private fun recreateTable(
@@ -244,13 +249,13 @@ abstract class AppDatabase : RoomDatabase() {
             ensureSettingsColumns(db)
             val webAppColumns = WEBAPP_BASE_COLUMNS.toMutableList()
                 .apply { add(3, "isActiveEntry" to "INTEGER NOT NULL") }
-            recreateTables(db, webAppColumns, GROUP_BASE_COLUMNS)
+            recreateTables(db, webAppColumns, GROUP_BASE_COLUMNS, PRE_23_SETTINGS_COLUMNS)
         }
 
         private fun recreateTablesCanonical(db: SupportSQLiteDatabase) {
             db.execSQL("DROP TABLE IF EXISTS sandbox_slots")
             ensureSettingsColumns(db)
-            recreateTables(db, WEBAPP_BASE_COLUMNS, GROUP_BASE_COLUMNS)
+            recreateTables(db, WEBAPP_BASE_COLUMNS, GROUP_BASE_COLUMNS, PRE_23_SETTINGS_COLUMNS)
         }
 
         private fun recreateTablesWithProxy(db: SupportSQLiteDatabase) {
@@ -273,7 +278,7 @@ abstract class AppDatabase : RoomDatabase() {
         private fun settingsColumnsMigration(from: Int, to: Int): Migration =
             migration(from, to, ::ensureSettingsColumns)
 
-        private val MIGRATIONS = arrayOf(
+        internal val MIGRATIONS = arrayOf(
             migration(1, 2) { db ->
                 db.execSQL("ALTER TABLE webapps ADD COLUMN groupUuid TEXT DEFAULT NULL")
 

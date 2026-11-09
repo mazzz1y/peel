@@ -25,6 +25,10 @@ android {
         versionCode = project.hasProperty('VERSION_CODE') ? project.property('VERSION_CODE').toInteger() : 1
         versionName = project.hasProperty('VERSION_NAME') ? project.property('VERSION_NAME') : "dev"
         buildConfigField "String", "GECKOVIEW_VERSION", "\"$geckoviewVersion\""
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+    sourceSets {
+        androidTest.assets.srcDirs += files("$projectDir/schemas")
     }
     buildFeatures {
         dataBinding = true
@@ -117,6 +121,9 @@ dependencies {
     implementation 'androidx.room:room-ktx:2.8.5'
     ksp 'androidx.room:room-compiler:2.8.5'
     testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.room:room-testing:2.8.5'
+    androidTestImplementation 'androidx.test:runner:1.7.0'
+    androidTestImplementation 'androidx.test.ext:junit:1.3.0'
 }
 
 def playDir = file("src/main/play")
