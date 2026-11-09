@@ -1,41 +1,42 @@
 package wtf.mazy.peel.ui.picker
 
-import android.content.res.Configuration
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.TextView
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.addCallback
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.app.AppCompatDialog
-import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
-import androidx.core.view.updatePadding
+import androidx.core.view.updateLayoutParams
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.search.SearchView
+import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_COLLAPSED
+import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_EXPANDED
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import wtf.mazy.peel.R
-import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.Redirectors
 import wtf.mazy.peel.model.UnwrappedLink
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.model.searched
 import wtf.mazy.peel.ui.common.ListEmptyState
-import wtf.mazy.peel.ui.common.applyBottomLineFade
 import wtf.mazy.peel.ui.common.scrollToTopOnChange
 import wtf.mazy.peel.ui.dialog.InputDialogConfig
 import wtf.mazy.peel.ui.dialog.UrlField
 import wtf.mazy.peel.ui.dialog.showInputDialogRaw
 import wtf.mazy.peel.ui.webapplist.SearchBar
 import wtf.mazy.peel.util.applyBottomScreenInsets
+import wtf.mazy.peel.util.isSingleWindowHost
+import com.google.android.material.R as MaterialR
 
 /**
- * The web apps to choose from for a link, laid out as the web-app list's own search in the
- * current search position: the link and its actions on top, then the list's own cards shown as
- * in selection mode, with the search pill above them or the search bar at the foot.
+ * The web apps to choose from for a link, as a sheet rising from the bottom like the system's
+ * share sheet: the link and its actions, then the web-app list's own cards shown as in selection
+ * mode. Searching takes the sheet to full height and puts the search bar in place of the link
+ * until the search ends. On TV and car screens it fills the screen.
  */
 class WebAppPickerSurface(
     private val activity: AppCompatActivity,
@@ -45,7 +46,7 @@ class WebAppPickerSurface(
     private val linkCallbacks: PickerLinkCallbacks?,
     private val onAdd: (UnwrappedLink, onAdded: () -> Unit) -> Unit,
     private val canAdd: (UnwrappedLink) -> Boolean,
-) : AppCompatDialog(activity, R.style.AppTheme_PickerSurface) {
+) : BottomSheetDialog(activity, R.style.AppTheme_PickerSurface) {
 
     private var current = link.initial
     private var query = ""
@@ -54,81 +55,89 @@ class WebAppPickerSurface(
     private val adapter = WebAppPickerAdapter(groupTitles, ::pick)
     private lateinit var emptyState: ListEmptyState
     private lateinit var linkLine: TextView
-    private lateinit var addCard: View
+    private lateinit var addButton: View
+    private lateinit var header: View
+    private lateinit var bar: SearchBar
+    private lateinit var searchBack: OnBackPressedCallback
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val bottom = DataManager.globalEffectiveSettings.bottomSearch
-        setContentView(if (bottom) R.layout.view_picker_surface_bottom else R.layout.view_picker_surface)
-        val window = checkNotNull(window)
-        window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
-        WindowCompat.setDecorFitsSystemWindows(window, false)
-        val night = context.resources.configuration.uiMode and
-                Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES
-        WindowCompat.getInsetsController(window, window.decorView).apply {
-            isAppearanceLightStatusBars = !night
-            isAppearanceLightNavigationBars = !night
-        }
-
-        val decor = window.decorView
+        setContentView(R.layout.view_picker_surface)
+        val decor = checkNotNull(window).decorView
         val list = decor.requireViewById<RecyclerView>(R.id.pickerList)
         emptyState = ListEmptyState(decor.requireViewById(R.id.pickerEmptyState))
         linkLine = decor.requireViewById(R.id.pickerLink)
-        addCard = decor.requireViewById(R.id.pickerAdd)
-        addCard.setOnClickListener { onAdd(current) { dismiss() } }
+        header = decor.requireViewById(R.id.pickerHeader)
+        addButton = decor.requireViewById(R.id.pickerAdd)
+        addButton.setOnClickListener { onAdd(current) { dismiss() } }
         list.layoutManager = LinearLayoutManager(context)
         list.adapter = adapter
         adapter.scrollToTopOnChange { list }
-        field = if (bottom) bottomField(decor, list) else topField(decor, list)
+        list.applyBottomScreenInsets()
+        bar = decor.requireViewById(R.id.pickerSearchBar)
+        field = PickerField(bar, WindowCompat.getInsetsController(checkNotNull(window), bar))
         field.onQueryChanged = { text ->
             query = text
             render()
         }
         field.onConfirm = { results.firstOrNull()?.let(::pick) }
-        // With the platform back callbacks the dialog receives the back press while the keyboard
-        // is still up, so the first one only lowers it.
-        onBackPressedDispatcher.addCallback(this) {
-            if (!field.lowerKeyboard()) cancel()
+        field.onActiveChanged = ::showSearch
+        // Only a search claims back, so the sheet keeps its own predictive back otherwise.
+        // Enabling the callback re-registers it after the sheet's, which is what lets it win.
+        searchBack = onBackPressedDispatcher.addCallback(this, enabled = false) {
+            if (!field.lowerKeyboard()) bar.close()
         }
+        decor.requireViewById<View>(R.id.pickerSearch).setOnClickListener { startSearch() }
 
         decor.requireViewById<View>(R.id.pickerLinkCard).setOnClickListener { editLink() }
-        decor.requireViewById<View>(R.id.pickerLinkActions).isVisible = linkCallbacks != null
+        val incognito = decor.requireViewById<View>(R.id.pickerIncognito)
+        val share = decor.requireViewById<View>(R.id.pickerShare)
+        incognito.isVisible = linkCallbacks != null
+        share.isVisible = linkCallbacks != null
         if (linkCallbacks != null) {
-            decor.requireViewById<View>(R.id.pickerIncognito).setOnClickListener { finishWith(linkCallbacks.onIncognito) }
-            decor.requireViewById<View>(R.id.pickerShare).setOnClickListener { finishWith(linkCallbacks.onShare) }
+            incognito.setOnClickListener { finishWith(linkCallbacks.onIncognito) }
+            share.setOnClickListener { finishWith(linkCallbacks.onShare) }
         }
         showLink()
         render()
+        setUpSheet(decor)
     }
 
-    private fun topField(decor: View, list: RecyclerView): PickerField {
-        list.applyBottomScreenInsets()
-        val searchView = decor.requireViewById<SearchView>(R.id.pickerSearchView)
-        ViewCompat.setOnApplyWindowInsetsListener(searchView) { _, insets -> insets }
-        searchView.setVisible(true)
-        searchView.toolbar.setNavigationOnClickListener { cancel() }
-        return TopPickerField(searchView.editText, insetsController(searchView.editText))
-    }
-
-    private fun bottomField(decor: View, list: RecyclerView): PickerField {
-        val root = decor.requireViewById<View>(R.id.pickerRoot)
-        val line = decor.requireViewById<View>(R.id.pickerBottomLine)
-        val bar = decor.requireViewById<SearchBar>(R.id.pickerSearchBar)
-        val screenBars = WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout()
-        ViewCompat.setOnApplyWindowInsetsListener(root) { view, insets ->
-            val bars = insets.getInsets(screenBars)
-            view.updatePadding(left = bars.left, top = bars.top, right = bars.right)
-            insets.inset(bars.left, bars.top, bars.right, 0)
+    private fun setUpSheet(decor: View) {
+        val sheet = decor.requireViewById<View>(MaterialR.id.design_bottom_sheet)
+        sheet.updateLayoutParams { height = ViewGroup.LayoutParams.MATCH_PARENT }
+        // TV and car screens are driven without touch, so there is nothing to drag.
+        val singleWindow = context.isSingleWindowHost()
+        decor.requireViewById<View>(R.id.pickerHandle).isVisible = !singleWindow
+        // Resting below full height is the collapsed state, as in the system share sheet: a
+        // drag down from full height comes back to it, and only a drag well past it closes.
+        behavior.apply {
+            peekHeight = restingHeight(context.resources.displayMetrics.heightPixels)
+            skipCollapsed = false
+            isDraggable = !singleWindow
+            state = if (singleWindow) STATE_EXPANDED else STATE_COLLAPSED
         }
-        line.applyBottomLineFade()
-        line.applyBottomScreenInsets()
-        list.applyBottomScreenInsets()
-        decor.requireViewById<View>(R.id.pickerEmptyFrame).applyBottomScreenInsets()
-        return BottomPickerField(bar, insetsController(bar))
+        // A web app's window rotates without being recreated, so the resting height follows the
+        // space the sheet has. Changing it relayouts the sheet, which must wait for this pass.
+        (sheet.parent as View).addOnLayoutChangeListener { parent, _, _, _, _, _, _, _, _ ->
+            val peek = restingHeight(parent.height)
+            if (peek != behavior.peekHeight) parent.post { behavior.peekHeight = peek }
+        }
     }
 
-    private fun insetsController(view: View) =
-        WindowCompat.getInsetsController(checkNotNull(window), view)
+    private fun restingHeight(space: Int) = (space * SHEET_RATIO).toInt()
+
+    private fun startSearch() {
+        behavior.state = STATE_EXPANDED
+        bar.isVisible = true
+        bar.focusQuery()
+    }
+
+    private fun showSearch(active: Boolean) {
+        bar.isVisible = active
+        header.isVisible = !active
+        searchBack.isEnabled = active
+    }
 
     private fun render() {
         results = link.order(current).searched(query, groupTitles)
@@ -143,7 +152,7 @@ class WebAppPickerSurface(
 
     private fun showLink() {
         linkLine.text = current.destination
-        addCard.isVisible = canAdd(current)
+        addButton.isVisible = canAdd(current)
     }
 
     private fun editLink() {
@@ -173,5 +182,9 @@ class WebAppPickerSurface(
     private fun pick(app: WebApp) {
         dismiss()
         onPick(app, current)
+    }
+
+    private companion object {
+        const val SHEET_RATIO = 0.75f
     }
 }

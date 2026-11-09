@@ -53,15 +53,18 @@
         <item name="android:backgroundDimEnabled">true</item>
     </style>
 
-    <style name="AppTheme.PickerSurface" parent="AppTheme">
-        <item name="android:windowIsFloating">false</item>
-        <item name="android:windowBackground">?attr/colorSurfaceContainer</item>
-        <item name="android:windowNoTitle">true</item>
+    <style name="AppTheme.PickerSurface" parent="ThemeOverlay.Material3.BottomSheetDialog">
+        <item name="bottomSheetStyle">@style/Widget.App.PickerSheet</item>
         <item name="android:windowSoftInputMode">adjustResize|stateHidden</item>
-        <item name="android:windowAnimationStyle">@android:style/Animation.Dialog</item>
-        <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:enforceNavigationBarContrast" tools:targetApi="29">false</item>
+    </style>
+
+    <!-- The list runs under the navigation bar to the screen's edge, as the web-app list does;
+         the list pads its own foot instead of the sheet. -->
+    <style name="Widget.App.PickerSheet" parent="Widget.Material3.BottomSheet.Modal">
+        <item name="backgroundTint">?attr/colorSurfaceContainerLow</item>
+        <item name="paddingBottomSystemWindowInsets">false</item>
     </style>
 
     <style name="AppTheme.Trampoline" parent="AppTheme">
@@ -199,16 +202,42 @@
         <item name="cardBackgroundColor">?attr/colorSurfaceContainer</item>
     </style>
 
-    <!-- The picker's link actions, in the web-app cards' tone so they stand out from the search
-         surface. -->
-    <style name="Widget.App.PickerActionCard" parent="Widget.App.SuggestionCard">
-        <item name="cardBackgroundColor">?attr/colorSurfaceContainerHigh</item>
+    <!-- The link the picker opens, in the search bar's pill: the same fill, shape and height,
+         so the two read as one pair of fields. -->
+    <style name="Widget.App.PickerLinkCard" parent="Widget.App.ListCard">
+        <item name="android:layout_marginVertical">0dp</item>
+        <item name="cardBackgroundColor">?attr/colorSurfaceContainer</item>
+        <item name="cardElevation">0dp</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.Material3.Corner.Full</item>
     </style>
 
-    <style name="Widget.App.PickerActionCard.Half">
-        <item name="android:layout_width">0dp</item>
-        <item name="android:layout_weight">1</item>
-        <item name="android:layout_marginHorizontal">@dimen/picker_action_card_margin</item>
+    <!-- The picker's link actions, as the system share sheet shows its own: a row of buttons
+         with a leading icon under the link, in the web-app cards' tone. -->
+    <style name="Widget.App.PickerAction" parent="Widget.Material3.Button.TonalButton.Icon">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="backgroundTint">?attr/colorSurfaceContainerHigh</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
+        <item name="iconTint">?attr/colorOnSurfaceVariant</item>
+    </style>
+
+    <!-- The link as one line in the search bar's columns: the link icon centred on its
+         magnifier (12dp + 16dp + 12dp = 12dp + 4dp + 24dp) and the address starting where its
+         query does (68dp), in the cards' address grey. -->
+    <style name="PickerLinkRow">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:minHeight">@dimen/bottom_line_height</item>
+        <item name="android:paddingStart">@dimen/list_card_padding_horizontal</item>
+        <item name="android:paddingEnd">@dimen/list_card_padding_horizontal</item>
+        <item name="android:drawablePadding">@dimen/list_card_padding_horizontal</item>
+        <item name="drawableTint">?attr/colorOnSurfaceVariant</item>
+        <item name="android:ellipsize">middle</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:textAppearance">?attr/textAppearanceBodyLarge</item>
+        <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
+        <item name="android:textDirection">ltr</item>
     </style>
 
     <style name="SuggestionCardRow">

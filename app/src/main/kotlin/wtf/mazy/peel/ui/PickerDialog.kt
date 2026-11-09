@@ -50,7 +50,7 @@ object PickerDialog {
     }
 
     /**
-     * Lets the user choose a web app for [link] in the full-screen searchable list. [groupTitles]
+     * Lets the user choose a web app for [link] in the searchable sheet. [groupTitles]
      * maps group ids to titles for the cards and the search. Every callback gets the link as the
      * user last edited it.
      */

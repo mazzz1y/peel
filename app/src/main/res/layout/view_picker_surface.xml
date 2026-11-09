@@ -1,47 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.search.SearchView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/pickerSearchView"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="true"
-    android:hint="@string/search"
-    app:autoShowKeyboard="false"
-    app:backgroundTint="?attr/colorSurfaceContainer">
+    android:orientation="vertical">
 
-    <LinearLayout
+    <com.google.android.material.bottomsheet.BottomSheetDragHandleView
+        android:id="@+id/pickerHandle"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="@dimen/picker_handle_height" />
 
-        <include layout="@layout/include_picker_link_header" />
+    <include layout="@layout/include_picker_link_header" />
 
-        <FrameLayout
+    <wtf.mazy.peel.ui.webapplist.SearchBar
+        android:id="@+id/pickerSearchBar"
+        style="@style/Widget.App.SearchBar"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/bottom_line_height"
+        android:layout_marginHorizontal="@dimen/list_card_margin_horizontal"
+        android:layout_marginBottom="@dimen/picker_search_margin_bottom"
+        android:focusable="false"
+        android:importantForAccessibility="no"
+        android:visibility="gone" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/pickerList"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1">
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:paddingBottom="@dimen/list_card_list_padding_top" />
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/pickerList"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:clipToPadding="false"
-                android:paddingBottom="@dimen/list_card_list_padding_top" />
+        <TextView
+            android:id="@+id/pickerEmptyState"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:gravity="center"
+            android:padding="32dp"
+            android:text="@string/no_search_results"
+            android:textAppearance="?attr/textAppearanceBodyLarge"
+            android:textColor="?attr/colorOnSurfaceVariant"
+            android:visibility="gone" />
 
-            <TextView
-                android:id="@+id/pickerEmptyState"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:gravity="center"
-                android:padding="32dp"
-                android:text="@string/no_search_results"
-                android:textAppearance="?attr/textAppearanceBodyLarge"
-                android:textColor="?attr/colorOnSurfaceVariant"
-                android:visibility="gone" />
+    </FrameLayout>
 
-        </FrameLayout>
-
-    </LinearLayout>
-
-</com.google.android.material.search.SearchView>
+</LinearLayout>

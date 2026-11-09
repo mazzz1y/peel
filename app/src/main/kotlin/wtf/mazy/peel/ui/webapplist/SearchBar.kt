@@ -13,8 +13,7 @@ import wtf.mazy.peel.R
 import wtf.mazy.peel.ui.common.onImeAction
 
 /**
- * The persistent search field on a bottom line: the list screen's, and the picker's in the
- * Bottom search position.
+ * The persistent search field: the list screen's on its bottom line, and the picker's.
  *
  * The field is the real one: tapping the bar puts the caret where the user tapped rather than
  * opening a second surface. The session starts when focus enters the bar and lasts until

@@ -76,9 +76,16 @@
     <!-- A suggestion row is a 24dp glyph in a 48dp touch target: about half a web-app row. -->
     <dimen name="suggestion_card_min_height">48dp</dimen>
     <dimen name="suggestion_card_padding_vertical">8dp</dimen>
-    <!-- Half of the list's card margin on each side: two cards in a row keep the outer margin
-         and are spaced by it. -->
-    <dimen name="picker_action_card_margin">6dp</dimen>
+    <!-- The picker's rhythm: link, actions and the list, or the search bar and the list, are
+         16dp apart. Material's tonal button keeps 4dp of touch area above and below its 40dp
+         container, and the list's cards bring their own 6dp. -->
+    <dimen name="picker_action_row_margin_top">12dp</dimen>
+    <dimen name="picker_action_row_margin_bottom">6dp</dimen>
+    <dimen name="picker_search_margin_bottom">10dp</dimen>
+    <dimen name="picker_action_gap">8dp</dimen>
+    <!-- The handle's own area is 48dp; the sheet's content starts below the pill, not 48dp
+         further down. -->
+    <dimen name="picker_handle_height">36dp</dimen>
     <dimen name="settings_dropdown_max_width">160dp</dimen>
     <dimen name="toolbar_label_max_width">140dp</dimen>
 

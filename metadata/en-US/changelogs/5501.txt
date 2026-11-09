@@ -1,6 +1,0 @@
-- Open links in the full-screen picker with search and private mode
-- Open group shortcuts as a plain list
-- Add Share to the picker for links from other apps
-- Match links to web apps by subdomain, path and short links like maps.app.goo.gl
-- Fix sites asking again for notification permission after a restart
-- Fix notifications from local addresses opening the app list
