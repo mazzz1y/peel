@@ -18,7 +18,6 @@ import wtf.mazy.peel.browser.TranslationLanguages
 import wtf.mazy.peel.gecko.SandboxManager
 import wtf.mazy.peel.model.BackupManager
 import wtf.mazy.peel.model.DataManager
-import wtf.mazy.peel.model.WebAppSettings
 import wtf.mazy.peel.ui.common.LoadingDialogController
 import wtf.mazy.peel.ui.common.ShareSecretsDialog
 import wtf.mazy.peel.ui.common.runWithLoader
@@ -216,14 +215,7 @@ class SettingsHubController(
         App.appScope.launch {
             wipeStorage(includeSandbox = true)
             TranslationLanguages.deleteAllModels()
-            DataManager.deleteWebApps(DataManager.webApps.map { it.uuid })
-            DataManager.groups.forEach { group ->
-                DataManager.removeGroup(group, ungroupApps = false)
-            }
-
-            DataManager.setGlobalSettings(
-                DataManager.globalSettings.copy(settings = WebAppSettings.createWithDefaults())
-            )
+            DataManager.factoryReset()
         }
     }
 }

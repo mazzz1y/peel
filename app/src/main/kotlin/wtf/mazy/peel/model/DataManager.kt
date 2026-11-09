@@ -50,6 +50,8 @@ object DataManager {
         data class UpsertPushSubscription(val entity: PushSubscriptionEntity) : Action
         data class RemovePushSubscription(val instance: String) : Action
 
+        data object FactoryReset : Action
+
         data class ImportData(
             val mode: ImportMode,
             val webApps: List<WebApp>,
@@ -305,6 +307,8 @@ object DataManager {
         proxies: List<Proxy> = emptyList(),
     ) = submit(Action.ImportData(mode, webApps, globalSettings, groups, proxies))
 
+    suspend fun factoryReset() = submit(Action.FactoryReset)
+
     suspend fun queryAllWebApps(): List<WebApp> = query { loadAllWebApps() }
 
     suspend fun queryGroup(uuid: String): WebAppGroup? = query { loadGroup(uuid) }
@@ -368,6 +372,8 @@ object DataManager {
                 repository.deletePushSubscription(action.instance)
                 afterCommit { _pushSubscriptionsChanged.tryEmit(Unit) }
             }
+
+            is Action.FactoryReset -> handleFactoryReset()
 
             is Action.ImportData -> {
                 val imported = action.copy(
@@ -530,6 +536,19 @@ object DataManager {
         reloadFromRepository()
         forgetWebApps(current.webApps.filter { it.uuid !in importedAppUuids })
         forgetGroups(current.groups.filter { it.uuid !in importedGroupUuids })
+    }
+
+    private fun handleFactoryReset() {
+        val current = working
+        repository.replaceAllWebApps(emptyList())
+        repository.replaceAllGroups(emptyList())
+        repository.replaceAllProxies(emptyList())
+        repository.persistGlobalSettings(
+            current.globalSettings.copy(settings = WebAppSettings.createWithDefaults())
+        )
+        reloadFromRepository()
+        forgetWebApps(current.webApps)
+        forgetGroups(current.groups)
     }
 
     private fun mergeData(action: Action.ImportData) {
