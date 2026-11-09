@@ -1,10 +1,14 @@
 package wtf.mazy.peel.browser
 
+import android.Manifest
 import android.content.ClipData
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import android.util.Base64
 import android.webkit.MimeTypeMap
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.CoroutineScope
@@ -30,6 +34,7 @@ class DownloadHandler(
     private val getRuntime: () -> GeckoRuntime,
     private val scope: CoroutineScope,
     private val webAppName: String,
+    private val requestPermissions: (Array<String>, (Boolean) -> Unit) -> Unit,
     private val getPageBridge: () -> PageBridge? = { null },
     private val requiresBridgeAuth: () -> Boolean = { false },
     private val getPageUrl: () -> String? = { null },
@@ -164,8 +169,24 @@ class DownloadHandler(
                 body.close()
                 return@showDownloadPrompt
             }
-            DownloadService.start(activity, fileName, mimeType, contentLength, webAppName, body)
+            withStorageAccess { granted ->
+                if (granted) {
+                    DownloadService.start(activity, fileName, mimeType, contentLength, webAppName, body)
+                } else {
+                    body.close()
+                    showError()
+                }
+            }
         }
+    }
+
+    // Before Android 10 a download is written straight into the public Downloads folder.
+    private fun withStorageAccess(onResult: (Boolean) -> Unit) {
+        val permission = Manifest.permission.WRITE_EXTERNAL_STORAGE
+        val granted = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q ||
+                ContextCompat.checkSelfPermission(activity, permission) ==
+                PackageManager.PERMISSION_GRANTED
+        if (granted) onResult(true) else requestPermissions(arrayOf(permission), onResult)
     }
 
     private fun writeAndShare(body: InputStream, fileName: String, mime: String) {

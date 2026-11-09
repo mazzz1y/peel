@@ -72,6 +72,7 @@ abstract class SessionPageActivity : BaseSessionHost() {
             getRuntime = { GeckoRuntimeProvider.getRuntime(this) },
             scope = lifecycleScope,
             webAppName = webAppName,
+            requestPermissions = ::requestOsPermissions,
         )
         bindDelegates(
             session,

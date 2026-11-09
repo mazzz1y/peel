@@ -543,6 +543,7 @@ class BrowserActivity : BaseSessionHost() {
             getRuntime = { GeckoRuntimeProvider.getRuntime(this) },
             scope = lifecycleScope,
             webAppName = webApp.title,
+            requestPermissions = ::requestOsPermissions,
             getPageBridge = { pageBridge },
             requiresBridgeAuth = {
                 geckoSession?.settings?.let {
