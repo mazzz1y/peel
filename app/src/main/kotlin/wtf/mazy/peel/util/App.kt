@@ -8,6 +8,7 @@ import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import wtf.mazy.peel.activities.BrowserActivity
 import wtf.mazy.peel.activities.ExtensionPageActivity
@@ -20,10 +21,12 @@ import wtf.mazy.peel.browser.CertStoreBridge
 import wtf.mazy.peel.browser.ProxyRouterBridge
 import wtf.mazy.peel.gecko.GeckoRuntimeProvider
 import wtf.mazy.peel.gecko.SandboxManager
+import wtf.mazy.peel.model.DataLoad
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.push.PushBridge
 import wtf.mazy.peel.shortcut.ShortcutSideEffects
 import wtf.mazy.peel.ui.AppLock
+import wtf.mazy.peel.ui.common.DataFailureController
 import wtf.mazy.peel.ui.extensions.ExtensionUiBridge
 import wtf.mazy.peel.work.ExtensionUpdateScheduler
 
@@ -50,19 +53,20 @@ class App : Application() {
             return
         }
         registerActivityLifecycleCallbacks(ForegroundActivityTracker)
+        DataFailureController.install(this)
         AppLock.lockOnScreenOff(this)
         GeckoRuntimeProvider.extensionUi = ExtensionUiBridge
         DataManager.sideEffects = ShortcutSideEffects(applicationContext, appScope)
+        appScope.launch { DataManager.initialize(applicationContext) }
+        // Runs on the first successful load, which may only come after a retry.
         appScope.launch {
-            DataManager.initialize(applicationContext)
+            DataManager.load.first { it == DataLoad.Ready }
+            launch { PushBridge.reconcile(applicationContext) }
+            SandboxManager.clearIdleEphemeralSandboxes(applicationContext)
             ProxyRouterBridge.ensure(applicationContext)
             CertStoreBridge.ensure(applicationContext)
             ExtensionUpdateScheduler.apply(applicationContext)
         }
-        appScope.launch {
-            PushBridge.reconcile(applicationContext)
-        }
-        SandboxManager.clearIdleEphemeralSandboxes(applicationContext)
     }
 
     companion object {

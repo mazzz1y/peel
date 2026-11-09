@@ -10,10 +10,11 @@ import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.push.NotificationClickCoordinator
 import wtf.mazy.peel.push.NotificationClickLaunch
 import wtf.mazy.peel.push.WebNotificationBridge
+import wtf.mazy.peel.ui.common.DataRoutingScreen
 import wtf.mazy.peel.ui.common.PeelActivity
 import wtf.mazy.peel.util.BrowserLauncher
 
-class NotificationClickActivity : PeelActivity() {
+class NotificationClickActivity : PeelActivity(), DataRoutingScreen {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

@@ -77,8 +77,8 @@ object DataManager {
         DataState(emptyList(), emptyList(), createGlobalSettings(), emptyList())
     )
     val state: StateFlow<DataState> = _state.asStateFlow()
-    private val _isReady = MutableStateFlow(false)
-    val isReady: StateFlow<Boolean> = _isReady.asStateFlow()
+    private val _load = MutableStateFlow<DataLoad>(DataLoad.Loading)
+    val load: StateFlow<DataLoad> = _load.asStateFlow()
     private val _pushSubscriptionsChanged =
         MutableSharedFlow<Unit>(
             extraBufferCapacity = 1,
@@ -98,9 +98,18 @@ object DataManager {
         actionScope.launch {
             for (command in commands) {
                 when (command) {
-                    is Command.Initialize -> runCatching { openRepository(command.context) }
-                        .onFailure { command.done.completeExceptionally(it) }
-                        .onSuccess { command.done.complete(Unit) }
+                    is Command.Initialize -> {
+                        _load.value = DataLoad.Loading
+                        _load.value = runCatching { openRepository(command.context) }.fold(
+                            onSuccess = { DataLoad.Ready },
+                            onFailure = {
+                                Log.e(TAG, "could not open data", it)
+                                AppDatabase.close()
+                                DataLoad.Failed(it)
+                            },
+                        )
+                        command.done.complete(Unit)
+                    }
 
                     is Command.Apply -> command.done.complete(apply(command.action).isSuccess)
                 }
@@ -134,15 +143,17 @@ object DataManager {
         pendingEffects += effect
     }
 
+    /** Opens the stored data; the outcome is published on [load]. Also used to retry. */
     suspend fun initialize(context: Context) {
         val done = CompletableDeferred<Unit>()
         commands.send(Command.Initialize(context.applicationContext, done))
         done.await()
     }
 
+    /** Suspends until the data is open; throws [DataUnavailableException] if it could not be. */
     suspend fun awaitReady() {
-        if (_isReady.value) return
-        isReady.first { it }
+        val outcome = _load.first { it != DataLoad.Loading }
+        if (outcome is DataLoad.Failed) throw DataUnavailableException(outcome.cause)
     }
 
     /** Returns whether the action was stored; a failed action changes nothing and is logged. */
@@ -313,7 +324,6 @@ object DataManager {
     private fun openRepository(context: Context) {
         repository = DataRepository(AppDatabase.getInstance(context))
         apply(Action.ReloadAll).getOrThrow()
-        _isReady.value = true
     }
 
     private fun handle(action: Action) {

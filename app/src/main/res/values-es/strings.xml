@@ -240,6 +240,8 @@
     <string name="no_app_found">No se encontró una app para este enlace</string>
     <string name="permission_prompt_microphone">¿Permitir a %1$s acceder al micrófono?</string>
     <string name="retry">Reintentar</string>
+    <string name="data_open_failed_title">No se pueden abrir los datos de Peel</string>
+    <string name="data_open_failed_message">Peel no pudo leer sus aplicaciones web y ajustes guardados. No se ha borrado nada. Vuelve a intentarlo o actualiza Peel si instalaste una versión anterior.</string>
     <string name="back">Volver</string>
     <string name="crash_restart_title">La página sigue fallando</string>
     <string name="crash_restart_message">Esta página sigue fallando. Reinicia la aplicación web para volver a intentarlo.</string>

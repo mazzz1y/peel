@@ -10,6 +10,7 @@ import wtf.mazy.peel.model.Redirectors
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.push.NotificationClickLaunch
 import wtf.mazy.peel.push.NotificationTarget
+import wtf.mazy.peel.ui.common.DataRoutingScreen
 import wtf.mazy.peel.ui.common.PeelActivity
 import wtf.mazy.peel.ui.dialog.ExternalLinkMenu
 import wtf.mazy.peel.util.BrowserLauncher
@@ -21,7 +22,7 @@ import wtf.mazy.peel.util.IncomingUrl
  * The manifest exposes it under the historical `LinkRouterActivity` and
  * `ShareReceiverActivity` component names.
  */
-class IncomingLinkActivity : PeelActivity() {
+class IncomingLinkActivity : PeelActivity(), DataRoutingScreen {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

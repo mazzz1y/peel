@@ -134,6 +134,8 @@
     <string name="site_not_found">পৃষ্ঠা লোড করা যায়নি।</string>
     <string name="connection_error">সংযোগ ত্রুটি: %1$s</string>
     <string name="retry">পুনরায় চেষ্টা</string>
+    <string name="data_open_failed_title">Peel-এর ডেটা খোলা যাচ্ছে না</string>
+    <string name="data_open_failed_message">Peel সংরক্ষিত ওয়েব অ্যাপ ও সেটিংস পড়তে পারেনি। কিছুই মুছে ফেলা হয়নি। আবার চেষ্টা করুন, অথবা পুরোনো সংস্করণ ইনস্টল করে থাকলে Peel আপডেট করুন।</string>
     <string name="back">পেছনে</string>
     <string name="crash_restart_title">পৃষ্ঠাটি বারবার ক্র্যাশ করছে</string>
     <string name="crash_restart_message">এই পৃষ্ঠাটি বারবার ক্র্যাশ করছে। আবার চেষ্টা করতে ওয়েব অ্যাপটি পুনরায় চালু করুন।</string>

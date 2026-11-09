@@ -191,6 +191,8 @@
     <string name="proxy_not_ready" translatable="false">PROXY_ROUTES_NOT_READY</string>
     <string name="empty_page" translatable="false">EMPTY_PAGE</string>
     <string name="retry">Retry</string>
+    <string name="data_open_failed_title">Can\'t open Peel\'s data</string>
+    <string name="data_open_failed_message">Peel couldn\'t read its saved web apps and settings. Nothing was deleted. Try again, or update Peel if you installed an older version.</string>
     <string name="back">Back</string>
     <string name="crash_restart_title">Page keeps crashing</string>
     <string name="crash_restart_message">This page keeps crashing. Restart the webapp to try again.</string>

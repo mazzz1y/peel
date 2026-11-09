@@ -127,6 +127,8 @@
     <string name="site_not_found">無法載入頁面</string>
     <string name="connection_error">連線錯誤：%1$s</string>
     <string name="retry">重試</string>
+    <string name="data_open_failed_title">無法開啟 Peel 的資料</string>
+    <string name="data_open_failed_message">Peel 無法讀取已儲存的網頁應用程式和設定。沒有刪除任何內容。請再試一次；如果安裝的是舊版本，請更新 Peel。</string>
     <string name="back">返回</string>
     <string name="crash_restart_title">頁面持續當機</string>
     <string name="crash_restart_message">此頁面持續當機。請重新啟動網頁應用程式以再次嘗試。</string>

@@ -148,6 +148,8 @@
     <string name="site_not_found">Не удалось загрузить страницу</string>
     <string name="connection_error">Ошибка соединения: %1$s</string>
     <string name="retry">Повторить</string>
+    <string name="data_open_failed_title">Не удаётся открыть данные Peel</string>
+    <string name="data_open_failed_message">Peel не смог прочитать сохранённые веб-приложения и настройки. Ничего не удалено. Попробуйте ещё раз или обновите Peel, если установили более старую версию.</string>
     <string name="back">Назад</string>
     <string name="crash_restart_title">Сбой страницы</string>
     <string name="crash_restart_message">На этой странице постоянно происходят сбои. Перезапустите веб-приложение, чтобы повторить попытку.</string>

@@ -127,6 +127,8 @@
     <string name="site_not_found">无法加载页面</string>
     <string name="connection_error">连接错误：%1$s</string>
     <string name="retry">重试</string>
+    <string name="data_open_failed_title">无法打开 Peel 的数据</string>
+    <string name="data_open_failed_message">Peel 无法读取已保存的网页应用和设置。没有删除任何内容。请重试；如果安装的是旧版本，请更新 Peel。</string>
     <string name="back">返回</string>
     <string name="crash_restart_title">页面持续崩溃</string>
     <string name="crash_restart_message">此页面持续崩溃。请重新启动网页应用以再次尝试。</string>

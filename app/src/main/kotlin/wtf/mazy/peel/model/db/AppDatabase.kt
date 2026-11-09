@@ -465,6 +465,14 @@ abstract class AppDatabase : RoomDatabase() {
                 ?: synchronized(this) { instance ?: buildDatabase(context).also { instance = it } }
         }
 
+        /** Drops a database that failed to open, so the next [getInstance] tries again. */
+        fun close() {
+            synchronized(this) {
+                instance?.close()
+                instance = null
+            }
+        }
+
         private fun buildDatabase(context: Context): AppDatabase {
             return Room.databaseBuilder(
                 context.applicationContext,

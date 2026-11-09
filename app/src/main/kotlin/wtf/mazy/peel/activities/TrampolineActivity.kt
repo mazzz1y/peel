@@ -8,12 +8,13 @@ import wtf.mazy.peel.gecko.GeckoRuntimeProvider
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.ui.PickerDialog
+import wtf.mazy.peel.ui.common.DataRoutingScreen
 import wtf.mazy.peel.ui.common.PeelActivity
 import wtf.mazy.peel.util.BrowserLauncher
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.toast
 
-class TrampolineActivity : PeelActivity() {
+class TrampolineActivity : PeelActivity(), DataRoutingScreen {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

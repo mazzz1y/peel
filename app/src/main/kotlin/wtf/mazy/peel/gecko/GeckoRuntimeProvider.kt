@@ -133,8 +133,8 @@ object GeckoRuntimeProvider {
         if (!initStarted.compareAndSet(false, true)) return
         val appContext = context.applicationContext
         App.appScope.launch {
-            DataManager.awaitReady()
             try {
+                DataManager.awaitReady()
                 withContext(Dispatchers.Main) {
                     val rt = getRuntime(appContext)
                     if (warmUp) warmUpContentProcess(rt)

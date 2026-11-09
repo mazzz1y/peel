@@ -69,6 +69,7 @@ import wtf.mazy.peel.ui.FloatingControlsView
 import wtf.mazy.peel.ui.browser.PullToRefreshController
 import wtf.mazy.peel.ui.browser.SystemBarController
 import wtf.mazy.peel.ui.browser.VirtualCursorController
+import wtf.mazy.peel.ui.common.DataRoutingScreen
 import wtf.mazy.peel.ui.common.LoadingDialogController
 import wtf.mazy.peel.ui.common.PeelActivity
 import wtf.mazy.peel.ui.controls.BarControlsView
@@ -103,7 +104,8 @@ import wtf.mazy.peel.util.uploadFileName
 import java.io.File
 import java.util.UUID
 
-abstract class BaseSessionHost : PeelActivity(), SessionHost, TranslationHost {
+abstract class BaseSessionHost :
+    PeelActivity(), SessionHost, TranslationHost, DataRoutingScreen {
 
     protected var geckoSession: GeckoSession? = null
     protected var lastSessionState: GeckoSession.SessionState? = null

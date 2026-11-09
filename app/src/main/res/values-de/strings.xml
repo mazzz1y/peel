@@ -234,6 +234,8 @@
     <string name="no_app_found">Keine App für diesen Link gefunden</string>
     <string name="permission_prompt_microphone">%1$s Zugriff auf das Mikrofon erlauben?</string>
     <string name="retry">Erneut versuchen</string>
+    <string name="data_open_failed_title">Peel-Daten können nicht geöffnet werden</string>
+    <string name="data_open_failed_message">Peel konnte die gespeicherten Web-Apps und Einstellungen nicht lesen. Es wurde nichts gelöscht. Versuchen Sie es erneut oder aktualisieren Sie Peel, falls Sie eine ältere Version installiert haben.</string>
     <string name="back">Zurück</string>
     <string name="crash_restart_title">Seite stürzt wiederholt ab</string>
     <string name="crash_restart_message">Diese Seite stürzt wiederholt ab. Starten Sie die Web-App neu, um es erneut zu versuchen.</string>
