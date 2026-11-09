@@ -25,7 +25,10 @@ object EntityCloner {
             settings = group.settings.deepCopy(),
         )
         withContext(Dispatchers.IO) { newGroup.copyIconFrom(group) }
-        DataManager.addGroup(newGroup, appendOrder = true)
+        if (!DataManager.addGroup(newGroup, appendOrder = true)) {
+            newGroup.deleteIcon()
+            return
+        }
 
         DataManager.webAppsInGroup(group.uuid).forEach { webApp ->
             val clone = webApp.cloneInto(newGroup.uuid, webApp.order)

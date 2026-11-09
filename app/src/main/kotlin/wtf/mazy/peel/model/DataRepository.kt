@@ -5,11 +5,13 @@ import wtf.mazy.peel.model.db.PushSubscriptionEntity
 import wtf.mazy.peel.model.db.toDomain
 import wtf.mazy.peel.model.db.toEntity
 
-class DataRepository(db: AppDatabase) {
+class DataRepository(private val db: AppDatabase) {
     private val webAppDao = db.webAppDao()
     private val groupDao = db.webAppGroupDao()
     private val proxyDao = db.proxyDao()
     private val pushSubscriptionDao = db.pushSubscriptionDao()
+
+    fun <T> transaction(block: () -> T): T = db.runInTransaction(block)
 
     fun loadGlobalSettings(): WebApp? = webAppDao.getGlobalSettings()?.toDomain()
 

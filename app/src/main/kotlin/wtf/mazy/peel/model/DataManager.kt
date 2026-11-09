@@ -1,6 +1,7 @@
 package wtf.mazy.peel.model
 
 import android.content.Context
+import android.util.Log
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -59,12 +60,9 @@ object DataManager {
     }
 
     private sealed interface Command {
-        val done: CompletableDeferred<Unit>
+        class Initialize(val context: Context, val done: CompletableDeferred<Unit>) : Command
 
-        class Initialize(val context: Context, override val done: CompletableDeferred<Unit>) :
-            Command
-
-        class Apply(val action: Action, override val done: CompletableDeferred<Unit>) : Command
+        class Apply(val action: Action, val done: CompletableDeferred<Boolean>) : Command
     }
 
     lateinit var sideEffects: DataSideEffects
@@ -90,19 +88,50 @@ object DataManager {
 
     private val transientWebApps = mutableMapOf<String, WebApp>()
 
+    private var pendingState: DataState? = null
+    private val pendingEffects = mutableListOf<() -> Unit>()
+
+    private val working: DataState
+        get() = pendingState ?: _state.value
+
     init {
         actionScope.launch {
             for (command in commands) {
-                runCatching {
-                    when (command) {
-                        is Command.Initialize -> openRepository(command.context)
-                        is Command.Apply -> handle(command.action)
-                    }
+                when (command) {
+                    is Command.Initialize -> runCatching { openRepository(command.context) }
+                        .onFailure { command.done.completeExceptionally(it) }
+                        .onSuccess { command.done.complete(Unit) }
+
+                    is Command.Apply -> command.done.complete(apply(command.action).isSuccess)
                 }
-                    .onFailure { command.done.completeExceptionally(it) }
-                    .onSuccess { command.done.complete(Unit) }
             }
         }
+    }
+
+    // One transaction per action; state and cleanup only follow a commit, so a failure leaves
+    // both the database and what screens show exactly as they were.
+    private fun apply(action: Action): Result<Unit> {
+        val result = runCatching { repository.transaction { handle(action) } }
+            .onFailure { Log.e(TAG, "${action::class.simpleName} failed; nothing stored", it) }
+        val next = pendingState
+        val effects = pendingEffects.toList()
+        pendingState = null
+        pendingEffects.clear()
+        if (result.isFailure) return result
+        next?.let { _state.value = it }
+        effects.forEach { effect ->
+            runCatching(effect)
+                .onFailure { Log.w(TAG, "cleanup after ${action::class.simpleName} failed", it) }
+        }
+        return result
+    }
+
+    private fun publish(next: DataState) {
+        pendingState = next
+    }
+
+    private fun afterCommit(effect: () -> Unit) {
+        pendingEffects += effect
     }
 
     suspend fun initialize(context: Context) {
@@ -116,11 +145,12 @@ object DataManager {
         isReady.first { it }
     }
 
-    suspend fun submit(action: Action) {
+    /** Returns whether the action was stored; a failed action changes nothing and is logged. */
+    suspend fun submit(action: Action): Boolean {
         awaitReady()
-        val done = CompletableDeferred<Unit>()
+        val done = CompletableDeferred<Boolean>()
         commands.send(Command.Apply(action, done))
-        done.await()
+        return done.await()
     }
 
     private suspend fun <T> query(block: DataRepository.() -> T): T {
@@ -221,7 +251,9 @@ object DataManager {
 
     suspend fun removeWebApp(uuid: String) = submit(Action.RemoveWebApp(uuid))
 
-    suspend fun deleteWebApps(uuids: List<String>) = uuids.forEach { removeWebApp(it) }
+    suspend fun deleteWebApps(uuids: List<String>) {
+        uuids.forEach { removeWebApp(it) }
+    }
 
     suspend fun replaceWebApp(webApp: WebApp) = submit(Action.ReplaceWebApp(webApp))
 
@@ -280,24 +312,26 @@ object DataManager {
 
     private fun openRepository(context: Context) {
         repository = DataRepository(AppDatabase.getInstance(context))
-        if (repository.loadGlobalSettings() == null) {
-            repository.persistGlobalSettings(state.value.globalSettings)
-        }
-        reloadFromRepository()
+        apply(Action.ReloadAll).getOrThrow()
         _isReady.value = true
     }
 
     private fun handle(action: Action) {
         when (action) {
             is Action.EnsureWebAppLoaded -> ensureLoaded(action)
-            is Action.ReloadAll -> reloadFromRepository()
+            is Action.ReloadAll -> {
+                if (repository.loadGlobalSettings() == null) {
+                    repository.persistGlobalSettings(working.globalSettings)
+                }
+                reloadFromRepository()
+            }
             is Action.PersistGlobalSettings ->
-                repository.persistGlobalSettings(state.value.globalSettings)
+                repository.persistGlobalSettings(working.globalSettings)
 
             is Action.SetGlobalSettings -> {
                 val value = action.value.withOwnSettings()
                 repository.persistGlobalSettings(value)
-                _state.value = state.value.copy(globalSettings = value)
+                publish(working.copy(globalSettings = value))
             }
 
             is Action.AddWebApp -> handleAddWebApp(action)
@@ -317,12 +351,12 @@ object DataManager {
 
             is Action.UpsertPushSubscription -> {
                 repository.upsertPushSubscription(action.entity)
-                _pushSubscriptionsChanged.tryEmit(Unit)
+                afterCommit { _pushSubscriptionsChanged.tryEmit(Unit) }
             }
 
             is Action.RemovePushSubscription -> {
                 repository.deletePushSubscription(action.instance)
-                _pushSubscriptionsChanged.tryEmit(Unit)
+                afterCommit { _pushSubscriptionsChanged.tryEmit(Unit) }
             }
 
             is Action.ImportData -> {
@@ -339,7 +373,7 @@ object DataManager {
 
     private fun ensureLoaded(action: Action.EnsureWebAppLoaded) {
         if (action.uuid == Const.GLOBAL_WEBAPP_UUID) return
-        val current = state.value
+        val current = working
         if (!action.forceReload && current.webApps.any { it.uuid == action.uuid }) return
         val proxyUuids = current.proxyUuids
         val loadedWebApp = repository.loadWebApp(action.uuid)
@@ -349,17 +383,17 @@ object DataManager {
             ?.withExistingProxy(proxyUuids)
         val loadedGlobal = repository.loadGlobalSettings()?.let(::ensureGlobalSettingsConcrete)
             ?: current.globalSettings
-        _state.value = current.copy(
+        publish(current.copy(
             webApps = current.webApps.replacingOrAppending(loadedWebApp) { it.uuid },
             groups = loadedGroup?.let { group -> current.groups.replacingOrAppending(group) { it.uuid } }
                 ?: current.groups,
             globalSettings = loadedGlobal,
-        )
+        ))
     }
 
     private fun handleAddWebApp(action: Action.AddWebApp) {
         if (action.webApp.uuid == Const.GLOBAL_WEBAPP_UUID) return
-        val current = state.value
+        val current = working
         val added = action.webApp.withExistingProxy(current.proxyUuids)
         val webApp = if (action.appendOrder) {
             added.copy(order = OrderAllocator(current).nextWebAppOrder(added.groupUuid))
@@ -367,43 +401,46 @@ object DataManager {
             added
         }
         repository.upsertWebApp(webApp)
-        _state.value = current.copy(webApps = current.webApps + webApp)
+        publish(current.copy(webApps = current.webApps + webApp))
     }
 
     private fun handleRemoveWebApp(action: Action.RemoveWebApp) {
-        val current = state.value
+        val current = working
         val webApp = current.webApps.find { it.uuid == action.uuid } ?: return
         repository.deleteWebApp(webApp.uuid)
-        _state.value = current.copy(webApps = current.webApps - webApp)
-        forgetWebApp(webApp)
-        sideEffects.onShortcutsRemoved(listOf(webApp.uuid))
+        publish(current.copy(webApps = current.webApps - webApp))
+        forgetWebApps(listOf(webApp))
     }
 
     private fun handleReplaceWebApp(action: Action.ReplaceWebApp) {
         if (action.webApp.uuid == Const.GLOBAL_WEBAPP_UUID) return
-        val current = state.value
-        if (current.webApps.none { it.uuid == action.webApp.uuid }) return
-        val webApp = action.webApp.withOwnSettings().withExistingProxy(current.proxyUuids)
+        val current = working
+        val stored = current.webApps.find { it.uuid == action.webApp.uuid } ?: return
+        val replacement = action.webApp.withOwnSettings().withExistingProxy(current.proxyUuids)
+        val webApp = if (replacement.groupUuid == stored.groupUuid) {
+            replacement.copy(order = stored.order)
+        } else {
+            replacement.copy(order = OrderAllocator(current).nextWebAppOrder(replacement.groupUuid))
+        }
         repository.upsertWebApp(webApp)
-        _state.value =
-            current.copy(webApps = current.webApps.replacingOrAppending(webApp) { it.uuid })
+        publish(current.copy(webApps = current.webApps.replacingOrAppending(webApp) { it.uuid }))
     }
 
     private fun handleMoveWebAppsToGroup(action: Action.MoveWebAppsToGroup) {
         val uuids = action.uuids.toSet()
-        val next = DataReducer.movingWebAppsToGroup(state.value, uuids, action.groupUuid)
+        val next = DataReducer.movingWebAppsToGroup(working, uuids, action.groupUuid)
         repository.upsertWebApps(next.webApps.filter { it.uuid in uuids })
-        _state.value = next
+        publish(next)
     }
 
     private fun handleReorderWebApps(action: Action.ReorderWebApps) {
-        val next = DataReducer.reorderingWebApps(state.value, action.orderedUuids)
+        val next = DataReducer.reorderingWebApps(working, action.orderedUuids)
         repository.upsertWebApps(next.webApps)
-        _state.value = next
+        publish(next)
     }
 
     private fun handleAddGroup(action: Action.AddGroup) {
-        val current = state.value
+        val current = working
         val added = action.group.withExistingProxy(current.proxyUuids)
         val group = if (action.appendOrder) {
             added.copy(order = OrderAllocator(current).nextGroupOrder())
@@ -411,95 +448,82 @@ object DataManager {
             added
         }
         repository.upsertGroup(group)
-        _state.value = current.copy(groups = current.groups + group)
+        publish(current.copy(groups = current.groups + group))
     }
 
     private fun handleReplaceGroup(action: Action.ReplaceGroup) {
-        val current = state.value
+        val current = working
         if (current.groups.none { it.uuid == action.group.uuid }) return
         val group = action.group.withOwnSettings().withExistingProxy(current.proxyUuids)
         repository.upsertGroup(group)
-        _state.value = current.copy(groups = current.groups.replacingOrAppending(group) { it.uuid })
-        sideEffects.onShortcutOwnerChanged(group)
+        publish(current.copy(groups = current.groups.replacingOrAppending(group) { it.uuid }))
+        afterCommit { sideEffects.onShortcutOwnerChanged(group) }
     }
 
     private fun handleRemoveGroup(action: Action.RemoveGroup) {
-        val current = state.value
+        val current = working
         val groupUuid = action.group.uuid
         val appsInGroup = current.webApps.filter { it.groupUuid == groupUuid }
-        val nextWebApps = if (action.ungroupApps) {
-            val ungrouped = appsInGroup.map { it.copy(groupUuid = null) }
-            repository.upsertWebApps(ungrouped)
-            current.webApps.map { webApp -> ungrouped.find { it.uuid == webApp.uuid } ?: webApp }
+        val withoutApps = if (action.ungroupApps) {
+            val moved = appsInGroup.mapTo(mutableSetOf()) { it.uuid }
+            DataReducer.movingWebAppsToGroup(current, moved, groupUuid = null).also { next ->
+                repository.upsertWebApps(next.webApps.filter { it.uuid in moved })
+            }
         } else {
             appsInGroup.forEach { repository.deleteWebApp(it.uuid) }
-            current.webApps - appsInGroup.toSet()
+            forgetWebApps(appsInGroup)
+            current.copy(webApps = current.webApps - appsInGroup.toSet())
         }
-        sideEffects.onSandboxRemoved(groupUuid)
-        action.group.deleteIcon()
-        if (!action.ungroupApps) appsInGroup.forEach(::forgetWebApp)
         repository.deleteGroup(groupUuid)
-        _state.value = current.copy(
-            webApps = nextWebApps,
-            groups = current.groups.filterNot { it.uuid == groupUuid },
-        )
-        sideEffects.onShortcutsRemoved(
-            buildList {
-                add(groupUuid)
-                if (!action.ungroupApps) addAll(appsInGroup.map { it.uuid })
-            }
-        )
+        publish(withoutApps.copy(groups = withoutApps.groups.filterNot { it.uuid == groupUuid }))
+        forgetGroups(listOf(action.group))
     }
 
     private fun handleReorderGroups(action: Action.ReorderGroups) {
-        val next = DataReducer.reorderingGroups(state.value, action.orderedUuids)
+        val next = DataReducer.reorderingGroups(working, action.orderedUuids)
         repository.upsertGroups(next.groups)
-        _state.value = next
+        publish(next)
     }
 
     private fun handleAddProxy(action: Action.AddProxy) {
-        val current = state.value
+        val current = working
         repository.upsertProxy(action.proxy)
-        _state.value = current.copy(proxies = current.proxies + action.proxy)
+        publish(current.copy(proxies = current.proxies + action.proxy))
     }
 
     private fun handleReplaceProxy(action: Action.ReplaceProxy) {
-        val current = state.value
+        val current = working
         if (current.proxies.none { it.uuid == action.proxy.uuid }) return
         repository.upsertProxy(action.proxy)
-        _state.value =
-            current.copy(proxies = current.proxies.replacingOrAppending(action.proxy) { it.uuid })
+        publish(current.copy(proxies = current.proxies.replacingOrAppending(action.proxy) { it.uuid }))
     }
 
     private fun handleRemoveProxy(action: Action.RemoveProxy) {
-        val current = state.value
+        val current = working
         if (current.proxies.none { it.uuid == action.uuid }) return
         repository.deleteProxy(action.uuid)
-        _state.value = withExistingProxies(
-            current.copy(proxies = current.proxies.filterNot { it.uuid == action.uuid })
+        publish(
+            withExistingProxies(
+                current.copy(proxies = current.proxies.filterNot { it.uuid == action.uuid })
+            )
         )
     }
 
     private fun replaceAllData(action: Action.ImportData) {
-        val current = state.value
+        val current = working
         val importedGroupUuids = action.groups.mapTo(mutableSetOf()) { it.uuid }
-        current.groups.filter { it.uuid !in importedGroupUuids }
-            .forEach { sideEffects.onSandboxRemoved(it.uuid) }
-
         val importedAppUuids = action.webApps.mapTo(mutableSetOf()) { it.uuid }
-        val removedApps = current.webApps.filter { it.uuid !in importedAppUuids }
-        removedApps.forEach(::forgetWebApp)
-        if (removedApps.isNotEmpty()) sideEffects.onShortcutsRemoved(removedApps.map { it.uuid })
-
         repository.replaceAllWebApps(action.webApps)
         repository.replaceAllGroups(action.groups)
         repository.replaceAllProxies(action.proxies)
         repository.persistGlobalSettings(current.globalSettings.copy(settings = action.globalSettings))
         reloadFromRepository()
+        forgetWebApps(current.webApps.filter { it.uuid !in importedAppUuids })
+        forgetGroups(current.groups.filter { it.uuid !in importedGroupUuids })
     }
 
     private fun mergeData(action: Action.ImportData) {
-        val current = state.value
+        val current = working
         val localApps = current.webApps.associateBy { it.uuid }
         val localGroups = current.groups.associateBy { it.uuid }
         val allocator = OrderAllocator(current)
@@ -520,16 +544,21 @@ object DataManager {
     }
 
     private fun reloadFromRepository() {
-        val current = state.value
+        val current = working
         val loadedWebApps = repository.loadAllWebApps()
-        removeStaleShortcuts(current.webApps, loadedWebApps)
-        _state.value = withExistingProxies(
-            DataState(
-                webApps = loadedWebApps,
-                groups = repository.loadAllGroups(),
-                globalSettings = repository.loadGlobalSettings()?.let(::ensureGlobalSettingsConcrete)
-                    ?: ensureGlobalSettingsConcrete(current.globalSettings),
-                proxies = repository.loadAllProxies(),
+        val staleShortcuts = staleShortcutUuids(current.webApps, loadedWebApps)
+        if (staleShortcuts.isNotEmpty()) {
+            afterCommit { sideEffects.onShortcutsRemoved(staleShortcuts) }
+        }
+        publish(
+            withExistingProxies(
+                DataState(
+                    webApps = loadedWebApps,
+                    groups = repository.loadAllGroups(),
+                    globalSettings = repository.loadGlobalSettings()?.let(::ensureGlobalSettingsConcrete)
+                        ?: ensureGlobalSettingsConcrete(current.globalSettings),
+                    proxies = repository.loadAllProxies(),
+                )
             )
         )
     }
@@ -543,10 +572,21 @@ object DataManager {
         return next
     }
 
-    private fun forgetWebApp(webApp: WebApp) {
-        if (webApp.isolation.isSandboxed) sideEffects.onSandboxRemoved(webApp.uuid)
-        webApp.deleteIcon()
-        deleteAppPrefs(App.appContext, webApp.uuid)
+    private fun forgetWebApps(webApps: List<WebApp>) {
+        webApps.forEach { webApp ->
+            if (webApp.isolation.isSandboxed) afterCommit { sideEffects.onSandboxRemoved(webApp.uuid) }
+            afterCommit { webApp.deleteIcon() }
+            afterCommit { deleteAppPrefs(App.appContext, webApp.uuid) }
+        }
+        if (webApps.isNotEmpty()) afterCommit { sideEffects.onShortcutsRemoved(webApps.map { it.uuid }) }
+    }
+
+    private fun forgetGroups(groups: List<WebAppGroup>) {
+        groups.forEach { group ->
+            afterCommit { sideEffects.onSandboxRemoved(group.uuid) }
+            afterCommit { group.deleteIcon() }
+        }
+        if (groups.isNotEmpty()) afterCommit { sideEffects.onShortcutsRemoved(groups.map { it.uuid }) }
     }
 
     private fun ensureGlobalSettingsConcrete(source: WebApp): WebApp {
@@ -566,15 +606,14 @@ object DataManager {
             settings = WebAppSettings.createWithDefaults(),
         )
 
-    private fun removeStaleShortcuts(oldWebApps: List<WebApp>, newWebApps: List<WebApp>) {
+    private fun staleShortcutUuids(oldWebApps: List<WebApp>, newWebApps: List<WebApp>): List<String> {
         val oldUrlByUuid = oldWebApps.associate { it.uuid to it.baseUrl }
-        val staleUuids = newWebApps
+        return newWebApps
             .filter { newApp ->
                 val oldUrl = oldUrlByUuid[newApp.uuid]
                 oldUrl != null && oldUrl != newApp.baseUrl
             }
             .map { it.uuid }
-        if (staleUuids.isNotEmpty()) sideEffects.onShortcutsRemoved(staleUuids)
     }
 
     // WebAppSettings is still a mutable bag the settings screens keep editing after they save;
@@ -582,6 +621,8 @@ object DataManager {
     private fun WebApp.withOwnSettings(): WebApp = copy(settings = settings.deepCopy())
 
     private fun WebAppGroup.withOwnSettings(): WebAppGroup = copy(settings = settings.deepCopy())
+
+    private const val TAG = "DataManager"
 
     private fun <T> List<T>.replacingOrAppending(item: T, uuid: (T) -> String): List<T> {
         val index = indexOfFirst { uuid(it) == uuid(item) }

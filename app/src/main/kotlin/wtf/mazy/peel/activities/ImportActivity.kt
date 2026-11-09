@@ -147,7 +147,7 @@ class ImportActivity : PeelActivity() {
                         if (title.isEmpty()) return@showSandboxInputDialog
                         val group = WebAppGroup(title = title, isolation = result.isolation)
                         lifecycleScope.launch {
-                            DataManager.addGroup(group, appendOrder = true)
+                            if (!DataManager.addGroup(group, appendOrder = true)) return@launch
                             selectedGroupUuid = group.uuid
 
                             groupValues.add(groupValues.size - 2, group.uuid)
