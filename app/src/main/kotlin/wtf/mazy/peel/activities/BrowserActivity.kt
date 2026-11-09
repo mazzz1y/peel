@@ -49,7 +49,7 @@ import wtf.mazy.peel.model.EffectiveSettings
 import wtf.mazy.peel.model.UnwrappedLink
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.ui.browser.AutoReloadController
-import wtf.mazy.peel.ui.browser.BiometricUnlockController
+import wtf.mazy.peel.ui.browser.AppLockController
 import wtf.mazy.peel.ui.dialog.ExternalLinkMenu
 import wtf.mazy.peel.ui.extensions.ExtensionActionController
 import wtf.mazy.peel.util.BrowserLauncher
@@ -140,12 +140,13 @@ class BrowserActivity : BaseSessionHost() {
     @Volatile
     private var cachedPeelApps: List<WebApp> = emptyList()
 
-    private val biometricController by lazy {
-        BiometricUnlockController(
+    private val appLock by lazy {
+        AppLockController(
             activity = this,
-            getWebAppUuid = { webAppUuid },
+            ownerUuid = { webAppUuid },
+            isProtected = { cachedSettings?.biometricProtection == true },
+            content = { browserContent },
             onSuccess = {
-                browserContent?.visibility = View.VISIBLE
                 if (pendingSessionRecovery) {
                     recoverSession()
                 } else if (!pageLoadHandled) {
@@ -194,15 +195,10 @@ class BrowserActivity : BaseSessionHost() {
         cachedSettings = DataManager.effectiveSettings(webApp)
         applyTaskSnapshotProtection()
         setupGeckoView()
-        biometricController.registerReceiver()
 
-        val needsBiometric = effectiveSettings.biometricProtection
-        val promptOutcome = biometricController.showPromptIfNeeded(needsBiometric) {
-            systemBarController.resetToTheme()
-            browserContent?.visibility = View.INVISIBLE
-        }
-        if (promptOutcome == BiometricUnlockController.PromptOutcome.UNAVAILABLE) return
-        if (!needsBiometric) {
+        val promptOutcome = appLock.showPromptIfNeeded { systemBarController.resetToTheme() }
+        if (promptOutcome == AppLockController.PromptOutcome.UNAVAILABLE) return
+        if (promptOutcome == AppLockController.PromptOutcome.NOT_NEEDED) {
             launchSessionExtensionsAndLoad(
                 effectiveSettings,
                 sharedUrlFromIntent() ?: webApp.baseUrl
@@ -215,6 +211,7 @@ class BrowserActivity : BaseSessionHost() {
 
     override fun onStart() {
         super.onStart()
+        appLock.onStart()
         if (!isStartupComplete) return
         stopBackgroundKeepActive()
         reattachSessionToView()
@@ -262,17 +259,8 @@ class BrowserActivity : BaseSessionHost() {
 
         showBrowserControls()
 
-        val promptOutcome = biometricController.showPromptIfNeeded(
-            effectiveSettings.biometricProtection,
-        ) {
-            systemBarController.resetToTheme()
-            browserContent?.visibility = View.INVISIBLE
-        }
-        if (promptOutcome == BiometricUnlockController.PromptOutcome.UNAVAILABLE) return
-
-        if (!biometricController.isPromptActive) {
-            browserContent?.visibility = View.VISIBLE
-        }
+        val promptOutcome = appLock.showPromptIfNeeded { systemBarController.resetToTheme() }
+        if (promptOutcome == AppLockController.PromptOutcome.UNAVAILABLE) return
 
         autoReloadController.start(effectiveSettings)
     }
@@ -296,9 +284,8 @@ class BrowserActivity : BaseSessionHost() {
     override fun onStop() {
         super.onStop()
         if (isTaskSnapshotProtected) systemBarController.resetToTheme()
-        if (!isStartupComplete) {
-            biometricController.onStop(); return
-        }
+        appLock.onStop()
+        if (!isStartupComplete) return
 
         val settings = effectiveSettings
         if (!settings.backgroundMediaPlayback) {
@@ -313,8 +300,6 @@ class BrowserActivity : BaseSessionHost() {
         }
 
         permissionDelegate.clearPagePermissions()
-
-        biometricController.onStop()
     }
 
     private fun startBackgroundKeepActive() {
@@ -342,7 +327,6 @@ class BrowserActivity : BaseSessionHost() {
                 ?.clearData(StorageController.ClearFlags.ALL_CACHES)
         }
         closeFindInPage()
-        biometricController.unregisterReceiver()
         mediaPlaybackManager?.release()
         mediaPlaybackManager = null
         pageBridge?.detach(closingSession = true)
@@ -391,7 +375,7 @@ class BrowserActivity : BaseSessionHost() {
         if (DataManager.webApp(newUuid) == null) return
         webAppUuid = newUuid
         cachedSettings = DataManager.effectiveSettings(webApp)
-        biometricController.resetForSwap()
+        appLock.ownerChanged()
         systemBarController.resetForSwap()
         mediaPlaybackManager?.release()
         mediaPlaybackManager = null
@@ -456,7 +440,7 @@ class BrowserActivity : BaseSessionHost() {
     }
 
     override fun updateSystemBarColors(top: Int, bottom: Int) {
-        if (biometricController.isPromptActive) return
+        if (appLock.isPromptActive) return
         super.updateSystemBarColors(top, bottom)
     }
 
@@ -479,7 +463,7 @@ class BrowserActivity : BaseSessionHost() {
     override fun onPageFullyLoaded() {
         super.onPageFullyLoaded()
         closeStartupAuthTrackingIfInitialBaseLoaded()
-        if (pageLoadHandled || biometricController.isPromptActive) return
+        if (pageLoadHandled || appLock.isPromptActive) return
         pageLoadHandled = true
     }
 
@@ -520,7 +504,7 @@ class BrowserActivity : BaseSessionHost() {
 
     private fun recoverSession() {
         if (isFinishing || isDestroyed) return
-        if (biometricController.isPromptActive) {
+        if (appLock.isPromptActive) {
             pendingSessionRecovery = true
             return
         }
@@ -800,12 +784,10 @@ class BrowserActivity : BaseSessionHost() {
                         effectiveSettings.disableScreenshots)
 
     private fun applyTaskSnapshotProtection() {
-        val shouldProtect = effectiveSettings.biometricProtection
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            setRecentsScreenshotEnabled(!shouldProtect)
-        }
+        appLock.applyRecentsProtection()
 
-        val protectsRecents = shouldProtect || effectiveSettings.disableScreenshots
+        val protectsRecents =
+            effectiveSettings.biometricProtection || effectiveSettings.disableScreenshots
         if (protectsRecents && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             setTaskDescription(
                 ActivityManager.TaskDescription.Builder()

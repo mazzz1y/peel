@@ -11,6 +11,7 @@ import wtf.mazy.peel.browser.SessionHandoff
 import wtf.mazy.peel.browser.isBlankDocument
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.EffectiveSettings
+import wtf.mazy.peel.ui.browser.AppLockController
 import wtf.mazy.peel.ui.extensions.ExtensionActionController
 import wtf.mazy.peel.util.BrowserLauncher
 import wtf.mazy.peel.util.toast
@@ -43,11 +44,44 @@ class PopupActivity : SessionPageActivity() {
     override val ownerWebAppUuid: String?
         get() = intent.getStringExtra(PopupLaunch.EXTRA_OWNER_UUID)
 
+    private val appLock by lazy {
+        AppLockController(
+            activity = this,
+            ownerUuid = { ownerWebAppUuid },
+            isProtected = {
+                ownerWebAppUuid != null &&
+                        (ownerSettings ?: effectiveSettings).biometricProtection
+            },
+            content = { browserContent },
+            onSuccess = {},
+            onFailure = { finish() },
+        )
+    }
+
+    private val ownerSettings: EffectiveSettings?
+        get() = ownerWebAppUuid?.let(DataManager::webApp)?.let(DataManager::effectiveSettings)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         snapshotSettings = intent.getStringExtra(PopupLaunch.EXTRA_SETTINGS)
             ?.let { runCatching { Json.decodeFromString<EffectiveSettings>(it) }.getOrNull() }
             ?: DataManager.globalEffectiveSettings
         super.onCreate(savedInstanceState)
+    }
+
+    override fun onStart() {
+        super.onStart()
+        appLock.onStart()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        appLock.applyRecentsProtection()
+        appLock.showPromptIfNeeded {}
+    }
+
+    override fun onStop() {
+        appLock.onStop()
+        super.onStop()
     }
 
     override fun onSessionHostReady() {

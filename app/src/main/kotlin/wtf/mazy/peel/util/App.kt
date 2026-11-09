@@ -23,6 +23,7 @@ import wtf.mazy.peel.gecko.SandboxManager
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.push.PushBridge
 import wtf.mazy.peel.shortcut.ShortcutSideEffects
+import wtf.mazy.peel.ui.AppLock
 import wtf.mazy.peel.ui.extensions.ExtensionUiBridge
 import wtf.mazy.peel.work.ExtensionUpdateScheduler
 
@@ -49,6 +50,7 @@ class App : Application() {
             return
         }
         registerActivityLifecycleCallbacks(ForegroundActivityTracker)
+        AppLock.lockOnScreenOff(this)
         GeckoRuntimeProvider.extensionUi = ExtensionUiBridge
         DataManager.sideEffects = ShortcutSideEffects(applicationContext, appScope)
         ForegroundActivityTracker.onBackground = {
