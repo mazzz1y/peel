@@ -15,7 +15,8 @@ object SessionHostRegistry {
 
     private const val CLOSE_TIMEOUT_MS = 2_000L
 
-    private class Entry(val ownerUuid: String?, val isBrowser: Boolean) {
+    // The owner is read from the host each time: a browser can switch to another web app.
+    private class Entry(val ownerUuid: () -> String?, val isBrowser: Boolean) {
         var contextId: String? = null
     }
 
@@ -25,7 +26,7 @@ object SessionHostRegistry {
     private val hosts = mutableMapOf<Activity, Entry>()
     private val closeWaiters = mutableListOf<CloseWaiter>()
 
-    fun register(host: Activity, ownerUuid: String?, isBrowser: Boolean) {
+    fun register(host: Activity, ownerUuid: () -> String?, isBrowser: Boolean) {
         synchronized(lock) { hosts[host] = Entry(ownerUuid, isBrowser) }
     }
 
@@ -51,7 +52,16 @@ object SessionHostRegistry {
     fun finishBrowsers() = finish { it.isBrowser }
 
     fun finishPopupsOwnedBy(ownerUuid: String) =
-        finish { !it.isBrowser && it.ownerUuid == ownerUuid }
+        finish { !it.isBrowser && it.ownerUuid() == ownerUuid }
+
+    fun finishOwnedBy(ownerUuids: Set<String>) {
+        val targets = synchronized(lock) {
+            hosts.filterValues { it.ownerUuid() in ownerUuids }.toList()
+        }
+        targets.forEach { (host, entry) ->
+            if (entry.isBrowser) host.finishAndRemoveTask() else host.finish()
+        }
+    }
 
     private fun finish(predicate: (Entry) -> Boolean) {
         val targets = synchronized(lock) { hosts.filterValues(predicate).keys.toList() }

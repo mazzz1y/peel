@@ -583,12 +583,14 @@ object DataManager {
     }
 
     private fun forgetWebApps(webApps: List<WebApp>) {
+        if (webApps.isEmpty()) return
+        afterCommit { sideEffects.onWebAppsRemoved(webApps.mapTo(mutableSetOf()) { it.uuid }) }
         webApps.forEach { webApp ->
             if (webApp.isolation.isSandboxed) afterCommit { sideEffects.onSandboxRemoved(webApp.uuid) }
             afterCommit { webApp.deleteIcon() }
             afterCommit { deleteAppPrefs(App.appContext, webApp.uuid) }
         }
-        if (webApps.isNotEmpty()) afterCommit { sideEffects.onShortcutsRemoved(webApps.map { it.uuid }) }
+        afterCommit { sideEffects.onShortcutsRemoved(webApps.map { it.uuid }) }
     }
 
     private fun forgetGroups(groups: List<WebAppGroup>) {

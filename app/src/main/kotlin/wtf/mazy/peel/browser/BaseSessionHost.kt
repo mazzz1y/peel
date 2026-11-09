@@ -164,7 +164,7 @@ abstract class BaseSessionHost :
         super.onCreate(savedInstanceState)
         window.setBackgroundDrawable(themeBackgroundColor.toDrawable())
         setupSessionHostLayout(showToolbar)
-        SessionHostRegistry.register(this, ownerWebAppUuid, isBrowserHost)
+        SessionHostRegistry.register(this, { ownerWebAppUuid }, isBrowserHost)
     }
 
     protected open val tracksExtensionState: Boolean = true

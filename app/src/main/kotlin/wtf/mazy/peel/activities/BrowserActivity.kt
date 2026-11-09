@@ -107,8 +107,16 @@ class BrowserActivity : BaseSessionHost() {
         }
     }
 
+    // A removed web app's window closes after the removal is stored; until it is gone, the
+    // engine can still call in, so the last value it saw stands in.
+    private var lastWebApp: WebApp? = null
+
     private val webApp: WebApp
-        get() = DataManager.webApp(webAppUuid!!)!!
+        get() {
+            val uuid = webAppUuid!!
+            val current = DataManager.webApp(uuid) ?: lastWebApp?.takeIf { it.uuid == uuid }
+            return current!!.also { lastWebApp = it }
+        }
 
     private lateinit var permissionDelegate: PeelPermissionDelegate
     private lateinit var promptDelegate: PeelPromptDelegate
@@ -245,7 +253,10 @@ class BrowserActivity : BaseSessionHost() {
         if (!isStartupComplete) return
         if (!lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) return
         val uuid = webAppUuid ?: return
-        if (DataManager.webApp(uuid) == null) return
+        if (DataManager.webApp(uuid) == null) {
+            finishAndRemoveTask()
+            return
+        }
         cachedSettings = DataManager.effectiveSettings(webApp)
         val enabled = effectiveSettings.translatorEnabled
         val pairs = effectiveSettings.autoTranslatePairs

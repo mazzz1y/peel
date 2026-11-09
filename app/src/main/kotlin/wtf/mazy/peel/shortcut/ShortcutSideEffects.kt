@@ -2,6 +2,9 @@ package wtf.mazy.peel.shortcut
 
 import android.content.Context
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import wtf.mazy.peel.browser.SessionHostRegistry
 import wtf.mazy.peel.gecko.SandboxManager
 import wtf.mazy.peel.model.DataSideEffects
 import wtf.mazy.peel.model.IconOwner
@@ -21,5 +24,9 @@ class ShortcutSideEffects(
 
     override fun onSandboxRemoved(contextId: String) {
         SandboxManager.enqueueSandboxClear(context, contextId, scope)
+    }
+
+    override fun onWebAppsRemoved(uuids: Set<String>) {
+        scope.launch(Dispatchers.Main) { SessionHostRegistry.finishOwnedBy(uuids) }
     }
 }
