@@ -1,0 +1,8 @@
+- Open links in a share-style sheet with search, private mode and Share
+- Match links to web apps by subdomain, path and short links
+- Choose the group when adding a web app
+- Lock pop-ups, extension pages and settings of protected web apps
+- Fix sites asking for notification permission after a restart
+- Fix downloads on Android 9
+- Fix factory reset keeping proxies
+- Other fixes and improvements
