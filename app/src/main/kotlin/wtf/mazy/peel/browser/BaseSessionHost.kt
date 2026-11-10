@@ -22,9 +22,9 @@ import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.viewModels
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
+import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
@@ -41,6 +41,8 @@ import com.google.android.material.checkbox.MaterialCheckBox
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
+import java.io.File
+import java.util.UUID
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -64,6 +66,7 @@ import wtf.mazy.peel.gecko.VerticalSwipeRefreshLayout
 import wtf.mazy.peel.model.EffectiveSettings
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.model.WebAppSettings
+import wtf.mazy.peel.model.onHostOf
 import wtf.mazy.peel.ui.FindInPageView
 import wtf.mazy.peel.ui.FloatingControlsView
 import wtf.mazy.peel.ui.browser.PullToRefreshController
@@ -87,6 +90,7 @@ import wtf.mazy.peel.ui.dialog.InputDialogConfig
 import wtf.mazy.peel.ui.dialog.TranslateDialog
 import wtf.mazy.peel.ui.dialog.showDateTimePickerDialog
 import wtf.mazy.peel.ui.dialog.showInputDialogRaw
+import wtf.mazy.peel.ui.entitylist.PendingDeletes
 import wtf.mazy.peel.ui.extensions.ExtensionActionController
 import wtf.mazy.peel.ui.extensions.ExtensionPickerDialog
 import wtf.mazy.peel.util.BrowserLauncher
@@ -101,8 +105,6 @@ import wtf.mazy.peel.util.isTelevisionHost
 import wtf.mazy.peel.util.shareText
 import wtf.mazy.peel.util.toast
 import wtf.mazy.peel.util.uploadFileName
-import java.io.File
-import java.util.UUID
 
 abstract class BaseSessionHost :
     PeelActivity(), SessionHost, TranslationHost, DataRoutingScreen {
@@ -389,6 +391,7 @@ abstract class BaseSessionHost :
     protected val extensionActions by lazy {
         ExtensionActionController(
             activity = this,
+            ownerUuid = { ownerWebAppUuid },
             onExtensionsReady = { _ -> if (browserControls != null) rebuildBrowserControls() },
         )
     }
@@ -717,8 +720,12 @@ abstract class BaseSessionHost :
         )
     }
 
-    override fun findPeelAppMatches(url: String): List<WebApp> =
-        ExternalLinkMenu.findPeelAppMatches(externalLinkPeelApps, url, externalLinkExcludeUuid)
+    override fun findPeelAppMatches(url: String): List<WebApp> {
+        val pending = PendingDeletes.webApps
+        return externalLinkPeelApps
+            .filter { it.uuid != externalLinkExcludeUuid && it.uuid !in pending }
+            .onHostOf(url)
+    }
 
     override fun onPageFullyLoaded() {
         lastLoadedUrl = navigationDelegate.lastLocation
@@ -807,6 +814,13 @@ abstract class BaseSessionHost :
         }
     }
 
+    // A content address may carry a user before its authority (`0@…`), which still reaches Peel's
+    // own provider.
+    private fun isOwnProvider(uri: Uri): Boolean {
+        val authority = uri.authority?.substringAfterLast('@') ?: return false
+        return packageManager.resolveContentProvider(authority, 0)?.packageName == packageName
+    }
+
     private fun extractUris(intent: Intent?): Array<Uri>? =
         intent?.data?.let { arrayOf(it) }
             ?: intent?.clipData?.let { clip -> Array(clip.itemCount) { clip.getItemAt(it).uri } }
@@ -822,7 +836,7 @@ abstract class BaseSessionHost :
         picksDir.deleteEntriesOlderThan()
         val pickDirs = mutableListOf<File>()
         val fileUris = uris.map { uri ->
-            if (uri.scheme == ContentResolver.SCHEME_FILE || uri.authority == fileProviderAuthority) {
+            if (uri.scheme == ContentResolver.SCHEME_FILE || isOwnProvider(uri)) {
                 val captured = capture?.takeIf { isCaptureUri(uri, it) }
                 if (captured == null) {
                     pickDirs.forEach { it.deleteRecursively() }

@@ -10,7 +10,7 @@ import wtf.mazy.peel.model.WebApp
 
 object BrowserLauncher {
     fun launch(webApp: WebApp, c: Context, url: String? = null, fromMenu: Boolean = false) {
-        if (url != null && IncomingUrl.accept(url) == null) return
+        val target = url?.let { WebUrl.accept(it) ?: return showLaunchError(c) }
         try {
             if (DataManager.effectiveSettings(webApp).biometricProtection) {
                 val error = c.biometricUnavailableReason()
@@ -20,7 +20,7 @@ object BrowserLauncher {
                 }
             }
             val intent = createIntent(webApp, c) ?: return
-            if (url != null) intent.putExtra(Const.INTENT_TARGET_URL, url)
+            if (target != null) intent.putExtra(Const.INTENT_TARGET_URL, target)
             if (fromMenu) intent.putExtra(Const.INTENT_LAUNCHED_FROM_MENU, true)
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
             c.startActivity(intent)
@@ -30,11 +30,10 @@ object BrowserLauncher {
     }
 
     fun launchIncognito(c: Context, url: String) {
-        if (IncomingUrl.accept(url) == null) return
-        val host = url.normalizedHost() ?: url
+        val target = WebUrl.accept(url) ?: return showLaunchError(c)
         val uuid = DataManager.registerTransientWebApp(
-            baseUrl = url,
-            title = host,
+            baseUrl = target,
+            title = target.siteHost() ?: target,
             privateSession = true,
         )
         c.startActivity(

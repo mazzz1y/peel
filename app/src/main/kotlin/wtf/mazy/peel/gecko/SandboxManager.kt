@@ -61,14 +61,12 @@ object SandboxManager {
         }
     }
 
+    /** Call once the data is open, on the main thread. */
     fun clearIdleEphemeralSandboxes(context: Context) {
         val appContext = context.applicationContext
-        App.appScope.launch(Dispatchers.Main.immediate) {
-            DataManager.awaitReady()
-            DataManager.state.value.ephemeralContextIds
-                .filterNot(usage::isInUse)
-                .forEach { clearIdle(appContext, it) }
-        }
+        DataManager.state.value.ephemeralContextIds
+            .filterNot(usage::isInUse)
+            .forEach { clearIdle(appContext, it) }
     }
 
     suspend fun clearNonSandboxData() {
@@ -97,6 +95,8 @@ object SandboxManager {
 
     private suspend fun wipeWith(context: Context, runtime: GeckoRuntime, contextId: String?): Boolean {
         val storage = runtime.storageController
+        // A sandbox queued while everything is being cleared may already be past that clear.
+        val covered = if (contextId == null) AppPrefs.getPendingSandboxClears(context) else emptySet()
         val wiped = runCatching {
             if (contextId == null) {
                 storage.clearData(StorageController.ClearFlags.ALL).awaitVoid()
@@ -107,7 +107,7 @@ object SandboxManager {
         }.onFailure { Log.w(TAG, "could not clear sandbox ${contextId ?: "(all)"}", it) }.isSuccess
         if (wiped) {
             if (contextId == null) {
-                AppPrefs.forgetSandboxClearAll(context)
+                AppPrefs.forgetSandboxClearAll(context, covered)
             } else {
                 AppPrefs.forgetPendingSandboxClear(context, contextId)
             }

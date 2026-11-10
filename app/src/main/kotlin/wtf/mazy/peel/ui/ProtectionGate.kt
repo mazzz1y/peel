@@ -2,9 +2,6 @@ package wtf.mazy.peel.ui
 
 import androidx.fragment.app.FragmentActivity
 import wtf.mazy.peel.R
-import wtf.mazy.peel.model.DataManager
-import wtf.mazy.peel.model.WebApp
-import wtf.mazy.peel.model.WebAppGroup
 import wtf.mazy.peel.util.biometricUnavailableReason
 import wtf.mazy.peel.util.toast
 
@@ -21,11 +18,16 @@ object ProtectionGate {
             onPass()
             return
         }
+        prompt(activity, onPass, onDenied)
+    }
+
+    /** Returns whether the prompt is showing; when it can't be, the user is told why. */
+    fun prompt(activity: FragmentActivity, onPass: () -> Unit, onDenied: () -> Unit): Boolean {
         val unavailable = activity.biometricUnavailableReason()
         if (unavailable != null) {
             activity.toast(unavailable, long = true)
             onDenied()
-            return
+            return false
         }
         val shown = BiometricPrompter(activity).showPrompt(
             { onPass() },
@@ -36,19 +38,6 @@ object ProtectionGate {
             activity.toast(R.string.no_biometric_devices, long = true)
             onDenied()
         }
+        return shown
     }
-
-    fun isProtected(webApp: WebApp): Boolean =
-        DataManager.effectiveSettings(webApp).biometricProtection
-
-    fun isProtected(group: WebAppGroup): Boolean =
-        group.settings.isBiometricProtection ?: DataManager.globalEffectiveSettings.biometricProtection
-
-    val isProtectedGlobally: Boolean
-        get() = DataManager.globalEffectiveSettings.biometricProtection
-
-    val isAnythingProtected: Boolean
-        get() = isProtectedGlobally ||
-                DataManager.groups.any { it.settings.isBiometricProtection == true } ||
-                DataManager.webApps.any(::isProtected)
 }

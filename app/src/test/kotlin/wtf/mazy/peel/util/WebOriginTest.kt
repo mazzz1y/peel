@@ -33,6 +33,9 @@ class WebOriginTest {
             "https://exa mple.com/" to null,
             "https://example.com:99999/" to null,
             "https://example.com:port/" to null,
+            "https://example.com:+443/" to null,
+            "https://example.com:-1/" to null,
+            "https://user@[::1]:8443/" to WebOrigin("https", "[::1]", 8443),
             "garbage" to null,
         )
         val mismatches = cases.mapNotNull { (url, expected) ->
@@ -40,6 +43,24 @@ class WebOriginTest {
             "$url: expected $expected, got $actual".takeIf { actual != expected }
         }
         assertTrue(mismatches.joinToString("\n"), mismatches.isEmpty())
+    }
+
+    @Test
+    fun splitsAddresses() {
+        val cases = listOf(
+            "https://Example.com" to Triple("/", "/", null),
+            "https://example.com/a%20b/c?x=1#frag" to Triple("/a b/c", "/a%20b/c", "x=1"),
+            "https://example.com\\evil/x" to Triple("/evil/x", "/evil/x", null),
+            "https://example.com?q" to Triple("/", "/", "q"),
+            "https://example.com/%zz" to Triple("/%zz", "/%zz", null),
+        )
+        val mismatches = cases.mapNotNull { (url, expected) ->
+            val actual = WebAddress.of(url)?.let { Triple(it.path, it.rawPath, it.query) }
+            "$url: expected $expected, got $actual".takeIf { actual != expected }
+        }
+        assertTrue(mismatches.joinToString("\n"), mismatches.isEmpty())
+        val normalized = WebAddress.of("HTTPS://WWW.Example.com:443/A?b")?.normalized
+        assertTrue(normalized, normalized == "https://www.example.com/A?b")
     }
 
     @Test

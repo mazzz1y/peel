@@ -11,30 +11,32 @@ fun MaterialButton.bindDropdown(
     buttonItems: List<String> = items,
 ) {
     bindDropdown(
-        itemsProvider = { items },
-        currentIndex = currentIndex,
+        optionsProvider = { items.indices.toList() },
+        label = { items[it] },
+        current = { currentIndex().takeIf { it in items.indices } },
         onSelected = onSelected,
-        buttonItemsProvider = { buttonItems },
+        buttonLabel = { buttonItems[it] },
     )
 }
 
-fun MaterialButton.bindDropdown(
-    itemsProvider: () -> List<String>,
-    currentIndex: () -> Int,
-    onSelected: (index: Int) -> Unit,
-    buttonItemsProvider: () -> List<String> = itemsProvider,
+// The picked option comes from the list that was shown, which may since have changed.
+fun <T> MaterialButton.bindDropdown(
+    optionsProvider: () -> List<T>,
+    label: (T) -> String,
+    current: () -> T?,
+    onSelected: (T) -> Unit,
+    buttonLabel: (T) -> String = label,
 ) {
     fun refreshText() {
-        val items = buttonItemsProvider()
-        text = items.getOrNull(currentIndex()).orEmpty()
+        text = current()?.let(buttonLabel).orEmpty()
     }
     refreshText()
     setOnClickListener {
-        val items = itemsProvider()
+        val shown = optionsProvider()
         val popup = PopupMenu(context, this, Gravity.END)
-        items.forEachIndexed { i, label -> popup.menu.add(0, i, i, label) }
+        shown.forEachIndexed { i, option -> popup.menu.add(0, i, i, label(option)) }
         popup.setOnMenuItemClickListener { item ->
-            onSelected(item.itemId)
+            onSelected(shown[item.itemId])
             refreshText()
             true
         }

@@ -157,6 +157,7 @@
     <string name="clear_browsing_data">Dati di navigazione</string>
     <string name="clear_sandbox_storage">Includi archiviazione sandbox</string>
     <string name="factory_reset">Ripristino di fabbrica</string>
+    <string name="factory_reset_failed">Ripristino di fabbrica non riuscito. Non è stato eliminato nulla.</string>
     <string name="delete">Elimina</string>
     <string name="settings">Impostazioni</string>
     <string name="app_icon">Icona app</string>

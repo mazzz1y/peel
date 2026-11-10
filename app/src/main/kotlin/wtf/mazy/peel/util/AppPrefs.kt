@@ -58,10 +58,11 @@ object AppPrefs {
         }
     }
 
+    /** [covered]: the single clears queued before the clear started; later ones stay queued. */
     @Synchronized
-    fun forgetSandboxClearAll(context: Context) {
+    fun forgetSandboxClearAll(context: Context, covered: Set<String>) {
         prefs(context).edit(commit = true) {
-            remove(KEY_PENDING_SANDBOX_CLEARS)
+            putStringSet(KEY_PENDING_SANDBOX_CLEARS, getPendingSandboxClears(context) - covered)
             remove(KEY_SANDBOX_CLEAR_ALL_PENDING)
         }
     }

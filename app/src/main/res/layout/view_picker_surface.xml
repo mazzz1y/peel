@@ -7,7 +7,8 @@
     <com.google.android.material.bottomsheet.BottomSheetDragHandleView
         android:id="@+id/pickerHandle"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/picker_handle_height" />
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/picker_handle_overlap" />
 
     <include layout="@layout/include_picker_link_header" />
 

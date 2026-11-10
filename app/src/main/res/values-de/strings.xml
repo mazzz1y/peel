@@ -150,6 +150,7 @@
     <string name="clear_browsing_data">Browserdaten</string>
     <string name="clear_sandbox_storage">Sandbox-Speicher einschließen</string>
     <string name="factory_reset">Werksreset</string>
+    <string name="factory_reset_failed">Werksreset fehlgeschlagen. Es wurde nichts gelöscht.</string>
     <string name="delete">Löschen</string>
     <string name="settings">Einstellungen</string>
     <string name="app_icon">App-Symbol</string>

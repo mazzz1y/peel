@@ -1,7 +1,7 @@
 package wtf.mazy.peel.model
 
-import androidx.core.net.toUri
-import java.net.IDN
+import wtf.mazy.peel.util.WebAddress
+import wtf.mazy.peel.util.WebOrigin
 
 sealed interface UrlRule {
 
@@ -99,17 +99,13 @@ sealed interface UrlRule {
 
         private fun hostAndPath(input: String): Pair<String, String> {
             val withScheme = if ("://" in input) input else "https://$input"
-            val uri = withScheme.toUri()
-            val host = uri.host?.let(::foldHost) ?: return input.lowercase() to "/"
-            val path = uri.path.orEmpty().ifEmpty { "/" }
-                .let { if (it.length > 1) it.trimEnd('/') else it }
-            return host to path
+            val address = WebAddress.of(withScheme) ?: return input.lowercase() to "/"
+            val path = address.path.let { if (it.length > 1) it.trimEnd('/') else it }
+            return address.origin.siteHost to path
         }
 
-        fun asciiHost(host: String): String =
-            runCatching { IDN.toASCII(host) }.getOrDefault(host).lowercase().removeSuffix(".")
-
-        private fun foldHost(host: String): String = asciiHost(host).removePrefix("www.")
+        private fun foldHost(host: String): String =
+            (WebOrigin.host(host) ?: host.lowercase()).removePrefix("www.")
 
         private fun splitHostPath(value: String): Pair<String, String>? {
             val slash = value.indexOf('/')

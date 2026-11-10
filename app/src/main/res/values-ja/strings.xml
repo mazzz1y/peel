@@ -123,6 +123,7 @@
     <string name="clear_browsing_data">閲覧データ</string>
     <string name="clear_sandbox_storage">サンドボックスストレージを含む</string>
     <string name="factory_reset">初期化</string>
+    <string name="factory_reset_failed">初期化に失敗しました。何も削除されていません。</string>
     <string name="show_fullscreen">全画面モード</string>
     <string name="site_not_found">ページを読み込めませんでした</string>
     <string name="connection_error">接続エラー：%1$s</string>

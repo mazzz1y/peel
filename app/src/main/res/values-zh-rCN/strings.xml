@@ -123,6 +123,7 @@
     <string name="clear_browsing_data">浏览数据</string>
     <string name="clear_sandbox_storage">包含沙盒存储</string>
     <string name="factory_reset">恢复出厂设置</string>
+    <string name="factory_reset_failed">恢复出厂设置失败，未删除任何内容。</string>
     <string name="show_fullscreen">全屏模式</string>
     <string name="site_not_found">无法加载页面</string>
     <string name="connection_error">连接错误：%1$s</string>

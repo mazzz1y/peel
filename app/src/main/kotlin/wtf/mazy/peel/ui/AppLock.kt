@@ -8,7 +8,7 @@ import androidx.core.content.ContextCompat
 
 /**
  * Which protected web apps are unlocked. A web app stays unlocked while any of its windows is
- * on screen and locks when the last one leaves; every web app locks when the screen turns off.
+ * on screen and locks when the last one leaves; everything locks when the screen turns off.
  * Main thread only.
  */
 object AppLock {
@@ -35,7 +35,7 @@ object AppLock {
         }
     }
 
-    fun lockAll() = unlocked.clear()
+    internal fun lockAll() = unlocked.clear()
 
     fun lockOnScreenOff(context: Context) {
         ContextCompat.registerReceiver(

@@ -14,9 +14,12 @@ object EntityCloner {
     )
 
     suspend fun cloneWebApp(webApp: WebApp) {
-        val clone = webApp.cloneInto(webApp.groupUuid, order = 0)
-        withContext(Dispatchers.IO) { clone.copyIconFrom(webApp) }
-        DataManager.addWebApp(clone, appendOrder = true)
+        addWithIcon(webApp.cloneInto(webApp.groupUuid, order = 0), webApp, appendOrder = true)
+    }
+
+    private suspend fun addWithIcon(clone: WebApp, source: WebApp, appendOrder: Boolean) {
+        withContext(Dispatchers.IO) { clone.copyIconFrom(source) }
+        if (!DataManager.addWebApp(clone, appendOrder)) clone.deleteIcon()
     }
 
     suspend fun deepCloneGroup(group: WebAppGroup) {
@@ -31,9 +34,7 @@ object EntityCloner {
         }
 
         DataManager.webAppsInGroup(group.uuid).forEach { webApp ->
-            val clone = webApp.cloneInto(newGroup.uuid, webApp.order)
-            withContext(Dispatchers.IO) { clone.copyIconFrom(webApp) }
-            DataManager.addWebApp(clone)
+            addWithIcon(webApp.cloneInto(newGroup.uuid, webApp.order), webApp, appendOrder = false)
         }
     }
 }

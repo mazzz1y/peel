@@ -12,6 +12,7 @@ import wtf.mazy.peel.model.BackupManager
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.ImportMode
 import wtf.mazy.peel.model.ParsedBackup
+import wtf.mazy.peel.model.Protection
 import wtf.mazy.peel.model.backup.BackupSource
 import wtf.mazy.peel.ui.ProtectionGate
 import wtf.mazy.peel.ui.common.LoadingDialogController
@@ -66,7 +67,7 @@ class ImportFlowController(
     private fun dispatchParsed(parsed: ParsedBackup) {
         when (parsed.backupData.payloadType) {
             BackupManager.PAYLOAD_FULL ->
-                ProtectionGate.require(activity, ProtectionGate.isAnythingProtected) {
+                ProtectionGate.require(activity, Protection.anywhere) {
                     showFullBackupDialog(parsed)
                 }
             BackupManager.PAYLOAD_GROUP_SHARE -> launchImportActivity(parsed, groupShare = true)

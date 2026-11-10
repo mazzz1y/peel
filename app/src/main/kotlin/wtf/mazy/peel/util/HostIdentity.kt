@@ -1,11 +1,8 @@
 package wtf.mazy.peel.util
 
-import androidx.core.net.toUri
-import wtf.mazy.peel.model.WebApp
-
 /**
- * A host split into its registrable domain's [name] and [tld], and the [subdomain] labels before
- * it, outermost first. A host without a dot is a domain of its own with no [tld].
+ * [subdomain] is outermost first. A host without a dot, and an IP address, is a domain of its own
+ * with no [tld], so it only ever matches itself.
  */
 data class HostIdentity(val name: String, val tld: String, val subdomain: List<String>) {
 
@@ -14,8 +11,10 @@ data class HostIdentity(val name: String, val tld: String, val subdomain: List<S
     companion object {
         private val COMPOUND_SECOND_LEVELS =
             setOf("ac", "co", "com", "edu", "gov", "mil", "net", "org")
+        private val IPV4 = Regex("\\d{1,3}(\\.\\d{1,3}){3}")
 
         fun of(host: String): HostIdentity? {
+            if (host.startsWith('[') || IPV4.matches(host)) return HostIdentity(host, "", emptyList())
             val parts = host.removePrefix("www.").split('.').filter { it.isNotEmpty() }
             if (parts.isEmpty()) return null
             if (parts.size == 1) return HostIdentity(parts.single(), "", emptyList())
@@ -29,7 +28,3 @@ data class HostIdentity(val name: String, val tld: String, val subdomain: List<S
         }
     }
 }
-
-fun String.normalizedHost(): String? = toUri().host?.lowercase()?.removePrefix("www.")
-
-fun WebApp.servesHost(host: String): Boolean = baseUrl.normalizedHost() == host

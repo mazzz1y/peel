@@ -19,6 +19,9 @@ class ExtensionPageActivity : SessionPageActivity() {
     private val adoptedSessionKey: String?
         get() = intent.getStringExtra(ExtensionPageLaunch.EXTRA_SESSION_KEY)
 
+    override val ownerWebAppUuid: String?
+        get() = intent.getStringExtra(ExtensionPageLaunch.EXTRA_OWNER_UUID)
+
     private var adopted: SessionHandoff.HandedSession? = null
 
     override fun onSessionHostReady() {

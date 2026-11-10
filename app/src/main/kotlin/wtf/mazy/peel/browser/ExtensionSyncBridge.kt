@@ -60,7 +60,10 @@ abstract class ExtensionSyncBridge<Snapshot : Any>(
     protected open fun onAck(message: JSONObject) {}
 
     suspend fun ensure(context: Context): WebExtension? {
-        ext.get()?.let { return it }
+        ext.get()?.let { installed ->
+            if (failed) withContext(Dispatchers.Main) { push(force = true) }
+            return installed
+        }
         val installed = withContext(Dispatchers.Main) { installExtension(context) }
         if (installed == null) {
             failed = true
@@ -159,8 +162,8 @@ abstract class ExtensionSyncBridge<Snapshot : Any>(
             activePort.postMessage(payload(seq, snapshot))
             lastSnapshot = snapshot
         } catch (e: Exception) {
+            // The failed seq stays the one to wait for: an ack of an older push is not this one.
             Log.w(tag, "could not push to $nativeApp", e)
-            lastPushedSeq.set(lastAckedSeq.get())
             failed = true
             ready.value = true
         }

@@ -1,11 +1,9 @@
 package wtf.mazy.peel.activities
 
-import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
-import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -24,6 +22,7 @@ import wtf.mazy.peel.model.ApplyTimingRegistry
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.EffectiveSandbox
 import wtf.mazy.peel.model.IconCache
+import wtf.mazy.peel.model.Protection
 import wtf.mazy.peel.model.ProxyChoice
 import wtf.mazy.peel.model.SettingDefinition
 import wtf.mazy.peel.model.WebApp
@@ -35,7 +34,6 @@ import wtf.mazy.peel.shortcut.Shortcuts
 import wtf.mazy.peel.ui.AppLock
 import wtf.mazy.peel.ui.IconEditorController
 import wtf.mazy.peel.ui.PickerDialog
-import wtf.mazy.peel.ui.ProtectionGate
 import wtf.mazy.peel.ui.bindDropdown
 import wtf.mazy.peel.ui.common.Draft
 import wtf.mazy.peel.ui.common.GroupPosition
@@ -85,50 +83,52 @@ class WebAppSettingsActivity :
     private val linearLayoutOverrides get() = binding.root.findViewById<LinearLayout>(R.id.linearLayoutOverrides)
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        iconEditor = IconEditorController(this, { imgWebAppIcon }) { draft?.value }
+        iconEditor = IconEditorController(this, { imgWebAppIcon }, { draft?.value }, ::pickerOpening)
         super.onCreate(savedInstanceState)
 
         setToolbarTitle(getString(R.string.web_app_settings))
 
-        val stored = intent.getStringExtra(Const.INTENT_WEBAPP_UUID)
-            ?.let { DataManager.webApp(it) }
-        if (stored == null) {
-            toast(R.string.webapp_not_found)
-            finish()
-            return
-        }
-        requireUnlock(
-            needed = ProtectionGate.isProtected(stored),
-            unlocked = AppLock.isUnlocked(stored.uuid),
-        )
-        val draft = Draft(stored.copy(settings = stored.settings.deepCopy()))
-        this.draft = draft
-        originalSettingsSnapshot =
-            stored.settings.deepCopy().apply { sanitize(asOverride = true) }
-        txtWebAppName.text = stored.title
-        textBaseUrl.text = prettyBaseUrl(stored.baseUrl)
-        sandboxLabel.setText(R.string.enable_sandbox)
-        switchSandbox.isChecked = stored.isolation.isSandboxed
-        switchEphemeralSandbox.isChecked = stored.isolation.isEphemeral
-
-        imgWebAppIcon.setOnClickListener { iconEditor.onIconTap() }
-        titleUrlBlock.setOnClickListener { showEditDialog(draft) }
-        setupFetchButton(draft)
-        setupOverridePicker(draft.value.settings)
-        val proxyController = setupSandboxSwitch(draft)
-        setupGroupPicker(draft) { proxyController.refresh() }
-        SettingsSurface.apply(binding.root.findViewById(R.id.identityBlock), GroupPosition.ONLY)
-        SettingsSurface.bindGroup(binding.settingsRowsGroup)
-
-        iconEditor.refreshIcon()
-
-        if (intent.getBooleanExtra(Const.INTENT_AUTO_FETCH, false)) {
-            binding.root.post {
-                if (!isDestroyed && !isFinishing) fetchIconAndName(draft)
+        whenDataReady {
+            val stored = intent.getStringExtra(Const.INTENT_WEBAPP_UUID)
+                ?.let { DataManager.webApp(it) }
+            if (stored == null) {
+                toast(R.string.webapp_not_found)
+                finish()
+                return@whenDataReady
             }
-        }
+            requireUnlock(
+                needed = Protection.of(stored),
+                unlocked = AppLock.isUnlocked(stored.uuid),
+            )
+            val draft = Draft(stored.copy(settings = stored.settings.deepCopy()))
+            this.draft = draft
+            originalSettingsSnapshot =
+                stored.settings.deepCopy().apply { sanitize(asOverride = true) }
+            txtWebAppName.text = stored.title
+            textBaseUrl.text = prettyBaseUrl(stored.baseUrl)
+            sandboxLabel.setText(R.string.enable_sandbox)
+            switchSandbox.isChecked = stored.isolation.isSandboxed
+            switchEphemeralSandbox.isChecked = stored.isolation.isEphemeral
 
-        setupScrollInsets(binding.scrollView)
+            imgWebAppIcon.setOnClickListener { iconEditor.onIconTap() }
+            titleUrlBlock.setOnClickListener { showEditDialog(draft) }
+            setupFetchButton(draft)
+            setupOverridePicker(draft.value.settings)
+            val proxyController = setupSandboxSwitch(draft)
+            setupGroupPicker(draft) { proxyController.refresh() }
+            SettingsSurface.apply(binding.root.findViewById(R.id.identityBlock), GroupPosition.ONLY)
+            SettingsSurface.bindGroup(binding.settingsRowsGroup)
+
+            iconEditor.refreshIcon()
+
+            if (intent.getBooleanExtra(Const.INTENT_AUTO_FETCH, false)) {
+                binding.root.post {
+                    if (!isDestroyed && !isFinishing) fetchIconAndName(draft)
+                }
+            }
+
+            setupScrollInsets(binding.scrollView)
+        }
     }
 
     override fun onPause() {
@@ -156,13 +156,12 @@ class WebAppSettingsActivity :
     private fun showEditDialog(draft: Draft<WebApp>) {
         val webApp = draft.value
         lateinit var urlInput: TextInputEditText
-        lateinit var nameInput: EditText
-        val dialog = showInputDialogRaw(
+        showInputDialogRaw(
             InputDialogConfig(
                 hintRes = R.string.name,
                 prefill = webApp.title,
                 positiveRes = R.string.save,
-                onInputReady = { nameInput = it },
+                accepts = { name -> name.isNotBlank() && UrlField.TYPED(urlInput.text.toString().trim()) },
                 extraContent = { container ->
                     val urlLayout = TextInputLayout(container.context).apply {
                         hint = getString(R.string.url)
@@ -189,12 +188,6 @@ class WebAppSettingsActivity :
             textBaseUrl.text = prettyBaseUrl(baseUrl)
             iconEditor.refreshIcon()
         }
-        UrlField.gate(
-            urlInput,
-            dialog.getButton(DialogInterface.BUTTON_POSITIVE),
-            UrlField.TYPED,
-            filled = listOf(nameInput),
-        )
     }
 
     private fun setupGroupPicker(draft: Draft<WebApp>, onGroupChanged: () -> Unit) {

@@ -27,14 +27,14 @@ class ProxyPickerController<T : SandboxOwner<T, P>, P : ProxyChoice>(
 
     fun setup() {
         proxyButton.bindDropdown(
-            itemsProvider = { options(storedOwner).map { it.label } },
-            currentIndex = ::currentIndex,
-            onSelected = { i ->
-                val picked = options(storedOwner)[i].choice
-                draft.update { it.withProxy(picked) }
+            optionsProvider = { options(storedOwner) },
+            label = ProxyOption<P>::label,
+            current = ::currentOption,
+            onSelected = { picked ->
+                draft.update { it.withProxy(picked.choice) }
                 refresh()
             },
-            buttonItemsProvider = { options(storedOwner).map { it.routeLabel } },
+            buttonLabel = ProxyOption<P>::routeLabel,
         )
         refresh()
         activity.lifecycleScope.launch {
@@ -55,10 +55,9 @@ class ProxyPickerController<T : SandboxOwner<T, P>, P : ProxyChoice>(
         proxyButton.text = ProxyOptions.current(options(owner), proxy).routeLabel
     }
 
-    private fun currentIndex(): Int {
+    private fun currentOption(): ProxyOption<P>? {
         val owner = storedOwner
-        val proxy = owner.isolation.proxyOrNull ?: return -1
-        val options = options(owner)
-        return options.indexOf(ProxyOptions.current(options, proxy))
+        val proxy = owner.isolation.proxyOrNull ?: return null
+        return ProxyOptions.current(options(owner), proxy)
     }
 }

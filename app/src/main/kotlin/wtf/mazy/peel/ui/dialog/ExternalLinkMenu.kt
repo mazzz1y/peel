@@ -10,20 +10,15 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.launch
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.DataManager
-import wtf.mazy.peel.model.EffectiveSandbox
 import wtf.mazy.peel.model.UnwrappedLink
 import wtf.mazy.peel.model.WebApp
+import wtf.mazy.peel.model.bestFor
+import wtf.mazy.peel.model.hasWebAppAt
 import wtf.mazy.peel.ui.PickerDialog
-import wtf.mazy.peel.ui.entitylist.PendingDeletes
 import wtf.mazy.peel.ui.picker.PickerLink
 import wtf.mazy.peel.ui.picker.PickerLinkCallbacks
 import wtf.mazy.peel.util.BrowserLauncher
 import wtf.mazy.peel.util.Const
-import wtf.mazy.peel.util.bestBy
-import wtf.mazy.peel.util.isAt
-import wtf.mazy.peel.util.linkMatch
-import wtf.mazy.peel.util.normalizedHost
-import wtf.mazy.peel.util.servesHost
 import wtf.mazy.peel.util.shareText
 import wtf.mazy.peel.util.shouldOfferOpenInSystem
 import wtf.mazy.peel.util.sortedByAffinity
@@ -62,7 +57,7 @@ object ExternalLinkMenu {
             orientation = LinearLayout.VERTICAL
             addView(MenuDialogViews.buildDivider(activity))
 
-            val match = bestPeelMatch(peelApps, url, excludeUuid)
+            val match = peelApps.filter { it.uuid != excludeUuid }.bestFor(url)
             val icon = match?.resolveIcon()
             val iconClick = if (icon != null) {
                 {
@@ -144,24 +139,6 @@ object ExternalLinkMenu {
             .show()
     }
 
-    fun findPeelAppMatches(
-        peelApps: List<WebApp>,
-        url: String,
-        excludeUuid: String?,
-    ): List<WebApp> {
-        val targetHost = url.normalizedHost() ?: return emptyList()
-        val pending = PendingDeletes.webApps
-        return peelApps.filter { app ->
-            app.uuid != excludeUuid && app.uuid !in pending && app.servesHost(targetHost)
-        }
-    }
-
-    fun bestPeelMatch(
-        peelApps: List<WebApp>,
-        url: String,
-        excludeUuid: String?,
-    ): WebApp? = peelApps.filter { it.uuid != excludeUuid }.bestBy { it.linkMatch(url) }
-
     fun openInPeelPicker(
         activity: AppCompatActivity,
         link: UnwrappedLink,
@@ -202,11 +179,7 @@ object ExternalLinkMenu {
                 onAdd = { current, onAdded ->
                     AddWebAppDialog.show(activity, prefill = current.destination, onConfirmed = onAdded)
                 },
-                canAdd = { current ->
-                    everyApp.none {
-                        DataManager.effectiveSandbox(it) !is EffectiveSandbox.Private && it.isAt(current.destination)
-                    }
-                },
+                canAdd = { current -> !everyApp.hasWebAppAt(current.destination, DataManager::effectiveSandbox) },
             )
         }
     }

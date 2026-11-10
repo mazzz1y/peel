@@ -83,9 +83,9 @@
     <dimen name="picker_action_row_margin_bottom">6dp</dimen>
     <dimen name="picker_search_margin_bottom">10dp</dimen>
     <dimen name="picker_action_gap">8dp</dimen>
-    <!-- The handle's own area is 48dp; the sheet's content starts below the pill, not 48dp
-         further down. -->
-    <dimen name="picker_handle_height">36dp</dimen>
+    <!-- The handle keeps its 48dp size for accessibility services, which act on the whole view;
+         what follows starts 36dp down, just below the pill, and takes touches over the rest. -->
+    <dimen name="picker_handle_overlap">-12dp</dimen>
     <dimen name="settings_dropdown_max_width">160dp</dimen>
     <dimen name="toolbar_label_max_width">140dp</dimen>
 

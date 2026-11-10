@@ -1,6 +1,6 @@
 package wtf.mazy.peel.browser
 
-import wtf.mazy.peel.util.normalizedHost
+import wtf.mazy.peel.util.siteHost
 
 class SessionPermissionMemory {
 
@@ -56,5 +56,5 @@ class SessionPermissionMemory {
     }
 
     private fun keyFor(origin: String, key: Int): Pair<String, Int>? =
-        origin.normalizedHost()?.let { it to key }
+        origin.siteHost()?.let { it to key }
 }

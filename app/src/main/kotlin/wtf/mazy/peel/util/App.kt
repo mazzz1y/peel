@@ -17,6 +17,7 @@ import wtf.mazy.peel.activities.NotificationClickActivity
 import wtf.mazy.peel.activities.PopupActivity
 import wtf.mazy.peel.activities.TrampolineActivity
 import wtf.mazy.peel.activities.WebAppSettingsActivity
+import wtf.mazy.peel.browser.AppDataSideEffects
 import wtf.mazy.peel.browser.CertStoreBridge
 import wtf.mazy.peel.browser.ProxyRouterBridge
 import wtf.mazy.peel.gecko.GeckoRuntimeProvider
@@ -24,7 +25,6 @@ import wtf.mazy.peel.gecko.SandboxManager
 import wtf.mazy.peel.model.DataLoad
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.push.PushBridge
-import wtf.mazy.peel.shortcut.ShortcutSideEffects
 import wtf.mazy.peel.ui.AppLock
 import wtf.mazy.peel.ui.common.DataFailureController
 import wtf.mazy.peel.ui.extensions.ExtensionUiBridge
@@ -56,15 +56,18 @@ class App : Application() {
         DataFailureController.install(this)
         AppLock.lockOnScreenOff(this)
         GeckoRuntimeProvider.extensionUi = ExtensionUiBridge
-        DataManager.sideEffects = ShortcutSideEffects(applicationContext, appScope)
+        DataManager.sideEffects = AppDataSideEffects(applicationContext, appScope)
         appScope.launch { DataManager.initialize(applicationContext) }
-        // Runs on the first successful load, which may only come after a retry.
+        // Runs on the first successful load, which may only come after a retry. Each task is its
+        // own job, so one failing does not cancel the others.
         appScope.launch {
             DataManager.load.first { it == DataLoad.Ready }
-            launch { PushBridge.reconcile(applicationContext) }
-            SandboxManager.clearIdleEphemeralSandboxes(applicationContext)
-            ProxyRouterBridge.ensure(applicationContext)
-            CertStoreBridge.ensure(applicationContext)
+            appScope.launch { PushBridge.reconcile(applicationContext) }
+            appScope.launch(Dispatchers.Main.immediate) {
+                SandboxManager.clearIdleEphemeralSandboxes(applicationContext)
+            }
+            appScope.launch { ProxyRouterBridge.ensure(applicationContext) }
+            appScope.launch { CertStoreBridge.ensure(applicationContext) }
             ExtensionUpdateScheduler.apply(applicationContext)
         }
     }

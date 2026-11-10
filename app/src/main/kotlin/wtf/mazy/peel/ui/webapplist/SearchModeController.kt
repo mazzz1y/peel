@@ -4,12 +4,12 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.WebApp
+import wtf.mazy.peel.model.hasWebAppAt
 import wtf.mazy.peel.ui.common.scrollToTopOnChange
 import wtf.mazy.peel.ui.entitylist.EntitySelectionController
 import wtf.mazy.peel.ui.entitylist.ListChrome
 import wtf.mazy.peel.ui.entitylist.PendingDeletes
 import wtf.mazy.peel.util.TypedUrl
-import wtf.mazy.peel.util.servesHost
 
 /**
  * Drives search on the list screen through whichever [SearchSurface] the search position
@@ -131,7 +131,8 @@ class SearchModeController(
     private fun suggestionsFor(typed: TypedUrl?): Set<UrlSuggestion> {
         typed ?: return emptySet()
         val pending = PendingDeletes.webApps
-        val alreadyAdded = DataManager.webApps.any { it.uuid !in pending && it.servesHost(typed.host) }
+        val alreadyAdded = DataManager.webApps.filter { it.uuid !in pending }
+            .hasWebAppAt(typed.url, DataManager::effectiveSandbox)
         return buildSet {
             if (!alreadyAdded) add(UrlSuggestion.ADD)
             add(UrlSuggestion.OPEN_PRIVATE)

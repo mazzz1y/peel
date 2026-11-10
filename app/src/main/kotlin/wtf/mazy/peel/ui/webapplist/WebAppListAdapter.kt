@@ -9,6 +9,7 @@ import kotlinx.coroutines.launch
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.EntityCloner
+import wtf.mazy.peel.model.Protection
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.model.searched
 import wtf.mazy.peel.shortcut.Shortcuts
@@ -144,7 +145,7 @@ class WebAppListAdapter(
                         if (groupIndex in 0..groups.size) {
                             val targetGroupUuid =
                                 if (groupIndex < groups.size) groups[groupIndex].uuid else null
-                            ProtectionGate.require(activity, ProtectionGate.isProtected(webApp)) {
+                            ProtectionGate.require(activity, Protection.of(webApp)) {
                                 activity.lifecycleScope.launch {
                                     DataManager.moveWebAppsToGroup(
                                         listOf(webApp.uuid),

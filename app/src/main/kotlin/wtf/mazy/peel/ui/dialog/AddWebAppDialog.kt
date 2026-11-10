@@ -1,8 +1,6 @@
 package wtf.mazy.peel.ui.dialog
 
-import android.content.DialogInterface
 import android.content.Intent
-import android.widget.EditText
 import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -34,17 +32,14 @@ object AddWebAppDialog {
         val groups = DataManager.sortedGroups
         var group = initialGroup?.takeIf { it in groups }
         lateinit var controls: SandboxControls<ProxyChoice>
-        lateinit var input: EditText
-        val dialog = activity.showInputDialogRaw(
+        activity.showInputDialogRaw(
             InputDialogConfig(
                 titleRes = R.string.add_webapp,
                 hintRes = R.string.url,
                 prefill = prefill,
                 positiveRes = R.string.ok,
-                onInputReady = { field ->
-                    input = field
-                    UrlField.configure(field)
-                },
+                url = true,
+                accepts = UrlField.TYPED,
                 extraContent = { container ->
                     if (groups.isNotEmpty()) {
                         addGroupChooser(container, groups, { group }) { chosen ->
@@ -79,7 +74,6 @@ object AddWebAppDialog {
                 onConfirmed()
             }
         }
-        UrlField.gate(input, dialog.getButton(DialogInterface.BUTTON_POSITIVE), UrlField.TYPED)
     }
 
     private fun proxyOptions(activity: AppCompatActivity, group: WebAppGroup?) =

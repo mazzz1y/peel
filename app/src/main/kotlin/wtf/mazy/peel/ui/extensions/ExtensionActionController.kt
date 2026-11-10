@@ -17,6 +17,7 @@ import wtf.mazy.peel.util.ForegroundActivityTracker
 
 class ExtensionActionController(
     private val activity: FragmentActivity,
+    private val ownerUuid: () -> String? = { null },
     private val onExtensionsReady: ((hasExtensions: Boolean) -> Unit)? = null,
 ) {
     data class Entry(
@@ -121,7 +122,7 @@ class ExtensionActionController(
             .build()
 
     private fun showPage(session: GeckoSession, title: String): Boolean =
-        launchSessionPage(activity, session, mainSession(), title)
+        launchSessionPage(activity, session, this, title)
 
     private inner class SessionActionDelegate : WebExtension.ActionDelegate {
         override fun onBrowserAction(
@@ -221,7 +222,7 @@ class ExtensionActionController(
                 val owner = active
                 val session = SandboxSession(buildSheetSessionSettings(owner))
                 val title = source.metaData.name ?: source.id
-                if (!launchSessionPage(host, session, owner?.mainSession(), title)) {
+                if (!launchSessionPage(host, session, owner, title)) {
                     session.close()
                     return null
                 }
@@ -245,16 +246,18 @@ class ExtensionActionController(
         private fun launchSessionPage(
             host: FragmentActivity,
             session: GeckoSession,
-            mainSession: GeckoSession?,
+            owner: ExtensionActionController?,
             title: String,
         ): Boolean {
-            val onClose = mainSession?.let { main ->
+            val onClose = owner?.mainSession()?.let { main ->
                 val controller = GeckoRuntimeProvider.getRuntime(host).webExtensionController
                 ({ controller.setTabActive(main, true) })
             }
             val key = SessionHandoff.put(session, onClose)
             val launched = runCatching {
-                host.startActivity(ExtensionPageLaunch.intentForSession(host, key, title))
+                host.startActivity(
+                    ExtensionPageLaunch.intentForSession(host, key, title, owner?.ownerUuid?.invoke())
+                )
             }.isSuccess
             if (!launched) SessionHandoff.take(key)
             return launched

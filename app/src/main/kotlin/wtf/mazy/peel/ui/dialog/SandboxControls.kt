@@ -54,10 +54,11 @@ class SandboxControls<P : ProxyChoice>(
         proxyRow.view.isVisible = false
         showSelectedProxy()
         proxyRow.button.bindDropdown(
-            itemsProvider = { proxyOptions.map { it.label } },
-            currentIndex = { proxyOptions.indexOf(ProxyOptions.current(proxyOptions, selectedProxy)) },
-            onSelected = { selectedProxy = proxyOptions[it].choice },
-            buttonItemsProvider = { proxyOptions.map { it.routeLabel } },
+            optionsProvider = { proxyOptions },
+            label = ProxyOption<P>::label,
+            current = { ProxyOptions.current(proxyOptions, selectedProxy) },
+            onSelected = { selectedProxy = it.choice },
+            buttonLabel = ProxyOption<P>::routeLabel,
         )
         switchSandbox.setOnCheckedChangeListener { _, isChecked ->
             switchEphemeral.isVisible = isChecked

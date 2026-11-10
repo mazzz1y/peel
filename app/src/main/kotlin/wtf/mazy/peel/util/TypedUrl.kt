@@ -1,7 +1,5 @@
 package wtf.mazy.peel.util
 
-import androidx.core.net.toUri
-
 /**
  * What the user typed read as a site. The one place that decides whether text is URL-shaped
  * and what scheme it gets, shared by the add action and the search suggestions.
@@ -20,20 +18,16 @@ class TypedUrl private constructor(val url: String, val host: String) {
         fun parse(text: String): TypedUrl? {
             val trimmed = text.trim()
             if (trimmed.isEmpty() || trimmed.any { it.isWhitespace() }) return null
-            val explicit = hasWebScheme(trimmed)
             val url = normalize(trimmed)
-            val rawHost = url.toUri().host?.takeIf { it.isNotEmpty() } ?: return null
-            if (!explicit && !namesHost(rawHost)) return null
-            val host = url.normalizedHost()?.takeIf { it.isNotEmpty() } ?: return null
-            return TypedUrl(url, host)
+            val origin = WebOrigin.of(url) ?: return null
+            if (!hasWebScheme(trimmed) && !namesHost(origin.host)) return null
+            return TypedUrl(url, origin.siteHost)
         }
 
         private fun hasWebScheme(text: String): Boolean =
             text.startsWith("https://", ignoreCase = true) || text.startsWith("http://", ignoreCase = true)
 
-        private fun namesHost(host: String): Boolean {
-            val dotted = host.contains('.') && !host.endsWith('.')
-            return dotted || host.equals("localhost", ignoreCase = true) || host.startsWith('[')
-        }
+        private fun namesHost(host: String): Boolean =
+            '.' in host || host == "localhost" || host.startsWith('[')
     }
 }

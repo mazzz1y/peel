@@ -4,12 +4,16 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.text.InputType
 import android.view.View
+import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
+import android.widget.EditText
 import android.widget.LinearLayout
 import androidx.annotation.StringRes
 import androidx.core.widget.doAfterTextChanged
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
+import wtf.mazy.peel.ui.common.onImeAction
 
 enum class InitialSelection { SELECT_ALL, CURSOR_AT_END }
 
@@ -22,6 +26,9 @@ data class InputDialogConfig(
     val inputType: Int = InputType.TYPE_CLASS_TEXT,
     val initialSelection: InitialSelection = InitialSelection.SELECT_ALL,
     val allowEmpty: Boolean = false,
+    /** Checked against the trimmed main field whenever any field changes; default non-blank. */
+    val accepts: ((String) -> Boolean)? = null,
+    val url: Boolean = false,
     val message: CharSequence? = null,
     val extraContent: ((LinearLayout) -> Unit)? = null,
     val onInputReady: ((TextInputEditText) -> Unit)? = null,
@@ -63,6 +70,7 @@ fun Activity.showInputDialogRaw(
             }
         }
     }
+    if (config.url) UrlField.configure(input)
     inputLayout.addView(input)
     content.add(inputLayout)
     config.onInputReady?.invoke(input)
@@ -87,10 +95,22 @@ fun Activity.showInputDialogRaw(
     dialog.dismissOnDestroyOf(this)
     dialog.show()
 
-    if (!config.allowEmpty) {
+    val accepts = config.accepts ?: if (config.allowEmpty) null else String::isNotBlank
+    if (accepts != null) {
         val okButton = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
-        okButton.isEnabled = config.prefill.isNotBlank()
-        input.doAfterTextChanged { okButton.isEnabled = !it.isNullOrBlank() }
+        val render = { okButton.isEnabled = accepts(input.text.toString().trim()) }
+        render()
+        val fields = container.allEditTexts()
+        fields.forEach { it.doAfterTextChanged { render() } }
+        fields.filter(UrlField::isConfigured).forEach { field ->
+            field.onImeAction(EditorInfo.IME_ACTION_DONE) { if (okButton.isEnabled) okButton.performClick() }
+        }
     }
     return dialog
+}
+
+private fun View.allEditTexts(): List<EditText> = when (this) {
+    is EditText -> listOf(this)
+    is ViewGroup -> (0 until childCount).flatMap { getChildAt(it).allEditTexts() }
+    else -> emptyList()
 }

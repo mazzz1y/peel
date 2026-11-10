@@ -9,12 +9,11 @@ import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.Redirectors
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.push.NotificationClickLaunch
-import wtf.mazy.peel.push.NotificationTarget
 import wtf.mazy.peel.ui.common.DataRoutingScreen
 import wtf.mazy.peel.ui.common.PeelActivity
 import wtf.mazy.peel.ui.dialog.ExternalLinkMenu
 import wtf.mazy.peel.util.BrowserLauncher
-import wtf.mazy.peel.util.IncomingUrl
+import wtf.mazy.peel.util.WebUrl
 
 /**
  * Receives links from outside Peel, both as the default browser (`ACTION_VIEW`) and as a
@@ -54,25 +53,17 @@ class IncomingLinkActivity : PeelActivity(), DataRoutingScreen {
     private fun notificationSandboxFilter(): (WebApp) -> Boolean {
         if (intent.component?.className != IncomingLinkActivity::class.java.name) return { true }
         val sandbox = NotificationClickLaunch.sandbox(intent) ?: return { true }
-        return { NotificationTarget.isInSandbox(it, sandbox.contextId) }
+        return { DataManager.effectiveSandbox(it).holds(sandbox.contextId) }
     }
 
-    private fun extractUrl(): String? = IncomingUrl.accept(
-        when (intent?.action) {
-            Intent.ACTION_VIEW -> intent.data?.toString()
-            Intent.ACTION_SEND -> intent.getStringExtra(Intent.EXTRA_TEXT)
-                ?.let { URL_PATTERN.find(it)?.value }
-
-            else -> null
-        },
-    )
+    private fun extractUrl(): String? = when (intent?.action) {
+        Intent.ACTION_VIEW -> WebUrl.accept(intent.data?.toString())
+        Intent.ACTION_SEND -> intent.getStringExtra(Intent.EXTRA_TEXT)?.let(WebUrl::find)
+        else -> null
+    }
 
     private fun openIncognito(url: String) {
         BrowserLauncher.launchIncognito(this, url)
         finish()
-    }
-
-    private companion object {
-        val URL_PATTERN = Regex("https?://[^\\s)>\\]\"]+")
     }
 }

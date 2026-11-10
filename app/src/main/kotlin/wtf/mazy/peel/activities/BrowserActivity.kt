@@ -48,8 +48,9 @@ import wtf.mazy.peel.model.EffectiveSandbox
 import wtf.mazy.peel.model.EffectiveSettings
 import wtf.mazy.peel.model.UnwrappedLink
 import wtf.mazy.peel.model.WebApp
-import wtf.mazy.peel.ui.browser.AutoReloadController
+import wtf.mazy.peel.model.bestFor
 import wtf.mazy.peel.ui.browser.AppLockController
+import wtf.mazy.peel.ui.browser.AutoReloadController
 import wtf.mazy.peel.ui.dialog.ExternalLinkMenu
 import wtf.mazy.peel.ui.extensions.ExtensionActionController
 import wtf.mazy.peel.util.BrowserLauncher
@@ -723,12 +724,13 @@ class BrowserActivity : BaseSessionHost() {
         return super.findPeelAppMatches(url)
     }
 
-    private fun bestPeelMatchIcon(url: String): Bitmap? {
-        return ExternalLinkMenu.bestPeelMatch(cachedPeelApps, url, webAppUuid)?.resolveIcon()
-    }
+    private fun bestPeelMatch(url: String): WebApp? =
+        cachedPeelApps.filter { it.uuid != webAppUuid }.bestFor(url)
+
+    private fun bestPeelMatchIcon(url: String): Bitmap? = bestPeelMatch(url)?.resolveIcon()
 
     private fun openInBestPeelMatch(url: String) {
-        val match = ExternalLinkMenu.bestPeelMatch(cachedPeelApps, url, webAppUuid) ?: return
+        val match = bestPeelMatch(url) ?: return
         BrowserLauncher.launch(match, this, url)
     }
 

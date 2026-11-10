@@ -12,6 +12,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.materialswitch.MaterialSwitch
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import wtf.mazy.peel.R
 import wtf.mazy.peel.browser.SessionHostRegistry
 import wtf.mazy.peel.browser.TranslationLanguages
@@ -209,13 +210,17 @@ class SettingsHubController(
         }
     }
 
+    // The data goes first: if it can't be reset, the browsing data stays with it.
     private fun performFactoryReset() {
         SessionHostRegistry.finishBrowsers()
 
         App.appScope.launch {
+            if (!DataManager.factoryReset()) {
+                withContext(Dispatchers.Main) { activity.toast(R.string.factory_reset_failed, long = true) }
+                return@launch
+            }
             wipeStorage(includeSandbox = true)
             TranslationLanguages.deleteAllModels()
-            DataManager.factoryReset()
         }
     }
 }

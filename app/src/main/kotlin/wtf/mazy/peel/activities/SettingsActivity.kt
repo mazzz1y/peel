@@ -15,11 +15,11 @@ import wtf.mazy.peel.R
 import wtf.mazy.peel.databinding.GlobalSettingsBinding
 import wtf.mazy.peel.model.ApplyTimingRegistry
 import wtf.mazy.peel.model.DataManager
+import wtf.mazy.peel.model.Protection
 import wtf.mazy.peel.model.SettingRegistry
 import wtf.mazy.peel.model.SettingSection
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.model.WebAppSettings
-import wtf.mazy.peel.ui.ProtectionGate
 import wtf.mazy.peel.ui.common.GroupPosition
 import wtf.mazy.peel.ui.settings.SettingRowFactory
 import wtf.mazy.peel.ui.settings.SettingsAdapter
@@ -69,21 +69,24 @@ class SettingsActivity : ToolbarBaseActivity<GlobalSettingsBinding>() {
             ?.let { runCatching { SettingSection.valueOf(it) }.getOrNull() }
             ?: SettingSection.GLOBAL
         setToolbarTitle(getString(section.displayNameResId))
-        requireUnlock(
-            needed = when (section) {
-                SettingSection.GLOBAL -> ProtectionGate.isProtectedGlobally
-                SettingSection.ENGINE -> ProtectionGate.isAnythingProtected
-                SettingSection.APPEARANCE -> false
-            },
-        )
-        editableSettings =
-            DataManager.globalSettings.let { it.copy(settings = it.settings.deepCopy()) }
-        originalSnapshot = editableSettings.settings.deepCopy().apply { sanitize() }
-        setupDefaultSettingsUI()
+        whenDataReady {
+            requireUnlock(
+                needed = when (section) {
+                    SettingSection.GLOBAL -> Protection.global
+                    SettingSection.ENGINE -> Protection.anywhere
+                    SettingSection.APPEARANCE -> false
+                },
+            )
+            editableSettings =
+                DataManager.globalSettings.let { it.copy(settings = it.settings.deepCopy()) }
+            originalSnapshot = editableSettings.settings.deepCopy().apply { sanitize() }
+            setupDefaultSettingsUI()
+        }
     }
 
     override fun onPause() {
         super.onPause()
+        if (!dataReady) return
         editableSettings.settings.sanitize()
         lifecycleScope.launch {
             withContext(NonCancellable) {
@@ -93,6 +96,7 @@ class SettingsActivity : ToolbarBaseActivity<GlobalSettingsBinding>() {
     }
 
     override fun finish() {
+        if (!dataReady) return super.finish()
         editableSettings.settings.sanitize()
         val changed =
             ApplyTimingRegistry.changedKeys(originalSnapshot, editableSettings.settings)
@@ -116,6 +120,7 @@ class SettingsActivity : ToolbarBaseActivity<GlobalSettingsBinding>() {
             lifecycleScope,
             certificateImporter = { consumer ->
                 pendingCertificateConsumer = consumer
+                pickerOpening()
                 certificatePickerLauncher.launch(CERTIFICATE_MIME_TYPES)
             },
         )

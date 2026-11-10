@@ -13,13 +13,13 @@ import wtf.mazy.peel.R
 import wtf.mazy.peel.browser.SessionHostRegistry
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.EntityCloner
-import wtf.mazy.peel.model.ProxyRoute
+import wtf.mazy.peel.model.Protection
 import wtf.mazy.peel.model.WebAppGroup
 import wtf.mazy.peel.shortcut.Shortcuts
 import wtf.mazy.peel.ui.ProtectionGate
 import wtf.mazy.peel.ui.common.LoadingDialogController
 import wtf.mazy.peel.ui.dialog.dismissOnDestroyOf
-import wtf.mazy.peel.ui.dialog.showSandboxInputDialog
+import wtf.mazy.peel.ui.dialog.showAddGroupDialog
 import wtf.mazy.peel.ui.entitylist.EntityListActivity
 import wtf.mazy.peel.ui.entitylist.EntityListAdapter
 import wtf.mazy.peel.ui.entitylist.EntityRowListener
@@ -29,7 +29,6 @@ import wtf.mazy.peel.ui.entitylist.SelectionConfig
 import wtf.mazy.peel.ui.entitylist.scheduleEntityDelete
 import wtf.mazy.peel.ui.grouplist.GroupListAdapter
 import wtf.mazy.peel.ui.grouplist.GroupSelectionHandler
-import wtf.mazy.peel.ui.proxy.ProxyOptions
 import wtf.mazy.peel.ui.settings.showApplyTimingSnackbar
 import wtf.mazy.peel.util.App
 import wtf.mazy.peel.util.Const
@@ -72,13 +71,7 @@ class GroupListActivity : EntityListActivity<WebAppGroup>() {
     override fun rowEntityUuid(entity: WebAppGroup): String = entity.uuid
 
     override fun onAddClicked() {
-        showSandboxInputDialog(
-            titleRes = R.string.add_group,
-            hintRes = R.string.group_name_hint,
-            proxyOptions = ProxyOptions.forGroup(this, DataManager.proxies),
-            defaultProxy = ProxyRoute.Direct,
-        ) { result ->
-            val group = WebAppGroup(title = result.text, isolation = result.isolation)
+        showAddGroupDialog { group ->
             lifecycleScope.launch {
                 DataManager.addGroup(group, appendOrder = true)
             }
@@ -113,7 +106,7 @@ class GroupListActivity : EntityListActivity<WebAppGroup>() {
             .setView(dialogView)
             .setPositiveButton(R.string.delete) { _, _ ->
                 val ungroup = switchUngroup.isChecked
-                ProtectionGate.require(this, ungroup && appsInGroup.any(ProtectionGate::isProtected)) {
+                ProtectionGate.require(this, ungroup && appsInGroup.any(Protection::of)) {
                     scheduleGroupDelete(group, ungroupApps = ungroup)
                 }
             }

@@ -130,6 +130,7 @@
     <string name="clear_browsing_data">ਬ੍ਰਾਊਜ਼ਿੰਗ ਡੇਟਾ</string>
     <string name="clear_sandbox_storage">ਸੈਂਡਬਾਕਸ ਸਟੋਰੇਜ ਸ਼ਾਮਲ ਕਰੋ</string>
     <string name="factory_reset">ਫੈਕਟਰੀ ਰੀਸੈੱਟ</string>
+    <string name="factory_reset_failed">ਫੈਕਟਰੀ ਰੀਸੈੱਟ ਅਸਫਲ ਰਿਹਾ। ਕੁਝ ਵੀ ਮਿਟਾਇਆ ਨਹੀਂ ਗਿਆ।</string>
     <string name="show_fullscreen">ਪੂਰੀ ਸਕ੍ਰੀਨ ਮੋਡ</string>
     <string name="site_not_found">ਪੰਨਾ ਲੋਡ ਨਹੀਂ ਹੋ ਸਕਿਆ।</string>
     <string name="connection_error">ਕੁਨੈਕਸ਼ਨ ਗਲਤੀ: %1$s</string>

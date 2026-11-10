@@ -68,4 +68,35 @@ class WebAppQueryTest {
             assertEquals(query, expected, apps.searched(query, groupTitles, typedHost = null))
         }
     }
+
+    @Test
+    fun typedHostComesFirst() {
+        val wiki = WebApp(baseUrl = "https://wiki.example.com", title = "Wiki")
+        val code = WebApp(baseUrl = "https://www.git.example.com/", title = "Code")
+        val apps = listOf(wiki, gitLab, code)
+        val cases = listOf(
+            "git.example.com/team" to listOf(code),
+            "https://WWW.Git.Example.com." to listOf(code),
+            "gitlab.example.org" to listOf(gitLab),
+            "example" to listOf(wiki, gitLab, code),
+            "git" to listOf(gitLab, code),
+        )
+        cases.forEach { (query, expected) -> assertEquals(query, expected, apps.searched(query, groupTitles)) }
+    }
+
+    @Test
+    fun hostOfALink() {
+        val apps = listOf(
+            WebApp(baseUrl = "https://www.example.com/a", title = "A"),
+            WebApp(baseUrl = "https://example.com:8443/", title = "B"),
+            WebApp(baseUrl = "https://mail.example.com/", title = "C"),
+        )
+        val cases = listOf(
+            "https://example.com/x" to listOf("A", "B"),
+            "https://EXAMPLE.com./" to listOf("A", "B"),
+            "https://mail.example.com/inbox" to listOf("C"),
+            "about:blank" to emptyList(),
+        )
+        cases.forEach { (url, expected) -> assertEquals(url, expected, apps.onHostOf(url).map { it.title }) }
+    }
 }

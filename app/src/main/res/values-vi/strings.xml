@@ -123,6 +123,7 @@
     <string name="clear_browsing_data">Dữ liệu duyệt web</string>
     <string name="clear_sandbox_storage">Bao gồm bộ nhớ sandbox</string>
     <string name="factory_reset">Khôi phục cài đặt gốc</string>
+    <string name="factory_reset_failed">Không thể khôi phục cài đặt gốc. Không có gì bị xóa.</string>
     <string name="show_fullscreen">Chế độ toàn màn hình</string>
     <string name="site_not_found">Không thể tải trang</string>
     <string name="connection_error">Lỗi kết nối: %1$s</string>

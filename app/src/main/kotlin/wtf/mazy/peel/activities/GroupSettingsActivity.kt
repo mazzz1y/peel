@@ -17,11 +17,11 @@ import wtf.mazy.peel.R
 import wtf.mazy.peel.databinding.GroupSettingsBinding
 import wtf.mazy.peel.model.ApplyTimingRegistry
 import wtf.mazy.peel.model.DataManager
+import wtf.mazy.peel.model.Protection
 import wtf.mazy.peel.model.SettingDefinition
 import wtf.mazy.peel.model.WebAppGroup
 import wtf.mazy.peel.model.WebAppSettings
 import wtf.mazy.peel.ui.IconEditorController
-import wtf.mazy.peel.ui.ProtectionGate
 import wtf.mazy.peel.ui.common.Draft
 import wtf.mazy.peel.ui.common.GroupPosition
 import wtf.mazy.peel.ui.common.SettingsSurface
@@ -57,38 +57,40 @@ class GroupSettingsActivity :
     private val linearLayoutOverrides get() = binding.root.findViewById<LinearLayout>(R.id.linearLayoutOverrides)
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        iconEditor = IconEditorController(this, { imgGroupIcon }) { draft?.value }
+        iconEditor = IconEditorController(this, { imgGroupIcon }, { draft?.value }, ::pickerOpening)
         super.onCreate(savedInstanceState)
         setToolbarTitle(getString(R.string.group_settings))
 
-        val stored = intent.getStringExtra(Const.INTENT_GROUP_UUID)
-            ?.let { DataManager.group(it) }
-        if (stored == null) {
-            toast(R.string.group_not_found)
-            finish()
-            return
+        whenDataReady {
+            val stored = intent.getStringExtra(Const.INTENT_GROUP_UUID)
+                ?.let { DataManager.group(it) }
+            if (stored == null) {
+                toast(R.string.group_not_found)
+                finish()
+                return@whenDataReady
+            }
+
+            requireUnlock(needed = Protection.of(stored))
+            val draft = Draft(stored.copy(settings = stored.settings.deepCopy()))
+            this.draft = draft
+            originalTitle = stored.title
+            originalSettingsSnapshot =
+                stored.settings.deepCopy().apply { sanitize(asOverride = true) }
+            txtGroupName.text = stored.title
+            sandboxLabel.setText(R.string.group_sandbox)
+            switchSandbox.isChecked = stored.isolation.isSandboxed
+            switchEphemeralSandbox.isChecked = stored.isolation.isEphemeral
+
+            imgGroupIcon.setOnClickListener { iconEditor.onIconTap() }
+            titleBlock.setOnClickListener { showEditDialog(draft) }
+            iconEditor.refreshIcon()
+
+            setupSandboxSwitch()
+            SettingsSurface.apply(binding.root.findViewById(R.id.identityBlock), GroupPosition.ONLY)
+            SettingsSurface.bindGroup(binding.settingsRowsGroup)
+            setupOverridePicker()
+            setupScrollInsets(binding.scrollView)
         }
-
-        requireUnlock(needed = ProtectionGate.isProtected(stored))
-        val draft = Draft(stored.copy(settings = stored.settings.deepCopy()))
-        this.draft = draft
-        originalTitle = stored.title
-        originalSettingsSnapshot =
-            stored.settings.deepCopy().apply { sanitize(asOverride = true) }
-        txtGroupName.text = stored.title
-        sandboxLabel.setText(R.string.group_sandbox)
-        switchSandbox.isChecked = stored.isolation.isSandboxed
-        switchEphemeralSandbox.isChecked = stored.isolation.isEphemeral
-
-        imgGroupIcon.setOnClickListener { iconEditor.onIconTap() }
-        titleBlock.setOnClickListener { showEditDialog(draft) }
-        iconEditor.refreshIcon()
-
-        setupSandboxSwitch()
-        SettingsSurface.apply(binding.root.findViewById(R.id.identityBlock), GroupPosition.ONLY)
-        SettingsSurface.bindGroup(binding.settingsRowsGroup)
-        setupOverridePicker()
-        setupScrollInsets(binding.scrollView)
     }
 
     override fun onPause() {

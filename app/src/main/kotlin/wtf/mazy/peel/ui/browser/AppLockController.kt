@@ -3,11 +3,8 @@ package wtf.mazy.peel.ui.browser
 import android.os.Build
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import wtf.mazy.peel.R
 import wtf.mazy.peel.ui.AppLock
-import wtf.mazy.peel.ui.BiometricPrompter
-import wtf.mazy.peel.util.biometricUnavailableReason
-import wtf.mazy.peel.util.toast
+import wtf.mazy.peel.ui.ProtectionGate
 
 /** The lock of one window of a web app; every window of the same web app shares [AppLock]. */
 class AppLockController(
@@ -60,52 +57,30 @@ class AppLockController(
             return PromptOutcome.NOT_NEEDED
         }
         content()?.visibility = View.INVISIBLE
-
-        val unavailableReason = activity.biometricUnavailableReason()
-        if (unavailableReason != null) {
-            reportUnavailable(unavailableReason)
-            return PromptOutcome.UNAVAILABLE
-        }
-
-        return showPrompt(onPromptShown)
-    }
-
-    private fun showPrompt(onPromptShown: () -> Unit): PromptOutcome {
         val askedFor = ownerUuid() ?: return PromptOutcome.NOT_NEEDED
         isPromptActive = true
         onPromptShown()
 
         // A result for a web app this window no longer shows must not unlock or close it.
-        val shown = BiometricPrompter(activity)
-            .showPrompt(
-                {
-                    if (askedFor == ownerUuid()) {
-                        AppLock.unlock(askedFor)
-                        isPromptActive = false
-                        content()?.visibility = View.VISIBLE
-                        onSuccess()
-                    }
-                },
-                {
-                    if (askedFor == ownerUuid()) {
-                        isPromptActive = false
-                        onFailure()
-                    }
-                },
-                activity.getString(R.string.bioprompt_restricted_webapp),
-            )
-
-        if (!shown) {
-            isPromptActive = false
-            reportUnavailable(activity.getString(R.string.no_biometric_devices))
-            return PromptOutcome.UNAVAILABLE
-        }
-        return PromptOutcome.SHOWN
-    }
-
-    private fun reportUnavailable(reason: String) {
-        activity.toast(reason, long = true)
-        onFailure()
+        val shown = ProtectionGate.prompt(
+            activity,
+            onPass = {
+                if (askedFor == ownerUuid()) {
+                    AppLock.unlock(askedFor)
+                    isPromptActive = false
+                    content()?.visibility = View.VISIBLE
+                    onSuccess()
+                }
+            },
+            onDenied = {
+                if (askedFor == ownerUuid()) {
+                    isPromptActive = false
+                    onFailure()
+                }
+            },
+        )
+        if (!shown) isPromptActive = false
+        return if (shown) PromptOutcome.SHOWN else PromptOutcome.UNAVAILABLE
     }
 
     enum class PromptOutcome { SHOWN, NOT_NEEDED, UNAVAILABLE }

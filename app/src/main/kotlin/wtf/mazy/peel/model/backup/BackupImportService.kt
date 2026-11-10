@@ -99,12 +99,14 @@ object BackupImportService {
         // Icons go in first so the list draws them as soon as the import is published; the
         // imported uuids may be existing apps', so a failed import puts the previous files back.
         // Not cancellable: the actor finishes the import even if the screen goes away.
+        // An icon that could not be read is left alone, so a failed import cannot lose it.
         return withContext(NonCancellable) {
-            val previousIcons = parsed.icons.keys.associateWith { uuid ->
-                runCatching { IconCache.sourceFile(uuid).takeIf(File::exists)?.readBytes() }
+            val previousIcons = parsed.icons.keys.mapNotNull { uuid ->
+                runCatching { uuid to IconCache.sourceFile(uuid).takeIf(File::exists)?.readBytes() }
                     .getOrNull()
-            }
-            parsed.icons.forEach { (uuid, bitmap) -> IconCache.save(uuid, bitmap) }
+            }.toMap()
+            parsed.icons.filterKeys(previousIcons::containsKey)
+                .forEach { (uuid, bitmap) -> IconCache.save(uuid, bitmap) }
             val stored = DataManager.importData(
                 mode,
                 importedWebApps,

@@ -29,6 +29,9 @@ sealed interface EffectiveSandbox {
         val ephemeral: Boolean,
         override val route: ProxyRoute,
     ) : EffectiveSandbox
+
+    /** [contextId] null is the default sandbox; a private session holds none. */
+    fun holds(contextId: String?): Boolean = this !is Private && this.contextId == contextId
 }
 
 fun effectiveSandbox(group: WebAppGroup): EffectiveSandbox =

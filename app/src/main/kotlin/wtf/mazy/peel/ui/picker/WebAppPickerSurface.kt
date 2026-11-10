@@ -1,6 +1,7 @@
 package wtf.mazy.peel.ui.picker
 
 import android.os.Bundle
+import android.view.ContextThemeWrapper
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
@@ -36,7 +37,8 @@ import com.google.android.material.R as MaterialR
  * The web apps to choose from for a link, as a sheet rising from the bottom like the system's
  * share sheet: the link and its actions, then the web-app list's own cards shown as in selection
  * mode. Searching takes the sheet to full height and puts the search bar in place of the link
- * until the search ends. On TV and car screens it fills the screen.
+ * until the search ends. On TV and car screens it fills the screen. It is Peel's own surface, so
+ * it takes Peel's theme even when a web app's window, with its own surface colours, opens it.
  */
 class WebAppPickerSurface(
     private val activity: AppCompatActivity,
@@ -46,12 +48,11 @@ class WebAppPickerSurface(
     private val linkCallbacks: PickerLinkCallbacks?,
     private val onAdd: (UnwrappedLink, onAdded: () -> Unit) -> Unit,
     private val canAdd: (UnwrappedLink) -> Boolean,
-) : BottomSheetDialog(activity, R.style.AppTheme_PickerSurface) {
+) : BottomSheetDialog(ContextThemeWrapper(activity, R.style.AppTheme), R.style.AppTheme_PickerSurface) {
 
     private var current = link.initial
     private var query = ""
     private var results = emptyList<WebApp>()
-    private lateinit var field: PickerField
     private val adapter = WebAppPickerAdapter(groupTitles, ::pick)
     private lateinit var emptyState: ListEmptyState
     private lateinit var linkLine: TextView
@@ -75,17 +76,17 @@ class WebAppPickerSurface(
         adapter.scrollToTopOnChange { list }
         list.applyBottomScreenInsets()
         bar = decor.requireViewById(R.id.pickerSearchBar)
-        field = PickerField(bar, WindowCompat.getInsetsController(checkNotNull(window), bar))
-        field.onQueryChanged = { text ->
+        bar.bindKeyboard(WindowCompat.getInsetsController(checkNotNull(window), bar))
+        bar.onQueryChanged = { text ->
             query = text
             render()
         }
-        field.onConfirm = { results.firstOrNull()?.let(::pick) }
-        field.onActiveChanged = ::showSearch
+        bar.onSearch = { results.firstOrNull()?.let(::pick) }
+        bar.onActiveChanged = ::showSearch
         // Only a search claims back, so the sheet keeps its own predictive back otherwise.
         // Enabling the callback re-registers it after the sheet's, which is what lets it win.
         searchBack = onBackPressedDispatcher.addCallback(this, enabled = false) {
-            if (!field.lowerKeyboard()) bar.close()
+            if (!bar.lowerKeyboard()) bar.close()
         }
         decor.requireViewById<View>(R.id.pickerSearch).setOnClickListener { startSearch() }
 
@@ -160,15 +161,13 @@ class WebAppPickerSurface(
         val config = InputDialogConfig(
             hintRes = R.string.url,
             prefill = current.launchUrl,
-            onInputReady = { field ->
-                input = field
-                UrlField.configure(field)
-            },
+            url = true,
+            accepts = UrlField.FULL,
+            onInputReady = { input = it },
         )
         val dialog = activity.showInputDialogRaw(config) { field, _ ->
             applyLink(field.text.toString().trim())
         }
-        UrlField.gate(input, dialog.getButton(BUTTON_POSITIVE), UrlField.FULL)
         input.requestFocus()
         dialog.window?.let { WindowCompat.getInsetsController(it, input).show(WindowInsetsCompat.Type.ime()) }
     }

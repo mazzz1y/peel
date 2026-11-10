@@ -130,6 +130,7 @@
     <string name="clear_browsing_data">ব্রাউজিং ডেটা</string>
     <string name="clear_sandbox_storage">স্যান্ডবক্স সংরক্ষণ অন্তর্ভুক্ত করুন</string>
     <string name="factory_reset">ফ্যাক্টরি রিসেট</string>
+    <string name="factory_reset_failed">ফ্যাক্টরি রিসেট ব্যর্থ হয়েছে। কিছুই মুছে ফেলা হয়নি।</string>
     <string name="show_fullscreen">পূর্ণ স্ক্রিন মোড</string>
     <string name="site_not_found">পৃষ্ঠা লোড করা যায়নি।</string>
     <string name="connection_error">সংযোগ ত্রুটি: %1$s</string>

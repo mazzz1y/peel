@@ -14,7 +14,6 @@ import wtf.mazy.peel.ui.common.fadeVisibility
 import wtf.mazy.peel.ui.entitylist.IdleAction
 import wtf.mazy.peel.util.Const
 import wtf.mazy.peel.util.applyBottomScreenInsets
-import wtf.mazy.peel.util.isImeVisible
 import wtf.mazy.peel.util.setBottomClearance
 
 /**
@@ -70,11 +69,10 @@ class BottomSearchSurface(
             if (bottom - top != oldBottom - oldTop) clearListOfSuggestions()
         }
         bar.onQueryChanged = { query -> onQueryChanged(query) }
-        bar.onKeyboardRequested = { insetsController.show(WindowInsetsCompat.Type.ime()) }
+        bar.bindKeyboard(insetsController)
         bar.onActiveChanged = { active ->
-            val ime = WindowInsetsCompat.Type.ime()
             setResultsShown(active)
-            if (active) insetsController.show(ime) else insetsController.hide(ime)
+            if (active) insetsController.show(WindowInsetsCompat.Type.ime())
             showBar(active)
             onActiveChanged(active)
         }
@@ -87,12 +85,7 @@ class BottomSearchSurface(
 
     override fun exit() = bar.close()
 
-    override fun lowerKeyboard(): Boolean {
-        if (!bar.hasFocus() || !bar.isImeVisible) return false
-        bar.dropFocus()
-        insetsController.hide(WindowInsetsCompat.Type.ime())
-        return true
-    }
+    override fun lowerKeyboard(): Boolean = bar.lowerKeyboard()
 
     override fun onHostPaused() = bar.dropFocus()
 

@@ -15,6 +15,7 @@ class IconEditorController(
     private val activity: ComponentActivity,
     private val iconView: () -> ImageView,
     private val ownerProvider: () -> IconOwner?,
+    private val onPickerOpening: () -> Unit = {},
 ) {
     private val sizePx = (activity.resources.displayMetrics.density * 96).toInt()
 
@@ -51,6 +52,7 @@ class IconEditorController(
 
     private fun launchPicker() {
         try {
+            onPickerOpening()
             launcher.launch("image/*")
         } catch (_: Exception) {
             activity.toast(R.string.icon_not_found)

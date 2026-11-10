@@ -10,28 +10,8 @@ class LinkMatchTest {
 
     private data class Case(val name: String, val apps: List<App>, val link: String, val expected: App?)
 
-    private fun hostAndPath(url: String): Pair<String, String> {
-        val rest = url.substringAfter("://")
-        val host = rest.substringBefore('/').substringBefore('?').lowercase().removePrefix("www.")
-        val path = "/" + rest.substringAfter('/', "").substringBefore('?').substringBefore('#')
-        return host to path
-    }
-
-    private fun matching(url: String, entries: List<UrlRule>): List<UrlRule> {
-        val (host, path) = hostAndPath(url)
-        return entries.filter { entry ->
-            when (entry) {
-                is UrlRule.Domain -> host == entry.value || host.endsWith(".${entry.value}")
-                is UrlRule.UrlPrefix -> host == entry.host &&
-                        (path == entry.path || path.startsWith("${entry.path}/"))
-                is UrlRule.UrlRegex -> Regex(entry.value).matches(url)
-                is UrlRule.HostRegex -> Regex(entry.value).matches(host)
-            }
-        }
-    }
-
     private fun match(app: App, url: String): LinkMatch =
-        linkMatch(app.address, url) { matching(it, app.entries) }
+        linkMatch(app.address, url) { SameAppDomainMatcher.matching(it, app.entries.map(UrlRule::stored)) }
 
     private fun assertNoMismatches(mismatches: List<String>) =
         assertTrue(mismatches.joinToString("\n"), mismatches.isEmpty())
@@ -76,6 +56,13 @@ class LinkMatchTest {
     private val specA = App("https://a.example/", listOf(UrlRule.Domain("shared.example")))
     private val specB = App("https://b.example/", listOf(UrlRule.UrlPrefix("shared.example", "/tenant-b")))
     private val specOwnHost = App("https://shared.example/")
+    private val gmail = App("https://mail.google.com/")
+    private val gmailSecond = App("https://mail.google.com/mail/u/0/", listOf(UrlRule.UrlPrefix("mail.google.com", "/mail/u/1")))
+    private val googleWithRegex = App("https://www.google.com/", listOf(UrlRule.HostRegex("(.*\\.)?google\\.com")))
+    private val mainSite = App("https://example.com/")
+    private val subAppWithMain = App("https://mail.example.com/", listOf(UrlRule.Domain("example.com")))
+    private val portalHome = App("https://portal.example.com/home/")
+    private val portalDomainEntry = App("https://tickets.example.org/", listOf(UrlRule.Domain("portal.example.com")))
 
     @Test
     fun picksTheBestMatch() {
@@ -137,12 +124,26 @@ class LinkMatchTest {
             Case("amzn.to → amazon.de", amazon, "https://amzn.to/abc", amazon[0]),
             Case("portal /support → Tickets", listOf(portal, tickets), "https://portal.example.com/support/ticket/123", tickets),
             Case("portal /news → Portal", listOf(portal, tickets), "https://portal.example.com/news", portal),
-            Case("whole-host entry → none", listOf(portal, ticketsWholeHost), "https://portal.example.com/anything", null),
+            Case("whole-host entry → own host", listOf(portal, ticketsWholeHost), "https://portal.example.com/anything", portal),
             Case("regex entry → Tickets", listOf(portal, ticketsRegex), "https://portal.example.com/support/1", ticketsRegex),
             Case("prefix beats domain entry", listOf(specA, specB), "https://shared.example/tenant-b/x", specB),
             Case("prefix beats own host under it", listOf(specOwnHost, specB), "https://shared.example/tenant-b/x", specB),
             Case("own host elsewhere", listOf(specOwnHost, specB), "https://shared.example/other", specOwnHost),
             Case("t.co is not equivalent", listOf(App("https://x.com/"), github[0]), "https://t.co/abc", null),
+            Case("org app over sibling subdomain", listOf(github[1], App("https://gist.github.com/")), "https://github.com/torvalds/linux", github[1]),
+            Case("section app over old subdomain", listOf(reddit[1], App("https://old.reddit.com/")), "https://www.reddit.com/", reddit[1]),
+            Case("path app over admin subdomain", listOf(App("https://example.com/app/"), App("https://admin.example.com/")), "https://example.com/other", App("https://example.com/app/")),
+            Case("second account by prefix", listOf(gmail, gmailSecond), "https://mail.google.com/mail/u/1/#inbox", gmailSecond),
+            Case("first account stays", listOf(gmail, gmailSecond), "https://mail.google.com/mail/u/0/#inbox", gmailSecond),
+            Case("broad host regex yields to own host", listOf(maps, googleWithRegex), "https://maps.google.com/maps/place/x", maps),
+            Case("broad host regex, bare link", listOf(maps, googleWithRegex), "https://maps.google.com/?q=x", maps),
+            Case("broad host regex yields to own host with a path", listOf(mail, googleWithRegex), "https://mail.google.com/settings", mail),
+            Case("broad host regex, other account", listOf(mail, googleWithRegex), "https://mail.google.com/mail/u/1/", mail),
+            Case("broad host regex, drive file", listOf(google[2], googleWithRegex), "https://drive.google.com/file/d/1Ab/view", google[2]),
+            Case("domain entry yields to own host with a path", listOf(portalHome, portalDomainEntry), "https://portal.example.com/x", portalHome),
+            Case("main domain on a sub-app", listOf(mainSite, subAppWithMain), "https://example.com/x", mainSite),
+            Case("sub-app keeps its own host", listOf(mainSite, subAppWithMain), "https://mail.example.com/inbox", subAppWithMain),
+            Case("two LAN addresses", listOf(App("http://192.168.1.10:8080/"), App("http://192.168.1.11/")), "http://192.168.1.10:8080/status", App("http://192.168.1.10:8080/")),
             Case("unrelated site → none", listOf(App("https://mail.proton.me/"), github[0], App("https://gitlab.com/")), "https://example.com/mail/github", null),
         )
         assertNoMismatches(cases.mapNotNull { case ->
@@ -189,6 +190,9 @@ class LinkMatchTest {
             Triple(App("https://example.com/"), "data:text/html,https://example.com/", false),
             Triple(App("https://example.com/"), "blob:https://example.com/uuid", false),
             Triple(App("https://a.example/"), "https://shared.example/", false),
+            Triple(App("http://192.168.1.10:8080/"), "http://192.168.1.11/", false),
+            Triple(App("http://192.168.1.10:8080/"), "http://192.168.1.10:8080/x", true),
+            Triple(App("http://[::1]:8080/"), "http://[::2]:8080/", false),
         )
         assertNoMismatches(cases.mapNotNull { (app, link, expected) ->
             val actual = match(app, link).belongs

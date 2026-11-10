@@ -1,15 +1,16 @@
-package wtf.mazy.peel.shortcut
+package wtf.mazy.peel.browser
 
 import android.content.Context
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import wtf.mazy.peel.browser.SessionHostRegistry
 import wtf.mazy.peel.gecko.SandboxManager
 import wtf.mazy.peel.model.DataSideEffects
 import wtf.mazy.peel.model.IconOwner
+import wtf.mazy.peel.shortcut.ShortcutIcons
+import wtf.mazy.peel.shortcut.Shortcuts
 
-class ShortcutSideEffects(
+class AppDataSideEffects(
     private val context: Context,
     private val scope: CoroutineScope,
 ) : DataSideEffects {

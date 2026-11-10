@@ -123,6 +123,7 @@
     <string name="clear_browsing_data">瀏覽資料</string>
     <string name="clear_sandbox_storage">包含沙盒儲存</string>
     <string name="factory_reset">恢復原廠設定</string>
+    <string name="factory_reset_failed">恢復原廠設定失敗，未刪除任何內容。</string>
     <string name="show_fullscreen">全螢幕模式</string>
     <string name="site_not_found">無法載入頁面</string>
     <string name="connection_error">連線錯誤：%1$s</string>

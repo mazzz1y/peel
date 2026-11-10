@@ -45,7 +45,7 @@ class NotificationTargetTest {
                 val own = byUuid.getValue(app.uuid)
                 if (own.alwaysHttps) own.url.replaceFirst("http://", "https://") else own.url
             },
-            bestMatch = { candidates, _ -> candidates.find { it.uuid == case.heuristic } },
+            heuristic = { candidates, _ -> candidates.find { it.uuid == case.heuristic } },
         )?.uuid
     }
 

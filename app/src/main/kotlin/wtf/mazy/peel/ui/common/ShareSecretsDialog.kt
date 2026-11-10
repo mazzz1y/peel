@@ -3,6 +3,7 @@ package wtf.mazy.peel.ui.common
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import wtf.mazy.peel.R
+import wtf.mazy.peel.model.Protection
 import wtf.mazy.peel.model.ShareSecretsPolicy
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.model.WebAppGroup
@@ -44,9 +45,9 @@ object ShareSecretsDialog {
         globalSettings: WebAppSettings? = null,
         onPass: () -> Unit,
     ) {
-        val needed = groups.any { ProtectionGate.isProtected(it) && ShareSecretsPolicy.hasSecrets(it.settings) } ||
-                webApps.any { ProtectionGate.isProtected(it) && ShareSecretsPolicy.hasSecrets(it.settings) } ||
-                globalSettings != null && ProtectionGate.isProtectedGlobally &&
+        val needed = groups.any { Protection.of(it) && ShareSecretsPolicy.hasSecrets(it.settings) } ||
+                webApps.any { Protection.of(it) && ShareSecretsPolicy.hasSecrets(it.settings) } ||
+                globalSettings != null && Protection.global &&
                 ShareSecretsPolicy.hasSecrets(globalSettings)
         ProtectionGate.require(activity, needed, onPass = onPass)
     }

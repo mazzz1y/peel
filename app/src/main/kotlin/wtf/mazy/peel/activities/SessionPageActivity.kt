@@ -12,7 +12,9 @@ import wtf.mazy.peel.browser.PeelNavigationDelegate
 import wtf.mazy.peel.browser.isBlankDocument
 import wtf.mazy.peel.gecko.GeckoRuntimeProvider
 import wtf.mazy.peel.model.DataManager
+import wtf.mazy.peel.model.EffectiveSettings
 import wtf.mazy.peel.model.WebApp
+import wtf.mazy.peel.ui.browser.AppLockController
 
 abstract class SessionPageActivity : BaseSessionHost() {
 
@@ -28,6 +30,23 @@ abstract class SessionPageActivity : BaseSessionHost() {
     override val showToolbar: Boolean = true
     override val isBrowserHost: Boolean = false
     protected open val isContentInitiatedWindow: Boolean = false
+
+    private val ownerSettings: EffectiveSettings?
+        get() = ownerWebAppUuid?.let(DataManager::webApp)?.let(DataManager::effectiveSettings)
+
+    // A window of a web app shows its pages and uses its sandbox, so it shares that web app's lock.
+    private val appLock by lazy {
+        AppLockController(
+            activity = this,
+            ownerUuid = { ownerWebAppUuid },
+            isProtected = {
+                ownerWebAppUuid != null && (ownerSettings ?: effectiveSettings).biometricProtection
+            },
+            content = { browserContent },
+            onSuccess = {},
+            onFailure = { finish() },
+        )
+    }
 
     private val backCallback = object : OnBackPressedCallback(false) {
         override fun handleOnBackPressed() {
@@ -86,12 +105,20 @@ abstract class SessionPageActivity : BaseSessionHost() {
 
     override fun onStart() {
         super.onStart()
+        appLock.onStart()
         reattachSessionToView()
         pullToRefreshController.update(effectiveSettings)
         onSessionStarted()
     }
 
+    override fun onResume() {
+        super.onResume()
+        appLock.applyRecentsProtection()
+        appLock.showPromptIfNeeded {}
+    }
+
     override fun onStop() {
+        appLock.onStop()
         onSessionStopped()
         super.onStop()
         geckoView?.releaseSession()

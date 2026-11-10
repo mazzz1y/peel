@@ -158,7 +158,10 @@ object DataManager {
         if (outcome is DataLoad.Failed) throw DataUnavailableException(outcome.cause)
     }
 
-    /** Returns whether the action was stored; a failed action changes nothing and is logged. */
+    /**
+     * Returns false when the action failed, which changes nothing and is logged; true when it
+     * went through, including when it had nothing to change.
+     */
     suspend fun submit(action: Action): Boolean {
         awaitReady()
         val done = CompletableDeferred<Boolean>()
@@ -227,6 +230,9 @@ object DataManager {
             webApp.settings.effective(current.globalSettings.settings)
         }
     }
+
+    fun effectiveSettings(group: WebAppGroup): EffectiveSettings =
+        group.settings.effective(state.value.globalSettings.settings)
 
     val globalEffectiveSettings: EffectiveSettings
         get() = state.value.globalSettings.settings.effective()
@@ -538,18 +544,15 @@ object DataManager {
         forgetGroups(current.groups.filter { it.uuid !in importedGroupUuids })
     }
 
-    private fun handleFactoryReset() {
-        val current = working
-        repository.replaceAllWebApps(emptyList())
-        repository.replaceAllGroups(emptyList())
-        repository.replaceAllProxies(emptyList())
-        repository.persistGlobalSettings(
-            current.globalSettings.copy(settings = WebAppSettings.createWithDefaults())
-        )
-        reloadFromRepository()
-        forgetWebApps(current.webApps)
-        forgetGroups(current.groups)
-    }
+    private fun handleFactoryReset() = replaceAllData(
+        Action.ImportData(
+            mode = ImportMode.REPLACE,
+            webApps = emptyList(),
+            globalSettings = WebAppSettings.createWithDefaults(),
+            groups = emptyList(),
+            proxies = emptyList(),
+        ),
+    )
 
     private fun mergeData(action: Action.ImportData) {
         val current = working

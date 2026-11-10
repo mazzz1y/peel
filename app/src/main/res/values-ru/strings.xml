@@ -144,6 +144,7 @@
     <string name="clear_browsing_data">Данные браузера</string>
     <string name="clear_sandbox_storage">Включить хранилище песочницы</string>
     <string name="factory_reset">Сброс всех данных</string>
+    <string name="factory_reset_failed">Не удалось сбросить все данные. Ничего не удалено.</string>
     <string name="show_fullscreen">Полноэкранный режим</string>
     <string name="site_not_found">Не удалось загрузить страницу</string>
     <string name="connection_error">Ошибка соединения: %1$s</string>

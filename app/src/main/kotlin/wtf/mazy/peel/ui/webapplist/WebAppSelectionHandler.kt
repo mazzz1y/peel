@@ -3,6 +3,7 @@ package wtf.mazy.peel.ui.webapplist
 import androidx.appcompat.app.AppCompatActivity
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.DataManager
+import wtf.mazy.peel.model.Protection
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.ui.ProtectionGate
 import wtf.mazy.peel.ui.common.ShareSecretsDialog
@@ -23,7 +24,7 @@ class WebAppSelectionHandler(
     }
 
     override fun confirmMove(uuids: List<String>, onConfirm: () -> Unit) {
-        val needed = uuids.mapNotNull(DataManager::webApp).any(ProtectionGate::isProtected)
+        val needed = uuids.mapNotNull(DataManager::webApp).any(Protection::of)
         ProtectionGate.require(activity, needed, onPass = onConfirm)
     }
 

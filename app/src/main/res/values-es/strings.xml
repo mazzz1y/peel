@@ -156,6 +156,7 @@
     <string name="clear_browsing_data">Datos de navegación</string>
     <string name="clear_sandbox_storage">Incluir almacenamiento sandbox</string>
     <string name="factory_reset">Restablecer de fábrica</string>
+    <string name="factory_reset_failed">No se pudo restablecer de fábrica. No se eliminó nada.</string>
     <string name="delete">Eliminar</string>
     <string name="settings">Configuración</string>
     <string name="app_icon">Icono de la aplicación</string>

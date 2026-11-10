@@ -54,18 +54,14 @@ object SessionHostRegistry {
     fun finishPopupsOwnedBy(ownerUuid: String) =
         finish { !it.isBrowser && it.ownerUuid() == ownerUuid }
 
-    fun finishOwnedBy(ownerUuids: Set<String>) {
-        val targets = synchronized(lock) {
-            hosts.filterValues { it.ownerUuid() in ownerUuids }.toList()
-        }
-        targets.forEach { (host, entry) ->
-            if (entry.isBrowser) host.finishAndRemoveTask() else host.finish()
-        }
-    }
+    fun finishOwnedBy(ownerUuids: Set<String>) =
+        finish(removeBrowserTasks = true) { it.ownerUuid() in ownerUuids }
 
-    private fun finish(predicate: (Entry) -> Boolean) {
-        val targets = synchronized(lock) { hosts.filterValues(predicate).keys.toList() }
-        targets.forEach { it.finish() }
+    private fun finish(removeBrowserTasks: Boolean = false, predicate: (Entry) -> Boolean) {
+        val targets = synchronized(lock) { hosts.filterValues(predicate).toList() }
+        targets.forEach { (host, entry) ->
+            if (removeBrowserTasks && entry.isBrowser) host.finishAndRemoveTask() else host.finish()
+        }
     }
 
     suspend fun closeAllSessions() = close(null)

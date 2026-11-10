@@ -576,43 +576,37 @@ class SettingRowFactory(
         fun fromCodesUsedByOtherRows(): Set<String> =
             getMap(settings, mapKey).orEmpty().keys - currentFrom
 
+        val fromLabels = allFromCodes.zip(allFromLabels).toMap()
+
         fun availableFromCodes(): List<String> {
             val taken = fromCodesUsedByOtherRows()
             return allFromCodes.filter { it !in taken }
         }
 
-        fun availableFromLabels(): List<String> {
-            val taken = fromCodesUsedByOtherRows()
-            return allFromCodes.zip(allFromLabels)
-                .filter { (code, _) -> code !in taken }
-                .map { (_, label) -> label }
-        }
-
         fun availableToLanguages(): List<TranslationsController.Language> =
             toLanguages.filter { it.code != currentFrom }
 
-        fun availableToLabels(): List<String> =
-            availableToLanguages().map { it.label() }
-
         btnFrom.bindDropdown(
-            itemsProvider = { availableFromLabels() },
-            currentIndex = {
-                availableFromCodes().indexOf(currentFrom).coerceAtLeast(0)
-            },
-            onSelected = { i ->
+            optionsProvider = ::availableFromCodes,
+            label = { fromLabels.getValue(it) },
+            current = { currentFrom.takeIf { it in fromLabels } ?: availableFromCodes().firstOrNull() },
+            onSelected = { code ->
                 val previousFromCode = currentFrom
-                currentFrom = availableFromCodes().getOrNull(i).orEmpty()
+                currentFrom = code
                 persistEntry(previousFromCode, currentFrom, currentTo)
                 onAfterChange()
             },
         )
         btnTo.bindDropdown(
-            itemsProvider = { availableToLabels() },
-            currentIndex = {
-                availableToLanguages().indexOfFirst { it.code == currentTo }.coerceAtLeast(0)
+            optionsProvider = ::availableToLanguages,
+            label = { it.label() },
+            current = {
+                availableToLanguages().let { languages ->
+                    languages.find { it.code == currentTo } ?: languages.firstOrNull()
+                }
             },
-            onSelected = { i ->
-                currentTo = availableToLanguages().getOrNull(i)?.code.orEmpty()
+            onSelected = { language ->
+                currentTo = language.code
                 persistEntry(currentFrom, currentFrom, currentTo)
             },
         )

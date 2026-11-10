@@ -7,23 +7,27 @@ import android.view.ViewTreeObserver
 import android.view.inputmethod.EditorInfo
 import android.widget.EditText
 import android.widget.ImageButton
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.core.widget.doAfterTextChanged
 import com.google.android.material.floatingtoolbar.FloatingToolbarLayout
 import wtf.mazy.peel.R
 import wtf.mazy.peel.ui.common.onImeAction
+import wtf.mazy.peel.util.isImeVisible
 
 /**
- * The persistent search field: the list screen's on its bottom line, and the picker's.
+ * A search field that is the real one: the web-app list's in the Bottom position, and Open in
+ * Peel's while it searches.
  *
- * The field is the real one: tapping the bar puts the caret where the user tapped rather than
+ * Tapping the bar puts the caret where the user tapped rather than
  * opening a second surface. The session starts when focus enters the bar and lasts until
  * [close]; focus and the keyboard may come and go within it, so lowering the keyboard to look
  * at the results, or leaving the screen and returning, keeps the query. The leading icon is a
  * magnifier while idle and a back control while active, and ending the session discards the
  * query.
  *
- * The keyboard is the host's: raising and hiding it needs the window, which a view has no
- * business reaching for.
+ * The keyboard belongs to the window, so the host hands the bar its insets controller with
+ * [bindKeyboard]; the bar raises it for a session and lowers it when the session ends.
  */
 class SearchBar @JvmOverloads constructor(
     context: Context,
@@ -33,7 +37,6 @@ class SearchBar @JvmOverloads constructor(
 
     var onActiveChanged: (Boolean) -> Unit = {}
     var onQueryChanged: (String) -> Unit = {}
-    var onKeyboardRequested: () -> Unit = {}
     var onSearch: () -> Unit = {}
 
     val query: String get() = queryField.text.toString()
@@ -44,6 +47,8 @@ class SearchBar @JvmOverloads constructor(
     private val queryField: EditText
     private val leadingButton: ImageButton
     private val clearButton: ImageButton
+
+    private var keyboard: WindowInsetsControllerCompat? = null
 
     private val focusWatcher = ViewTreeObserver.OnGlobalFocusChangeListener { _, _ ->
         if (hasFocus()) setActive(true)
@@ -59,8 +64,8 @@ class SearchBar @JvmOverloads constructor(
             renderControls()
             onQueryChanged(query)
         }
-        // The results are live as the query is typed, so the action key submits nothing of its
-        // own; consuming it keeps the keyboard where it is.
+        // The results are live as the query is typed, so the action key only does what the host
+        // asks (the picker opens its first row); consuming it keeps the keyboard where it is.
         queryField.onImeAction(EditorInfo.IME_ACTION_SEARCH) { onSearch() }
         // The bar is the field's touch surface, not a control of its own: a tap anywhere on it
         // lands in the field. It stays out of the accessibility tree so a screen reader reaches
@@ -86,10 +91,22 @@ class SearchBar @JvmOverloads constructor(
         super.onDetachedFromWindow()
     }
 
+    fun bindKeyboard(controller: WindowInsetsControllerCompat) {
+        keyboard = controller
+    }
+
     fun focusQuery() {
         queryField.requestFocus()
         queryField.setSelection(queryField.text.length)
-        onKeyboardRequested()
+        keyboard?.show(WindowInsetsCompat.Type.ime())
+    }
+
+    /** Keeps the session and its query; returns whether there was a keyboard to lower. */
+    fun lowerKeyboard(): Boolean {
+        if (!hasFocus() || !isImeVisible) return false
+        dropFocus()
+        keyboard?.hide(WindowInsetsCompat.Type.ime())
+        return true
     }
 
     fun setQuery(query: String) {
@@ -121,7 +138,10 @@ class SearchBar @JvmOverloads constructor(
     private fun setActive(active: Boolean) {
         if (active == isActive) return
         isActive = active
-        if (!active) queryField.setText("")
+        if (!active) {
+            queryField.setText("")
+            keyboard?.hide(WindowInsetsCompat.Type.ime())
+        }
         renderControls()
         onActiveChanged(active)
     }
