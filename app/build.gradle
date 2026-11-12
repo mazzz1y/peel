@@ -9,7 +9,7 @@ plugins {
     id 'com.github.triplet.play'
 }
 
-def geckoviewVersion = "159.0.20261102144711"
+def geckoviewVersion = "160.0.20261104181552"
 
 android {
     compileSdkVersion = "android-37.2"
@@ -106,7 +106,7 @@ ksp {
 }
 
 dependencies {
-    implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.11.0'
+    implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.13.0'
     implementation "org.mozilla.geckoview:geckoview:$geckoviewVersion"
     implementation "androidx.biometric:biometric:1.1.0"
     implementation "androidx.fragment:fragment-ktx:1.9.1"
