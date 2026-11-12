@@ -4,12 +4,14 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import androidx.core.graphics.createBitmap
 import androidx.core.graphics.scale
-import wtf.mazy.peel.util.App
-import wtf.mazy.peel.util.LetterIconGenerator
 import java.io.File
 import java.io.FileOutputStream
 import java.io.RandomAccessFile
 import java.nio.channels.FileChannel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import wtf.mazy.peel.util.App
+import wtf.mazy.peel.util.LetterIconGenerator
 
 interface IconOwner {
     val uuid: String
@@ -32,7 +34,7 @@ interface IconOwner {
 
     fun resolveIcon(sizePx: Int = defaultIconSizePx()): Bitmap = IconCache.resolve(this, sizePx)
 
-    fun saveIcon(bitmap: Bitmap) = IconCache.save(uuid, bitmap)
+    suspend fun saveIcon(bitmap: Bitmap) = IconCache.save(uuid, bitmap)
 
     fun deleteIcon() {
         try {
@@ -63,7 +65,7 @@ object IconCache {
 
     fun sourceFile(uuid: String): File = File(App.appContext.filesDir, "icons/$uuid.png")
 
-    fun save(uuid: String, bitmap: Bitmap) {
+    suspend fun save(uuid: String, bitmap: Bitmap) = withContext(Dispatchers.IO) {
         try {
             val file = sourceFile(uuid)
             file.parentFile?.mkdirs()

@@ -5,12 +5,15 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.Log
 import android.widget.ImageView
-import org.mozilla.geckoview.WebExtension
-import wtf.mazy.peel.gecko.GeckoRuntimeProvider.awaitNullable
-import wtf.mazy.peel.util.LetterIconGenerator
 import java.io.File
 import java.net.HttpURLConnection
 import java.net.URL
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import org.mozilla.geckoview.WebExtension
+import wtf.mazy.peel.gecko.GeckoRuntimeProvider.awaitNullable
+import wtf.mazy.peel.util.LetterIconGenerator
 
 object ExtensionIconCache {
 
@@ -27,7 +30,7 @@ object ExtensionIconCache {
         return BitmapFactory.decodeFile(file.absolutePath)
     }
 
-    fun save(context: Context, id: String, bitmap: Bitmap) {
+    private suspend fun save(context: Context, id: String, bitmap: Bitmap) = withContext(Dispatchers.IO) {
         val file = iconFile(context, id)
         file.parentFile?.mkdirs()
         file.outputStream().use { bitmap.compress(Bitmap.CompressFormat.PNG, 100, it) }
@@ -56,24 +59,28 @@ object ExtensionIconCache {
         try {
             val bitmap = ext.metaData.icon.getBitmap(sizePx).awaitNullable() ?: return
             save(context, ext.id, bitmap)
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             Log.w(TAG, "refreshFromExtension failed for ${ext.id}", e)
         }
     }
 
-    fun downloadAndCache(context: Context, id: String, iconUrl: String): Bitmap? {
-        return try {
+    suspend fun downloadAndCache(context: Context, id: String, iconUrl: String): Bitmap? = withContext(Dispatchers.IO) {
+        try {
             val conn = URL(iconUrl).openConnection() as HttpURLConnection
             conn.connectTimeout = 10_000
             conn.readTimeout = 10_000
             conn.connect()
             if (conn.responseCode != 200) {
                 Log.w(TAG, "downloadAndCache $id: HTTP ${conn.responseCode}")
-                return null
+                return@withContext null
             }
-            val bitmap = BitmapFactory.decodeStream(conn.inputStream) ?: return null
+            val bitmap = BitmapFactory.decodeStream(conn.inputStream) ?: return@withContext null
             save(context, id, bitmap)
             bitmap
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             Log.w(TAG, "downloadAndCache failed for $id", e)
             null

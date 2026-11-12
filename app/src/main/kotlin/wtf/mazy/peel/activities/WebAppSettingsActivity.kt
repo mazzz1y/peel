@@ -138,6 +138,7 @@ class WebAppSettingsActivity :
         lifecycleScope.launch {
             withContext(NonCancellable) {
                 DataManager.replaceWebApp(webApp)
+                iconEditor.awaitSaved()
                 Shortcuts.updatePinnedShortcut(webApp, this@WebAppSettingsActivity)
             }
         }
@@ -388,11 +389,11 @@ class WebAppSettingsActivity :
             draft.update { it.copy(title = candidate.title) }
         }
         if (candidate.icon != null) {
-            draft.value.saveIcon(candidate.icon)
+            iconEditor.saveIcon(draft.value, candidate.icon)
         } else {
             IconCache.evict(draft.value)
+            iconEditor.refreshIcon()
         }
-        iconEditor.refreshIcon()
         promptUrlUpdate(draft, urlSuggestion) { promptScopeExtensions(draft, scopeDomains) }
     }
 
