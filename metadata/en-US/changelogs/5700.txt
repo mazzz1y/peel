@@ -1,5 +1,3 @@
-- Ask about links, long presses and shared links in one sheet
-- Open external links in the current window, also in pop-ups
-- Long-press links and images in pop-ups and extension pages
-- Copy e-mail addresses and phone numbers with a long press
+- Refactor link actions: a single sheet for external links, long presses and links from other apps
+- Update GeckoView to 160.0.20261104181552
 - Other fixes and improvements
