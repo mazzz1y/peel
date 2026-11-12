@@ -207,7 +207,7 @@
     <string name="add_language_pair">भाषा जोड़ी जोड़ें</string>
     <string name="setting_interval_seconds">अंतराल, सेकंड</string>
     <string name="remove">हटाएं</string>
-    <string name="setting_long_click_share">लंबा दबाकर संदर्भ मेनू</string>
+    <string name="setting_long_click_share">लंबा दबाने पर कार्रवाइयां</string>
     <string name="setting_pull_to_refresh">खींचकर रीफ़्रेश करें</string>
     <string name="setting_disable_screenshots">स्क्रीनशॉट अवरोधित करें</string>
     <string name="setting_always_https">केवल HTTPS</string>
@@ -237,10 +237,12 @@
     <string name="groups_empty_state">कोई समूह नहीं।\nपहला समूह बनाने के लिए + दबाएं।</string>
     <string name="group_empty">इस समूह में कोई ऐप नहीं</string>
     <string name="ungrouped">बिना समूह</string>
-    <string name="open_in_peel">Peel में खोलें</string>
     <string name="open_incognito_action">निजी मोड में खोलें</string>
     <string name="incognito">निजी</string>
-    <string name="no_web_apps_available">कोई वेब ऐप उपलब्ध नहीं है</string>
+    <string name="current_window">मौजूदा विंडो</string>
+    <string name="private_session">निजी सत्र</string>
+    <string name="download_image">इमेज डाउनलोड करें</string>
+    <string name="share_image">इमेज साझा करें</string>
     <string name="move_to_group">समूह में ले जाएं</string>
     <string name="delete_group_title">समूह हटाएं</string>
     <string name="delete_group_confirm">समूह %1$s हटाएं?</string>
@@ -251,14 +253,6 @@
         <item quantity="other">%d ऐप्स</item>
     </plurals>
 
-    <string name="context_menu_copy_link">लिंक पते को कॉपी करें</string>
-    <string name="context_menu_copy_link_text">लिंक लेख को कॉपी करें</string>
-    <string name="context_menu_share_link">लिंक शेयर करें</string>
-    <string name="context_menu_download_image">इमेज डाउनलोड करें</string>
-    <string name="context_menu_share_image">इमेज शेयर करें</string>
-    <string name="context_menu_copy_video_url">वीडियो URL कॉपी करें</string>
-    <string name="context_menu_copy_audio_url">ऑडियो URL कॉपी करें</string>
-    <string name="link_copied">लिंक कॉपी हुआ</string>
     <string name="text_copied">टेक्स्ट कॉपी हुआ</string>
     <string name="download_failed">डाउनलोड विफल</string>
     <string name="search">खोजें</string>
@@ -273,7 +267,6 @@
     <string name="network_privacy">नेटवर्क और गोपनीयता</string>
     <string name="group_not_found">यह ग्रुप अब उपलब्ध नहीं है</string>
     <string name="icon_dimensions_source">%1$dx%2$d · %3$s</string>
-    <string name="open_in_current_session">वर्तमान सत्र में खोलें</string>
     <string name="open_in_system">सिस्टम में खोलें</string>
     <string name="restart">रीस्टार्ट</string>
     <string name="setting_block_local_network">स्थानीय नेटवर्क एक्सेस ब्लॉक करें</string>
@@ -456,7 +449,7 @@
     <string name="show_fullscreen_desc">Immersive mode, स्वाइप पर बार</string>
     <string name="setting_pull_to_refresh_desc">नीचे स्वाइप से पेज रीलोड</string>
     <string name="setting_browser_controls_desc">ऐक्शन के लिए बटन, बार या पैनल</string>
-    <string name="setting_long_click_share_desc">लिंक और इमेज का संदर्भ मेनू</string>
+    <string name="setting_long_click_share_desc">लिंक, इमेज और मीडिया के लिए कार्रवाइयां</string>
     <string name="request_website_in_desktop_version_desc">डेस्कटॉप User-Agent व viewport</string>
     <string name="setting_external_link_prompt_desc">ऐप origin छोड़ने पर पुष्टि</string>
     <string name="keep_screen_awake_desc">स्क्रीन टाइमआउट रोकता है</string>

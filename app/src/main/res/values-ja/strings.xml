@@ -200,7 +200,7 @@
     <string name="add_language_pair">言語ペアを追加</string>
     <string name="setting_interval_seconds">間隔（秒）</string>
     <string name="remove">削除</string>
-    <string name="setting_long_click_share">長押しコンテキストメニュー</string>
+    <string name="setting_long_click_share">長押しの操作</string>
     <string name="setting_pull_to_refresh">引いて更新</string>
     <string name="setting_disable_screenshots">スクリーンショットをブロック</string>
     <string name="setting_always_https">HTTPSのみ</string>
@@ -230,10 +230,12 @@
     <string name="groups_empty_state">グループがありません。\n+をタップして最初のグループを作成してください。</string>
     <string name="group_empty">このグループにアプリはありません</string>
     <string name="ungrouped">未分類</string>
-    <string name="open_in_peel">Peelで開く</string>
     <string name="open_incognito_action">プライベートモードで開く</string>
     <string name="incognito">シークレット</string>
-    <string name="no_web_apps_available">利用可能なウェブアプリがありません</string>
+    <string name="current_window">現在のウィンドウ</string>
+    <string name="private_session">プライベートセッション</string>
+    <string name="download_image">画像をダウンロード</string>
+    <string name="share_image">画像を共有</string>
     <string name="move_to_group">グループに移動</string>
     <string name="delete_group_title">グループを削除</string>
     <string name="delete_group_confirm">グループ %1$s を削除しますか？</string>
@@ -243,14 +245,6 @@
         <item quantity="other">%d個のアプリ</item>
     </plurals>
 
-    <string name="context_menu_copy_link">リンクアドレスをコピー</string>
-    <string name="context_menu_copy_link_text">リンクテキストをコピー</string>
-    <string name="context_menu_share_link">リンクを共有</string>
-    <string name="context_menu_download_image">画像をダウンロード</string>
-    <string name="context_menu_share_image">画像を共有</string>
-    <string name="context_menu_copy_video_url">動画のURLをコピー</string>
-    <string name="context_menu_copy_audio_url">音声のURLをコピー</string>
-    <string name="link_copied">リンクをコピーしました</string>
     <string name="text_copied">テキストをコピーしました</string>
     <string name="download_failed">ダウンロードに失敗しました</string>
     <string name="search">検索</string>
@@ -264,7 +258,6 @@
     <string name="network_privacy">ネットワークとプライバシー</string>
     <string name="group_not_found">このグループはもう利用できません</string>
     <string name="icon_dimensions_source">%1$dx%2$d · %3$s</string>
-    <string name="open_in_current_session">現在のセッションで開く</string>
     <string name="open_in_system">システムで開く</string>
     <string name="restart">再起動</string>
     <string name="setting_block_local_network">ローカルネットワークアクセスをブロック</string>
@@ -441,7 +434,7 @@
     <string name="show_fullscreen_desc">Immersive mode、スワイプでバー表示</string>
     <string name="setting_pull_to_refresh_desc">下スワイプでページを再読み込み</string>
     <string name="setting_browser_controls_desc">操作用のボタン、バー、パネル</string>
-    <string name="setting_long_click_share_desc">リンクと画像のコンテキストメニュー</string>
+    <string name="setting_long_click_share_desc">リンク・画像・メディアの操作</string>
     <string name="request_website_in_desktop_version_desc">デスクトップ用User-Agentとviewport</string>
     <string name="setting_external_link_prompt_desc">アプリのoriginを離れる前に確認</string>
     <string name="keep_screen_awake_desc">表示中は画面タイムアウトをブロック</string>

@@ -10,8 +10,9 @@ import org.mozilla.geckoview.GeckoSession.NavigationDelegate.TARGET_WINDOW_NEW
 import org.mozilla.geckoview.WebRequestError
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.EffectiveSettings
+import wtf.mazy.peel.model.LinkChoice
+import wtf.mazy.peel.model.LinkPromptOutcome
 import wtf.mazy.peel.model.WebAppSettings
-import wtf.mazy.peel.ui.dialog.ExternalLinkResult
 import wtf.mazy.peel.util.belongsToApp
 import wtf.mazy.peel.util.toast
 import wtf.mazy.peel.util.withBoldSpan
@@ -31,7 +32,7 @@ internal fun parseIntentUri(url: String): Intent? {
 private class ExternalLinkPrompt(
     val url: String,
     val isRedirect: Boolean,
-    val reloadOnLoadHere: Boolean,
+    val mustReload: Boolean,
     val isScriptNavigation: Boolean,
     private val decision: GeckoResult<AllowOrDeny>,
 ) {
@@ -126,12 +127,12 @@ class PeelNavigationDelegate(
             }
 
             is LinkRoute.Redirect -> redirectTo(route.target)
-            // ALLOW on a TARGET_WINDOW_NEW request opens a new session via onNewSession
-            // instead of loading here, so "load here" must deny and reload explicitly.
+            // ALLOW on a TARGET_WINDOW_NEW request opens a new session via onNewSession instead
+            // of loading in this one, so the current window must deny and reload explicitly.
             is LinkRoute.PromptExternal -> promptForExternalLink(
                 route.target,
                 isRedirect = request.isRedirect,
-                reloadOnLoadHere = route.wasUpgraded || route.opensNewWindow,
+                mustReload = route.wasUpgraded || route.opensNewWindow,
                 isScriptNavigation = request.triggerUri != null && !request.isRedirect &&
                         !request.hasUserGesture,
             )
@@ -237,7 +238,7 @@ class PeelNavigationDelegate(
     private fun promptForExternalLink(
         url: String,
         isRedirect: Boolean,
-        reloadOnLoadHere: Boolean,
+        mustReload: Boolean,
         isScriptNavigation: Boolean,
     ): GeckoResult<AllowOrDeny> {
         loadAttempt.settleActive()
@@ -245,72 +246,77 @@ class PeelNavigationDelegate(
         val prompt = ExternalLinkPrompt(
             url = url,
             isRedirect = isRedirect,
-            reloadOnLoadHere = reloadOnLoadHere,
+            mustReload = mustReload,
             isScriptNavigation = isScriptNavigation,
             decision = decision,
         )
         pendingPrompts.addLast(prompt)
-        if (pendingPrompts.size == 1) showNextExternalLinkMenu()
+        if (pendingPrompts.size == 1) askAboutNextLink()
         return decision
     }
 
-    private fun showNextExternalLinkMenu() {
+    private fun askAboutNextLink() {
         val prompt = pendingPrompts.firstOrNull() ?: return
         val generation = promptGeneration
         host.runOnUi {
-            host.showExternalLinkMenu(prompt.url) { result ->
-                if (generation != promptGeneration) return@showExternalLinkMenu
+            host.askAboutLink(prompt.url) { choice ->
+                if (generation != promptGeneration) return@askAboutLink
                 pendingPrompts.removeFirstOrNull()
-                resolveExternalLink(prompt, result)
-                showNextExternalLinkMenu()
+                resolveExternalLink(prompt, choice) {
+                    if (generation == promptGeneration) askAboutNextLink()
+                }
             }
         }
     }
 
-    private fun resolveExternalLink(prompt: ExternalLinkPrompt, result: ExternalLinkResult) {
-        if (result == ExternalLinkResult.LoadHere) {
-            browsingExternally = true
-            if (prompt.reloadOnLoadHere) {
-                prompt.settle(AllowOrDeny.DENY)
-                host.loadURL(prompt.url)
-            } else {
+    /** Settles [prompt] by [choice]; [onDone] runs once nothing more is shown for it. */
+    private fun resolveExternalLink(prompt: ExternalLinkPrompt, choice: LinkChoice, onDone: () -> Unit) {
+        when (val outcome = LinkPromptOutcome.of(prompt.url, prompt.mustReload, choice)) {
+            is LinkPromptOutcome.Proceed -> {
+                markBrowsingExternally(prompt.url)
                 prompt.settle(AllowOrDeny.ALLOW)
+                onDone()
             }
-            return
-        }
 
-        prompt.settle(AllowOrDeny.DENY)
-        when (result) {
-            ExternalLinkResult.OpenInSystem -> openInSystem(prompt.url)
-            ExternalLinkResult.OpenIncognito -> openIncognito(prompt.url)
-            ExternalLinkResult.Share -> host.shareUrl(prompt.url)
-            ExternalLinkResult.CopyLink -> host.copyLink(prompt.url)
-            is ExternalLinkResult.OpenInPeelApp -> result.launcher {}
-            ExternalLinkResult.Dismissed, ExternalLinkResult.LoadHere -> Unit
+            is LinkPromptOutcome.LoadHere -> {
+                prompt.settle(AllowOrDeny.DENY)
+                openHere(outcome.url)
+                onDone()
+            }
+
+            is LinkPromptOutcome.Decline -> {
+                prompt.settle(AllowOrDeny.DENY)
+                if (outcome.leavesPeel) isOnJumpHost = true
+                val stranded = outcome.abandonsWindow && isStranded(prompt)
+                if (prompt.isRedirect && !stranded) deniedRedirectOrigin = lastLocation
+                val finish = {
+                    if (stranded) host.onInitialNavigationDenied()
+                    onDone()
+                }
+                // Adding the site asks in a dialog over this window, which must outlive it.
+                outcome.elsewhere?.let { host.openLinkElsewhere(it, onDone = finish) } ?: finish()
+            }
         }
-        if (abandonsWindow(result) && (strandedWithoutContent() || strandedOnRedirector(prompt))) {
-            host.onInitialNavigationDenied()
-            return
-        }
-        if (prompt.isRedirect) deniedRedirectOrigin = lastLocation
     }
+
+    /** Loads [url] in this window as the user asked, so leaving the app does not ask again. */
+    fun openHere(url: String) {
+        markBrowsingExternally(url)
+        host.loadURL(url)
+    }
+
+    private fun markBrowsingExternally(url: String) {
+        if (!isInApp(url)) browsingExternally = true
+    }
+
+    private fun isStranded(prompt: ExternalLinkPrompt): Boolean =
+        strandedWithoutContent() || strandedOnRedirector(prompt)
 
     fun cancelPendingPrompts() {
         promptGeneration++
         while (pendingPrompts.isNotEmpty()) {
             pendingPrompts.removeFirst().settle(AllowOrDeny.DENY)
         }
-    }
-
-    private fun abandonsWindow(result: ExternalLinkResult): Boolean = when (result) {
-        ExternalLinkResult.LoadHere,
-        is ExternalLinkResult.OpenInPeelApp -> false
-
-        ExternalLinkResult.OpenInSystem,
-        ExternalLinkResult.OpenIncognito,
-        ExternalLinkResult.Share,
-        ExternalLinkResult.CopyLink,
-        ExternalLinkResult.Dismissed -> true
     }
 
     private fun strandedWithoutContent(): Boolean =
@@ -322,11 +328,6 @@ class PeelNavigationDelegate(
 
     private fun openInSystem(url: String) {
         host.startExternalIntent(url.toUri())
-        isOnJumpHost = true
-    }
-
-    private fun openIncognito(url: String) {
-        host.openIncognito(url)
         isOnJumpHost = true
     }
 
@@ -373,7 +374,7 @@ class PeelNavigationDelegate(
             is LinkRoute.PromptExternal -> promptForExternalLink(
                 route.target,
                 isRedirect = false,
-                reloadOnLoadHere = true,
+                mustReload = true,
                 isScriptNavigation = false,
             )
 

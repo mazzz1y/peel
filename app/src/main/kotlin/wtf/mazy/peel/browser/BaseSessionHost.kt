@@ -63,12 +63,16 @@ import wtf.mazy.peel.gecko.NestedGeckoView
 import wtf.mazy.peel.gecko.SandboxHold
 import wtf.mazy.peel.gecko.SandboxSession
 import wtf.mazy.peel.gecko.VerticalSwipeRefreshLayout
+import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.EffectiveSettings
+import wtf.mazy.peel.model.LinkChoice
+import wtf.mazy.peel.model.LinkOrigin
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.model.WebAppSettings
 import wtf.mazy.peel.model.onHostOf
 import wtf.mazy.peel.ui.FindInPageView
 import wtf.mazy.peel.ui.FloatingControlsView
+import wtf.mazy.peel.ui.browser.LinkSheetController
 import wtf.mazy.peel.ui.browser.PullToRefreshController
 import wtf.mazy.peel.ui.browser.SystemBarController
 import wtf.mazy.peel.ui.browser.VirtualCursorController
@@ -83,8 +87,6 @@ import wtf.mazy.peel.ui.controls.PanelControlsView
 import wtf.mazy.peel.ui.dialog.DateTimePickerRequest
 import wtf.mazy.peel.ui.dialog.DateTimePickerSession
 import wtf.mazy.peel.ui.dialog.DialogContent
-import wtf.mazy.peel.ui.dialog.ExternalLinkMenu
-import wtf.mazy.peel.ui.dialog.ExternalLinkResult
 import wtf.mazy.peel.ui.dialog.InitialSelection
 import wtf.mazy.peel.ui.dialog.InputDialogConfig
 import wtf.mazy.peel.ui.dialog.TranslateDialog
@@ -93,15 +95,15 @@ import wtf.mazy.peel.ui.dialog.showInputDialogRaw
 import wtf.mazy.peel.ui.entitylist.PendingDeletes
 import wtf.mazy.peel.ui.extensions.ExtensionActionController
 import wtf.mazy.peel.ui.extensions.ExtensionPickerDialog
-import wtf.mazy.peel.util.BrowserLauncher
+import wtf.mazy.peel.ui.linksheet.openElsewhere
 import wtf.mazy.peel.util.applyBottomScreenInsets
 import wtf.mazy.peel.util.applyToolbarScreenInsets
-import wtf.mazy.peel.util.copyToClipboard
 import wtf.mazy.peel.util.deleteEntriesOlderThan
 import wtf.mazy.peel.util.disableSystemBarContrastEnforcement
 import wtf.mazy.peel.util.isAutomotiveHost
 import wtf.mazy.peel.util.isSingleWindowHost
 import wtf.mazy.peel.util.isTelevisionHost
+import wtf.mazy.peel.util.openInSystem
 import wtf.mazy.peel.util.shareText
 import wtf.mazy.peel.util.toast
 import wtf.mazy.peel.util.uploadFileName
@@ -131,6 +133,8 @@ abstract class BaseSessionHost :
     private var controlsGesture = false
     protected lateinit var navigationDelegate: PeelNavigationDelegate
     protected lateinit var downloadHandler: DownloadHandler
+    private var pageBridge: PageBridge? = null
+    private var bridgedSession: GeckoSession? = null
     private val pendingPermissionCallbacks = ArrayDeque<(Boolean) -> Unit>()
 
     override var canGoBack: Boolean = false
@@ -171,8 +175,13 @@ abstract class BaseSessionHost :
 
     protected open val tracksExtensionState: Boolean = true
 
+    // The data in memory may hold only this window's web app, so routing reads every stored one.
+    @Volatile
+    private var storedWebApps: List<WebApp> = DataManager.webApps
+
     override fun onStart() {
         super.onStart()
+        lifecycleScope.launch { storedWebApps = DataManager.queryAllWebApps() }
         if (tracksExtensionState) GeckoRuntimeProvider.addExtensionStateListener(
             extensionStateListener
         )
@@ -306,23 +315,7 @@ abstract class BaseSessionHost :
     }
 
     override fun startExternalIntent(uri: Uri) {
-        val url = uri.toString()
-        val intent = parseIntentUri(url)
-            ?: runCatching { Intent(Intent.ACTION_VIEW, uri) }.getOrNull()
-        if (intent != null && tryStartActivity(intent)) return
-        showNoAppFound()
-    }
-
-    override fun openIncognito(url: String) {
-        BrowserLauncher.launchIncognito(this, url)
-    }
-
-    override fun shareUrl(url: String) {
-        shareText(url)
-    }
-
-    override fun copyLink(url: String) {
-        copyToClipboard(url)
+        openInSystem(parseIntentUri(uri.toString()) ?: Intent(Intent.ACTION_VIEW, uri))
     }
 
     override fun loadURL(url: String) {
@@ -709,21 +702,37 @@ abstract class BaseSessionHost :
         onResult(input.text.toString())
     }
 
-    override fun showExternalLinkMenu(url: String, onResult: (ExternalLinkResult) -> Unit) {
-        ExternalLinkMenu.show(
+    private val linkSheet by lazy {
+        LinkSheetController(
             activity = this,
-            url = url,
-            excludeUuid = externalLinkExcludeUuid,
-            peelApps = externalLinkPeelApps,
-            includeLoadHere = externalLinkIncludeLoadHere,
-            onResult = onResult,
+            window = ::linkWindow,
+            ownerUuid = { ownerWebAppUuid },
+            openHere = { navigationDelegate.openHere(it) },
+            downloadImage = { downloadHandler.downloadUrl(it) },
+            shareImage = { downloadHandler.shareImage(it) },
         )
     }
 
+    override fun askAboutLink(url: String, onChoice: (LinkChoice) -> Unit) = linkSheet.askAbout(url, onChoice)
+
+    override fun openLinkElsewhere(choice: LinkChoice.Elsewhere, onDone: () -> Unit) = openElsewhere(choice, onDone)
+
+    override fun onLongPress(element: GeckoSession.ContentDelegate.ContextElement) {
+        if (effectiveSettings.longClickShare) linkSheet.onLongPress(element)
+    }
+
+    protected fun offerPageInLinkSheet() {
+        pageUrl?.let(linkSheet::offerPage)
+    }
+
+    private fun linkWindow(): LinkOrigin.Window =
+        ownerWebAppUuid?.let(DataManager::webApp)?.let { LinkOrigin.Window.App(it) }
+            ?: if (sessionPrivateMode) LinkOrigin.Window.PrivateSession else LinkOrigin.Window.Extension(webAppName)
+
     override fun findPeelAppMatches(url: String): List<WebApp> {
         val pending = PendingDeletes.webApps
-        return externalLinkPeelApps
-            .filter { it.uuid != externalLinkExcludeUuid && it.uuid !in pending }
+        return storedWebApps
+            .filter { it.uuid != ownerWebAppUuid && it.uuid !in pending }
             .onHostOf(url)
     }
 
@@ -749,7 +758,36 @@ abstract class BaseSessionHost :
         super.onDestroy()
     }
 
+    // A sandbox's sign-in lives in its container, which only the page itself can fetch from.
+    protected fun createDownloadHandler(): DownloadHandler = DownloadHandler(
+        activity = this,
+        getRuntime = { GeckoRuntimeProvider.getRuntime(this) },
+        scope = lifecycleScope,
+        webAppName = webAppName,
+        requestPermissions = ::requestOsPermissions,
+        getPageBridge = { pageBridge },
+        requiresBridgeAuth = {
+            geckoSession?.settings?.let { it.contextId != null || it.usePrivateMode } == true
+        },
+        getPageUrl = { pageUrl },
+    )
+
+    protected suspend fun attachPageBridge(session: GeckoSession) {
+        bridgedSession = session
+        val ext = GeckoRuntimeProvider.ensurePageBridgeExtension(applicationContext) ?: return
+        if (session !== bridgedSession) return
+        detachPageBridge(closingSession = false)
+        pageBridge = PageBridge(ext, session).also { it.attach() }
+    }
+
+    private fun detachPageBridge(closingSession: Boolean) {
+        pageBridge?.detach(closingSession)
+        pageBridge = null
+    }
+
     protected fun closeGeckoSession() {
+        bridgedSession = null
+        detachPageBridge(closingSession = true)
         pendingBack = null
         (geckoSession?.progressDelegate as? PeelProgressDelegate)?.release()
         geckoView?.releaseSession()
@@ -764,17 +802,6 @@ abstract class BaseSessionHost :
         if (!isWebFullscreen) return false
         (geckoSession?.contentDelegate as? PeelContentDelegate)?.exitFullscreen()
         return true
-    }
-
-    protected fun tryStartActivity(intent: Intent): Boolean = try {
-        startActivity(intent)
-        true
-    } catch (_: Exception) {
-        false
-    }
-
-    protected fun showNoAppFound() {
-        toast(R.string.no_app_found, long = true)
     }
 
     private fun consumeCaptureUri(): Uri? {
@@ -1229,10 +1256,6 @@ abstract class BaseSessionHost :
 
     override val hostProgressBar: ProgressBar?
         get() = progressBar
-
-    protected abstract val externalLinkExcludeUuid: String?
-    protected abstract val externalLinkPeelApps: List<WebApp>
-    protected abstract val externalLinkIncludeLoadHere: Boolean
 
     override fun onWebFullscreenEnter() {
         systemBarController.hide()

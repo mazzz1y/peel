@@ -200,7 +200,7 @@
     <string name="add_language_pair">添加语言对</string>
     <string name="setting_interval_seconds">间隔（秒）</string>
     <string name="remove">删除</string>
-    <string name="setting_long_click_share">长按快捷菜单</string>
+    <string name="setting_long_click_share">长按操作</string>
     <string name="setting_pull_to_refresh">下拉刷新</string>
     <string name="setting_disable_screenshots">禁止截屏</string>
     <string name="setting_always_https">仅 HTTPS</string>
@@ -230,10 +230,12 @@
     <string name="groups_empty_state">暂无分组。\n点击 + 按钮创建第一个分组。</string>
     <string name="group_empty">此分组中没有应用</string>
     <string name="ungrouped">未分组</string>
-    <string name="open_in_peel">在 Peel 中打开</string>
     <string name="open_incognito_action">在隐私模式中打开</string>
     <string name="incognito">无痕</string>
-    <string name="no_web_apps_available">没有可用的网页应用</string>
+    <string name="current_window">当前窗口</string>
+    <string name="private_session">隐私会话</string>
+    <string name="download_image">下载图片</string>
+    <string name="share_image">分享图片</string>
     <string name="move_to_group">移至分组</string>
     <string name="delete_group_title">删除分组</string>
     <string name="delete_group_confirm">删除分组 %1$s？</string>
@@ -243,14 +245,6 @@
         <item quantity="other">%d 个应用</item>
     </plurals>
 
-    <string name="context_menu_copy_link">复制链接地址</string>
-    <string name="context_menu_copy_link_text">复制链接文字</string>
-    <string name="context_menu_share_link">分享链接</string>
-    <string name="context_menu_download_image">下载图片</string>
-    <string name="context_menu_share_image">分享图片</string>
-    <string name="context_menu_copy_video_url">复制视频网址</string>
-    <string name="context_menu_copy_audio_url">复制音频网址</string>
-    <string name="link_copied">链接已复制</string>
     <string name="text_copied">文字已复制</string>
     <string name="download_failed">下载失败</string>
     <string name="search">搜索</string>
@@ -264,7 +258,6 @@
     <string name="network_privacy">网络与隐私</string>
     <string name="group_not_found">该分组已不可用</string>
     <string name="icon_dimensions_source">%1$dx%2$d · %3$s</string>
-    <string name="open_in_current_session">在当前会话中打开</string>
     <string name="open_in_system">在系统中打开</string>
     <string name="restart">重启</string>
     <string name="setting_block_local_network">阻止本地网络访问</string>
@@ -441,7 +434,7 @@
     <string name="show_fullscreen_desc">Immersive mode，滑动显示系统栏</string>
     <string name="setting_pull_to_refresh_desc">下滑手势重新加载页面</string>
     <string name="setting_browser_controls_desc">操作按钮、浮动栏或面板</string>
-    <string name="setting_long_click_share_desc">链接和图片的快捷菜单</string>
+    <string name="setting_long_click_share_desc">链接、图片和媒体的操作</string>
     <string name="request_website_in_desktop_version_desc">桌面版 User-Agent 和 viewport</string>
     <string name="setting_external_link_prompt_desc">离开应用 origin 前确认</string>
     <string name="keep_screen_awake_desc">打开时阻止屏幕超时</string>

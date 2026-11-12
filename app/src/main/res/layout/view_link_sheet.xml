@@ -1,42 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/linkSheetRoot"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
 
     <com.google.android.material.bottomsheet.BottomSheetDragHandleView
-        android:id="@+id/pickerHandle"
+        android:id="@+id/linkSheetHandle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/picker_handle_overlap" />
+        android:layout_marginBottom="@dimen/link_sheet_handle_overlap" />
 
-    <include layout="@layout/include_picker_link_header" />
+    <include layout="@layout/include_link_sheet_header" />
 
     <wtf.mazy.peel.ui.webapplist.SearchBar
-        android:id="@+id/pickerSearchBar"
+        android:id="@+id/linkSheetSearchBar"
         style="@style/Widget.App.SearchBar"
         android:layout_width="match_parent"
         android:layout_height="@dimen/bottom_line_height"
         android:layout_marginHorizontal="@dimen/list_card_margin_horizontal"
-        android:layout_marginBottom="@dimen/picker_search_margin_bottom"
+        android:layout_marginBottom="@dimen/link_sheet_search_margin_bottom"
         android:focusable="false"
         android:importantForAccessibility="no"
         android:visibility="gone" />
 
     <FrameLayout
+        android:id="@+id/linkSheetApps"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1">
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/pickerList"
+            android:id="@+id/linkSheetList"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:clipToPadding="false"
             android:paddingBottom="@dimen/list_card_list_padding_top" />
 
         <TextView
-            android:id="@+id/pickerEmptyState"
+            android:id="@+id/linkSheetEmptyState"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"

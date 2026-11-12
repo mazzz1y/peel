@@ -200,7 +200,7 @@
     <string name="add_language_pair">Thêm cặp ngôn ngữ</string>
     <string name="setting_interval_seconds">Chu kỳ, giây</string>
     <string name="remove">Xóa</string>
-    <string name="setting_long_click_share">Menu ngữ cảnh nhấn giữ</string>
+    <string name="setting_long_click_share">Thao tác khi nhấn giữ</string>
     <string name="setting_pull_to_refresh">Kéo xuống để làm mới</string>
     <string name="setting_disable_screenshots">Chặn chụp màn hình</string>
     <string name="setting_always_https">Chỉ HTTPS</string>
@@ -230,10 +230,12 @@
     <string name="groups_empty_state">Chưa có nhóm.\nNhấn + để tạo nhóm đầu tiên.</string>
     <string name="group_empty">Không có ứng dụng trong nhóm này</string>
     <string name="ungrouped">Chưa phân nhóm</string>
-    <string name="open_in_peel">Mở trong Peel</string>
     <string name="open_incognito_action">Mở trong chế độ riêng tư</string>
     <string name="incognito">Ẩn danh</string>
-    <string name="no_web_apps_available">Không có ứng dụng web nào</string>
+    <string name="current_window">Cửa sổ hiện tại</string>
+    <string name="private_session">Phiên riêng tư</string>
+    <string name="download_image">Tải hình ảnh xuống</string>
+    <string name="share_image">Chia sẻ hình ảnh</string>
     <string name="move_to_group">Chuyển vào nhóm</string>
     <string name="delete_group_title">Xóa nhóm</string>
     <string name="delete_group_confirm">Xóa nhóm %1$s?</string>
@@ -243,14 +245,6 @@
         <item quantity="other">%d ứng dụng</item>
     </plurals>
 
-    <string name="context_menu_copy_link">Sao chép địa chỉ liên kết</string>
-    <string name="context_menu_copy_link_text">Sao chép văn bản liên kết</string>
-    <string name="context_menu_share_link">Chia sẻ đường liên kết</string>
-    <string name="context_menu_download_image">Tải hình ảnh xuống</string>
-    <string name="context_menu_share_image">Chia sẻ hình ảnh</string>
-    <string name="context_menu_copy_video_url">Sao chép URL video</string>
-    <string name="context_menu_copy_audio_url">Sao chép URL âm thanh</string>
-    <string name="link_copied">Đã sao chép liên kết</string>
     <string name="text_copied">Đã sao chép văn bản</string>
     <string name="download_failed">Tải xuống thất bại</string>
     <string name="search">Tìm kiếm</string>
@@ -264,7 +258,6 @@
     <string name="network_privacy">Mạng và quyền riêng tư</string>
     <string name="group_not_found">Nhóm này không còn khả dụng</string>
     <string name="icon_dimensions_source">%1$dx%2$d · %3$s</string>
-    <string name="open_in_current_session">Mở trong phiên hiện tại</string>
     <string name="open_in_system">Mở trong hệ thống</string>
     <string name="restart">Khởi động lại</string>
     <string name="setting_block_local_network">Chặn truy cập mạng cục bộ</string>
@@ -441,7 +434,7 @@
     <string name="show_fullscreen_desc">Immersive mode, vuốt để hiện thanh</string>
     <string name="setting_pull_to_refresh_desc">Vuốt xuống để tải lại trang</string>
     <string name="setting_browser_controls_desc">Nút, thanh hoặc bảng cho thao tác</string>
-    <string name="setting_long_click_share_desc">Menu ngữ cảnh cho liên kết và ảnh</string>
+    <string name="setting_long_click_share_desc">Thao tác cho liên kết, ảnh và nội dung đa phương tiện</string>
     <string name="request_website_in_desktop_version_desc">User-Agent và viewport máy tính</string>
     <string name="setting_external_link_prompt_desc">Xác nhận khi rời origin ứng dụng</string>
     <string name="keep_screen_awake_desc">Chặn tắt màn hình khi đang mở</string>

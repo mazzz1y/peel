@@ -35,9 +35,9 @@ class DownloadHandler(
     private val scope: CoroutineScope,
     private val webAppName: String,
     private val requestPermissions: (Array<String>, (Boolean) -> Unit) -> Unit,
-    private val getPageBridge: () -> PageBridge? = { null },
-    private val requiresBridgeAuth: () -> Boolean = { false },
-    private val getPageUrl: () -> String? = { null },
+    private val getPageBridge: () -> PageBridge?,
+    private val requiresBridgeAuth: () -> Boolean,
+    private val getPageUrl: () -> String?,
 ) {
     private var promptShowing = false
 

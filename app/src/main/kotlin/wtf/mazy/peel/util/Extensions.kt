@@ -80,6 +80,11 @@ fun Context.shouldOfferOpenInSystem(url: String): Boolean {
     return !(isWebLink && isDefaultBrowser())
 }
 
+/** Hands [intent] to whichever app takes it, saying so when none does. */
+fun Context.openInSystem(intent: Intent) {
+    if (runCatching { startActivity(intent) }.isFailure) toast(R.string.no_app_found, long = true)
+}
+
 fun Context.shareText(
     text: String,
     title: String? = null,
@@ -99,7 +104,7 @@ fun Context.shareText(
     startActivity(chooser)
 }
 
-fun Context.copyToClipboard(text: String, toastResId: Int = R.string.link_copied) {
+fun Context.copyToClipboard(text: String, toastResId: Int) {
     val clipboard = getSystemService<ClipboardManager>() ?: return
     clipboard.setPrimaryClip(ClipData.newPlainText(getString(R.string.app_name), text))
     toast(toastResId)

@@ -12,7 +12,6 @@ import wtf.mazy.peel.gecko.GeckoRuntimeProvider
 class PeelContentDelegate(
     private val host: SessionHost,
     private val onDownload: (WebResponse) -> Unit,
-    private val onContextMenu: ((GeckoSession, Int, Int, GeckoSession.ContentDelegate.ContextElement) -> Unit)? = null,
     private val onTitleChange: ((String?) -> Unit)? = null,
 ) : GeckoSession.ContentDelegate {
 
@@ -86,7 +85,7 @@ class PeelContentDelegate(
         screenY: Int,
         element: GeckoSession.ContentDelegate.ContextElement,
     ) {
-        onContextMenu?.invoke(session, screenX, screenY, element)
+        host.onLongPress(element)
     }
 
     override fun onTitleChange(session: GeckoSession, title: String?) {

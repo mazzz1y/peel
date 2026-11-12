@@ -20,13 +20,14 @@ object AddWebAppDialog {
 
     /**
      * Asks for a web app's address, group and sandbox, starting on [initialGroup], adds it and
-     * opens its settings.
+     * opens its settings. Either [onConfirmed] or [onCancelled] runs once the dialog is done.
      */
     fun show(
         activity: AppCompatActivity,
         prefill: String = "",
         initialGroup: WebAppGroup? = null,
         onConfirmed: () -> Unit = {},
+        onCancelled: () -> Unit = {},
         openSettings: (Intent) -> Unit = activity::startActivity,
     ) {
         val groups = DataManager.sortedGroups
@@ -40,6 +41,7 @@ object AddWebAppDialog {
                 positiveRes = R.string.ok,
                 url = true,
                 accepts = UrlField.TYPED,
+                onCancel = onCancelled,
                 extraContent = { container ->
                     if (groups.isNotEmpty()) {
                         addGroupChooser(container, groups, { group }) { chosen ->

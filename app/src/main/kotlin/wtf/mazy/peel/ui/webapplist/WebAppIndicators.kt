@@ -16,9 +16,21 @@ class WebAppIndicators(row: View) {
     val views: List<ImageView> = listOf(sandbox, ephemeral, proxy)
 
     fun bind(app: WebApp) {
+        if (app.isPrivateSession) return bindPrivate()
         val sandboxed = app.isolation.isSandboxed
         sandbox.isVisible = sandboxed
         ephemeral.isVisible = app.isolation.isEphemeral
         proxy.isVisible = sandboxed && DataManager.effectiveSandbox(app).route is ProxyRoute.Via
+    }
+
+    /** A private session keeps its own storage and drops it when it ends, and never uses a proxy. */
+    fun bindPrivate() {
+        sandbox.isVisible = true
+        ephemeral.isVisible = true
+        proxy.isVisible = false
+    }
+
+    fun hide() {
+        views.forEach { it.isVisible = false }
     }
 }

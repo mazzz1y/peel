@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/linkSheetHeader"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/linkSheetTarget"
+        style="@style/Widget.App.LinkSheetTarget">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:minHeight="@dimen/bottom_line_height"
+            android:orientation="horizontal"
+            android:paddingStart="@dimen/list_card_padding_horizontal"
+            android:paddingEnd="@dimen/link_sheet_target_padding_end">
+
+            <ImageView
+                android:id="@+id/linkSheetTargetIcon"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:importantForAccessibility="no"
+                app:tint="?attr/colorOnSurfaceVariant" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/list_card_padding_horizontal"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:paddingVertical="@dimen/link_sheet_target_padding_vertical">
+
+                <TextView
+                android:id="@+id/linkSheetTargetTitle"
+                style="@style/LinkSheetTargetLine"
+                android:textAppearance="?attr/textAppearanceBodyLarge"
+                android:textColor="?attr/colorOnSurface" />
+
+                <TextView
+                android:id="@+id/linkSheetTargetAddress"
+                style="@style/LinkSheetTargetLine"
+                android:ellipsize="middle"
+                android:textAppearance="?attr/textAppearanceBodySmall"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                android:textDirection="ltr" />
+
+            </LinearLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/linkSheetShare"
+                style="@style/Widget.App.IconButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/share"
+                app:icon="@drawable/ic_symbols_share_wght300_24" />
+
+        </LinearLayout>
+
+    </com.google.android.material.card.MaterialCardView>
+
+    <com.google.android.flexbox.FlexboxLayout
+        android:id="@+id/linkSheetActions"
+        style="@style/LinkSheetActions"
+        android:layout_marginTop="@dimen/link_sheet_actions_margin_top"
+        android:layout_marginBottom="@dimen/link_sheet_actions_margin_bottom">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/linkSheetSearch"
+            style="@style/Widget.App.LinkSheetAction"
+            android:text="@string/search"
+            app:icon="@drawable/ic_symbols_search_24" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/linkSheetIncognito"
+            style="@style/Widget.App.LinkSheetAction"
+            android:text="@string/incognito"
+            app:icon="@drawable/ic_symbols_visibility_off_24" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/linkSheetSystem"
+            style="@style/Widget.App.LinkSheetAction"
+            android:text="@string/open_in_system"
+            app:icon="@drawable/ic_symbols_open_in_new_24" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/linkSheetAdd"
+            style="@style/Widget.App.LinkSheetAction"
+            android:text="@string/add"
+            app:icon="@drawable/ic_symbols_add_24" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/linkSheetDownloadImage"
+            style="@style/Widget.App.LinkSheetAction"
+            android:text="@string/download_image"
+            app:icon="@drawable/ic_symbols_download_24" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/linkSheetShareImage"
+            style="@style/Widget.App.LinkSheetAction"
+            android:text="@string/share_image"
+            app:icon="@drawable/ic_symbols_share_24" />
+
+    </com.google.android.flexbox.FlexboxLayout>
+
+</LinearLayout>

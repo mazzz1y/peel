@@ -207,7 +207,7 @@
     <string name="add_language_pair">ਭਾਸ਼ਾ ਜੋੜਾ ਸ਼ਾਮਲ ਕਰੋ</string>
     <string name="setting_interval_seconds">ਅੰਤਰਾਲ, ਸਕਿੰਟ</string>
     <string name="remove">ਹਟਾਓ</string>
-    <string name="setting_long_click_share">ਲੰਬਾ ਦਬਾ ਕੇ ਸੰਦਰਭ ਮੀਨੂ</string>
+    <string name="setting_long_click_share">ਲੰਬਾ ਦਬਾਉਣ ਤੇ ਕਾਰਵਾਈਆਂ</string>
     <string name="setting_pull_to_refresh">ਖਿੱਚ ਕੇ ਤਾਜ਼ਾ ਕਰੋ</string>
     <string name="setting_disable_screenshots">ਸਕ੍ਰੀਨਸ਼ਾਟ ਬਲਾਕ ਕਰੋ</string>
     <string name="setting_always_https">ਸਿਰਫ਼ HTTPS</string>
@@ -237,10 +237,12 @@
     <string name="groups_empty_state">ਕੋਈ ਗਰੁੱਪ ਨਹੀਂ।\nਪਹਿਲਾ ਗਰੁੱਪ ਬਣਾਉਣ ਲਈ + ਦਬਾਓ।</string>
     <string name="group_empty">ਇਸ ਗਰੁੱਪ ਵਿੱਚ ਕੋਈ ਐਪ ਨਹੀਂ</string>
     <string name="ungrouped">ਬਿਨਾ ਗਰੁੱਪ</string>
-    <string name="open_in_peel">Peel ਵਿੱਚ ਖੋਲ੍ਹੋ</string>
     <string name="open_incognito_action">ਪ੍ਰਾਈਵੇਟ ਮੋਡ ਵਿੱਚ ਖੋਲ੍ਹੋ</string>
     <string name="incognito">ਪ੍ਰਾਈਵੇਟ</string>
-    <string name="no_web_apps_available">ਕੋਈ ਵੈੱਬ ਐਪ ਉਪਲਬਧ ਨਹੀਂ ਹੈ</string>
+    <string name="current_window">ਮੌਜੂਦਾ ਵਿੰਡੋ</string>
+    <string name="private_session">ਪ੍ਰਾਈਵੇਟ ਸੈਸ਼ਨ</string>
+    <string name="download_image">ਚਿੱਤਰ ਡਾਊਨਲੋਡ ਕਰੋ</string>
+    <string name="share_image">ਚਿੱਤਰ ਸਾਂਝਾ ਕਰੋ</string>
     <string name="move_to_group">ਗਰੁੱਪ ਵਿੱਚ ਭੇਜੋ</string>
     <string name="delete_group_title">ਗਰੁੱਪ ਮਿਟਾਓ</string>
     <string name="delete_group_confirm">ਗਰੁੱਪ %1$s ਮਿਟਾਓ?</string>
@@ -250,14 +252,6 @@
         <item quantity="other">%d ਐਪਾਂ</item>
     </plurals>
 
-    <string name="context_menu_copy_link">ਲਿੰਕ ਪਤਾ ਕਾਪੀ ਕਰੋ</string>
-    <string name="context_menu_copy_link_text">ਲਿੰਕ ਲਿਖਤ ਕਾਪੀ ਕਰੋ</string>
-    <string name="context_menu_share_link">ਲਿੰਕ ਸਾਂਝਾ ਕਰੋ</string>
-    <string name="context_menu_download_image">ਚਿੱਤਰ ਡਾਊਨਲੋਡ ਕਰੋ</string>
-    <string name="context_menu_share_image">ਚਿਤਰ ਸਾਂਝੇ ਕਰੋ</string>
-    <string name="context_menu_copy_video_url">ਵੀਡੀਓ URL ਕਾਪੀ ਕਰੋ</string>
-    <string name="context_menu_copy_audio_url">ਆਡੀਓ URL ਕਾਪੀ ਕਰੋ</string>
-    <string name="link_copied">ਲਿੰਕ ਕਾਪੀ ਹੋਇਆ</string>
     <string name="text_copied">ਟੈਕਸਟ ਕਾਪੀ ਹੋਇਆ</string>
     <string name="download_failed">ਡਾਊਨਲੋਡ ਅਸਫਲ</string>
     <string name="search">ਖੋਜੋ</string>
@@ -272,7 +266,6 @@
     <string name="network_privacy">ਨੈੱਟਵਰਕ ਅਤੇ ਗੋਪਨੀਅਤਾ</string>
     <string name="group_not_found">ਇਹ ਗਰੁੱਪ ਹੁਣ ਉਪਲਬਧ ਨਹੀਂ ਹੈ</string>
     <string name="icon_dimensions_source">%1$dx%2$d · %3$s</string>
-    <string name="open_in_current_session">ਮੌਜੂਦਾ ਸੈਸ਼ਨ ਵਿੱਚ ਖੋਲ੍ਹੋ</string>
     <string name="open_in_system">ਸਿਸਟਮ ਵਿੱਚ ਖੋਲ੍ਹੋ</string>
     <string name="restart">ਰੀਸਟਾਰਟ</string>
     <string name="setting_block_local_network">ਲੋਕਲ ਨੈੱਟਵਰਕ ਐਕਸੈਸ ਬਲਾਕ</string>
@@ -455,7 +448,7 @@
     <string name="show_fullscreen_desc">Immersive mode, ਸਵਾਈਪ ਨਾਲ ਬਾਰ</string>
     <string name="setting_pull_to_refresh_desc">ਹੇਠਾਂ ਸਵਾਈਪ ਨਾਲ ਪੰਨਾ ਮੁੜ ਲੋਡ</string>
     <string name="setting_browser_controls_desc">ਕਾਰਵਾਈਆਂ ਲਈ ਬਟਨ, ਪੱਟੀ ਜਾਂ ਪੈਨਲ</string>
-    <string name="setting_long_click_share_desc">ਲਿੰਕ ਤੇ ਚਿੱਤਰ ਲਈ ਸੰਦਰਭ ਮੀਨੂ</string>
+    <string name="setting_long_click_share_desc">ਲਿੰਕ, ਚਿੱਤਰ ਤੇ ਮੀਡੀਆ ਲਈ ਕਾਰਵਾਈਆਂ</string>
     <string name="request_website_in_desktop_version_desc">ਡੈਸਕਟਾਪ User-Agent ਤੇ viewport</string>
     <string name="setting_external_link_prompt_desc">ਐਪ origin ਛੱਡਣ ਦੀ ਪੁਸ਼ਟੀ</string>
     <string name="keep_screen_awake_desc">ਸਕ੍ਰੀਨ ਟਾਈਮਆਊਟ ਬਲਾਕ ਕਰਦਾ ਹੈ</string>

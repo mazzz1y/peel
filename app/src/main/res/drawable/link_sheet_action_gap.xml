@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Between buttons only: the buttons' own 4dp of touch area above and below already part wrapped
+     lines by the same 8dp. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <size android:width="@dimen/link_sheet_action_gap" />
+</shape>

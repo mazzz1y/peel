@@ -76,16 +76,22 @@
     <!-- A suggestion row is a 24dp glyph in a 48dp touch target: about half a web-app row. -->
     <dimen name="suggestion_card_min_height">48dp</dimen>
     <dimen name="suggestion_card_padding_vertical">8dp</dimen>
-    <!-- The picker's rhythm: link, actions and the list, or the search bar and the list, are
+    <!-- The sheet's rhythm: target, actions and the list, or the search bar and the list, are
          16dp apart. Material's tonal button keeps 4dp of touch area above and below its 40dp
          container, and the list's cards bring their own 6dp. -->
-    <dimen name="picker_action_row_margin_top">12dp</dimen>
-    <dimen name="picker_action_row_margin_bottom">6dp</dimen>
-    <dimen name="picker_search_margin_bottom">10dp</dimen>
-    <dimen name="picker_action_gap">8dp</dimen>
+    <dimen name="link_sheet_actions_margin_top">12dp</dimen>
+    <dimen name="link_sheet_actions_margin_bottom">6dp</dimen>
+    <dimen name="link_sheet_search_margin_bottom">10dp</dimen>
+    <dimen name="link_sheet_action_gap">8dp</dimen>
+    <!-- The copy button's own 48dp touch target brings the card's end to the list cards' 16dp. -->
+    <dimen name="link_sheet_target_padding_end">4dp</dimen>
+    <dimen name="link_sheet_target_padding_vertical">8dp</dimen>
     <!-- The handle keeps its 48dp size for accessibility services, which act on the whole view;
          what follows starts 36dp down, just below the pill, and takes touches over the rest. -->
-    <dimen name="picker_handle_overlap">-12dp</dimen>
+    <dimen name="link_sheet_handle_overlap">-12dp</dimen>
+    <!-- Above and below the rule after the current window, on top of the cards' own 6dp, so the
+         rule sits as far from either card as the cards sit from each other. -->
+    <dimen name="link_sheet_current_window_gap">6dp</dimen>
     <dimen name="settings_dropdown_max_width">160dp</dimen>
     <dimen name="toolbar_label_max_width">140dp</dimen>
 

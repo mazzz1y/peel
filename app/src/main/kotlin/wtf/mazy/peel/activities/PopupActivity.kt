@@ -32,9 +32,6 @@ class PopupActivity : SessionPageActivity() {
     override val policyOrigin: String
         get() = intent.getStringExtra(PopupLaunch.EXTRA_POLICY_ORIGIN).orEmpty()
 
-    override val externalLinkExcludeUuid: String?
-        get() = ownerWebAppUuid
-
     override val sessionContextId: String?
         get() = intent.getStringExtra(PopupLaunch.EXTRA_CONTEXT_ID)
     override val sessionPrivateMode: Boolean

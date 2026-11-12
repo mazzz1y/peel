@@ -221,7 +221,7 @@
     <string name="add_language_pair">Добавить пару языков</string>
     <string name="setting_interval_seconds">Интервал, секунды</string>
     <string name="remove">Удалить</string>
-    <string name="setting_long_click_share">Контекстное меню</string>
+    <string name="setting_long_click_share">Действия по долгому нажатию</string>
     <string name="setting_pull_to_refresh">Обновление свайпом вниз</string>
     <string name="setting_disable_screenshots">Блокировать скриншоты</string>
     <string name="setting_always_https">Только HTTPS</string>
@@ -251,10 +251,12 @@
     <string name="groups_empty_state">Нет групп.\nНажмите +, чтобы создать первую группу.</string>
     <string name="group_empty">В этой группе нет приложений</string>
     <string name="ungrouped">Без группы</string>
-    <string name="open_in_peel">Открыть в Peel</string>
     <string name="open_incognito_action">Открыть в приватном режиме</string>
     <string name="incognito">Инкогнито</string>
-    <string name="no_web_apps_available">Нет доступных веб-приложений</string>
+    <string name="current_window">Текущее окно</string>
+    <string name="private_session">Приватный сеанс</string>
+    <string name="download_image">Скачать изображение</string>
+    <string name="share_image">Поделиться изображением</string>
     <string name="move_to_group">Переместить в группу</string>
     <string name="delete_group_title">Удалить группу</string>
     <string name="delete_group_confirm">Удалить группу %1$s?</string>
@@ -267,14 +269,6 @@
         <item quantity="other">%d приложений</item>
     </plurals>
 
-    <string name="context_menu_copy_link">Копировать адрес ссылки</string>
-    <string name="context_menu_copy_link_text">Копировать текст ссылки</string>
-    <string name="context_menu_share_link">Поделиться ссылкой</string>
-    <string name="context_menu_download_image">Скачать изображение</string>
-    <string name="context_menu_share_image">Поделиться изображением</string>
-    <string name="context_menu_copy_video_url">Копировать URL видео</string>
-    <string name="context_menu_copy_audio_url">Копировать URL аудио</string>
-    <string name="link_copied">Ссылка скопирована</string>
     <string name="text_copied">Текст скопирован</string>
     <string name="download_failed">Не удалось скачать файл</string>
     <string name="search">Поиск</string>
@@ -291,7 +285,6 @@
     <string name="network_privacy">Сеть и конфиденциальность</string>
     <string name="group_not_found">Группа больше недоступна</string>
     <string name="icon_dimensions_source">%1$dx%2$d · %3$s</string>
-    <string name="open_in_current_session">Открыть в текущей сессии</string>
     <string name="open_in_system">Открыть в системе</string>
     <string name="restart">Перезапустить</string>
     <string name="setting_block_local_network">Блокировка локальной сети</string>
@@ -486,7 +479,7 @@
     <string name="show_fullscreen_desc">Immersive mode, свайп покажет панели</string>
     <string name="setting_pull_to_refresh_desc">Свайп вниз перезагружает страницу</string>
     <string name="setting_browser_controls_desc">Кнопка, бар или панель для действий</string>
-    <string name="setting_long_click_share_desc">Контекстное меню ссылок и картинок</string>
+    <string name="setting_long_click_share_desc">Действия для ссылок, изображений и медиа</string>
     <string name="request_website_in_desktop_version_desc">Десктопный User-Agent и viewport</string>
     <string name="setting_external_link_prompt_desc">Подтверждение выхода с origin</string>
     <string name="keep_screen_awake_desc">Блокирует таймаут экрана</string>

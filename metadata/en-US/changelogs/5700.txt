@@ -1,0 +1,5 @@
+- Ask about links, long presses and shared links in one sheet
+- Open external links in the current window, also in pop-ups
+- Long-press links and images in pop-ups and extension pages
+- Copy e-mail addresses and phone numbers with a long press
+- Other fixes and improvements

@@ -6,18 +6,22 @@ import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import wtf.mazy.peel.gecko.GeckoRuntimeProvider
 import wtf.mazy.peel.model.DataManager
+import wtf.mazy.peel.model.LinkChoice
+import wtf.mazy.peel.model.LinkOrigin
+import wtf.mazy.peel.model.LinkSubject
 import wtf.mazy.peel.model.Redirectors
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.push.NotificationClickLaunch
 import wtf.mazy.peel.ui.common.DataRoutingScreen
 import wtf.mazy.peel.ui.common.PeelActivity
-import wtf.mazy.peel.ui.dialog.ExternalLinkMenu
+import wtf.mazy.peel.ui.linksheet.LinkSheet
+import wtf.mazy.peel.ui.linksheet.openElsewhere
 import wtf.mazy.peel.util.BrowserLauncher
 import wtf.mazy.peel.util.WebUrl
 
 /**
  * Receives links from outside Peel, both as the default browser (`ACTION_VIEW`) and as a
- * share target (`ACTION_SEND`), and offers the user's web apps as destinations.
+ * share target (`ACTION_SEND`), and asks in the link sheet where to open them.
  * The manifest exposes it under the historical `LinkRouterActivity` and
  * `ShareReceiverActivity` component names.
  */
@@ -35,17 +39,23 @@ class IncomingLinkActivity : PeelActivity(), DataRoutingScreen {
         lifecycleScope.launch {
             DataManager.reloadAll()
             if (DataManager.webApps.isEmpty()) {
-                openIncognito(link.launchUrl)
+                BrowserLauncher.launchIncognito(this@IncomingLinkActivity, link.launchUrl)
+                finish()
                 return@launch
             }
-            ExternalLinkMenu.openInPeelPicker(
+            LinkSheet.show(
                 activity = this@IncomingLinkActivity,
-                link = link,
-                excludeUuid = null,
-                include = notificationSandboxFilter(),
-                fromOutside = true,
-                onDismiss = ::finish,
+                subject = LinkSubject.Web(link),
+                origin = LinkOrigin.Outside(notificationSandboxFilter()),
+                onChoice = ::perform,
             )
+        }
+    }
+
+    private fun perform(choice: LinkChoice) {
+        when (choice) {
+            is LinkChoice.Elsewhere -> openElsewhere(choice, onDone = ::finish)
+            else -> finish()
         }
     }
 
@@ -60,10 +70,5 @@ class IncomingLinkActivity : PeelActivity(), DataRoutingScreen {
         Intent.ACTION_VIEW -> WebUrl.accept(intent.data?.toString())
         Intent.ACTION_SEND -> intent.getStringExtra(Intent.EXTRA_TEXT)?.let(WebUrl::find)
         else -> null
-    }
-
-    private fun openIncognito(url: String) {
-        BrowserLauncher.launchIncognito(this, url)
-        finish()
     }
 }

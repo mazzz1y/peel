@@ -214,7 +214,7 @@
     <string name="add_language_pair">Adicionar par de idiomas</string>
     <string name="setting_interval_seconds">Intervalo, segundos</string>
     <string name="remove">Remover</string>
-    <string name="setting_long_click_share">Menu de contexto</string>
+    <string name="setting_long_click_share">Ações ao tocar e segurar</string>
     <string name="setting_pull_to_refresh">Puxar para atualizar</string>
     <string name="setting_disable_screenshots">Bloquear capturas de tela</string>
     <string name="setting_always_https">Apenas HTTPS</string>
@@ -244,10 +244,12 @@
     <string name="groups_empty_state">Nenhum grupo.\nToque em + para criar o primeiro grupo.</string>
     <string name="group_empty">Nenhum app neste grupo</string>
     <string name="ungrouped">Sem grupo</string>
-    <string name="open_in_peel">Abrir no Peel</string>
     <string name="open_incognito_action">Abrir em modo privado</string>
     <string name="incognito">Anônimo</string>
-    <string name="no_web_apps_available">Nenhum web app disponível</string>
+    <string name="current_window">Janela atual</string>
+    <string name="private_session">Sessão privada</string>
+    <string name="download_image">Baixar imagem</string>
+    <string name="share_image">Compartilhar imagem</string>
     <string name="move_to_group">Mover para grupo</string>
     <string name="delete_group_title">Excluir grupo</string>
     <string name="delete_group_confirm">Excluir grupo %1$s?</string>
@@ -259,14 +261,6 @@
         <item quantity="other">%d apps</item>
     </plurals>
 
-    <string name="context_menu_copy_link">Copiar endereço do link</string>
-    <string name="context_menu_copy_link_text">Copiar texto do link</string>
-    <string name="context_menu_share_link">Compartilhar link</string>
-    <string name="context_menu_download_image">Baixar imagem</string>
-    <string name="context_menu_share_image">Compartilhar imagem</string>
-    <string name="context_menu_copy_video_url">Copiar URL do vídeo</string>
-    <string name="context_menu_copy_audio_url">Copiar URL do áudio</string>
-    <string name="link_copied">Link copiado</string>
     <string name="text_copied">Texto copiado</string>
     <string name="download_failed">Falha no download</string>
     <string name="search">Pesquisar</string>
@@ -282,7 +276,6 @@
     <string name="network_privacy">Rede e privacidade</string>
     <string name="group_not_found">O grupo não está mais disponível</string>
     <string name="icon_dimensions_source">%1$dx%2$d · %3$s</string>
-    <string name="open_in_current_session">Abrir na sessão atual</string>
     <string name="open_in_system">Abrir no sistema</string>
     <string name="restart">Reiniciar</string>
     <string name="setting_block_local_network">Bloquear acesso à rede local</string>
@@ -471,7 +464,7 @@
     <string name="show_fullscreen_desc">Immersive mode, deslize mostra barras</string>
     <string name="setting_pull_to_refresh_desc">Gesto para baixo recarrega a página</string>
     <string name="setting_browser_controls_desc">Botão, barra ou painel para ações</string>
-    <string name="setting_long_click_share_desc">Menu de contexto de links e imagens</string>
+    <string name="setting_long_click_share_desc">Ações para links, imagens e mídia</string>
     <string name="request_website_in_desktop_version_desc">User-Agent e viewport de desktop</string>
     <string name="setting_external_link_prompt_desc">Confirmação ao sair da origem do app</string>
     <string name="keep_screen_awake_desc">Bloqueia o tempo limite da tela</string>

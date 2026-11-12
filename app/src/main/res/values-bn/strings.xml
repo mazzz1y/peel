@@ -207,7 +207,7 @@
     <string name="add_language_pair">ভাষা জোড়া যোগ করুন</string>
     <string name="setting_interval_seconds">বিরতি, সেকেন্ড</string>
     <string name="remove">সরান</string>
-    <string name="setting_long_click_share">দীর্ঘ চাপে প্রসঙ্গ মেনু</string>
+    <string name="setting_long_click_share">দীর্ঘ চাপে অ্যাকশন</string>
     <string name="setting_pull_to_refresh">টেনে রিফ্রেশ</string>
     <string name="setting_disable_screenshots">স্ক্রিনশট ব্লক করুন</string>
     <string name="setting_always_https">শুধু HTTPS</string>
@@ -237,10 +237,12 @@
     <string name="groups_empty_state">কোনো গ্রুপ নেই।\nপ্রথম গ্রুপ তৈরি করতে + চাপুন।</string>
     <string name="group_empty">এই গ্রুপে কোনো অ্যাপ নেই</string>
     <string name="ungrouped">গ্রুপবিহীন</string>
-    <string name="open_in_peel">Peel-এ খুলুন</string>
     <string name="open_incognito_action">ব্যক্তিগত মোডে খুলুন</string>
     <string name="incognito">ব্যক্তিগত</string>
-    <string name="no_web_apps_available">কোনো ওয়েব অ্যাপ উপলব্ধ নেই</string>
+    <string name="current_window">বর্তমান উইন্ডো</string>
+    <string name="private_session">ব্যক্তিগত সেশন</string>
+    <string name="download_image">ছবি ডাউনলোড করুন</string>
+    <string name="share_image">ছবি শেয়ার করুন</string>
     <string name="move_to_group">গ্রুপে সরান</string>
     <string name="delete_group_title">গ্রুপ মুছুন</string>
     <string name="delete_group_confirm">%1$s গ্রুপ মুছবেন?</string>
@@ -251,14 +253,6 @@
         <item quantity="other">%dটি অ্যাপ</item>
     </plurals>
 
-    <string name="context_menu_copy_link">লিঙ্ক অ্যাড্রেস কপি করুন</string>
-    <string name="context_menu_copy_link_text">লিঙ্ক টেক্সট কপি করুন</string>
-    <string name="context_menu_share_link">লিঙ্ক শেয়ার করুন</string>
-    <string name="context_menu_download_image">ছবি ডাউনলোড করুন</string>
-    <string name="context_menu_share_image">ছবি শেয়ার করুন</string>
-    <string name="context_menu_copy_video_url">ভিডিও URL কপি করুন</string>
-    <string name="context_menu_copy_audio_url">অডিও URL কপি করুন</string>
-    <string name="link_copied">লিঙ্ক কপি হয়েছে</string>
     <string name="text_copied">লেখা কপি হয়েছে</string>
     <string name="download_failed">ডাউনলোড ব্যর্থ হয়েছে</string>
     <string name="search">অনুসন্ধান</string>
@@ -273,7 +267,6 @@
     <string name="network_privacy">নেটওয়ার্ক ও গোপনীয়তা</string>
     <string name="group_not_found">গ্রুপটি আর উপলব্ধ নেই</string>
     <string name="icon_dimensions_source">%1$dx%2$d · %3$s</string>
-    <string name="open_in_current_session">বর্তমান সেশনে খুলুন</string>
     <string name="open_in_system">সিস্টেমে খুলুন</string>
     <string name="restart">রিস্টার্ট</string>
     <string name="setting_block_local_network">লোকাল নেটওয়ার্ক অ্যাক্সেস ব্লক</string>
@@ -456,7 +449,7 @@
     <string name="show_fullscreen_desc">Immersive mode, সোয়াইপে বার</string>
     <string name="setting_pull_to_refresh_desc">নিচে টানলে পেজ রিলোড হয়</string>
     <string name="setting_browser_controls_desc">কাজের বোতাম, বার বা প্যানেল</string>
-    <string name="setting_long_click_share_desc">লিংক ও ছবির প্রসঙ্গ মেনু</string>
+    <string name="setting_long_click_share_desc">লিংক, ছবি ও মিডিয়ার জন্য অ্যাকশন</string>
     <string name="request_website_in_desktop_version_desc">ডেস্কটপ User-Agent ও viewport</string>
     <string name="setting_external_link_prompt_desc">origin ছাড়ার আগে জিজ্ঞাসা</string>
     <string name="keep_screen_awake_desc">স্ক্রিন টাইমআউট ব্লক করে</string>

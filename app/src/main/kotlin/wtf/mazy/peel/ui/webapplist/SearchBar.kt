@@ -65,7 +65,7 @@ class SearchBar @JvmOverloads constructor(
             onQueryChanged(query)
         }
         // The results are live as the query is typed, so the action key only does what the host
-        // asks (the picker opens its first row); consuming it keeps the keyboard where it is.
+        // asks (the link sheet opens its first row); consuming it keeps the keyboard where it is.
         queryField.onImeAction(EditorInfo.IME_ACTION_SEARCH) { onSearch() }
         // The bar is the field's touch surface, not a control of its own: a tap anywhere on it
         // lands in the field. It stays out of the accessibility tree so a screen reader reaches

@@ -3,17 +3,16 @@ package wtf.mazy.peel.activities
 import android.os.Bundle
 import androidx.activity.OnBackPressedCallback
 import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.launch
 import org.mozilla.geckoview.GeckoSession
 import wtf.mazy.peel.R
 import wtf.mazy.peel.browser.BaseSessionHost
-import wtf.mazy.peel.browser.DownloadHandler
 import wtf.mazy.peel.browser.PeelContentDelegate
 import wtf.mazy.peel.browser.PeelNavigationDelegate
 import wtf.mazy.peel.browser.isBlankDocument
-import wtf.mazy.peel.gecko.GeckoRuntimeProvider
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.EffectiveSettings
-import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.ui.browser.AppLockController
 
 abstract class SessionPageActivity : BaseSessionHost() {
@@ -21,11 +20,6 @@ abstract class SessionPageActivity : BaseSessionHost() {
     override var baseUrl: String = ""
     override val webAppName: String
         get() = supportActionBar?.title?.toString().orEmpty().ifEmpty { lastLoadedUrl }
-
-    override val externalLinkExcludeUuid: String? = null
-    override val externalLinkPeelApps: List<WebApp>
-        get() = DataManager.sortedWebApps
-    override val externalLinkIncludeLoadHere: Boolean = false
 
     override val showToolbar: Boolean = true
     override val isBrowserHost: Boolean = false
@@ -86,13 +80,10 @@ abstract class SessionPageActivity : BaseSessionHost() {
 
     protected fun connectSession(session: GeckoSession) {
         navigationDelegate = PeelNavigationDelegate(this, isContentInitiatedWindow)
-        downloadHandler = DownloadHandler(
-            activity = this,
-            getRuntime = { GeckoRuntimeProvider.getRuntime(this) },
-            scope = lifecycleScope,
-            webAppName = webAppName,
-            requestPermissions = ::requestOsPermissions,
-        )
+        downloadHandler = createDownloadHandler()
+        // The page's script connects once, as it loads. The web app's window has installed the
+        // bridge by then, so starting undispatched attaches it before this session's page runs.
+        lifecycleScope.launch(start = CoroutineStart.UNDISPATCHED) { attachPageBridge(session) }
         bindDelegates(
             session,
             PeelContentDelegate(

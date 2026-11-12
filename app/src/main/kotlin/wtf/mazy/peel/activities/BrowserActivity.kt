@@ -7,7 +7,6 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -28,11 +27,8 @@ import org.mozilla.geckoview.GeckoSession
 import org.mozilla.geckoview.StorageController
 import wtf.mazy.peel.R
 import wtf.mazy.peel.browser.BaseSessionHost
-import wtf.mazy.peel.browser.BrowserContextMenu
-import wtf.mazy.peel.browser.DownloadHandler
 import wtf.mazy.peel.browser.DownloadService
 import wtf.mazy.peel.browser.HistorySnapshot
-import wtf.mazy.peel.browser.PageBridge
 import wtf.mazy.peel.browser.PeelContentDelegate
 import wtf.mazy.peel.browser.PeelNavigationDelegate
 import wtf.mazy.peel.browser.PeelPermissionDelegate
@@ -46,12 +42,9 @@ import wtf.mazy.peel.media.MediaPlaybackManager
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.EffectiveSandbox
 import wtf.mazy.peel.model.EffectiveSettings
-import wtf.mazy.peel.model.UnwrappedLink
 import wtf.mazy.peel.model.WebApp
-import wtf.mazy.peel.model.bestFor
 import wtf.mazy.peel.ui.browser.AppLockController
 import wtf.mazy.peel.ui.browser.AutoReloadController
-import wtf.mazy.peel.ui.dialog.ExternalLinkMenu
 import wtf.mazy.peel.ui.extensions.ExtensionActionController
 import wtf.mazy.peel.util.BrowserLauncher
 import wtf.mazy.peel.util.Const
@@ -121,7 +114,6 @@ class BrowserActivity : BaseSessionHost() {
 
     private lateinit var permissionDelegate: PeelPermissionDelegate
     private lateinit var promptDelegate: PeelPromptDelegate
-    private var contextMenu: BrowserContextMenu? = null
 
     private val downloadCompleteReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
@@ -137,7 +129,6 @@ class BrowserActivity : BaseSessionHost() {
     private var crashRecoveryCount = 0
     private var mediaPlaybackManager: MediaPlaybackManager? = null
     private var sessionSetupJob: Job? = null
-    private var pageBridge: PageBridge? = null
     private lateinit var startupAuthReturnTracker: StartupAuthReturnTracker
     private var isStartupAuthTrackingActive = true
 
@@ -145,9 +136,6 @@ class BrowserActivity : BaseSessionHost() {
     private var isStartupComplete = false
     private var lastTranslatorPairs: Map<String, String>? = null
     private var lastTranslatorEnabled: Boolean? = null
-
-    @Volatile
-    private var cachedPeelApps: List<WebApp> = emptyList()
 
     private val appLock by lazy {
         AppLockController(
@@ -288,7 +276,7 @@ class BrowserActivity : BaseSessionHost() {
         autoReloadController.stop()
     }
 
-    override fun onShareLongPress(): () -> Unit = { pageUrl?.let(::openInPeel) }
+    override fun onShareLongPress(): () -> Unit = ::offerPageInLinkSheet
 
     override fun onOpenAppList(): (() -> Unit)? =
         if (isSingleWindowHost()) ({ openAppList() }) else null
@@ -341,8 +329,6 @@ class BrowserActivity : BaseSessionHost() {
         closeFindInPage()
         mediaPlaybackManager?.release()
         mediaPlaybackManager = null
-        pageBridge?.detach(closingSession = true)
-        pageBridge = null
         closeGeckoSession()
         geckoView = null
         if (isFinishing) ContentPermissionStore.requestSweep(applicationContext)
@@ -376,9 +362,6 @@ class BrowserActivity : BaseSessionHost() {
         lifecycleScope.launch {
             DataManager.ensureWebAppLoaded(uuid, forceReload = forceReload)
             if (!isFinishing && !isDestroyed) action()
-            if (!isFinishing && !isDestroyed) {
-                cachedPeelApps = DataManager.queryAllWebApps()
-            }
         }
     }
 
@@ -422,12 +405,6 @@ class BrowserActivity : BaseSessionHost() {
         get() = DataManager.effectiveSandbox(webApp).contextId
     override val sessionPrivateMode: Boolean
         get() = DataManager.effectiveSandbox(webApp) is EffectiveSandbox.Private
-
-    override val externalLinkExcludeUuid: String?
-        get() = webAppUuid
-    override val externalLinkPeelApps: List<WebApp>
-        get() = cachedPeelApps
-    override val externalLinkIncludeLoadHere: Boolean = true
 
     private fun showDownloadSnackbar(uri: Uri, mimeType: String?, notificationId: Int) {
         val root = findViewById<View>(android.R.id.content)
@@ -539,20 +516,7 @@ class BrowserActivity : BaseSessionHost() {
         bindViews()
         attachSystemBars()
 
-        downloadHandler = DownloadHandler(
-            activity = this,
-            getRuntime = { GeckoRuntimeProvider.getRuntime(this) },
-            scope = lifecycleScope,
-            webAppName = webApp.title,
-            requestPermissions = ::requestOsPermissions,
-            getPageBridge = { pageBridge },
-            requiresBridgeAuth = {
-                geckoSession?.settings?.let {
-                    it.contextId != null || it.usePrivateMode
-                } == true
-            },
-            getPageUrl = { pageUrl },
-        )
+        downloadHandler = createDownloadHandler()
         navigationDelegate = PeelNavigationDelegate(this)
         permissionDelegate = PeelPermissionDelegate(this)
         promptDelegate = PeelPromptDelegate(this)
@@ -566,8 +530,6 @@ class BrowserActivity : BaseSessionHost() {
         translationDelegate?.cancelActive()
         closeFindInPage()
         (geckoSession?.contentDelegate as? PeelContentDelegate)?.exitFullscreen()
-        pageBridge?.detach(closingSession = true)
-        pageBridge = null
         closeGeckoSession()
 
         currentUrl = ""
@@ -595,17 +557,11 @@ class BrowserActivity : BaseSessionHost() {
         val session = createSession(settings)
         geckoSession = session
 
-        if (settings.longClickShare) setupContextMenu() else contextMenu = null
-        val contextMenuCallback: ((GeckoSession, Int, Int, GeckoSession.ContentDelegate.ContextElement) -> Unit)? =
-            if (contextMenu != null) {
-                { _, _, _, el -> contextMenu?.onContextMenu(el) }
-            } else null
         bindDelegates(
             session,
             PeelContentDelegate(
                 host = this,
                 onDownload = { response -> downloadHandler.onExternalResponse(response) },
-                onContextMenu = contextMenuCallback,
             ),
             permissionDelegate = permissionDelegate,
             promptDelegate = promptDelegate,
@@ -640,19 +596,12 @@ class BrowserActivity : BaseSessionHost() {
             }
             wtf.mazy.peel.browser.CertStoreBridge.ensure(applicationContext)
             wtf.mazy.peel.browser.CertStoreBridge.awaitCertsReady()
-            attachPageBridge()
+            geckoSession?.let { attachPageBridge(it) }
             if (restore != null) geckoSession?.restoreState(restore) else loadURL(url)
             setupThemeColorExtensionIfEnabled()
             setupMediaPlayback(settings)
             autoReloadController.start(settings)
         }
-    }
-
-    private suspend fun attachPageBridge() {
-        val ext = GeckoRuntimeProvider.ensurePageBridgeExtension(applicationContext) ?: return
-        val session = geckoSession ?: return
-        pageBridge?.detach()
-        pageBridge = PageBridge(ext, session).also { it.attach() }
     }
 
     private fun setupMediaPlayback(settings: EffectiveSettings) {
@@ -667,19 +616,6 @@ class BrowserActivity : BaseSessionHost() {
         val contentIntent = BrowserLauncher.buildPendingIntent(webApp, this)
         manager.attach(session, webApp.title, webApp.resolveIcon(), webApp.uuid, contentIntent)
         mediaPlaybackManager = manager
-    }
-
-    private fun setupContextMenu() {
-        contextMenu = BrowserContextMenu(
-            activity = this,
-            downloadHandler = downloadHandler,
-            onExternalIntent = ::startExternalIntent,
-            peelMatch = BrowserContextMenu.PeelMatchHooks(
-                icon = ::bestPeelMatchIcon,
-                openBestMatch = ::openInBestPeelMatch,
-                openPicker = ::openInPeel,
-            ),
-        )
     }
 
     private fun applyVisualSettings(settings: EffectiveSettings) {
@@ -722,20 +658,6 @@ class BrowserActivity : BaseSessionHost() {
     override fun findPeelAppMatches(url: String): List<WebApp> {
         if (isSameHost(webApp.baseUrl, url)) return emptyList()
         return super.findPeelAppMatches(url)
-    }
-
-    private fun bestPeelMatch(url: String): WebApp? =
-        cachedPeelApps.filter { it.uuid != webAppUuid }.bestFor(url)
-
-    private fun bestPeelMatchIcon(url: String): Bitmap? = bestPeelMatch(url)?.resolveIcon()
-
-    private fun openInBestPeelMatch(url: String) {
-        val match = bestPeelMatch(url) ?: return
-        BrowserLauncher.launch(match, this, url)
-    }
-
-    private fun openInPeel(url: String) {
-        ExternalLinkMenu.openInPeelPicker(this, UnwrappedLink(url), webAppUuid)
     }
 
     private fun openAppList() {

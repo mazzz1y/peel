@@ -6,15 +6,15 @@ import android.content.res.Resources
 import android.net.Uri
 import android.widget.ProgressBar
 import androidx.appcompat.app.AlertDialog
+import java.io.File
 import kotlinx.coroutines.CoroutineScope
 import org.mozilla.geckoview.GeckoResult
 import org.mozilla.geckoview.GeckoSession
 import wtf.mazy.peel.model.EffectiveSettings
+import wtf.mazy.peel.model.LinkChoice
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.ui.dialog.DateTimePickerRequest
 import wtf.mazy.peel.ui.dialog.DateTimePickerSession
-import wtf.mazy.peel.ui.dialog.ExternalLinkResult
-import java.io.File
 
 enum class PermissionResult {
     ALLOW,
@@ -89,15 +89,13 @@ interface SessionHost {
     )
 
     fun findPeelAppMatches(url: String): List<WebApp>
-    fun showExternalLinkMenu(
-        url: String,
-        onResult: (ExternalLinkResult) -> Unit,
-    )
+
+    /** Asks in the link sheet what to do with [url], which this window was about to load. */
+    fun askAboutLink(url: String, onChoice: (LinkChoice) -> Unit)
+    fun openLinkElsewhere(choice: LinkChoice.Elsewhere, onDone: () -> Unit)
+    fun onLongPress(element: GeckoSession.ContentDelegate.ContextElement)
 
     fun startExternalIntent(uri: Uri)
-    fun openIncognito(url: String)
-    fun shareUrl(url: String)
-    fun copyLink(url: String)
     fun showPermissionDialog(
         message: CharSequence,
         allowRemember: Boolean = false,

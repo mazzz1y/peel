@@ -8,13 +8,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import wtf.mazy.peel.R
-import wtf.mazy.peel.model.UnwrappedLink
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.ui.common.showIcon
 import wtf.mazy.peel.ui.dialog.dismissOnDestroyOf
-import wtf.mazy.peel.ui.picker.PickerLink
-import wtf.mazy.peel.ui.picker.PickerLinkCallbacks
-import wtf.mazy.peel.ui.picker.WebAppPickerSurface
 
 object PickerDialog {
     fun <T> show(
@@ -47,28 +43,6 @@ object PickerDialog {
             .show()
             .dismissOnDestroyOf(activity)
         return dialog
-    }
-
-    /**
-     * Lets the user choose a web app for [link] in the searchable sheet. [groupTitles]
-     * maps group ids to titles for the cards and the search. Every callback gets the link as the
-     * user last edited it.
-     */
-    fun showWebApps(
-        activity: AppCompatActivity,
-        link: PickerLink,
-        groupTitles: Map<String, String>,
-        onPick: (WebApp, UnwrappedLink) -> Unit,
-        onDismiss: () -> Unit,
-        linkCallbacks: PickerLinkCallbacks?,
-        onAdd: (UnwrappedLink, onAdded: () -> Unit) -> Unit,
-        canAdd: (UnwrappedLink) -> Boolean,
-    ) {
-        WebAppPickerSurface(activity, link, groupTitles, onPick, linkCallbacks, onAdd, canAdd).run {
-            setOnDismissListener { onDismiss() }
-            show()
-            dismissOnDestroyOf(activity)
-        }
     }
 
     /** Lets the user choose one of [apps] in a dialog titled [title], with no search. */
