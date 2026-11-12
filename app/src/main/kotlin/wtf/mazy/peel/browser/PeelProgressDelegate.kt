@@ -15,6 +15,7 @@ class PeelProgressDelegate(
     private var displayProgress = 0f
     private var ceiling = BUCKET_SIZE.toFloat()
     private var ticking = false
+    private var reportedProgress = 0
 
     private val tickRunnable = Runnable { onTick() }
 
@@ -31,15 +32,16 @@ class PeelProgressDelegate(
     }
 
     override fun onProgressChange(session: GeckoSession, progress: Int) {
+        reportedProgress = progress
         if (!ticking) return
-        ceiling = (((progress / BUCKET_SIZE) + 1) * BUCKET_SIZE)
-            .coerceAtMost(STREAM_CAP).toFloat()
+        ceiling = ceilingFor(progress)
         animateTo(progress.toFloat().coerceAtMost(STREAM_CAP.toFloat()))
     }
 
     override fun onPageStop(session: GeckoSession, success: Boolean) {
         host.onPageLoadEnded()
         host.onTopLevelLoadStop()
+        reportedProgress = 0
         if (isBlankDocument(currentUrl)) return
         if (ticking) runTail()
         if (success) host.onPageFullyLoaded()
@@ -54,10 +56,9 @@ class PeelProgressDelegate(
 
     private fun startLoad() {
         val bar = host.hostProgressBar ?: return
-        animator?.cancel()
-        animator = null
+        cancelAnimations(bar)
         displayProgress = 0f
-        ceiling = BUCKET_SIZE.toFloat()
+        ceiling = reportedProgress.coerceAtLeast(BUCKET_SIZE).toFloat()
         bar.max = PROGRESS_RESOLUTION
         bar.progress = 0
         bar.alpha = 1f
@@ -129,8 +130,22 @@ class PeelProgressDelegate(
         animator?.removeAllListeners()
         animator?.cancel()
         animator = null
-        host.hostProgressBar?.removeCallbacks(tickRunnable)
+        host.hostProgressBar?.let {
+            it.removeCallbacks(tickRunnable)
+            it.animate().cancel()
+        }
     }
+
+    // ValueAnimator.cancel() runs end listeners, so the tail's would fade out the new load.
+    private fun cancelAnimations(bar: ProgressBar) {
+        animator?.removeAllListeners()
+        animator?.cancel()
+        animator = null
+        bar.animate().cancel()
+    }
+
+    private fun ceilingFor(progress: Int): Float =
+        (((progress / BUCKET_SIZE) + 1) * BUCKET_SIZE).coerceAtMost(STREAM_CAP).toFloat()
 
     private fun applyProgress(bar: ProgressBar) {
         bar.progress = (displayProgress * PROGRESS_SCALE).toInt()
