@@ -1,0 +1,3 @@
+- Show the web app's icon on its notifications, and the site's address on others
+- Fix the group tab jumping back to the first one
+- Fix the page loader stalling or disappearing on reload
