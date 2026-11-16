@@ -34,7 +34,8 @@ class PeelProgressDelegate(
     override fun onProgressChange(session: GeckoSession, progress: Int) {
         reportedProgress = progress
         if (!ticking) return
-        ceiling = ceilingFor(progress)
+        ceiling = (((progress / BUCKET_SIZE) + 1) * BUCKET_SIZE)
+            .coerceAtMost(STREAM_CAP).toFloat()
         animateTo(progress.toFloat().coerceAtMost(STREAM_CAP.toFloat()))
     }
 
@@ -127,25 +128,18 @@ class PeelProgressDelegate(
 
     fun release() {
         ticking = false
-        animator?.removeAllListeners()
-        animator?.cancel()
-        animator = null
-        host.hostProgressBar?.let {
-            it.removeCallbacks(tickRunnable)
-            it.animate().cancel()
-        }
+        val bar = host.hostProgressBar
+        bar?.removeCallbacks(tickRunnable)
+        cancelAnimations(bar)
     }
 
     // ValueAnimator.cancel() runs end listeners, so the tail's would fade out the new load.
-    private fun cancelAnimations(bar: ProgressBar) {
+    private fun cancelAnimations(bar: ProgressBar?) {
         animator?.removeAllListeners()
         animator?.cancel()
         animator = null
-        bar.animate().cancel()
+        bar?.animate()?.cancel()
     }
-
-    private fun ceilingFor(progress: Int): Float =
-        (((progress / BUCKET_SIZE) + 1) * BUCKET_SIZE).coerceAtMost(STREAM_CAP).toFloat()
 
     private fun applyProgress(bar: ProgressBar) {
         bar.progress = (displayProgress * PROGRESS_SCALE).toInt()
