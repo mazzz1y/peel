@@ -5,8 +5,11 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.core.content.pm.ShortcutInfoCompat
 import androidx.core.net.toUri
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -17,6 +20,7 @@ import org.mozilla.geckoview.WebNotificationDelegate
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.WebApp
+import wtf.mazy.peel.shortcut.ConversationShortcuts
 import wtf.mazy.peel.util.App
 import wtf.mazy.peel.util.AppPrefs
 
@@ -97,6 +101,10 @@ object WebNotificationBridge {
             )
             .setDeleteIntent(dismissIntent(context, notification.tag, notification))
             .setLargeIcon(largeIcon)
+        val conversation =
+            if (target != null && largeIcon != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                asConversation(context, builder, target, largeIcon, notification)
+            } else null
 
         try {
             manager.notify(notification.tag, NOTIFICATION_ID, builder.build())
@@ -104,8 +112,33 @@ object WebNotificationBridge {
             activeNotifications.remove(notification.tag)
             notification.dismiss()
             return
+        } finally {
+            conversation?.let { ConversationShortcuts.hide(context, it) }
         }
         notification.show()
+    }
+
+    // Android draws the web app's icon in front only for a conversation, which needs a
+    // long-lived shortcut.
+    private fun asConversation(
+        context: Context,
+        builder: NotificationCompat.Builder,
+        webApp: WebApp,
+        icon: Bitmap,
+        notification: WebNotification,
+    ): ShortcutInfoCompat {
+        val person = ConversationShortcuts.person(webApp, icon)
+        val shortcut = ConversationShortcuts.publish(context, webApp, person)
+        val message = listOfNotNull(notification.title, notification.text)
+            .filter { it.isNotBlank() }
+            .joinToString("\n")
+        builder
+            .setStyle(
+                NotificationCompat.MessagingStyle(person)
+                    .addMessage(message, System.currentTimeMillis(), person)
+            )
+            .setShortcutInfo(shortcut)
+        return shortcut
     }
 
     // On API 33+ areNotificationsEnabled() is exactly the POST_NOTIFICATIONS grant.

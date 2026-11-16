@@ -7,6 +7,7 @@ import kotlinx.coroutines.launch
 import wtf.mazy.peel.gecko.SandboxManager
 import wtf.mazy.peel.model.DataSideEffects
 import wtf.mazy.peel.model.IconOwner
+import wtf.mazy.peel.shortcut.ConversationShortcuts
 import wtf.mazy.peel.shortcut.ShortcutIcons
 import wtf.mazy.peel.shortcut.Shortcuts
 
@@ -17,6 +18,7 @@ class AppDataSideEffects(
 
     override fun onShortcutsRemoved(uuids: List<String>) {
         ShortcutIcons.deleteShortcuts(uuids, context)
+        ConversationShortcuts.remove(context, uuids)
     }
 
     override fun onShortcutOwnerChanged(owner: IconOwner) {
