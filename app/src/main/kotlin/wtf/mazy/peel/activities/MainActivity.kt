@@ -14,6 +14,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.IntentCompat
 import androidx.core.content.edit
+import androidx.core.view.isVisible
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -23,12 +24,14 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import wtf.mazy.peel.R
 import wtf.mazy.peel.browser.SessionHostRegistry
 import wtf.mazy.peel.gecko.GeckoRuntimeProvider
 import wtf.mazy.peel.model.BackupManager
+import wtf.mazy.peel.model.DataLoad
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.model.effective
@@ -71,10 +74,7 @@ class MainActivity :
     private lateinit var tabLayout: TabLayout
     private lateinit var viewPager: ViewPager2
 
-    private var pagerAdapter: GroupPagerAdapter? = null
-    private var tabMediator: TabLayoutMediator? = null
-    private var lastGroupKeys: List<Pair<String, String>> = emptyList()
-    private var lastShowUngrouped: Boolean = true
+    private lateinit var pagerAdapter: GroupPagerAdapter
     private lateinit var exportLoader: LoadingDialogController
 
     private lateinit var searchController: SearchModeController
@@ -203,10 +203,18 @@ class MainActivity :
         bottomLineFab.setOnClickListener(onFabClicked)
         onBackPressedDispatcher.addCallback(this, backPressCallback)
 
-        setupViewPager()
-        restoreSelection(savedInstanceState)
+        pagerAdapter = GroupPagerAdapter(this)
         renderChrome(animated = false)
         lifecycleScope.launch {
+            DataManager.load.first { it == DataLoad.Ready }
+            refreshCurrentPages()
+            // Attached only once it has pages: the pager clamps its restored position to them.
+            viewPager.adapter = pagerAdapter
+            TabLayoutMediator(tabLayout, viewPager) { tab, position ->
+                tab.text = pagerAdapter.getPageTitle(position)
+            }.attach()
+            restoreSelection(savedInstanceState)
+            renderChrome(animated = false)
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 DataManager.state.collect {
                     if (searchController.isActive) {
@@ -302,15 +310,14 @@ class MainActivity :
     private fun surfaceFor(bottom: Boolean): SearchSurface = if (bottom) bottomSearch else topSearch
 
     fun refreshCurrentPages() {
+        if (DataManager.load.value != DataLoad.Ready) return
         val groups = DataManager.sortedGroups
-        val newGroupKeys = groups.map { it.uuid to it.title }
-        val newShowUngrouped = groups.isEmpty() || DataManager.webAppsInGroup(null).isNotEmpty()
-
-        if (lastGroupKeys != newGroupKeys || lastShowUngrouped != newShowUngrouped) {
-            setupViewPager()
-            return
-        }
-
+        val hasGroups = groups.isNotEmpty()
+        val showUngrouped = !hasGroups || DataManager.webAppsInGroup(null).isNotEmpty()
+        pagerAdapter.submit(groups, showUngrouped)
+        tabLayout.isVisible = hasGroups
+        viewPager.isUserInputEnabled = hasGroups
+        updateTabBadges()
         fragmentRegistry.values.forEach { it.updateWebAppList() }
     }
 
@@ -322,35 +329,6 @@ class MainActivity :
         fragmentRegistry.remove(groupFilter)
     }
 
-    private fun setupViewPager() {
-        tabMediator?.detach()
-        tabMediator = null
-        val groups = DataManager.sortedGroups
-        val newAdapter: GroupPagerAdapter
-        if (groups.isEmpty()) {
-            tabLayout.visibility = View.GONE
-            newAdapter = GroupPagerAdapter(this, emptyList(), showUngrouped = true)
-            viewPager.adapter = newAdapter
-            viewPager.isUserInputEnabled = false
-            lastGroupKeys = emptyList()
-            lastShowUngrouped = true
-        } else {
-            val hasUngrouped = DataManager.webAppsInGroup(null).isNotEmpty()
-            tabLayout.visibility = View.VISIBLE
-            newAdapter = GroupPagerAdapter(this, groups, showUngrouped = hasUngrouped)
-            viewPager.adapter = newAdapter
-            viewPager.isUserInputEnabled = true
-            lastGroupKeys = groups.map { it.uuid to it.title }
-            lastShowUngrouped = hasUngrouped
-
-            tabMediator = TabLayoutMediator(tabLayout, viewPager) { tab, position ->
-                tab.text = newAdapter.getPageTitle(position)
-            }.also { it.attach() }
-        }
-        pagerAdapter = newAdapter
-        updateTabBadges()
-    }
-
     private fun refreshSelectionAdapters() {
         if (searchController.isActive) {
             searchController.onDataChanged()
@@ -360,7 +338,6 @@ class MainActivity :
     }
 
     private fun updateTabBadges() {
-        val adapter = pagerAdapter ?: return
         val selected = selectionController.selectedIds
         val countByGroup = DataManager.webApps
             .filter { it.uuid in selected }
@@ -368,7 +345,7 @@ class MainActivity :
             .eachCount()
         for (i in 0 until tabLayout.tabCount) {
             val tab = tabLayout.getTabAt(i) ?: continue
-            val groupUuid = adapter.groups.getOrNull(i)?.uuid
+            val groupUuid = pagerAdapter.groupUuidAt(i)
             val count = countByGroup[groupUuid] ?: 0
             if (count > 0) {
                 tab.orCreateBadge.number = count
