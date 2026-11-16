@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Build
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.pm.ShortcutInfoCompat
@@ -92,7 +93,7 @@ object WebNotificationBridge {
         if (notification.tag !in activeNotifications) return
         val builder = NotificationCompat.Builder(context, channelKey)
             .setSmallIcon(R.drawable.ic_notification)
-            .setContentTitle(notification.title ?: channelName)
+            .setContentTitle(notification.title?.takeUnless { it.isBlank() } ?: channelName)
             .setContentText(notification.text)
             .setAutoCancel(true)
             .setSilent(notification.silent)
@@ -103,8 +104,11 @@ object WebNotificationBridge {
             .setLargeIcon(largeIcon)
         val conversation =
             if (target != null && largeIcon != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                asConversation(context, builder, target, largeIcon, notification)
+                runCatching { asConversation(context, builder, target, largeIcon, notification) }
+                    .onFailure { Log.w(TAG, "could not show as a conversation", it) }
+                    .getOrNull()
             } else null
+        if (conversation == null) builder.setSubText(host)
 
         try {
             manager.notify(notification.tag, NOTIFICATION_ID, builder.build())
@@ -113,25 +117,27 @@ object WebNotificationBridge {
             notification.dismiss()
             return
         } finally {
-            conversation?.let { ConversationShortcuts.hide(context, it) }
+            conversation?.let { runCatching { ConversationShortcuts.hide(context, it) } }
         }
         notification.show()
     }
 
     // Android draws the web app's icon in front only for a conversation, which needs a
-    // long-lived shortcut.
+    // long-lived shortcut. Null when there is nothing to say, which stays a plain notification.
     private fun asConversation(
         context: Context,
         builder: NotificationCompat.Builder,
         webApp: WebApp,
         icon: Bitmap,
         notification: WebNotification,
-    ): ShortcutInfoCompat {
+    ): ShortcutInfoCompat? {
+        val message = listOf(notification.title, notification.text)
+            .filterNot { it.isNullOrBlank() }
+            .distinct()
+            .joinToString("\n")
+            .ifEmpty { return null }
         val person = ConversationShortcuts.person(webApp, icon)
         val shortcut = ConversationShortcuts.publish(context, webApp, person)
-        val message = listOfNotNull(notification.title, notification.text)
-            .filter { it.isNotBlank() }
-            .joinToString("\n")
         builder
             .setStyle(
                 NotificationCompat.MessagingStyle(person)
@@ -204,6 +210,7 @@ object WebNotificationBridge {
         )
     }
 
+    private const val TAG = "WebNotificationBridge"
     private const val NOTIFICATION_ID = 800_000
     private const val DISMISS_REQUEST_SALT = 0x5A5A5A
     private const val MAX_ACTIVE_NOTIFICATIONS = 64
