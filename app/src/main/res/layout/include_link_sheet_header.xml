@@ -66,7 +66,7 @@
     <!-- Only one of the two scrolls at a time: this one when the groups share a line, each group
          sized to its buttons; a group's own when it has a line to itself, this one then the
          sheet's width. -->
-    <HorizontalScrollView
+    <wtf.mazy.peel.ui.linksheet.LinkSheetActionsScroll
         android:id="@+id/linkSheetActionsScroll"
         style="@style/LinkSheetActionRow"
         android:layout_marginTop="@dimen/link_sheet_actions_margin_top"
@@ -162,6 +162,6 @@
 
         </wtf.mazy.peel.ui.linksheet.LinkSheetActionLines>
 
-    </HorizontalScrollView>
+    </wtf.mazy.peel.ui.linksheet.LinkSheetActionsScroll>
 
 </LinearLayout>
