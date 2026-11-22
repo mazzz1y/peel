@@ -1,8 +1,11 @@
 package wtf.mazy.peel.ui.common
 
+import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.Color
+import android.graphics.drawable.Drawable
 import android.widget.ImageView
+import androidx.core.graphics.drawable.toDrawable
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory
 import androidx.core.graphics.get
 import kotlin.math.max
@@ -22,16 +25,15 @@ private const val OPAQUE_ALPHA = 240
  * The radius is in bitmap pixels, so it scales with the image whatever size the view draws it.
  */
 fun ImageView.showIcon(bitmap: Bitmap) {
-    if (bitmap.isOpaqueSquare) {
-        setImageDrawable(
-            RoundedBitmapDrawableFactory.create(resources, bitmap).apply {
-                cornerRadius = bitmap.width * CORNER_RATIO
-            },
-        )
-    } else {
-        setImageBitmap(bitmap)
-    }
+    setImageDrawable(resources.iconDrawable(bitmap))
 }
+
+fun Resources.iconDrawable(bitmap: Bitmap): Drawable =
+    if (bitmap.isOpaqueSquare) {
+        RoundedBitmapDrawableFactory.create(this, bitmap).apply { cornerRadius = bitmap.width * CORNER_RATIO }
+    } else {
+        bitmap.toDrawable(this)
+    }
 
 private val Bitmap.isOpaqueSquare: Boolean
     get() {

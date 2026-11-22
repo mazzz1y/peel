@@ -233,8 +233,7 @@
     <string name="ungrouped">未分组</string>
     <string name="open_incognito_action">在隐私模式中打开</string>
     <string name="incognito">无痕</string>
-    <string name="current_window">当前窗口</string>
-    <string name="private_session">隐私会话</string>
+    <string name="this_window">在此窗口</string>
     <string name="download_image">下载图片</string>
     <string name="share_image">分享图片</string>
     <string name="move_to_group">移至分组</string>

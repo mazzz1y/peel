@@ -205,8 +205,7 @@
     <string name="ungrouped">Sin grupo</string>
     <string name="open_incognito_action">Abrir en modo privado</string>
     <string name="incognito">Incógnito</string>
-    <string name="current_window">Ventana actual</string>
-    <string name="private_session">Sesión privada</string>
+    <string name="this_window">En esta ventana</string>
     <string name="download_image">Descargar imagen</string>
     <string name="share_image">Compartir imagen</string>
     <string name="move_to_group">Mover a grupo</string>

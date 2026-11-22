@@ -240,8 +240,7 @@
     <string name="ungrouped">ਬਿਨਾ ਗਰੁੱਪ</string>
     <string name="open_incognito_action">ਪ੍ਰਾਈਵੇਟ ਮੋਡ ਵਿੱਚ ਖੋਲ੍ਹੋ</string>
     <string name="incognito">ਪ੍ਰਾਈਵੇਟ</string>
-    <string name="current_window">ਮੌਜੂਦਾ ਵਿੰਡੋ</string>
-    <string name="private_session">ਪ੍ਰਾਈਵੇਟ ਸੈਸ਼ਨ</string>
+    <string name="this_window">ਇਸੇ ਵਿੰਡੋ ਵਿੱਚ</string>
     <string name="download_image">ਚਿੱਤਰ ਡਾਊਨਲੋਡ ਕਰੋ</string>
     <string name="share_image">ਚਿੱਤਰ ਸਾਂਝਾ ਕਰੋ</string>
     <string name="move_to_group">ਗਰੁੱਪ ਵਿੱਚ ਭੇਜੋ</string>

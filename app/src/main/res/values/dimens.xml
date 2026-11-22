@@ -93,9 +93,6 @@
     <!-- The handle keeps its 48dp size for accessibility services, which act on the whole view;
          what follows starts 36dp down, just below the pill, and takes touches over the rest. -->
     <dimen name="link_sheet_handle_overlap">-12dp</dimen>
-    <!-- Above and below the rule after the current window, on top of the cards' own 6dp, so the
-         rule sits as far from either card as the cards sit from each other. -->
-    <dimen name="link_sheet_current_window_gap">6dp</dimen>
     <dimen name="settings_dropdown_max_width">160dp</dimen>
     <dimen name="toolbar_label_max_width">140dp</dimen>
 

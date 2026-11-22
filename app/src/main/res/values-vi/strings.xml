@@ -233,8 +233,7 @@
     <string name="ungrouped">Chưa phân nhóm</string>
     <string name="open_incognito_action">Mở trong chế độ riêng tư</string>
     <string name="incognito">Ẩn danh</string>
-    <string name="current_window">Cửa sổ hiện tại</string>
-    <string name="private_session">Phiên riêng tư</string>
+    <string name="this_window">Trong cửa sổ này</string>
     <string name="download_image">Tải hình ảnh xuống</string>
     <string name="share_image">Chia sẻ hình ảnh</string>
     <string name="move_to_group">Chuyển vào nhóm</string>

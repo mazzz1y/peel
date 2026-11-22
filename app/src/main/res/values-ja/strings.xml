@@ -233,8 +233,7 @@
     <string name="ungrouped">未分類</string>
     <string name="open_incognito_action">プライベートモードで開く</string>
     <string name="incognito">シークレット</string>
-    <string name="current_window">現在のウィンドウ</string>
-    <string name="private_session">プライベートセッション</string>
+    <string name="this_window">このウィンドウ</string>
     <string name="download_image">画像をダウンロード</string>
     <string name="share_image">画像を共有</string>
     <string name="move_to_group">グループに移動</string>

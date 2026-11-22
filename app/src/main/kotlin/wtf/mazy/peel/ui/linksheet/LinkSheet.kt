@@ -24,7 +24,6 @@ import wtf.mazy.peel.R
 import wtf.mazy.peel.model.DataManager
 import wtf.mazy.peel.model.LinkChoice
 import wtf.mazy.peel.model.LinkOrigin
-import wtf.mazy.peel.model.LinkSheetRow
 import wtf.mazy.peel.model.LinkSheetRows
 import wtf.mazy.peel.model.LinkSubject
 import wtf.mazy.peel.model.LinkTarget
@@ -33,6 +32,7 @@ import wtf.mazy.peel.model.Redirectors
 import wtf.mazy.peel.model.UnwrappedLink
 import wtf.mazy.peel.model.WebApp
 import wtf.mazy.peel.model.hasWebAppRelatedTo
+import wtf.mazy.peel.model.searched
 import wtf.mazy.peel.ui.common.ListEmptyState
 import wtf.mazy.peel.ui.common.scrollToTopOnChange
 import wtf.mazy.peel.ui.dialog.InputDialogConfig
@@ -72,7 +72,7 @@ class LinkSheet private constructor(
 
     private var matches = emptyMap<WebApp, LinkMatch>()
     private var query = ""
-    private var rows = emptyList<LinkSheetRow>()
+    private var rows = emptyList<WebApp>()
     private var chosen: LinkChoice = LinkChoice.Dismissed
     private val adapter = LinkSheetAdapter(groupTitles, ::pick)
     private lateinit var decor: View
@@ -96,8 +96,8 @@ class LinkSheet private constructor(
         decor = checkNotNull(window).decorView
         bindTarget()
         bindActions()
-        // Without a web link, or with nothing to open it in, the sheet has no list to search.
-        link?.takeIf { LinkSheetRows.hasRows(candidates, origin) }?.let(::bindApps)
+        // Without a web link, or with no web app to open it in, the sheet has no list to search.
+        link?.takeIf { candidates.isNotEmpty() }?.let(::bindApps)
         setOnDismissListener { onChoice(chosen) }
         setUpSheet()
     }
@@ -142,13 +142,17 @@ class LinkSheet private constructor(
 
     private fun bindActions() {
         val image = subject.image
-        actions = LinkSheetActions(view(R.id.linkSheetActions), hasLink = link != null, hasImage = image != null) { app ->
-            chooseForLink { LinkChoice.ExternalApp(it.launchUrl, app) }
-        }
+        actions = LinkSheetActions(
+            view(R.id.linkSheetActions),
+            hasLink = link != null,
+            hasImage = image != null,
+            window = origin as? LinkOrigin.Window,
+        ) { app -> chooseForLink { LinkChoice.ExternalApp(it.launchUrl, app) } }
         if (image != null) {
             onClick(R.id.linkSheetDownloadImage) { choose(LinkChoice.DownloadImage(image)) }
             onClick(R.id.linkSheetShareImage) { choose(LinkChoice.ShareImage(image)) }
         }
+        onClick(R.id.linkSheetThisWindow) { chooseForLink { LinkChoice.CurrentWindow(it.launchUrl) } }
         onClick(R.id.linkSheetIncognito) { chooseForLink { LinkChoice.Incognito(it.launchUrl) } }
         onClick(R.id.linkSheetSystem) { chooseForLink { LinkChoice.System(it.launchUrl) } }
         onClick(R.id.linkSheetAdd) { chooseForLink { LinkChoice.Add(it.destination) } }
@@ -165,7 +169,7 @@ class LinkSheet private constructor(
                 sandboxOf = DataManager::effectiveSandbox,
             ),
             // Nothing pulls the sheet up on TV and car screens, so a button stands in for the gesture.
-            canSearch = current != null && singleWindow && LinkSheetRows.hasRows(candidates, origin),
+            canSearch = current != null && singleWindow && candidates.isNotEmpty(),
         )
     }
 
@@ -173,7 +177,6 @@ class LinkSheet private constructor(
         val list = view<RecyclerView>(R.id.linkSheetList)
         list.layoutManager = LinearLayoutManager(context)
         list.adapter = adapter
-        list.addItemDecoration(CurrentWindowDivider(context, adapter::endsCurrentWindow))
         adapter.scrollToTopOnChange { list }
         list.applyBottomScreenInsets()
         val bar = view<SearchBar>(R.id.linkSheetSearchBar)
@@ -233,7 +236,7 @@ class LinkSheet private constructor(
 
     private fun render() {
         val apps = apps ?: return
-        rows = LinkSheetRows.rows(matches.keys.toList(), origin, query, groupTitles)
+        rows = matches.keys.toList().searched(query, groupTitles)
         adapter.submit(rows)
         apps.emptyState.render(rows.isEmpty())
     }
@@ -263,12 +266,7 @@ class LinkSheet private constructor(
         refold()
     }
 
-    private fun pick(row: LinkSheetRow) = chooseForLink { current ->
-        when (row) {
-            is LinkSheetRow.App -> LinkChoice.App(row.app, current.launchUrl)
-            is LinkSheetRow.CurrentWindow -> LinkChoice.CurrentWindow(current.launchUrl)
-        }
-    }
+    private fun pick(app: WebApp) = chooseForLink { LinkChoice.App(app, it.launchUrl) }
 
     private fun chooseForLink(choice: (UnwrappedLink) -> LinkChoice) {
         link?.let { choose(choice(it)) }

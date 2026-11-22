@@ -240,8 +240,7 @@
     <string name="ungrouped">बिना समूह</string>
     <string name="open_incognito_action">निजी मोड में खोलें</string>
     <string name="incognito">निजी</string>
-    <string name="current_window">मौजूदा विंडो</string>
-    <string name="private_session">निजी सत्र</string>
+    <string name="this_window">इसी विंडो में</string>
     <string name="download_image">इमेज डाउनलोड करें</string>
     <string name="share_image">इमेज साझा करें</string>
     <string name="move_to_group">समूह में ले जाएं</string>

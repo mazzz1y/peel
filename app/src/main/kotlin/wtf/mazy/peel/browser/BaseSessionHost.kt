@@ -732,7 +732,7 @@ abstract class BaseSessionHost :
 
     private fun linkWindow(): LinkOrigin.Window =
         ownerWebAppUuid?.let(DataManager::webApp)?.let { LinkOrigin.Window.App(it) }
-            ?: if (sessionPrivateMode) LinkOrigin.Window.PrivateSession else LinkOrigin.Window.Extension(webAppName)
+            ?: if (sessionPrivateMode) LinkOrigin.Window.PrivateSession else LinkOrigin.Window.Extension
 
     override fun findPeelAppMatches(url: String): List<WebApp> {
         val pending = PendingDeletes.webApps

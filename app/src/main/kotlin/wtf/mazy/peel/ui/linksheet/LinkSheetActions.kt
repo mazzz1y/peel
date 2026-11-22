@@ -9,19 +9,22 @@ import com.google.android.material.button.MaterialButton
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.LinkApp
 import wtf.mazy.peel.model.LinkOpeners
+import wtf.mazy.peel.model.LinkOrigin
+import wtf.mazy.peel.ui.common.iconDrawable
 import wtf.mazy.peel.util.linkAppIcon
 import wtf.mazy.peel.util.linkAppLabel
 
 /**
  * The link sheet's lines of actions: what to do with the link, where to open it, and the image's.
- * The fixed buttons are the layout's; the apps that own the link lead the line of where to open
- * it, before "Incognito", and the default browser follows "Incognito". A line with no button
- * shown is hidden, and the lines with it when none is left.
+ * The fixed buttons are the layout's; the window the link came from leads the line of where to
+ * open it, the apps that own the link come before "Incognito", and the default browser follows
+ * it. A line with no button shown is hidden, and the lines with it when none is left.
  */
 internal class LinkSheetActions(
     private val lines: ViewGroup,
     hasLink: Boolean,
     hasImage: Boolean,
+    window: LinkOrigin.Window?,
     private val onApp: (LinkApp) -> Unit,
 ) {
 
@@ -30,7 +33,9 @@ internal class LinkSheetActions(
     private var appButtons = emptyList<View>()
 
     init {
-        incognito.isVisible = hasLink
+        if (hasLink && window != null) showWindow(window)
+        // In a private session, opening here is already incognito.
+        incognito.isVisible = hasLink && window != LinkOrigin.Window.PrivateSession
         button(R.id.linkSheetDownloadImage).isVisible = hasImage
         button(R.id.linkSheetShareImage).isVisible = hasImage
     }
@@ -39,7 +44,7 @@ internal class LinkSheetActions(
         appButtons.forEach(openLine::removeView)
         val apps = openers?.apps.orEmpty().map(::appButton)
         val browser = openers?.browser?.let(::appButton)
-        apps.asReversed().forEach { openLine.addView(it, 0) }
+        apps.forEach { openLine.addView(it, openLine.indexOfChild(incognito)) }
         browser?.let { openLine.addView(it, openLine.indexOfChild(incognito) + 1) }
         appButtons = apps + listOfNotNull(browser)
         button(R.id.linkSheetSystem).isVisible = openers?.asksSystem == true
@@ -50,6 +55,20 @@ internal class LinkSheetActions(
     }
 
     private fun button(id: Int): View = lines.requireViewById(id)
+
+    private fun showWindow(window: LinkOrigin.Window) {
+        val button = lines.requireViewById<MaterialButton>(R.id.linkSheetThisWindow)
+        button.isVisible = true
+        when (window) {
+            is LinkOrigin.Window.App -> {
+                button.icon = lines.resources.iconDrawable(window.app.resolveIcon(button.iconSize))
+                button.iconTint = null
+            }
+
+            LinkOrigin.Window.PrivateSession -> button.setIconResource(R.drawable.ic_symbols_visibility_off_24)
+            LinkOrigin.Window.Extension -> button.setIconResource(R.drawable.ic_symbols_extension_24)
+        }
+    }
 
     private fun appButton(app: LinkApp): MaterialButton {
         val context = lines.context

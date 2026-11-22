@@ -26,11 +26,11 @@ sealed interface LinkOrigin {
     /** The page a window shows, to open anywhere but in that window's web app. */
     data class Page(val ownerUuid: String?) : LinkOrigin
 
-    /** A window the link can also open in, offered as the first row. */
+    /** A window the link can also open in, offered as the first action. */
     sealed interface Window : LinkOrigin {
         data class App(val app: WebApp) : Window
         data object PrivateSession : Window
-        data class Extension(val title: String) : Window
+        data object Extension : Window
     }
 }
 

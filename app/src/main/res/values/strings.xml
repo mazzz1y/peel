@@ -318,8 +318,7 @@
     <string name="open_peel">Open Peel</string>
     <string name="open_incognito_action">Open in private mode</string>
     <string name="incognito">Incognito</string>
-    <string name="current_window">Current window</string>
-    <string name="private_session">Private session</string>
+    <string name="this_window">This window</string>
     <string name="download_image">Download image</string>
     <string name="share_image">Share image</string>
     <string name="open_in_system">Open in system</string>

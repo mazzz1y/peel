@@ -233,8 +233,7 @@
     <string name="ungrouped">未分組</string>
     <string name="open_incognito_action">在隱私模式中開啟</string>
     <string name="incognito">無痕</string>
-    <string name="current_window">目前視窗</string>
-    <string name="private_session">隱私工作階段</string>
+    <string name="this_window">在此視窗</string>
     <string name="download_image">下載圖片</string>
     <string name="share_image">分享圖片</string>
     <string name="move_to_group">移至群組</string>

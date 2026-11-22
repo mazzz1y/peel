@@ -88,6 +88,12 @@
                     style="@style/LinkSheetActionRowButtons">
 
                     <com.google.android.material.button.MaterialButton
+                        android:id="@+id/linkSheetThisWindow"
+                        style="@style/Widget.App.LinkSheetAction"
+                        android:text="@string/this_window"
+                        android:visibility="gone" />
+
+                    <com.google.android.material.button.MaterialButton
                         android:id="@+id/linkSheetIncognito"
                         style="@style/Widget.App.LinkSheetAction"
                         android:text="@string/incognito"

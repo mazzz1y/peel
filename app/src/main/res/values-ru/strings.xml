@@ -254,8 +254,7 @@
     <string name="ungrouped">Без группы</string>
     <string name="open_incognito_action">Открыть в приватном режиме</string>
     <string name="incognito">Инкогнито</string>
-    <string name="current_window">Текущее окно</string>
-    <string name="private_session">Приватный сеанс</string>
+    <string name="this_window">В этом окне</string>
     <string name="download_image">Скачать изображение</string>
     <string name="share_image">Поделиться изображением</string>
     <string name="move_to_group">Переместить в группу</string>

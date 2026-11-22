@@ -16,19 +16,11 @@ class WebAppRowHolder(itemView: View) : EntityListViewHolder(itemView) {
     private val urlView: TextView = itemView.findViewById(R.id.item_secondary)
     private val groupLabel: TextView = itemView.findViewById(R.id.item_tertiary)
 
-    fun bind(app: WebApp, groupTitle: String?, address: String = prettyBaseUrl(app.baseUrl)) {
+    fun bind(app: WebApp, groupTitle: String?) {
         titleView.text = app.title
-        urlView.text = address
+        urlView.text = prettyBaseUrl(app.baseUrl)
         groupLabel.text = groupTitle
         groupLabel.isVisible = groupTitle != null
         webAppIndicators.bind(app)
-    }
-
-    /** A row that stands for a window rather than a web app: no group, and only a private one's indicators. */
-    fun bindWindow(title: String, address: String, private: Boolean) {
-        titleView.text = title
-        urlView.text = address
-        groupLabel.isVisible = false
-        if (private) webAppIndicators.bindPrivate() else webAppIndicators.hide()
     }
 }

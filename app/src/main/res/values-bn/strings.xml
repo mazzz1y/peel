@@ -240,8 +240,7 @@
     <string name="ungrouped">গ্রুপবিহীন</string>
     <string name="open_incognito_action">ব্যক্তিগত মোডে খুলুন</string>
     <string name="incognito">ব্যক্তিগত</string>
-    <string name="current_window">বর্তমান উইন্ডো</string>
-    <string name="private_session">ব্যক্তিগত সেশন</string>
+    <string name="this_window">এই উইন্ডোতে</string>
     <string name="download_image">ছবি ডাউনলোড করুন</string>
     <string name="share_image">ছবি শেয়ার করুন</string>
     <string name="move_to_group">গ্রুপে সরান</string>

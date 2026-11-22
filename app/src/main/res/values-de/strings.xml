@@ -199,8 +199,7 @@
     <string name="ungrouped">Ohne Gruppe</string>
     <string name="open_incognito_action">Im privaten Modus öffnen</string>
     <string name="incognito">Inkognito</string>
-    <string name="current_window">Aktuelles Fenster</string>
-    <string name="private_session">Private Sitzung</string>
+    <string name="this_window">In diesem Fenster</string>
     <string name="download_image">Bild herunterladen</string>
     <string name="share_image">Bild teilen</string>
     <string name="move_to_group">In Gruppe verschieben</string>

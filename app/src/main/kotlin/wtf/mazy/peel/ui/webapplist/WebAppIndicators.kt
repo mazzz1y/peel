@@ -24,13 +24,9 @@ class WebAppIndicators(row: View) {
     }
 
     /** A private session keeps its own storage and drops it when it ends, and never uses a proxy. */
-    fun bindPrivate() {
+    private fun bindPrivate() {
         sandbox.isVisible = true
         ephemeral.isVisible = true
         proxy.isVisible = false
-    }
-
-    fun hide() {
-        views.forEach { it.isVisible = false }
     }
 }
