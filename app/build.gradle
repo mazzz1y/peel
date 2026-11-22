@@ -9,7 +9,7 @@ plugins {
     id 'com.github.triplet.play'
 }
 
-def geckoviewVersion = "160.0.20261104181552"
+def geckoviewVersion = "160.0.20261116130455"
 
 android {
     compileSdkVersion = "android-37.2"
