@@ -1,0 +1,8 @@
+- Open links in their own app or your browser from the link sheet
+- Show the link sheet at the web apps related to a link, pull it up to search all of them
+- Show the full address of a link and "Add to Peel" in the link sheet
+- Fix fullscreen video background after returning to the app
+- Fix a group tab sometimes showing another group's web apps
+- Fix web app indicators covering the title in right-to-left languages
+- Update GeckoView to 160.0.20261116130455
+- Other fixes and improvements
