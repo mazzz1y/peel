@@ -50,3 +50,6 @@ fun List<WebApp>.hasWebAppAt(url: String, sandboxOf: (WebApp) -> EffectiveSandbo
                 WebOrigin.of(app.address)?.isSamePlaceAs(target) == true
     }
 }
+
+fun List<WebApp>.hasWebAppRelatedTo(related: (WebApp) -> Boolean, sandboxOf: (WebApp) -> EffectiveSandbox): Boolean =
+    any { sandboxOf(it) !is EffectiveSandbox.Private && related(it) }

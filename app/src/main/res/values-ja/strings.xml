@@ -193,6 +193,7 @@
     <string name="remove_override">オーバーライドを削除</string>
     <string name="overridden_settings">オーバーライド設定</string>
     <string name="add">追加</string>
+    <string name="add_to_peel">Peel に追加</string>
     <string name="add_domain">アドレスを追加</string>
     <string name="add_site_exception">例外のサイトを追加</string>
     <string name="add_certificate">証明書を追加</string>
@@ -259,6 +260,7 @@
     <string name="group_not_found">このグループはもう利用できません</string>
     <string name="icon_dimensions_source">%1$dx%2$d · %3$s</string>
     <string name="open_in_system">システムで開く</string>
+    <string name="open_in_app">%1$s で開く</string>
     <string name="restart">再起動</string>
     <string name="setting_block_local_network">ローカルネットワークアクセスをブロック</string>
     <string name="setting_block_webrtc_ip_leak">WebRTC IPリークをブロック</string>

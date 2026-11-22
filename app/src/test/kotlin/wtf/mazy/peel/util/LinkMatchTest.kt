@@ -175,6 +175,22 @@ class LinkMatchTest {
     }
 
     @Test
+    fun relatedIsMoreThanSharingATopLevelDomain() {
+        val cases = listOf(
+            Triple("https://m.youtube.com/", "https://www.youtube.com/watch?v=x", true),
+            Triple("https://youtube.com/", "https://youtu.be/x", true),
+            Triple("https://google.com/", "https://google.de/", true),
+            Triple("https://github.com/", "https://www.youtube.com/watch?v=x", false),
+            Triple("https://example.org/", "https://www.youtube.com/", false),
+            Triple("https://example.com/", "garbage", false),
+        )
+        assertNoMismatches(cases.mapNotNull { (app, link, expected) ->
+            val actual = match(App(app), link).related
+            "$app ← $link: expected $expected, got $actual".takeIf { actual != expected }
+        })
+    }
+
+    @Test
     fun belonging() {
         val cases = listOf(
             Triple(App("https://maps.google.com/"), "https://maps.app.goo.gl/abc", false),

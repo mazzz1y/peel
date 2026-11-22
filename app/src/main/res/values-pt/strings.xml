@@ -207,6 +207,7 @@
     <string name="remove_override">Remover substituição</string>
     <string name="overridden_settings">Configurações substituídas</string>
     <string name="add">Adicionar</string>
+    <string name="add_to_peel">Adicionar ao Peel</string>
     <string name="add_domain">Adicionar endereço</string>
     <string name="add_site_exception">Adicionar site às exceções</string>
     <string name="add_certificate">Adicionar certificado</string>
@@ -277,6 +278,7 @@
     <string name="group_not_found">O grupo não está mais disponível</string>
     <string name="icon_dimensions_source">%1$dx%2$d · %3$s</string>
     <string name="open_in_system">Abrir no sistema</string>
+    <string name="open_in_app">Abrir em %1$s</string>
     <string name="restart">Reiniciar</string>
     <string name="setting_block_local_network">Bloquear acesso à rede local</string>
     <string name="setting_block_webrtc_ip_leak">Bloquear vazamento de IP por WebRTC</string>

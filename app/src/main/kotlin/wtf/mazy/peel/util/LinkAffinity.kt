@@ -18,7 +18,8 @@ val WebApp.address: String get() = DataManager.effectiveSettings(this).upgradeUr
 fun WebApp.linkMatch(url: String): LinkMatch =
     linkMatch(address, url, DataManager.effectiveSettings(this))
 
-fun List<WebApp>.sortedByAffinity(url: String): List<WebApp> {
+fun List<WebApp>.byAffinity(url: String): Map<WebApp, LinkMatch> {
     val matches = associateWith { it.linkMatch(url) }
     return sortedWith(compareByDescending<WebApp> { matches.getValue(it) }.thenBy { it.title })
+        .associateWith(matches::getValue)
 }

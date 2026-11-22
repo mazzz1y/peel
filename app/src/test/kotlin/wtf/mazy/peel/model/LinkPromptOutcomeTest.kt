@@ -8,6 +8,7 @@ class LinkPromptOutcomeTest {
     private val url = "https://accounts.example.com/signin"
     private val edited = "https://accounts.example.com/signin?trimmed"
     private val app = WebApp(baseUrl = "https://example.com", title = "Example")
+    private val youTube = LinkApp("com.google.android.youtube", "com.google.android.youtube.UrlActivity")
 
     private data class Case(val choice: LinkChoice, val mustReload: Boolean, val expected: LinkPromptOutcome)
 
@@ -16,6 +17,7 @@ class LinkPromptOutcomeTest {
         val elsewhere = listOf(
             LinkChoice.App(app, url),
             LinkChoice.System(url),
+            LinkChoice.ExternalApp(url, youTube),
             LinkChoice.Incognito(url),
             LinkChoice.Share(url, "Sign in"),
             LinkChoice.Add(url),
@@ -36,6 +38,7 @@ class LinkPromptOutcomeTest {
         val cases = listOf(
             LinkChoice.App(app, url) to false,
             LinkChoice.System(url) to true,
+            LinkChoice.ExternalApp(url, youTube) to true,
             LinkChoice.Incognito(url) to true,
             LinkChoice.Share(url, null) to true,
             LinkChoice.Add(url) to true,
@@ -47,10 +50,11 @@ class LinkPromptOutcomeTest {
     }
 
     @Test
-    fun onlyTheSystemAndPrivateModeLeavePeel() {
+    fun onlyTheSystemOtherAppsAndPrivateModeLeavePeel() {
         val cases = listOf(
             LinkChoice.App(app, url) to false,
             LinkChoice.System(url) to true,
+            LinkChoice.ExternalApp(url, youTube) to true,
             LinkChoice.Incognito(url) to true,
             LinkChoice.Share(url, null) to false,
             LinkChoice.Add(url) to false,

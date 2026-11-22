@@ -193,6 +193,7 @@
     <string name="remove_override">删除覆盖</string>
     <string name="overridden_settings">已覆盖的设置</string>
     <string name="add">添加</string>
+    <string name="add_to_peel">添加到 Peel</string>
     <string name="add_domain">添加地址</string>
     <string name="add_site_exception">添加例外网站</string>
     <string name="add_certificate">添加证书</string>
@@ -259,6 +260,7 @@
     <string name="group_not_found">该分组已不可用</string>
     <string name="icon_dimensions_source">%1$dx%2$d · %3$s</string>
     <string name="open_in_system">在系统中打开</string>
+    <string name="open_in_app">在 %1$s 中打开</string>
     <string name="restart">重启</string>
     <string name="setting_block_local_network">阻止本地网络访问</string>
     <string name="setting_block_webrtc_ip_leak">阻止 WebRTC IP 泄露</string>

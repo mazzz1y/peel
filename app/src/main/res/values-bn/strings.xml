@@ -200,6 +200,7 @@
     <string name="remove_override">ওভাররাইড সরান</string>
     <string name="overridden_settings">ওভাররাইড করা সেটিংস</string>
     <string name="add">যোগ করুন</string>
+    <string name="add_to_peel">Peel-এ যোগ করুন</string>
     <string name="add_domain">ঠিকানা যোগ করুন</string>
     <string name="add_site_exception">ব্যতিক্রমী সাইট যোগ করুন</string>
     <string name="add_certificate">সার্টিফিকেট যোগ করুন</string>
@@ -268,6 +269,7 @@
     <string name="group_not_found">গ্রুপটি আর উপলব্ধ নেই</string>
     <string name="icon_dimensions_source">%1$dx%2$d · %3$s</string>
     <string name="open_in_system">সিস্টেমে খুলুন</string>
+    <string name="open_in_app">%1$s-এ খুলুন</string>
     <string name="restart">রিস্টার্ট</string>
     <string name="setting_block_local_network">লোকাল নেটওয়ার্ক অ্যাক্সেস ব্লক</string>
     <string name="setting_block_webrtc_ip_leak">WebRTC IP লিক ব্লক</string>

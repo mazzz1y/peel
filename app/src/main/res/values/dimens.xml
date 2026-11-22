@@ -83,6 +83,10 @@
     <dimen name="link_sheet_actions_margin_bottom">6dp</dimen>
     <dimen name="link_sheet_search_margin_bottom">10dp</dimen>
     <dimen name="link_sheet_action_gap">8dp</dimen>
+    <!-- Between lines of actions: with the 4dp that Material buttons draw inside their bounds above and
+         below, lines are as far apart as the actions are from the target and the list. -->
+    <dimen name="link_sheet_action_line_gap">8dp</dimen>
+    <dimen name="list_item_badge_size">18dp</dimen>
     <!-- The copy button's own 48dp touch target brings the card's end to the list cards' 16dp. -->
     <dimen name="link_sheet_target_padding_end">4dp</dimen>
     <dimen name="link_sheet_target_padding_vertical">8dp</dimen>

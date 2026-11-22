@@ -166,6 +166,7 @@
     <string name="remove_override">Rimuovi sovrascrittura</string>
     <string name="overridden_settings">Sovrascritture impostazioni</string>
     <string name="add">Aggiungi</string>
+    <string name="add_to_peel">Aggiungi a Peel</string>
     <string name="add_domain">Aggiungi indirizzo</string>
     <string name="add_site_exception">Aggiungi eccezione per un sito</string>
     <string name="add_certificate">Aggiungi certificato</string>
@@ -273,6 +274,7 @@
     <string name="group_not_found">Il gruppo non è più disponibile</string>
     <string name="icon_dimensions_source">%1$dx%2$d · %3$s</string>
     <string name="open_in_system">Apri nel sistema</string>
+    <string name="open_in_app">Apri in %1$s</string>
     <string name="permission_prompt_allow">Consenti</string>
     <string name="permission_prompt_deny">Nega</string>
     <string name="permission_prompt_remember">Ricorda per questa sessione</string>

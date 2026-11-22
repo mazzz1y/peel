@@ -200,6 +200,7 @@
     <string name="remove_override">ओवरराइड हटाएं</string>
     <string name="overridden_settings">ओवरराइड की गई सेटिंग्स</string>
     <string name="add">जोड़ें</string>
+    <string name="add_to_peel">Peel में जोड़ें</string>
     <string name="add_domain">पता जोड़ें</string>
     <string name="add_site_exception">अपवाद वाली साइट जोड़ें</string>
     <string name="add_certificate">प्रमाणपत्र जोड़ें</string>
@@ -268,6 +269,7 @@
     <string name="group_not_found">यह ग्रुप अब उपलब्ध नहीं है</string>
     <string name="icon_dimensions_source">%1$dx%2$d · %3$s</string>
     <string name="open_in_system">सिस्टम में खोलें</string>
+    <string name="open_in_app">%1$s में खोलें</string>
     <string name="restart">रीस्टार्ट</string>
     <string name="setting_block_local_network">स्थानीय नेटवर्क एक्सेस ब्लॉक करें</string>
     <string name="setting_block_webrtc_ip_leak">WebRTC IP लीक ब्लॉक करें</string>

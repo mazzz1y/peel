@@ -118,9 +118,14 @@ class SearchBar @JvmOverloads constructor(
         if (hasFocus()) clearFocus()
     }
 
+    /**
+     * Ends the session before letting go of focus: driven by keys, a view letting go of focus
+     * hands it to the first focusable one, which would be this field again while the host still
+     * shows its search.
+     */
     fun close() {
-        dropFocus()
         setActive(false)
+        dropFocus()
     }
 
     /**

@@ -3,7 +3,6 @@ package wtf.mazy.peel.ui.linksheet
 import android.os.Bundle
 import android.view.ContextThemeWrapper
 import android.view.View
-import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
@@ -14,13 +13,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
-import androidx.core.view.updateLayoutParams
+import androidx.core.view.updatePadding
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.R as MaterialR
 import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_COLLAPSED
-import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_EXPANDED
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import kotlinx.coroutines.launch
 import wtf.mazy.peel.R
@@ -35,7 +32,7 @@ import wtf.mazy.peel.model.MediaKind
 import wtf.mazy.peel.model.Redirectors
 import wtf.mazy.peel.model.UnwrappedLink
 import wtf.mazy.peel.model.WebApp
-import wtf.mazy.peel.model.hasWebAppAt
+import wtf.mazy.peel.model.hasWebAppRelatedTo
 import wtf.mazy.peel.ui.common.ListEmptyState
 import wtf.mazy.peel.ui.common.scrollToTopOnChange
 import wtf.mazy.peel.ui.dialog.InputDialogConfig
@@ -44,19 +41,22 @@ import wtf.mazy.peel.ui.dialog.dismissOnDestroyOf
 import wtf.mazy.peel.ui.dialog.showInputDialogRaw
 import wtf.mazy.peel.ui.entitylist.PendingDeletes
 import wtf.mazy.peel.ui.webapplist.SearchBar
+import wtf.mazy.peel.util.LinkMatch
 import wtf.mazy.peel.util.applyBottomScreenInsets
+import wtf.mazy.peel.util.byAffinity
 import wtf.mazy.peel.util.copyToClipboard
 import wtf.mazy.peel.util.isSingleWindowHost
-import wtf.mazy.peel.util.shouldOfferOpenInSystem
-import wtf.mazy.peel.util.sortedByAffinity
+import wtf.mazy.peel.util.linkMatch
+import wtf.mazy.peel.util.openersOf
 
 /**
  * What to do with a link or a piece of media, as a sheet rising from the bottom like the system's
  * share sheet: what was pressed, its actions, then the web apps to open a web link in, shown as
- * the web-app list's cards in selection mode. Searching takes the sheet to full height and puts
- * the search bar in place of the target until the search ends. On TV and car screens it fills the
- * screen. It is Peel's own surface, so it takes Peel's theme even when a web app's window, with its
- * own surface colours, opens it. Every opening ends in exactly one [LinkChoice].
+ * the web-app list's cards in selection mode. Resting, it shows the web apps related to the link,
+ * best first; pulled up, or on TV and car screens through its Search button, it shows them all under
+ * their search field in place of the target and actions. On TV and car screens it fills the
+ * screen. It is Peel's own surface, so it takes Peel's theme even when a web app's window, with
+ * its own surface colours, opens it. Every opening ends in exactly one [LinkChoice].
  */
 class LinkSheet private constructor(
     private val activity: AppCompatActivity,
@@ -69,17 +69,23 @@ class LinkSheet private constructor(
 
     private var target = LinkTarget.of(subject)
     private val candidates = LinkSheetRows.candidates(everyApp, origin)
-    private var ordered = emptyList<WebApp>()
+
+    private var matches = emptyMap<WebApp, LinkMatch>()
     private var query = ""
     private var rows = emptyList<LinkSheetRow>()
     private var chosen: LinkChoice = LinkChoice.Dismissed
     private val adapter = LinkSheetAdapter(groupTitles, ::pick)
     private lateinit var decor: View
+    private lateinit var actions: LinkSheetActions
+
+    private val singleWindow = context.isSingleWindowHost()
 
     /** The web apps and their search, when there is a list at all. */
     private var apps: Apps? = null
 
     private class Apps(val emptyState: ListEmptyState, val bar: SearchBar, val searchBack: OnBackPressedCallback)
+
+    private lateinit var fold: LinkSheetFold
 
     /** The link every choice uses, as last edited; null for media that is not a link. */
     private val link: UnwrappedLink? get() = target.link
@@ -89,12 +95,11 @@ class LinkSheet private constructor(
         setContentView(R.layout.view_link_sheet)
         decor = checkNotNull(window).decorView
         bindTarget()
+        bindActions()
         // Without a web link, or with nothing to open it in, the sheet has no list to search.
-        val listed = link?.takeIf { LinkSheetRows.hasRows(candidates, origin) }
-        bindActions(searchable = listed != null)
-        listed?.let(::bindApps)
+        link?.takeIf { LinkSheetRows.hasRows(candidates, origin) }?.let(::bindApps)
         setOnDismissListener { onChoice(chosen) }
-        setUpSheet(withApps = listed != null)
+        setUpSheet()
     }
 
     private fun <V : View> view(id: Int): V = decor.requireViewById(id)
@@ -135,30 +140,33 @@ class LinkSheet private constructor(
         view<View>(R.id.linkSheetShare).isVisible = target.shareable != null
     }
 
-    private fun bindActions(searchable: Boolean) {
+    private fun bindActions() {
         val image = subject.image
-        view<View>(R.id.linkSheetActions).isVisible = link != null || image != null
-        view<View>(R.id.linkSheetSearch).isVisible = link != null && searchable
-        view<View>(R.id.linkSheetIncognito).isVisible = link != null
-        view<View>(R.id.linkSheetDownloadImage).isVisible = image != null
-        view<View>(R.id.linkSheetShareImage).isVisible = image != null
+        actions = LinkSheetActions(view(R.id.linkSheetActions), hasLink = link != null, hasImage = image != null) { app ->
+            chooseForLink { LinkChoice.ExternalApp(it.launchUrl, app) }
+        }
         if (image != null) {
             onClick(R.id.linkSheetDownloadImage) { choose(LinkChoice.DownloadImage(image)) }
             onClick(R.id.linkSheetShareImage) { choose(LinkChoice.ShareImage(image)) }
         }
-        onClick(R.id.linkSheetSearch, ::startSearch)
         onClick(R.id.linkSheetIncognito) { chooseForLink { LinkChoice.Incognito(it.launchUrl) } }
         onClick(R.id.linkSheetSystem) { chooseForLink { LinkChoice.System(it.launchUrl) } }
         onClick(R.id.linkSheetAdd) { chooseForLink { LinkChoice.Add(it.destination) } }
+        onClick(R.id.linkSheetSearch, ::startSearch)
         showLinkActions()
     }
 
     private fun showLinkActions() {
         val current = link
-        view<View>(R.id.linkSheetSystem).isVisible =
-            current != null && context.shouldOfferOpenInSystem(current.launchUrl)
-        view<View>(R.id.linkSheetAdd).isVisible =
-            current != null && !everyApp.hasWebAppAt(current.destination, DataManager::effectiveSandbox)
+        actions.show(
+            openers = current?.launchUrl?.let(context::openersOf),
+            canAdd = current != null && !everyApp.hasWebAppRelatedTo(
+                related = { it.linkMatch(current.destination).related },
+                sandboxOf = DataManager::effectiveSandbox,
+            ),
+            // Nothing pulls the sheet up on TV and car screens, so a button stands in for the gesture.
+            canSearch = current != null && singleWindow && LinkSheetRows.hasRows(candidates, origin),
+        )
     }
 
     private fun bindApps(current: UnwrappedLink) {
@@ -175,72 +183,57 @@ class LinkSheet private constructor(
             render()
         }
         bar.onSearch = { rows.firstOrNull()?.let(::pick) }
-        bar.onActiveChanged = ::showSearch
-        // Only a search claims back, so the sheet keeps its own predictive back otherwise.
+        bar.onActiveChanged = { active ->
+            fold.render()
+            if (!active && singleWindow) view<View>(R.id.linkSheetSearch).requestFocus()
+        }
+        // Only the web apps' own view claims back, so the resting sheet keeps its predictive back.
         // Enabling the callback re-registers it after the sheet's, which is what lets it win.
         val searchBack = onBackPressedDispatcher.addCallback(this, enabled = false) {
-            if (!bar.lowerKeyboard()) bar.close()
+            when {
+                bar.lowerKeyboard() -> Unit
+                bar.isActive -> bar.close()
+                else -> behavior.state = STATE_COLLAPSED
+            }
         }
+        fold = LinkSheetFold(behavior, view(R.id.linkSheetRoot), singleWindow, bar) { searchBack.isEnabled = it }
         apps = Apps(ListEmptyState(view(R.id.linkSheetEmptyState)), bar, searchBack)
         reorder(current)
     }
 
-    private fun setUpSheet(withApps: Boolean) {
-        val sheet = view<View>(MaterialR.id.design_bottom_sheet)
-        // TV and car screens are driven without touch, so there is nothing to drag.
-        val singleWindow = context.isSingleWindowHost()
+    private fun setUpSheet() {
         view<View>(R.id.linkSheetHandle).isVisible = !singleWindow
-        behavior.isDraggable = !singleWindow
-        view<View>(R.id.linkSheetApps).isVisible = withApps
-        if (!withApps) {
-            if (singleWindow) sheet.updateLayoutParams { height = ViewGroup.LayoutParams.MATCH_PARENT }
-            val root = view<View>(R.id.linkSheetRoot)
-            root.updateLayoutParams { height = ViewGroup.LayoutParams.WRAP_CONTENT }
+        view<View>(R.id.linkSheetApps).isVisible = apps != null
+        val root = view<View>(R.id.linkSheetRoot)
+        // Without the handle, the target keeps from the top the inset it keeps from the sides.
+        if (singleWindow) {
+            root.updatePadding(top = context.resources.getDimensionPixelSize(R.dimen.list_card_margin_horizontal))
+        }
+        if (apps == null) {
             root.applyBottomScreenInsets()
-            behavior.skipCollapsed = true
-            behavior.state = STATE_EXPANDED
-            return
+            fold = LinkSheetFold(behavior, root, singleWindow, bar = null)
         }
-        sheet.updateLayoutParams { height = ViewGroup.LayoutParams.MATCH_PARENT }
-        // Resting below full height is the collapsed state, as in the system share sheet: a
-        // drag down from full height comes back to it, and only a drag well past it closes.
-        behavior.apply {
-            peekHeight = restingHeight(context.resources.displayMetrics.heightPixels)
-            skipCollapsed = false
-            state = if (singleWindow) STATE_EXPANDED else STATE_COLLAPSED
-        }
-        // A web app's window rotates without being recreated, so the resting height follows the
-        // space the sheet has. Changing it relayouts the sheet, which must wait for this pass.
-        (sheet.parent as View).addOnLayoutChangeListener { parent, _, _, _, _, _, _, _, _ ->
-            val peek = restingHeight(parent.height)
-            if (peek != behavior.peekHeight) parent.post { behavior.peekHeight = peek }
-        }
+        refold()
     }
 
-    private fun restingHeight(space: Int) = (space * SHEET_RATIO).toInt()
+    private fun refold() = fold.update(restingRows(), rows.size)
+
+    private fun restingRows(): Int = LinkSheetRows.restingCount(rows) { matches.getValue(it).related }
 
     private fun startSearch() {
         val bar = apps?.bar ?: return
-        behavior.state = STATE_EXPANDED
         bar.isVisible = true
         bar.focusQuery()
     }
 
-    private fun showSearch(active: Boolean) {
-        val apps = apps ?: return
-        apps.bar.isVisible = active
-        view<View>(R.id.linkSheetHeader).isVisible = !active
-        apps.searchBack.isEnabled = active
-    }
-
     private fun reorder(current: UnwrappedLink) {
-        ordered = candidates.sortedByAffinity(current.destination)
+        matches = candidates.byAffinity(current.destination)
         render()
     }
 
     private fun render() {
         val apps = apps ?: return
-        rows = LinkSheetRows.rows(ordered, origin, query, groupTitles)
+        rows = LinkSheetRows.rows(matches.keys.toList(), origin, query, groupTitles)
         adapter.submit(rows)
         apps.emptyState.render(rows.isEmpty())
     }
@@ -267,6 +260,7 @@ class LinkSheet private constructor(
         showTarget()
         showLinkActions()
         reorder(edited)
+        refold()
     }
 
     private fun pick(row: LinkSheetRow) = chooseForLink { current ->
@@ -286,8 +280,6 @@ class LinkSheet private constructor(
     }
 
     companion object {
-        private const val SHEET_RATIO = 0.75f
-
         /**
          * Asks what to do with [subject], opened from [origin]. [onChoice] gets exactly one
          * answer, after the sheet is gone; closing it answers [LinkChoice.Dismissed].

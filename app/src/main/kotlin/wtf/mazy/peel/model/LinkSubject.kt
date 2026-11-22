@@ -43,6 +43,7 @@ sealed interface LinkChoice {
     data class App(val app: WebApp, val url: String) : Elsewhere
     data class Incognito(val url: String) : Elsewhere
     data class System(val url: String) : Elsewhere
+    data class ExternalApp(val url: String, val app: LinkApp) : Elsewhere
     data class Share(val url: String, val title: String?) : Elsewhere
     data class Add(val url: String) : Elsewhere
     data class DownloadImage(val url: String) : LinkChoice

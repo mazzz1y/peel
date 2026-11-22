@@ -25,6 +25,8 @@ data class LinkMatch(
     val source: MatchSource = MatchSource.OWN_ADDRESS,
 ) : Comparable<LinkMatch> {
 
+    val related: Boolean get() = relation > DomainRelation.SAME_TLD
+
     /** Whether the link is part of the web app, as opposed to merely related to it. */
     val belongs: Boolean
         get() = relation == DomainRelation.SAME || relation == DomainRelation.SAME_NAME

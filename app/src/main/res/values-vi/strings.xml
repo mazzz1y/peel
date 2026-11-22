@@ -193,6 +193,7 @@
     <string name="remove_override">Xóa ghi đè</string>
     <string name="overridden_settings">Cài đặt đã ghi đè</string>
     <string name="add">Thêm</string>
+    <string name="add_to_peel">Thêm vào Peel</string>
     <string name="add_domain">Thêm địa chỉ</string>
     <string name="add_site_exception">Thêm trang web ngoại lệ</string>
     <string name="add_certificate">Thêm chứng chỉ</string>
@@ -259,6 +260,7 @@
     <string name="group_not_found">Nhóm này không còn khả dụng</string>
     <string name="icon_dimensions_source">%1$dx%2$d · %3$s</string>
     <string name="open_in_system">Mở trong hệ thống</string>
+    <string name="open_in_app">Mở trong %1$s</string>
     <string name="restart">Khởi động lại</string>
     <string name="setting_block_local_network">Chặn truy cập mạng cục bộ</string>
     <string name="setting_block_webrtc_ip_leak">Chặn rò rỉ IP qua WebRTC</string>

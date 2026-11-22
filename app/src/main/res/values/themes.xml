@@ -221,14 +221,19 @@
 
     <!-- The sheet's actions, as the system share sheet shows its own: rows of buttons with a
          leading icon under the target, in the web-app cards' tone. -->
-    <!-- Buttons that do not fit wrap to the next line rather than scroll out of sight. -->
-    <style name="LinkSheetActions">
+    <style name="LinkSheetActionRow">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:paddingHorizontal">@dimen/list_card_margin_horizontal</item>
-        <item name="flexWrap">wrap</item>
-        <item name="dividerDrawableVertical">@drawable/link_sheet_action_gap</item>
-        <item name="showDividerVertical">middle</item>
+        <item name="android:scrollbars">none</item>
+        <item name="android:overScrollMode">never</item>
+    </style>
+
+    <style name="LinkSheetActionRowButtons">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:orientation">horizontal</item>
+        <item name="android:divider">@drawable/link_sheet_action_gap</item>
+        <item name="android:showDividers">middle</item>
     </style>
 
     <style name="Widget.App.LinkSheetAction" parent="Widget.Material3.Button.TonalButton.Icon">

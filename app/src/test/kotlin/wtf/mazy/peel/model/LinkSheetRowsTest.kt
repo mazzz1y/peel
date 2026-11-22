@@ -74,4 +74,29 @@ class LinkSheetRowsTest {
             )
         }
     }
+
+    @Test
+    fun theRestingSheetShowsTheWindowAndUpToThreeRelatedWebApps() {
+        val docs = WebApp(baseUrl = "https://docs.example.com", title = "Docs")
+        val mail = WebApp(baseUrl = "https://mail.example.com", title = "Mail")
+        val wiki = WebApp(baseUrl = "https://wiki.example.com", title = "Wiki")
+        val exampleSites = setOf(news, docs, mail, wiki)
+        val window = LinkSheetRow.CurrentWindow(LinkOrigin.Window.PrivateSession)
+        val apps = { list: List<WebApp> -> list.map(LinkSheetRow::App) }
+        data class Case(val name: String, val rows: List<LinkSheetRow>, val expected: Int)
+        val cases = listOf(
+            Case("none related", apps(listOf(gitHub, gitLab)), 0),
+            Case("one related, best first", apps(listOf(news, gitHub, gitLab)), 1),
+            Case("all related", apps(listOf(news, docs)), 2),
+            Case("at most three", apps(listOf(news, docs, mail, wiki, gitHub)), 3),
+            Case("the window always rests", listOf(window) + apps(listOf(gitHub)), 1),
+            Case("the window and related", listOf(window) + apps(listOf(news, docs, gitHub)), 3),
+            Case("the window and three", listOf(window) + apps(listOf(news, docs, mail, wiki)), 4),
+            Case("related after unrelated is not reached", apps(listOf(gitHub, news)), 0),
+            Case("no rows", emptyList(), 0),
+        )
+        cases.forEach { case ->
+            assertEquals(case.name, case.expected, LinkSheetRows.restingCount(case.rows, exampleSites::contains))
+        }
+    }
 }

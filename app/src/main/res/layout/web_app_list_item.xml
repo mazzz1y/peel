@@ -19,6 +19,16 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <ImageView
+            android:id="@+id/item_badge"
+            android:layout_width="@dimen/list_item_badge_size"
+            android:layout_height="@dimen/list_item_badge_size"
+            android:importantForAccessibility="no"
+            android:src="@mipmap/ic_launcher"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="@id/item_icon"
+            app:layout_constraintEnd_toEndOf="@id/item_icon" />
+
         <TextView
             android:id="@+id/item_primary"
             android:layout_width="0dp"

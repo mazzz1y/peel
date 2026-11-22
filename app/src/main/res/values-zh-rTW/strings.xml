@@ -193,6 +193,7 @@
     <string name="remove_override">刪除覆寫</string>
     <string name="overridden_settings">已覆寫的設定</string>
     <string name="add">新增</string>
+    <string name="add_to_peel">新增至 Peel</string>
     <string name="add_domain">新增位址</string>
     <string name="add_site_exception">新增例外網站</string>
     <string name="add_certificate">新增憑證</string>
@@ -259,6 +260,7 @@
     <string name="group_not_found">此群組已不可用</string>
     <string name="icon_dimensions_source">%1$dx%2$d · %3$s</string>
     <string name="open_in_system">在系統中開啟</string>
+    <string name="open_in_app">在 %1$s 中開啟</string>
     <string name="restart">重新啟動</string>
     <string name="setting_block_local_network">封鎖本機網路存取</string>
     <string name="setting_block_webrtc_ip_leak">封鎖 WebRTC IP 洩漏</string>

@@ -8,7 +8,7 @@ data class LinkTarget(val link: UnwrappedLink?, val address: String, val text: S
 
     /** The title line: the text, unless it is missing or only repeats the address. */
     val title: String?
-        get() = text?.trim()?.takeIf { it.isNotEmpty() && it != address && it != shownAddress }
+        get() = text?.trim()?.takeIf { it.isNotEmpty() && bareAddress(it) != bareAddress(address) }
 
     val shownAddress: String get() = displayAddress(address)
 
@@ -25,15 +25,11 @@ data class LinkTarget(val link: UnwrappedLink?, val address: String, val text: S
     }
 }
 
-/**
- * An address as the target shows it: the whole of it, path and query included, without the
- * scheme or a leading `www.`; a data URL by its type.
- */
 internal fun displayAddress(address: String): String {
-    if (address.startsWith("data:", ignoreCase = true)) {
-        return address.substringBefore(',').substring("data:".length).substringBefore(';')
-            .ifEmpty { "data:" }
-    }
-    val withoutScheme = address.substringAfter("://", address)
-    return withoutScheme.removePrefix("www.").trimEnd('/').ifEmpty { address }
+    if (!address.startsWith("data:", ignoreCase = true)) return address
+    return address.substringBefore(',').substring("data:".length).substringBefore(';').ifEmpty { "data:" }
 }
+
+/** The address as pages often write it in link text: without the scheme, `www.` or a trailing slash. */
+private fun bareAddress(address: String): String =
+    address.substringAfter("://", address).lowercase().removePrefix("www.").trimEnd('/')

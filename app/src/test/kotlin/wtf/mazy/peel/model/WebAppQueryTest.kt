@@ -99,4 +99,23 @@ class WebAppQueryTest {
         )
         cases.forEach { (url, expected) -> assertEquals(url, expected, apps.onHostOf(url).map { it.title }) }
     }
+
+    @Test
+    fun addingIsRedundantOnlyForARelatedWebAppThatIsNotPrivate() {
+        val youTube = WebApp(baseUrl = "https://m.youtube.com", title = "YouTube")
+        val docs = WebApp(baseUrl = "https://docs.example.com", title = "Docs")
+        val shared = EffectiveSandbox.Shared(contextId = null, ephemeral = false, route = ProxyRoute.Direct)
+        data class Case(val name: String, val apps: List<WebApp>, val related: Set<WebApp>, val private: Set<WebApp>, val expected: Boolean)
+        val cases = listOf(
+            Case("a related web app", listOf(youTube, docs), setOf(youTube), emptySet(), true),
+            Case("none related", listOf(docs), emptySet(), emptySet(), false),
+            Case("only a private one related", listOf(youTube, docs), setOf(youTube), setOf(youTube), false),
+            Case("a private and a real one related", listOf(youTube, docs), setOf(youTube, docs), setOf(youTube), true),
+            Case("no web apps", emptyList(), emptySet(), emptySet(), false),
+        )
+        cases.forEach { case ->
+            val sandboxOf = { app: WebApp -> if (app in case.private) EffectiveSandbox.Private else shared }
+            assertEquals(case.name, case.expected, case.apps.hasWebAppRelatedTo(case.related::contains, sandboxOf))
+        }
+    }
 }

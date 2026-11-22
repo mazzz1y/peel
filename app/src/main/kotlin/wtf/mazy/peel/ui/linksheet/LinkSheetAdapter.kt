@@ -2,6 +2,7 @@ package wtf.mazy.peel.ui.linksheet
 
 import android.view.View
 import androidx.annotation.DrawableRes
+import androidx.core.view.isVisible
 import wtf.mazy.peel.R
 import wtf.mazy.peel.model.LinkOrigin
 import wtf.mazy.peel.model.LinkSheetRow
@@ -29,6 +30,8 @@ internal class LinkSheetAdapter(
     override fun layoutRes(): Int = R.layout.web_app_list_item
     override fun createViewHolder(view: View): WebAppRowHolder = WebAppRowHolder(view).apply {
         menuButton.importantForAccessibility = View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        // Beside the installed apps above, Peel's web apps carry its mark.
+        view.findViewById<View>(R.id.item_badge).isVisible = true
     }
 
     override fun bindRow(holder: WebAppRowHolder, row: EntityRow<LinkSheetRow>) {

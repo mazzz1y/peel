@@ -8,6 +8,7 @@ import wtf.mazy.peel.model.LinkChoice
 import wtf.mazy.peel.ui.dialog.AddWebAppDialog
 import wtf.mazy.peel.util.BrowserLauncher
 import wtf.mazy.peel.util.Const
+import wtf.mazy.peel.util.openInApp
 import wtf.mazy.peel.util.openInSystem
 import wtf.mazy.peel.util.shareText
 
@@ -19,6 +20,7 @@ fun AppCompatActivity.openElsewhere(choice: LinkChoice.Elsewhere, onDone: () -> 
         is LinkChoice.System -> openInSystem(
             Intent(Intent.ACTION_VIEW, choice.url.toUri()).addCategory(Intent.CATEGORY_BROWSABLE),
         )
+        is LinkChoice.ExternalApp -> openInApp(choice.url, choice.app)
         // Peel's own share target is left out, so the link can't come back into the sheet.
         is LinkChoice.Share -> shareText(
             choice.url,

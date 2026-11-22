@@ -214,6 +214,7 @@
     <string name="remove_override">Удалить переопределение</string>
     <string name="overridden_settings">Переопределённые настройки</string>
     <string name="add">Добавить</string>
+    <string name="add_to_peel">Добавить в Peel</string>
     <string name="add_domain">Добавить адрес</string>
     <string name="add_site_exception">Добавить исключение</string>
     <string name="add_certificate">Добавить сертификат</string>
@@ -286,6 +287,7 @@
     <string name="group_not_found">Группа больше недоступна</string>
     <string name="icon_dimensions_source">%1$dx%2$d · %3$s</string>
     <string name="open_in_system">Открыть в системе</string>
+    <string name="open_in_app">Открыть в %1$s</string>
     <string name="restart">Перезапустить</string>
     <string name="setting_block_local_network">Блокировка локальной сети</string>
     <string name="setting_block_webrtc_ip_leak">Блокировка утечки IP через WebRTC</string>

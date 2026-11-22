@@ -109,6 +109,8 @@ object EntityRowAnimator {
     private fun visibleIndicators(host: EntityRowView): List<ImageView> =
         host.indicators.filter { it.isVisible }
 
-    private fun indicatorSlide(menuButton: View, indicator: View): Float =
-        (menuButton.width + indicator.width) / 2f
+    private fun indicatorSlide(menuButton: View, indicator: View): Float {
+        val slide = (menuButton.width + indicator.width) / 2f
+        return if (menuButton.layoutDirection == View.LAYOUT_DIRECTION_RTL) -slide else slide
+    }
 }

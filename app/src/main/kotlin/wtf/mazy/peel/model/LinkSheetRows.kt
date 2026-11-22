@@ -15,6 +15,14 @@ object LinkSheetRows {
         is LinkOrigin.Window -> all
     }
 
+    private const val RESTING_WEB_APPS = 3
+
+    fun restingCount(rows: List<LinkSheetRow>, related: (WebApp) -> Boolean): Int {
+        val window = rows.count { it is LinkSheetRow.CurrentWindow }
+        val apps = rows.drop(window).take(RESTING_WEB_APPS).takeWhile { it is LinkSheetRow.App && related(it.app) }
+        return window + apps.size
+    }
+
     /** Whether, before any search, there is somewhere to open the link. */
     fun hasRows(candidates: List<WebApp>, origin: LinkOrigin): Boolean =
         origin is LinkOrigin.Window || candidates.isNotEmpty()

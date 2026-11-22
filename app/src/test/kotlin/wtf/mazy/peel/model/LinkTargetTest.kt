@@ -6,15 +6,15 @@ import org.junit.Test
 class LinkTargetTest {
 
     @Test
-    fun addressDropsSchemeAndLeadingWww() {
+    fun addressIsShownWholeExceptInlineData() {
         val cases = listOf(
-            "https://blog.example.com/kotlin-2-4" to "blog.example.com/kotlin-2-4",
-            "http://www.example.com/" to "example.com",
-            "https://example.com/a?ref=1#top" to "example.com/a?ref=1#top",
-            "https://www2.example.com/" to "www2.example.com",
+            "https://blog.example.com/kotlin-2-4" to "https://blog.example.com/kotlin-2-4",
+            "http://www.example.com/" to "http://www.example.com/",
+            "https://example.com/a?ref=1#top" to "https://example.com/a?ref=1#top",
+            "blob:https://example.com/0f3a" to "blob:https://example.com/0f3a",
             "data:image/png;base64,AAAA" to "image/png",
+            "DATA:image/gif,AAAA" to "image/gif",
             "data:,hello" to "data:",
-            "blob:https://example.com/0f3a" to "example.com/0f3a",
         )
         cases.forEach { (address, shown) -> assertEquals(address, shown, displayAddress(address)) }
     }
@@ -29,6 +29,9 @@ class LinkTargetTest {
             "   " to null,
             url to null,
             "news.example.com/a" to null,
+            "www.news.example.com/a/" to null,
+            "WWW.News.Example.com/a" to null,
+            "news.example.com" to "news.example.com",
             null to null,
         )
         cases.forEach { (text, title) ->

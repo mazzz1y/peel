@@ -16,7 +16,9 @@ sealed interface LinkPromptOutcome {
         val abandonsWindow: Boolean get() = elsewhere !is LinkChoice.App
 
         /** Whether the link leaves for another app, so this window's page is only passed through. */
-        val leavesPeel: Boolean get() = elsewhere is LinkChoice.System || elsewhere is LinkChoice.Incognito
+        val leavesPeel: Boolean
+            get() = elsewhere is LinkChoice.System || elsewhere is LinkChoice.ExternalApp ||
+                elsewhere is LinkChoice.Incognito
     }
 
     companion object {

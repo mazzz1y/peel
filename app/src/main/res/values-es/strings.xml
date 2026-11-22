@@ -165,6 +165,7 @@
     <string name="remove_override">Eliminar anulación</string>
     <string name="overridden_settings">Anulaciones de configuración</string>
     <string name="add">Añadir</string>
+    <string name="add_to_peel">Añadir a Peel</string>
     <string name="add_domain">Añadir dirección</string>
     <string name="add_site_exception">Añadir excepción de sitio</string>
     <string name="add_certificate">Añadir certificado</string>
@@ -272,6 +273,7 @@
     <string name="group_not_found">El grupo ya no está disponible</string>
     <string name="icon_dimensions_source">%1$dx%2$d · %3$s</string>
     <string name="open_in_system">Abrir en el sistema</string>
+    <string name="open_in_app">Abrir en %1$s</string>
     <string name="permission_prompt_allow">Permitir</string>
     <string name="permission_prompt_deny">Denegar</string>
     <string name="permission_prompt_remember">Recordar durante esta sesión</string>
