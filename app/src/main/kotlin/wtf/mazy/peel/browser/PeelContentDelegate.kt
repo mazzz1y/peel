@@ -68,10 +68,15 @@ class PeelContentDelegate(
             fullscreenSession = session
             host.onWebFullscreenEnter()
         } else {
-            isWebFullscreen = false
-            fullscreenSession = null
-            host.onWebFullscreenExit()
+            leaveFullscreen()
         }
+    }
+
+    private fun leaveFullscreen() {
+        if (!isWebFullscreen) return
+        isWebFullscreen = false
+        fullscreenSession = null
+        host.onWebFullscreenExit()
     }
 
     override fun onExternalResponse(session: GeckoSession, response: WebResponse) {
@@ -100,12 +105,19 @@ class PeelContentDelegate(
         host.runOnUi { host.onWindowCloseRequest() }
     }
 
+    // Gecko sends no fullscreen exit for content that dies in it.
     override fun onKill(session: GeckoSession) {
-        host.runOnUi { host.onProcessKilled() }
+        host.runOnUi {
+            leaveFullscreen()
+            host.onProcessKilled()
+        }
     }
 
     override fun onCrash(session: GeckoSession) {
-        host.runOnUi { host.onContentCrashed() }
+        host.runOnUi {
+            leaveFullscreen()
+            host.onContentCrashed()
+        }
     }
 
     companion object {

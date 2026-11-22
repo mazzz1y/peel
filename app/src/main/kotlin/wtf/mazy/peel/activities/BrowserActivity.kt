@@ -621,9 +621,7 @@ class BrowserActivity : BaseSessionHost() {
     private fun applyVisualSettings(settings: EffectiveSettings) {
         applyWindowFlags(settings)
         pullToRefreshController.update(settings)
-        if (settings.showFullscreen) systemBarController.hide() else systemBarController.show(
-            false
-        )
+        if (settings.showFullscreen || isWebFullscreen) systemBarController.hide() else systemBarController.show(false)
     }
 
     private fun bindViews() {

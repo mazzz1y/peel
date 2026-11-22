@@ -3,6 +3,7 @@ package wtf.mazy.peel.browser
 import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.content.res.Resources
@@ -157,9 +158,13 @@ abstract class BaseSessionHost :
 
     override fun applyWebOrientation(orientation: Int): Boolean {
         if (isSingleWindowHost()) return false
-        requestedOrientation = orientation
+        // Gecko unlocks again as a released session resumes, with the video still fullscreen.
+        unlockAtFullscreenExit = orientation == ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED && isWebFullscreen
+        if (!unlockAtFullscreenExit) requestedOrientation = orientation
         return true
     }
+
+    private var unlockAtFullscreenExit = false
 
     protected abstract val showToolbar: Boolean
     protected abstract val isBrowserHost: Boolean
@@ -1199,7 +1204,6 @@ abstract class BaseSessionHost :
         browserControls?.remove()
         browserControls = null
         appliedControlsMode = null
-        browserControlsFullscreen = false
     }
 
     // collapsing the height, not the visibility: the scrolling-view behaviour offsets content by
@@ -1267,6 +1271,7 @@ abstract class BaseSessionHost :
     }
 
     override fun onWebFullscreenExit() {
+        if (unlockAtFullscreenExit) applyWebOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED)
         systemBarController.show(effectiveSettings.showFullscreen)
         setToolbarFullscreen(false)
         setBrowserControlsFullscreen(false)

@@ -23,7 +23,9 @@ object ForegroundActivityTracker : Application.ActivityLifecycleCallbacks {
 
     override fun onActivityPaused(activity: Activity) = Unit
 
-    override fun onActivityStopped(activity: Activity) = Unit
+    override fun onActivityStopped(activity: Activity) {
+        if (currentRef?.get() === activity) currentRef = null
+    }
 
     override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) = Unit
 
