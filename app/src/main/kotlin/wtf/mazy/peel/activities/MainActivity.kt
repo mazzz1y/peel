@@ -40,6 +40,7 @@ import wtf.mazy.peel.ui.common.LoadingDialogController
 import wtf.mazy.peel.ui.common.PeelActivity
 import wtf.mazy.peel.ui.common.animateReflow
 import wtf.mazy.peel.ui.common.runWithLoader
+import wtf.mazy.peel.ui.common.slideTo
 import wtf.mazy.peel.ui.dialog.AddWebAppDialog
 import wtf.mazy.peel.ui.dialog.ImportFlowController
 import wtf.mazy.peel.ui.entitylist.EntityListAnimations
@@ -117,6 +118,8 @@ class MainActivity :
         // ViewPager2's inner RecyclerView is focusable and traps D-pad focus with no highlight,
         // making the FAB unreachable
         viewPager.getChildAt(0).isFocusable = false
+        // Neighbours laid out keep tab slides exact under main-thread stalls; see slideTo.
+        viewPager.offscreenPageLimit = 1
         exportLoader = LoadingDialogController(this)
 
         EntityListAnimations.bindFabResizeOnRotation(this, fab)
@@ -213,6 +216,16 @@ class MainActivity :
             TabLayoutMediator(tabLayout, viewPager) { tab, position ->
                 tab.text = pagerAdapter.getPageTitle(position)
             }.attach()
+            // Runs before the mediator's own listener, whose scroll to the then current page is a
+            // no-op. A swipe or a switch made by the app moves the pager before the tab.
+            tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+                override fun onTabSelected(tab: TabLayout.Tab) {
+                    if (tab.position != viewPager.currentItem) viewPager.slideTo(tab.position)
+                }
+
+                override fun onTabUnselected(tab: TabLayout.Tab) = Unit
+                override fun onTabReselected(tab: TabLayout.Tab) = Unit
+            })
             restoreSelection(savedInstanceState)
             renderChrome(animated = false)
             repeatOnLifecycle(Lifecycle.State.STARTED) {
