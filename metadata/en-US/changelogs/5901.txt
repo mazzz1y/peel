@@ -1,0 +1,2 @@
+- Add a "This window" button to the link sheet
+- Fix the link sheet's buttons not scrolling sideways
