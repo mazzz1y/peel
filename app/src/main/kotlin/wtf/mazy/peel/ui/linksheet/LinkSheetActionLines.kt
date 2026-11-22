@@ -11,10 +11,11 @@ import androidx.core.view.updatePaddingRelative
 import wtf.mazy.peel.R
 
 /**
- * The link sheet's groups of actions: side by side when they all fit across the sheet, else one
- * line each. Each group is a sideways-scrolling view around a row of buttons; the sheet's inset
- * is the rows' own padding, so a line that scrolls carries its buttons to the edge, and side by
- * side only the outer rows keep it, leaving the button gap between groups.
+ * The link sheet's groups of actions: side by side when they fit across the sheet, or would but
+ * for less than half of the last button, the enclosing scroll view then scrolling the line; else
+ * one line each. Each group is a sideways-scrolling view around a row of buttons; the sheet's
+ * inset is the rows' own padding, so a line that scrolls carries its buttons to the edge, and side
+ * by side only the outer rows keep it, leaving the button gap between groups.
  */
 class LinkSheetActionLines @JvmOverloads constructor(
     context: Context,
@@ -36,7 +37,9 @@ class LinkSheetActionLines @JvmOverloads constructor(
             group.actionRow.measure(unbounded, unbounded)
             group.actionRow.measuredWidth - group.actionRow.paddingStart - group.actionRow.paddingEnd
         }
-        oneLine = groups.size > 1 && buttons.sum() + buttonGap * (groups.size - 1) + 2 * inset <= width
+        val lineWidth = buttons.sum() + buttonGap * (groups.size - 1) + 2 * inset
+        val lastButton = groups.lastOrNull()?.actionRow?.children?.lastOrNull { it.isVisible }?.measuredWidth ?: 0
+        oneLine = groups.size > 1 && lineWidth - width <= lastButton / 2
         var height = 0
         groups.forEachIndexed { i, group ->
             val start = if (!oneLine || i == 0) inset else 0
@@ -49,7 +52,7 @@ class LinkSheetActionLines @JvmOverloads constructor(
                 else -> height + group.measuredHeight + if (i > 0) lineGap else 0
             }
         }
-        setMeasuredDimension(width, resolveSize(height, heightMeasureSpec))
+        setMeasuredDimension(if (oneLine) maxOf(lineWidth, width) else width, resolveSize(height, heightMeasureSpec))
     }
 
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {

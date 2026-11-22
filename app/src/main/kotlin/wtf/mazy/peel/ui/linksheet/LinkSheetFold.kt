@@ -3,6 +3,7 @@ package wtf.mazy.peel.ui.linksheet
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
+import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
 import androidx.core.view.updateLayoutParams
 import androidx.recyclerview.widget.RecyclerView
@@ -83,6 +84,8 @@ internal class LinkSheetFold(
     }
 
     private fun peekHeight(): Int? {
+        // The list's bottom padding carries the navigation bar's inset, which the actions must clear.
+        if (resting == 0) return apps.top + list.paddingBottom
         val next = list.findViewHolderForAdapterPosition(resting)?.itemView ?: return null
         return apps.top + next.top + next.height / 2
     }
@@ -103,6 +106,9 @@ internal class LinkSheetFold(
         }
         header.isVisible = progress < 1f
         header.alpha = (1f - 2f * progress).coerceIn(0f, 1f)
+        // The collapsed sheet runs on below the screen, and the first card would show above the
+        // navigation bar.
+        list.isInvisible = folds && resting == 0 && progress == 0f
         bar.isVisible = progress > 0f
         bar.alpha = (2f * progress - 1f).coerceIn(0f, 1f)
         val barHeight = (bar.layoutParams as ViewGroup.MarginLayoutParams).let { it.height + it.bottomMargin }

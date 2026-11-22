@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/linkSheetHeader"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -62,88 +63,99 @@
 
     </com.google.android.material.card.MaterialCardView>
 
-    <wtf.mazy.peel.ui.linksheet.LinkSheetActionLines
-        android:id="@+id/linkSheetActions"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+    <!-- Only one of the two scrolls at a time: this one when the groups share a line, each group
+         sized to its buttons; a group's own when it has a line to itself, this one then the
+         sheet's width. -->
+    <HorizontalScrollView
+        android:id="@+id/linkSheetActionsScroll"
+        style="@style/LinkSheetActionRow"
         android:layout_marginTop="@dimen/link_sheet_actions_margin_top"
-        android:layout_marginBottom="@dimen/link_sheet_actions_margin_bottom">
+        android:layout_marginBottom="@dimen/link_sheet_actions_margin_bottom"
+        android:fillViewport="true"
+        tools:ignore="NestedScrolling">
 
-        <HorizontalScrollView
-            android:id="@+id/linkSheetLinkRowScroll"
-            style="@style/LinkSheetActionRow">
+        <wtf.mazy.peel.ui.linksheet.LinkSheetActionLines
+            android:id="@+id/linkSheetActions"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
 
-            <LinearLayout
-                android:id="@+id/linkSheetLinkRow"
-                style="@style/LinkSheetActionRowButtons">
+            <HorizontalScrollView
+                android:id="@+id/linkSheetOpenRowScroll"
+                style="@style/LinkSheetActionRow">
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/linkSheetAdd"
-                    style="@style/Widget.App.LinkSheetAction"
-                    android:text="@string/add_to_peel"
-                    app:icon="@drawable/ic_symbols_add_24" />
+                <LinearLayout
+                    android:id="@+id/linkSheetOpenRow"
+                    style="@style/LinkSheetActionRowButtons">
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/linkSheetSearch"
-                    style="@style/Widget.App.LinkSheetAction"
-                    android:text="@string/search"
-                    android:visibility="gone"
-                    app:icon="@drawable/ic_symbols_search_24" />
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/linkSheetIncognito"
+                        style="@style/Widget.App.LinkSheetAction"
+                        android:text="@string/incognito"
+                        app:icon="@mipmap/ic_launcher"
+                        app:iconTint="@null" />
 
-            </LinearLayout>
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/linkSheetSystem"
+                        style="@style/Widget.App.LinkSheetAction"
+                        android:text="@string/open_in_system"
+                        android:visibility="gone"
+                        app:icon="@drawable/ic_symbols_open_in_new_24" />
 
-        </HorizontalScrollView>
+                </LinearLayout>
 
-        <HorizontalScrollView
-            android:id="@+id/linkSheetOpenRowScroll"
-            style="@style/LinkSheetActionRow">
+            </HorizontalScrollView>
 
-            <LinearLayout
-                android:id="@+id/linkSheetOpenRow"
-                style="@style/LinkSheetActionRowButtons">
+            <HorizontalScrollView
+                android:id="@+id/linkSheetLinkRowScroll"
+                style="@style/LinkSheetActionRow">
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/linkSheetSystem"
-                    style="@style/Widget.App.LinkSheetAction"
-                    android:text="@string/open_in_system"
-                    android:visibility="gone"
-                    app:icon="@drawable/ic_symbols_open_in_new_24" />
+                <LinearLayout
+                    android:id="@+id/linkSheetLinkRow"
+                    style="@style/LinkSheetActionRowButtons">
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/linkSheetIncognito"
-                    style="@style/Widget.App.LinkSheetAction"
-                    android:text="@string/incognito"
-                    app:icon="@mipmap/ic_launcher"
-                    app:iconTint="@null" />
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/linkSheetAdd"
+                        style="@style/Widget.App.LinkSheetAction"
+                        android:text="@string/add_to_peel"
+                        app:icon="@drawable/ic_symbols_add_24" />
 
-            </LinearLayout>
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/linkSheetSearch"
+                        style="@style/Widget.App.LinkSheetAction"
+                        android:text="@string/search"
+                        android:visibility="gone"
+                        app:icon="@drawable/ic_symbols_search_24" />
 
-        </HorizontalScrollView>
+                </LinearLayout>
 
-        <HorizontalScrollView
-            android:id="@+id/linkSheetImageRowScroll"
-            style="@style/LinkSheetActionRow">
+            </HorizontalScrollView>
 
-            <LinearLayout
-                android:id="@+id/linkSheetImageRow"
-                style="@style/LinkSheetActionRowButtons">
+            <HorizontalScrollView
+                android:id="@+id/linkSheetImageRowScroll"
+                style="@style/LinkSheetActionRow">
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/linkSheetDownloadImage"
-                    style="@style/Widget.App.LinkSheetAction"
-                    android:text="@string/download_image"
-                    app:icon="@drawable/ic_symbols_download_24" />
+                <LinearLayout
+                    android:id="@+id/linkSheetImageRow"
+                    style="@style/LinkSheetActionRowButtons">
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/linkSheetShareImage"
-                    style="@style/Widget.App.LinkSheetAction"
-                    android:text="@string/share_image"
-                    app:icon="@drawable/ic_symbols_share_24" />
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/linkSheetDownloadImage"
+                        style="@style/Widget.App.LinkSheetAction"
+                        android:text="@string/download_image"
+                        app:icon="@drawable/ic_symbols_download_24" />
 
-            </LinearLayout>
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/linkSheetShareImage"
+                        style="@style/Widget.App.LinkSheetAction"
+                        android:text="@string/share_image"
+                        app:icon="@drawable/ic_symbols_share_24" />
 
-        </HorizontalScrollView>
+                </LinearLayout>
 
-    </wtf.mazy.peel.ui.linksheet.LinkSheetActionLines>
+            </HorizontalScrollView>
+
+        </wtf.mazy.peel.ui.linksheet.LinkSheetActionLines>
+
+    </HorizontalScrollView>
 
 </LinearLayout>
